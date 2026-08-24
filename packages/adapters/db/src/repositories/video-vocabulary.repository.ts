@@ -67,6 +67,12 @@ export const videoVocabularyRepository = {
       .where(eq(videoProcesses.id, processId));
   },
 
+  /** Language on create is a guess from user settings; refine it once the real transcript language is known. */
+  async updateProcessLanguage(processId: number, language: string) {
+    const db = getDb();
+    await db.update(videoProcesses).set({ language, updatedAt: new Date() }).where(eq(videoProcesses.id, processId));
+  },
+
   /** Mark processes stuck in pending/processing for longer than maxAgeMinutes as failed. */
   async expireStaleProcesses(maxAgeMinutes: number): Promise<number> {
     const db = getDb();

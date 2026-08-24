@@ -20,6 +20,7 @@ import { clearRequestSettings } from "../../middlewares/request-settings.js";
 import type { BotContext } from "../../types.js";
 import { replyTechnical } from "../../utils/message-cleanup.js";
 import { editMessageReplyMarkupOrIgnore } from "./edit-message.helper.js";
+import { answerStaleCallback } from "./stale-callback.helper.js";
 import { handleMistypeConfirmCallback } from "./translate-flow.js";
 import { clearPendingClarification, getUserLanguageGroup, normalizeLearningLangs } from "./translate-mode.shared.js";
 
@@ -66,8 +67,12 @@ export async function handleOutOfSetCallback(ctx: BotContext): Promise<void> {
   // language no longer matches the entry stored for this message.
   if (!pending || (!isAdd && !isOnce) || !isSupportedLanguage(sourceLang) || sourceLang !== pending.lang) {
     settle();
-    await ctx.answerCallbackQuery({ text: t("staleSession", lang), show_alert: true });
     await removeKeyboard();
+    await answerStaleCallback(ctx, {
+      action: "tr:oos",
+      lang,
+      ...(pending?.word !== undefined && { word: pending.word }),
+    });
     return;
   }
 
@@ -183,15 +188,20 @@ export async function handleLangSelectCallback(ctx: BotContext): Promise<void> {
   });
 
   if (!direction) {
+    // Read the pending input before the reset below wipes it — it is what lets
+    // the stale answer offer a retry instead of a dead end.
+    const pendingWord = ctx.session.pendingWord;
+    const pendingContextHint = ctx.session.pendingContextHint;
     ctx.session.pendingDetectedLang = undefined;
     ctx.session.pendingWord = undefined;
     ctx.session.pendingContextHint = undefined;
     ctx.session.pendingDirection = undefined;
     clearPendingClarification(ctx);
 
-    await ctx.answerCallbackQuery({
-      text: "⚠️ Session expired. Please translate the word again.",
-      show_alert: true,
+    await answerStaleCallback(ctx, {
+      action: "tr:langselect",
+      ...(pendingWord !== undefined && { word: pendingWord }),
+      ...(pendingContextHint !== undefined && { contextHint: pendingContextHint }),
     });
     return;
   }
@@ -224,7 +234,7 @@ export async function handleSrcLangOverrideCallback(ctx: BotContext): Promise<vo
 
   const entry = ctx.session.translationMap?.[msgId];
   if (!entry) {
-    await ctx.answerCallbackQuery({ text: t("staleSession", lang), show_alert: true });
+    await answerStaleCallback(ctx, { action: "tr:srclang", msgId, lang });
     return;
   }
 

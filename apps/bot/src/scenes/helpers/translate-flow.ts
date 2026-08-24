@@ -70,6 +70,7 @@ import { parseTranslateInput } from "../../utils/parse-translate-input.js";
 import { encodeTranslateRetryText, replyWithRetry } from "../../utils/retry-action.js";
 import { validateTranslatableText } from "../../utils/validate-text-input.js";
 import { resolveLockedFeatures } from "./paid-feature.helper.js";
+import { answerStaleCallback } from "./stale-callback.helper.js";
 import { buildUpgradeKeyboard } from "./subscription.helper.js";
 import {
   clearPendingClarification,
@@ -1151,12 +1152,11 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
     // synchronously in that case (grammy's orThrow), so a `.catch()` cannot save
     // it — the guard must come first.
     if (ctx.callbackQuery) {
-      await ctx
-        .answerCallbackQuery({
-          text: "⚠️ Session expired. Please translate the word again.",
-          show_alert: true,
-        })
-        .catch(() => {});
+      await answerStaleCallback(ctx, {
+        action: "tr:mistype:confirm",
+        ...(pendingWord !== undefined && { word: pendingWord }),
+        ...(pendingContextHint !== undefined && { contextHint: pendingContextHint }),
+      });
     }
     return;
   }

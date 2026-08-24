@@ -34,6 +34,7 @@ import { isUserFacingTimeout, LONG_OP_TIMEOUT_MS, loadingKeyboard, withTimeout }
 import { toVocabularyInput } from "../../utils/vocabulary-mapper.js";
 import { editMessageReplyMarkupOrIgnore, editMessageTextOrReply } from "./edit-message.helper.js";
 import { ensurePaidFeature, resolveLockedFeatures } from "./paid-feature.helper.js";
+import { answerStaleCallback } from "./stale-callback.helper.js";
 import { isEtymologyEligible, resolvePronounceLangs } from "./translate-mode.shared.js";
 import { setTranslationEntry } from "./translation-map.helper.js";
 
@@ -47,14 +48,7 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
   const entry = ctx.session.translationMap?.[String(msgId)];
 
   if (!entry) {
-    // The "session expired" report users file: the button is live, the state
-    // behind it is gone. Paired with `session.miss`, this pins down whether the
-    // session was lost or merely evicted from the in-memory map.
-    logEvent("vocabulary.save_state_lost", { msgId }, "warn");
-    await ctx.answerCallbackQuery({
-      text: "⚠️ Session expired. Please translate the word again.",
-      show_alert: true,
-    });
+    await answerStaleCallback(ctx, { action: "tr:save", msgId });
     return;
   }
 
@@ -194,10 +188,7 @@ export async function handleAltMeaningCallback(ctx: BotContext): Promise<void> {
   const entry = ctx.session.translationMap?.[String(msgId)];
 
   if (!entry) {
-    await ctx.answerCallbackQuery({
-      text: "⚠️ Session expired. Please translate the word again.",
-      show_alert: true,
-    });
+    await answerStaleCallback(ctx, { action: "tr:altmeaning", msgId });
     return;
   }
 
@@ -333,10 +324,7 @@ export async function handleGrammarBreakdownCallback(ctx: BotContext): Promise<v
   const entry = ctx.session.translationMap?.[String(msgId)];
 
   if (!entry) {
-    await ctx.answerCallbackQuery({
-      text: "⚠️ Session expired. Please translate the word again.",
-      show_alert: true,
-    });
+    await answerStaleCallback(ctx, { action: "tr:grammar", msgId });
     return;
   }
 
@@ -407,10 +395,7 @@ export async function handleEtymologyCallback(ctx: BotContext): Promise<void> {
   const entry = ctx.session.translationMap?.[String(msgId)];
 
   if (!entry) {
-    await ctx.answerCallbackQuery({
-      text: "⚠️ Session expired. Please translate the word again.",
-      show_alert: true,
-    });
+    await answerStaleCallback(ctx, { action: "tr:etymology", msgId });
     return;
   }
 
@@ -534,10 +519,7 @@ export async function handleGrammarDetailCallback(ctx: BotContext): Promise<void
   const entry = ctx.session.translationMap?.[String(msgId)];
 
   if (!entry?.grammarBreakdown) {
-    await ctx.answerCallbackQuery({
-      text: "⚠️ Session expired. Please translate the word again.",
-      show_alert: true,
-    });
+    await answerStaleCallback(ctx, { action: "tr:gramdetail", msgId });
     return;
   }
 
@@ -575,10 +557,7 @@ export async function handleGrammarLangSelectCallback(ctx: BotContext): Promise<
 
   const entry = ctx.session.translationMap?.[String(msgId)];
   if (!entry) {
-    await ctx.answerCallbackQuery({
-      text: "⚠️ Session expired. Please translate the word again.",
-      show_alert: true,
-    });
+    await answerStaleCallback(ctx, { action: "tr:gramlang", msgId });
     return;
   }
 

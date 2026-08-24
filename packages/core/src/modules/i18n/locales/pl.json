@@ -42,6 +42,7 @@
   "translationError": "❌ Tłumaczenie nie powiodło się. Spróbuj ponownie później.",
   "genericError": "⚠️ Coś poszło nie tak. Spróbuj ponownie.",
   "staleSession": "⚠️ Sesja wygasła. Wyślij słowo do tłumaczenia jeszcze raz.",
+  "staleCardRetryPrompt": "⌛ Ta karta wygasła. Dotknij poniżej, aby ponownie przetłumaczyć „{word}”.",
   "translationUnavailable": "⚠️ Tłumaczenie chwilowo niedostępne. Spróbuj ponownie.",
   "contextMarkerNeedsText": "Wpisz słowo lub wyrażenie przed znacznikiem kontekstu.",
   "inputRejectedEmpty": "Wyślij tekst do przetłumaczenia.",

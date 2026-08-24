@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-23T21:18:02.000Z",
+  "generatedAt": "2026-08-24T14:14:02.000Z",
   "summary": {
-    "total": 2901,
+    "total": 2921,
     "business": 0,
-    "technical": 2901,
+    "technical": 2921,
     "workspaces": [
       "apps",
       "packages"
@@ -2647,10 +2647,10 @@
       "description": "Protects the bot build Flash Card Done Keyboard behavior so has fc:restart and fc:close buttons."
     },
     {
-      "id": "apps-bot-src-tests-integration-callback-regressions-integration-test-ts-49-callback-regressions-integration-answers-session-expired-for-a-card-whose-translationmap-entry-is-missing",
+      "id": "apps-bot-src-tests-integration-callback-regressions-integration-test-ts-72-callback-regressions-integration-answers-session-expired-for-a-card-whose-translationmap-entry-is-missing",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/callback-regressions.integration.test.ts",
-      "sourceLine": 49,
+      "sourceLine": 72,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2663,10 +2663,10 @@
       "description": "Protects the bot callback regressions (integration) behavior so answers 'session expired' for a card whose translation Map entry is missing."
     },
     {
-      "id": "apps-bot-src-tests-integration-callback-regressions-integration-test-ts-60-callback-regressions-integration-evicts-the-oldest-card-but-keeps-a-recent-one-resolvable-1e6407c",
+      "id": "apps-bot-src-tests-integration-callback-regressions-integration-test-ts-83-callback-regressions-integration-evicts-the-oldest-card-but-keeps-a-recent-one-resolvable-1e6407c",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/callback-regressions.integration.test.ts",
-      "sourceLine": 60,
+      "sourceLine": 83,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2679,10 +2679,10 @@
       "description": "Protects the bot callback regressions (integration) behavior so evicts the oldest card but keeps a recent one resolvable (1e6407c)."
     },
     {
-      "id": "apps-bot-src-tests-integration-callback-regressions-integration-test-ts-92-callback-regressions-integration-falls-back-to-a-reply-when-telegram-rejects-the-card-edit-48h-limit-d9b330f",
+      "id": "apps-bot-src-tests-integration-callback-regressions-integration-test-ts-112-callback-regressions-integration-falls-back-to-a-reply-when-telegram-rejects-the-card-edit-48h-limit-d9b330f",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/callback-regressions.integration.test.ts",
-      "sourceLine": 92,
+      "sourceLine": 112,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2693,6 +2693,38 @@
       "name": "Bot callback regressions (integration) falls back to a reply when Telegram rejects the card edit (48h limit, d9b330f)",
       "value": "Protects the bot callback regressions (integration) behavior: falls back to a reply when Telegram rejects the card edit (48h limit, d9b330f).",
       "description": "Protects the bot callback regressions (integration) behavior: falls back to a reply when Telegram rejects the card edit (48h limit, d9b330f)."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-callback-regressions-integration-test-ts-132-callback-regressions-integration-offers-a-one-tap-re-translate-on-an-expired-card-and-the-button-re-runs-it",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/callback-regressions.integration.test.ts",
+      "sourceLine": 132,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "callback regressions (integration)"
+      ],
+      "title": "offers a one-tap re-translate on an expired card, and the button re-runs it",
+      "rawTitle": "offers a one-tap re-translate on an expired card, and the button re-runs it",
+      "name": "Bot callback regressions (integration) offers a one tap re translate on an expired card, and the button re runs it",
+      "value": "Protects the bot callback regressions (integration) behavior so offers a one tap re translate on an expired card, and the button re runs it.",
+      "description": "Protects the bot callback regressions (integration) behavior so offers a one tap re translate on an expired card, and the button re runs it."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-callback-regressions-integration-test-ts-165-callback-regressions-integration-answers-an-expired-card-in-the-user-s-interface-language",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/callback-regressions.integration.test.ts",
+      "sourceLine": 165,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "callback regressions (integration)"
+      ],
+      "title": "answers an expired card in the user's interface language",
+      "rawTitle": "answers an expired card in the user's interface language",
+      "name": "Bot callback regressions (integration) answers an expired card in the user's interface language",
+      "value": "Protects the bot callback regressions (integration) behavior so answers an expired card in the user's interface language.",
+      "description": "Protects the bot callback regressions (integration) behavior so answers an expired card in the user's interface language."
     },
     {
       "id": "apps-bot-src-tests-integration-main-keyboard-integration-test-ts-47-main-menu-keyboard-integration-survives-the-technical-message-cleanup-that-every-translation-runs",
@@ -3525,6 +3557,38 @@
       "name": "Bot word pronunciation (integration) tells the user the card expired when the session entry is gone",
       "value": "Protects the bot word pronunciation (integration) behavior so tells the user the card expired when the session entry is gone.",
       "description": "Protects the bot word pronunciation (integration) behavior so tells the user the card expired when the session entry is gone."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-video-vocabulary-integration-test-ts-103-video-vocabulary-flow-integration-completes-a-video-whose-transcript-falls-back-to-another-language-and-persists-the-detected-one",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/video-vocabulary.integration.test.ts",
+      "sourceLine": 103,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "video vocabulary flow (integration)"
+      ],
+      "title": "completes a video whose transcript falls back to another language and persists the detected one",
+      "rawTitle": "completes a video whose transcript falls back to another language and persists the detected one",
+      "name": "Bot video vocabulary flow (integration) completes a video whose transcript falls back to another language and persists the detected one",
+      "value": "Protects the bot video vocabulary flow (integration) behavior so completes a video whose transcript falls back to another language and persists the detected one.",
+      "description": "Protects the bot video vocabulary flow (integration) behavior so completes a video whose transcript falls back to another language and persists the detected one."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-video-vocabulary-integration-test-ts-155-video-vocabulary-flow-integration-fails-the-process-once-without-retries-when-no-transcript-exists-at-all",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/video-vocabulary.integration.test.ts",
+      "sourceLine": 155,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "video vocabulary flow (integration)"
+      ],
+      "title": "fails the process once, without retries, when no transcript exists at all",
+      "rawTitle": "fails the process once, without retries, when no transcript exists at all",
+      "name": "Bot video vocabulary flow (integration) fails the process once, without retries, when no transcript exists at all",
+      "value": "Protects the bot video vocabulary flow (integration) behavior so fails the process once, without retries, when no transcript exists at all.",
+      "description": "Protects the bot video vocabulary flow (integration) behavior so fails the process once, without retries, when no transcript exists at all."
     },
     {
       "id": "apps-bot-src-tests-integration-voice-input-integration-test-ts-43-voice-message-translation-integration-transcribes-a-pro-user-s-voice-message-and-renders-a-translation-card",
@@ -13689,10 +13753,10 @@
       "description": "Protects the bot try Handle Mentor Reply behavior so runs the mentor turn in the anchored thread on a hit."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-out-of-set-test-ts-72-handlesrclangoverridecallback-forces-the-tapped-source-and-hands-off-to-the-retranslation-pipeline",
+      "id": "apps-bot-src-scenes-helpers-out-of-set-test-ts-76-handlesrclangoverridecallback-forces-the-tapped-source-and-hands-off-to-the-retranslation-pipeline",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/out-of-set.test.ts",
-      "sourceLine": 72,
+      "sourceLine": 76,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -13705,10 +13769,10 @@
       "description": "Protects the bot handle Src Lang Override Callback behavior so forces the tapped source and hands off to the retranslation pipeline."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-out-of-set-test-ts-88-handlesrclangoverridecallback-answers-a-stale-session-alert-and-does-not-retranslate-when-the-card-entry-is-gone",
+      "id": "apps-bot-src-scenes-helpers-out-of-set-test-ts-92-handlesrclangoverridecallback-answers-a-stale-session-alert-and-does-not-retranslate-when-the-card-entry-is-gone",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/out-of-set.test.ts",
-      "sourceLine": 88,
+      "sourceLine": 92,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -13721,10 +13785,10 @@
       "description": "Protects the bot handle Src Lang Override Callback behavior so answers a stale session alert and does not retranslate when the card entry is gone."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-out-of-set-test-ts-97-handlesrclangoverridecallback-does-not-crash-or-retranslate-when-the-forced-source-cannot-resolve-a-direction",
+      "id": "apps-bot-src-scenes-helpers-out-of-set-test-ts-101-handlesrclangoverridecallback-does-not-crash-or-retranslate-when-the-forced-source-cannot-resolve-a-direction",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/out-of-set.test.ts",
-      "sourceLine": 97,
+      "sourceLine": 101,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -14119,6 +14183,102 @@
       "name": "Bot handle Retry Callback survives a failing ack and still re runs the operation",
       "value": "Protects the bot handle Retry Callback behavior so survives a failing ack and still re runs the operation.",
       "description": "Protects the bot handle Retry Callback behavior so survives a failing ack and still re runs the operation."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-stale-callback-helper-test-ts-67-answerstalecallback-answers-in-the-user-s-interface-language-not-english",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/stale-callback.helper.test.ts",
+      "sourceLine": 67,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "answerStaleCallback"
+      ],
+      "title": "answers in the user's interface language, not English",
+      "rawTitle": "answers in the user's interface language, not English",
+      "name": "Bot answer Stale Callback answers in the user's interface language, not English",
+      "value": "Protects the bot answer Stale Callback behavior so answers in the user's interface language, not English.",
+      "description": "Protects the bot answer Stale Callback behavior so answers in the user's interface language, not English."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-stale-callback-helper-test-ts-76-answerstalecallback-offers-a-one-tap-re-translate-for-a-card-whose-state-was-evicted",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/stale-callback.helper.test.ts",
+      "sourceLine": 76,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "answerStaleCallback"
+      ],
+      "title": "offers a one-tap re-translate for a card whose state was evicted",
+      "rawTitle": "offers a one-tap re-translate for a card whose state was evicted",
+      "name": "Bot answer Stale Callback offers a one tap re translate for a card whose state was evicted",
+      "value": "Protects the bot answer Stale Callback behavior so offers a one tap re translate for a card whose state was evicted.",
+      "description": "Protects the bot answer Stale Callback behavior so offers a one tap re translate for a card whose state was evicted."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-stale-callback-helper-test-ts-94-answerstalecallback-round-trips-the-card-s-context-hint-into-the-retry-input",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/stale-callback.helper.test.ts",
+      "sourceLine": 94,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "answerStaleCallback"
+      ],
+      "title": "round-trips the card's context hint into the retry input",
+      "rawTitle": "round-trips the card's context hint into the retry input",
+      "name": "Bot answer Stale Callback round trips the card's context hint into the retry input",
+      "value": "Protects the bot answer Stale Callback behavior so round trips the card's context hint into the retry input.",
+      "description": "Protects the bot answer Stale Callback behavior so round trips the card's context hint into the retry input."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-stale-callback-helper-test-ts-104-answerstalecallback-uses-an-explicitly-supplied-input-when-the-guard-is-not-card-backed",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/stale-callback.helper.test.ts",
+      "sourceLine": 104,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "answerStaleCallback"
+      ],
+      "title": "uses an explicitly supplied input when the guard is not card-backed",
+      "rawTitle": "uses an explicitly supplied input when the guard is not card-backed",
+      "name": "Bot answer Stale Callback uses an explicitly supplied input when the guard is not card backed",
+      "value": "Protects the bot answer Stale Callback behavior: uses an explicitly supplied input when the guard is not card backed.",
+      "description": "Protects the bot answer Stale Callback behavior: uses an explicitly supplied input when the guard is not card backed."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-stale-callback-helper-test-ts-112-answerstalecallback-stops-at-the-alert-when-nothing-about-the-tap-is-recoverable",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/stale-callback.helper.test.ts",
+      "sourceLine": 112,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "answerStaleCallback"
+      ],
+      "title": "stops at the alert when nothing about the tap is recoverable",
+      "rawTitle": "stops at the alert when nothing about the tap is recoverable",
+      "name": "Bot answer Stale Callback stops at the alert when nothing about the tap is recoverable",
+      "value": "Protects the bot answer Stale Callback behavior so stops at the alert when nothing about the tap is recoverable.",
+      "description": "Protects the bot answer Stale Callback behavior so stops at the alert when nothing about the tap is recoverable."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-stale-callback-helper-test-ts-121-answerstalecallback-still-answers-the-tap-when-the-settings-lookup-fails",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/stale-callback.helper.test.ts",
+      "sourceLine": 121,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "answerStaleCallback"
+      ],
+      "title": "still answers the tap when the settings lookup fails",
+      "rawTitle": "still answers the tap when the settings lookup fails",
+      "name": "Bot answer Stale Callback still answers the tap when the settings lookup fails",
+      "value": "Protects the bot answer Stale Callback behavior so still answers the tap when the settings lookup fails.",
+      "description": "Protects the bot answer Stale Callback behavior so still answers the tap when the settings lookup fails."
     },
     {
       "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-224-handletranslatetext-context-enrichment-calls-translatewithcontext-with-correct-input-and-deps",
@@ -15097,10 +15257,10 @@
       "description": "Protects the bot translation cards survive the technical message sweep behavior so sweeps a rejection notice on the next word without touching the card that follows."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translation-map-helper-test-ts-14-settranslationentry-creates-the-map-on-first-insert",
+      "id": "apps-bot-src-scenes-helpers-translation-map-helper-test-ts-19-settranslationentry-creates-the-map-on-first-insert",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translation-map.helper.test.ts",
-      "sourceLine": 14,
+      "sourceLine": 19,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -15113,10 +15273,10 @@
       "description": "Protects the bot set Translation Entry behavior: creates the map on first insert."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translation-map-helper-test-ts-20-settranslationentry-keeps-entries-below-the-cap-without-eviction",
+      "id": "apps-bot-src-scenes-helpers-translation-map-helper-test-ts-25-settranslationentry-keeps-entries-below-the-cap-without-eviction",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translation-map.helper.test.ts",
-      "sourceLine": 20,
+      "sourceLine": 25,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -15129,10 +15289,10 @@
       "description": "Protects the bot set Translation Entry behavior: keeps entries below the cap without eviction."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translation-map-helper-test-ts-28-settranslationentry-evicts-the-oldest-smallest-message-id-once-the-cap-is-exceeded",
+      "id": "apps-bot-src-scenes-helpers-translation-map-helper-test-ts-33-settranslationentry-evicts-the-oldest-smallest-message-id-once-the-cap-is-exceeded",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translation-map.helper.test.ts",
-      "sourceLine": 28,
+      "sourceLine": 33,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -15145,10 +15305,10 @@
       "description": "Protects the bot set Translation Entry behavior so evicts the oldest (smallest message id) once the cap is exceeded."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translation-map-helper-test-ts-42-settranslationentry-bounds-the-map-to-n-keys-after-n-m-inserts-evicting-the-oldest-m",
+      "id": "apps-bot-src-scenes-helpers-translation-map-helper-test-ts-47-settranslationentry-bounds-the-map-to-n-keys-after-n-m-inserts-evicting-the-oldest-m",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translation-map.helper.test.ts",
-      "sourceLine": 42,
+      "sourceLine": 47,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -15161,10 +15321,10 @@
       "description": "Protects the bot set Translation Entry behavior so bounds the map to N keys after N + M inserts, evicting the oldest M."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translation-map-helper-test-ts-56-settranslationentry-evicts-by-insertion-recency-not-message-id-magnitude",
+      "id": "apps-bot-src-scenes-helpers-translation-map-helper-test-ts-61-settranslationentry-evicts-by-insertion-recency-not-message-id-magnitude",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translation-map.helper.test.ts",
-      "sourceLine": 56,
+      "sourceLine": 61,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -15177,10 +15337,10 @@
       "description": "Protects the bot set Translation Entry behavior so evicts by insertion recency, not message id magnitude."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translation-map-helper-test-ts-67-settranslationentry-retains-a-freshly-added-low-id-card-when-the-map-holds-stale-high-id-entries",
+      "id": "apps-bot-src-scenes-helpers-translation-map-helper-test-ts-72-settranslationentry-retains-a-freshly-added-low-id-card-when-the-map-holds-stale-high-id-entries",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translation-map.helper.test.ts",
-      "sourceLine": 67,
+      "sourceLine": 72,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -15193,10 +15353,10 @@
       "description": "Protects the bot set Translation Entry behavior so retains a freshly added low id card when the map holds stale high id entries."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translation-map-helper-test-ts-88-settranslationentry-purges-legacy-entries-without-a-recency-stamp-before-freshly-stamped-ones",
+      "id": "apps-bot-src-scenes-helpers-translation-map-helper-test-ts-93-settranslationentry-purges-legacy-entries-without-a-recency-stamp-before-freshly-stamped-ones",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translation-map.helper.test.ts",
-      "sourceLine": 88,
+      "sourceLine": 93,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -15209,10 +15369,10 @@
       "description": "Protects the bot set Translation Entry behavior so purges legacy entries without a recency stamp before freshly stamped ones."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translation-map-helper-test-ts-106-settranslationentry-defaults-to-max-translation-map-entries-when-no-cap-is-supplied",
+      "id": "apps-bot-src-scenes-helpers-translation-map-helper-test-ts-111-settranslationentry-defaults-to-max-translation-map-entries-when-no-cap-is-supplied",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translation-map.helper.test.ts",
-      "sourceLine": 106,
+      "sourceLine": 111,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -15225,10 +15385,10 @@
       "description": "Protects the bot set Translation Entry behavior: defaults to MAX TRANSLATION MAP ENTRIES when no cap is supplied."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translation-map-helper-test-ts-114-settranslationentry-overwrites-an-existing-entry-without-growing-the-map",
+      "id": "apps-bot-src-scenes-helpers-translation-map-helper-test-ts-119-settranslationentry-overwrites-an-existing-entry-without-growing-the-map",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translation-map.helper.test.ts",
-      "sourceLine": 114,
+      "sourceLine": 119,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -15239,6 +15399,70 @@
       "name": "Bot set Translation Entry overwrites an existing entry without growing the map",
       "value": "Protects the bot set Translation Entry behavior so overwrites an existing entry without growing the map.",
       "description": "Protects the bot set Translation Entry behavior so overwrites an existing entry without growing the map."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-translation-map-helper-test-ts-130-recallcardword-still-knows-the-word-of-a-card-evicted-from-the-translation-map",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/translation-map.helper.test.ts",
+      "sourceLine": 130,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "recallCardWord"
+      ],
+      "title": "still knows the word of a card evicted from the translation map",
+      "rawTitle": "still knows the word of a card evicted from the translation map",
+      "name": "Bot recall Card Word still knows the word of a card evicted from the translation map",
+      "value": "Protects the bot recall Card Word behavior so still knows the word of a card evicted from the translation map.",
+      "description": "Protects the bot recall Card Word behavior so still knows the word of a card evicted from the translation map."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-translation-map-helper-test-ts-141-recallcardword-carries-the-card-s-context-hint-so-the-retry-reproduces-the-same-request",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/translation-map.helper.test.ts",
+      "sourceLine": 141,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "recallCardWord"
+      ],
+      "title": "carries the card's context hint so the retry reproduces the same request",
+      "rawTitle": "carries the card's context hint so the retry reproduces the same request",
+      "name": "Bot recall Card Word carries the card's context hint so the retry reproduces the same request",
+      "value": "Protects the bot recall Card Word behavior so carries the card's context hint so the retry reproduces the same request.",
+      "description": "Protects the bot recall Card Word behavior so carries the card's context hint so the retry reproduces the same request."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-translation-map-helper-test-ts-148-recallcardword-returns-nothing-for-a-message-that-never-carried-a-card",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/translation-map.helper.test.ts",
+      "sourceLine": 148,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "recallCardWord"
+      ],
+      "title": "returns nothing for a message that never carried a card",
+      "rawTitle": "returns nothing for a message that never carried a card",
+      "name": "Bot recall Card Word returns nothing for a message that never carried a card",
+      "value": "Protects the bot recall Card Word behavior: returns nothing for a message that never carried a card.",
+      "description": "Protects the bot recall Card Word behavior: returns nothing for a message that never carried a card."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-translation-map-helper-test-ts-155-recallcardword-outlives-the-translation-map-by-an-order-of-magnitude-then-evicts-too",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/translation-map.helper.test.ts",
+      "sourceLine": 155,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "recallCardWord"
+      ],
+      "title": "outlives the translation map by an order of magnitude, then evicts too",
+      "rawTitle": "outlives the translation map by an order of magnitude, then evicts too",
+      "name": "Bot recall Card Word outlives the translation map by an order of magnitude, then evicts too",
+      "value": "Protects the bot recall Card Word behavior so outlives the translation map by an order of magnitude, then evicts too.",
+      "description": "Protects the bot recall Card Word behavior so outlives the translation map by an order of magnitude, then evicts too."
     },
     {
       "id": "apps-bot-src-scenes-mentor-scene-test-ts-55-handlementorcommand-sets-session-activemode-to-mentor",
@@ -26445,6 +26669,102 @@
       "name": "Notification adapter start Scheduler stop Scheduler stop Scheduler is safe to call when not running",
       "value": "Protects the notification adapter start Scheduler stop Scheduler behavior so stop Scheduler is safe to call when not running.",
       "description": "Protects the notification adapter start Scheduler stop Scheduler behavior so stop Scheduler is safe to call when not running."
+    },
+    {
+      "id": "packages-adapters-youtube-src-tests-transcript-test-ts-27-fetchtranscript-returns-the-transcript-in-the-requested-language-when-available",
+      "kind": "technical",
+      "filePath": "packages/adapters/youtube/src/__tests__/transcript.test.ts",
+      "sourceLine": 27,
+      "workspace": "packages",
+      "packageName": "adapters/youtube",
+      "suitePath": [
+        "fetchTranscript"
+      ],
+      "title": "returns the transcript in the requested language when available",
+      "rawTitle": "returns the transcript in the requested language when available",
+      "name": "YouTube adapter fetch Transcript returns the transcript in the requested language when available",
+      "value": "Protects the youTube adapter fetch Transcript behavior: returns the transcript in the requested language when available.",
+      "description": "Protects the youTube adapter fetch Transcript behavior: returns the transcript in the requested language when available."
+    },
+    {
+      "id": "packages-adapters-youtube-src-tests-transcript-test-ts-39-fetchtranscript-falls-back-to-the-default-caption-track-when-the-requested-language-has-none",
+      "kind": "technical",
+      "filePath": "packages/adapters/youtube/src/__tests__/transcript.test.ts",
+      "sourceLine": 39,
+      "workspace": "packages",
+      "packageName": "adapters/youtube",
+      "suitePath": [
+        "fetchTranscript"
+      ],
+      "title": "falls back to the default caption track when the requested language has none",
+      "rawTitle": "falls back to the default caption track when the requested language has none",
+      "name": "YouTube adapter fetch Transcript falls back to the default caption track when the requested language has none",
+      "value": "Protects the youTube adapter fetch Transcript behavior: falls back to the default caption track when the requested language has none.",
+      "description": "Protects the youTube adapter fetch Transcript behavior: falls back to the default caption track when the requested language has none."
+    },
+    {
+      "id": "packages-adapters-youtube-src-tests-transcript-test-ts-52-fetchtranscript-throws-transcriptnotavailableerror-when-the-fallback-also-finds-no-transcript",
+      "kind": "technical",
+      "filePath": "packages/adapters/youtube/src/__tests__/transcript.test.ts",
+      "sourceLine": 52,
+      "workspace": "packages",
+      "packageName": "adapters/youtube",
+      "suitePath": [
+        "fetchTranscript"
+      ],
+      "title": "throws TranscriptNotAvailableError when the fallback also finds no transcript",
+      "rawTitle": "throws TranscriptNotAvailableError when the fallback also finds no transcript",
+      "name": "YouTube adapter fetch Transcript throws Transcript Not Available Error when the fallback also finds no transcript",
+      "value": "Protects the youTube adapter fetch Transcript behavior: throws Transcript Not Available Error when the fallback also finds no transcript.",
+      "description": "Protects the youTube adapter fetch Transcript behavior: throws Transcript Not Available Error when the fallback also finds no transcript."
+    },
+    {
+      "id": "packages-adapters-youtube-src-tests-transcript-test-ts-61-fetchtranscript-throws-transcriptnotavailableerror-without-falling-back-when-no-language-was-requested",
+      "kind": "technical",
+      "filePath": "packages/adapters/youtube/src/__tests__/transcript.test.ts",
+      "sourceLine": 61,
+      "workspace": "packages",
+      "packageName": "adapters/youtube",
+      "suitePath": [
+        "fetchTranscript"
+      ],
+      "title": "throws TranscriptNotAvailableError without falling back when no language was requested",
+      "rawTitle": "throws TranscriptNotAvailableError without falling back when no language was requested",
+      "name": "YouTube adapter fetch Transcript throws Transcript Not Available Error without falling back when no language was requested",
+      "value": "Protects the youTube adapter fetch Transcript behavior: throws Transcript Not Available Error without falling back when no language was requested.",
+      "description": "Protects the youTube adapter fetch Transcript behavior: throws Transcript Not Available Error without falling back when no language was requested."
+    },
+    {
+      "id": "packages-adapters-youtube-src-tests-transcript-test-ts-68-fetchtranscript-throws-videonotfounderror-for-unavailable-videos-without-falling-back",
+      "kind": "technical",
+      "filePath": "packages/adapters/youtube/src/__tests__/transcript.test.ts",
+      "sourceLine": 68,
+      "workspace": "packages",
+      "packageName": "adapters/youtube",
+      "suitePath": [
+        "fetchTranscript"
+      ],
+      "title": "throws VideoNotFoundError for unavailable videos without falling back",
+      "rawTitle": "throws VideoNotFoundError for unavailable videos without falling back",
+      "name": "YouTube adapter fetch Transcript throws Video Not Found Error for unavailable videos without falling back",
+      "value": "Protects the youTube adapter fetch Transcript behavior: throws Video Not Found Error for unavailable videos without falling back.",
+      "description": "Protects the youTube adapter fetch Transcript behavior: throws Video Not Found Error for unavailable videos without falling back."
+    },
+    {
+      "id": "packages-adapters-youtube-src-tests-transcript-test-ts-75-fetchtranscript-treats-an-empty-segment-list-as-no-transcript",
+      "kind": "technical",
+      "filePath": "packages/adapters/youtube/src/__tests__/transcript.test.ts",
+      "sourceLine": 75,
+      "workspace": "packages",
+      "packageName": "adapters/youtube",
+      "suitePath": [
+        "fetchTranscript"
+      ],
+      "title": "treats an empty segment list as no transcript",
+      "rawTitle": "treats an empty segment list as no transcript",
+      "name": "YouTube adapter fetch Transcript treats an empty segment list as no transcript",
+      "value": "Protects the youTube adapter fetch Transcript behavior so treats an empty segment list as no transcript.",
+      "description": "Protects the youTube adapter fetch Transcript behavior so treats an empty segment list as no transcript."
     },
     {
       "id": "packages-adapters-youtube-src-tests-url-parser-test-ts-5-isyoutubeurl-detects-standard-youtube-com-watch-urls",

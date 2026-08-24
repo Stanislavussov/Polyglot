@@ -42,6 +42,7 @@
   "translationError": "❌ Translation failed. Please try again later.",
   "genericError": "⚠️ Something went wrong. Please try again.",
   "staleSession": "⚠️ Session expired. Please translate the word again.",
+  "staleCardRetryPrompt": "⌛ This card has expired. Tap below to translate “{word}” again.",
   "translationUnavailable": "⚠️ Translation temporarily unavailable. Try again.",
   "contextMarkerNeedsText": "Enter a word or phrase before the context marker.",
   "inputRejectedEmpty": "Send text to translate.",
