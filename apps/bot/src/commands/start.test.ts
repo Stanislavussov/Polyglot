@@ -104,6 +104,7 @@ describe("startCommand", () => {
     const labels = (options?.reply_markup as { keyboard: { text: string }[][] }).keyboard.flat();
     expect(labels.map((button) => button.text)).toEqual([
       "✨ [menuBtnPickWords]",
+      "🧑‍🏫 [menuBtnMentor]",
       "📖 [menuBtnDictionary]",
       "🎴 [menuBtnFlashcards]",
       "🎬 [menuBtnVideos]",

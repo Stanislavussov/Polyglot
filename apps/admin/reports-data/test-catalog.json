@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-24T14:58:35.000Z",
+  "generatedAt": "2026-08-24T15:06:25.000Z",
   "summary": {
     "total": 2951,
     "business": 0,
@@ -7150,10 +7150,10 @@
       "description": "Protects the bot start Command behavior so re installs the main menu keyboard for onboarded users."
     },
     {
-      "id": "apps-bot-src-commands-start-test-ts-113-startcommand-persists-activemode-to-db-for-onboarded-users",
+      "id": "apps-bot-src-commands-start-test-ts-114-startcommand-persists-activemode-to-db-for-onboarded-users",
       "kind": "technical",
       "filePath": "apps/bot/src/commands/start.test.ts",
-      "sourceLine": 113,
+      "sourceLine": 114,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7166,10 +7166,10 @@
       "description": "Protects the bot start Command behavior: persists active Mode to DB for onboarded users."
     },
     {
-      "id": "apps-bot-src-commands-start-test-ts-121-startcommand-resumes-stateless-onboarding-for-non-onboarded-users-no-mode-change",
+      "id": "apps-bot-src-commands-start-test-ts-122-startcommand-resumes-stateless-onboarding-for-non-onboarded-users-no-mode-change",
       "kind": "technical",
       "filePath": "apps/bot/src/commands/start.test.ts",
-      "sourceLine": 121,
+      "sourceLine": 122,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7182,10 +7182,10 @@
       "description": "Protects the bot start Command behavior so resumes stateless onboarding for non onboarded users (no mode change)."
     },
     {
-      "id": "apps-bot-src-commands-start-test-ts-131-startcommand-does-nothing-when-user-is-not-in-context",
+      "id": "apps-bot-src-commands-start-test-ts-132-startcommand-does-nothing-when-user-is-not-in-context",
       "kind": "technical",
       "filePath": "apps/bot/src/commands/start.test.ts",
-      "sourceLine": 131,
+      "sourceLine": 132,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -16569,7 +16569,7 @@
       "description": "Protects the bot start Typing Keepalive behavior: sends typing immediately and refreshes it on an interval until stopped."
     },
     {
-      "id": "apps-bot-src-utils-main-menu-test-ts-10-main-menu-keyboard-gives-the-picker-its-own-full-width-row-above-the-three-everyday-entry-points",
+      "id": "apps-bot-src-utils-main-menu-test-ts-10-main-menu-keyboard-pairs-the-picker-with-the-mentor-on-the-top-row-everyday-entry-points-below",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/main-menu.test.ts",
       "sourceLine": 10,
@@ -16578,17 +16578,17 @@
       "suitePath": [
         "main menu keyboard"
       ],
-      "title": "gives the picker its own full-width row above the three everyday entry points",
-      "rawTitle": "gives the picker its own full-width row above the three everyday entry points",
-      "name": "Bot main menu keyboard gives the picker its own full width row above the three everyday entry points",
-      "value": "Protects the bot main menu keyboard behavior so gives the picker its own full width row above the three everyday entry points.",
-      "description": "Protects the bot main menu keyboard behavior so gives the picker its own full width row above the three everyday entry points."
+      "title": "pairs the picker with the mentor on the top row, everyday entry points below",
+      "rawTitle": "pairs the picker with the mentor on the top row, everyday entry points below",
+      "name": "Bot main menu keyboard pairs the picker with the mentor on the top row, everyday entry points below",
+      "value": "Protects the bot main menu keyboard behavior so pairs the picker with the mentor on the top row, everyday entry points below.",
+      "description": "Protects the bot main menu keyboard behavior so pairs the picker with the mentor on the top row, everyday entry points below."
     },
     {
-      "id": "apps-bot-src-utils-main-menu-test-ts-19-main-menu-keyboard-folds-away-after-use-instead-of-pinning-itself-to-the-bottom-of-the-chat",
+      "id": "apps-bot-src-utils-main-menu-test-ts-22-main-menu-keyboard-folds-away-after-use-instead-of-pinning-itself-to-the-bottom-of-the-chat",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/main-menu.test.ts",
-      "sourceLine": 19,
+      "sourceLine": 22,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -16601,10 +16601,10 @@
       "description": "Protects the bot main menu keyboard behavior so folds away after use instead of pinning itself to the bottom of the chat."
     },
     {
-      "id": "apps-bot-src-utils-main-menu-test-ts-29-main-menu-keyboard-matches-a-tap-in-every-supported-language-back-to-its-action",
+      "id": "apps-bot-src-utils-main-menu-test-ts-32-main-menu-keyboard-matches-a-tap-in-every-supported-language-back-to-its-action",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/main-menu.test.ts",
-      "sourceLine": 29,
+      "sourceLine": 32,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -16617,10 +16617,10 @@
       "description": "Protects the bot main menu keyboard behavior so matches a tap in every supported language back to its action."
     },
     {
-      "id": "apps-bot-src-utils-main-menu-test-ts-38-main-menu-keyboard-still-matches-labels-from-a-language-the-user-has-since-switched-away-from",
+      "id": "apps-bot-src-utils-main-menu-test-ts-42-main-menu-keyboard-still-matches-labels-from-a-language-the-user-has-since-switched-away-from",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/main-menu.test.ts",
-      "sourceLine": 38,
+      "sourceLine": 42,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -16633,10 +16633,10 @@
       "description": "Protects the bot main menu keyboard behavior so still matches labels from a language the user has since switched away from."
     },
     {
-      "id": "apps-bot-src-utils-main-menu-test-ts-45-main-menu-keyboard-does-not-match-an-ordinary-word-the-user-wants-translated",
+      "id": "apps-bot-src-utils-main-menu-test-ts-49-main-menu-keyboard-does-not-match-an-ordinary-word-the-user-wants-translated",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/main-menu.test.ts",
-      "sourceLine": 45,
+      "sourceLine": 49,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -16649,10 +16649,10 @@
       "description": "Protects the bot main menu keyboard behavior: does not match an ordinary word the user wants translated."
     },
     {
-      "id": "apps-bot-src-utils-main-menu-test-ts-51-main-menu-keyboard-exposes-every-label-so-bot-hears-intercepts-taps-before-translate-mode",
+      "id": "apps-bot-src-utils-main-menu-test-ts-55-main-menu-keyboard-exposes-every-label-so-bot-hears-intercepts-taps-before-translate-mode",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/main-menu.test.ts",
-      "sourceLine": 51,
+      "sourceLine": 55,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [

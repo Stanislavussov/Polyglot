@@ -371,6 +371,8 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
       switch (matchMainMenuAction(ctx.msg?.text ?? "")) {
         case "pick":
           return handlePickWordsCommand(ctx);
+        case "mentor":
+          return handleMentorCommand(ctx);
         case "dictionary":
           return handleDictionaryCommand(ctx);
         case "flashcard":

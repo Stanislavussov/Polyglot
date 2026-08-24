@@ -26,7 +26,7 @@ const COMMAND_ICONS = {
   dictionary: "📖",
   flashcard: "🎴",
   videos: "🎬",
-  mentor: "🤖",
+  mentor: "🧑‍🏫",
   review: "🔁",
   template: "📝",
   settings: "⚙️",
