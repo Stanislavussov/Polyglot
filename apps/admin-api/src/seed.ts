@@ -24,7 +24,7 @@ async function seed() {
   // defaults — admins retune them in the panel, and the resolver reads them from the
   // DB on every check.
   const GRAMMAR_FEATURES = ["grammarBreakdown", "etymology", "grammarDetail"];
-  const PLUS_FEATURES = [...GRAMMAR_FEATURES, "clarification"];
+  const PLUS_FEATURES = [...GRAMMAR_FEATURES, "clarification", "mentor"];
   const PRO_FEATURES = [...PLUS_FEATURES, "pronunciation", "voiceInput"];
 
   const defaultPlans = [
@@ -35,6 +35,7 @@ async function seed() {
       creditCost: 1,
       videoLimit: 0,
       videoWindow: "none" as const,
+      mentorDailyLimit: 0,
       priceUsdCents: null,
       isActive: true,
       isDefault: true,
@@ -47,6 +48,9 @@ async function seed() {
       creditCost: 1,
       videoLimit: 20,
       videoWindow: "monthly" as const,
+      // The mentor model is priced above the translate default, so unmetered
+      // Plus still caps the expensive calls; unlimited mentor is Pro's pitch.
+      mentorDailyLimit: 30,
       priceUsdCents: 500,
       isActive: true,
       isDefault: false,
@@ -59,6 +63,7 @@ async function seed() {
       creditCost: 1,
       videoLimit: null,
       videoWindow: "monthly" as const,
+      mentorDailyLimit: null,
       priceUsdCents: 1000,
       isActive: true,
       isDefault: false,
@@ -71,6 +76,7 @@ async function seed() {
       creditCost: 1,
       videoLimit: null,
       videoWindow: "monthly" as const,
+      mentorDailyLimit: null,
       priceUsdCents: null,
       isActive: true,
       isDefault: false,

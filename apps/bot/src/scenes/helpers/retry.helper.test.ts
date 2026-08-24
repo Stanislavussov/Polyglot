@@ -45,13 +45,19 @@ describe("handleRetryCallback", () => {
     expect(handleMentorText).not.toHaveBeenCalled();
   });
 
-  it("re-runs the mentor turn with the original message", async () => {
+  it("re-runs the mentor turn with the original message and its thread", async () => {
     const ctx = createMockCtx();
-    setRetryAction(ctx.session, NOTICE_MSG_ID, { kind: "mentor", text: "what does banka mean?" });
+    setRetryAction(ctx.session, NOTICE_MSG_ID, {
+      kind: "mentor",
+      text: "what does banka mean?",
+      threadId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+    });
 
     await handleRetryCallback(ctx);
 
-    expect(handleMentorText).toHaveBeenCalledWith(ctx, "what does banka mean?");
+    expect(handleMentorText).toHaveBeenCalledWith(ctx, "what does banka mean?", {
+      threadId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+    });
     expect(handleTranslateText).not.toHaveBeenCalled();
   });
 

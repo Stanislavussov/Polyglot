@@ -2,6 +2,7 @@ import type {
   AIGenerationDefaults,
   AIModel,
   DictionaryConfig,
+  MentorConfig,
   NotificationDefaults,
   PlanLimitConfig,
   SettingsPort,
@@ -46,6 +47,7 @@ const DEFAULTS: {
   videoVocabulary: VideoVocabularyConfig;
   tts: TtsConfig;
   stt: SttConfig;
+  mentor: MentorConfig;
 } = {
   srs: { minEaseFactor: 1.3, defaultEaseFactor: 2.5 },
   notifications: { defaultTime: "19:00", defaultType: "srs", inactivityDays: 14, notificationTimesLimit: 12 },
@@ -67,6 +69,12 @@ const DEFAULTS: {
   // noisy clips — hit in production on day one. Non-Whisper models are not an
   // option: the 2026-08-23 probe showed only Whisper transcribes Kazakh.
   stt: { enabled: true, modelId: "openai/whisper-large-v3", maxDurationSec: 60 },
+  // Mentor answers with a smarter model than the translate default: a mentor turn
+  // is a free-form grammar explanation where flash-lite reads flat. Empty modelId
+  // means "follow the plan-default-fallback chain", never "disabled" — mentor has
+  // its own entitlement gate. gemini-3.7-flash picked 2026-08-24 ($0.375/$1.875
+  // per 1M, ~1.5x flash-lite) for quality/latency/multilingual balance.
+  mentor: { modelId: "google/gemini-3.7-flash", maxTokens: 700 },
 };
 
 async function getWithFallback<T>(key: string, fallback: T): Promise<T> {
@@ -96,6 +104,7 @@ export const settingsAdapter: SettingsPort = {
       creditCost: p.creditCost,
       videoLimit: p.videoLimit,
       videoWindow: p.videoWindow,
+      mentorDailyLimit: p.mentorDailyLimit,
       priceUsdCents: p.priceUsdCents,
       isActive: p.isActive,
       isDefault: p.isDefault,
@@ -112,6 +121,7 @@ export const settingsAdapter: SettingsPort = {
       creditCost: p.creditCost,
       videoLimit: p.videoLimit,
       videoWindow: p.videoWindow,
+      mentorDailyLimit: p.mentorDailyLimit,
       priceUsdCents: p.priceUsdCents,
       isActive: p.isActive,
       isDefault: p.isDefault,
@@ -195,5 +205,9 @@ export const settingsAdapter: SettingsPort = {
 
   async getSttConfig(): Promise<SttConfig> {
     return getWithFallback<SttConfig>("stt", DEFAULTS.stt);
+  },
+
+  async getMentorConfig(): Promise<MentorConfig> {
+    return getWithFallback<MentorConfig>("mentor", DEFAULTS.mentor);
   },
 };

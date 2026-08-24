@@ -7,13 +7,16 @@ import { describe, expect, it } from "vitest";
 import { buildMainKeyboard, mainMenuLabels, matchMainMenuAction } from "./main-menu.js";
 
 describe("main menu keyboard", () => {
-  it("gives the picker its own full-width row above the three everyday entry points", () => {
+  it("pairs the picker with the mentor on the top row, everyday entry points below", () => {
     const rows = buildMainKeyboard("ru")
       .build()
       .map((row) => row.map((button) => (typeof button === "string" ? button : button.text)));
 
     // Two rows, no empty trailing row: every row costs chat space while the menu is open.
-    expect(rows).toEqual([["✨ Подобрать слова"], ["📖 Словарь", "🎴 Карточки", "🎬 Видео"]]);
+    expect(rows).toEqual([
+      ["✨ Подобрать слова", "🧑‍🏫 Ментор"],
+      ["📖 Словарь", "🎴 Карточки", "🎬 Видео"],
+    ]);
   });
 
   it("folds away after use instead of pinning itself to the bottom of the chat", () => {
@@ -32,6 +35,7 @@ describe("main menu keyboard", () => {
       expect(matchMainMenuAction(`📖 ${t("menuBtnDictionary", lang)}`)).toBe("dictionary");
       expect(matchMainMenuAction(`🎴 ${t("menuBtnFlashcards", lang)}`)).toBe("flashcard");
       expect(matchMainMenuAction(`🎬 ${t("menuBtnVideos", lang)}`)).toBe("videos");
+      expect(matchMainMenuAction(`🧑‍🏫 ${t("menuBtnMentor", lang)}`)).toBe("mentor");
     }
   });
 

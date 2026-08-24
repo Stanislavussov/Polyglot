@@ -19,17 +19,20 @@ interface MainMenuItem {
   readonly labelKey: I18nKey;
 }
 
-export type MainMenuAction = "pick" | "dictionary" | "flashcard" | "videos";
+export type MainMenuAction = "pick" | "mentor" | "dictionary" | "flashcard" | "videos";
 
 /**
  * Rows of the keyboard, in render order.
  *
- * "Pick words" sits alone on the first row: it is the answer to "I opened the
- * bot, now what?", and a full-width button is the only emphasis a reply keyboard
- * offers. The three everyday entry points share the second row.
+ * The first row answers "I opened the bot, now what?" with the two conversation
+ * starters: pick words to learn, or ask the mentor. The three everyday entry
+ * points share the second row.
  */
 const MAIN_MENU_ROWS: ReadonlyArray<readonly MainMenuItem[]> = [
-  [{ action: "pick", icon: "✨", labelKey: "menuBtnPickWords" }],
+  [
+    { action: "pick", icon: "✨", labelKey: "menuBtnPickWords" },
+    { action: "mentor", icon: "🧑‍🏫", labelKey: "menuBtnMentor" },
+  ],
   [
     { action: "dictionary", icon: "📖", labelKey: "menuBtnDictionary" },
     { action: "flashcard", icon: "🎴", labelKey: "menuBtnFlashcards" },

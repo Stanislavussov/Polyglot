@@ -8,6 +8,7 @@ import type { FeatureAccessPort } from "./feature-access.port.js";
 import type { IdentityRepository } from "./identity.repository.js";
 import type { LanguageCachePort } from "./language-cache.port.js";
 import type { LanguageDetectionRepository } from "./language-detection.repository.js";
+import type { MentorMessageRepository } from "./mentor-message.repository.js";
 import type { NotificationRepository } from "./notification.repository.js";
 import type { OnboardingDemoCardRepository } from "./onboarding-demo-card.repository.js";
 import type { PaymentPort } from "./payment.port.js";
@@ -38,6 +39,8 @@ export interface ServiceContainer {
   translationTemplateRepository: TranslationTemplateRepository;
   wordReviewRepository: WordReviewRepository;
   notificationRepository: NotificationRepository;
+  /** Durable mentor-chat threads — reply-continuation lookups and history (mentor MVP). */
+  mentorMessageRepository: MentorMessageRepository;
   translationRequestRepository: TranslationRequestRepository;
   languageDetectionRepository: LanguageDetectionRepository;
   requestTimingRepository: RequestTimingRepository;

@@ -16,27 +16,36 @@ import { setAIFallbackObserver, withModelFailover } from "@polyglot/adapter-ai";
 import { resetBreakerRegistry } from "@polyglot/core";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const { mockUserRepository, mockSettings, mockTranslationRequestRepository } = vi.hoisted(() => ({
-  mockUserRepository: {
-    getSettings: vi.fn().mockResolvedValue({ interfaceLang: "en", nativeLang: "en", learningLangs: ["cs"] }),
-  },
-  mockSettings: {
-    getDefaultAIModel: vi.fn().mockResolvedValue("openai/gpt-4o"),
-    getDefaultAIModelForPlan: vi.fn().mockResolvedValue("openai/gpt-4o"),
-    getPlanLimit: vi.fn().mockResolvedValue({
-      name: "free",
-      label: "Free",
-      translationLimit: 50,
-      creditCost: 1,
-      isActive: true,
-      isDefault: true,
-    }),
-  },
-  mockTranslationRequestRepository: {
-    getUserCreditsInWindow: vi.fn().mockResolvedValue(0),
-    logTranslationRequest: vi.fn().mockResolvedValue(1),
-  },
-}));
+const { mockUserRepository, mockSettings, mockTranslationRequestRepository, mockMentorMessageRepository } = vi.hoisted(
+  () => ({
+    mockMentorMessageRepository: {
+      record: vi.fn().mockResolvedValue(undefined),
+      findThreadByMessage: vi.fn().mockResolvedValue(null),
+      getRecentMessages: vi.fn().mockResolvedValue([]),
+      findLatestThreadId: vi.fn().mockResolvedValue(null),
+    },
+    mockUserRepository: {
+      getSettings: vi.fn().mockResolvedValue({ interfaceLang: "en", nativeLang: "en", learningLangs: ["cs"] }),
+    },
+    mockSettings: {
+      getDefaultAIModel: vi.fn().mockResolvedValue("openai/gpt-4o"),
+      getDefaultAIModelForPlan: vi.fn().mockResolvedValue("openai/gpt-4o"),
+      getMentorConfig: vi.fn().mockResolvedValue({ modelId: "", maxTokens: 700 }),
+      getPlanLimit: vi.fn().mockResolvedValue({
+        name: "free",
+        label: "Free",
+        translationLimit: 50,
+        creditCost: 1,
+        isActive: true,
+        isDefault: true,
+      }),
+    },
+    mockTranslationRequestRepository: {
+      getUserCreditsInWindow: vi.fn().mockResolvedValue(0),
+      logTranslationRequest: vi.fn().mockResolvedValue(1),
+    },
+  }),
+);
 
 vi.mock("../metrics.js", () => ({
   mentorCounter: { inc: vi.fn() },
@@ -79,6 +88,7 @@ function createMockCtx(ai: ReturnType<typeof buildFailoverAi>): BotContext {
       ai,
       settings: mockSettings,
       translationRequestRepository: mockTranslationRequestRepository,
+      mentorMessageRepository: mockMentorMessageRepository,
     },
     api: { deleteMessage: vi.fn().mockResolvedValue(undefined) },
   } as unknown as BotContext;

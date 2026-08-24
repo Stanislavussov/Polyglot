@@ -5,7 +5,7 @@ const FREE: PlanEntitlementConfig = { translationLimit: 10, videoLimit: 0, video
 const PLUS: PlanEntitlementConfig = { translationLimit: null, videoLimit: 20, videoWindow: "monthly" };
 const PRO: PlanEntitlementConfig = { translationLimit: null, videoLimit: null, videoWindow: "monthly" };
 const PREMIUM_FEATURES = [FEATURE_KEYS.grammarBreakdown, FEATURE_KEYS.etymology, FEATURE_KEYS.grammarDetail];
-const PLUS_FEATURES = [...PREMIUM_FEATURES, FEATURE_KEYS.clarification];
+const PLUS_FEATURES = [...PREMIUM_FEATURES, FEATURE_KEYS.clarification, FEATURE_KEYS.mentor];
 const PRO_FEATURES = [...PLUS_FEATURES, FEATURE_KEYS.pronunciation, FEATURE_KEYS.voiceInput];
 
 describe("resolveEntitlements", () => {
@@ -27,6 +27,7 @@ describe("resolveEntitlements", () => {
     expect(e.video).toEqual({ limit: 20, window: "monthly" });
     expect(e.features.has(FEATURE_KEYS.etymology)).toBe(true);
     expect(e.features.has(FEATURE_KEYS.clarification)).toBe(true);
+    expect(e.features.has(FEATURE_KEYS.mentor)).toBe(true);
     // Audio and voice input are Pro-only differentiators — a Plus plan must not leak them.
     expect(e.features.has(FEATURE_KEYS.pronunciation)).toBe(false);
     expect(e.features.has(FEATURE_KEYS.voiceInput)).toBe(false);

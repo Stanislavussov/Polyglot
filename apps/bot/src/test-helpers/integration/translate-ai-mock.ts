@@ -8,8 +8,9 @@
  * fixture are stripped by Zod `.object()`, so one fat object per schema is enough.
  *
  * The fixtures follow the verified schema contract in
- * `packages/core/src/modules/translation` (metadata requires `sourceWordRecognized`,
- * per-language requires `text` + `examples`, preflight requires `outcome`).
+ * `packages/core/src/modules/translation` (metadata requires `sourceWordRecognized`
+ * and, for word input, `primarySense`; per-language requires `text` + `examples`;
+ * preflight requires `outcome`).
  */
 import type { AIPort } from "@polyglot/core";
 
@@ -30,6 +31,7 @@ const METADATA_FAT = {
     examples: [{ context: "greeting", target: "hello there", native: "greeting" }],
   },
   nativeSynonyms: [{ text: "hi" }],
+  primarySense: "a spoken greeting on meeting someone",
   sourceWordRecognized: true,
   suggestedCorrection: null,
 };

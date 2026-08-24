@@ -44,6 +44,7 @@ const FEATURE_HEADLINE: Record<FeatureKey, { emoji: string; label: I18nKey }> = 
   etymology: { emoji: "📖", label: "planLineGrammar" },
   grammarDetail: { emoji: "📖", label: "planLineGrammar" },
   voiceInput: { emoji: "🎙️", label: "featureVoiceInput" },
+  mentor: { emoji: "🧑‍🏫", label: "planLineMentor" },
 };
 
 interface PurchasablePlan {
@@ -157,6 +158,9 @@ function planBullets(plan: PurchasablePlan, lang: SupportedLang): string[] {
   }
   if (plan.features.has(FEATURE_KEYS.voiceInput)) {
     bullets.push(t("planLineVoiceInput", lang));
+  }
+  if (plan.features.has(FEATURE_KEYS.mentor)) {
+    bullets.push(t("planLineMentor", lang));
   }
   // The three grammar keys are one user-visible promise, so they collapse to one line.
   if (

@@ -1,33 +1,36 @@
 /**
  * Mentor scene — activates mentor mode.
  *
- * In mentor mode, the user chats with an AI language-learning coach.
- * The coach helps the user translate and learn words through guided
- * conversation — it does NOT translate immediately.
- * Persists mode change to DB so it survives bot restarts.
+ * In mentor mode, the user chats with an AI language assistant about grammar,
+ * usage, and idioms. Persists mode change to DB so it survives bot restarts.
  */
-import { isSupported, type SupportedLang, t } from "@polyglot/core";
+import { FEATURE_KEYS, isSupported, type SupportedLang, t } from "@polyglot/core";
 import type { BotContext } from "../types.js";
 import { replyTechnical } from "../utils/message-cleanup.js";
+import { mentorExitKeyboard } from "./helpers/mentor-exit.helper.js";
+import { ensurePaidFeatureForMessage } from "./helpers/paid-feature.helper.js";
 
 /**
- * Handles /mentor command — activates mentor mode.
- * Clears any existing conversation history (fresh start).
- * Persists mode change to DB.
+ * Handles /mentor command — activates mentor mode and starts a fresh thread.
  */
 export async function handleMentorCommand(ctx: BotContext): Promise<void> {
-  // Set active mode to mentor (session + DB)
-  ctx.session.activeMode = "mentor";
-  await ctx.services.userRepository.updateActiveMode(ctx.user.id, "mentor");
-
-  // Clear any existing mentor history — each /mentor entry starts fresh
-  ctx.session.mentor = undefined;
-
-  // Get user's settings for language display
   const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
   const iLang = settings?.interfaceLang ?? "en";
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
 
-  // Send confirmation message
-  await replyTechnical(ctx, t("mentorModeOn", lang));
+  // Gate BEFORE touching the mode: a refused free user must not end up stuck
+  // in a mode whose every message answers with the paywall.
+  if (!(await ensurePaidFeatureForMessage(ctx, FEATURE_KEYS.mentor, lang))) {
+    return;
+  }
+
+  // Set active mode to mentor (session + DB)
+  ctx.session.activeMode = "mentor";
+  await ctx.services.userRepository.updateActiveMode(ctx.user.id, "mentor");
+
+  // Empty object = "fresh thread, do not recover the previous one from DB";
+  // the first turn mints a new thread id.
+  ctx.session.mentor = {};
+
+  await replyTechnical(ctx, t("mentorModeOn", lang), { reply_markup: mentorExitKeyboard(lang) });
 }

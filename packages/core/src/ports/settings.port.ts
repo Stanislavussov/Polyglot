@@ -13,6 +13,8 @@ export interface PlanLimitConfig {
   /** Max video analyses within `videoWindow`. null = unlimited */
   videoLimit: number | null;
   videoWindow: VideoWindow;
+  /** Max mentor turns per day (UTC window). null = unlimited */
+  mentorDailyLimit: number | null;
   /** Display price in US cents for the upgrade screen. null = not for sale. */
   priceUsdCents: number | null;
   isActive: boolean;
@@ -108,6 +110,21 @@ export interface SttConfig {
   maxDurationSec: number;
 }
 
+/**
+ * Mentor-chat settings (mentor MVP follow-up).
+ *
+ * Unlike TTS/STT, an empty `modelId` does NOT disable the feature — mentor has
+ * its own entitlement gate. Empty means "follow the regular resolution chain"
+ * (plan-routed model → global default → fallback), so wiping the field can
+ * never silently kill mentor; it just makes it answer with the default model.
+ */
+export interface MentorConfig {
+  /** OpenRouter chat model id for mentor turns. Empty string = use the default chain. */
+  modelId: string;
+  /** Max output tokens per mentor answer. */
+  maxTokens: number;
+}
+
 export interface SettingsPort {
   getPlanLimits(): Promise<PlanLimitConfig[]>;
   getPlanLimit(plan: SubscriptionPlan): Promise<PlanLimitConfig | null>;
@@ -130,4 +147,5 @@ export interface SettingsPort {
   getVideoVocabularyConfig(): Promise<VideoVocabularyConfig>;
   getTtsConfig(): Promise<TtsConfig>;
   getSttConfig(): Promise<SttConfig>;
+  getMentorConfig(): Promise<MentorConfig>;
 }

@@ -231,6 +231,8 @@ export interface SessionData {
       kind: "translate" | "mentor";
       /** The original user input, verbatim as the flow's entry point takes it. */
       text: string;
+      /** Mentor only: the thread the timed-out turn belonged to, so a retried reply-continuation lands in the same thread. */
+      threadId?: string;
       /** Monotonic insertion stamp used for recency-based eviction. */
       addedAt?: number;
     }
@@ -269,16 +271,16 @@ export interface SessionData {
     cardMsgId?: number;
   };
   /**
-   * Mentor mode conversation history (Task 66).
-   * Stores the chat messages between user and AI mentor. Persisted with the
-   * rest of the session: the storage adapter writes the whole payload to
-   * `bot_sessions.data`, so these turns outlive a bot restart. They are
-   * bounded by the `MAX_MENTOR_HISTORY` cap applied on every turn, the reset
-   * on each /mentor entry, and the retention sweep that drops sessions left
-   * idle past the horizon.
+   * Mentor mode state (Task 66, reply-threads MVP).
+   * History lives in `mentor_messages` (DB), NOT here — the session only pins
+   * which thread a plain message in mentor mode continues. An empty object is
+   * meaningful: it marks a fresh `/mentor` entry, so a missing `mentor` field
+   * (session loss) is the only state that triggers latest-thread recovery from
+   * the DB. Legacy sessions may still carry a `history` array — ignored and
+   * overwritten on the next mentor turn.
    */
   mentor?: {
-    history: Array<{ role: "user" | "assistant"; content: string }>;
+    threadId?: string;
   };
   /**
    * Technical message IDs to delete after scene ends or settings change.
