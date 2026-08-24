@@ -120,7 +120,7 @@ describe("handleMentorText", () => {
     expect(options?.budgetMs).toBeGreaterThan(0);
   });
 
-  it("replies with the AI response text", async () => {
+  it("replies with the AI response as Telegram HTML, carrying the exit button in mentor mode", async () => {
     const ctx = createMockCtx();
     await handleMentorText(ctx, "hello");
 
@@ -128,6 +128,32 @@ describe("handleMentorText", () => {
     const replies = vi.mocked(ctx.reply).mock.calls;
     expect(replies.length).toBe(2);
     expect(replies[1][0]).toBe("Present Perfect links past events to now.");
+    const extra = replies[1][1] as { parse_mode?: string; reply_markup?: { inline_keyboard: unknown[] } };
+    expect(extra?.parse_mode).toBe("HTML");
+    expect(extra?.reply_markup?.inline_keyboard).toBeDefined();
+  });
+
+  it("delivers the answer as plain text when Telegram rejects the HTML markup", async () => {
+    const ctx = createMockCtx();
+    vi.mocked(ctx.reply)
+      .mockResolvedValueOnce({ message_id: 90 } as never) // loader
+      .mockRejectedValueOnce(new Error("can't parse entities")) // HTML attempt
+      .mockResolvedValueOnce({ message_id: 100 } as never); // plain fallback
+
+    await handleMentorText(ctx, "hello");
+
+    const replies = vi.mocked(ctx.reply).mock.calls;
+    expect(replies.length).toBe(3);
+    expect(replies[2][0]).toBe("Present Perfect links past events to now.");
+    expect((replies[2][1] as { parse_mode?: string })?.parse_mode).toBeUndefined();
+  });
+
+  it("sends the answer without the exit button when the turn ran outside mentor mode", async () => {
+    const ctx = createMockCtx({ activeMode: "translate", mentor: undefined });
+    await handleMentorText(ctx, "reply from translate", { threadId: THREAD_B });
+
+    const extra = vi.mocked(ctx.reply).mock.calls[1][1] as { reply_markup?: unknown };
+    expect(extra?.reply_markup).toBeUndefined();
   });
 
   it("deletes the loading indicator after success", async () => {

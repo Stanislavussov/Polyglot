@@ -19,6 +19,7 @@ import { arrangeOnboardedTranslator } from "../../test-helpers/integration/arran
 import {
   type BotHarness,
   type CapturedCall,
+  callbackQueryUpdate,
   createBotHarness,
   messageUpdate,
 } from "../../test-helpers/integration/bot-harness.js";
@@ -151,6 +152,64 @@ describe("mentor mode with reply threads (integration)", () => {
     // The fresh thread's AI call carried no history from the first one.
     const secondCallMessages = generateChat.mock.calls[1][0] as ChatMsg[];
     expect(secondCallMessages.map((message) => message.content)).not.toContain("topic one");
+  });
+
+  it("mentor answers carry new-topic/exit buttons; exit switches to translate, new topic starts a fresh thread", async () => {
+    const telegramId = uniqueTelegramId();
+    const userId = await arrangeOnboardedTranslator(telegramId, { plan: "plus" });
+    const { harness, generateChat } = arrangeHarness();
+
+    await harness.dispatch(messageUpdate({ chatId: telegramId, fromId: telegramId, text: "/mentor" }));
+    generateChat.mockResolvedValueOnce("Topic one answer.");
+    await harness.dispatch(messageUpdate({ chatId: telegramId, fromId: telegramId, text: "topic one", messageId: 61 }));
+
+    // The answer carries both buttons.
+    const answer = sends(harness).find((call) => call.payload.text === "Topic one answer.");
+    const markup = answer?.payload.reply_markup as
+      | { inline_keyboard?: Array<Array<{ callback_data?: string }>> }
+      | undefined;
+    const buttons = (markup?.inline_keyboard ?? []).flat().map((button) => button.callback_data);
+    expect(buttons).toEqual(["mentor:new", "mentor:exit"]);
+
+    // 🆕 New topic → still mentor mode, but the next turn opens a DIFFERENT thread.
+    await harness.dispatch(
+      callbackQueryUpdate({
+        chatId: telegramId,
+        fromId: telegramId,
+        messageId: answer?.messageId ?? 0,
+        data: "mentor:new",
+      }),
+    );
+    expect((await userRepository.getSettings(userId))?.activeMode).toBe("mentor");
+    generateChat.mockResolvedValueOnce("Topic two answer.");
+    await harness.dispatch(messageUpdate({ chatId: telegramId, fromId: telegramId, text: "topic two", messageId: 62 }));
+    const firstThread = await mentorMessageRepository.findThreadByMessage(
+      telegramId,
+      answerMessageId(harness, "Topic one answer."),
+    );
+    const secondThread = await mentorMessageRepository.findThreadByMessage(
+      telegramId,
+      answerMessageId(harness, "Topic two answer."),
+    );
+    expect(secondThread).not.toBe(firstThread);
+    // The fresh thread's AI call carried no history from topic one.
+    const secondCallMessages = generateChat.mock.calls[1][0] as ChatMsg[];
+    expect(secondCallMessages.map((message) => message.content)).not.toContain("topic one");
+
+    // ↩️ Exit → translate mode; the next plain word is translated, not mentored.
+    const secondAnswer = sends(harness).find((call) => call.payload.text === "Topic two answer.");
+    await harness.dispatch(
+      callbackQueryUpdate({
+        chatId: telegramId,
+        fromId: telegramId,
+        messageId: secondAnswer?.messageId ?? 0,
+        data: "mentor:exit",
+      }),
+    );
+    expect((await userRepository.getSettings(userId))?.activeMode).toBe("translate");
+    const chatCallsBefore = generateChat.mock.calls.length;
+    await harness.dispatch(messageUpdate({ chatId: telegramId, fromId: telegramId, text: "hello", messageId: 63 }));
+    expect(generateChat.mock.calls.length).toBe(chatCallsBefore);
   });
 
   it("caps mentor turns at the plan's daily limit and sells Pro on the refusal", async () => {

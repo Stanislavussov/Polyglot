@@ -23,6 +23,7 @@ import { ensureAiQuota, ensureMentorDailyQuota, recordAiUsage } from "../../util
 import { isUserFacingTimeout, LONG_OP_TIMEOUT_MS, sendTypingIndicator, withTimeout } from "../../utils/long-op.js";
 import { replyTechnical } from "../../utils/message-cleanup.js";
 import { replyWithRetry } from "../../utils/retry-action.js";
+import { mentorAnswerKeyboard } from "./mentor-exit.helper.js";
 import { ensurePaidFeatureForMessage } from "./paid-feature.helper.js";
 
 /** Maximum input message length in characters. */
@@ -140,7 +141,15 @@ export async function handleMentorText(ctx: BotContext, text: string, opts?: Men
 
     // Plain ctx.reply on purpose: mentor answers are content, and the technical
     // cleanup sweep must never delete a message a reply-continuation can anchor to.
-    const sent = await ctx.reply(response);
+    // The exit button rides only on answers delivered IN mentor mode — a
+    // reply-continuation answered from translate mode has no mode to exit.
+    const extra = {
+      ...(ctx.session.activeMode === "mentor" ? { reply_markup: mentorAnswerKeyboard(lang) } : {}),
+    };
+    // The prompt asks for Telegram HTML (<b>/<i>); a model that slips invalid
+    // markup would turn the whole send into a 400, so fall back to plain text —
+    // a raw tag on screen beats a lost answer.
+    const sent = await ctx.reply(response, { ...extra, parse_mode: "HTML" }).catch(() => ctx.reply(response, extra));
 
     // Best-effort persistence: the answer is already delivered, so a DB hiccup
     // only costs this turn its reply-anchor — never a user-facing error.

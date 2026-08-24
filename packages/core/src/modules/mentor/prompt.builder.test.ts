@@ -43,6 +43,19 @@ describe("buildMentorSystemPrompt", () => {
     expect(prompt).toMatch(/example/i);
   });
 
+  it("demands Telegram HTML emphasis and forbids Markdown asterisks", () => {
+    const prompt = buildMentorSystemPrompt(opts);
+    expect(prompt).toContain("<b>");
+    expect(prompt).toContain("<i>");
+    expect(prompt).toMatch(/never use markdown/i);
+    expect(prompt).toMatch(/asterisk/i);
+  });
+
+  it("asks for a moderate amount of emoji", () => {
+    const prompt = buildMentorSystemPrompt(opts);
+    expect(prompt).toMatch(/moderate.*emoji|emoji.*moderate/i);
+  });
+
   it("includes the interface language so the AI responds in the right language", () => {
     const prompt = buildMentorSystemPrompt({ ...opts, interfaceLang: "ru" });
     expect(prompt).toContain("ru");
