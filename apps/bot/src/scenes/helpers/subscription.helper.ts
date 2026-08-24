@@ -22,7 +22,6 @@ import {
 } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import type { BotContext } from "../../types.js";
-import { replyTechnical } from "../../utils/message-cleanup.js";
 
 /**
  * Plan badge for the buy buttons. Deliberately not repeated in the screen's prose:
@@ -263,10 +262,10 @@ export async function sendUpgradeScreen(ctx: BotContext, lang?: SupportedLang, f
     // Nothing left to sell. Two different truths, and neither is an error the user
     // caused: they are at the top of the ladder, or no plan is priced yet (a fresh
     // deployment before the catalog seed). Never a ⚠️ — the user did nothing wrong.
-    await replyTechnical(ctx, t(ladder.length > 0 ? "upgradeTopPlan" : "upgradeComingSoon", iLang));
+    await ctx.reply(t(ladder.length > 0 ? "upgradeTopPlan" : "upgradeComingSoon", iLang));
     return;
   }
-  await replyTechnical(ctx, renderUpgradeScreen(ladder, from, iLang, feature), {
+  await ctx.reply(renderUpgradeScreen(ladder, from, iLang, feature), {
     parse_mode: "HTML",
     reply_markup: buildPlanChoiceKeyboard(ladder.slice(from), iLang),
   });
@@ -286,12 +285,12 @@ export async function handleBuyPlanCallback(ctx: BotContext): Promise<void> {
   const name = (ctx.callbackQuery?.data ?? "").split(":")[2];
   const plan = (await loadPurchasablePlans(ctx)).find((candidate) => candidate.name === name);
   if (!plan) {
-    await replyTechnical(ctx, t("checkoutFailed", lang));
+    await ctx.reply(t("checkoutFailed", lang));
     return;
   }
   const keptPlan = await refuseAsDowngrade(ctx, plan);
   if (keptPlan) {
-    await replyTechnical(ctx, t("purchaseDowngradeBlocked", lang, { plan: keptPlan }), { parse_mode: "HTML" });
+    await ctx.reply(t("purchaseDowngradeBlocked", lang, { plan: keptPlan }), { parse_mode: "HTML" });
     return;
   }
 
@@ -299,14 +298,10 @@ export async function handleBuyPlanCallback(ctx: BotContext): Promise<void> {
     .text(t("purchaseConfirmYes", lang), `plan:confirm:${plan.name}`)
     .text(t("purchaseConfirmNo", lang), "plan:cancel");
 
-  await replyTechnical(
-    ctx,
-    t("purchaseConfirmPrompt", lang, { plan: plan.label, price: formatPrice(plan.priceUsdCents) }),
-    {
-      parse_mode: "HTML",
-      reply_markup: keyboard,
-    },
-  );
+  await ctx.reply(t("purchaseConfirmPrompt", lang, { plan: plan.label, price: formatPrice(plan.priceUsdCents) }), {
+    parse_mode: "HTML",
+    reply_markup: keyboard,
+  });
 }
 
 /** `plan:confirm:<plan>` → run the (mock) checkout, upgrade the user, confirm. */
@@ -320,14 +315,14 @@ export async function handleConfirmPlanCallback(ctx: BotContext): Promise<void> 
   const plan = (await loadPurchasablePlans(ctx)).find((candidate) => candidate.name === name);
   const { paymentPort, subscriptionRepository } = ctx.services;
   if (!plan || !paymentPort || !subscriptionRepository) {
-    await replyTechnical(ctx, t("checkoutFailed", lang));
+    await ctx.reply(t("checkoutFailed", lang));
     return;
   }
   // Re-checked here too: the confirm button is as forwardable as the buy button,
   // and the plan pointer may have moved since the confirmation was rendered.
   const keptPlan = await refuseAsDowngrade(ctx, plan);
   if (keptPlan) {
-    await replyTechnical(ctx, t("purchaseDowngradeBlocked", lang, { plan: keptPlan }), { parse_mode: "HTML" });
+    await ctx.reply(t("purchaseDowngradeBlocked", lang, { plan: keptPlan }), { parse_mode: "HTML" });
     return;
   }
 
@@ -339,17 +334,17 @@ export async function handleConfirmPlanCallback(ctx: BotContext): Promise<void> 
 
   const result = await service.activate(ctx.user.id, plan.name);
   if (!result.ok || !result.currentPeriodEnd) {
-    await replyTechnical(ctx, t("checkoutFailed", lang));
+    await ctx.reply(t("checkoutFailed", lang));
     return;
   }
 
   const date = formatLongDate(result.currentPeriodEnd, lang, timeZone);
-  await replyTechnical(ctx, t("subscriptionActivated", lang, { plan: plan.label, date }));
+  await ctx.reply(t("subscriptionActivated", lang, { plan: plan.label, date }));
 }
 
 /** `plan:cancel` → back out of the test payment without touching anything. */
 export async function handleCancelPlanCallback(ctx: BotContext): Promise<void> {
   await ctx.answerCallbackQuery();
   const lang = await resolveLang(ctx);
-  await replyTechnical(ctx, t("purchaseCanceled", lang));
+  await ctx.reply(t("purchaseCanceled", lang));
 }

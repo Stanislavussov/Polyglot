@@ -17,29 +17,25 @@ import { buildMainKeyboard } from "../utils/main-menu.js";
 import { getRequestSettings } from "./request-settings.js";
 
 /** Bump when the keyboard layout changes so every user is re-sent the new one once. */
-export const MAIN_KEYBOARD_VERSION = 4;
+export const MAIN_KEYBOARD_VERSION = 6;
 
 /**
- * Sends `text` with the main-menu keyboard attached and records the carrier message.
+ * Sends `text` with the main-menu keyboard attached.
  *
  * Telegram binds a reply keyboard to the message that delivered it: delete that
- * message and the keyboard disappears from the user's screen. The carrier is
- * therefore deliberately **not** passed to `trackTechnicalMessage` — technical
- * messages are wiped before every translation, which is exactly how the keyboard
- * used to vanish after a single use. Its id is remembered so
- * `cleanupTechnicalMessages` can re-arm delivery should anything delete it anyway.
+ * message and the keyboard disappears from the user's screen. Nothing in the bot
+ * deletes it, so the keyboard is sent once per layout version.
  *
  * The version flag is set only after Telegram accepted the message, so a failed
  * send is retried on the next update instead of marking the chat as done.
  */
 export async function installMainKeyboard(ctx: BotContext, text: string, lang: SupportedLang): Promise<void> {
-  const msg = await ctx.reply(text, { reply_markup: buildMainKeyboard(lang) });
+  await ctx.reply(text, { reply_markup: buildMainKeyboard(lang) });
   // Guarded: the onboarding hand-off can run on a context rebuilt outside the
   // session middleware. Without a session the delivery still happened — the
   // middleware simply re-sends the hint on the user's next message.
   if (!ctx.session) return;
   ctx.session.mainKeyboardVersion = MAIN_KEYBOARD_VERSION;
-  ctx.session.mainKeyboardMessageId = msg.message_id;
 }
 
 export async function mainKeyboardMiddleware(ctx: BotContext, next: NextFunction): Promise<void> {

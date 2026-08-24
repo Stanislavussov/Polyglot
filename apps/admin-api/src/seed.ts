@@ -1,104 +1,27 @@
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import {
-  adminUserRepository,
-  aiModelRepository,
-  closeDb,
-  planFeatureAccessRepository,
-  rateLimitPlanRepository,
-  wordPickerPresetRepository,
-} from "@polyglot/adapter-db";
+import { adminUserRepository, aiModelRepository, closeDb, wordPickerPresetRepository } from "@polyglot/adapter-db";
 import { DEFAULT_WORD_PICKER_PRESETS } from "@polyglot/core";
 import bcrypt from "bcryptjs";
 import { config as dotenvConfig } from "dotenv";
+import { bootstrapPlanCatalog } from "./plan-catalog.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 dotenvConfig({ path: resolve(__dirname, "../../../.env") });
 
 async function seed() {
-  // Task 79 tier matrix. Free is translation-only; Plus adds the clarify/other-meaning
-  // pair, unmetered translation and monthly video; Pro is the only plan with word
-  // audio (TTS), the most expensive thing on a card. Plus is unmetered on purpose:
-  // the tier is priced on the assumption that a typical subscriber never approaches
-  // a cap, so the heavy user is covered by the many who are not. Numbers are seed
-  // defaults — admins retune them in the panel, and the resolver reads them from the
-  // DB on every check.
-  const GRAMMAR_FEATURES = ["grammarBreakdown", "etymology", "grammarDetail"];
-  const PLUS_FEATURES = [...GRAMMAR_FEATURES, "clarification", "mentor"];
-  const PRO_FEATURES = [...PLUS_FEATURES, "pronunciation", "voiceInput"];
-
-  const defaultPlans = [
-    {
-      name: "free",
-      label: "Free",
-      translationLimit: 10,
-      creditCost: 1,
-      videoLimit: 0,
-      videoWindow: "none" as const,
-      mentorDailyLimit: 0,
-      priceUsdCents: null,
-      isActive: true,
-      isDefault: true,
-      features: [] as string[],
-    },
-    {
-      name: "plus",
-      label: "Plus",
-      translationLimit: null,
-      creditCost: 1,
-      videoLimit: 20,
-      videoWindow: "monthly" as const,
-      // The mentor model is priced above the translate default, so unmetered
-      // Plus still caps the expensive calls; unlimited mentor is Pro's pitch.
-      mentorDailyLimit: 30,
-      priceUsdCents: 500,
-      isActive: true,
-      isDefault: false,
-      features: PLUS_FEATURES,
-    },
-    {
-      name: "pro",
-      label: "Pro",
-      translationLimit: null,
-      creditCost: 1,
-      videoLimit: null,
-      videoWindow: "monthly" as const,
-      mentorDailyLimit: null,
-      priceUsdCents: 1000,
-      isActive: true,
-      isDefault: false,
-      features: PRO_FEATURES,
-    },
-    {
-      name: "unlimited",
-      label: "Unlimited",
-      translationLimit: null,
-      creditCost: 1,
-      videoLimit: null,
-      videoWindow: "monthly" as const,
-      mentorDailyLimit: null,
-      priceUsdCents: null,
-      isActive: true,
-      isDefault: false,
-      features: PRO_FEATURES,
-    },
-  ];
-
-  // Idempotent: upsert every plan (updates columns on re-run) and sync its feature
-  // access. Seeded plans carry no model of their own — they follow the globally
-  // default model until an admin routes them explicitly in the AI Models page.
-  //
-  // Note the deliberate asymmetry with the AI-model block below, which only seeds
-  // an EMPTY catalog: plan limits, prices and feature access are re-asserted on
-  // every deploy, so this file — not the admin panel — is the source of truth for
-  // them. An admin edit to a limit or a price survives until the next release and
-  // is then reverted. Changing that means changing this loop, not the panel.
-  for (const { features, ...plan } of defaultPlans) {
-    await rateLimitPlanRepository.upsert({ ...plan, aiModelId: null });
-    await planFeatureAccessRepository.setFeaturesForPlan(plan.name, features);
-  }
+  // Bootstrap-only, like every other block in this file: plans that already
+  // exist are never touched, so limits, prices and feature access are
+  // admin-owned state from the moment a row exists. The catalog itself (and the
+  // tier-matrix rationale) lives in plan-catalog.ts so tests can import it
+  // without running this script.
+  const createdPlans = await bootstrapPlanCatalog();
   // biome-ignore lint/suspicious/noConsole: CLI script output
-  console.log("Seeded/updated subscription plans and feature access");
+  console.log(
+    createdPlans.length > 0
+      ? `Seeded subscription plans: ${createdPlans.join(", ")}`
+      : "Subscription plan catalog already present — left untouched",
+  );
 
   // Model ids now live ONLY in `ai_models`, so an empty table is not a soft
   // "unconfigured" state: resolveDefaultAIModel finds no plan model, no default

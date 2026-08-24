@@ -8,6 +8,7 @@ const { mockUserRepository, mockAi, mockSettings, mockTranslationRequestReposito
         nativeLang: "en",
         learningLangs: ["cs"],
       }),
+      getLanguageLevels: vi.fn().mockResolvedValue([{ languageCode: "cs", proficiencyLevel: "A2" }]),
     },
     mockAi: {
       generateChat: vi.fn().mockResolvedValue("Present Perfect links past events to now."),
@@ -108,6 +109,14 @@ describe("handleMentorText", () => {
     expect(messages[1]).toEqual({ role: "user", content: "previous question" });
     expect(messages[2]).toEqual({ role: "assistant", content: "previous answer" });
     expect(messages[3]).toEqual({ role: "user", content: "new question" });
+  });
+
+  it("annotates the learning language in the system prompt with the user's stored CEFR level", async () => {
+    const ctx = createMockCtx();
+    await handleMentorText(ctx, "how does the locative work?");
+
+    const messages = vi.mocked(mockAi.generateChat).mock.calls[0][0];
+    expect(messages[0].content).toContain("cs (A2)");
   });
 
   it("passes maxTokens and a time budget to the chat call", async () => {

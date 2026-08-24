@@ -111,6 +111,18 @@
             <option value="monthly">monthly</option>
           </select>
         </label>
+        <fieldset>
+          <legend class="mb-1 block text-sm font-medium text-gray-700">Unlocks</legend>
+          <div class="grid grid-cols-2 gap-x-4 gap-y-1">
+            <CheckboxField
+              v-for="key in FEATURE_OPTIONS"
+              :key="key"
+              :label="key"
+              :model-value="form.features.includes(key)"
+              @update:model-value="toggleFeature(key)"
+            />
+          </div>
+        </fieldset>
         <div class="flex gap-6">
           <CheckboxField v-model="form.isActive" label="Active" />
           <CheckboxField v-model="form.isDefault" label="Default" />
@@ -135,7 +147,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
 import { type PlanLimitConfig, rateLimits } from "../lib/api";
-import { rateLimitPlanSchema, zodErrorMessage } from "@polyglot/admin-contracts";
+import { featureKeySchema, rateLimitPlanSchema, zodErrorMessage } from "@polyglot/admin-contracts";
 import DataTable, { type Column, type TableCellValue, type TableRow } from "./DataTable.vue";
 import AlertMessage from "./ui/AlertMessage.vue";
 import AppButton from "./ui/AppButton.vue";
@@ -161,7 +173,11 @@ interface PlanForm {
    * would silently reset the plan to the default model on every unrelated edit.
    */
   aiModelId: string | null;
+  features: string[];
 }
+
+/** Canonical checkbox order — the contract enum, so new keys appear without a UI edit. */
+const FEATURE_OPTIONS = featureKeySchema.options;
 
 const columns: Column[] = [
   { key: "name", label: "Plan" },
@@ -209,7 +225,18 @@ function emptyForm(): PlanForm {
     isActive: true,
     isDefault: false,
     aiModelId: null,
+    features: [],
   };
+}
+
+function toggleFeature(key: string): void {
+  const selected = new Set(form.value.features);
+  if (selected.has(key)) {
+    selected.delete(key);
+  } else {
+    selected.add(key);
+  }
+  form.value.features = FEATURE_OPTIONS.filter((option) => selected.has(option));
 }
 
 function toForm(plan: PlanLimitConfig): PlanForm {
@@ -225,6 +252,9 @@ function toForm(plan: PlanLimitConfig): PlanForm {
     isActive: plan.isActive,
     isDefault: plan.isDefault,
     aiModelId: plan.aiModelId,
+    // Drop keys the contract no longer knows: carrying one through would make
+    // the zod parse reject the whole form until the admin touched a checkbox.
+    features: (plan.features ?? []).filter((key) => (FEATURE_OPTIONS as readonly string[]).includes(key)),
   };
 }
 
@@ -241,6 +271,7 @@ function toPlan(value: PlanForm): PlanLimitConfig {
     isActive: value.isActive,
     isDefault: value.isDefault,
     aiModelId: value.aiModelId,
+    features: value.features,
   };
 }
 

@@ -2,12 +2,11 @@
  * Persistent main-menu keyboard — grammY e2e integration test.
  *
  * Telegram binds a reply keyboard to the message that delivered it, so deleting
- * that message takes the menu off the user's screen. `mainKeyboardMiddleware` sends
- * the keyboard on a user's first message, and the translate flow wipes its
- * technical messages at the start of every translation — when the carrier was one
- * of them the menu survived exactly one translation and, with the delivery flag
- * already stored, never came back. This drives real updates through the real
- * dispatcher and asserts the carrier is never deleted and never re-sent.
+ * that message takes the menu off the user's screen. `mainKeyboardMiddleware`
+ * sends the keyboard on a user's first message and stores a delivery flag, so a
+ * carrier that ever disappeared would never be replaced. This drives real updates
+ * through the real dispatcher and asserts the carrier is never deleted and never
+ * re-sent — and that /start remains the escape hatch.
  */
 import { botSessionRepository } from "@polyglot/adapter-db";
 import { describe, expect, it } from "vitest";
@@ -44,31 +43,27 @@ async function readSession(chatId: number): Promise<SessionData> {
 }
 
 describe("main-menu keyboard (integration)", () => {
-  it("survives the technical-message cleanup that every translation runs", async () => {
+  it("is delivered once and never deleted by the translations that follow", async () => {
     const harness = createBotHarness({ ai: deterministicTranslateAi() });
     const id = uniqueTelegramId();
 
     // Arrange: an onboarded user who has never received the keyboard.
     await arrangeOnboardedTranslator(id);
 
-    // Act 1: the first message installs the keyboard, then translates — and the
-    // translate flow's cleanup runs in the very same update.
+    // Act 1: the first message installs the keyboard, then translates.
     await harness.dispatch(messageUpdate({ chatId: id, fromId: id, text: "hello" }));
 
     const carriers = keyboardCarriers(harness.sent);
     expect(carriers).toHaveLength(1);
     const carrier = carriers[0];
     if (!carrier) throw new Error("the main-menu keyboard was never sent");
-    expect(carrier.labels).toEqual(["✨ Pick words", "🧑‍🏫 Mentor", "📖 Dictionary", "🎴 Cards", "🎬 Videos"]);
+    expect(carrier.labels).toEqual(["🎴 Cards", "🧑‍🏫 Mentor", "📖 Dictionary"]);
     expect(deletedMessageIds(harness.sent)).not.toContain(carrier.messageId);
 
     const afterFirst = await readSession(id);
     expect(afterFirst.mainKeyboardVersion).toBe(MAIN_KEYBOARD_VERSION);
-    expect(afterFirst.mainKeyboardMessageId).toBe(carrier.messageId);
-    expect(afterFirst.technicalMessages ?? []).not.toContain(carrier.messageId);
 
-    // Act 2: a second translation sweeps the technical messages the first one left
-    // behind — the carrier must not be among them, and the menu must not be re-sent.
+    // Act 2: a second translation must neither delete the carrier nor re-send the menu.
     harness.reset();
     await harness.dispatch(messageUpdate({ chatId: id, fromId: id, text: "world", messageId: 2 }));
 
@@ -76,7 +71,7 @@ describe("main-menu keyboard (integration)", () => {
     expect(keyboardCarriers(harness.sent)).toEqual([]);
 
     const afterSecond = await readSession(id);
-    expect(afterSecond.mainKeyboardMessageId).toBe(carrier.messageId);
+    expect(afterSecond.mainKeyboardVersion).toBe(MAIN_KEYBOARD_VERSION);
   });
 
   it("re-installs the keyboard on /start so a user who lost it can get it back", async () => {
@@ -88,7 +83,6 @@ describe("main-menu keyboard (integration)", () => {
     await botSessionRepository.upsert(String(id), {
       activeMode: "translate",
       mainKeyboardVersion: MAIN_KEYBOARD_VERSION,
-      mainKeyboardMessageId: 777,
     } satisfies SessionData);
 
     // Act: /start — the escape hatch when the carrier message is gone from the chat.
@@ -101,7 +95,6 @@ describe("main-menu keyboard (integration)", () => {
     expect(deletedMessageIds(harness.sent)).not.toContain(carrier.messageId);
 
     const session = await readSession(id);
-    expect(session.mainKeyboardMessageId).toBe(carrier.messageId);
     expect(session.mainKeyboardVersion).toBe(MAIN_KEYBOARD_VERSION);
   });
 });

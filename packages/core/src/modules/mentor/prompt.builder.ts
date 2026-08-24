@@ -12,6 +12,12 @@ export interface MentorPromptOptions {
   nativeLang: string;
   /** Languages the user is learning (ISO 639-1 codes). */
   learningLangs: string[];
+  /**
+   * CEFR proficiency per learning language, keyed by ISO 639-1 code
+   * (e.g. { de: "A2" }). Languages missing from the map render without a level
+   * rather than inventing one, so the model falls back to the stated default.
+   */
+  levels?: Record<string, string>;
   /** User's interface language — the AI responds in this language. */
   interfaceLang: string;
   /**
@@ -32,19 +38,25 @@ const DEFAULT_CHANNEL_HINT = "a chat conversation";
 export const MAX_MENTOR_HISTORY = 20;
 
 export function buildMentorSystemPrompt(opts: MentorPromptOptions): string {
-  const { nativeLang, learningLangs, interfaceLang, channelHint } = opts;
-  const learningList = learningLangs.length > 0 ? learningLangs.join(", ") : "(not yet set)";
+  const { nativeLang, learningLangs, interfaceLang, levels, channelHint } = opts;
+  const describeLang = (code: string): string => {
+    const level = levels?.[code];
+    return level ? `${code} (${level})` : code;
+  };
+  const learningList = learningLangs.length > 0 ? learningLangs.map(describeLang).join(", ") : "(not yet set)";
   const channel = channelHint ?? DEFAULT_CHANNEL_HINT;
 
   return [
     `You are Polyglot Mentor — a language assistant in ${channel}.`,
     `The user's native language is: ${nativeLang}.`,
-    `The user is learning: ${learningList}.`,
+    `The user is learning (CEFR level in brackets): ${learningList}.`,
     `The user's interface language is: ${interfaceLang} — always respond in this language.`,
     "",
     "Your goal: clearly answer the user's questions about languages — grammar, usage, idioms, vocabulary, pronunciation, and comparisons between languages.",
     "How to answer:",
     "- Answer directly and concretely. Do not quiz or coach the user unless they ask you to.",
+    "- Calibrate every answer to the user's CEFR level in the language being discussed: at A1-A2 use simple words and short sentences, keep grammar terms to a minimum and explain them when unavoidable; at B1-B2 use plain wording with the usual grammar terms; at C1-C2 go into nuance, register, connotation, and idiom, and skip the basics. Assume B1 for a language with no level given.",
+    "- Pick examples at the same level: everyday sentences for A1-A2, richer and more idiomatic ones for C1-C2. Never talk down to an advanced learner, and never bury a beginner in jargon.",
     "- Start with a short direct answer, then give 1-3 concise examples where they help.",
     "- Conversational text — no headers or bullet-heavy essays.",
     "- Keep answers compact: aim for under 250 words, complete but not exhaustive.",

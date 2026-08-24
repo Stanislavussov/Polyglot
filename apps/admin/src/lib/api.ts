@@ -329,7 +329,10 @@ export interface PlanLimitConfig {
   isDefault: boolean;
   /** Model this plan's users are served by. null = use the globally default model. */
   aiModelId: string | null;
-  /** Feature keys the plan unlocks (read-only; seeded via `plan_feature_access`). */
+  /**
+   * Feature keys the plan unlocks (`plan_feature_access`). Omit the field to
+   * leave the stored set untouched; the plans form always sends it.
+   */
   features?: string[];
 }
 

@@ -21,7 +21,6 @@ import type { BotContext } from "../../types.js";
 import { buildAiFailover, resolveDefaultAIModel, resolveFallbackAIModel } from "../../utils/ai-model.js";
 import { ensureAiQuota, ensureMentorDailyQuota, recordAiUsage } from "../../utils/ai-quota.js";
 import { isUserFacingTimeout, LONG_OP_TIMEOUT_MS, sendTypingIndicator, withTimeout } from "../../utils/long-op.js";
-import { replyTechnical } from "../../utils/message-cleanup.js";
 import { replyWithRetry } from "../../utils/retry-action.js";
 import { mentorAnswerKeyboard } from "./mentor-exit.helper.js";
 import { ensurePaidFeatureForMessage } from "./paid-feature.helper.js";
@@ -67,7 +66,7 @@ export async function handleMentorText(ctx: BotContext, text: string, opts?: Men
 
   // Validate input length
   if (text.length > MENTOR_MAX_INPUT_LENGTH) {
-    await replyTechnical(ctx, t("mentorInputTooLong", lang, { max: MENTOR_MAX_INPUT_LENGTH }));
+    await ctx.reply(t("mentorInputTooLong", lang, { max: MENTOR_MAX_INPUT_LENGTH }));
     return;
   }
 
@@ -95,15 +94,19 @@ export async function handleMentorText(ctx: BotContext, text: string, opts?: Men
   // wiped setting degrades to the default model instead of killing the feature.
   const mentorConfig = await ctx.services.settings.getMentorConfig();
   const overrideModel = mentorConfig.modelId.trim();
-  const [model, fallbackModel] = await Promise.all([
+  const [model, fallbackModel, levelRows] = await Promise.all([
     overrideModel ? Promise.resolve(overrideModel) : resolveDefaultAIModel(ctx.services.settings, plan),
     resolveFallbackAIModel(ctx.services.settings),
+    ctx.services.userRepository.getLanguageLevels(ctx.user.id),
   ]);
 
-  // Build system prompt from user's language settings
+  // Build system prompt from user's language settings, annotated with the CEFR
+  // level they picked per language so answers land at the right difficulty.
+  const levels = Object.fromEntries(levelRows.map((row) => [row.languageCode, row.proficiencyLevel]));
   const systemPrompt = buildMentorSystemPrompt({
     nativeLang: settings?.nativeLang ?? "en",
     learningLangs: settings?.learningLangs ?? [],
+    levels,
     interfaceLang: lang,
   });
 
@@ -194,6 +197,6 @@ export async function handleMentorText(ctx: BotContext, text: string, opts?: Men
       await replyWithRetry(ctx, t("loadingTimeout", lang), lang, { kind: "mentor", text, threadId });
       return;
     }
-    await replyTechnical(ctx, t("mentorError", lang));
+    await ctx.reply(t("mentorError", lang));
   }
 }

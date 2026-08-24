@@ -102,6 +102,23 @@ describe("mentor mode with reply threads (integration)", () => {
     expect((await mentorMessageRepository.getRecentMessages(threadId as string, 10)).length).toBe(6);
   });
 
+  it("carries the learner's stored CEFR level for each learning language into the system prompt", async () => {
+    const telegramId = uniqueTelegramId();
+    const userId = await arrangeOnboardedTranslator(telegramId, { plan: "plus", learningLangs: ["cs", "de"] });
+    await userRepository.setLanguageLevel(userId, "cs", "C1");
+    const { harness, generateChat } = arrangeHarness();
+
+    await harness.dispatch(messageUpdate({ chatId: telegramId, fromId: telegramId, text: "/mentor" }));
+    await harness.dispatch(
+      messageUpdate({ chatId: telegramId, fromId: telegramId, text: "how do I use se?", messageId: 41 }),
+    );
+
+    const systemPrompt = (generateChat.mock.calls[0][0] as ChatMsg[])[0].content;
+    expect(systemPrompt).toContain("cs (C1)");
+    // No level was ever chosen for German, so the prompt must not invent one.
+    expect(systemPrompt).not.toMatch(/de \(/);
+  });
+
   it("a reply to a non-mentor bot message falls through to translation", async () => {
     const telegramId = uniqueTelegramId();
     await arrangeOnboardedTranslator(telegramId, { plan: "plus" });

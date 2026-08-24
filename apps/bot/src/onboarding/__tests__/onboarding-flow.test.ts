@@ -680,7 +680,7 @@ describe("onboarding — screen 2 (instant demo card)", () => {
     await h.send("doch");
 
     // The pipeline asked the user which meaning they wanted. Completing here
-    // would sweep the question away and mark them onboarded having never seen a
+    // would bury the question and mark them onboarded having never seen a
     // card — the exact payoff the redesign exists to deliver.
     expect(h.userRepository.markOnboarded).not.toHaveBeenCalled();
     expect(vi.mocked(h.ctx.reply).mock.calls.length).toBe(repliesBefore);
@@ -743,9 +743,15 @@ describe("onboarding — screen 3 (instruction + feature entry points)", () => {
     await h.tap("onb:hook:de:0");
 
     // The menu is not pinned to the screen, so onboarding is the one place the
-    // user is shown it — a hand-off that never names the icon leaves a keyboard
-    // that folds away after one use effectively undiscoverable.
-    expect(String(vi.mocked(h.ctx.reply).mock.calls.at(-1)?.[0])).toContain("⌨️");
+    // user is shown it — a hand-off that never happens leaves it undiscoverable.
+    const handover = vi.mocked(h.ctx.reply).mock.calls.at(-1);
+    // Names the icon, not just the menu: the whole point of the hand-off is that a
+    // folded-away keyboard is invisible until the user knows where to tap.
+    expect(String(handover?.[0])).toContain("⌨️");
+    expect(String(handover?.[0])).toContain("Карточки");
+    expect((handover?.[1] as { reply_markup?: { one_time_keyboard?: boolean } })?.reply_markup).toMatchObject({
+      one_time_keyboard: true,
+    });
   });
 
   it("routes each feature button to the existing scene handler", async () => {
@@ -980,13 +986,13 @@ describe("onboarding — recovery and reversibility", () => {
     expect(h.store.settings?.learningLangs).toEqual([]);
   });
 
-  it("tracks the replacement message when a screen is too old to edit", async () => {
+  it("sends a replacement message when a screen is too old to edit", async () => {
     const h = createHarness({ languageCode: "ru" });
     await h.start();
 
     // Past Telegram's 48-hour edit window the shared helper sends a fresh message
     // instead. Onboarding is built to survive multi-day pauses, so this is a real
-    // path — and an untracked prompt can never be swept at completion.
+    // path — the next screen has to reach the user either way.
     const tooOld = new GrammyError(
       "Call to 'editMessageText' failed!",
       { ok: false, error_code: 400, description: "Bad Request: message to edit not found" },
@@ -998,6 +1004,6 @@ describe("onboarding — recovery and reversibility", () => {
 
     await h.tap("onb:nat:ru");
 
-    expect(h.ctx.session.technicalMessages).toContain(4242);
+    expect(h.ctx.reply).toHaveBeenCalled();
   });
 });
