@@ -26,6 +26,7 @@ const { mockUserRepository, mockSettings, mockTranslationRequestRepository, mock
     },
     mockUserRepository: {
       getSettings: vi.fn().mockResolvedValue({ interfaceLang: "en", nativeLang: "en", learningLangs: ["cs"] }),
+      getLanguageLevels: vi.fn().mockResolvedValue([{ languageCode: "cs", proficiencyLevel: "B2" }]),
     },
     mockSettings: {
       getDefaultAIModel: vi.fn().mockResolvedValue("openai/gpt-4o"),

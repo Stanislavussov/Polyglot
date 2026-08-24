@@ -94,15 +94,19 @@ export async function handleMentorText(ctx: BotContext, text: string, opts?: Men
   // wiped setting degrades to the default model instead of killing the feature.
   const mentorConfig = await ctx.services.settings.getMentorConfig();
   const overrideModel = mentorConfig.modelId.trim();
-  const [model, fallbackModel] = await Promise.all([
+  const [model, fallbackModel, levelRows] = await Promise.all([
     overrideModel ? Promise.resolve(overrideModel) : resolveDefaultAIModel(ctx.services.settings, plan),
     resolveFallbackAIModel(ctx.services.settings),
+    ctx.services.userRepository.getLanguageLevels(ctx.user.id),
   ]);
 
-  // Build system prompt from user's language settings
+  // Build system prompt from user's language settings, annotated with the CEFR
+  // level they picked per language so answers land at the right difficulty.
+  const levels = Object.fromEntries(levelRows.map((row) => [row.languageCode, row.proficiencyLevel]));
   const systemPrompt = buildMentorSystemPrompt({
     nativeLang: settings?.nativeLang ?? "en",
     learningLangs: settings?.learningLangs ?? [],
+    levels,
     interfaceLang: lang,
   });
 
