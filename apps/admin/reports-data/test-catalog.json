@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-23T20:47:19.000Z",
+  "generatedAt": "2026-08-23T20:54:42.000Z",
   "summary": {
-    "total": 2875,
+    "total": 2883,
     "business": 0,
-    "technical": 2875,
+    "technical": 2883,
     "workspaces": [
       "apps",
       "packages"
@@ -3381,6 +3381,38 @@
       "name": "Bot word pronunciation (integration) tells the user the card expired when the session entry is gone",
       "value": "Protects the bot word pronunciation (integration) behavior so tells the user the card expired when the session entry is gone.",
       "description": "Protects the bot word pronunciation (integration) behavior so tells the user the card expired when the session entry is gone."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-video-vocabulary-integration-test-ts-103-video-vocabulary-flow-integration-completes-a-video-whose-transcript-falls-back-to-another-language-and-persists-the-detected-one",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/video-vocabulary.integration.test.ts",
+      "sourceLine": 103,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "video vocabulary flow (integration)"
+      ],
+      "title": "completes a video whose transcript falls back to another language and persists the detected one",
+      "rawTitle": "completes a video whose transcript falls back to another language and persists the detected one",
+      "name": "Bot video vocabulary flow (integration) completes a video whose transcript falls back to another language and persists the detected one",
+      "value": "Protects the bot video vocabulary flow (integration) behavior so completes a video whose transcript falls back to another language and persists the detected one.",
+      "description": "Protects the bot video vocabulary flow (integration) behavior so completes a video whose transcript falls back to another language and persists the detected one."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-video-vocabulary-integration-test-ts-155-video-vocabulary-flow-integration-fails-the-process-once-without-retries-when-no-transcript-exists-at-all",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/video-vocabulary.integration.test.ts",
+      "sourceLine": 155,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "video vocabulary flow (integration)"
+      ],
+      "title": "fails the process once, without retries, when no transcript exists at all",
+      "rawTitle": "fails the process once, without retries, when no transcript exists at all",
+      "name": "Bot video vocabulary flow (integration) fails the process once, without retries, when no transcript exists at all",
+      "value": "Protects the bot video vocabulary flow (integration) behavior so fails the process once, without retries, when no transcript exists at all.",
+      "description": "Protects the bot video vocabulary flow (integration) behavior so fails the process once, without retries, when no transcript exists at all."
     },
     {
       "id": "apps-bot-src-tests-integration-voice-input-integration-test-ts-43-voice-message-translation-integration-transcribes-a-pro-user-s-voice-message-and-renders-a-translation-card",
@@ -26109,6 +26141,102 @@
       "name": "Notification adapter start Scheduler stop Scheduler stop Scheduler is safe to call when not running",
       "value": "Protects the notification adapter start Scheduler stop Scheduler behavior so stop Scheduler is safe to call when not running.",
       "description": "Protects the notification adapter start Scheduler stop Scheduler behavior so stop Scheduler is safe to call when not running."
+    },
+    {
+      "id": "packages-adapters-youtube-src-tests-transcript-test-ts-27-fetchtranscript-returns-the-transcript-in-the-requested-language-when-available",
+      "kind": "technical",
+      "filePath": "packages/adapters/youtube/src/__tests__/transcript.test.ts",
+      "sourceLine": 27,
+      "workspace": "packages",
+      "packageName": "adapters/youtube",
+      "suitePath": [
+        "fetchTranscript"
+      ],
+      "title": "returns the transcript in the requested language when available",
+      "rawTitle": "returns the transcript in the requested language when available",
+      "name": "YouTube adapter fetch Transcript returns the transcript in the requested language when available",
+      "value": "Protects the youTube adapter fetch Transcript behavior: returns the transcript in the requested language when available.",
+      "description": "Protects the youTube adapter fetch Transcript behavior: returns the transcript in the requested language when available."
+    },
+    {
+      "id": "packages-adapters-youtube-src-tests-transcript-test-ts-39-fetchtranscript-falls-back-to-the-default-caption-track-when-the-requested-language-has-none",
+      "kind": "technical",
+      "filePath": "packages/adapters/youtube/src/__tests__/transcript.test.ts",
+      "sourceLine": 39,
+      "workspace": "packages",
+      "packageName": "adapters/youtube",
+      "suitePath": [
+        "fetchTranscript"
+      ],
+      "title": "falls back to the default caption track when the requested language has none",
+      "rawTitle": "falls back to the default caption track when the requested language has none",
+      "name": "YouTube adapter fetch Transcript falls back to the default caption track when the requested language has none",
+      "value": "Protects the youTube adapter fetch Transcript behavior: falls back to the default caption track when the requested language has none.",
+      "description": "Protects the youTube adapter fetch Transcript behavior: falls back to the default caption track when the requested language has none."
+    },
+    {
+      "id": "packages-adapters-youtube-src-tests-transcript-test-ts-52-fetchtranscript-throws-transcriptnotavailableerror-when-the-fallback-also-finds-no-transcript",
+      "kind": "technical",
+      "filePath": "packages/adapters/youtube/src/__tests__/transcript.test.ts",
+      "sourceLine": 52,
+      "workspace": "packages",
+      "packageName": "adapters/youtube",
+      "suitePath": [
+        "fetchTranscript"
+      ],
+      "title": "throws TranscriptNotAvailableError when the fallback also finds no transcript",
+      "rawTitle": "throws TranscriptNotAvailableError when the fallback also finds no transcript",
+      "name": "YouTube adapter fetch Transcript throws Transcript Not Available Error when the fallback also finds no transcript",
+      "value": "Protects the youTube adapter fetch Transcript behavior: throws Transcript Not Available Error when the fallback also finds no transcript.",
+      "description": "Protects the youTube adapter fetch Transcript behavior: throws Transcript Not Available Error when the fallback also finds no transcript."
+    },
+    {
+      "id": "packages-adapters-youtube-src-tests-transcript-test-ts-61-fetchtranscript-throws-transcriptnotavailableerror-without-falling-back-when-no-language-was-requested",
+      "kind": "technical",
+      "filePath": "packages/adapters/youtube/src/__tests__/transcript.test.ts",
+      "sourceLine": 61,
+      "workspace": "packages",
+      "packageName": "adapters/youtube",
+      "suitePath": [
+        "fetchTranscript"
+      ],
+      "title": "throws TranscriptNotAvailableError without falling back when no language was requested",
+      "rawTitle": "throws TranscriptNotAvailableError without falling back when no language was requested",
+      "name": "YouTube adapter fetch Transcript throws Transcript Not Available Error without falling back when no language was requested",
+      "value": "Protects the youTube adapter fetch Transcript behavior: throws Transcript Not Available Error without falling back when no language was requested.",
+      "description": "Protects the youTube adapter fetch Transcript behavior: throws Transcript Not Available Error without falling back when no language was requested."
+    },
+    {
+      "id": "packages-adapters-youtube-src-tests-transcript-test-ts-68-fetchtranscript-throws-videonotfounderror-for-unavailable-videos-without-falling-back",
+      "kind": "technical",
+      "filePath": "packages/adapters/youtube/src/__tests__/transcript.test.ts",
+      "sourceLine": 68,
+      "workspace": "packages",
+      "packageName": "adapters/youtube",
+      "suitePath": [
+        "fetchTranscript"
+      ],
+      "title": "throws VideoNotFoundError for unavailable videos without falling back",
+      "rawTitle": "throws VideoNotFoundError for unavailable videos without falling back",
+      "name": "YouTube adapter fetch Transcript throws Video Not Found Error for unavailable videos without falling back",
+      "value": "Protects the youTube adapter fetch Transcript behavior: throws Video Not Found Error for unavailable videos without falling back.",
+      "description": "Protects the youTube adapter fetch Transcript behavior: throws Video Not Found Error for unavailable videos without falling back."
+    },
+    {
+      "id": "packages-adapters-youtube-src-tests-transcript-test-ts-75-fetchtranscript-treats-an-empty-segment-list-as-no-transcript",
+      "kind": "technical",
+      "filePath": "packages/adapters/youtube/src/__tests__/transcript.test.ts",
+      "sourceLine": 75,
+      "workspace": "packages",
+      "packageName": "adapters/youtube",
+      "suitePath": [
+        "fetchTranscript"
+      ],
+      "title": "treats an empty segment list as no transcript",
+      "rawTitle": "treats an empty segment list as no transcript",
+      "name": "YouTube adapter fetch Transcript treats an empty segment list as no transcript",
+      "value": "Protects the youTube adapter fetch Transcript behavior so treats an empty segment list as no transcript.",
+      "description": "Protects the youTube adapter fetch Transcript behavior so treats an empty segment list as no transcript."
     },
     {
       "id": "packages-adapters-youtube-src-tests-url-parser-test-ts-5-isyoutubeurl-detects-standard-youtube-com-watch-urls",
