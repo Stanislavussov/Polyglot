@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-24T14:30:07.000Z",
+  "generatedAt": "2026-08-24T14:58:35.000Z",
   "summary": {
     "total": 2951,
     "business": 0,
@@ -13321,7 +13321,7 @@
       "description": "Protects the bot mentor Exit Keyboard behavior so carries a single button pointing at the exit callback."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-exit-helper-test-ts-64-handlementorexitcallback-clears-the-mentor-thread-and-delegates-the-mode-switch-to-translate",
+      "id": "apps-bot-src-scenes-helpers-mentor-exit-helper-test-ts-64-handlementorexitcallback-clears-the-mentor-thread-switches-the-mode-and-says-where-the-user-landed",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-exit.helper.test.ts",
       "sourceLine": 64,
@@ -13330,17 +13330,17 @@
       "suitePath": [
         "handleMentorExitCallback"
       ],
-      "title": "clears the mentor thread and delegates the mode switch to /translate",
-      "rawTitle": "clears the mentor thread and delegates the mode switch to /translate",
-      "name": "Bot handle Mentor Exit Callback clears the mentor thread and delegates the mode switch to translate",
-      "value": "Protects the bot handle Mentor Exit Callback behavior so clears the mentor thread and delegates the mode switch to translate.",
-      "description": "Protects the bot handle Mentor Exit Callback behavior so clears the mentor thread and delegates the mode switch to translate."
+      "title": "clears the mentor thread, switches the mode, and says where the user landed",
+      "rawTitle": "clears the mentor thread, switches the mode, and says where the user landed",
+      "name": "Bot handle Mentor Exit Callback clears the mentor thread, switches the mode, and says where the user landed",
+      "value": "Protects the bot handle Mentor Exit Callback behavior so clears the mentor thread, switches the mode, and says where the user landed.",
+      "description": "Protects the bot handle Mentor Exit Callback behavior so clears the mentor thread, switches the mode, and says where the user landed."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-exit-helper-test-ts-75-handlementorexitcallback-still-switches-the-mode-when-the-tapped-message-is-too-old-to-edit-48h-limit",
+      "id": "apps-bot-src-scenes-helpers-mentor-exit-helper-test-ts-79-handlementorexitcallback-still-switches-the-mode-when-the-tapped-message-is-too-old-to-edit-48h-limit",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-exit.helper.test.ts",
-      "sourceLine": 75,
+      "sourceLine": 79,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -13353,10 +13353,10 @@
       "description": "Protects the bot handle Mentor Exit Callback behavior so still switches the mode when the tapped message is too old to edit (48h limit)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-exit-helper-test-ts-86-mentoranswerkeyboard-offers-new-topic-and-exit-side-by-side",
+      "id": "apps-bot-src-scenes-helpers-mentor-exit-helper-test-ts-90-mentoranswerkeyboard-offers-new-topic-and-exit-side-by-side",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-exit.helper.test.ts",
-      "sourceLine": 86,
+      "sourceLine": 90,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -13369,10 +13369,10 @@
       "description": "Protects the bot mentor Answer Keyboard behavior so offers new topic and exit side by side."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-exit-helper-test-ts-100-handlementornewtopiccallback-starts-a-fresh-thread-in-mentor-mode-and-confirms",
+      "id": "apps-bot-src-scenes-helpers-mentor-exit-helper-test-ts-104-handlementornewtopiccallback-starts-a-fresh-thread-in-mentor-mode-and-confirms",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-exit.helper.test.ts",
-      "sourceLine": 100,
+      "sourceLine": 104,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -13385,10 +13385,10 @@
       "description": "Protects the bot handle Mentor New Topic Callback behavior so starts a fresh thread in mentor mode and confirms."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-exit-helper-test-ts-111-handlementornewtopiccallback-enters-mentor-mode-when-tapped-from-translate-mode-button-on-an-old-answer",
+      "id": "apps-bot-src-scenes-helpers-mentor-exit-helper-test-ts-115-handlementornewtopiccallback-enters-mentor-mode-when-tapped-from-translate-mode-button-on-an-old-answer",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-exit.helper.test.ts",
-      "sourceLine": 111,
+      "sourceLine": 115,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -13401,10 +13401,10 @@
       "description": "Protects the bot handle Mentor New Topic Callback behavior so enters mentor mode when tapped from translate mode (button on an old answer)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-exit-helper-test-ts-119-handlementornewtopiccallback-refuses-a-plan-without-the-mentor-feature-before-touching-the-mode",
+      "id": "apps-bot-src-scenes-helpers-mentor-exit-helper-test-ts-123-handlementornewtopiccallback-refuses-a-plan-without-the-mentor-feature-before-touching-the-mode",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-exit.helper.test.ts",
-      "sourceLine": 119,
+      "sourceLine": 123,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -35142,7 +35142,7 @@
       "description": "Protects the core domain build Mentor System Prompt behavior so demands Telegram HTML emphasis and forbids Markdown asterisks."
     },
     {
-      "id": "packages-core-src-modules-mentor-prompt-builder-test-ts-54-buildmentorsystemprompt-asks-for-a-moderate-amount-of-emoji",
+      "id": "packages-core-src-modules-mentor-prompt-builder-test-ts-54-buildmentorsystemprompt-asks-for-a-lively-but-bounded-amount-of-emoji",
       "kind": "technical",
       "filePath": "packages/core/src/modules/mentor/prompt.builder.test.ts",
       "sourceLine": 54,
@@ -35151,17 +35151,17 @@
       "suitePath": [
         "buildMentorSystemPrompt"
       ],
-      "title": "asks for a moderate amount of emoji",
-      "rawTitle": "asks for a moderate amount of emoji",
-      "name": "Core domain build Mentor System Prompt asks for a moderate amount of emoji",
-      "value": "Protects the core domain build Mentor System Prompt behavior so asks for a moderate amount of emoji.",
-      "description": "Protects the core domain build Mentor System Prompt behavior so asks for a moderate amount of emoji."
+      "title": "asks for a lively-but-bounded amount of emoji",
+      "rawTitle": "asks for a lively-but-bounded amount of emoji",
+      "name": "Core domain build Mentor System Prompt asks for a lively but bounded amount of emoji",
+      "value": "Protects the core domain build Mentor System Prompt behavior so asks for a lively but bounded amount of emoji.",
+      "description": "Protects the core domain build Mentor System Prompt behavior so asks for a lively but bounded amount of emoji."
     },
     {
-      "id": "packages-core-src-modules-mentor-prompt-builder-test-ts-59-buildmentorsystemprompt-includes-the-interface-language-so-the-ai-responds-in-the-right-language",
+      "id": "packages-core-src-modules-mentor-prompt-builder-test-ts-61-buildmentorsystemprompt-includes-the-interface-language-so-the-ai-responds-in-the-right-language",
       "kind": "technical",
       "filePath": "packages/core/src/modules/mentor/prompt.builder.test.ts",
-      "sourceLine": 59,
+      "sourceLine": 61,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35174,10 +35174,10 @@
       "description": "Protects the core domain build Mentor System Prompt behavior: includes the interface language so the AI responds in the right language."
     },
     {
-      "id": "packages-core-src-modules-mentor-prompt-builder-test-ts-64-buildmentorsystemprompt-handles-empty-learning-languages-gracefully",
+      "id": "packages-core-src-modules-mentor-prompt-builder-test-ts-66-buildmentorsystemprompt-handles-empty-learning-languages-gracefully",
       "kind": "technical",
       "filePath": "packages/core/src/modules/mentor/prompt.builder.test.ts",
-      "sourceLine": 64,
+      "sourceLine": 66,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35190,10 +35190,10 @@
       "description": "Protects the core domain build Mentor System Prompt behavior: handles empty learning languages gracefully."
     },
     {
-      "id": "packages-core-src-modules-mentor-prompt-builder-test-ts-70-buildmentorsystemprompt-includes-a-prompt-injection-guard-treating-user-input-as-untrusted-s6",
+      "id": "packages-core-src-modules-mentor-prompt-builder-test-ts-72-buildmentorsystemprompt-includes-a-prompt-injection-guard-treating-user-input-as-untrusted-s6",
       "kind": "technical",
       "filePath": "packages/core/src/modules/mentor/prompt.builder.test.ts",
-      "sourceLine": 70,
+      "sourceLine": 72,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35206,10 +35206,10 @@
       "description": "Protects the core domain build Mentor System Prompt behavior: includes a prompt injection guard treating user input as untrusted (S6)."
     },
     {
-      "id": "packages-core-src-modules-mentor-prompt-builder-test-ts-76-buildmentorsystemprompt-stays-channel-neutral-by-default-no-hardcoded-frontend-name",
+      "id": "packages-core-src-modules-mentor-prompt-builder-test-ts-78-buildmentorsystemprompt-stays-channel-neutral-by-default-no-hardcoded-frontend-name",
       "kind": "technical",
       "filePath": "packages/core/src/modules/mentor/prompt.builder.test.ts",
-      "sourceLine": 76,
+      "sourceLine": 78,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35222,10 +35222,10 @@
       "description": "Protects the core domain build Mentor System Prompt behavior so stays channel neutral by default (no hardcoded frontend name)."
     },
     {
-      "id": "packages-core-src-modules-mentor-prompt-builder-test-ts-81-buildmentorsystemprompt-uses-the-provided-channelhint-in-the-prompt",
+      "id": "packages-core-src-modules-mentor-prompt-builder-test-ts-83-buildmentorsystemprompt-uses-the-provided-channelhint-in-the-prompt",
       "kind": "technical",
       "filePath": "packages/core/src/modules/mentor/prompt.builder.test.ts",
-      "sourceLine": 81,
+      "sourceLine": 83,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -35238,10 +35238,10 @@
       "description": "Protects the core domain build Mentor System Prompt behavior: uses the provided channel Hint in the prompt."
     },
     {
-      "id": "packages-core-src-modules-mentor-prompt-builder-test-ts-88-max-mentor-history-is-a-positive-even-number-full-user-assistant-turns",
+      "id": "packages-core-src-modules-mentor-prompt-builder-test-ts-90-max-mentor-history-is-a-positive-even-number-full-user-assistant-turns",
       "kind": "technical",
       "filePath": "packages/core/src/modules/mentor/prompt.builder.test.ts",
-      "sourceLine": 88,
+      "sourceLine": 90,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [

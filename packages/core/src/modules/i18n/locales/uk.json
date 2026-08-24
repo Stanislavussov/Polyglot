@@ -75,6 +75,7 @@
   "clarifyTranslationPrompt": "Напиши контекст або уточнення для цього слова:",
   "regeneratingAll": "⏳ Генерую альтернативу...",
   "translateModeOn": "🔤 {fromLang} → {toLangs}",
+  "translateModeReturned": "🔤 Ви повернулися в режим перекладу — надішліть слово чи фразу, і я її перекладу ({fromLang} → {toLangs}).",
   "translateModeHint": "Надішли наступне слово або фразу.",
   "wiktionaryDefinition": "📖 Визначення з Вікісловника",
   "wiktionarySource": "Джерело: Вікісловник",

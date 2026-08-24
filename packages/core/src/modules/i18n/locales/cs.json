@@ -75,6 +75,7 @@
   "clarifyTranslationPrompt": "Napište kontext nebo upřesnění pro toto slovo:",
   "regeneratingAll": "⏳ Generuji alternativu...",
   "translateModeOn": "🔤 {fromLang} → {toLangs}",
+  "translateModeReturned": "🔤 Jste zpět v režimu překladu — pošlete slovo nebo frázi a já ji přeložím ({fromLang} → {toLangs}).",
   "translateModeHint": "Pošli další slovo nebo frázi.",
   "wiktionaryDefinition": "📖 Definice z Wikislovníku",
   "wiktionarySource": "Zdroj: Wikislovník",

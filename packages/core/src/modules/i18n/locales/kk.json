@@ -75,6 +75,7 @@
   "clarifyTranslationPrompt": "Осы сөзге арналған контекст немесе нақтылауды жазыңыз:",
   "regeneratingAll": "⏳ Балама жасалуда...",
   "translateModeOn": "🔤 {fromLang} → {toLangs}",
+  "translateModeReturned": "🔤 Сіз аударма режиміне оралдыңыз — сөз немесе сөз тіркесін жіберіңіз, мен оны аударамын ({fromLang} → {toLangs}).",
   "translateModeHint": "Келесі сөзді немесе тіркесті жіберіңіз.",
   "wiktionaryDefinition": "📖 Wiktionary анықтамасы",
   "wiktionarySource": "Дереккөз: Wiktionary",

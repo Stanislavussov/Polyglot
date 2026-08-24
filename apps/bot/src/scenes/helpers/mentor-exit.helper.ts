@@ -12,7 +12,7 @@ import { FEATURE_KEYS, isSupported, type SupportedLang, t } from "@polyglot/core
 import type { InlineKeyboardMarkup } from "grammy/types";
 import type { BotContext } from "../../types.js";
 import { replyTechnical } from "../../utils/message-cleanup.js";
-import { handleTranslateCommand } from "../translate.scene.js";
+import { activateTranslateMode } from "../translate.scene.js";
 import { ensurePaidFeatureForMessage } from "./paid-feature.helper.js";
 
 export const MENTOR_EXIT_CALLBACK = "mentor:exit";
@@ -45,8 +45,11 @@ export async function handleMentorExitCallback(ctx: BotContext): Promise<void> {
   // Retire the tapped button; >48h-old messages refuse edits — the switch works anyway.
   await ctx.editMessageReplyMarkup().catch(() => {});
   ctx.session.mentor = undefined;
-  // Same mode set + confirmation as /translate, so the two exits cannot drift.
-  await handleTranslateCommand(ctx);
+  // Same mode switch as /translate (shared implementation), but the confirmation
+  // says where the user LANDED — a bare "ru → cs" line after leaving a chat mode
+  // reads as noise, not as "you are back in translation, send a word".
+  const { lang, fromLang, toLangs } = await activateTranslateMode(ctx);
+  await replyTechnical(ctx, t("translateModeReturned", lang, { fromLang, toLangs }));
 }
 
 /**

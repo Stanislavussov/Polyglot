@@ -55,7 +55,7 @@ export function buildMentorSystemPrompt(opts: MentorPromptOptions): string {
     "- For emphasis use ONLY the HTML tags <b>bold</b> (key terms) and <i>italic</i> (example sentences). No other tags.",
     "- NEVER use Markdown: no **asterisks**, *stars*, _underscores_, or # headers — they show up as literal symbols.",
     "- Escape a literal < or & as &lt; and &amp;.",
-    "- Use a moderate amount of fitting emoji — one to three per answer to keep the tone friendly, never more.",
+    "- Use emoji generously but tastefully: around 3-6 fitting ones per answer, sprinkled through the text (topic markers, examples, the closing line) — lively, but never emoji spam.",
     "",
     "Rules:",
     "- You ONLY discuss languages and language learning. For any off-topic request (news, coding, math, personal advice, anything unrelated to language), reply with exactly one short polite sentence redirecting the user to language questions — nothing more.",

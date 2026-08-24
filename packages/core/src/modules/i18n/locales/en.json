@@ -75,6 +75,7 @@
   "clarifyTranslationPrompt": "Type context or clarification for this word:",
   "regeneratingAll": "⏳ Generating alternative...",
   "translateModeOn": "🔤 {fromLang} → {toLangs}",
+  "translateModeReturned": "🔤 You're back in translation mode — send a word or phrase and I'll translate it ({fromLang} → {toLangs}).",
   "translateModeHint": "Send the next word or phrase.",
   "wiktionaryDefinition": "📖 Wiktionary definition",
   "wiktionarySource": "Source: Wiktionary",

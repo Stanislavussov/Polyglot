@@ -75,6 +75,7 @@
   "clarifyTranslationPrompt": "Напишите контекст или уточнение для этого слова:",
   "regeneratingAll": "⏳ Генерация альтернативы...",
   "translateModeOn": "🔤 {fromLang} → {toLangs}",
+  "translateModeReturned": "🔤 Вы в режиме перевода — отправьте слово или фразу, и я её переведу ({fromLang} → {toLangs}).",
   "translateModeHint": "Отправьте следующее слово или фразу.",
   "wiktionaryDefinition": "📖 Определение из Викисловаря",
   "wiktionarySource": "Источник: Викисловарь",

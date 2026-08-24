@@ -51,9 +51,11 @@ describe("buildMentorSystemPrompt", () => {
     expect(prompt).toMatch(/asterisk/i);
   });
 
-  it("asks for a moderate amount of emoji", () => {
+  it("asks for a lively-but-bounded amount of emoji", () => {
     const prompt = buildMentorSystemPrompt(opts);
-    expect(prompt).toMatch(/moderate.*emoji|emoji.*moderate/i);
+    expect(prompt).toMatch(/emoji/i);
+    expect(prompt).toContain("3-6");
+    expect(prompt).toMatch(/never emoji spam/i);
   });
 
   it("includes the interface language so the AI responds in the right language", () => {

@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { mockHandleTranslateCommand } = vi.hoisted(() => ({
-  mockHandleTranslateCommand: vi.fn().mockResolvedValue(undefined),
+const { mockActivateTranslateMode } = vi.hoisted(() => ({
+  mockActivateTranslateMode: vi.fn().mockResolvedValue({ lang: "en", fromLang: "🇷🇺 Русский", toLangs: "🇨🇿 Čeština" }),
 }));
 
 vi.mock("../translate.scene.js", () => ({
-  handleTranslateCommand: mockHandleTranslateCommand,
+  activateTranslateMode: mockActivateTranslateMode,
 }));
 
 import type { ServiceContainer } from "@polyglot/core";
@@ -61,15 +61,19 @@ describe("handleMentorExitCallback", () => {
     vi.clearAllMocks();
   });
 
-  it("clears the mentor thread and delegates the mode switch to /translate", async () => {
+  it("clears the mentor thread, switches the mode, and says where the user landed", async () => {
     const ctx = createMockCtx();
     await handleMentorExitCallback(ctx);
 
     expect(ctx.session.mentor).toBeUndefined();
-    // One mode-switch implementation, so the button and /translate cannot drift.
-    expect(mockHandleTranslateCommand).toHaveBeenCalledWith(ctx);
+    // One mode-switch implementation shared with /translate, so they cannot drift.
+    expect(mockActivateTranslateMode).toHaveBeenCalledWith(ctx);
     expect(ctx.answerCallbackQuery).toHaveBeenCalled();
     expect(ctx.editMessageReplyMarkup).toHaveBeenCalled();
+    // The confirmation explains the landing, not just a bare direction line.
+    const [text] = vi.mocked(ctx.reply).mock.calls[0];
+    expect(text).toMatch(/translation mode/i);
+    expect(text).toContain("🇷🇺 Русский");
   });
 
   it("still switches the mode when the tapped message is too old to edit (48h limit)", async () => {
@@ -78,7 +82,7 @@ describe("handleMentorExitCallback", () => {
 
     await handleMentorExitCallback(ctx);
 
-    expect(mockHandleTranslateCommand).toHaveBeenCalledWith(ctx);
+    expect(mockActivateTranslateMode).toHaveBeenCalledWith(ctx);
   });
 });
 
