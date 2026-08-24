@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import type { SessionData } from "../../types.js";
-import { MAX_TRANSLATION_MAP_ENTRIES, setTranslationEntry } from "./translation-map.helper.js";
+import {
+  MAX_CARD_WORD_ENTRIES,
+  MAX_TRANSLATION_MAP_ENTRIES,
+  recallCardWord,
+  setTranslationEntry,
+} from "./translation-map.helper.js";
 
 /** Minimal entry — only shape matters for eviction, not the payload. */
 function entry(word: string): NonNullable<SessionData["translationMap"]>[string] {
@@ -118,5 +123,43 @@ describe("setTranslationEntry", () => {
 
     expect(Object.keys(session.translationMap ?? {})).toEqual(["42"]);
     expect(session.translationMap?.["42"]?.output.original).toBe("v2");
+  });
+});
+
+describe("recallCardWord", () => {
+  it("still knows the word of a card evicted from the translation map", () => {
+    // The whole point of the second map: eviction downgrades a card from
+    // "fully interactive" to "re-translatable", never to a dead button.
+    const session: SessionData = { activeMode: "idle" };
+    setTranslationEntry(session, 1, entry("Arbeit"), 1);
+    setTranslationEntry(session, 2, entry("Haus"), 1);
+
+    expect(session.translationMap?.["1"]).toBeUndefined();
+    expect(recallCardWord(session, 1)?.word).toBe("Arbeit");
+  });
+
+  it("carries the card's context hint so the retry reproduces the same request", () => {
+    const session: SessionData = { activeMode: "idle" };
+    setTranslationEntry(session, 7, { ...entry("bank"), contextHint: "river" });
+
+    expect(recallCardWord(session, 7)).toMatchObject({ word: "bank", contextHint: "river" });
+  });
+
+  it("returns nothing for a message that never carried a card", () => {
+    const session: SessionData = { activeMode: "idle" };
+    setTranslationEntry(session, 7, entry("bank"));
+
+    expect(recallCardWord(session, 999)).toBeUndefined();
+  });
+
+  it("outlives the translation map by an order of magnitude, then evicts too", () => {
+    const session: SessionData = { activeMode: "idle" };
+    for (let i = 1; i <= MAX_CARD_WORD_ENTRIES + 1; i++) {
+      setTranslationEntry(session, i, entry(`w${i}`));
+    }
+
+    expect(Object.keys(session.cardWords ?? {})).toHaveLength(MAX_CARD_WORD_ENTRIES);
+    expect(recallCardWord(session, 1)).toBeUndefined();
+    expect(recallCardWord(session, MAX_TRANSLATION_MAP_ENTRIES + 1)?.word).toBe(`w${MAX_TRANSLATION_MAP_ENTRIES + 1}`);
   });
 });

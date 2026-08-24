@@ -131,12 +131,12 @@ describe("translate", () => {
     expect(unwrap(result).translations.cs.text).toBe("ahoj");
   });
 
-  it("calls generateObject for metadata + each target language in parallel", async () => {
+  it("calls generateObject once for metadata and once per target language", async () => {
     const mockGenerate = createTranslateMock(makeValidResult());
 
     await translate(defaultInput, mockGenerate);
 
-    // 1 metadata + 1 language = 2 parallel calls
+    // 1 metadata (which resolves the sense) + 1 language call
     expect(mockGenerate).toHaveBeenCalledTimes(2);
   });
 
@@ -602,7 +602,7 @@ describe("translate", () => {
       mockGenerate,
     );
 
-    // 1 metadata + 1 language = 2 parallel calls
+    // 1 metadata (which resolves the sense) + 1 language call
     expect(mockGenerate).toHaveBeenCalledTimes(2);
     expect(mockGenerate.mock.calls[0]?.[2]).toBe("openai/gpt-4o-mini");
     expect(result.status).toBe("accepted");
@@ -1182,7 +1182,7 @@ describe("translateOne", () => {
       mockGenerate,
     );
 
-    // 1 metadata + 1 language = 2 parallel calls
+    // 1 metadata (which resolves the sense) + 1 language call
     expect(mockGenerate).toHaveBeenCalledTimes(2);
   });
 
@@ -1730,5 +1730,222 @@ describe("buildJudgePrompt", () => {
     expect(prompt).toMatch(/negation/i);
     expect(prompt).toMatch(/immutable tokens/i);
     expect(prompt).toMatch(/placeholders/i);
+  });
+});
+
+describe("sense anchor", () => {
+  const wordInput: TranslateInput = {
+    word: "wasted",
+    sourceLang: "en",
+    targetLangs: ["cs"],
+    nativeLang: "ru",
+    model: "openai/gpt-4o",
+  };
+
+  // Fixtures complete enough to pass validation on their own, so these tests
+  // exercise the anchor instead of incidentally driving retries and repair.
+  // A learning-source request (en → ru native) requires sourceUsage.
+  const metadataFixture = {
+    emoji: "🥴",
+    nativeMeaning: "сильное алкогольное опьянение",
+    sourceUsage: {
+      headword: "wasted",
+      explanation: "разг. сильно пьяный",
+      synonyms: [{ text: "drunk" }],
+      examples: [{ context: "colloquial", target: "He got wasted.", native: "Он напился." }],
+    },
+    nativeSynonyms: [{ text: "пьяный" }],
+  };
+
+  const cleanBlockFor = (lang: string) => ({
+    ...cleanBlock,
+    text: `${cleanBlock.text}-${lang}`,
+    usageNote: `${cleanBlock.usageNote} (${lang})`,
+  });
+
+  const cleanBlock = {
+    text: "sjetý",
+    synonyms: [{ text: "opilý" }],
+    examples: [
+      { context: "colloquial", target: "Byl úplně sjetý.", native: "Он был в стельку пьян." },
+      { context: "colloquial", target: "Včera se namol opil.", native: "Вчера он напился в хлам." },
+      { context: "neutral", target: "Přišel domů opilý.", native: "Он пришёл домой пьяным." },
+    ],
+    expressionType: "literal" as const,
+    equivalentNote: null,
+    usageNote: "Разговорное слово о сильном опьянении.",
+    alternatives: null,
+    connotationWarning: null,
+  };
+
+  function isMetadataPrompt(prompt: string): boolean {
+    return prompt.includes("Do NOT include any translations");
+  }
+
+  function targetLangOf(prompt: string): string {
+    return prompt.match(/translation block for language "([^"]+)"/)?.[1] ?? "cs";
+  }
+
+  it("resolves the sense on the metadata call and anchors the language prompts to it", async () => {
+    const metadata = metadataFixture;
+    const prompts: string[] = [];
+    const mockGenerate = vi.fn().mockImplementation(async (prompt: string) => {
+      prompts.push(prompt);
+      if (isMetadataPrompt(prompt)) {
+        return { ...metadata, primarySense: "intoxicated by alcohol or drugs (slang)" };
+      }
+      return cleanBlockFor(targetLangOf(prompt));
+    });
+
+    await translate(wordInput, mockGenerate);
+
+    const languagePrompt = prompts.find((p) => !isMetadataPrompt(p));
+    expect(languagePrompt).toContain("intoxicated by alcohol or drugs (slang)");
+  });
+
+  it("does not start a language call before the sense is known", async () => {
+    const metadata = metadataFixture;
+    let releaseMetadata: (() => void) | undefined;
+    const metadataGate = new Promise<void>((resolve) => {
+      releaseMetadata = resolve;
+    });
+    let languageCallStarted = false;
+    let metadataCallStarted = false;
+
+    const mockGenerate = vi.fn().mockImplementation(async (prompt: string) => {
+      if (isMetadataPrompt(prompt)) {
+        metadataCallStarted = true;
+        await metadataGate;
+        return { ...metadata, primarySense: "drunk (slang)" };
+      }
+      languageCallStarted = true;
+      return cleanBlockFor(targetLangOf(prompt));
+    });
+
+    const pending = translate(wordInput, mockGenerate);
+    // Let the metadata call start and every already-scheduled task drain: a
+    // parallel fan-out would have started the language call by now.
+    while (!metadataCallStarted) await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(languageCallStarted).toBe(false);
+
+    releaseMetadata?.();
+    await pending;
+    expect(languageCallStarted).toBe(true);
+  });
+
+  it("keeps the anchor out of the returned card", async () => {
+    const metadata = metadataFixture;
+    const mockGenerate = vi.fn().mockImplementation(async (prompt: string) => {
+      if (isMetadataPrompt(prompt)) return { ...metadata, primarySense: "drunk (slang)" };
+      return cleanBlockFor(targetLangOf(prompt));
+    });
+
+    const output = unwrap(await translate(wordInput, mockGenerate));
+
+    expect(JSON.stringify(output)).not.toContain("primarySense");
+  });
+
+  it("translates unanchored when the metadata call returns no sense", async () => {
+    const metadata = metadataFixture;
+    const prompts: string[] = [];
+    const mockGenerate = vi.fn().mockImplementation(async (prompt: string) => {
+      prompts.push(prompt);
+      if (isMetadataPrompt(prompt)) return metadata;
+      return cleanBlockFor(targetLangOf(prompt));
+    });
+
+    // No nativeLang: the fixture block carries no native example translations,
+    // which a native-language request would (correctly) flag on its own.
+    const result = await translate(
+      { word: "hello", sourceLang: "en", targetLangs: ["cs"], model: "openai/gpt-4o" },
+      mockGenerate,
+    );
+
+    expect(result.status).toBe("accepted");
+    expect(prompts.find((p) => !isMetadataPrompt(p))).not.toContain("SENSE ANCHOR");
+  });
+
+  it("anchors the targeted repair prompt too", async () => {
+    // Schema-complete on purpose: a schema error would restart the whole batch,
+    // while this semantic defect is what routes to the targeted repair path.
+    const badBlock = { ...cleanBlock, text: "wasted" };
+    const metadata = metadataFixture;
+    const prompts: string[] = [];
+    let languageCalls = 0;
+    const mockGenerate = vi.fn().mockImplementation(async (prompt: string) => {
+      prompts.push(prompt);
+      if (isMetadataPrompt(prompt)) return { ...metadata, primarySense: "drunk (slang)" };
+      languageCalls++;
+      return languageCalls === 1 ? badBlock : cleanBlockFor(targetLangOf(prompt));
+    });
+
+    await translate(wordInput, mockGenerate);
+
+    const repairPrompt = prompts.find((p) => p.includes("Targeted repair only"));
+    expect(repairPrompt).toBeDefined();
+    expect(repairPrompt).toContain("drunk (slang)");
+  });
+
+  it("leaves sentence translation on the unanchored path", async () => {
+    // A sentence with a native language still runs the metadata call (it carries
+    // nativeMeaning), so this exercises the inputType gate rather than passing
+    // merely because no metadata call happened.
+    const metadata = metadataFixture;
+    const prompts: string[] = [];
+    const mockGenerate = vi.fn().mockImplementation(async (prompt: string) => {
+      prompts.push(prompt);
+      if (isMetadataPrompt(prompt)) return metadata;
+      return cleanBlockFor(targetLangOf(prompt));
+    });
+
+    await translate({ ...wordInput, word: "Včera se úplně zničil.", inputType: "sentence" }, mockGenerate);
+
+    const metadataPrompt = prompts.find(isMetadataPrompt);
+    expect(metadataPrompt).toBeDefined();
+    expect(metadataPrompt).not.toContain("primarySense");
+    expect(prompts.every((p) => !p.includes("SENSE ANCHOR"))).toBe(true);
+  });
+
+  it("gives every target language the same anchor", async () => {
+    const metadata = metadataFixture;
+    const prompts: string[] = [];
+    const mockGenerate = vi.fn().mockImplementation(async (prompt: string) => {
+      prompts.push(prompt);
+      if (isMetadataPrompt(prompt)) return { ...metadata, primarySense: "intoxicated (slang)" };
+      return cleanBlockFor(targetLangOf(prompt));
+    });
+
+    await translate({ ...wordInput, targetLangs: ["cs", "de"] }, mockGenerate);
+
+    // 1 metadata + 2 language calls: no hidden retry or repair round inflating this.
+    expect(mockGenerate).toHaveBeenCalledTimes(3);
+    const anchorLines = prompts
+      .filter((p) => !isMetadataPrompt(p))
+      .map((p) => p.split("\n").find((line) => line.startsWith("SENSE ANCHOR")));
+    expect(anchorLines).toHaveLength(2);
+    expect(new Set(anchorLines).size).toBe(1);
+    expect(anchorLines[0]).toContain("intoxicated (slang)");
+  });
+
+  it("tells the judge which sense the card committed to", () => {
+    const request: TranslationRequest = {
+      text: "wasted",
+      sourceLang: "en",
+      targetLangs: ["cs"],
+      senseAnchor: "intoxicated by alcohol or drugs (slang)",
+    };
+
+    const prompt = buildJudgePrompt(request, makeValidResult());
+
+    expect(prompt).toContain("intoxicated by alcohol or drugs (slang)");
+    // Without this the judge blocks a deliberately-chosen minority sense as a
+    // "wrong main meaning" — and multi-gloss words always reach the judge.
+    expect(prompt).toContain("never a");
+  });
+
+  it("does not mention a sense to the judge when the card was not anchored", () => {
+    const prompt = buildJudgePrompt({ text: "hello", sourceLang: "en", targetLangs: ["cs"] }, makeValidResult());
+    expect(prompt).not.toContain("Sense anchor");
   });
 });

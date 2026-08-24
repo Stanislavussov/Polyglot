@@ -80,6 +80,12 @@ import {
   handleFcStart,
 } from "./scenes/helpers/flashcard.helper.js";
 import {
+  handleMentorExitCallback,
+  handleMentorNewTopicCallback,
+  MENTOR_EXIT_CALLBACK,
+  MENTOR_NEW_TOPIC_CALLBACK,
+} from "./scenes/helpers/mentor-exit.helper.js";
+import {
   handleLangSelectCallback,
   handleOutOfSetCallback,
   handleSrcLangOverrideCallback,
@@ -401,6 +407,12 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
 
   // "🔄 Try again" on a timeout notice — re-runs the operation that timed out.
   onCallback(RETRY_CALLBACK, handleRetryCallback);
+
+  // "↩️ Back to translation" on mentor answers — one-tap exit from mentor mode.
+  onCallback(MENTOR_EXIT_CALLBACK, handleMentorExitCallback);
+
+  // "🆕 New topic" on mentor answers — fresh mentor thread (one topic per session).
+  onCallback(MENTOR_NEW_TOPIC_CALLBACK, handleMentorNewTopicCallback);
 
   // Onboarding (Task 72) is a set of plain stateless handlers, not a
   // conversation: every tap re-derives its screen from the database, so a pause

@@ -2,11 +2,11 @@
  * Handler behind the "🔄 Try again" button attached to user-facing timeout
  * notices (see `utils/retry-action.ts`).
  */
-import { isSupported, logger, type SupportedLang, t } from "@polyglot/core";
-import { getRequestSettings } from "../../middlewares/request-settings.js";
+import { logger } from "@polyglot/core";
 import type { BotContext } from "../../types.js";
 import { takeRetryAction } from "../../utils/retry-action.js";
 import { handleMentorText } from "./mentor-mode.helper.js";
+import { answerStaleCallback } from "./stale-callback.helper.js";
 import { handleTranslateText } from "./translate-flow.js";
 
 /**
@@ -23,11 +23,9 @@ export async function handleRetryCallback(ctx: BotContext): Promise<void> {
   const action = noticeMsgId === undefined ? undefined : takeRetryAction(ctx.session, noticeMsgId);
 
   if (!action) {
-    // Restart, eviction, or a second tap on an already-used button.
-    const settings = await getRequestSettings(ctx, ctx.user.id);
-    const iLang = settings?.interfaceLang ?? "en";
-    const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
-    await ctx.answerCallbackQuery({ text: t("staleSession", lang), show_alert: true }).catch(() => {});
+    // Restart, eviction, or a second tap on an already-used button. Nothing to
+    // recover from: the action was consumed, and the input it carried with it.
+    await answerStaleCallback(ctx, { action: "retry" });
     // Drop the dead button so the notice cannot be tapped again.
     await ctx.editMessageReplyMarkup().catch(() => {});
     return;
@@ -45,7 +43,7 @@ export async function handleRetryCallback(ctx: BotContext): Promise<void> {
   logger.debug({ userId: ctx.user.id, kind: action.kind }, "Retrying timed-out operation");
 
   if (action.kind === "mentor") {
-    await handleMentorText(ctx, action.text);
+    await handleMentorText(ctx, action.text, { threadId: action.threadId });
     return;
   }
   await handleTranslateText(ctx, action.text);

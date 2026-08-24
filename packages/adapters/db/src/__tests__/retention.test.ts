@@ -71,9 +71,9 @@ describe("runTelemetryRetention", () => {
     await runTelemetryRetention(DEFAULT_RETENTION_DAYS);
     const after = Date.now();
 
-    // One delete + one lt predicate per telemetry table (9 tables).
-    expect(mockDb.delete).toHaveBeenCalledTimes(9);
-    expect(ltCalls).toHaveLength(9);
+    // One delete + one lt predicate per telemetry table (10 tables).
+    expect(mockDb.delete).toHaveBeenCalledTimes(10);
+    expect(ltCalls).toHaveLength(10);
 
     // Every timestamp cutoff is exactly `now - 90d`; the compact daily counter
     // uses the same instant rendered as a UTC "YYYY-MM-DD" day string.
@@ -119,7 +119,7 @@ describe("runTelemetryRetention", () => {
     // Fixed issue order in retention.ts:
     // [0] dictionary_lookup_logs [1] translation_requests [2] translation_request_timings
     // [3] ai_request_latencies [4] language_detection_events [5] notification_history
-    // [6] word_review_log [7] bot_sessions [8] user_daily_request_counts
+    // [6] word_review_log [7] bot_sessions [8] user_daily_request_counts [9] mentor_messages
     rowsPerDelete = [
       [{ id: 1 }, { id: 2 }], // dictionary_lookup_logs → 2
       [{ id: 3 }], // translation_requests → 1
@@ -130,6 +130,7 @@ describe("runTelemetryRetention", () => {
       [], // word_review_log → 0
       [{ key: "a" }], // bot_sessions → 1
       [{ userId: 1 }, { userId: 2 }], // user_daily_request_counts → 2
+      [{ id: 8 }], // mentor_messages → 1
     ];
 
     const result = await runTelemetryRetention();
@@ -144,6 +145,7 @@ describe("runTelemetryRetention", () => {
       word_review_log: 0,
       bot_sessions: 1,
       user_daily_request_counts: 2,
+      mentor_messages: 1,
     });
   });
 });

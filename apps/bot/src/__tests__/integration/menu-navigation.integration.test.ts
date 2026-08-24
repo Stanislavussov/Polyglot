@@ -32,7 +32,7 @@ import { buildMainKeyboard } from "../../utils/main-menu.js";
 const ONLY_REVIEW = "come back here for review";
 const ONLY_DECK = "Translate some words and save them first";
 const ONLY_DICTIONARY = "tap 💾 on the card to add it";
-const ONLY_MENTOR = "Mentor mode active";
+const ONLY_MENTOR = "Mentor mode is on";
 
 function sentMessages(sent: CapturedCall[]): CapturedCall[] {
   return sent.filter((call) => call.method === "sendMessage");

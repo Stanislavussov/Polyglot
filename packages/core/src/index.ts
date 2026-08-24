@@ -24,6 +24,11 @@ export type {
   RecordLanguageDetectionEventInput,
 } from "./ports/language-detection.repository.js";
 export type {
+  MentorHistoryMessage,
+  MentorMessageRepository,
+  MentorTurnRecord,
+} from "./ports/mentor-message.repository.js";
+export type {
   NotificationType,
   NotificationUser,
 } from "./ports/notification.repository.js";
@@ -40,6 +45,7 @@ export type {
 export type {
   AIGenerationDefaults,
   DictionaryConfig,
+  MentorConfig,
   NotificationDefaults,
   PlanLimitConfig,
   SettingsPort,
@@ -220,6 +226,7 @@ export type { CircuitBreakerConfig, CircuitState } from "./resilience/circuit-br
 export { CircuitBreaker } from "./resilience/circuit-breaker.js";
 // Shared
 export * from "./shared/errors.js";
+export { formatLongDate } from "./shared/format-date.js";
 export { isFinitePositive } from "./shared/numbers.js";
 export type { InputContext } from "./shared/translation-template.service.js";
 export {

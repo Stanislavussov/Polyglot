@@ -147,6 +147,7 @@ describe("word picker (integration)", () => {
     const id = uniqueTelegramId();
     const userId = await arrangeOnboardedTranslator(id, { nativeLang: "en", learningLangs: ["cs"] });
     const presetId = await arrangeAngle(`test-angle-repeat-${id}`);
+    const otherPresetId = await arrangeAngle(`test-angle-spare-${id}`);
 
     await openPicker(harness, id);
     const listCall = sentMessages(harness.sent).find((call) =>
@@ -176,11 +177,19 @@ describe("word picker (integration)", () => {
       callbackQueryUpdate({ chatId: id, fromId: id, messageId: firstSet.messageId ?? 1, data: `wp:m:${runId}` }),
     );
 
-    const texts = sentMessages(harness.sent).map((call) => String(call.payload.text));
-    expect(texts.some((text) => text.includes("Nothing new left in this area"))).toBe(true);
+    const notice = sentMessages(harness.sent).find((call) =>
+      String(call.payload.text).includes("Nothing new left in this area"),
+    );
+    if (!notice) throw new Error("the exhausted angle sent no notice");
     expect(
       sentMessages(harness.sent).some((call) => inlineButtons(call).some((data) => data.startsWith("wp:s:"))),
     ).toBe(false);
+
+    // "Try another one" with no other one in reach is a dead end, so the notice
+    // carries the list itself — minus the angle that just came up empty, which
+    // would only buy the user a second billed call for the same nothing.
+    expect(inlineButtons(notice)).toContain(`wp:p:${otherPresetId}`);
+    expect(inlineButtons(notice)).not.toContain(`wp:p:${presetId}`);
 
     const runs = await wordPickerRunRepository.findWordsShownTo(userId, presetId, "cs");
     expect(runs).toEqual(expect.arrayContaining(PICKED_WORDS));

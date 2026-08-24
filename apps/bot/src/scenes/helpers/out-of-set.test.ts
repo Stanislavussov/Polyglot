@@ -17,10 +17,14 @@ vi.mock("@polyglot/core", () => ({
   isSupported: vi.fn(() => true),
   isSupportedLanguage: vi.fn(() => true),
   resolveDirectionFromSource: vi.fn(),
+  logEvent: vi.fn(),
   logger: mockLogger,
 }));
 
-vi.mock("../../middlewares/request-settings.js", () => ({ clearRequestSettings: vi.fn() }));
+vi.mock("../../middlewares/request-settings.js", () => ({
+  clearRequestSettings: vi.fn(),
+  getRequestSettings: vi.fn().mockResolvedValue({ interfaceLang: "en" }),
+}));
 vi.mock("./edit-message.helper.js", () => ({ editMessageReplyMarkupOrIgnore: vi.fn().mockResolvedValue(undefined) }));
 vi.mock("./translate-mode.shared.js", () => ({
   clearPendingClarification: vi.fn(),

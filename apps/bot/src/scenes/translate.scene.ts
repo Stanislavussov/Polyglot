@@ -7,28 +7,37 @@ import { isSupported, type SupportedLang, t } from "@polyglot/core";
 import type { BotContext } from "../types.js";
 
 /**
- * Handles /translate command — activates translate mode.
- * In translate mode, every plain text message is translated automatically.
- * Persists mode change to DB.
+ * Switches the chat into translate mode (session + DB) and resolves the
+ * language direction for the confirmation copy. Shared by /translate and the
+ * mentor-exit button, so the mode switch itself can never drift between them —
+ * only the confirmation wording differs per entry point.
  */
-export async function handleTranslateCommand(ctx: BotContext): Promise<void> {
-  // Set active mode to translate (session + DB)
+export async function activateTranslateMode(
+  ctx: BotContext,
+): Promise<{ lang: SupportedLang; fromLang: string; toLangs: string }> {
   ctx.session.activeMode = "translate";
   await ctx.services.userRepository.updateActiveMode(ctx.user.id, "translate");
 
-  // Get user's settings
   const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
   const iLang = settings?.interfaceLang ?? "en";
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
   const nativeLang = settings?.nativeLang ?? "en";
   const learningLangs = settings?.learningLangs ?? [];
 
-  // Build language display strings
   const fromLang = ctx.services.languageCache.getLangDisplay(nativeLang);
   const toLangs = learningLangs.map((code) => ctx.services.languageCache.getLangDisplay(code)).join(", ") || "—";
 
-  // Send confirmation message with language direction
-  await ctx.reply(t("translateModeOn", lang, { fromLang, toLangs }));
-  // No source lang menu on /translate (Task 58 — detection happens on first text message)
+  // No source lang menu on mode entry (Task 58 — detection happens on first text message)
   ctx.session.needsTranslateReminder = false;
+
+  return { lang, fromLang, toLangs };
+}
+
+/**
+ * Handles /translate command — activates translate mode.
+ * In translate mode, every plain text message is translated automatically.
+ */
+export async function handleTranslateCommand(ctx: BotContext): Promise<void> {
+  const { lang, fromLang, toLangs } = await activateTranslateMode(ctx);
+  await ctx.reply(t("translateModeOn", lang, { fromLang, toLangs }));
 }

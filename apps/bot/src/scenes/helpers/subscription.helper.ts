@@ -13,6 +13,7 @@ import {
   defaultFeatureAccess,
   FEATURE_KEYS,
   type FeatureKey,
+  formatLongDate,
   type I18nKey,
   isSupported,
   type PlanLimitConfig,
@@ -22,7 +23,11 @@ import {
 import { InlineKeyboard } from "grammy";
 import type { BotContext } from "../../types.js";
 
-/** Plan badge shown on the upgrade screen. Unknown (admin-created) plans get a neutral one. */
+/**
+ * Plan badge for the buy buttons. Deliberately not repeated in the screen's prose:
+ * ⭐ there already means "this button is paid", and a Plus header wearing the same
+ * star made the reader parse one symbol two ways.
+ */
 const PLAN_EMOJI: Record<string, string> = { plus: "⭐", pro: "💎" };
 const DEFAULT_PLAN_EMOJI = "✨";
 
@@ -38,6 +43,7 @@ const FEATURE_HEADLINE: Record<FeatureKey, { emoji: string; label: I18nKey }> = 
   etymology: { emoji: "📖", label: "planLineGrammar" },
   grammarDetail: { emoji: "📖", label: "planLineGrammar" },
   voiceInput: { emoji: "🎙️", label: "featureVoiceInput" },
+  mentor: { emoji: "🧑‍🏫", label: "planLineMentor" },
 };
 
 interface PurchasablePlan {
@@ -55,10 +61,18 @@ export function buildUpgradeKeyboard(lang: SupportedLang): InlineKeyboard {
   return new InlineKeyboard().text(t("upgradeCta", lang), "plan:upgrade");
 }
 
-async function resolveLang(ctx: BotContext): Promise<SupportedLang> {
+/** Interface language and timezone in one read — the activation notice renders a date. */
+async function resolveDisplaySettings(ctx: BotContext): Promise<{ lang: SupportedLang; timeZone: string }> {
   const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
   const iLang = settings?.interfaceLang ?? "en";
-  return (isSupported(iLang) ? iLang : "en") as SupportedLang;
+  return {
+    lang: (isSupported(iLang) ? iLang : "en") as SupportedLang,
+    timeZone: settings?.timezone || "UTC",
+  };
+}
+
+async function resolveLang(ctx: BotContext): Promise<SupportedLang> {
+  return (await resolveDisplaySettings(ctx)).lang;
 }
 
 /**
@@ -144,6 +158,9 @@ function planBullets(plan: PurchasablePlan, lang: SupportedLang): string[] {
   if (plan.features.has(FEATURE_KEYS.voiceInput)) {
     bullets.push(t("planLineVoiceInput", lang));
   }
+  if (plan.features.has(FEATURE_KEYS.mentor)) {
+    bullets.push(t("planLineMentor", lang));
+  }
   // The three grammar keys are one user-visible promise, so they collapse to one line.
   if (
     plan.features.has(FEATURE_KEYS.grammarBreakdown) ||
@@ -194,7 +211,7 @@ function renderUpgradeScreen(
   feature?: FeatureKey,
 ): string {
   const blocks = ladder.slice(from).map((plan, offset) => {
-    const header = `${planEmoji(plan.name)} <b>${plan.label}</b> — ${planPrice(plan, lang)}`;
+    const header = `<b>${plan.label}</b> — ${planPrice(plan, lang)}`;
     const cheaper = ladder[from + offset - 1];
     const bullets = planBullets(plan, lang);
     const lines = cheaper
@@ -290,7 +307,7 @@ export async function handleBuyPlanCallback(ctx: BotContext): Promise<void> {
 /** `plan:confirm:<plan>` → run the (mock) checkout, upgrade the user, confirm. */
 export async function handleConfirmPlanCallback(ctx: BotContext): Promise<void> {
   await ctx.answerCallbackQuery();
-  const lang = await resolveLang(ctx);
+  const { lang, timeZone } = await resolveDisplaySettings(ctx);
 
   const name = (ctx.callbackQuery?.data ?? "").split(":")[2];
   // Re-validated against the catalog, not trusted from the callback data: the
@@ -321,7 +338,7 @@ export async function handleConfirmPlanCallback(ctx: BotContext): Promise<void> 
     return;
   }
 
-  const date = result.currentPeriodEnd.toISOString().slice(0, 10);
+  const date = formatLongDate(result.currentPeriodEnd, lang, timeZone);
   await ctx.reply(t("subscriptionActivated", lang, { plan: plan.label, date }));
 }
 

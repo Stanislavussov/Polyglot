@@ -715,26 +715,27 @@ describe("onboarding — screen 2 (instant demo card)", () => {
 describe("onboarding — screen 3 (instruction + feature entry points)", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it("closes with inline feature buttons rather than slash commands", async () => {
+  it("closes on one message that carries the mode menu, with no inline copy of it", async () => {
     const h = createHarness({ languageCode: "ru" });
     await reachDemoScreen(h);
     h.onboardingDemoCardRepository.findOne.mockResolvedValue(null);
 
     await h.tap("onb:hook:de:0");
 
-    const final = vi
-      .mocked(h.ctx.reply)
-      .mock.calls.filter(
-        (call) => (call[1] as { reply_markup?: { inline_keyboard?: Keyboard } })?.reply_markup?.inline_keyboard,
-      )
-      .at(-1);
-    const markup = (final?.[1] as { reply_markup?: { inline_keyboard?: Keyboard } })?.reply_markup;
-    const data = (markup?.inline_keyboard ?? []).flat().map((b) => b.callback_data);
-    expect(data).toEqual(["onb:go:dictionary", "onb:go:training", "onb:go:video", "onb:go:settings"]);
-    expect(String(final?.[0])).not.toContain("/translate");
+    // The closing screen used to be two messages — inline feature buttons, then a
+    // second message repeating the same modes in prose to deliver the keyboard.
+    const closing = vi.mocked(h.ctx.reply).mock.calls.at(-1);
+    const markup = closing?.[1] as {
+      reply_markup?: { inline_keyboard?: Keyboard; one_time_keyboard?: boolean };
+    };
+    expect(markup?.reply_markup?.inline_keyboard).toBeUndefined();
+    expect(markup?.reply_markup).toMatchObject({ one_time_keyboard: true });
+    // The instructions and the hand-off are the same message now.
+    expect(String(closing?.[0])).toContain("Готово");
+    expect(String(closing?.[0])).not.toContain("/translate");
   });
 
-  it("hands over the mode menu and says which icon brings it back", async () => {
+  it("names the icon that brings the folded-away menu back", async () => {
     const h = createHarness({ languageCode: "ru" });
     await reachDemoScreen(h);
     h.onboardingDemoCardRepository.findOne.mockResolvedValue(null);

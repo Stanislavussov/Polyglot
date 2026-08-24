@@ -22,12 +22,7 @@ import { installMainKeyboard } from "../middlewares/main-keyboard.js";
 import { editMessageTextOrReply } from "../scenes/helpers/edit-message.helper.js";
 import type { BotContext } from "../types.js";
 import { getHookWordsForLangs } from "./hook-cards.js";
-import {
-  buildDemoKeyboard,
-  buildFinalKeyboard,
-  buildLearningKeyboard,
-  buildNativeKeyboard,
-} from "./onboarding-keyboards.js";
+import { buildDemoKeyboard, buildLearningKeyboard, buildNativeKeyboard } from "./onboarding-keyboards.js";
 import { guessNativeLangFromLocale, type OnboardingState } from "./onboarding-state.js";
 import { ONBOARDING_STEPS, type OnboardingStep, recordOnboardingStep } from "./onboarding-steps.js";
 
@@ -111,15 +106,17 @@ export async function showFinalScreen(ctx: BotContext, state: OnboardingState): 
 
   await sendScreencast(ctx);
 
-  await ctx.reply(`${t("onbDemoMore", lang)}\n\n${t("onboardingComplete", lang)}`, {
-    reply_markup: buildFinalKeyboard(lang),
-  });
-
-  // The mode menu is a reply keyboard that folds away after use, so this hand-off
-  // is the one time the user is shown it and told which icon brings it back. It
-  // rides along with onboarding rather than waiting for the user's next message:
-  // "now what?" is answered here or not at all.
-  await installMainKeyboard(ctx, t("mainMenuHint", lang), lang);
+  // One closing message carrying one menu. The mode keyboard rides on this screen
+  // rather than a second message after it: the inline feature buttons that used to
+  // sit here (dictionary, training, video) were the same modes a second time, and
+  // the message that delivered the keyboard then explained them a third. The ⌨️
+  // icon is still named — a `oneTime()` keyboard folds away after use, so an
+  // unnamed icon is a menu the user has to rediscover by accident.
+  await installMainKeyboard(
+    ctx,
+    `${t("onbDemoMore", lang)}\n\n${t("onboardingComplete", lang)}\n\n${t("mainMenuHint", lang)}`,
+    lang,
+  );
 
   await ctx.services.userRepository.markOnboarded(state.userId);
   recordOnboardingStep(ONBOARDING_STEPS.complete, "completed");

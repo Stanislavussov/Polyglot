@@ -98,6 +98,6 @@ describe("hot-button keyboard", () => {
     // Every other test reads the constant, so a layout change shipped without bumping it
     // would leave every existing user on the old keyboard and fail nothing. Update this
     // number deliberately, in the same commit as the layout.
-    expect(MAIN_KEYBOARD_VERSION).toBe(4);
+    expect(MAIN_KEYBOARD_VERSION).toBe(6);
   });
 });
