@@ -81,6 +81,8 @@ function createMockCtx(ai: ReturnType<typeof buildFailoverAi>): BotContext {
   return {
     from: { id: 123456789 },
     chat: { id: 123456789 },
+    // The momentum credit for a mentor turn is keyed by `update_id` (Task 81 §3.8).
+    update: { update_id: 555 },
     session,
     reply: vi.fn().mockResolvedValue({ message_id: 100 }),
     user: { id: 1, telegramId: 123456789, onboarded: true, subscriptionPlan: "free" },

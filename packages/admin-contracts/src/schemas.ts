@@ -261,6 +261,19 @@ export const mentorSettingsSchema = z.object({
     .max(4000, "Max tokens cannot exceed 4000"),
 });
 
+/**
+ * Motivation kill switch — four independent booleans, no coercion. `z.coerce.boolean()`
+ * is wrong here: it turns the string "false" a form might submit into `true`, which
+ * for a switch whose whole job is turning a surface OFF is the one failure that
+ * matters. Every key is required so a partial PUT can never leave a stale switch.
+ */
+export const motivationSettingsSchema = z.object({
+  recordingEnabled: z.boolean(),
+  enabled: z.boolean(),
+  praiseEnabled: z.boolean(),
+  recoveryEnabled: z.boolean(),
+});
+
 export const videoVocabularySettingsSchema = z
   .object({
     monthlyLimit: z.coerce.number().int("Monthly limit must be an integer").min(1),

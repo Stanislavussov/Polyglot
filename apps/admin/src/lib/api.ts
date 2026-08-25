@@ -472,6 +472,14 @@ export interface MentorModelOption {
   pricing: { prompt: string; completion: string };
 }
 
+/** The motivation kill switch. Recording is what the calibration window needs; the other three gate rendering. */
+export interface MotivationSettings {
+  recordingEnabled: boolean;
+  enabled: boolean;
+  praiseEnabled: boolean;
+  recoveryEnabled: boolean;
+}
+
 export const settings = {
   aiDefaults: {
     get: () => get<AIDefaults>("/api/settings/ai-defaults"),
@@ -508,6 +516,10 @@ export const settings = {
     get: () => get<MentorSettings>("/api/settings/mentor"),
     update: (s: MentorSettings) => put<MentorSettings>("/api/settings/mentor", s),
     models: () => get<MentorModelOption[]>("/api/settings/mentor/models"),
+  },
+  motivation: {
+    get: () => get<MotivationSettings>("/api/settings/motivation"),
+    update: (s: MotivationSettings) => put<MotivationSettings>("/api/settings/motivation", s),
   },
 };
 

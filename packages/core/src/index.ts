@@ -29,6 +29,11 @@ export type {
   MentorTurnRecord,
 } from "./ports/mentor-message.repository.js";
 export type {
+  MomentumReplayEvent,
+  MomentumRepository,
+  RecordMomentumEventInput,
+} from "./ports/momentum.repository.js";
+export type {
   NotificationType,
   NotificationUser,
 } from "./ports/notification.repository.js";
@@ -140,6 +145,51 @@ export * from "./modules/input-analysis/index.js";
 export * from "./modules/language-detect/index.js";
 export type { MentorPromptOptions } from "./modules/mentor/prompt.builder.js";
 export { buildMentorSystemPrompt, MAX_MENTOR_HISTORY } from "./modules/mentor/prompt.builder.js";
+export {
+  activeDaysFromEvents,
+  applyEffort,
+  cappedWeight,
+  decay,
+  localDayBounds,
+  localDayKey,
+  resolveBand,
+} from "./modules/momentum/momentum.math.js";
+export type {
+  MomentumService,
+  MomentumServiceDeps,
+  MomentumView,
+  RecordEffortInput,
+  RecordEffortResult,
+  RecoveryDecision,
+} from "./modules/momentum/momentum.service.js";
+export { createMomentumService, RECOVERY_GAP_MS } from "./modules/momentum/momentum.service.js";
+export type {
+  EffortKind,
+  MomentumBand,
+  MomentumEventKind,
+  MomentumSnapshot,
+  MomentumState,
+  MotivationConfig,
+  PraiseDecision,
+  PraiseKind,
+} from "./modules/momentum/momentum.types.js";
+export {
+  BAND_THRESHOLDS,
+  DAILY_CAPS,
+  DEFAULT_MOTIVATION_CONFIG,
+  EFFORT_KINDS,
+  EFFORT_WEIGHTS,
+  HALF_LIFE_MS,
+  MATURE_INTERVAL_DAYS,
+  parseMotivationConfig,
+} from "./modules/momentum/momentum.types.js";
+export type {
+  PraiseEvidence,
+  PraiseOutcome,
+  PraiseSuppressionReason,
+  SelectPraiseInput,
+} from "./modules/momentum/praise.selector.js";
+export { PRAISE_COOLDOWN_MS, PRAISE_WEEKLY_CAP, selectPraise } from "./modules/momentum/praise.selector.js";
 export * from "./modules/notifications/index.js";
 export type { HookWord, HookWordCategory } from "./modules/onboarding/hook-words.js";
 export { getHookWordLanguages, getHookWords, HOOK_WORDS } from "./modules/onboarding/hook-words.js";

@@ -48,6 +48,9 @@ import {
   unrecognizedWordCounter,
 } from "../../metrics.js";
 import { getRequestSettings } from "../../middlewares/request-settings.js";
+import { recordEffort } from "../../momentum/momentum.wiring.js";
+import { resolvePraiseLine } from "../../momentum/praise.footer.js";
+import { commitRecovery, resolveRecoveryPrefix } from "../../momentum/recovery.helper.js";
 import {
   buildTranslationKeyboard,
   renderSentenceTranslation,
@@ -748,7 +751,22 @@ async function sendTranslationCard(
       ? `${t("detectedLang", lang, { lang: getLanguageName(opts.detectedLang, lang) })}\n${body}`
       : body;
 
-  const cardMsg = await ctx.reply(card, { parse_mode: "HTML" });
+  // Motivation lines (§2.2 S2/S3) ride only on a card a TEXT message asked for.
+  // `sendTranslationCard` is also reached from the mistype-confirm and clarify-option
+  // callbacks; those carry nothing by design, and the pending recovery line waits for
+  // the first card a text message produces (deferred delivery, §2.2 S3).
+  const now = new Date();
+  const fromTextMessage = ctx.message?.text !== undefined;
+  const recovery = fromTextMessage ? await resolveRecoveryPrefix(ctx, lang, now) : null;
+  // Recovery wins over praise, and praise's cooldown is not spent on the loss.
+  const praise = fromTextMessage && !recovery ? await resolvePraiseLine(ctx, lang, "translation_card", now) : null;
+  let cardText = card;
+  if (recovery) cardText = `${recovery.text}\n\n${card}`;
+  else if (praise) cardText = `${card}\n\n${praise}`;
+
+  const cardMsg = await ctx.reply(cardText, { parse_mode: "HTML" });
+  // Only after the send resolved: a failed delivery must not burn the one-shot.
+  if (recovery) await commitRecovery(ctx, recovery.gapDays, now);
 
   const showGrammarButton =
     inputType !== "word" && (inputType === "sentence" || !effectiveTemplate.fields.grammarBreakdown);
@@ -1016,13 +1034,23 @@ async function runTranslationPipeline(
     if (output.correction) {
       inputCorrectionCounter.inc({ outcome: "auto_corrected", input_type: classification.type });
     }
-    await ctx.services.translationRequestRepository.logTranslationRequest(
+    const translationRequestId = await ctx.services.translationRequestRepository.logTranslationRequest(
       ctx.user.id,
       word,
       sourceLang,
       targetLangs,
       creditCost,
     );
+
+    // Awaited, unlike the other credit sites: this same update renders the momentum
+    // surfaces (S2/S3) further down, so the snapshot has to be written before they
+    // are read (§4.2). `recordEffort` never rejects, so a momentum outage still
+    // delivers the card.
+    await recordEffort(ctx, {
+      userId: ctx.user.id,
+      kind: "translate",
+      dedupeKey: `translate:${translationRequestId}`,
+    });
 
     if (timing) {
       ctx.services.requestTimingRepository

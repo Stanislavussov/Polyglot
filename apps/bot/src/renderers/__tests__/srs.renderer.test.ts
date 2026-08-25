@@ -14,7 +14,7 @@ vi.mock("@polyglot/core", async () => {
   };
 });
 
-import { renderSrsBack, renderSrsFront } from "../srs.renderer.js";
+import { buildSrsDoneKeyboard, renderSrsBack, renderSrsFront } from "../srs.renderer.js";
 
 const sampleCard: SrsDueVocabularyCard = {
   translationId: 10,
@@ -38,6 +38,7 @@ const sampleCard: SrsDueVocabularyCard = {
   usageNote: "Употребляется для краткого изложения основных пунктов.",
   connotationWarning: null,
   details: null,
+  difficulty: null,
   srsEaseFactor: 2.5,
   srsInterval: 0,
   srsDueDate: null,
@@ -73,5 +74,20 @@ describe("renderSrsBack", () => {
     expect(html).toContain("First, let us outline the problem.");
     expect(html).toContain("Let me outline the problem.");
     expect(html).toContain("💡 Употребляется для краткого изложения основных пунктов.");
+  });
+});
+
+describe("buildSrsDoneKeyboard", () => {
+  const rowsOf = (showProgress: boolean): string[][] =>
+    buildSrsDoneKeyboard("en", { showProgress }).inline_keyboard.map((row) =>
+      row.map((button) => ("callback_data" in button ? button.callback_data : "")),
+    );
+
+  it("puts the progress button on a row of its own", () => {
+    expect(rowsOf(true)).toEqual([["srs:restart", "srs:close"], ["progress:open:srs_done"]]);
+  });
+
+  it("omits the progress button while the motivation surface is off", () => {
+    expect(rowsOf(false)).toEqual([["srs:restart", "srs:close"]]);
   });
 });

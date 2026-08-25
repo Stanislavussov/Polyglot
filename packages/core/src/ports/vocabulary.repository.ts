@@ -126,6 +126,8 @@ export interface SrsDueVocabularyCard {
   usageNote: string | null;
   connotationWarning: string | null;
   details: VocabTranslationDetails | null;
+  /** The entry's user grade; `hard` is what makes a correct recall worth praising (momentum §2.2 S2). */
+  difficulty: VocabDifficulty | null;
   srsEaseFactor: number;
   srsInterval: number;
   srsDueDate: Date | null;
@@ -190,6 +192,10 @@ export interface VocabularyRepository {
   /** Permanently delete an entry (used after the last dictionary membership is removed). */
   hardDelete(entryId: number): Promise<void>;
   findDueForSrs(userId: number, now: Date, limit: number): Promise<SrsDueVocabularyCard[]>;
+  /** Translations at or past the "stuck" SRS interval — the counter behind `mature` (momentum §3.10). */
+  countMatureTranslations(userId: number, minInterval: number): Promise<number>;
+  /** `findDueForSrs`'s predicate without materialising the cards. */
+  countDueForSrs(userId: number, now: Date): Promise<number>;
   updateSrsState(translationId: number, state: UpdateSrsStateInput): Promise<void>;
   search(userId: number, query: string): Promise<VocabularyEntryWithTranslations[]>;
   countByUser(userId: number, dictionaryId?: number, search?: string): Promise<number>;

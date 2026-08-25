@@ -38,6 +38,7 @@ import {
   languageDetectionRepository,
   loadLanguageCache,
   mentorMessageRepository,
+  momentumRepository,
   normalizeToIso1,
   notificationRepository,
   onboardingDemoCardRepository,
@@ -66,10 +67,11 @@ import type {
   SpeechOptions,
   TranscribeOptions,
 } from "@polyglot/core";
-import { type ServiceContainer, SettingsService, setAICircuitObserver } from "@polyglot/core";
+import { createMomentumService, type ServiceContainer, SettingsService, setAICircuitObserver } from "@polyglot/core";
 import type { ZodSchema } from "zod";
 import { createFeatureAccess } from "./feature-access.js";
 import { aiCircuitStateGauge, aiCircuitTransitionsCounter, aiFallbackCounter } from "./metrics.js";
+import { withReviewRecording } from "./momentum/momentum.wiring.js";
 import { mockPaymentAdapter } from "./payment.js";
 import { buildAiFailover, resolveFallbackAIModel } from "./utils/ai-model.js";
 import { clampAiBudgetToOpGuard } from "./utils/long-op.js";
@@ -82,6 +84,12 @@ import { clampAiBudgetToOpGuard } from "./utils/long-op.js";
  * Anything else (including unset) stays default-ON.
  */
 const DISABLE_VALUES = new Set(["false", "0", "off", "no"]);
+
+/** How long a user's timezone may be reused for momentum's local-day bucketing. */
+const TIMEZONE_CACHE_TTL_MS = 60_000;
+
+/** Entries kept before the whole timezone cache is dropped. */
+const TIMEZONE_CACHE_MAX = 5_000;
 
 /** True unless the env var is set to a recognized "disable" value (case/whitespace-insensitive). */
 function isCircuitBreakerEnabled(raw: string | undefined): boolean {
@@ -191,15 +199,44 @@ export function createContainer(): ServiceContainer {
     transcribe: (options: TranscribeOptions) => transcribeAudio(options),
   };
 
+  // Fallback for the credit sites with no `ctx` to read the update's settings memo —
+  // `withReviewRecording` above all, which fires once per rated card. A minute of
+  // staleness costs at most one effort bucketed into the timezone the user just left.
+  const timezoneCache = new Map<number, { timezone: string; readAt: number }>();
+  const getTimezone = async (userId: number): Promise<string> => {
+    const cached = timezoneCache.get(userId);
+    const now = Date.now();
+    if (cached && now - cached.readAt < TIMEZONE_CACHE_TTL_MS) return cached.timezone;
+    const timezone = (await userRepository.getSettings(userId))?.timezone ?? "UTC";
+    // The bot is long-lived and every user that ever acts lands here, so the map is
+    // dropped wholesale rather than left to grow for the process's lifetime.
+    if (timezoneCache.size >= TIMEZONE_CACHE_MAX) timezoneCache.clear();
+    timezoneCache.set(userId, { timezone, readAt: now });
+    return timezone;
+  };
+
+  // The kill switch is read per call, never latched here: the container is built once
+  // at startup, and `recordingEnabled` must be able to go dark from the admin panel
+  // without a restart (§4.1).
+  const momentumService = createMomentumService({
+    momentumRepository,
+    getMotivationConfig: () => settings.getMotivationConfig(),
+    getTimezone,
+  });
+
   const container: ServiceContainer = {
     userRepository,
     identityRepository,
     vocabularyRepository,
     vocabularyDictionaryRepository,
     translationTemplateRepository,
-    wordReviewRepository,
+    // Object-spread wrapper in the composition root: repositories arrive as plain
+    // named exports with no observer hook, so this is the only place a review can
+    // credit momentum from all four `logReview` call sites at once (§4.1).
+    wordReviewRepository: withReviewRecording(wordReviewRepository, () => container.momentumService),
     notificationRepository,
     mentorMessageRepository,
+    momentumService,
     onboardingDemoCardRepository,
     translationRequestRepository,
     languageDetectionRepository,

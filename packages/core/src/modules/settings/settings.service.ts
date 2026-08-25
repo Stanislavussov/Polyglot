@@ -13,6 +13,7 @@ import type {
   VideoVocabularyConfig,
 } from "../../ports/settings.port.js";
 import type { SubscriptionPlan } from "../../ports/user.repository.js";
+import type { MotivationConfig } from "../momentum/momentum.types.js";
 import { AI_GENERATION_DEFAULTS } from "./ai-defaults.schema.js";
 
 const CACHE_TTL_MS = 60_000;
@@ -428,6 +429,14 @@ export class SettingsService implements SettingsPort {
     if (cached) return cached;
     const config = await this.port.getMentorConfig();
     this.setCache("mentor", config);
+    return config;
+  }
+
+  async getMotivationConfig(): Promise<MotivationConfig> {
+    const cached = this.getCached<MotivationConfig>("motivation");
+    if (cached) return cached;
+    const config = await this.port.getMotivationConfig();
+    this.setCache("motivation", config);
     return config;
   }
 }

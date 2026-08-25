@@ -18,6 +18,7 @@ import {
   translateWithContext,
 } from "@polyglot/core";
 import { inputCorrectionCounter, unrecognizedWordCounter } from "../../metrics.js";
+import { commitRecovery, resolveRecoveryPrefix } from "../../momentum/recovery.helper.js";
 import {
   buildTranslationKeyboard,
   renderSentenceTranslation,
@@ -306,7 +307,16 @@ export async function handleTranslationClarificationContextText(ctx: BotContext,
       // card and advance the pending-card pointers to it.
       const pronounceLangs = await resolvePronounceLangs(ctx, decision.output, entry.inputType, order);
 
-      const newMsg = await ctx.reply(cardText, { parse_mode: "HTML" });
+      // Recovery only (§2.2 S3): a returning user's line has ONE chance, and the
+      // clarify path is where a first word after the pause commonly lands. Praise is
+      // deliberately not offered here — it is event-driven and rare, so it waits for
+      // the next ordinary card rather than widening this slice's surface.
+      const now = new Date();
+      const recovery = await resolveRecoveryPrefix(ctx, lang, now);
+      const newMsg = await ctx.reply(recovery ? `${recovery.text}\n\n${cardText}` : cardText, {
+        parse_mode: "HTML",
+      });
+      if (recovery) await commitRecovery(ctx, recovery.gapDays, now);
       const keyboard = buildTranslationKeyboard({
         interfaceLang: lang,
         msgId: newMsg.message_id,

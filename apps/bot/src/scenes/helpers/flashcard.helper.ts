@@ -6,6 +6,7 @@
  */
 import type { DictionaryPipelineDeps, SupportedLang } from "@polyglot/core";
 import { createDictionaryPipeline, FLASHCARD_CONFIG, isSupported, logEvent, logger, t } from "@polyglot/core";
+import { resolvePraiseLine } from "../../momentum/praise.footer.js";
 import {
   buildFlashCardBackKeyboard,
   buildFlashCardDoneKeyboard,
@@ -156,8 +157,14 @@ export async function handleFcDone(ctx: BotContext): Promise<void> {
   const lastWord = fc.deck[fc.currentIndex];
   if (lastWord) logReviewSafe(ctx, lastWord.id);
 
-  const text = t("flashcardDone", lang, { count: String(fc.deck.length) });
-  const kb = buildFlashCardDoneKeyboard(lang);
+  // No SM-2 update and no grading here, so neither `mature` nor "recalled a hard
+  // word" can be earned in a flashcard session — the only evidence this surface can
+  // carry is a dictionary milestone, which `resolvePraiseLine` reads for itself.
+  const praise = await resolvePraiseLine(ctx, lang, "flashcard_done", new Date());
+  const done = t("flashcardDone", lang, { count: String(fc.deck.length) });
+  const text = praise ? `${done}\n\n${praise}` : done;
+  const { enabled: showProgress } = await ctx.services.settings.getMotivationConfig();
+  const kb = buildFlashCardDoneKeyboard(lang, { showProgress });
 
   await editMessageTextOrReply(ctx, text, { parse_mode: "HTML", reply_markup: kb });
   ctx.session.flashcard = undefined;

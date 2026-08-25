@@ -32,11 +32,17 @@ import {
  * scheduler through `jsonb`-shaped data, so its key order carries no meaning and
  * a caller that has the user's settings must say what the order is. See
  * `@polyglot/core`'s translation-order module.
+ *
+ * `footer` arrives already rendered so this stays pure: the motivation layer's
+ * weekly line (Task 81, S4) needs a database read and a kill-switch check, and
+ * omitting it must leave the card byte-identical to what it was before that layer
+ * existed.
  */
 export function formatNotificationMessage(
   payload: NotificationPayload,
   lang: SupportedLang,
   order: LanguageOrderContext,
+  options: { footer?: string } = {},
 ): string {
   const { word } = payload;
   const sourceLabel =
@@ -64,6 +70,9 @@ export function formatNotificationMessage(
     // Secondary languages stay to one line each — the card is a nudge, not a
     // dictionary entry, and the full detail is one "Reveal" tap away.
     others: others.map(([code, text]) => otherLangLine(code, text)),
+    // Blank separator first: glued to the last translation the weekly line would
+    // read as one more language on the card.
+    footer: options.footer ? ["", options.footer] : [],
   });
 }
 

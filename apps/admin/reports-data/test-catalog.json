@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-24T19:38:01.000Z",
+  "generatedAt": "2026-08-25T19:51:07.000Z",
   "summary": {
-    "total": 2964,
+    "total": 3085,
     "business": 0,
-    "technical": 2964,
+    "technical": 3085,
     "workspaces": [
       "apps",
       "packages"
@@ -757,6 +757,86 @@
       "name": "Admin API GET mentor models returns text out chat models sorted by name, hiding:variant routes",
       "value": "Protects the admin API GET mentor models behavior: returns text out chat models sorted by name, hiding:variant routes.",
       "description": "Protects the admin API GET mentor models behavior: returns text out chat models sorted by name, hiding:variant routes."
+    },
+    {
+      "id": "apps-admin-api-src-routes-motivation-test-ts-33-get-motivation-serves-the-shared-default-when-nothing-is-stored",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/motivation.test.ts",
+      "sourceLine": 33,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "GET /motivation"
+      ],
+      "title": "serves the shared default when nothing is stored",
+      "rawTitle": "serves the shared default when nothing is stored",
+      "name": "Admin API GET motivation serves the shared default when nothing is stored",
+      "value": "Protects the admin API GET motivation behavior so serves the shared default when nothing is stored.",
+      "description": "Protects the admin API GET motivation behavior so serves the shared default when nothing is stored."
+    },
+    {
+      "id": "apps-admin-api-src-routes-motivation-test-ts-44-get-motivation-shows-the-panel-what-the-runtime-sees-not-what-the-row-says",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/motivation.test.ts",
+      "sourceLine": 44,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "GET /motivation"
+      ],
+      "title": "shows the panel what the runtime sees, not what the row says",
+      "rawTitle": "shows the panel what the runtime sees, not what the row says",
+      "name": "Admin API GET motivation shows the panel what the runtime sees, not what the row says",
+      "value": "Protects the admin API GET motivation behavior: shows the panel what the runtime sees, not what the row says.",
+      "description": "Protects the admin API GET motivation behavior: shows the panel what the runtime sees, not what the row says."
+    },
+    {
+      "id": "apps-admin-api-src-routes-motivation-test-ts-60-put-motivation-persists-all-four-switches-under-the-motivation-key",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/motivation.test.ts",
+      "sourceLine": 60,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "PUT /motivation"
+      ],
+      "title": "persists all four switches under the motivation key",
+      "rawTitle": "persists all four switches under the motivation key",
+      "name": "Admin API PUT motivation persists all four switches under the motivation key",
+      "value": "Protects the admin API PUT motivation behavior: persists all four switches under the motivation key.",
+      "description": "Protects the admin API PUT motivation behavior: persists all four switches under the motivation key."
+    },
+    {
+      "id": "apps-admin-api-src-routes-motivation-test-ts-71-put-motivation-rejects-a-non-boolean-switch-rather-than-storing-something-un-flippable",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/motivation.test.ts",
+      "sourceLine": 71,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "PUT /motivation"
+      ],
+      "title": "rejects a non-boolean switch rather than storing something un-flippable",
+      "rawTitle": "rejects a non-boolean switch rather than storing something un-flippable",
+      "name": "Admin API PUT motivation rejects a non boolean switch rather than storing something un flippable",
+      "value": "Protects the admin API PUT motivation behavior: rejects a non boolean switch rather than storing something un flippable.",
+      "description": "Protects the admin API PUT motivation behavior: rejects a non boolean switch rather than storing something un flippable."
+    },
+    {
+      "id": "apps-admin-api-src-routes-motivation-test-ts-84-put-motivation-rejects-a-partial-body-a-missing-key-would-leave-a-stale-switch-live",
+      "kind": "technical",
+      "filePath": "apps/admin-api/src/routes/motivation.test.ts",
+      "sourceLine": 84,
+      "workspace": "apps",
+      "packageName": "admin-api",
+      "suitePath": [
+        "PUT /motivation"
+      ],
+      "title": "rejects a partial body — a missing key would leave a stale switch live",
+      "rawTitle": "rejects a partial body — a missing key would leave a stale switch live",
+      "name": "Admin API PUT motivation rejects a partial body — a missing key would leave a stale switch live",
+      "value": "Protects the admin API PUT motivation behavior: rejects a partial body — a missing key would leave a stale switch live.",
+      "description": "Protects the admin API PUT motivation behavior: rejects a partial body — a missing key would leave a stale switch live."
     },
     {
       "id": "apps-admin-api-src-routes-onboarding-demo-cards-test-ts-58-onboardingdemocardroutes-lists-unreviewed-cards-with-their-payload-so-a-reviewer-can-read-them",
@@ -2263,10 +2343,10 @@
       "description": "Protects the bot build Ai Failover behavior so disables the split for a non finite non positive budget instead of returning a Na N split."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-182-createcontainer-creates-a-container-with-all-services",
+      "id": "apps-bot-src-tests-container-test-ts-192-createcontainer-creates-a-container-with-all-services",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 182,
+      "sourceLine": 192,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2279,10 +2359,10 @@
       "description": "Protects the bot create Container behavior: creates a container with all services."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-204-createcontainer-container-has-languagecache-methods",
+      "id": "apps-bot-src-tests-container-test-ts-215-createcontainer-container-has-languagecache-methods",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 204,
+      "sourceLine": 215,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2295,10 +2375,10 @@
       "description": "Protects the bot create Container behavior so container has language Cache methods."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-214-createcontainer-container-has-ai-methods",
+      "id": "apps-bot-src-tests-container-test-ts-225-createcontainer-container-has-ai-methods",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 214,
+      "sourceLine": 225,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2311,10 +2391,10 @@
       "description": "Protects the bot create Container behavior so container has AI methods."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-222-createcontainer-container-services-are-callable",
+      "id": "apps-bot-src-tests-container-test-ts-233-createcontainer-container-services-are-callable",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 222,
+      "sourceLine": 233,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3239,6 +3319,278 @@
       "description": "Protects the bot message persistence (integration) behavior so leaves a rejection notice on screen when the next word is translated."
     },
     {
+      "id": "apps-bot-src-tests-integration-momentum-recording-integration-test-ts-101-momentum-recording-integration-credits-a-translation-a-save-and-a-review-exactly-once-each-and-replays-add-nothing",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/momentum-recording.integration.test.ts",
+      "sourceLine": 101,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "momentum recording (integration)"
+      ],
+      "title": "credits a translation, a save and a review exactly once each, and replays add nothing",
+      "rawTitle": "credits a translation, a save and a review exactly once each, and replays add nothing",
+      "name": "Bot momentum recording (integration) credits a translation, a save and a review exactly once each, and replays add nothing",
+      "value": "Protects the bot momentum recording (integration) behavior so credits a translation, a save and a review exactly once each, and replays add nothing.",
+      "description": "Protects the bot momentum recording (integration) behavior so credits a translation, a save and a review exactly once each, and replays add nothing."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-momentum-recording-integration-test-ts-164-momentum-recording-integration-records-nothing-while-the-recording-kill-switch-is-off",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/momentum-recording.integration.test.ts",
+      "sourceLine": 164,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "momentum recording (integration)"
+      ],
+      "title": "records nothing while the recording kill switch is off",
+      "rawTitle": "records nothing while the recording kill switch is off",
+      "name": "Bot momentum recording (integration) records nothing while the recording kill switch is off",
+      "value": "Protects the bot momentum recording (integration) behavior: records nothing while the recording kill switch is off.",
+      "description": "Protects the bot momentum recording (integration) behavior: records nothing while the recording kill switch is off."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-momentum-recording-integration-test-ts-192-momentum-recording-integration-still-delivers-the-translation-card-when-the-momentum-repository-throws",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/momentum-recording.integration.test.ts",
+      "sourceLine": 192,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "momentum recording (integration)"
+      ],
+      "title": "still delivers the translation card when the momentum repository throws",
+      "rawTitle": "still delivers the translation card when the momentum repository throws",
+      "name": "Bot momentum recording (integration) still delivers the translation card when the momentum repository throws",
+      "value": "Protects the bot momentum recording (integration) behavior so still delivers the translation card when the momentum repository throws.",
+      "description": "Protects the bot momentum recording (integration) behavior so still delivers the translation card when the momentum repository throws."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-momentum-surfaces-integration-test-ts-177-recovery-line-integration-prefixes-one-card-with-the-welcome-and-the-real-due-count-and-never-names-the-pause",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/momentum-surfaces.integration.test.ts",
+      "sourceLine": 177,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "recovery line (integration)"
+      ],
+      "title": "prefixes one card with the welcome and the real due count, and never names the pause",
+      "rawTitle": "prefixes one card with the welcome and the real due count, and never names the pause",
+      "name": "Bot recovery line (integration) prefixes one card with the welcome and the real due count, and never names the pause",
+      "value": "Protects the bot recovery line (integration) behavior so prefixes one card with the welcome and the real due count, and never names the pause.",
+      "description": "Protects the bot recovery line (integration) behavior so prefixes one card with the welcome and the real due count, and never names the pause."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-momentum-surfaces-integration-test-ts-207-recovery-line-integration-stays-silent-for-a-user-who-was-here-yesterday-and-advances-lastseenat-anyway",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/momentum-surfaces.integration.test.ts",
+      "sourceLine": 207,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "recovery line (integration)"
+      ],
+      "title": "stays silent for a user who was here yesterday, and advances lastSeenAt anyway",
+      "rawTitle": "stays silent for a user who was here yesterday, and advances lastSeenAt anyway",
+      "name": "Bot recovery line (integration) stays silent for a user who was here yesterday, and advances last Seen At anyway",
+      "value": "Protects the bot recovery line (integration) behavior so stays silent for a user who was here yesterday, and advances last Seen At anyway.",
+      "description": "Protects the bot recovery line (integration) behavior so stays silent for a user who was here yesterday, and advances last Seen At anyway."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-momentum-surfaces-integration-test-ts-224-recovery-line-integration-does-not-spend-the-returning-user-s-one-shot-on-a-callback-tap",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/momentum-surfaces.integration.test.ts",
+      "sourceLine": 224,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "recovery line (integration)"
+      ],
+      "title": "does not spend the returning user's one shot on a callback tap",
+      "rawTitle": "does not spend the returning user's one shot on a callback tap",
+      "name": "Bot recovery line (integration) does not spend the returning user's one shot on a callback tap",
+      "value": "Protects the bot recovery line (integration) behavior: does not spend the returning user's one shot on a callback tap.",
+      "description": "Protects the bot recovery line (integration) behavior: does not spend the returning user's one shot on a callback tap."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-momentum-surfaces-integration-test-ts-249-recovery-line-integration-delivers-the-line-on-the-clarification-card-when-the-first-word-after-the-pause-is-ambiguous",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/momentum-surfaces.integration.test.ts",
+      "sourceLine": 249,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "recovery line (integration)"
+      ],
+      "title": "delivers the line on the clarification card when the first word after the pause is ambiguous",
+      "rawTitle": "delivers the line on the clarification card when the first word after the pause is ambiguous",
+      "name": "Bot recovery line (integration) delivers the line on the clarification card when the first word after the pause is ambiguous",
+      "value": "Protects the bot recovery line (integration) behavior so delivers the line on the clarification card when the first word after the pause is ambiguous.",
+      "description": "Protects the bot recovery line (integration) behavior so delivers the line on the clarification card when the first word after the pause is ambiguous."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-momentum-surfaces-integration-test-ts-286-praise-line-integration-carries-the-tenth-word-milestone-on-the-next-card-only-and-counts-the-cooldown-suppression",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/momentum-surfaces.integration.test.ts",
+      "sourceLine": 286,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "praise line (integration)"
+      ],
+      "title": "carries the tenth-word milestone on the next card only, and counts the cooldown suppression",
+      "rawTitle": "carries the tenth-word milestone on the next card only, and counts the cooldown suppression",
+      "name": "Bot praise line (integration) carries the tenth word milestone on the next card only, and counts the cooldown suppression",
+      "value": "Protects the bot praise line (integration) behavior so carries the tenth word milestone on the next card only, and counts the cooldown suppression.",
+      "description": "Protects the bot praise line (integration) behavior so carries the tenth word milestone on the next card only, and counts the cooldown suppression."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-momentum-surfaces-integration-test-ts-322-praise-line-integration-says-nothing-anywhere-while-the-praise-kill-switch-is-off",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/momentum-surfaces.integration.test.ts",
+      "sourceLine": 322,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "praise line (integration)"
+      ],
+      "title": "says nothing anywhere while the praise kill switch is off",
+      "rawTitle": "says nothing anywhere while the praise kill switch is off",
+      "name": "Bot praise line (integration) says nothing anywhere while the praise kill switch is off",
+      "value": "Protects the bot praise line (integration) behavior so says nothing anywhere while the praise kill switch is off.",
+      "description": "Protects the bot praise line (integration) behavior so says nothing anywhere while the praise kill switch is off."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-momentum-surfaces-integration-test-ts-352-praise-line-integration-puts-one-praise-line-in-the-srsdone-text-when-a-word-reaches-long-term-memory",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/momentum-surfaces.integration.test.ts",
+      "sourceLine": 352,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "praise line (integration)"
+      ],
+      "title": "puts one praise line in the srsDone text when a word reaches long-term memory",
+      "rawTitle": "puts one praise line in the srsDone text when a word reaches long-term memory",
+      "name": "Bot praise line (integration) puts one praise line in the srs Done text when a word reaches long term memory",
+      "value": "Protects the bot praise line (integration) behavior so puts one praise line in the srs Done text when a word reaches long term memory.",
+      "description": "Protects the bot praise line (integration) behavior so puts one praise line in the srs Done text when a word reaches long term memory."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-momentum-surfaces-integration-test-ts-374-praise-line-integration-never-praises-the-same-dictionary-milestone-twice-however-long-the-user-waits",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/momentum-surfaces.integration.test.ts",
+      "sourceLine": 374,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "praise line (integration)"
+      ],
+      "title": "never praises the same dictionary milestone twice, however long the user waits",
+      "rawTitle": "never praises the same dictionary milestone twice, however long the user waits",
+      "name": "Bot praise line (integration) never praises the same dictionary milestone twice, however long the user waits",
+      "value": "Protects the bot praise line (integration) behavior so never praises the same dictionary milestone twice, however long the user waits.",
+      "description": "Protects the bot praise line (integration) behavior so never praises the same dictionary milestone twice, however long the user waits."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-momentum-surfaces-integration-test-ts-401-praise-line-integration-yields-to-the-recovery-line-when-both-are-earned-by-the-same-update",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/momentum-surfaces.integration.test.ts",
+      "sourceLine": 401,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "praise line (integration)"
+      ],
+      "title": "yields to the recovery line when both are earned by the same update",
+      "rawTitle": "yields to the recovery line when both are earned by the same update",
+      "name": "Bot praise line (integration) yields to the recovery line when both are earned by the same update",
+      "value": "Protects the bot praise line (integration) behavior so yields to the recovery line when both are earned by the same update.",
+      "description": "Protects the bot praise line (integration) behavior so yields to the recovery line when both are earned by the same update."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-momentum-integration-test-ts-150-progress-integration-shows-the-band-the-four-counters-and-one-review-button-and-never-the-raw-score",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/momentum.integration.test.ts",
+      "sourceLine": 150,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "/progress (integration)"
+      ],
+      "title": "shows the band, the four counters and one review button — and never the raw score",
+      "rawTitle": "shows the band, the four counters and one review button — and never the raw score",
+      "name": "Bot progress (integration) shows the band, the four counters and one review button — and never the raw score",
+      "value": "Protects the bot progress (integration) behavior: shows the band, the four counters and one review button — and never the raw score.",
+      "description": "Protects the bot progress (integration) behavior: shows the band, the four counters and one review button — and never the raw score."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-momentum-integration-test-ts-181-progress-integration-is-reachable-from-the-srs-done-screen-and-reports-that-entry-point",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/momentum.integration.test.ts",
+      "sourceLine": 181,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "/progress (integration)"
+      ],
+      "title": "is reachable from the SRS done screen and reports that entry point",
+      "rawTitle": "is reachable from the SRS done screen and reports that entry point",
+      "name": "Bot progress (integration) is reachable from the SRS done screen and reports that entry point",
+      "value": "Protects the bot progress (integration) behavior so is reachable from the SRS done screen and reports that entry point.",
+      "description": "Protects the bot progress (integration) behavior so is reachable from the SRS done screen and reports that entry point."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-momentum-integration-test-ts-214-progress-integration-shows-the-empty-state-no-counters-and-no-band-to-a-user-with-no-words",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/momentum.integration.test.ts",
+      "sourceLine": 214,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "/progress (integration)"
+      ],
+      "title": "shows the empty state — no counters and no band — to a user with no words",
+      "rawTitle": "shows the empty state — no counters and no band — to a user with no words",
+      "name": "Bot progress (integration) shows the empty state — no counters and no band — to a user with no words",
+      "value": "Protects the bot progress (integration) behavior: shows the empty state — no counters and no band — to a user with no words.",
+      "description": "Protects the bot progress (integration) behavior: shows the empty state — no counters and no band — to a user with no words."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-momentum-integration-test-ts-239-progress-integration-makes-no-outgoing-telegram-call-at-all-when-the-command-is-typed-while-the-surface-is-off",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/momentum.integration.test.ts",
+      "sourceLine": 239,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "/progress (integration)"
+      ],
+      "title": "makes no outgoing Telegram call at all when the command is typed while the surface is off",
+      "rawTitle": "makes no outgoing Telegram call at all when the command is typed while the surface is off",
+      "name": "Bot progress (integration) makes no outgoing Telegram call at all when the command is typed while the surface is off",
+      "value": "Protects the bot progress (integration) behavior so makes no outgoing Telegram call at all when the command is typed while the surface is off.",
+      "description": "Protects the bot progress (integration) behavior so makes no outgoing Telegram call at all when the command is typed while the surface is off."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-momentum-integration-test-ts-258-progress-integration-keeps-the-button-off-the-done-screen-while-the-surface-is-off-and-still-answers-a-stale-tap",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/momentum.integration.test.ts",
+      "sourceLine": 258,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "/progress (integration)"
+      ],
+      "title": "keeps the button off the done screen while the surface is off, and still answers a stale tap",
+      "rawTitle": "keeps the button off the done screen while the surface is off, and still answers a stale tap",
+      "name": "Bot progress (integration) keeps the button off the done screen while the surface is off, and still answers a stale tap",
+      "value": "Protects the bot progress (integration) behavior: keeps the button off the done screen while the surface is off, and still answers a stale tap.",
+      "description": "Protects the bot progress (integration) behavior: keeps the button off the done screen while the surface is off, and still answers a stale tap."
+    },
+    {
       "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-155-scheduled-notification-delivery-integration-c1-notifies-a-subscriber-who-translated-today",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
@@ -3541,6 +3893,102 @@
       "name": "Bot notification feedback (integration) F5: grading an already removed entry answers without resurrecting anything",
       "value": "Protects the bot notification feedback (integration) behavior so F5: grading an already removed entry answers without resurrecting anything.",
       "description": "Protects the bot notification feedback (integration) behavior so F5: grading an already removed entry answers without resurrecting anything."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-notification-weekly-line-integration-test-ts-173-weekly-proof-line-in-a-scheduled-notification-integration-w1-shows-the-line-once-suppresses-it-the-next-day-and-shows-it-again-after-seven-days",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/notification-weekly-line.integration.test.ts",
+      "sourceLine": 173,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "weekly proof line in a scheduled notification (integration)"
+      ],
+      "title": "W1: shows the line once, suppresses it the next day, and shows it again after seven days",
+      "rawTitle": "W1: shows the line once, suppresses it the next day, and shows it again after seven days",
+      "name": "Bot weekly proof line in a scheduled notification (integration) W1: shows the line once, suppresses it the next day, and shows it again after seven days",
+      "value": "Protects the bot weekly proof line in a scheduled notification (integration) behavior so W1: shows the line once, suppresses it the next day, and shows it again after seven days.",
+      "description": "Protects the bot weekly proof line in a scheduled notification (integration) behavior so W1: shows the line once, suppresses it the next day, and shows it again after seven days."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-notification-weekly-line-integration-test-ts-226-weekly-proof-line-in-a-scheduled-notification-integration-w2-says-nothing-when-the-week-produced-no-evidence",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/notification-weekly-line.integration.test.ts",
+      "sourceLine": 226,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "weekly proof line in a scheduled notification (integration)"
+      ],
+      "title": "W2: says nothing when the week produced no evidence",
+      "rawTitle": "W2: says nothing when the week produced no evidence",
+      "name": "Bot weekly proof line in a scheduled notification (integration) W2: says nothing when the week produced no evidence",
+      "value": "Protects the bot weekly proof line in a scheduled notification (integration) behavior so W2: says nothing when the week produced no evidence.",
+      "description": "Protects the bot weekly proof line in a scheduled notification (integration) behavior so W2: says nothing when the week produced no evidence."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-notification-weekly-line-integration-test-ts-250-weekly-proof-line-in-a-scheduled-notification-integration-w3-with-the-kill-switch-off-the-card-is-byte-identical-to-the-formatter-s-own-output",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/notification-weekly-line.integration.test.ts",
+      "sourceLine": 250,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "weekly proof line in a scheduled notification (integration)"
+      ],
+      "title": "W3: with the kill switch off the card is byte-identical to the formatter's own output",
+      "rawTitle": "W3: with the kill switch off the card is byte-identical to the formatter's own output",
+      "name": "Bot weekly proof line in a scheduled notification (integration) W3: with the kill switch off the card is byte identical to the formatter's own output",
+      "value": "Protects the bot weekly proof line in a scheduled notification (integration) behavior so W3: with the kill switch off the card is byte identical to the formatter's own output.",
+      "description": "Protects the bot weekly proof line in a scheduled notification (integration) behavior so W3: with the kill switch off the card is byte identical to the formatter's own output."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-notification-weekly-line-integration-test-ts-276-weekly-proof-line-in-a-scheduled-notification-integration-w4-a-user-who-is-not-subscribed-receives-nothing-the-layer-adds-no-outbound-message",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/notification-weekly-line.integration.test.ts",
+      "sourceLine": 276,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "weekly proof line in a scheduled notification (integration)"
+      ],
+      "title": "W4: a user who is not subscribed receives nothing — the layer adds no outbound message",
+      "rawTitle": "W4: a user who is not subscribed receives nothing — the layer adds no outbound message",
+      "name": "Bot weekly proof line in a scheduled notification (integration) W4: a user who is not subscribed receives nothing — the layer adds no outbound message",
+      "value": "Protects the bot weekly proof line in a scheduled notification (integration) behavior so W4: a user who is not subscribed receives nothing — the layer adds no outbound message.",
+      "description": "Protects the bot weekly proof line in a scheduled notification (integration) behavior so W4: a user who is not subscribed receives nothing — the layer adds no outbound message."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-notification-weekly-line-integration-test-ts-298-weekly-proof-line-in-a-scheduled-notification-integration-w5-a-failed-delivery-does-not-burn-the-week",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/notification-weekly-line.integration.test.ts",
+      "sourceLine": 298,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "weekly proof line in a scheduled notification (integration)"
+      ],
+      "title": "W5: a failed delivery does not burn the week",
+      "rawTitle": "W5: a failed delivery does not burn the week",
+      "name": "Bot weekly proof line in a scheduled notification (integration) W5: a failed delivery does not burn the week",
+      "value": "Protects the bot weekly proof line in a scheduled notification (integration) behavior so W5: a failed delivery does not burn the week.",
+      "description": "Protects the bot weekly proof line in a scheduled notification (integration) behavior so W5: a failed delivery does not burn the week."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-notification-weekly-line-integration-test-ts-325-weekly-proof-line-in-a-scheduled-notification-integration-w6-with-recording-off-the-line-stays-away-and-writes-no-journal-row",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/notification-weekly-line.integration.test.ts",
+      "sourceLine": 325,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "weekly proof line in a scheduled notification (integration)"
+      ],
+      "title": "W6: with recording off the line stays away and writes no journal row",
+      "rawTitle": "W6: with recording off the line stays away and writes no journal row",
+      "name": "Bot weekly proof line in a scheduled notification (integration) W6: with recording off the line stays away and writes no journal row",
+      "value": "Protects the bot weekly proof line in a scheduled notification (integration) behavior so W6: with recording off the line stays away and writes no journal row.",
+      "description": "Protects the bot weekly proof line in a scheduled notification (integration) behavior so W6: with recording off the line stays away and writes no journal row."
     },
     {
       "id": "apps-bot-src-tests-integration-onboarding-integration-test-ts-80-start-onboarding-integration-creates-the-user-and-guesses-the-native-language-from-the-telegram-locale",
@@ -4071,10 +4519,10 @@
       "description": "Protects the bot word picker (integration) behavior: does not offer a word the learner has already been shown for this angle."
     },
     {
-      "id": "apps-bot-src-tests-mentor-mode-failover-test-ts-113-handlementortext-with-failover-delivers-a-fallback-coaching-reply-when-the-primary-model-429s",
+      "id": "apps-bot-src-tests-mentor-mode-failover-test-ts-115-handlementortext-with-failover-delivers-a-fallback-coaching-reply-when-the-primary-model-429s",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/mentor-mode.failover.test.ts",
-      "sourceLine": 113,
+      "sourceLine": 115,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8622,10 +9070,42 @@
       "description": "Protects the bot format Notification Message behavior so orders by the user's languages even when the record arrives alphabetized."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-126-formatnotificationmessage-bolds-the-answer-and-leaves-secondary-languages-plain",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-131-formatnotificationmessage-renders-the-card-unchanged-when-no-footer-is-passed",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 126,
+      "sourceLine": 131,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "formatNotificationMessage"
+      ],
+      "title": "renders the card unchanged when no footer is passed",
+      "rawTitle": "renders the card unchanged when no footer is passed",
+      "name": "Bot format Notification Message renders the card unchanged when no footer is passed",
+      "value": "Protects the bot format Notification Message behavior: renders the card unchanged when no footer is passed.",
+      "description": "Protects the bot format Notification Message behavior: renders the card unchanged when no footer is passed."
+    },
+    {
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-137-formatnotificationmessage-puts-the-footer-last-separated-from-the-translations",
+      "kind": "technical",
+      "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
+      "sourceLine": 137,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "formatNotificationMessage"
+      ],
+      "title": "puts the footer last, separated from the translations",
+      "rawTitle": "puts the footer last, separated from the translations",
+      "name": "Bot format Notification Message puts the footer last, separated from the translations",
+      "value": "Protects the bot format Notification Message behavior so puts the footer last, separated from the translations.",
+      "description": "Protects the bot format Notification Message behavior so puts the footer last, separated from the translations."
+    },
+    {
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-146-formatnotificationmessage-bolds-the-answer-and-leaves-secondary-languages-plain",
+      "kind": "technical",
+      "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
+      "sourceLine": 146,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8638,10 +9118,10 @@
       "description": "Protects the bot format Notification Message behavior so bolds the answer and leaves secondary languages plain."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-133-formatnotificationmessage-renders-synonyms-inline-on-the-answer",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-153-formatnotificationmessage-renders-synonyms-inline-on-the-answer",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 133,
+      "sourceLine": 153,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8654,10 +9134,10 @@
       "description": "Protects the bot format Notification Message behavior: renders synonyms inline on the answer."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-155-formatnotificationmessage-keeps-the-language-code-when-no-flag-resolves-so-the-language-stays-identifiable",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-175-formatnotificationmessage-keeps-the-language-code-when-no-flag-resolves-so-the-language-stays-identifiable",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 155,
+      "sourceLine": 175,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8670,10 +9150,10 @@
       "description": "Protects the bot format Notification Message behavior: keeps the language code when no flag resolves, so the language stays identifiable."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-164-formatnotificationmessage-escapes-html-entities-in-original-word",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-184-formatnotificationmessage-escapes-html-entities-in-original-word",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 164,
+      "sourceLine": 184,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8686,10 +9166,10 @@
       "description": "Protects the bot format Notification Message behavior: escapes HTML entities in original word."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-174-formatnotificationmessage-escapes-html-entities-in-synonyms",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-194-formatnotificationmessage-escapes-html-entities-in-synonyms",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 174,
+      "sourceLine": 194,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8702,10 +9182,10 @@
       "description": "Protects the bot format Notification Message behavior: escapes HTML entities in synonyms."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-188-formatnotificationmessage-renders-a-card-with-no-translations-without-throwing",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-208-formatnotificationmessage-renders-a-card-with-no-translations-without-throwing",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 188,
+      "sourceLine": 208,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8718,10 +9198,10 @@
       "description": "Protects the bot format Notification Message behavior: renders a card with no translations without throwing."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-203-buildnotificationkeyboard-shows-reveal-the-three-feedback-grades-and-remove",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-223-buildnotificationkeyboard-shows-reveal-the-three-feedback-grades-and-remove",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 203,
+      "sourceLine": 223,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8734,10 +9214,10 @@
       "description": "Protects the bot build Notification Keyboard behavior: shows Reveal, the three feedback grades, and Remove."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-214-buildnotificationkeyboard-keeps-the-grade-row-together-and-remove-on-its-own-row",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-234-buildnotificationkeyboard-keeps-the-grade-row-together-and-remove-on-its-own-row",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 214,
+      "sourceLine": 234,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8750,10 +9230,10 @@
       "description": "Protects the bot build Notification Keyboard behavior: keeps the grade row together and Remove on its own row."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-220-buildnotificationkeyboard-marks-the-selected-grade-with-a-check-while-keeping-all-buttons-tappable",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-240-buildnotificationkeyboard-marks-the-selected-grade-with-a-check-while-keeping-all-buttons-tappable",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 220,
+      "sourceLine": 240,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8766,10 +9246,10 @@
       "description": "Protects the bot build Notification Keyboard behavior: marks the selected grade with a check while keeping all buttons tappable."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-229-buildnotificationkeyboard-returns-empty-keyboard-when-no-entryid",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-249-buildnotificationkeyboard-returns-empty-keyboard-when-no-entryid",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 229,
+      "sourceLine": 249,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8782,10 +9262,10 @@
       "description": "Protects the bot build Notification Keyboard behavior: returns empty keyboard when no entry Id."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-236-buildnotificationrevealedkeyboard-shows-the-feedback-grades-and-remove-without-reveal",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-256-buildnotificationrevealedkeyboard-shows-the-feedback-grades-and-remove-without-reveal",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 236,
+      "sourceLine": 256,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8798,10 +9278,10 @@
       "description": "Protects the bot build Notification Revealed Keyboard behavior: shows the feedback grades and Remove, without Reveal."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-246-buildnotificationrevealedkeyboard-marks-the-selected-grade",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-266-buildnotificationrevealedkeyboard-marks-the-selected-grade",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 246,
+      "sourceLine": 266,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11246,10 +11726,42 @@
       "description": "Protects the bot render Flash Card Back — collapsible notes behavior: renders no blockquote when the card has no notes."
     },
     {
-      "id": "apps-bot-src-renderers-tests-srs-renderer-test-ts-48-rendersrsfront-localizes-the-input-type-label-in-the-review-direction-line",
+      "id": "apps-bot-src-renderers-tests-flashcard-renderer-test-ts-59-buildflashcarddonekeyboard-puts-the-progress-button-on-a-row-of-its-own",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/flashcard.renderer.test.ts",
+      "sourceLine": 59,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "buildFlashCardDoneKeyboard"
+      ],
+      "title": "puts the progress button on a row of its own",
+      "rawTitle": "puts the progress button on a row of its own",
+      "name": "Bot build Flash Card Done Keyboard puts the progress button on a row of its own",
+      "value": "Protects the bot build Flash Card Done Keyboard behavior so puts the progress button on a row of its own.",
+      "description": "Protects the bot build Flash Card Done Keyboard behavior so puts the progress button on a row of its own."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-flashcard-renderer-test-ts-63-buildflashcarddonekeyboard-omits-the-progress-button-while-the-motivation-surface-is-off",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/flashcard.renderer.test.ts",
+      "sourceLine": 63,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "buildFlashCardDoneKeyboard"
+      ],
+      "title": "omits the progress button while the motivation surface is off",
+      "rawTitle": "omits the progress button while the motivation surface is off",
+      "name": "Bot build Flash Card Done Keyboard omits the progress button while the motivation surface is off",
+      "value": "Protects the bot build Flash Card Done Keyboard behavior: omits the progress button while the motivation surface is off.",
+      "description": "Protects the bot build Flash Card Done Keyboard behavior: omits the progress button while the motivation surface is off."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-srs-renderer-test-ts-49-rendersrsfront-localizes-the-input-type-label-in-the-review-direction-line",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/srs.renderer.test.ts",
-      "sourceLine": 48,
+      "sourceLine": 49,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11262,10 +11774,10 @@
       "description": "Protects the bot render Srs Front behavior so localizes the input type label in the review direction line."
     },
     {
-      "id": "apps-bot-src-renderers-tests-srs-renderer-test-ts-59-rendersrsback-shows-a-compact-source-example-before-the-target-example",
+      "id": "apps-bot-src-renderers-tests-srs-renderer-test-ts-60-rendersrsback-shows-a-compact-source-example-before-the-target-example",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/srs.renderer.test.ts",
-      "sourceLine": 59,
+      "sourceLine": 60,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11276,6 +11788,38 @@
       "name": "Bot render Srs Back shows a compact source example before the target example",
       "value": "Protects the bot render Srs Back behavior: shows a compact source example before the target example.",
       "description": "Protects the bot render Srs Back behavior: shows a compact source example before the target example."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-srs-renderer-test-ts-86-buildsrsdonekeyboard-puts-the-progress-button-on-a-row-of-its-own",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/srs.renderer.test.ts",
+      "sourceLine": 86,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "buildSrsDoneKeyboard"
+      ],
+      "title": "puts the progress button on a row of its own",
+      "rawTitle": "puts the progress button on a row of its own",
+      "name": "Bot build Srs Done Keyboard puts the progress button on a row of its own",
+      "value": "Protects the bot build Srs Done Keyboard behavior so puts the progress button on a row of its own.",
+      "description": "Protects the bot build Srs Done Keyboard behavior so puts the progress button on a row of its own."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-srs-renderer-test-ts-90-buildsrsdonekeyboard-omits-the-progress-button-while-the-motivation-surface-is-off",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/srs.renderer.test.ts",
+      "sourceLine": 90,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "buildSrsDoneKeyboard"
+      ],
+      "title": "omits the progress button while the motivation surface is off",
+      "rawTitle": "omits the progress button while the motivation surface is off",
+      "name": "Bot build Srs Done Keyboard omits the progress button while the motivation surface is off",
+      "value": "Protects the bot build Srs Done Keyboard behavior: omits the progress button while the motivation surface is off.",
+      "description": "Protects the bot build Srs Done Keyboard behavior: omits the progress button while the motivation surface is off."
     },
     {
       "id": "apps-bot-src-renderers-tests-translation-renderer-order-test-ts-41-rendertranslation-language-order-renders-the-user-s-order-from-an-alphabetically-keyed-record",
@@ -13673,10 +14217,10 @@
       "description": "Protects the bot handle Mentor New Topic Callback behavior so refuses a plan without the mentor feature before touching the mode."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-97-handlementortext-calls-generatechat-with-system-prompt-thread-history-from-the-db-and-the-user-message",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-99-handlementortext-calls-generatechat-with-system-prompt-thread-history-from-the-db-and-the-user-message",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 97,
+      "sourceLine": 99,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -13689,10 +14233,10 @@
       "description": "Protects the bot handle Mentor Text behavior: calls generate Chat with system prompt, thread history from the DB, and the user message."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-114-handlementortext-annotates-the-learning-language-in-the-system-prompt-with-the-user-s-stored-cefr-level",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-116-handlementortext-annotates-the-learning-language-in-the-system-prompt-with-the-user-s-stored-cefr-level",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 114,
+      "sourceLine": 116,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -13705,10 +14249,10 @@
       "description": "Protects the bot handle Mentor Text behavior so annotates the learning language in the system prompt with the user's stored CEFR level."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-122-handlementortext-passes-maxtokens-and-a-time-budget-to-the-chat-call",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-124-handlementortext-passes-maxtokens-and-a-time-budget-to-the-chat-call",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 122,
+      "sourceLine": 124,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -13721,10 +14265,10 @@
       "description": "Protects the bot handle Mentor Text behavior so passes max Tokens and a time budget to the chat call."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-132-handlementortext-replies-with-the-ai-response-as-telegram-html-carrying-the-exit-button-in-mentor-mode",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-134-handlementortext-replies-with-the-ai-response-as-telegram-html-carrying-the-exit-button-in-mentor-mode",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 132,
+      "sourceLine": 134,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -13737,10 +14281,10 @@
       "description": "Protects the bot handle Mentor Text behavior so replies with the AI response as Telegram HTML, carrying the exit button in mentor mode."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-145-handlementortext-delivers-the-answer-as-plain-text-when-telegram-rejects-the-html-markup",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-147-handlementortext-delivers-the-answer-as-plain-text-when-telegram-rejects-the-html-markup",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 145,
+      "sourceLine": 147,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -13753,10 +14297,10 @@
       "description": "Protects the bot handle Mentor Text behavior so delivers the answer as plain text when Telegram rejects the HTML markup."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-160-handlementortext-sends-the-answer-without-the-exit-button-when-the-turn-ran-outside-mentor-mode",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-162-handlementortext-sends-the-answer-without-the-exit-button-when-the-turn-ran-outside-mentor-mode",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 160,
+      "sourceLine": 162,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -13769,10 +14313,10 @@
       "description": "Protects the bot handle Mentor Text behavior: sends the answer without the exit button when the turn ran outside mentor mode."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-168-handlementortext-deletes-the-loading-indicator-after-success",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-170-handlementortext-deletes-the-loading-indicator-after-success",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 168,
+      "sourceLine": 170,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -13785,10 +14329,10 @@
       "description": "Protects the bot handle Mentor Text behavior so deletes the loading indicator after success."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-175-handlementortext-persists-both-turn-rows-keyed-by-their-telegram-message-ids",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-177-handlementortext-persists-both-turn-rows-keyed-by-their-telegram-message-ids",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 175,
+      "sourceLine": 177,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -13801,10 +14345,10 @@
       "description": "Protects the bot handle Mentor Text behavior: persists both turn rows keyed by their Telegram message ids."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-195-handlementortext-still-delivers-the-answer-when-persistence-fails-best-effort-write",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-197-handlementortext-still-delivers-the-answer-when-persistence-fails-best-effort-write",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 195,
+      "sourceLine": 197,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -13817,10 +14361,10 @@
       "description": "Protects the bot handle Mentor Text behavior so still delivers the answer when persistence fails (best effort write)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-205-handlementortext-an-explicit-threadid-reply-continuation-wins-over-the-session-s-pinned-thread",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-207-handlementortext-an-explicit-threadid-reply-continuation-wins-over-the-session-s-pinned-thread",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 205,
+      "sourceLine": 207,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -13833,10 +14377,10 @@
       "description": "Protects the bot handle Mentor Text behavior so an explicit thread Id (reply continuation) wins over the session's pinned thread."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-212-handlementortext-recovers-the-chat-s-latest-thread-from-the-db-when-the-session-was-lost-in-mentor-mode",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-214-handlementortext-recovers-the-chat-s-latest-thread-from-the-db-when-the-session-was-lost-in-mentor-mode",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 212,
+      "sourceLine": 214,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -13849,10 +14393,10 @@
       "description": "Protects the bot handle Mentor Text behavior so recovers the chat's latest thread from the DB when the session was lost in mentor mode."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-221-handlementortext-a-fresh-mentor-entry-empty-marker-mints-a-new-thread-without-db-recovery",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-223-handlementortext-a-fresh-mentor-entry-empty-marker-mints-a-new-thread-without-db-recovery",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 221,
+      "sourceLine": 223,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -13865,10 +14409,10 @@
       "description": "Protects the bot handle Mentor Text behavior so a fresh mentor entry (empty marker) mints a new thread without DB recovery."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-231-handlementortext-does-not-pin-the-thread-on-the-session-when-the-turn-ran-outside-mentor-mode",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-233-handlementortext-does-not-pin-the-thread-on-the-session-when-the-turn-ran-outside-mentor-mode",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 231,
+      "sourceLine": 233,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -13881,10 +14425,10 @@
       "description": "Protects the bot handle Mentor Text behavior: does not pin the thread on the session when the turn ran outside mentor mode."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-238-handlementortext-answers-with-the-admin-configured-mentor-model-bypassing-the-default-chain",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-240-handlementortext-answers-with-the-admin-configured-mentor-model-bypassing-the-default-chain",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 238,
+      "sourceLine": 240,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -13897,10 +14441,10 @@
       "description": "Protects the bot handle Mentor Text behavior so answers with the admin configured mentor model, bypassing the default chain."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-249-handlementortext-falls-back-to-the-default-model-chain-when-the-mentor-override-is-empty",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-251-handlementortext-falls-back-to-the-default-model-chain-when-the-mentor-override-is-empty",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 249,
+      "sourceLine": 251,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -13913,10 +14457,10 @@
       "description": "Protects the bot handle Mentor Text behavior: falls back to the default model chain when the mentor override is empty."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-258-handlementortext-refuses-the-turn-when-the-plan-s-mentor-daily-limit-is-exhausted-without-an-ai-call",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-260-handlementortext-refuses-the-turn-when-the-plan-s-mentor-daily-limit-is-exhausted-without-an-ai-call",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 258,
+      "sourceLine": 260,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -13929,10 +14473,10 @@
       "description": "Protects the bot handle Mentor Text behavior so refuses the turn when the plan's mentor daily limit is exhausted, without an AI call."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-286-handlementortext-lets-the-turn-through-while-the-daily-limit-still-has-room",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-288-handlementortext-lets-the-turn-through-while-the-daily-limit-still-has-room",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 286,
+      "sourceLine": 288,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -13945,10 +14489,10 @@
       "description": "Protects the bot handle Mentor Text behavior so lets the turn through while the daily limit still has room."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-304-handlementortext-never-counts-turns-for-an-unlimited-mentor-plan-null-limit",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-306-handlementortext-never-counts-turns-for-an-unlimited-mentor-plan-null-limit",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 304,
+      "sourceLine": 306,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -13961,10 +14505,10 @@
       "description": "Protects the bot handle Mentor Text behavior so never counts turns for an unlimited mentor plan (null limit)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-311-handlementortext-bypasses-the-mentor-daily-limit-for-internal-roles-no-plan-read-no-turn-count",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-313-handlementortext-bypasses-the-mentor-daily-limit-for-internal-roles-no-plan-read-no-turn-count",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 311,
+      "sourceLine": 313,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -13977,10 +14521,10 @@
       "description": "Protects the bot handle Mentor Text behavior so bypasses the mentor daily limit for internal roles (no plan read, no turn count)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-333-handlementortext-increments-mentorcounter-with-success-status-on-success",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-335-handlementortext-increments-mentorcounter-with-success-status-on-success",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 333,
+      "sourceLine": 335,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -13993,10 +14537,10 @@
       "description": "Protects the bot handle Mentor Text behavior so increments mentor Counter with success status on success."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-340-handlementortext-replies-with-an-error-message-when-ai-call-fails",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-342-handlementortext-replies-with-an-error-message-when-ai-call-fails",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 340,
+      "sourceLine": 342,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -14009,10 +14553,10 @@
       "description": "Protects the bot handle Mentor Text behavior so replies with an error message when AI call fails."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-351-handlementortext-increments-mentorcounter-with-error-status-on-failure",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-353-handlementortext-increments-mentorcounter-with-error-status-on-failure",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 351,
+      "sourceLine": 353,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -14025,10 +14569,10 @@
       "description": "Protects the bot handle Mentor Text behavior so increments mentor Counter with error status on failure."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-359-handlementortext-offers-a-retry-button-carrying-the-same-turn-and-thread-when-the-ai-call-times-out",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-361-handlementortext-offers-a-retry-button-carrying-the-same-turn-and-thread-when-the-ai-call-times-out",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 359,
+      "sourceLine": 361,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -14041,10 +14585,10 @@
       "description": "Protects the bot handle Mentor Text behavior so offers a retry button carrying the same turn and thread when the AI call times out."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-375-handlementortext-does-not-offer-a-retry-button-on-a-hard-ai-failure",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-377-handlementortext-does-not-offer-a-retry-button-on-a-hard-ai-failure",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 375,
+      "sourceLine": 377,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -14057,10 +14601,10 @@
       "description": "Protects the bot handle Mentor Text behavior: does not offer a retry button on a hard AI failure."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-386-handlementortext-rejects-input-longer-than-the-max-character-limit",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-388-handlementortext-rejects-input-longer-than-the-max-character-limit",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 386,
+      "sourceLine": 388,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -14073,10 +14617,10 @@
       "description": "Protects the bot handle Mentor Text behavior: rejects input longer than the max character limit."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-399-handlementortext-refuses-the-mentor-call-when-the-daily-credit-quota-is-exhausted-t16",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-401-handlementortext-refuses-the-mentor-call-when-the-daily-credit-quota-is-exhausted-t16",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 399,
+      "sourceLine": 401,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -14089,10 +14633,10 @@
       "description": "Protects the bot handle Mentor Text behavior so refuses the mentor call when the daily credit quota is exhausted (T16)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-411-handlementortext-bills-a-mentor-turn-against-the-shared-credit-ledger-on-success-t16",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-413-handlementortext-bills-a-mentor-turn-against-the-shared-credit-ledger-on-success-t16",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 411,
+      "sourceLine": 413,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -21166,6 +21710,294 @@
       "description": "Protects the database adapter mentor Message Repository behavior so cascades away with the owning user."
     },
     {
+      "id": "packages-adapters-db-src-tests-momentum-backfill-integration-test-ts-67-runmomentumbackfill-integration-credits-reviews-saves-and-real-translations-while-skipping-the-billing-marker-rows",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/momentum-backfill.integration.test.ts",
+      "sourceLine": 67,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "runMomentumBackfill (integration)"
+      ],
+      "title": "credits reviews, saves and real translations while skipping the billing marker rows",
+      "rawTitle": "credits reviews, saves and real translations while skipping the billing marker rows",
+      "name": "Database adapter run Momentum Backfill (integration) credits reviews, saves and real translations while skipping the billing marker rows",
+      "value": "Protects the database adapter run Momentum Backfill (integration) behavior so credits reviews, saves and real translations while skipping the billing marker rows.",
+      "description": "Protects the database adapter run Momentum Backfill (integration) behavior so credits reviews, saves and real translations while skipping the billing marker rows."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-momentum-backfill-integration-test-ts-111-runmomentumbackfill-integration-does-not-lower-the-score-of-a-user-the-bot-has-already-been-recording-for-a-week",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/momentum-backfill.integration.test.ts",
+      "sourceLine": 111,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "runMomentumBackfill (integration)"
+      ],
+      "title": "does not lower the score of a user the bot has already been recording for a week",
+      "rawTitle": "does not lower the score of a user the bot has already been recording for a week",
+      "name": "Database adapter run Momentum Backfill (integration) does not lower the score of a user the bot has already been recording for a week",
+      "value": "Protects the database adapter run Momentum Backfill (integration) behavior: does not lower the score of a user the bot has already been recording for a week.",
+      "description": "Protects the database adapter run Momentum Backfill (integration) behavior: does not lower the score of a user the bot has already been recording for a week."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-momentum-backfill-integration-test-ts-147-runmomentumbackfill-integration-is-idempotent-a-second-run-adds-no-rows-and-leaves-the-snapshot-identical",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/momentum-backfill.integration.test.ts",
+      "sourceLine": 147,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "runMomentumBackfill (integration)"
+      ],
+      "title": "is idempotent: a second run adds no rows and leaves the snapshot identical",
+      "rawTitle": "is idempotent: a second run adds no rows and leaves the snapshot identical",
+      "name": "Database adapter run Momentum Backfill (integration) is idempotent: a second run adds no rows and leaves the snapshot identical",
+      "value": "Protects the database adapter run Momentum Backfill (integration) behavior so is idempotent: a second run adds no rows and leaves the snapshot identical.",
+      "description": "Protects the database adapter run Momentum Backfill (integration) behavior so is idempotent: a second run adds no rows and leaves the snapshot identical."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-momentum-backfill-integration-test-ts-170-runmomentumbackfill-integration-applies-the-daily-review-cap-to-backfilled-facts-five-reviews-on-one-local-day-give-3-3-0-0-0",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/momentum-backfill.integration.test.ts",
+      "sourceLine": 170,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "runMomentumBackfill (integration)"
+      ],
+      "title": "applies the daily review cap to backfilled facts: five reviews on one local day give 3, 3, 0, 0, 0",
+      "rawTitle": "applies the daily review cap to backfilled facts: five reviews on one local day give 3, 3, 0, 0, 0",
+      "name": "Database adapter run Momentum Backfill (integration) applies the daily review cap to backfilled facts: five reviews on one local day give 3, 3, 0, 0, 0",
+      "value": "Protects the database adapter run Momentum Backfill (integration) behavior: applies the daily review cap to backfilled facts: five reviews on one local day give 3, 3, 0, 0, 0.",
+      "description": "Protects the database adapter run Momentum Backfill (integration) behavior: applies the daily review cap to backfilled facts: five reviews on one local day give 3, 3, 0, 0, 0."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-55-momentumrepository-integration-keeps-a-single-row-when-the-same-dedupekey-is-recorded-twice",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/momentum.repository.integration.test.ts",
+      "sourceLine": 55,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "momentumRepository (integration)"
+      ],
+      "title": "keeps a single row when the same dedupeKey is recorded twice",
+      "rawTitle": "keeps a single row when the same dedupeKey is recorded twice",
+      "name": "Database adapter momentum Repository (integration) keeps a single row when the same dedupe Key is recorded twice",
+      "value": "Protects the database adapter momentum Repository (integration) behavior: keeps a single row when the same dedupe Key is recorded twice.",
+      "description": "Protects the database adapter momentum Repository (integration) behavior: keeps a single row when the same dedupe Key is recorded twice."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-71-momentumrepository-integration-lets-exactly-one-of-two-concurrent-identical-inserts-win",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/momentum.repository.integration.test.ts",
+      "sourceLine": 71,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "momentumRepository (integration)"
+      ],
+      "title": "lets exactly one of two concurrent identical inserts win",
+      "rawTitle": "lets exactly one of two concurrent identical inserts win",
+      "name": "Database adapter momentum Repository (integration) lets exactly one of two concurrent identical inserts win",
+      "value": "Protects the database adapter momentum Repository (integration) behavior so lets exactly one of two concurrent identical inserts win.",
+      "description": "Protects the database adapter momentum Repository (integration) behavior so lets exactly one of two concurrent identical inserts win."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-87-momentumrepository-integration-counts-a-berlin-night-that-straddles-utc-midnight-as-one-local-day",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/momentum.repository.integration.test.ts",
+      "sourceLine": 87,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "momentumRepository (integration)"
+      ],
+      "title": "counts a Berlin night that straddles UTC midnight as one local day",
+      "rawTitle": "counts a Berlin night that straddles UTC midnight as one local day",
+      "name": "Database adapter momentum Repository (integration) counts a Berlin night that straddles UTC midnight as one local day",
+      "value": "Protects the database adapter momentum Repository (integration) behavior so counts a Berlin night that straddles UTC midnight as one local day.",
+      "description": "Protects the database adapter momentum Repository (integration) behavior so counts a Berlin night that straddles UTC midnight as one local day."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-114-momentumrepository-integration-writes-occurred-at-from-the-app-clock-not-the-database-s-now",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/momentum.repository.integration.test.ts",
+      "sourceLine": 114,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "momentumRepository (integration)"
+      ],
+      "title": "writes occurred_at from the app clock, not the database's now()",
+      "rawTitle": "writes occurred_at from the app clock, not the database's now()",
+      "name": "Database adapter momentum Repository (integration) writes occurred at from the app clock, not the database's now()",
+      "value": "Protects the database adapter momentum Repository (integration) behavior so writes occurred at from the app clock, not the database's now().",
+      "description": "Protects the database adapter momentum Repository (integration) behavior so writes occurred at from the app clock, not the database's now()."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-131-momentumrepository-integration-prunes-momentum-events-by-retention-and-leaves-the-user-momentum-snapshot-alone",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/momentum.repository.integration.test.ts",
+      "sourceLine": 131,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "momentumRepository (integration)"
+      ],
+      "title": "prunes momentum_events by retention and leaves the user_momentum snapshot alone",
+      "rawTitle": "prunes momentum_events by retention and leaves the user_momentum snapshot alone",
+      "name": "Database adapter momentum Repository (integration) prunes momentum events by retention and leaves the user momentum snapshot alone",
+      "value": "Protects the database adapter momentum Repository (integration) behavior so prunes momentum events by retention and leaves the user momentum snapshot alone.",
+      "description": "Protects the database adapter momentum Repository (integration) behavior so prunes momentum events by retention and leaves the user momentum snapshot alone."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-156-momentumrepository-integration-keeps-once-ever-claim-tokens-past-the-horizon-so-a-milestone-cannot-be-re-praised",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/momentum.repository.integration.test.ts",
+      "sourceLine": 156,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "momentumRepository (integration)"
+      ],
+      "title": "keeps once-ever claim tokens past the horizon so a milestone cannot be re-praised",
+      "rawTitle": "keeps once-ever claim tokens past the horizon so a milestone cannot be re-praised",
+      "name": "Database adapter momentum Repository (integration) keeps once ever claim tokens past the horizon so a milestone cannot be re praised",
+      "value": "Protects the database adapter momentum Repository (integration) behavior: keeps once ever claim tokens past the horizon so a milestone cannot be re praised.",
+      "description": "Protects the database adapter momentum Repository (integration) behavior: keeps once ever claim tokens past the horizon so a milestone cannot be re praised."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-174-momentumrepository-integration-upserts-the-snapshot-patching-only-the-fields-it-is-given",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/momentum.repository.integration.test.ts",
+      "sourceLine": 174,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "momentumRepository (integration)"
+      ],
+      "title": "upserts the snapshot, patching only the fields it is given",
+      "rawTitle": "upserts the snapshot, patching only the fields it is given",
+      "name": "Database adapter momentum Repository (integration) upserts the snapshot, patching only the fields it is given",
+      "value": "Protects the database adapter momentum Repository (integration) behavior so upserts the snapshot, patching only the fields it is given.",
+      "description": "Protects the database adapter momentum Repository (integration) behavior so upserts the snapshot, patching only the fields it is given."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-192-momentumrepository-integration-returns-replay-events-oldest-first",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/momentum.repository.integration.test.ts",
+      "sourceLine": 192,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "momentumRepository (integration)"
+      ],
+      "title": "returns replay events oldest-first",
+      "rawTitle": "returns replay events oldest-first",
+      "name": "Database adapter momentum Repository (integration) returns replay events oldest first",
+      "value": "Protects the database adapter momentum Repository (integration) behavior: returns replay events oldest first.",
+      "description": "Protects the database adapter momentum Repository (integration) behavior: returns replay events oldest first."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-217-momentumrepository-integration-reads-the-claimed-praise-kinds-out-of-both-dedupe-key-shapes-once-each",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/momentum.repository.integration.test.ts",
+      "sourceLine": 217,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "momentumRepository (integration)"
+      ],
+      "title": "reads the claimed praise kinds out of both dedupe-key shapes, once each",
+      "rawTitle": "reads the claimed praise kinds out of both dedupe-key shapes, once each",
+      "name": "Database adapter momentum Repository (integration) reads the claimed praise kinds out of both dedupe key shapes, once each",
+      "value": "Protects the database adapter momentum Repository (integration) behavior so reads the claimed praise kinds out of both dedupe key shapes, once each.",
+      "description": "Protects the database adapter momentum Repository (integration) behavior so reads the claimed praise kinds out of both dedupe key shapes, once each."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-246-momentumrepository-integration-counts-active-local-days-ignoring-days-that-only-produced-capped-out-rows",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/momentum.repository.integration.test.ts",
+      "sourceLine": 246,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "momentumRepository (integration)"
+      ],
+      "title": "counts active local days, ignoring days that only produced capped-out rows",
+      "rawTitle": "counts active local days, ignoring days that only produced capped-out rows",
+      "name": "Database adapter momentum Repository (integration) counts active local days, ignoring days that only produced capped out rows",
+      "value": "Protects the database adapter momentum Repository (integration) behavior so counts active local days, ignoring days that only produced capped out rows.",
+      "description": "Protects the database adapter momentum Repository (integration) behavior so counts active local days, ignoring days that only produced capped out rows."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-276-createmomentumservice-over-the-real-store-charges-a-ten-card-flashcard-session-ten-rows-but-only-six-points",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/momentum.repository.integration.test.ts",
+      "sourceLine": 276,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "createMomentumService over the real store"
+      ],
+      "title": "charges a ten-card flashcard session ten rows but only six points",
+      "rawTitle": "charges a ten-card flashcard session ten rows but only six points",
+      "name": "Database adapter create Momentum Service over the real store charges a ten card flashcard session ten rows but only six points",
+      "value": "Protects the database adapter create Momentum Service over the real store behavior so charges a ten card flashcard session ten rows but only six points.",
+      "description": "Protects the database adapter create Momentum Service over the real store behavior so charges a ten card flashcard session ten rows but only six points."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-297-vocabularyrepository-momentum-counters-integration-counts-only-live-translations-at-or-past-the-mature-interval",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/momentum.repository.integration.test.ts",
+      "sourceLine": 297,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "vocabularyRepository momentum counters (integration)"
+      ],
+      "title": "counts only live translations at or past the mature interval",
+      "rawTitle": "counts only live translations at or past the mature interval",
+      "name": "Database adapter vocabulary Repository momentum counters (integration) counts only live translations at or past the mature interval",
+      "value": "Protects the database adapter vocabulary Repository momentum counters (integration) behavior so counts only live translations at or past the mature interval.",
+      "description": "Protects the database adapter vocabulary Repository momentum counters (integration) behavior so counts only live translations at or past the mature interval."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-331-vocabularyrepository-momentum-counters-integration-counts-the-same-cards-finddueforsrs-would-return",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/momentum.repository.integration.test.ts",
+      "sourceLine": 331,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "vocabularyRepository momentum counters (integration)"
+      ],
+      "title": "counts the same cards findDueForSrs would return",
+      "rawTitle": "counts the same cards findDueForSrs would return",
+      "name": "Database adapter vocabulary Repository momentum counters (integration) counts the same cards find Due For Srs would return",
+      "value": "Protects the database adapter vocabulary Repository momentum counters (integration) behavior so counts the same cards find Due For Srs would return.",
+      "description": "Protects the database adapter vocabulary Repository momentum counters (integration) behavior so counts the same cards find Due For Srs would return."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-363-vocabularyrepository-momentum-counters-integration-excludes-a-soft-deleted-entry-from-both-counters",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/momentum.repository.integration.test.ts",
+      "sourceLine": 363,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "vocabularyRepository momentum counters (integration)"
+      ],
+      "title": "excludes a soft-deleted entry from both counters",
+      "rawTitle": "excludes a soft-deleted entry from both counters",
+      "name": "Database adapter vocabulary Repository momentum counters (integration) excludes a soft deleted entry from both counters",
+      "value": "Protects the database adapter vocabulary Repository momentum counters (integration) behavior: excludes a soft deleted entry from both counters.",
+      "description": "Protects the database adapter vocabulary Repository momentum counters (integration) behavior: excludes a soft deleted entry from both counters."
+    },
+    {
       "id": "packages-adapters-db-src-tests-notification-repository-integration-test-ts-98-notificationrepository-getusersforwindow-integration-notifies-a-subscriber-when-their-configured-slot-matches-the-window",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/notification.repository.integration.test.ts",
@@ -22546,10 +23378,10 @@
       "description": "Protects the database adapter request Timing Repository get Segment Summary By Model behavior: uses default parameters when not specified."
     },
     {
-      "id": "packages-adapters-db-src-tests-retention-test-ts-69-runtelemetryretention-prunes-every-telemetry-table-below-a-now-minus-horizon-cutoff",
+      "id": "packages-adapters-db-src-tests-retention-test-ts-76-runtelemetryretention-prunes-every-telemetry-table-below-a-now-minus-horizon-cutoff",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/retention.test.ts",
-      "sourceLine": 69,
+      "sourceLine": 76,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -22562,10 +23394,10 @@
       "description": "Protects the database adapter run Telemetry Retention behavior so prunes every telemetry table below a now minus horizon cutoff."
     },
     {
-      "id": "packages-adapters-db-src-tests-retention-test-ts-95-runtelemetryretention-keeps-rows-at-the-horizon-boundary-and-prunes-older-ones",
+      "id": "packages-adapters-db-src-tests-retention-test-ts-102-runtelemetryretention-keeps-rows-at-the-horizon-boundary-and-prunes-older-ones",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/retention.test.ts",
-      "sourceLine": 95,
+      "sourceLine": 102,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -22578,10 +23410,10 @@
       "description": "Protects the database adapter run Telemetry Retention behavior: keeps rows at the horizon boundary and prunes older ones."
     },
     {
-      "id": "packages-adapters-db-src-tests-retention-test-ts-111-runtelemetryretention-honours-a-custom-shorter-horizon",
+      "id": "packages-adapters-db-src-tests-retention-test-ts-118-runtelemetryretention-honours-a-custom-shorter-horizon",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/retention.test.ts",
-      "sourceLine": 111,
+      "sourceLine": 118,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -22594,10 +23426,10 @@
       "description": "Protects the database adapter run Telemetry Retention behavior so honours a custom shorter horizon."
     },
     {
-      "id": "packages-adapters-db-src-tests-retention-test-ts-118-runtelemetryretention-reports-the-number-of-rows-deleted-per-table",
+      "id": "packages-adapters-db-src-tests-retention-test-ts-125-runtelemetryretention-reports-the-number-of-rows-deleted-per-table",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/retention.test.ts",
-      "sourceLine": 118,
+      "sourceLine": 125,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -22608,6 +23440,22 @@
       "name": "Database adapter run Telemetry Retention reports the number of rows deleted per table",
       "value": "Protects the database adapter run Telemetry Retention behavior: reports the number of rows deleted per table.",
       "description": "Protects the database adapter run Telemetry Retention behavior: reports the number of rows deleted per table."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-retention-test-ts-161-runtelemetryretention-prunes-momentum-events-past-the-horizon-and-never-touches-the-user-momentum-snapshot",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/retention.test.ts",
+      "sourceLine": 161,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "runTelemetryRetention"
+      ],
+      "title": "prunes momentum_events past the horizon and never touches the user_momentum snapshot",
+      "rawTitle": "prunes momentum_events past the horizon and never touches the user_momentum snapshot",
+      "name": "Database adapter run Telemetry Retention prunes momentum events past the horizon and never touches the user momentum snapshot",
+      "value": "Protects the database adapter run Telemetry Retention behavior so prunes momentum events past the horizon and never touches the user momentum snapshot.",
+      "description": "Protects the database adapter run Telemetry Retention behavior so prunes momentum events past the horizon and never touches the user momentum snapshot."
     },
     {
       "id": "packages-adapters-db-src-tests-session-storage-integration-test-ts-26-botsessionrepository-integration-returns-null-for-a-missing-key",
@@ -22880,6 +23728,86 @@
       "name": "Database adapter settings Adapter get Mentor Config returns the shipped defaults when no mentor row has ever been saved",
       "value": "Protects the database adapter settings Adapter get Mentor Config behavior: returns the shipped defaults when no mentor row has ever been saved.",
       "description": "Protects the database adapter settings Adapter get Mentor Config behavior: returns the shipped defaults when no mentor row has ever been saved."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-settings-adapter-test-ts-187-settingsadapter-getmotivationconfig-kill-switch-read-boundary-records-but-shows-nothing-when-no-motivation-row-has-ever-been-saved",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/settings-adapter.test.ts",
+      "sourceLine": 187,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "settingsAdapter.getMotivationConfig — kill switch read boundary"
+      ],
+      "title": "records but shows nothing when no motivation row has ever been saved",
+      "rawTitle": "records but shows nothing when no motivation row has ever been saved",
+      "name": "Database adapter settings Adapter get Motivation Config — kill switch read boundary records but shows nothing when no motivation row has ever been saved",
+      "value": "Protects the database adapter settings Adapter get Motivation Config — kill switch read boundary behavior: records but shows nothing when no motivation row has ever been saved.",
+      "description": "Protects the database adapter settings Adapter get Motivation Config — kill switch read boundary behavior: records but shows nothing when no motivation row has ever been saved."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-settings-adapter-test-ts-201-settingsadapter-getmotivationconfig-kill-switch-read-boundary-serves-a-valid-stored-blob-verbatim",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/settings-adapter.test.ts",
+      "sourceLine": 201,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "settingsAdapter.getMotivationConfig — kill switch read boundary"
+      ],
+      "title": "serves a valid stored blob verbatim",
+      "rawTitle": "serves a valid stored blob verbatim",
+      "name": "Database adapter settings Adapter get Motivation Config — kill switch read boundary serves a valid stored blob verbatim",
+      "value": "Protects the database adapter settings Adapter get Motivation Config — kill switch read boundary behavior so serves a valid stored blob verbatim.",
+      "description": "Protects the database adapter settings Adapter get Motivation Config — kill switch read boundary behavior so serves a valid stored blob verbatim."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-settings-adapter-test-ts-208-settingsadapter-getmotivationconfig-kill-switch-read-boundary-fails-closed-on-display-and-open-on-recording-for-a-partial-blob",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/settings-adapter.test.ts",
+      "sourceLine": 208,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "settingsAdapter.getMotivationConfig — kill switch read boundary"
+      ],
+      "title": "fails closed on display and open on recording for a partial blob",
+      "rawTitle": "fails closed on display and open on recording for a partial blob",
+      "name": "Database adapter settings Adapter get Motivation Config — kill switch read boundary fails closed on display and open on recording for a partial blob",
+      "value": "Protects the database adapter settings Adapter get Motivation Config — kill switch read boundary behavior so fails closed on display and open on recording for a partial blob.",
+      "description": "Protects the database adapter settings Adapter get Motivation Config — kill switch read boundary behavior so fails closed on display and open on recording for a partial blob."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-settings-adapter-test-ts-221-settingsadapter-getmotivationconfig-kill-switch-read-boundary-rejects-a-present-but-invalid-switch-instead-of-merging-it-through",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/settings-adapter.test.ts",
+      "sourceLine": 221,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "settingsAdapter.getMotivationConfig — kill switch read boundary"
+      ],
+      "title": "rejects a present-but-invalid switch instead of merging it through",
+      "rawTitle": "rejects a present-but-invalid switch instead of merging it through",
+      "name": "Database adapter settings Adapter get Motivation Config — kill switch read boundary rejects a present but invalid switch instead of merging it through",
+      "value": "Protects the database adapter settings Adapter get Motivation Config — kill switch read boundary behavior: rejects a present but invalid switch instead of merging it through.",
+      "description": "Protects the database adapter settings Adapter get Motivation Config — kill switch read boundary behavior: rejects a present but invalid switch instead of merging it through."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-settings-adapter-test-ts-239-settingsadapter-getmotivationconfig-kill-switch-read-boundary-keeps-the-operator-s-valid-choices-when-one-sibling-switch-is-garbage",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/settings-adapter.test.ts",
+      "sourceLine": 239,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "settingsAdapter.getMotivationConfig — kill switch read boundary"
+      ],
+      "title": "keeps the operator's valid choices when one sibling switch is garbage",
+      "rawTitle": "keeps the operator's valid choices when one sibling switch is garbage",
+      "name": "Database adapter settings Adapter get Motivation Config — kill switch read boundary keeps the operator's valid choices when one sibling switch is garbage",
+      "value": "Protects the database adapter settings Adapter get Motivation Config — kill switch read boundary behavior: keeps the operator's valid choices when one sibling switch is garbage.",
+      "description": "Protects the database adapter settings Adapter get Motivation Config — kill switch read boundary behavior: keeps the operator's valid choices when one sibling switch is garbage."
     },
     {
       "id": "packages-adapters-db-src-tests-topic-repository-test-ts-65-topicrepository-getcached-returns-a-cached-translation-when-found",
@@ -31190,6 +32118,86 @@
       "description": "Protects the core domain is Known Language() behavior: returns false for unknown codes."
     },
     {
+      "id": "packages-core-src-modules-i18n-tests-motivation-copy-test-ts-22-motivation-copy-structural-rules-across-every-locale-covers-all-11-interface-locales",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/i18n/__tests__/motivation-copy.test.ts",
+      "sourceLine": 22,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "motivation copy — structural rules across every locale"
+      ],
+      "title": "covers all 11 interface locales",
+      "rawTitle": "covers all 11 interface locales",
+      "name": "Core domain motivation copy — structural rules across every locale covers all 11 interface locales",
+      "value": "Protects the core domain motivation copy — structural rules across every locale behavior so covers all 11 interface locales.",
+      "description": "Protects the core domain motivation copy — structural rules across every locale behavior so covers all 11 interface locales."
+    },
+    {
+      "id": "packages-core-src-modules-i18n-tests-motivation-copy-test-ts-30-motivation-copy-structural-rules-across-every-locale-has-motivation-keys-to-check",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/i18n/__tests__/motivation-copy.test.ts",
+      "sourceLine": 30,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "motivation copy — structural rules across every locale"
+      ],
+      "title": "has motivation keys to check",
+      "rawTitle": "has motivation keys to check",
+      "name": "Core domain motivation copy — structural rules across every locale has motivation keys to check",
+      "value": "Protects the core domain motivation copy — structural rules across every locale behavior so has motivation keys to check.",
+      "description": "Protects the core domain motivation copy — structural rules across every locale behavior so has motivation keys to check."
+    },
+    {
+      "id": "packages-core-src-modules-i18n-tests-motivation-copy-test-ts-34-motivation-copy-structural-rules-across-every-locale-writes-every-number-as-a-labelled-value-never-gluing-a-noun-to-it",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/i18n/__tests__/motivation-copy.test.ts",
+      "sourceLine": 34,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "motivation copy — structural rules across every locale"
+      ],
+      "title": "writes every number as a labelled value, never gluing a noun to it",
+      "rawTitle": "writes every number as a labelled value, never gluing a noun to it",
+      "name": "Core domain motivation copy — structural rules across every locale writes every number as a labelled value, never gluing a noun to it",
+      "value": "Protects the core domain motivation copy — structural rules across every locale behavior so writes every number as a labelled value, never gluing a noun to it.",
+      "description": "Protects the core domain motivation copy — structural rules across every locale behavior so writes every number as a labelled value, never gluing a noun to it."
+    },
+    {
+      "id": "packages-core-src-modules-i18n-tests-motivation-copy-test-ts-45-motivation-copy-structural-rules-across-every-locale-never-leaks-the-raw-momentum-score",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/i18n/__tests__/motivation-copy.test.ts",
+      "sourceLine": 45,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "motivation copy — structural rules across every locale"
+      ],
+      "title": "never leaks the raw momentum score",
+      "rawTitle": "never leaks the raw momentum score",
+      "name": "Core domain motivation copy — structural rules across every locale never leaks the raw momentum score",
+      "value": "Protects the core domain motivation copy — structural rules across every locale behavior so never leaks the raw momentum score.",
+      "description": "Protects the core domain motivation copy — structural rules across every locale behavior so never leaks the raw momentum score."
+    },
+    {
+      "id": "packages-core-src-modules-i18n-tests-motivation-copy-test-ts-51-motivation-copy-structural-rules-across-every-locale-never-names-the-length-of-the-pause-in-the-recovery-copy",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/i18n/__tests__/motivation-copy.test.ts",
+      "sourceLine": 51,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "motivation copy — structural rules across every locale"
+      ],
+      "title": "never names the length of the pause in the recovery copy",
+      "rawTitle": "never names the length of the pause in the recovery copy",
+      "name": "Core domain motivation copy — structural rules across every locale never names the length of the pause in the recovery copy",
+      "value": "Protects the core domain motivation copy — structural rules across every locale behavior so never names the length of the pause in the recovery copy.",
+      "description": "Protects the core domain motivation copy — structural rules across every locale behavior so never names the length of the pause in the recovery copy."
+    },
+    {
       "id": "packages-core-src-modules-i18n-language-registry-test-ts-16-language-registry-t21-a3-single-source-of-truth-normalizes-a-partial-entry-to-the-canonical-cachedlanguage-shape",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/language-registry.test.ts",
@@ -35462,6 +36470,902 @@
       "description": "Protects the core domain MAX MENTOR HISTORY behavior so is a positive even number (full user+assistant turns)."
     },
     {
+      "id": "packages-core-src-modules-momentum-tests-mature-threshold-test-ts-15-mature-threshold-vs-the-sm-2-ladder-crosses-on-the-fourth-consecutive-good-22-calendar-days-after-the-first",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/mature-threshold.test.ts",
+      "sourceLine": 15,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "mature threshold vs the SM-2 ladder"
+      ],
+      "title": "crosses on the fourth consecutive good, 22 calendar days after the first",
+      "rawTitle": "crosses on the fourth consecutive good, 22 calendar days after the first",
+      "name": "Core domain mature threshold vs the SM 2 ladder crosses on the fourth consecutive good, 22 calendar days after the first",
+      "value": "Protects the core domain mature threshold vs the SM 2 ladder behavior so crosses on the fourth consecutive good, 22 calendar days after the first.",
+      "description": "Protects the core domain mature threshold vs the SM 2 ladder behavior so crosses on the fourth consecutive good, 22 calendar days after the first."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-math-test-ts-27-decay-halves-the-score-after-exactly-one-half-life",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.math.test.ts",
+      "sourceLine": 27,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "decay"
+      ],
+      "title": "halves the score after exactly one half-life",
+      "rawTitle": "halves the score after exactly one half-life",
+      "name": "Core domain decay halves the score after exactly one half life",
+      "value": "Protects the core domain decay behavior so halves the score after exactly one half life.",
+      "description": "Protects the core domain decay behavior so halves the score after exactly one half life."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-math-test-ts-33-decay-costs-9-for-one-skipped-day-and-50-for-a-skipped-week",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.math.test.ts",
+      "sourceLine": 33,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "decay"
+      ],
+      "title": "costs 9% for one skipped day and 50% for a skipped week",
+      "rawTitle": "costs 9% for one skipped day and 50% for a skipped week",
+      "name": "Core domain decay costs 9% for one skipped day and 50% for a skipped week",
+      "value": "Protects the core domain decay behavior so costs 9% for one skipped day and 50% for a skipped week.",
+      "description": "Protects the core domain decay behavior so costs 9% for one skipped day and 50% for a skipped week."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-math-test-ts-44-applyeffort-gives-the-same-score-whichever-order-two-events-are-applied-in",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.math.test.ts",
+      "sourceLine": 44,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "applyEffort"
+      ],
+      "title": "gives the same score whichever order two events are applied in",
+      "rawTitle": "gives the same score whichever order two events are applied in",
+      "name": "Core domain apply Effort gives the same score whichever order two events are applied in",
+      "value": "Protects the core domain apply Effort behavior so gives the same score whichever order two events are applied in.",
+      "description": "Protects the core domain apply Effort behavior so gives the same score whichever order two events are applied in."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-math-test-ts-56-applyeffort-discounts-a-late-event-forward-without-rewinding-scoredat",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.math.test.ts",
+      "sourceLine": 56,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "applyEffort"
+      ],
+      "title": "discounts a late event forward without rewinding scoredAt",
+      "rawTitle": "discounts a late event forward without rewinding scoredAt",
+      "name": "Core domain apply Effort discounts a late event forward without rewinding scored At",
+      "value": "Protects the core domain apply Effort behavior so discounts a late event forward without rewinding scored At.",
+      "description": "Protects the core domain apply Effort behavior so discounts a late event forward without rewinding scored At."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-math-test-ts-64-applyeffort-decays-the-standing-score-before-adding-a-later-event",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.math.test.ts",
+      "sourceLine": 64,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "applyEffort"
+      ],
+      "title": "decays the standing score before adding a later event",
+      "rawTitle": "decays the standing score before adding a later event",
+      "name": "Core domain apply Effort decays the standing score before adding a later event",
+      "value": "Protects the core domain apply Effort behavior so decays the standing score before adding a later event.",
+      "description": "Protects the core domain apply Effort behavior so decays the standing score before adding a later event."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-math-test-ts-74-resolveband-includes-the-lower-bound-of-every-band-and-excludes-the-one-below-it",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.math.test.ts",
+      "sourceLine": 74,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "resolveBand"
+      ],
+      "title": "includes the lower bound of every band and excludes the one below it",
+      "rawTitle": "includes the lower bound of every band and excludes the one below it",
+      "name": "Core domain resolve Band includes the lower bound of every band and excludes the one below it",
+      "value": "Protects the core domain resolve Band behavior: includes the lower bound of every band and excludes the one below it.",
+      "description": "Protects the core domain resolve Band behavior: includes the lower bound of every band and excludes the one below it."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-math-test-ts-83-resolveband-puts-an-empty-score-in-the-lowest-band",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.math.test.ts",
+      "sourceLine": 83,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "resolveBand"
+      ],
+      "title": "puts an empty score in the lowest band",
+      "rawTitle": "puts an empty score in the lowest band",
+      "name": "Core domain resolve Band puts an empty score in the lowest band",
+      "value": "Protects the core domain resolve Band behavior so puts an empty score in the lowest band.",
+      "description": "Protects the core domain resolve Band behavior so puts an empty score in the lowest band."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-math-test-ts-89-cappedweight-pays-the-third-translate-of-the-day-and-nothing-for-the-fourth",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.math.test.ts",
+      "sourceLine": 89,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "cappedWeight"
+      ],
+      "title": "pays the third translate of the day and nothing for the fourth",
+      "rawTitle": "pays the third translate of the day and nothing for the fourth",
+      "name": "Core domain capped Weight pays the third translate of the day and nothing for the fourth",
+      "value": "Protects the core domain capped Weight behavior so pays the third translate of the day and nothing for the fourth.",
+      "description": "Protects the core domain capped Weight behavior so pays the third translate of the day and nothing for the fourth."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-math-test-ts-95-cappedweight-pays-the-second-save-of-the-day-and-nothing-for-the-third",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.math.test.ts",
+      "sourceLine": 95,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "cappedWeight"
+      ],
+      "title": "pays the second save of the day and nothing for the third",
+      "rawTitle": "pays the second save of the day and nothing for the third",
+      "name": "Core domain capped Weight pays the second save of the day and nothing for the third",
+      "value": "Protects the core domain capped Weight behavior so pays the second save of the day and nothing for the third.",
+      "description": "Protects the core domain capped Weight behavior so pays the second save of the day and nothing for the third."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-math-test-ts-101-cappedweight-makes-a-10-card-session-worth-the-same-as-a-2-card-one",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.math.test.ts",
+      "sourceLine": 101,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "cappedWeight"
+      ],
+      "title": "makes a 10-card session worth the same as a 2-card one",
+      "rawTitle": "makes a 10-card session worth the same as a 2-card one",
+      "name": "Core domain capped Weight makes a 10 card session worth the same as a 2 card one",
+      "value": "Protects the core domain capped Weight behavior so makes a 10 card session worth the same as a 2 card one.",
+      "description": "Protects the core domain capped Weight behavior so makes a 10 card session worth the same as a 2 card one."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-math-test-ts-108-cappedweight-never-caps-mature",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.math.test.ts",
+      "sourceLine": 108,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "cappedWeight"
+      ],
+      "title": "never caps mature",
+      "rawTitle": "never caps mature",
+      "name": "Core domain capped Weight never caps mature",
+      "value": "Protects the core domain capped Weight behavior so never caps mature.",
+      "description": "Protects the core domain capped Weight behavior so never caps mature."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-math-test-ts-120-local-day-keeps-a-berlin-summer-night-in-one-local-day",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.math.test.ts",
+      "sourceLine": 120,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "local day"
+      ],
+      "title": "keeps a Berlin summer night in one local day",
+      "rawTitle": "keeps a Berlin summer night in one local day",
+      "name": "Core domain local day keeps a Berlin summer night in one local day",
+      "value": "Protects the core domain local day behavior: keeps a Berlin summer night in one local day.",
+      "description": "Protects the core domain local day behavior: keeps a Berlin summer night in one local day."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-math-test-ts-125-local-day-returns-the-same-bounds-for-both-spanning-local-midnight-to-local-midnight",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.math.test.ts",
+      "sourceLine": 125,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "local day"
+      ],
+      "title": "returns the same bounds for both, spanning local midnight to local midnight",
+      "rawTitle": "returns the same bounds for both, spanning local midnight to local midnight",
+      "name": "Core domain local day returns the same bounds for both, spanning local midnight to local midnight",
+      "value": "Protects the core domain local day behavior: returns the same bounds for both, spanning local midnight to local midnight.",
+      "description": "Protects the core domain local day behavior: returns the same bounds for both, spanning local midnight to local midnight."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-math-test-ts-138-local-day-keeps-the-day-24-hours-long-across-a-dst-spring-forward-day",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.math.test.ts",
+      "sourceLine": 138,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "local day"
+      ],
+      "title": "keeps the day 24 hours long across a DST spring-forward day",
+      "rawTitle": "keeps the day 24 hours long across a DST spring-forward day",
+      "name": "Core domain local day keeps the day 24 hours long across a DST spring forward day",
+      "value": "Protects the core domain local day behavior: keeps the day 24 hours long across a DST spring forward day.",
+      "description": "Protects the core domain local day behavior: keeps the day 24 hours long across a DST spring forward day."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-math-test-ts-144-local-day-falls-back-to-utc-for-an-unusable-timezone-instead-of-throwing",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.math.test.ts",
+      "sourceLine": 144,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "local day"
+      ],
+      "title": "falls back to UTC for an unusable timezone instead of throwing",
+      "rawTitle": "falls back to UTC for an unusable timezone instead of throwing",
+      "name": "Core domain local day falls back to UTC for an unusable timezone instead of throwing",
+      "value": "Protects the core domain local day behavior: falls back to UTC for an unusable timezone instead of throwing.",
+      "description": "Protects the core domain local day behavior: falls back to UTC for an unusable timezone instead of throwing."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-math-test-ts-150-activedaysfromevents-counts-distinct-local-days-that-carried-real-weight",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.math.test.ts",
+      "sourceLine": 150,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "activeDaysFromEvents"
+      ],
+      "title": "counts distinct local days that carried real weight",
+      "rawTitle": "counts distinct local days that carried real weight",
+      "name": "Core domain active Days From Events counts distinct local days that carried real weight",
+      "value": "Protects the core domain active Days From Events behavior so counts distinct local days that carried real weight.",
+      "description": "Protects the core domain active Days From Events behavior so counts distinct local days that carried real weight."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-math-test-ts-160-activedaysfromevents-ignores-events-older-than-the-window",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.math.test.ts",
+      "sourceLine": 160,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "activeDaysFromEvents"
+      ],
+      "title": "ignores events older than the window",
+      "rawTitle": "ignores events older than the window",
+      "name": "Core domain active Days From Events ignores events older than the window",
+      "value": "Protects the core domain active Days From Events behavior: ignores events older than the window.",
+      "description": "Protects the core domain active Days From Events behavior: ignores events older than the window."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-108-record-writes-nothing-at-all-while-recording-is-off",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
+      "sourceLine": 108,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "record"
+      ],
+      "title": "writes nothing at all while recording is off",
+      "rawTitle": "writes nothing at all while recording is off",
+      "name": "Core domain record writes nothing at all while recording is off",
+      "value": "Protects the core domain record behavior so writes nothing at all while recording is off.",
+      "description": "Protects the core domain record behavior so writes nothing at all while recording is off."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-119-record-leaves-the-snapshot-untouched-while-recording-is-off-marks-included",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
+      "sourceLine": 119,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "record"
+      ],
+      "title": "leaves the snapshot untouched while recording is off, marks included",
+      "rawTitle": "leaves the snapshot untouched while recording is off, marks included",
+      "name": "Core domain record leaves the snapshot untouched while recording is off, marks included",
+      "value": "Protects the core domain record behavior so leaves the snapshot untouched while recording is off, marks included.",
+      "description": "Protects the core domain record behavior so leaves the snapshot untouched while recording is off, marks included."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-134-record-credits-a-replayed-update-once-the-second-attempt-leaves-the-score-untouched",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
+      "sourceLine": 134,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "record"
+      ],
+      "title": "credits a replayed update once — the second attempt leaves the score untouched",
+      "rawTitle": "credits a replayed update once — the second attempt leaves the score untouched",
+      "name": "Core domain record credits a replayed update once — the second attempt leaves the score untouched",
+      "value": "Protects the core domain record behavior so credits a replayed update once — the second attempt leaves the score untouched.",
+      "description": "Protects the core domain record behavior so credits a replayed update once — the second attempt leaves the score untouched."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-146-record-spends-the-daily-cap-as-weight-and-still-writes-the-exhausted-row",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
+      "sourceLine": 146,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "record"
+      ],
+      "title": "spends the daily cap as weight and still writes the exhausted row",
+      "rawTitle": "spends the daily cap as weight and still writes the exhausted row",
+      "name": "Core domain record spends the daily cap as weight and still writes the exhausted row",
+      "value": "Protects the core domain record behavior so spends the daily cap as weight and still writes the exhausted row.",
+      "description": "Protects the core domain record behavior so spends the daily cap as weight and still writes the exhausted row."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-160-record-starts-a-new-local-day-with-a-fresh-cap-using-the-user-s-timezone",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
+      "sourceLine": 160,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "record"
+      ],
+      "title": "starts a new local day with a fresh cap, using the user's timezone",
+      "rawTitle": "starts a new local day with a fresh cap, using the user's timezone",
+      "name": "Core domain record starts a new local day with a fresh cap, using the user's timezone",
+      "value": "Protects the core domain record behavior so starts a new local day with a fresh cap, using the user's timezone.",
+      "description": "Protects the core domain record behavior so starts a new local day with a fresh cap, using the user's timezone."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-184-record-advances-lastseenat-on-a-review-but-never-on-a-translate",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
+      "sourceLine": 184,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "record"
+      ],
+      "title": "advances lastSeenAt on a review but never on a translate",
+      "rawTitle": "advances lastSeenAt on a review but never on a translate",
+      "name": "Core domain record advances last Seen At on a review but never on a translate",
+      "value": "Protects the core domain record behavior so advances last Seen At on a review but never on a translate.",
+      "description": "Protects the core domain record behavior so advances last Seen At on a review but never on a translate."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-197-record-leaves-a-pending-recovery-line-alive-when-a-review-is-credited-first",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
+      "sourceLine": 197,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "record"
+      ],
+      "title": "leaves a pending recovery line alive when a review is credited first",
+      "rawTitle": "leaves a pending recovery line alive when a review is credited first",
+      "name": "Core domain record leaves a pending recovery line alive when a review is credited first",
+      "value": "Protects the core domain record behavior so leaves a pending recovery line alive when a review is credited first.",
+      "description": "Protects the core domain record behavior so leaves a pending recovery line alive when a review is credited first."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-209-record-never-caps-mature",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
+      "sourceLine": 209,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "record"
+      ],
+      "title": "never caps mature",
+      "rawTitle": "never caps mature",
+      "name": "Core domain record never caps mature",
+      "value": "Protects the core domain record behavior so never caps mature.",
+      "description": "Protects the core domain record behavior so never caps mature."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-219-getsnapshot-discounts-the-stored-score-to-the-moment-of-reading-without-writing",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
+      "sourceLine": 219,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "getSnapshot"
+      ],
+      "title": "discounts the stored score to the moment of reading without writing",
+      "rawTitle": "discounts the stored score to the moment of reading without writing",
+      "name": "Core domain get Snapshot discounts the stored score to the moment of reading without writing",
+      "value": "Protects the core domain get Snapshot behavior so discounts the stored score to the moment of reading without writing.",
+      "description": "Protects the core domain get Snapshot behavior so discounts the stored score to the moment of reading without writing."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-235-getsnapshot-reports-an-empty-state-for-a-user-who-has-never-been-recorded",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
+      "sourceLine": 235,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "getSnapshot"
+      ],
+      "title": "reports an empty state for a user who has never been recorded",
+      "rawTitle": "reports an empty state for a user who has never been recorded",
+      "name": "Core domain get Snapshot reports an empty state for a user who has never been recorded",
+      "value": "Protects the core domain get Snapshot behavior: reports an empty state for a user who has never been recorded.",
+      "description": "Protects the core domain get Snapshot behavior: reports an empty state for a user who has never been recorded."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-247-recovery-shows-nothing-for-a-user-we-have-never-seen-and-the-first-touch-initializes-them",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
+      "sourceLine": 247,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "recovery"
+      ],
+      "title": "shows nothing for a user we have never seen, and the first touch initializes them",
+      "rawTitle": "shows nothing for a user we have never seen, and the first touch initializes them",
+      "name": "Core domain recovery shows nothing for a user we have never seen, and the first touch initializes them",
+      "value": "Protects the core domain recovery behavior: shows nothing for a user we have never seen, and the first touch initializes them.",
+      "description": "Protects the core domain recovery behavior: shows nothing for a user we have never seen, and the first touch initializes them."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-256-recovery-shows-the-line-after-a-pause-of-a-week-or-more-but-not-for-yesterday-s-user",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
+      "sourceLine": 256,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "recovery"
+      ],
+      "title": "shows the line after a pause of a week or more, but not for yesterday's user",
+      "rawTitle": "shows the line after a pause of a week or more, but not for yesterday's user",
+      "name": "Core domain recovery shows the line after a pause of a week or more, but not for yesterday's user",
+      "value": "Protects the core domain recovery behavior: shows the line after a pause of a week or more, but not for yesterday's user.",
+      "description": "Protects the core domain recovery behavior: shows the line after a pause of a week or more, but not for yesterday's user."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-266-recovery-stays-silent-while-the-kill-switch-is-off",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
+      "sourceLine": 266,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "recovery"
+      ],
+      "title": "stays silent while the kill switch is off",
+      "rawTitle": "stays silent while the kill switch is off",
+      "name": "Core domain recovery stays silent while the kill switch is off",
+      "value": "Protects the core domain recovery behavior so stays silent while the kill switch is off.",
+      "description": "Protects the core domain recovery behavior so stays silent while the kill switch is off."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-274-recovery-keeps-lastseenat-stale-until-the-pending-line-is-actually-shown",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
+      "sourceLine": 274,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "recovery"
+      ],
+      "title": "keeps lastSeenAt stale until the pending line is actually shown",
+      "rawTitle": "keeps lastSeenAt stale until the pending line is actually shown",
+      "name": "Core domain recovery keeps last Seen At stale until the pending line is actually shown",
+      "value": "Protects the core domain recovery behavior: keeps last Seen At stale until the pending line is actually shown.",
+      "description": "Protects the core domain recovery behavior: keeps last Seen At stale until the pending line is actually shown."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-289-recovery-advances-lastseenat-on-a-touch-when-no-line-is-pending",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
+      "sourceLine": 289,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "recovery"
+      ],
+      "title": "advances lastSeenAt on a touch when no line is pending",
+      "rawTitle": "advances lastSeenAt on a touch when no line is pending",
+      "name": "Core domain recovery advances last Seen At on a touch when no line is pending",
+      "value": "Protects the core domain recovery behavior so advances last Seen At on a touch when no line is pending.",
+      "description": "Protects the core domain recovery behavior so advances last Seen At on a touch when no line is pending."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-298-recovery-leaves-a-mark-written-minutes-ago-alone",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
+      "sourceLine": 298,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "recovery"
+      ],
+      "title": "leaves a mark written minutes ago alone",
+      "rawTitle": "leaves a mark written minutes ago alone",
+      "name": "Core domain recovery leaves a mark written minutes ago alone",
+      "value": "Protects the core domain recovery behavior so leaves a mark written minutes ago alone.",
+      "description": "Protects the core domain recovery behavior so leaves a mark written minutes ago alone."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-309-recovery-does-not-show-a-second-line-within-a-week-of-the-last-one",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
+      "sourceLine": 309,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "recovery"
+      ],
+      "title": "does not show a second line within a week of the last one",
+      "rawTitle": "does not show a second line within a week of the last one",
+      "name": "Core domain recovery does not show a second line within a week of the last one",
+      "value": "Protects the core domain recovery behavior: does not show a second line within a week of the last one.",
+      "description": "Protects the core domain recovery behavior: does not show a second line within a week of the last one."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-325-praise-reports-the-kill-switch-as-a-suppression-reason-so-the-counter-can-see-it",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
+      "sourceLine": 325,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "praise"
+      ],
+      "title": "reports the kill switch as a suppression reason so the counter can see it",
+      "rawTitle": "reports the kill switch as a suppression reason so the counter can see it",
+      "name": "Core domain praise reports the kill switch as a suppression reason so the counter can see it",
+      "value": "Protects the core domain praise behavior: reports the kill switch as a suppression reason so the counter can see it.",
+      "description": "Protects the core domain praise behavior: reports the kill switch as a suppression reason so the counter can see it."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-331-praise-claims-a-praise-once-per-local-day-and-marks-the-cooldown",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
+      "sourceLine": 331,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "praise"
+      ],
+      "title": "claims a praise once per local day and marks the cooldown",
+      "rawTitle": "claims a praise once per local day and marks the cooldown",
+      "name": "Core domain praise claims a praise once per local day and marks the cooldown",
+      "value": "Protects the core domain praise behavior so claims a praise once per local day and marks the cooldown.",
+      "description": "Protects the core domain praise behavior so claims a praise once per local day and marks the cooldown."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-346-praise-claims-a-once-ever-milestone-with-no-day-in-the-key-so-it-can-never-come-back",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
+      "sourceLine": 346,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "praise"
+      ],
+      "title": "claims a once-ever milestone with no day in the key, so it can never come back",
+      "rawTitle": "claims a once-ever milestone with no day in the key, so it can never come back",
+      "name": "Core domain praise claims a once ever milestone with no day in the key, so it can never come back",
+      "value": "Protects the core domain praise behavior so claims a once ever milestone with no day in the key, so it can never come back.",
+      "description": "Protects the core domain praise behavior so claims a once ever milestone with no day in the key, so it can never come back."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-360-praise-never-offers-a-milestone-the-journal-already-shows-as-claimed",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
+      "sourceLine": 360,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "praise"
+      ],
+      "title": "never offers a milestone the journal already shows as claimed",
+      "rawTitle": "never offers a milestone the journal already shows as claimed",
+      "name": "Core domain praise never offers a milestone the journal already shows as claimed",
+      "value": "Protects the core domain praise behavior so never offers a milestone the journal already shows as claimed.",
+      "description": "Protects the core domain praise behavior so never offers a milestone the journal already shows as claimed."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-372-praise-suppresses-on-cooldown-right-after-a-shown-praise",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
+      "sourceLine": 372,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "praise"
+      ],
+      "title": "suppresses on cooldown right after a shown praise",
+      "rawTitle": "suppresses on cooldown right after a shown praise",
+      "name": "Core domain praise suppresses on cooldown right after a shown praise",
+      "value": "Protects the core domain praise behavior so suppresses on cooldown right after a shown praise.",
+      "description": "Protects the core domain praise behavior so suppresses on cooldown right after a shown praise."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-379-praise-suppresses-the-third-praise-of-a-rolling-week",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
+      "sourceLine": 379,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "praise"
+      ],
+      "title": "suppresses the third praise of a rolling week",
+      "rawTitle": "suppresses the third praise of a rolling week",
+      "name": "Core domain praise suppresses the third praise of a rolling week",
+      "value": "Protects the core domain praise behavior so suppresses the third praise of a rolling week.",
+      "description": "Protects the core domain praise behavior so suppresses the third praise of a rolling week."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-391-praise-lets-a-praise-through-once-the-older-one-has-aged-out-of-the-week",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
+      "sourceLine": 391,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "praise"
+      ],
+      "title": "lets a praise through once the older one has aged out of the week",
+      "rawTitle": "lets a praise through once the older one has aged out of the week",
+      "name": "Core domain praise lets a praise through once the older one has aged out of the week",
+      "value": "Protects the core domain praise behavior so lets a praise through once the older one has aged out of the week.",
+      "description": "Protects the core domain praise behavior so lets a praise through once the older one has aged out of the week."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-407-countactivedays-counts-distinct-local-days-with-real-effort-inside-the-window",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
+      "sourceLine": 407,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "countActiveDays"
+      ],
+      "title": "counts distinct local days with real effort inside the window",
+      "rawTitle": "counts distinct local days with real effort inside the window",
+      "name": "Core domain count Active Days counts distinct local days with real effort inside the window",
+      "value": "Protects the core domain count Active Days behavior so counts distinct local days with real effort inside the window.",
+      "description": "Protects the core domain count Active Days behavior so counts distinct local days with real effort inside the window."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-motivation-config-test-ts-12-parsemotivationconfig-falls-back-to-recording-only-for-an-empty-null-or-garbage-blob",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/motivation-config.test.ts",
+      "sourceLine": 12,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "parseMotivationConfig"
+      ],
+      "title": "falls back to recording-only for an empty, null, or garbage blob",
+      "rawTitle": "falls back to recording-only for an empty, null, or garbage blob",
+      "name": "Core domain parse Motivation Config falls back to recording only for an empty, null, or garbage blob",
+      "value": "Protects the core domain parse Motivation Config behavior: falls back to recording only for an empty, null, or garbage blob.",
+      "description": "Protects the core domain parse Motivation Config behavior: falls back to recording only for an empty, null, or garbage blob."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-motivation-config-test-ts-24-parsemotivationconfig-honours-a-stored-boolean",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/motivation-config.test.ts",
+      "sourceLine": 24,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "parseMotivationConfig"
+      ],
+      "title": "honours a stored boolean",
+      "rawTitle": "honours a stored boolean",
+      "name": "Core domain parse Motivation Config honours a stored boolean",
+      "value": "Protects the core domain parse Motivation Config behavior so honours a stored boolean.",
+      "description": "Protects the core domain parse Motivation Config behavior so honours a stored boolean."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-motivation-config-test-ts-32-parsemotivationconfig-repairs-one-broken-switch-without-discarding-its-valid-siblings",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/motivation-config.test.ts",
+      "sourceLine": 32,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "parseMotivationConfig"
+      ],
+      "title": "repairs one broken switch without discarding its valid siblings",
+      "rawTitle": "repairs one broken switch without discarding its valid siblings",
+      "name": "Core domain parse Motivation Config repairs one broken switch without discarding its valid siblings",
+      "value": "Protects the core domain parse Motivation Config behavior so repairs one broken switch without discarding its valid siblings.",
+      "description": "Protects the core domain parse Motivation Config behavior so repairs one broken switch without discarding its valid siblings."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-praise-selector-test-ts-16-selectpraise-praises-a-word-that-crossed-into-long-term-memory-as-a-key-and-params",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/praise.selector.test.ts",
+      "sourceLine": 16,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "selectPraise"
+      ],
+      "title": "praises a word that crossed into long-term memory, as a key and params",
+      "rawTitle": "praises a word that crossed into long-term memory, as a key and params",
+      "name": "Core domain select Praise praises a word that crossed into long term memory, as a key and params",
+      "value": "Protects the core domain select Praise behavior so praises a word that crossed into long term memory, as a key and params.",
+      "description": "Protects the core domain select Praise behavior so praises a word that crossed into long term memory, as a key and params."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-praise-selector-test-ts-30-selectpraise-never-praises-a-mature-word-for-a-user-with-none",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/praise.selector.test.ts",
+      "sourceLine": 30,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "selectPraise"
+      ],
+      "title": "never praises a mature word for a user with none",
+      "rawTitle": "never praises a mature word for a user with none",
+      "name": "Core domain select Praise never praises a mature word for a user with none",
+      "value": "Protects the core domain select Praise behavior so never praises a mature word for a user with none.",
+      "description": "Protects the core domain select Praise behavior so never praises a mature word for a user with none."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-praise-selector-test-ts-42-selectpraise-suppresses-while-the-24h-cooldown-is-alive-and-releases-once-it-expires",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/praise.selector.test.ts",
+      "sourceLine": 42,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "selectPraise"
+      ],
+      "title": "suppresses while the 24h cooldown is alive and releases once it expires",
+      "rawTitle": "suppresses while the 24h cooldown is alive and releases once it expires",
+      "name": "Core domain select Praise suppresses while the 24h cooldown is alive and releases once it expires",
+      "value": "Protects the core domain select Praise behavior so suppresses while the 24h cooldown is alive and releases once it expires.",
+      "description": "Protects the core domain select Praise behavior so suppresses while the 24h cooldown is alive and releases once it expires."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-praise-selector-test-ts-57-selectpraise-suppresses-once-the-weekly-cap-is-spent",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/praise.selector.test.ts",
+      "sourceLine": 57,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "selectPraise"
+      ],
+      "title": "suppresses once the weekly cap is spent",
+      "rawTitle": "suppresses once the weekly cap is spent",
+      "name": "Core domain select Praise suppresses once the weekly cap is spent",
+      "value": "Protects the core domain select Praise behavior so suppresses once the weekly cap is spent.",
+      "description": "Protects the core domain select Praise behavior so suppresses once the weekly cap is spent."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-praise-selector-test-ts-69-selectpraise-suppresses-with-no-evidence-when-nothing-happened",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/praise.selector.test.ts",
+      "sourceLine": 69,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "selectPraise"
+      ],
+      "title": "suppresses with no_evidence when nothing happened",
+      "rawTitle": "suppresses with no_evidence when nothing happened",
+      "name": "Core domain select Praise suppresses with no evidence when nothing happened",
+      "value": "Protects the core domain select Praise behavior so suppresses with no evidence when nothing happened.",
+      "description": "Protects the core domain select Praise behavior so suppresses with no evidence when nothing happened."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-praise-selector-test-ts-81-selectpraise-praises-a-dictionary-milestone-only-on-the-update-that-crosses-it",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/praise.selector.test.ts",
+      "sourceLine": 81,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "selectPraise"
+      ],
+      "title": "praises a dictionary milestone only on the update that crosses it",
+      "rawTitle": "praises a dictionary milestone only on the update that crosses it",
+      "name": "Core domain select Praise praises a dictionary milestone only on the update that crosses it",
+      "value": "Protects the core domain select Praise behavior so praises a dictionary milestone only on the update that crosses it.",
+      "description": "Protects the core domain select Praise behavior so praises a dictionary milestone only on the update that crosses it."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-praise-selector-test-ts-103-selectpraise-reports-the-highest-milestone-crossed-in-one-jump",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/praise.selector.test.ts",
+      "sourceLine": 103,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "selectPraise"
+      ],
+      "title": "reports the highest milestone crossed in one jump",
+      "rawTitle": "reports the highest milestone crossed in one jump",
+      "name": "Core domain select Praise reports the highest milestone crossed in one jump",
+      "value": "Protects the core domain select Praise behavior: reports the highest milestone crossed in one jump.",
+      "description": "Protects the core domain select Praise behavior: reports the highest milestone crossed in one jump."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-praise-selector-test-ts-117-selectpraise-never-offers-a-once-ever-milestone-this-user-has-already-claimed",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/praise.selector.test.ts",
+      "sourceLine": 117,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "selectPraise"
+      ],
+      "title": "never offers a once-ever milestone this user has already claimed",
+      "rawTitle": "never offers a once-ever milestone this user has already claimed",
+      "name": "Core domain select Praise never offers a once ever milestone this user has already claimed",
+      "value": "Protects the core domain select Praise behavior so never offers a once ever milestone this user has already claimed.",
+      "description": "Protects the core domain select Praise behavior so never offers a once ever milestone this user has already claimed."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-praise-selector-test-ts-129-selectpraise-still-offers-a-repeatable-praise-to-a-user-who-claimed-a-milestone",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/praise.selector.test.ts",
+      "sourceLine": 129,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "selectPraise"
+      ],
+      "title": "still offers a repeatable praise to a user who claimed a milestone",
+      "rawTitle": "still offers a repeatable praise to a user who claimed a milestone",
+      "name": "Core domain select Praise still offers a repeatable praise to a user who claimed a milestone",
+      "value": "Protects the core domain select Praise behavior so still offers a repeatable praise to a user who claimed a milestone.",
+      "description": "Protects the core domain select Praise behavior so still offers a repeatable praise to a user who claimed a milestone."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-praise-selector-test-ts-143-selectpraise-prefers-the-mature-word-over-a-milestone-reached-in-the-same-update",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/praise.selector.test.ts",
+      "sourceLine": 143,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "selectPraise"
+      ],
+      "title": "prefers the mature word over a milestone reached in the same update",
+      "rawTitle": "prefers the mature word over a milestone reached in the same update",
+      "name": "Core domain select Praise prefers the mature word over a milestone reached in the same update",
+      "value": "Protects the core domain select Praise behavior so prefers the mature word over a milestone reached in the same update.",
+      "description": "Protects the core domain select Praise behavior so prefers the mature word over a milestone reached in the same update."
+    },
+    {
       "id": "packages-core-src-modules-notifications-context-sentence-test-ts-6-buildcontextsentenceprompt-references-human-readable-language-names-not-raw-codes-when-the-registry-is-populated",
       "kind": "technical",
       "filePath": "packages/core/src/modules/notifications/context-sentence.test.ts",
@@ -36036,6 +37940,38 @@
       "name": "Core domain Settings Service model resolution caches a resolved fallback model",
       "value": "Protects the core domain Settings Service model resolution behavior so caches a resolved fallback model.",
       "description": "Protects the core domain Settings Service model resolution behavior so caches a resolved fallback model."
+    },
+    {
+      "id": "packages-core-src-modules-settings-tests-settings-service-motivation-test-ts-20-settingsservice-getmotivationconfig-serves-the-port-s-config-verbatim-the-adapter-already-validated-it",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/settings/__tests__/settings.service.motivation.test.ts",
+      "sourceLine": 20,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "SettingsService.getMotivationConfig"
+      ],
+      "title": "serves the port's config verbatim — the adapter already validated it",
+      "rawTitle": "serves the port's config verbatim — the adapter already validated it",
+      "name": "Core domain Settings Service get Motivation Config serves the port's config verbatim — the adapter already validated it",
+      "value": "Protects the core domain Settings Service get Motivation Config behavior so serves the port's config verbatim — the adapter already validated it.",
+      "description": "Protects the core domain Settings Service get Motivation Config behavior so serves the port's config verbatim — the adapter already validated it."
+    },
+    {
+      "id": "packages-core-src-modules-settings-tests-settings-service-motivation-test-ts-26-settingsservice-getmotivationconfig-does-not-re-read-the-switch-on-every-call",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/settings/__tests__/settings.service.motivation.test.ts",
+      "sourceLine": 26,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "SettingsService.getMotivationConfig"
+      ],
+      "title": "does not re-read the switch on every call",
+      "rawTitle": "does not re-read the switch on every call",
+      "name": "Core domain Settings Service get Motivation Config does not re read the switch on every call",
+      "value": "Protects the core domain Settings Service get Motivation Config behavior: does not re read the switch on every call.",
+      "description": "Protects the core domain Settings Service get Motivation Config behavior: does not re read the switch on every call."
     },
     {
       "id": "packages-core-src-modules-settings-tests-stt-defaults-test-ts-12-shipped-stt-default-is-enabled-so-voice-messages-are-handled-without-any-settings-row",
