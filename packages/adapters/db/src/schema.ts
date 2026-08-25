@@ -4,6 +4,7 @@ import {
   bigint,
   boolean,
   date,
+  doublePrecision,
   index,
   integer,
   jsonb,
@@ -17,6 +18,7 @@ import {
   uniqueIndex,
   varchar,
 } from "drizzle-orm/pg-core";
+import type { MomentumEventKind } from "./repositories/momentum.repository.js";
 import type { SourceUsage, VocabTranslationDetails, VocabularySource } from "./repositories/vocabulary.repository.js";
 
 // ─────────────────────────────────────────────
@@ -1092,3 +1094,48 @@ export const wordPickerItems = pgTable(
 );
 
 export type WordPickerItem = typeof wordPickerItems.$inferSelect;
+
+// ─────────────────────────────────────────────
+// Momentum — effort journal + per-user snapshot (Task 81)
+// ─────────────────────────────────────────────
+
+/** Append-only effort journal; pruned by `runTelemetryRetention` because it is audit, not truth. */
+export const momentumEvents = pgTable(
+  "momentum_events",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    kind: text("kind").$type<MomentumEventKind>().notNull(),
+    /** Points after the daily cap is applied; 0 means capped out or a 'praise' token. */
+    weight: integer("weight").default(0).notNull(),
+    /** Written by the app from an injected clock; defaultNow() is only a fallback. */
+    occurredAt: timestamp("occurred_at", { withTimezone: true }).defaultNow().notNull(),
+    /** Idempotency unit: a deterministic key, never a computed counter. */
+    dedupeKey: text("dedupe_key").notNull(),
+  },
+  (t) => [
+    uniqueIndex("momentum_events_user_dedupe_idx").on(t.userId, t.dedupeKey),
+    index("momentum_events_user_time_idx").on(t.userId, t.occurredAt),
+  ],
+);
+
+/** Durable snapshot, one row per user; deliberately NOT pruned by retention. */
+export const userMomentum = pgTable("user_momentum", {
+  userId: integer("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .primaryKey(),
+  /**
+   * Momentum discounted to `scoredAt`; not comparable across rows without
+   * re-discounting both to a common instant. doublePrecision, not real: a
+   * backfill replay sums hundreds of terms.
+   */
+  score: doublePrecision("score").default(0).notNull(),
+  scoredAt: timestamp("scored_at", { withTimezone: true }).defaultNow().notNull(),
+  /** Last interaction as motivation sees it — not the same thing as users.lastInteractionAt. */
+  lastSeenAt: timestamp("last_seen_at", { withTimezone: true }),
+  lastPraiseAt: timestamp("last_praise_at", { withTimezone: true }),
+  lastRecoveryAt: timestamp("last_recovery_at", { withTimezone: true }),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});

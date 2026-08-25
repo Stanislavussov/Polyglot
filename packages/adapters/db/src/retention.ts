@@ -21,6 +21,7 @@ import {
   botSessions,
   dictionaryLookupLogs,
   languageDetectionEvents,
+  momentumEvents,
   notificationHistory,
   translationRequests,
   translationRequestTimings,
@@ -56,6 +57,7 @@ export async function runTelemetryRetention(retentionDays = DEFAULT_RETENTION_DA
     languageDetectionEventsDeleted,
     notificationHistoryDeleted,
     wordReviewLogDeleted,
+    momentumEventsDeleted,
     botSessionsDeleted,
     userDailyRequestCountsDeleted,
   ] = await Promise.all([
@@ -83,6 +85,9 @@ export async function runTelemetryRetention(retentionDays = DEFAULT_RETENTION_DA
       id: notificationHistory.id,
     }),
     db.delete(wordReviewLog).where(lt(wordReviewLog.reviewedAt, cutoff)).returning({ id: wordReviewLog.id }),
+    // The `user_momentum` snapshot is deliberately never pruned: it is the durable
+    // score, while this journal is only its audit trail.
+    db.delete(momentumEvents).where(lt(momentumEvents.occurredAt, cutoff)).returning({ id: momentumEvents.id }),
     // Stale grammY sessions: an active chat re-touches `updated_at` on every turn,
     // so only long-abandoned sessions fall past the horizon.
     db.delete(botSessions).where(lt(botSessions.updatedAt, cutoff)).returning({ key: botSessions.key }),
@@ -100,6 +105,7 @@ export async function runTelemetryRetention(retentionDays = DEFAULT_RETENTION_DA
     language_detection_events: languageDetectionEventsDeleted.length,
     notification_history: notificationHistoryDeleted.length,
     word_review_log: wordReviewLogDeleted.length,
+    momentum_events: momentumEventsDeleted.length,
     bot_sessions: botSessionsDeleted.length,
     user_daily_request_counts: userDailyRequestCountsDeleted.length,
   };

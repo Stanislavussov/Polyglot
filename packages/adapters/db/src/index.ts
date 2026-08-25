@@ -50,6 +50,8 @@ export type {
   RecordLanguageDetectionEventInput,
 } from "./repositories/language-detection.repository.js";
 export { languageDetectionRepository } from "./repositories/language-detection.repository.js";
+export type { EffortKind, MomentumEventKind } from "./repositories/momentum.repository.js";
+export { EFFORT_KINDS } from "./repositories/momentum.repository.js";
 export {
   DEFAULT_NOTIFICATION_TIME,
   DEFAULT_NOTIFICATION_TYPE,
