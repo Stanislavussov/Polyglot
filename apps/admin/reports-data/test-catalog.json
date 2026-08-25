@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-25T19:19:28.000Z",
+  "generatedAt": "2026-08-25T19:46:49.000Z",
   "summary": {
-    "total": 3084,
+    "total": 3085,
     "business": 0,
-    "technical": 3084,
+    "technical": 3085,
     "workspaces": [
       "apps",
       "packages"
@@ -21774,10 +21774,10 @@
       "description": "Protects the database adapter run Momentum Backfill (integration) behavior: applies the daily review cap to backfilled facts: five reviews on one local day give 3, 3, 0, 0, 0."
     },
     {
-      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-48-momentumrepository-integration-keeps-a-single-row-when-the-same-dedupekey-is-recorded-twice",
+      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-55-momentumrepository-integration-keeps-a-single-row-when-the-same-dedupekey-is-recorded-twice",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/momentum.repository.integration.test.ts",
-      "sourceLine": 48,
+      "sourceLine": 55,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -21790,10 +21790,10 @@
       "description": "Protects the database adapter momentum Repository (integration) behavior: keeps a single row when the same dedupe Key is recorded twice."
     },
     {
-      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-64-momentumrepository-integration-lets-exactly-one-of-two-concurrent-identical-inserts-win",
+      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-71-momentumrepository-integration-lets-exactly-one-of-two-concurrent-identical-inserts-win",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/momentum.repository.integration.test.ts",
-      "sourceLine": 64,
+      "sourceLine": 71,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -21806,10 +21806,10 @@
       "description": "Protects the database adapter momentum Repository (integration) behavior so lets exactly one of two concurrent identical inserts win."
     },
     {
-      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-80-momentumrepository-integration-counts-a-berlin-night-that-straddles-utc-midnight-as-one-local-day",
+      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-87-momentumrepository-integration-counts-a-berlin-night-that-straddles-utc-midnight-as-one-local-day",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/momentum.repository.integration.test.ts",
-      "sourceLine": 80,
+      "sourceLine": 87,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -21822,10 +21822,10 @@
       "description": "Protects the database adapter momentum Repository (integration) behavior so counts a Berlin night that straddles UTC midnight as one local day."
     },
     {
-      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-107-momentumrepository-integration-writes-occurred-at-from-the-app-clock-not-the-database-s-now",
+      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-114-momentumrepository-integration-writes-occurred-at-from-the-app-clock-not-the-database-s-now",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/momentum.repository.integration.test.ts",
-      "sourceLine": 107,
+      "sourceLine": 114,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -21838,10 +21838,10 @@
       "description": "Protects the database adapter momentum Repository (integration) behavior so writes occurred at from the app clock, not the database's now()."
     },
     {
-      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-124-momentumrepository-integration-prunes-momentum-events-by-retention-and-leaves-the-user-momentum-snapshot-alone",
+      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-131-momentumrepository-integration-prunes-momentum-events-by-retention-and-leaves-the-user-momentum-snapshot-alone",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/momentum.repository.integration.test.ts",
-      "sourceLine": 124,
+      "sourceLine": 131,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -21854,10 +21854,26 @@
       "description": "Protects the database adapter momentum Repository (integration) behavior so prunes momentum events by retention and leaves the user momentum snapshot alone."
     },
     {
-      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-149-momentumrepository-integration-upserts-the-snapshot-patching-only-the-fields-it-is-given",
+      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-156-momentumrepository-integration-keeps-once-ever-claim-tokens-past-the-horizon-so-a-milestone-cannot-be-re-praised",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/momentum.repository.integration.test.ts",
-      "sourceLine": 149,
+      "sourceLine": 156,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "momentumRepository (integration)"
+      ],
+      "title": "keeps once-ever claim tokens past the horizon so a milestone cannot be re-praised",
+      "rawTitle": "keeps once-ever claim tokens past the horizon so a milestone cannot be re-praised",
+      "name": "Database adapter momentum Repository (integration) keeps once ever claim tokens past the horizon so a milestone cannot be re praised",
+      "value": "Protects the database adapter momentum Repository (integration) behavior: keeps once ever claim tokens past the horizon so a milestone cannot be re praised.",
+      "description": "Protects the database adapter momentum Repository (integration) behavior: keeps once ever claim tokens past the horizon so a milestone cannot be re praised."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-174-momentumrepository-integration-upserts-the-snapshot-patching-only-the-fields-it-is-given",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/momentum.repository.integration.test.ts",
+      "sourceLine": 174,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -21870,10 +21886,10 @@
       "description": "Protects the database adapter momentum Repository (integration) behavior so upserts the snapshot, patching only the fields it is given."
     },
     {
-      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-167-momentumrepository-integration-returns-replay-events-oldest-first",
+      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-192-momentumrepository-integration-returns-replay-events-oldest-first",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/momentum.repository.integration.test.ts",
-      "sourceLine": 167,
+      "sourceLine": 192,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -21886,10 +21902,10 @@
       "description": "Protects the database adapter momentum Repository (integration) behavior: returns replay events oldest first."
     },
     {
-      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-192-momentumrepository-integration-reads-the-claimed-praise-kinds-out-of-both-dedupe-key-shapes-once-each",
+      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-217-momentumrepository-integration-reads-the-claimed-praise-kinds-out-of-both-dedupe-key-shapes-once-each",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/momentum.repository.integration.test.ts",
-      "sourceLine": 192,
+      "sourceLine": 217,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -21902,10 +21918,10 @@
       "description": "Protects the database adapter momentum Repository (integration) behavior so reads the claimed praise kinds out of both dedupe key shapes, once each."
     },
     {
-      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-221-momentumrepository-integration-counts-active-local-days-ignoring-days-that-only-produced-capped-out-rows",
+      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-246-momentumrepository-integration-counts-active-local-days-ignoring-days-that-only-produced-capped-out-rows",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/momentum.repository.integration.test.ts",
-      "sourceLine": 221,
+      "sourceLine": 246,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -21918,10 +21934,10 @@
       "description": "Protects the database adapter momentum Repository (integration) behavior so counts active local days, ignoring days that only produced capped out rows."
     },
     {
-      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-251-createmomentumservice-over-the-real-store-charges-a-ten-card-flashcard-session-ten-rows-but-only-six-points",
+      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-276-createmomentumservice-over-the-real-store-charges-a-ten-card-flashcard-session-ten-rows-but-only-six-points",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/momentum.repository.integration.test.ts",
-      "sourceLine": 251,
+      "sourceLine": 276,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -21934,10 +21950,10 @@
       "description": "Protects the database adapter create Momentum Service over the real store behavior so charges a ten card flashcard session ten rows but only six points."
     },
     {
-      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-272-vocabularyrepository-momentum-counters-integration-counts-only-live-translations-at-or-past-the-mature-interval",
+      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-297-vocabularyrepository-momentum-counters-integration-counts-only-live-translations-at-or-past-the-mature-interval",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/momentum.repository.integration.test.ts",
-      "sourceLine": 272,
+      "sourceLine": 297,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -21950,10 +21966,10 @@
       "description": "Protects the database adapter vocabulary Repository momentum counters (integration) behavior so counts only live translations at or past the mature interval."
     },
     {
-      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-306-vocabularyrepository-momentum-counters-integration-counts-the-same-cards-finddueforsrs-would-return",
+      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-331-vocabularyrepository-momentum-counters-integration-counts-the-same-cards-finddueforsrs-would-return",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/momentum.repository.integration.test.ts",
-      "sourceLine": 306,
+      "sourceLine": 331,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -21966,10 +21982,10 @@
       "description": "Protects the database adapter vocabulary Repository momentum counters (integration) behavior so counts the same cards find Due For Srs would return."
     },
     {
-      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-338-vocabularyrepository-momentum-counters-integration-excludes-a-soft-deleted-entry-from-both-counters",
+      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-363-vocabularyrepository-momentum-counters-integration-excludes-a-soft-deleted-entry-from-both-counters",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/momentum.repository.integration.test.ts",
-      "sourceLine": 338,
+      "sourceLine": 363,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [

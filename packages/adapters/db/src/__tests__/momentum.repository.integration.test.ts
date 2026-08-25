@@ -33,9 +33,16 @@ async function langId(code: string): Promise<number> {
   return lang.id;
 }
 
-async function eventsOf(userId: number): Promise<Array<{ kind: string; weight: number; occurredAt: Date }>> {
+async function eventsOf(
+  userId: number,
+): Promise<Array<{ kind: string; weight: number; occurredAt: Date; dedupeKey: string }>> {
   return getDb()
-    .select({ kind: momentumEvents.kind, weight: momentumEvents.weight, occurredAt: momentumEvents.occurredAt })
+    .select({
+      kind: momentumEvents.kind,
+      weight: momentumEvents.weight,
+      occurredAt: momentumEvents.occurredAt,
+      dedupeKey: momentumEvents.dedupeKey,
+    })
     .from(momentumEvents)
     .where(eq(momentumEvents.userId, userId));
 }
@@ -144,6 +151,24 @@ describe("momentumRepository (integration)", () => {
 
     expect(await eventsOf(userId)).toHaveLength(0);
     expect(await momentumRepository.getSnapshot(userId)).toMatchObject({ score: 12.5 });
+  });
+
+  it("keeps once-ever claim tokens past the horizon so a milestone cannot be re-praised", async () => {
+    const userId = await freshUserId();
+    const ancient = new Date("1990-01-01T00:00:00.000Z");
+    for (const [kind, dedupeKey] of [
+      ["praise", "praise:dictionary_10"],
+      ["mature", "mature:1"],
+      ["weekly_proof", "weekly_proof:1990-01-01"],
+      ["review", "review:1:1990-01-01"],
+    ] as const) {
+      await momentumRepository.recordEvent({ userId, kind, weight: 0, occurredAt: ancient, dedupeKey });
+    }
+
+    await runTelemetryRetention(365 * 20);
+
+    const kept = (await eventsOf(userId)).map((row) => row.dedupeKey).sort();
+    expect(kept).toEqual(["mature:1", "praise:dictionary_10", "weekly_proof:1990-01-01"]);
   });
 
   it("upserts the snapshot, patching only the fields it is given", async () => {
