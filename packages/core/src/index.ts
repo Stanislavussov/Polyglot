@@ -24,6 +24,11 @@ export type {
   RecordLanguageDetectionEventInput,
 } from "./ports/language-detection.repository.js";
 export type {
+  MentorHistoryMessage,
+  MentorMessageRepository,
+  MentorTurnRecord,
+} from "./ports/mentor-message.repository.js";
+export type {
   MomentumReplayEvent,
   MomentumRepository,
   RecordMomentumEventInput,
@@ -45,6 +50,7 @@ export type {
 export type {
   AIGenerationDefaults,
   DictionaryConfig,
+  MentorConfig,
   NotificationDefaults,
   PlanLimitConfig,
   SettingsPort,

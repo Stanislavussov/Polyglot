@@ -17,9 +17,10 @@ import {
   t,
 } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
+import { canUseChangesCommand } from "../commands/changes.js";
 import type { BotContext } from "../types.js";
-import { replyTechnical } from "../utils/message-cleanup.js";
 import { resolvePlanLimit } from "../utils/plan-limit.js";
+import { editMessageTextOrReply } from "./helpers/edit-message.helper.js";
 
 /** Format a list of "HH:MM" times as a sorted, normalized, comma-separated string ("—" when empty). */
 export function formatNotificationTimes(times: string[]): string {
@@ -64,15 +65,39 @@ export function buildSettingsText(
 }
 
 /**
- * Build the settings main menu keyboard.
+ * Build the settings root keyboard.
+ *
+ * One row per subject rather than one row per field: the three language pickers used
+ * to sit here side by side with notifications, so changing a notification time meant
+ * reading past two questions about languages first. `showChanges` follows
+ * `canUseChangesCommand` — the changelog is an internal tool and the button is absent,
+ * not disabled, for everyone else.
  */
-export function buildSettingsKeyboard(lang: SupportedLang): InlineKeyboard {
+export function buildSettingsKeyboard(lang: SupportedLang, options: { showChanges?: boolean } = {}): InlineKeyboard {
+  const kb = new InlineKeyboard();
+  kb.text(t("settingsGroupLanguages", lang), "set:lang").row();
+  kb.text(t("settingsNotifManage", lang), "set:notif").row();
+  kb.text(t("settingsGroupTemplate", lang), "set:tpl").row();
+  kb.text(t("settingsGroupPlan", lang), "set:plan").row();
+  if (options.showChanges) {
+    kb.text(t("settingsGroupChanges", lang), "set:changes").row();
+  }
+  kb.text(t("settingsClose", lang), "set:close").row();
+  return kb;
+}
+
+/**
+ * Build the language sub-menu keyboard.
+ *
+ * `set:back` from a picker lands here rather than at the settings root, so the three
+ * questions stay one level apart from everything else.
+ */
+export function buildLangGroupKeyboard(lang: SupportedLang): InlineKeyboard {
   const kb = new InlineKeyboard();
   kb.text(t("settingsChangeNative", lang), "set:native").row();
   kb.text(t("settingsChangeLearning", lang), "set:learning").row();
   kb.text(t("settingsChangeInterface", lang), "set:interface").row();
-  kb.text(t("settingsNotifManage", lang), "set:notif").row();
-  kb.text(t("settingsClose", lang), "set:close").row();
+  kb.text(`⬅️ ${t("back", lang)}`, "set:root").row();
   return kb;
 }
 
@@ -127,39 +152,51 @@ export function buildNotifSubKeyboard(lang: SupportedLang, notifEnabled: boolean
   return kb;
 }
 
-/** /settings command handler */
-export async function handleSettingsCommand(ctx: BotContext): Promise<void> {
+/**
+ * The settings root as text + keyboard.
+ *
+ * Shared by the command and the in-place re-render so the two cannot drift: they used to
+ * be separate bodies, and one of them counted credits over a DAILY window while both
+ * formatted the number against the MONTHLY limit — so re-rendering the screen silently
+ * inflated the remaining balance.
+ */
+async function loadSettingsView(ctx: BotContext): Promise<{ text: string; keyboard: InlineKeyboard }> {
   const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
   const iLang = settings?.interfaceLang ?? "en";
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
 
-  const nativeLang = settings?.nativeLang ?? "en";
-  const learningLangs = settings?.learningLangs ?? [];
-  const interfaceLang = settings?.interfaceLang ?? "en";
-  const notifEnabled = settings?.notificationEnabled ?? false;
-  const notifTimes = settings?.notificationTimes ?? [];
-  const notifType = settings?.notificationType ?? "srs";
   const plan = ctx.user.subscriptionPlan ?? "free";
   const usedCredits = await ctx.services.translationRequestRepository.getUserCreditsInWindow(
     ctx.user.id,
     getMonthlyWindowStart(),
   );
   const planLimit = await resolvePlanLimit(ctx.services.settings, plan);
-  const planUsage = formatPlanUsageFromConfig(planLimit, usedCredits, lang);
 
-  const text = buildSettingsText(
-    nativeLang,
-    learningLangs,
-    interfaceLang,
-    lang,
-    notifEnabled,
-    notifTimes,
-    notifType,
-    planUsage,
-  );
-  const kb = buildSettingsKeyboard(lang);
+  return {
+    text: buildSettingsText(
+      settings?.nativeLang ?? "en",
+      settings?.learningLangs ?? [],
+      settings?.interfaceLang ?? "en",
+      lang,
+      settings?.notificationEnabled ?? false,
+      settings?.notificationTimes ?? [],
+      settings?.notificationType ?? "srs",
+      formatPlanUsageFromConfig(planLimit, usedCredits, lang),
+    ),
+    keyboard: buildSettingsKeyboard(lang, { showChanges: canUseChangesCommand(ctx.user.audienceGroup) }),
+  };
+}
 
-  await replyTechnical(ctx, text, { reply_markup: kb, parse_mode: "HTML" });
+/** /settings command handler — answers with a message of its own. */
+export async function handleSettingsCommand(ctx: BotContext): Promise<void> {
+  const { text, keyboard } = await loadSettingsView(ctx);
+  await ctx.reply(text, { reply_markup: keyboard, parse_mode: "HTML" });
+}
+
+/** Re-renders the settings root over the message the tap came from. */
+export async function renderSettingsInPlace(ctx: BotContext): Promise<void> {
+  const { text, keyboard } = await loadSettingsView(ctx);
+  await editMessageTextOrReply(ctx, text, { reply_markup: keyboard, parse_mode: "HTML" });
 }
 
 export function formatPlanUsageFromConfig(plan: PlanLimitConfig, usedCredits: number, lang: SupportedLang): string {

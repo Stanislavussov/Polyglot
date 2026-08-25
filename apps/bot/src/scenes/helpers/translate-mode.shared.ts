@@ -17,7 +17,6 @@ import {
 } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import type { BotContext } from "../../types.js";
-import { replyTechnical } from "../../utils/message-cleanup.js";
 import { setPendingOutOfSet } from "./pending-out-of-set.helper.js";
 
 /**
@@ -92,7 +91,7 @@ export async function showAddLanguagePrompt(
     .row()
     .text(t("mistypeCancel", lang), "tr:oos:cancel");
 
-  const promptMsg = await replyTechnical(ctx, t("outOfSetPrompt", lang, { lang: langName }), {
+  const promptMsg = await ctx.reply(t("outOfSetPrompt", lang, { lang: langName }), {
     reply_markup: keyboard,
   });
 

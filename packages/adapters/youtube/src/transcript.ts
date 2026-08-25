@@ -54,11 +54,22 @@ export class VideoNotFoundError extends Error {
 
 /**
  * Fetch transcript for a YouTube video.
- * Attempts the requested language first; falls back to default if unavailable.
+ * Attempts the requested language first; falls back to the default caption
+ * track when that language has no track (the requested language is only a
+ * guess upstream — the result's `language` reports what was actually fetched).
  */
 export async function fetchTranscript(videoId: string, language?: string): Promise<TranscriptResult> {
   try {
-    const responses = await ytFetchTranscript(videoId, language ? { lang: language } : undefined);
+    let responses: Awaited<ReturnType<typeof ytFetchTranscript>>;
+    try {
+      responses = await ytFetchTranscript(videoId, language ? { lang: language } : undefined);
+    } catch (error) {
+      if (language && error instanceof YoutubeTranscriptNotAvailableLanguageError) {
+        responses = await ytFetchTranscript(videoId, undefined);
+      } else {
+        throw error;
+      }
+    }
 
     if (responses.length === 0) {
       throw new TranscriptNotAvailableError(videoId, language);

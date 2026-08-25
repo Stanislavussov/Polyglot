@@ -61,6 +61,8 @@ export interface VideoVocabularyRepository {
     status: "pending" | "processing" | "completed" | "failed",
     errorMessage?: string,
   ): Promise<void>;
+  /** Language on create is a guess from user settings; refine it once the real transcript language is known. */
+  updateProcessLanguage(processId: number, language: string): Promise<void>;
   expireStaleProcesses(maxAgeMinutes: number): Promise<number>;
   findProcessById(processId: number): Promise<VideoProcess | null>;
   findProcessByUserAndVideo(userId: number, videoId: string): Promise<VideoProcess | null>;

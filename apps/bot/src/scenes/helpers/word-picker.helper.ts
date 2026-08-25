@@ -6,9 +6,6 @@
  * your language doesn't have". The user picks one, the model produces a set for
  * their learning language and level, and every item can go into their dictionary
  * with one tap.
- *
- * Message hygiene follows the rest of the bot: menus and progress notices are
- * technical (swept on the next message), the generated set is content and stays.
  */
 
 import { isSupported, logger, pickWords, type SupportedLang, t, type WordPickerPreset } from "@polyglot/core";
@@ -24,7 +21,6 @@ import {
 import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
 import { ensureAiQuota, recordAiUsage } from "../../utils/ai-quota.js";
-import { replyTechnical } from "../../utils/message-cleanup.js";
 import { editMessageTextOrReply } from "./edit-message.helper.js";
 import { enrichEntryInBackground } from "./entry-enrichment.helper.js";
 
@@ -69,17 +65,17 @@ export async function handlePickWordsCommand(ctx: BotContext): Promise<void> {
   const learningLangs = settings?.learningLangs ?? [];
 
   if (learningLangs.length === 0) {
-    await replyTechnical(ctx, t("pickNoLanguage", lang));
+    await ctx.reply(t("pickNoLanguage", lang));
     return;
   }
 
   const presets = await ctx.services.wordPickerPresetRepository.findActiveForLangs(learningLangs);
   if (presets.length === 0) {
-    await replyTechnical(ctx, t("pickNoPresets", lang));
+    await ctx.reply(t("pickNoPresets", lang));
     return;
   }
 
-  await replyTechnical(ctx, renderPresetList(lang), {
+  await ctx.reply(renderPresetList(lang), {
     parse_mode: "HTML",
     reply_markup: buildPresetListKeyboard(presets, lang),
   });
@@ -166,7 +162,7 @@ export async function handlePickMoreCallback(ctx: BotContext): Promise<void> {
 
   const preset = await ctx.services.wordPickerPresetRepository.findById(run.presetId);
   if (!preset?.isActive) {
-    await replyTechnical(ctx, t("pickPresetGone", lang));
+    await ctx.reply(t("pickPresetGone", lang));
     return;
   }
 
@@ -276,7 +272,7 @@ async function generateAndShowSet(
   if (options.progressBy === "edit") {
     await editMessageTextOrReply(ctx, t("pickGenerating", lang));
   } else {
-    const notice = await replyTechnical(ctx, t("pickGenerating", lang));
+    const notice = await ctx.reply(t("pickGenerating", lang));
     progressMessageId = notice.message_id;
   }
 
@@ -308,7 +304,7 @@ async function generateAndShowSet(
       { presetId: preset.id, langCode, error: error instanceof Error ? error.message : String(error) },
       "Word pick failed",
     );
-    await replyTechnical(ctx, t("pickFailed", lang));
+    await ctx.reply(t("pickFailed", lang));
     return;
   }
 
@@ -346,7 +342,6 @@ async function generateAndShowSet(
 
   wordPickCounter.inc({ status: "generated" });
 
-  // Content, not technical: the set carries the save buttons the user comes back to.
   await ctx.reply(renderPickedSet(run, items, langLabel(ctx, langCode, lang), lang), {
     parse_mode: "HTML",
     reply_markup: buildPickedSetKeyboard(run, items, lang),
@@ -394,7 +389,7 @@ async function offerOtherAngles(
     await editMessageTextOrReply(ctx, text, markup);
     return;
   }
-  await replyTechnical(ctx, text, markup);
+  await ctx.reply(text, markup);
   await dropProgressNotice(ctx, progressMessageId);
 }
 

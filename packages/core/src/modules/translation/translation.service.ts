@@ -338,7 +338,7 @@ async function aiPreflightStep(ctx: PipelineContext, generateObjectFn: GenerateO
 async function generateStep(ctx: PipelineContext, generateObjectFn: GenerateObjectFn): Promise<StepOutcome> {
   const normalizedInput = ctx.input;
 
-  const request: TranslationRequest = {
+  let request: TranslationRequest = {
     text: normalizedInput.word,
     sourceLang: normalizedInput.sourceLang,
     targetLangs: normalizedInput.targetLangs,
@@ -390,19 +390,27 @@ async function generateStep(ctx: PipelineContext, generateObjectFn: GenerateObje
   const assessExistence =
     normalizedInput.correctionPolicy?.assessSourceExistence === true && normalizedInput.inputType !== "sentence";
 
-  // Build parallel generation tasks: 1 metadata + N per-language calls
-  const metadataSchema = buildMetadataSchema(
-    normalizedInput.outputConfig,
-    requiresNativeOutput,
-    requiresSourceUsage,
-    requiresNativeOutput,
-    assessExistence,
-  );
+  // Generation runs as 1 metadata call followed by N parallel per-language calls.
+  const metadataSchemaWith = (includeSenseAnchor: boolean) =>
+    buildMetadataSchema(
+      normalizedInput.outputConfig,
+      requiresNativeOutput,
+      requiresSourceUsage,
+      requiresNativeOutput,
+      assessExistence,
+      includeSenseAnchor,
+    );
+  const baseMetadataSchema = metadataSchemaWith(false);
   // Sentence output disables every top-level metadata field (emoji, nativeMeaning,
   // sourceUsage, nativeSynonyms, existence), leaving a property-less schema. Sending
   // an empty-object schema to the live provider is a wasted round-trip and a provider
   // rejection risk, so skip the metadata call entirely and synthesize an empty result.
-  const metadataHasFields = Object.keys(metadataSchema.shape).length > 0;
+  const metadataHasFields = Object.keys(baseMetadataSchema.shape).length > 0;
+  // The sense anchor rides along on the metadata call rather than earning one of
+  // its own: asking for it never adds a round-trip, and a flow with no metadata
+  // call (sentences) has no polysemy problem to solve.
+  const resolveSenseAnchor = metadataHasFields && normalizedInput.inputType !== "sentence";
+  const metadataSchema = resolveSenseAnchor ? metadataSchemaWith(true) : baseMetadataSchema;
 
   const isLearningSource =
     normalizedInput.nativeLang !== undefined && normalizedInput.sourceLang !== normalizedInput.nativeLang;
@@ -424,31 +432,62 @@ async function generateStep(ctx: PipelineContext, generateObjectFn: GenerateObje
     ...(normalizedInput.userId !== undefined ? { userId: normalizedInput.userId } : {}),
   };
 
-  let metadataPrompt = buildMetadataPrompt(request, assessExistence);
-  let languagePrompts = new Map(
-    normalizedInput.targetLangs.map((lang) => [lang, buildSingleLanguagePrompt(request, lang)]),
-  );
   let result: TranslationResult | undefined;
   let sourceAssessment: { recognized: boolean; correction: string | null } | undefined;
   let lastErrors: string[] = [];
+  // Set once the previous attempt failed, turning both prompt sets strict.
+  let strictErrors: string[] | undefined;
 
   for (let attempt = 0; attempt <= MAX_FULL_RETRIES; attempt++) {
     try {
       ctx.attemptCount++;
 
-      const [metadataResult, ...langResults] = await Promise.all([
-        metadataHasFields
-          ? generateObjectFn(metadataPrompt, metadataSchema, generationModel, generateOptions)
-          : Promise.resolve({} as Record<string, never>),
-        ...languageTasks.map((task) =>
+      const metadataPrompt =
+        strictErrors === undefined
+          ? buildMetadataPrompt(request, assessExistence, resolveSenseAnchor)
+          : buildMetadataStrictPrompt(request, strictErrors, assessExistence, resolveSenseAnchor);
+      // Sequencing the metadata call ahead of the fan-out made generation
+      // additive rather than concurrent, so each phase now gets the clock it may
+      // actually spend. Without this a slow metadata call would run to the AI
+      // adapter's own (larger) default timeout and eat the repair window, the
+      // judge reserve, and — with two serial phases — the caller's outer guard.
+      const metadataResult = metadataHasFields
+        ? await generateObjectFn(metadataPrompt, metadataSchema, generationModel, {
+            ...generateOptions,
+            ...spendableWindow(ctx.budget),
+          })
+        : ({} as Record<string, never>);
+
+      // Anchor the per-language calls to the sense the metadata call settled on.
+      // They run as independent AI calls, so without this each one picks a sense
+      // of its own and a polysemous word yields a card whose blocks disagree.
+      // Assigned even when absent: an attempt that resolves no sense must not
+      // inherit the previous attempt's anchor, or the language blocks would be
+      // anchored to one attempt while the emoji and nativeMeaning come from
+      // another — the very mismatch this exists to prevent.
+      const senseAnchor = readSenseAnchor(metadataResult);
+      if (senseAnchor !== request.senseAnchor) {
+        request = { ...request, senseAnchor };
+        ctx.request = request;
+        if (senseAnchor !== undefined) {
+          // Which sense the card committed to is the first thing to check when a
+          // block reads out of context; the card itself only shows the result.
+          logEvent("translation.sense_anchored", { original: normalizedInput.word, senseAnchor }, "debug");
+        }
+      }
+
+      const langResults = await Promise.all(
+        languageTasks.map((task) =>
           generateObjectFn(
-            languagePrompts.get(task.lang) as string,
+            strictErrors === undefined
+              ? buildSingleLanguagePrompt(request, task.lang)
+              : buildSingleLanguageStrictPrompt(request, task.lang, strictErrors),
             task.schema as import("zod").ZodSchema<LanguageTranslation>,
             generationModel,
-            generateOptions,
+            { ...generateOptions, ...spendableWindow(ctx.budget) },
           ),
         ),
-      ]);
+      );
 
       const translations: Record<string, LanguageTranslation> = {};
       for (let i = 0; i < languageTasks.length; i++) {
@@ -495,10 +534,7 @@ async function generateStep(ctx: PipelineContext, generateObjectFn: GenerateObje
       }
 
       lastErrors = [`[generation] ${errorMsg}`];
-      metadataPrompt = buildMetadataStrictPrompt(request, lastErrors, assessExistence);
-      languagePrompts = new Map(
-        normalizedInput.targetLangs.map((lang) => [lang, buildSingleLanguageStrictPrompt(request, lang, lastErrors)]),
-      );
+      strictErrors = lastErrors;
       continue;
     }
 
@@ -533,10 +569,7 @@ async function generateStep(ctx: PipelineContext, generateObjectFn: GenerateObje
       "warn",
     );
 
-    metadataPrompt = buildMetadataStrictPrompt(request, lastErrors, assessExistence);
-    languagePrompts = new Map(
-      normalizedInput.targetLangs.map((lang) => [lang, buildSingleLanguageStrictPrompt(request, lang, lastErrors)]),
-    );
+    strictErrors = lastErrors;
   }
 
   if (!result) {
@@ -1340,6 +1373,36 @@ async function repairTranslationBlocks(
   return { result: workingResult, issues: sourceIssues, attemptCount };
 }
 
+/**
+ * The clock a generation call may spend, as `generateObject` options.
+ *
+ * Empty when the request is unbounded, which leaves the AI adapter's own default
+ * timeout in charge — byte-for-byte the behavior before generation was split
+ * into two serial phases.
+ */
+function spendableWindow(budget: TranslationBudget): { budgetMs?: number } {
+  const windowMs = spendableBeforeJudgeReserve(budget);
+  return windowMs !== undefined && windowMs > 0 ? { budgetMs: windowMs } : {};
+}
+
+/**
+ * The sense every language block must render, as returned by the metadata call.
+ * Absent when the flow does not resolve one (sentences, metadata-less configs)
+ * or when the model answered `null` because it could not name one — generation
+ * then proceeds unanchored rather than failing.
+ */
+function readSenseAnchor(metadataResult: object): string | undefined {
+  if (!("primarySense" in metadataResult)) {
+    return undefined;
+  }
+  const value = (metadataResult as { primarySense?: unknown }).primarySense;
+  if (typeof value !== "string") {
+    return undefined;
+  }
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : undefined;
+}
+
 function extractLanguageTranslation(value: unknown, lang: string): LanguageTranslation {
   if (typeof value === "object" && value !== null && "translations" in value) {
     const maybeResult = value as { translations?: Record<string, LanguageTranslation> };
@@ -1458,6 +1521,11 @@ Target languages: ${request.targetLangs.join(", ")}
 ${request.nativeLang ? `Native language: ${request.nativeLang}` : ""}
 ${request.topic ? `Context hint: ${request.topic}` : ""}
 ${request.inputType ? `Input type: ${request.inputType}` : ""}
+${
+  request.senseAnchor
+    ? `Sense anchor (authoritative): this card deliberately covers ONE sense of the source text — ${request.senseAnchor}. Judge every block against THAT sense: a faithful rendering of the anchored sense is never a "wrong main meaning", even when another sense of the source text is more common. A block that renders a DIFFERENT sense IS a blocking issue.`
+    : ""
+}
 
 Candidate translation JSON:
 ${JSON.stringify(result, null, 2)}

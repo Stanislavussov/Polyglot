@@ -28,6 +28,7 @@ function plan(name: string, priceUsdCents: number | null, overrides: Partial<Pla
     creditCost: 1,
     videoLimit: name === "free" ? 0 : null,
     videoWindow: name === "free" ? "none" : "monthly",
+    mentorDailyLimit: null,
     priceUsdCents,
     isActive: true,
     isDefault: name === "free",

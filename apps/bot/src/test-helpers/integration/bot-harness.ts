@@ -341,6 +341,8 @@ export function messageUpdate(opts: {
   messageId?: number;
   /** Telegram client locale (`from.language_code`) — onboarding guesses the native language from it. */
   languageCode?: string;
+  /** Makes this message a reply to a BOT message with this id (as Telegram delivers it: one level, bot as author). */
+  replyToMessageId?: number;
 }): Update {
   const command = /^\/[a-zA-Z0-9_]+/.exec(opts.text);
   const entities: MessageEntity[] | undefined = command
@@ -360,6 +362,18 @@ export function messageUpdate(opts: {
       },
       text: opts.text,
       ...(entities ? { entities } : {}),
+      ...(opts.replyToMessageId !== undefined
+        ? {
+            reply_to_message: {
+              message_id: opts.replyToMessageId,
+              date: 0,
+              chat: { id: opts.chatId, type: "private" as const, first_name: "Test" },
+              from: BOT_INFO,
+              // A reply carries only the addressed message's core fields — the
+              // full ReplyMessage shape Telegram sends is wider than a test needs.
+            } as unknown as NonNullable<NonNullable<Update["message"]>["reply_to_message"]>,
+          }
+        : {}),
     },
   };
 }

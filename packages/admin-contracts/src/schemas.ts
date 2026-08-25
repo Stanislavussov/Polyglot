@@ -23,6 +23,22 @@ export const audienceGroupSchema = z.enum(["admin", "tester", "product"]);
 
 // ── Rate-limit plans ──────────────────────────────────────────────────────────
 
+/**
+ * Premium feature keys a plan can unlock (the `plan_feature_access` junction).
+ * Mirrors `FEATURE_KEYS` in @polyglot/core — this package ships to the browser
+ * bundle and cannot depend on core, so the list is duplicated here and a drift
+ * test in apps/admin-api keeps the two in lockstep.
+ */
+export const featureKeySchema = z.enum([
+  "grammarBreakdown",
+  "etymology",
+  "grammarDetail",
+  "clarification",
+  "pronunciation",
+  "voiceInput",
+  "mentor",
+]);
+
 export const rateLimitPlanSchema = z.object({
   name: z.string().min(1, "Name is required").max(50, "Name is too long"),
   label: z.string().min(1, "Label is required").max(100, "Label is too long"),
@@ -34,6 +50,13 @@ export const rateLimitPlanSchema = z.object({
     .nullable()
     .default(null),
   videoWindow: z.enum(["none", "lifetime", "monthly"]).default("none"),
+  /** Max mentor turns per UTC day. `null` = unlimited (Pro's pitch). */
+  mentorDailyLimit: z.coerce
+    .number()
+    .int("Mentor daily limit must be an integer")
+    .min(0, "Mentor daily limit cannot be negative")
+    .nullable()
+    .default(null),
   /**
    * Display price in US cents (500 = $5/mo). `null` = not for sale, which is the
    * only way to withdraw a plan from the upgrade screen — so `0` is rejected
@@ -55,6 +78,12 @@ export const rateLimitPlanSchema = z.object({
   isDefault: z.boolean().default(false),
   /** Model this plan's users are served by. null = use the globally default model. */
   aiModelId: z.string().min(1).max(255).nullable().default(null),
+  /**
+   * Feature keys the plan unlocks. Optional on purpose: a body without the field
+   * leaves the junction untouched, so a caller editing only plan columns (e.g.
+   * the AI Models page routing a plan to a model) can never silently wipe access.
+   */
+  features: z.array(featureKeySchema).optional(),
 });
 
 // ── Translation presets ───────────────────────────────────────────────────────
@@ -217,6 +246,20 @@ export const sttSettingsSchema = z
     message: "STT model is required when enabled",
     path: ["modelId"],
   });
+
+/**
+ * Mentor-chat settings. Unlike TTS/STT there is no enabled/model coupling: an
+ * empty `modelId` does not disable the feature (mentor has its own entitlement
+ * gate) — it means "answer with the regular default-model chain".
+ */
+export const mentorSettingsSchema = z.object({
+  modelId: z.string().max(255, "Model ID is too long"),
+  maxTokens: z.coerce
+    .number()
+    .int("Max tokens must be an integer")
+    .min(100, "Max tokens must be at least 100")
+    .max(4000, "Max tokens cannot exceed 4000"),
+});
 
 export const videoVocabularySettingsSchema = z
   .object({

@@ -19,14 +19,63 @@ describe("buildMentorSystemPrompt", () => {
     expect(prompt).toContain("ru");
   });
 
-  it("instructs the AI not to translate immediately", () => {
-    const prompt = buildMentorSystemPrompt(opts);
-    expect(prompt).toMatch(/not.*translate.*immediately/i);
+  it("annotates each learning language with its CEFR level", () => {
+    const prompt = buildMentorSystemPrompt({ ...opts, levels: { cs: "A2", ru: "C1" } });
+    expect(prompt).toContain("cs (A2)");
+    expect(prompt).toContain("ru (C1)");
   });
 
-  it("instructs the AI to keep responses short", () => {
+  it("leaves a language without a stored level unannotated", () => {
+    const prompt = buildMentorSystemPrompt({ ...opts, levels: { cs: "A2" } });
+    expect(prompt).toContain("cs (A2)");
+    expect(prompt).not.toMatch(/ru \(/);
+  });
+
+  it("tells the AI to calibrate the answer and examples to the level", () => {
+    const prompt = buildMentorSystemPrompt({ ...opts, levels: { cs: "A2" } });
+    expect(prompt).toMatch(/calibrate/i);
+    expect(prompt).toContain("A1-A2");
+    expect(prompt).toContain("C1-C2");
+    expect(prompt).toMatch(/assume B1/i);
+  });
+
+  it("instructs the AI to answer language questions directly", () => {
     const prompt = buildMentorSystemPrompt(opts);
-    expect(prompt).toMatch(/short|2.?4 sentences/i);
+    expect(prompt).toMatch(/answer.*directly|direct(ly)? answer/i);
+  });
+
+  it("no longer carries the Socratic word-coach behavior", () => {
+    const prompt = buildMentorSystemPrompt(opts);
+    expect(prompt).not.toMatch(/do not translate immediately/i);
+    expect(prompt).not.toMatch(/ask what they think it means/i);
+    expect(prompt).not.toMatch(/2-4 sentences/i);
+  });
+
+  it("restricts the assistant to language topics with a one-sentence refusal for off-topic", () => {
+    const prompt = buildMentorSystemPrompt(opts);
+    expect(prompt).toMatch(/only|strictly/i);
+    expect(prompt).toMatch(/language/i);
+    expect(prompt).toMatch(/one short.*sentence|single.*sentence/i);
+  });
+
+  it("asks for a short answer followed by examples", () => {
+    const prompt = buildMentorSystemPrompt(opts);
+    expect(prompt).toMatch(/example/i);
+  });
+
+  it("demands Telegram HTML emphasis and forbids Markdown asterisks", () => {
+    const prompt = buildMentorSystemPrompt(opts);
+    expect(prompt).toContain("<b>");
+    expect(prompt).toContain("<i>");
+    expect(prompt).toMatch(/never use markdown/i);
+    expect(prompt).toMatch(/asterisk/i);
+  });
+
+  it("asks for a lively-but-bounded amount of emoji", () => {
+    const prompt = buildMentorSystemPrompt(opts);
+    expect(prompt).toMatch(/emoji/i);
+    expect(prompt).toContain("3-6");
+    expect(prompt).toMatch(/never emoji spam/i);
   });
 
   it("includes the interface language so the AI responds in the right language", () => {

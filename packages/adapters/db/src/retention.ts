@@ -21,6 +21,7 @@ import {
   botSessions,
   dictionaryLookupLogs,
   languageDetectionEvents,
+  mentorMessages,
   momentumEvents,
   notificationHistory,
   translationRequests,
@@ -60,6 +61,7 @@ export async function runTelemetryRetention(retentionDays = DEFAULT_RETENTION_DA
     momentumEventsDeleted,
     botSessionsDeleted,
     userDailyRequestCountsDeleted,
+    mentorMessagesDeleted,
   ] = await Promise.all([
     db
       .delete(dictionaryLookupLogs)
@@ -95,6 +97,9 @@ export async function runTelemetryRetention(retentionDays = DEFAULT_RETENTION_DA
       .delete(userDailyRequestCounts)
       .where(lt(userDailyRequestCounts.day, cutoffDay))
       .returning({ userId: userDailyRequestCounts.userId }),
+    // Mentor threads age out with the same horizon as bot_sessions, so a thread
+    // never dangles behind a session that can still reference it.
+    db.delete(mentorMessages).where(lt(mentorMessages.createdAt, cutoff)).returning({ id: mentorMessages.id }),
   ]);
 
   return {
@@ -108,5 +113,6 @@ export async function runTelemetryRetention(retentionDays = DEFAULT_RETENTION_DA
     momentum_events: momentumEventsDeleted.length,
     bot_sessions: botSessionsDeleted.length,
     user_daily_request_counts: userDailyRequestCountsDeleted.length,
+    mentor_messages: mentorMessagesDeleted.length,
   };
 }

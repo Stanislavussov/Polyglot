@@ -2,13 +2,13 @@ import {
   evaluatePlanRateLimit,
   getDailyWindowReset,
   getDailyWindowStart,
+  isUnlimitedRole,
   type SubscriptionPlan,
   type SupportedLang,
   t,
 } from "@polyglot/core";
 import { buildUpgradeKeyboard } from "../scenes/helpers/subscription.helper.js";
 import type { BotContext } from "../types.js";
-import { replyTechnical } from "./message-cleanup.js";
 import { resolvePlanLimit } from "./plan-limit.js";
 
 /**
@@ -59,11 +59,50 @@ export async function ensureAiQuota(
     // Same message and same way out as the translate-flow quota gate: an exhausted
     // quota is the moment the upgrade offer is worth something, and a bare notice
     // here would be the one dead end left in the funnel.
-    await replyTechnical(ctx, t("rateLimitExceeded", lang), { reply_markup: buildUpgradeKeyboard(lang) });
+    await ctx.reply(t("rateLimitExceeded", lang), { reply_markup: buildUpgradeKeyboard(lang) });
     return null;
   }
 
   return requestedCredits;
+}
+
+/**
+ * Per-plan cap on mentor turns per UTC day, on top of the credit meter: the
+ * mentor model is priced above the translate default, so the unmetered Plus
+ * plan still needs a ceiling on the expensive calls while Pro sells them
+ * unlimited. Turns are counted from the shared ledger's "[mentor]" rows, so a
+ * refused or failed turn (never recorded) does not burn the allowance.
+ * Returns true when the turn may proceed; otherwise replies with the limit
+ * notice + upgrade offer and returns false.
+ */
+export async function ensureMentorDailyQuota(
+  ctx: BotContext,
+  plan: SubscriptionPlan,
+  lang: SupportedLang,
+): Promise<boolean> {
+  // Internal roles bypass every plan limit (same rule as resolveEntitlements).
+  if (isUnlimitedRole(ctx.user.audienceGroup)) {
+    return true;
+  }
+  const planLimit = await resolvePlanLimit(ctx.services.settings, plan);
+  // `?? null`: a legacy fallback table predating the column reads as "no cap",
+  // never as "cap of undefined" (which would refuse every turn).
+  const limit = planLimit.mentorDailyLimit ?? null;
+  if (limit === null) {
+    return true;
+  }
+  const used = await ctx.services.translationRequestRepository.countRequestsInWindow(
+    ctx.user.id,
+    "[mentor]",
+    getDailyWindowStart(),
+  );
+  if (used < limit) {
+    return true;
+  }
+  await ctx.reply(t("mentorDailyLimitReached", lang, { limit: String(limit) }), {
+    reply_markup: buildUpgradeKeyboard(lang),
+  });
+  return false;
 }
 
 /**

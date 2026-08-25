@@ -2,7 +2,6 @@ import type { SupportedLang } from "@polyglot/core";
 import { isSupported, t } from "@polyglot/core";
 import { buildSrsFrontKeyboard, renderSrsFront } from "../renderers/srs.renderer.js";
 import type { BotContext } from "../types.js";
-import { replyTechnical } from "../utils/message-cleanup.js";
 
 const SRS_SESSION_LIMIT = 20;
 
@@ -28,7 +27,7 @@ export async function handleReviewCommand(ctx: BotContext): Promise<void> {
     // started. Onboarding makes that the common case: the final screen offers a
     // 🎯 Practice button to a user whose dictionary is necessarily empty.
     const saved = await ctx.services.vocabularyRepository.countByUser(ctx.user.id);
-    await replyTechnical(ctx, t(saved === 0 ? "srsNoSavedWords" : "srsEmpty", lang));
+    await ctx.reply(t(saved === 0 ? "srsNoSavedWords" : "srsEmpty", lang));
     return;
   }
 
@@ -46,7 +45,7 @@ export async function handleReviewCommand(ctx: BotContext): Promise<void> {
     deck.length,
     lang,
   );
-  const msg = await replyTechnical(ctx, text, { parse_mode: "HTML", reply_markup: buildSrsFrontKeyboard(lang) });
+  const msg = await ctx.reply(text, { parse_mode: "HTML", reply_markup: buildSrsFrontKeyboard(lang) });
   ctx.session.srs.cardMsgId = msg.message_id;
 }
 

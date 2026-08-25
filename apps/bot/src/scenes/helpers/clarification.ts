@@ -27,7 +27,6 @@ import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
 import { resolveLanguageOrder } from "../../utils/language-order.js";
 import { LONG_OP_TIMEOUT_MS, startTypingKeepalive, withTimeout } from "../../utils/long-op.js";
-import { replyTechnical } from "../../utils/message-cleanup.js";
 import { ensurePaidFeature, resolveLockedFeatures } from "./paid-feature.helper.js";
 import { answerStaleCallback } from "./stale-callback.helper.js";
 import { handleMistypeConfirmCallback } from "./translate-flow.js";
@@ -95,7 +94,7 @@ export async function handleClarifyPostCallback(ctx: BotContext): Promise<void> 
   ctx.session.awaitingTranslationClarificationContext = true;
   ctx.session.pendingPostTranslationClarifyMsgId = msgId;
 
-  await replyTechnical(ctx, t("clarifyTranslationPrompt", lang));
+  await ctx.reply(t("clarifyTranslationPrompt", lang));
   await ctx.answerCallbackQuery();
 }
 
@@ -120,14 +119,14 @@ export async function handleTranslationClarificationCallback(ctx: BotContext): P
   if (data === "tr:clarify:cancel") {
     clearPendingClarification(ctx);
     await ctx.answerCallbackQuery();
-    await replyTechnical(ctx, t("translateModeHint", lang));
+    await ctx.reply(t("translateModeHint", lang));
     return;
   }
 
   if (data === "tr:clarify:context") {
     ctx.session.awaitingTranslationClarificationContext = true;
     await ctx.answerCallbackQuery();
-    await replyTechnical(ctx, t("translationClarifyContextPrompt", lang));
+    await ctx.reply(t("translationClarifyContextPrompt", lang));
     return;
   }
 
@@ -232,7 +231,7 @@ export async function handleTranslationClarificationContextText(ctx: BotContext,
       const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
       const iLang = settings?.interfaceLang ?? "en";
       const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
-      await replyTechnical(ctx, t("translationError", lang));
+      await ctx.reply(t("translationError", lang));
       return;
     }
 
@@ -339,7 +338,7 @@ export async function handleTranslationClarificationContextText(ctx: BotContext,
     const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
     const iLang = settings?.interfaceLang ?? "en";
     const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
-    await replyTechnical(ctx, t("translationError", lang));
+    await ctx.reply(t("translationError", lang));
     return;
   }
 

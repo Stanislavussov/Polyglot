@@ -2,6 +2,7 @@ import { autoRetry } from "@grammyjs/auto-retry";
 import { conversations, createConversation } from "@grammyjs/conversations";
 import { sequentialize } from "@grammyjs/runner";
 import { apiThrottler } from "@grammyjs/transformer-throttler";
+import { logEvent } from "@polyglot/core";
 import {
   type ApiClientOptions,
   Bot,
@@ -20,7 +21,6 @@ import { authMiddleware } from "./middlewares/auth.js";
 import { conversationAuthPlugin } from "./middlewares/conversation-auth.js";
 import { mainKeyboardMiddleware } from "./middlewares/main-keyboard.js";
 import { modeRouterMiddleware } from "./middlewares/mode-router.js";
-import { technicalCleanupMiddleware } from "./middlewares/technical-cleanup.js";
 import { updateMetricsMiddleware } from "./middlewares/update-metrics.js";
 import {
   handleNotifFeedbackCallback,
@@ -80,6 +80,12 @@ import {
   handleFcStart,
 } from "./scenes/helpers/flashcard.helper.js";
 import {
+  handleMentorExitCallback,
+  handleMentorNewTopicCallback,
+  MENTOR_EXIT_CALLBACK,
+  MENTOR_NEW_TOPIC_CALLBACK,
+} from "./scenes/helpers/mentor-exit.helper.js";
+import {
   handleLangSelectCallback,
   handleOutOfSetCallback,
   handleSrcLangOverrideCallback,
@@ -88,9 +94,11 @@ import { handlePronounceCallback } from "./scenes/helpers/pronunciation.js";
 import { handleRetryCallback } from "./scenes/helpers/retry.helper.js";
 import {
   handleSetBackCallback,
+  handleSetChangesCallback,
   handleSetCloseCallback,
   handleSetIfaceSelectCallback,
   handleSetInterfaceCallback,
+  handleSetLangGroupCallback,
   handleSetLearningCallback,
   handleSetLearnLevelCallback,
   handleSetLearnToggleCallback,
@@ -107,6 +115,9 @@ import {
   handleSetNotifTypeSelectCallback,
   handleSetNotifTzCallback,
   handleSetNotifTzSelectCallback,
+  handleSetPlanCallback,
+  handleSetRootCallback,
+  handleSetTemplateCallback,
 } from "./scenes/helpers/settings.helper.js";
 import {
   handleSrsClose,
@@ -154,7 +165,9 @@ import {
   handlePickSaveCallback,
   handlePickWordsCommand,
 } from "./scenes/helpers/word-picker.helper.js";
+import { handleLearnCommand, handleLearnModeCallback, LEARN_CALLBACK_PATTERN } from "./scenes/learn.scene.js";
 import { handleMentorCommand } from "./scenes/mentor.scene.js";
+import { handleMenuCallback, handleMenuCommand, MENU_CALLBACK_PATTERN } from "./scenes/menu.scene.js";
 import { handleReportIssue } from "./scenes/report-issue.scene.js";
 import { handleSettingsCommand } from "./scenes/settings.scene.js";
 import { handleReviewCommand } from "./scenes/srs.scene.js";
@@ -162,7 +175,7 @@ import { handleTemplateCommand } from "./scenes/template.scene.js";
 import { handleTranslateCommand } from "./scenes/translate.scene.js";
 import type { BotContext, ConversationContext, SessionData } from "./types.js";
 import { NOOP_CALLBACK } from "./utils/long-op.js";
-import { mainMenuLabels, matchMainMenuAction } from "./utils/main-menu.js";
+import { mainMenuLabels, matchMenuTap } from "./utils/main-menu.js";
 import { RETRY_CALLBACK } from "./utils/retry-action.js";
 
 export interface CreatePolyglotBotOptions {
@@ -201,11 +214,11 @@ async function exitActiveConversations(ctx: BotContext, next: NextFunction): Pro
     return next();
   }
 
-  // Main-menu keyboard taps count as external actions too: they are the commands
-  // /dictionary, /flashcard and /videos wearing a button, so they must abandon an
-  // open dialog exactly like a typed command does.
+  // Main-menu keyboard taps count as external actions too: a category button is a
+  // command wearing a button, so it must abandon an open dialog exactly like a typed
+  // command does.
   const text = ctx.message?.text;
-  if (text?.startsWith("/") || (text !== undefined && matchMainMenuAction(text) !== undefined)) {
+  if (text?.startsWith("/") || (text !== undefined && matchMenuTap(text) !== undefined)) {
     for (const id of Object.keys(active)) {
       await ctx.conversation.exit(id);
     }
@@ -332,12 +345,6 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   );
   bot.use(exitActiveConversations);
 
-  // Clears the previous interaction's scaffolding before anything answers this
-  // update, so a technical message sent below is never swept by its own sweep.
-  // Placed after the conversation plugin on purpose: a running dialog keeps its
-  // prompts and cleans up when it ends.
-  bot.use(technicalCleanupMiddleware);
-
   // Runs before the handlers so a user who never saw the reply keyboard gets it
   // together with the response to the very message they just sent.
   bot.use(mainKeyboardMiddleware);
@@ -347,6 +354,8 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   onCommand("mentor", handleMentorCommand);
   onCommand("template", handleTemplateCommand);
   onCommand("dictionary", handleDictionaryCommand);
+  onCommand("learn", handleLearnCommand);
+  onCommand("menu", handleMenuCommand);
   onCommand("flashcard", handleFlashcardCommand);
   onCommand("review", handleReviewCommand);
   onCommand("settings", handleSettingsCommand);
@@ -362,13 +371,29 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   bot.hears(
     mainMenuLabels(),
     withHandlerLog("mainMenuTap", async (ctx) => {
-      switch (matchMainMenuAction(ctx.msg?.text ?? "")) {
-        case "pick":
-          return handlePickWordsCommand(ctx);
-        case "dictionary":
-          return handleDictionaryCommand(ctx);
+      const tap = matchMenuTap(ctx.msg?.text ?? "");
+      if (!tap) return;
+      // Counts taps on labels a previous keyboard version put on screen. When this
+      // stops firing, LEGACY_MENU_LABELS in utils/main-menu.ts can be deleted.
+      if (tap.legacy) logEvent("menu.legacy_tap", { action: tap.action });
+      // A hot button reaches its mode without passing through modeRouterMiddleware, which
+      // is where all three "waiting for your next message" flags are consumed. Left armed,
+      // the user's next word is swallowed by a flow they walked away from — filed as a
+      // notification context, or as the name of a new dictionary, or as clarification
+      // context for the previous card — instead of being translated. Tapping a button is
+      // an explicit abandonment of the prompt, so all three are disarmed together.
+      ctx.session.awaitingNotifContext = false;
+      ctx.session.dictionaryWizard = undefined;
+      ctx.session.awaitingTranslationClarificationContext = undefined;
+      switch (tap.action) {
         case "flashcard":
           return handleFlashcardCommand(ctx);
+        case "mentor":
+          return handleMentorCommand(ctx);
+        case "dictionary":
+          return handleDictionaryCommand(ctx);
+        case "pick":
+          return handlePickWordsCommand(ctx);
         case "videos":
           return handleVideosCommand(ctx);
         default:
@@ -383,6 +408,12 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   // "🔄 Try again" on a timeout notice — re-runs the operation that timed out.
   onCallback(RETRY_CALLBACK, handleRetryCallback);
 
+  // "↩️ Back to translation" on mentor answers — one-tap exit from mentor mode.
+  onCallback(MENTOR_EXIT_CALLBACK, handleMentorExitCallback);
+
+  // "🆕 New topic" on mentor answers — fresh mentor thread (one topic per session).
+  onCallback(MENTOR_NEW_TOPIC_CALLBACK, handleMentorNewTopicCallback);
+
   // Onboarding (Task 72) is a set of plain stateless handlers, not a
   // conversation: every tap re-derives its screen from the database, so a pause
   // of any length cannot leave a button dead and no dialog can swallow the chat.
@@ -396,6 +427,10 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   // `onboarded = true`, and the `onb:` handlers deliberately ignore those taps.
   onCallback(NUDGE_CALLBACK_PATTERN, handleNudgeCardCallback);
 
+  onCallback(LEARN_CALLBACK_PATTERN, handleLearnModeCallback);
+  onCallback(MENU_CALLBACK_PATTERN, handleMenuCallback);
+
+  onCallback("set:lang", handleSetLangGroupCallback);
   onCallback("set:native", handleSetNativeCallback);
   onCallback(/^set:native:/, handleSetNativeSelectCallback);
   onCallback("set:learning", handleSetLearningCallback);
@@ -414,7 +449,11 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   onCallback("set:notif:context", handleSetNotifContextCallback);
   onCallback("set:notif:context:cancel", handleSetNotifContextCancelCallback);
   onCallback("set:notif:back", handleSetNotifBackCallback);
+  onCallback("set:tpl", handleSetTemplateCallback);
+  onCallback("set:plan", handleSetPlanCallback);
+  onCallback("set:changes", handleSetChangesCallback);
   onCallback("set:back", handleSetBackCallback);
+  onCallback("set:root", handleSetRootCallback);
   onCallback("set:close", handleSetCloseCallback);
 
   onCallback(/^notif:reveal:/, handleNotifRevealCallback);

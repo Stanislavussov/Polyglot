@@ -73,7 +73,7 @@ callback is therefore logged with no second edit** — keep using the helpers.
 | Outgoing Telegram | `telegram.api.call`, `telegram.api.body` (debug), `telegram.api.failed` |
 | Session | `session.loaded`/`saved` (debug), `session.miss` (debug), `session.repaired`, `session.reset`, `session.deleted` |
 | Translation | `translation.language_detected`, `.direction_resolved`, `.completed`, `.failed`, `.clarification_requested` |
-| Translation pipeline | `translation.pipeline.started`, `.generation_failed`, `.validation_failed`, `.needs_review`, `.judge_failed`, `.judge_timed_out`, `.repair_*` |
+| Translation pipeline | `translation.pipeline.started`, `.sense_anchored` (debug), `.generation_failed`, `.validation_failed`, `.needs_review`, `.judge_failed`, `.judge_timed_out`, `.repair_*` |
 | AI | `ai.request.completed`, `ai.request.failed` (with `budgetMs`, `timedOut`) |
 | AI credit (Task 78) | `ai.credit.polled`, `.unlimited`, `.poll_failed`, `.poll_disabled`, `.scheduled`, `.schedule_duplicate_ignored`, `.poll_stopped` |
 | Callbacks | `callback.stale` — a button whose backing state was gone, for every guard (`action`); `recovered` says whether a retry could be offered. Supersedes the per-site `vocabulary.save_state_lost` / `card.tts_state_lost` |

@@ -43,7 +43,7 @@ export async function handleRetryCallback(ctx: BotContext): Promise<void> {
   logger.debug({ userId: ctx.user.id, kind: action.kind }, "Retrying timed-out operation");
 
   if (action.kind === "mentor") {
-    await handleMentorText(ctx, action.text);
+    await handleMentorText(ctx, action.text, { threadId: action.threadId });
     return;
   }
   await handleTranslateText(ctx, action.text);

@@ -61,9 +61,7 @@ function isMessageNotModified(err: unknown): boolean {
  * the global bot-error handler can see genuine failures.
  *
  * Returns the **newly sent** message when it had to fall back, and `undefined`
- * when the edit succeeded (or was a no-op). Callers that track their prompts for
- * later cleanup need this: a fallback creates a message id nobody else knows
- * about, and an untracked prompt is one that can never be swept.
+ * when the edit succeeded (or was a no-op).
  */
 export async function editMessageTextOrReply(
   ctx: EditableContext,
@@ -79,6 +77,23 @@ export async function editMessageTextOrReply(
       return await ctx.reply(text, options);
     }
     throw err;
+  }
+}
+
+/**
+ * Dismiss a menu message the user is done with.
+ *
+ * Deleting is the clean outcome. Telegram refuses it past 48 hours, and then stripping the
+ * keyboard is the next best thing: the menu stays on screen but stops answering, so a
+ * button like ✕ Close — which has no follow-up screen to explain itself — is not left
+ * looking broken. Past 48 h the edit is refused too; nothing in the Bot API can do better,
+ * and sending a fresh "closed" message would be noisier than doing nothing.
+ */
+export async function dismissMenuMessage(ctx: EditableContext): Promise<void> {
+  try {
+    await ctx.deleteMessage();
+  } catch {
+    await editMessageReplyMarkupOrIgnore(ctx, { reply_markup: { inline_keyboard: [] } });
   }
 }
 

@@ -32,7 +32,6 @@ import {
 } from "../../renderers/video-vocabulary.renderer.js";
 import type { BotContext } from "../../types.js";
 import { ensureAiQuota, recordAiUsage } from "../../utils/ai-quota.js";
-import { replyTechnical } from "../../utils/message-cleanup.js";
 import { editMessageTextOrReply } from "./edit-message.helper.js";
 import { enrichEntryInBackground } from "./entry-enrichment.helper.js";
 import { buildUpgradeKeyboard } from "./subscription.helper.js";
@@ -200,7 +199,7 @@ export async function handleVideoVocabularyUrl(
     return;
   }
   if (existing?.status === "processing" || existing?.status === "pending") {
-    await replyTechnical(ctx, t("videoAlreadyProcessing", lang));
+    await ctx.reply(t("videoAlreadyProcessing", lang));
     return;
   }
 
@@ -222,7 +221,7 @@ export async function handleVideoVocabularyUrl(
   let usageCount = 0;
   if (!isTrial && videoEntitlement.window === "none") {
     // Video not available on this plan → US-6 attaches the upgrade CTA keyboard here.
-    await replyTechnical(ctx, t("videoLimitReached", lang), { reply_markup: buildUpgradeKeyboard(lang) });
+    await ctx.reply(t("videoLimitReached", lang), { reply_markup: buildUpgradeKeyboard(lang) });
     return;
   }
   if (!isTrial && videoEntitlement.limit !== null) {
@@ -233,7 +232,7 @@ export async function handleVideoVocabularyUrl(
     if (usageCount >= videoEntitlement.limit) {
       // Free trial exhausted (3 lifetime) or Plus monthly cap hit — the prime
       // conversion moment, so surface the upgrade CTA here too.
-      await replyTechnical(ctx, t("videoLimitReached", lang), { reply_markup: buildUpgradeKeyboard(lang) });
+      await ctx.reply(t("videoLimitReached", lang), { reply_markup: buildUpgradeKeyboard(lang) });
       return;
     }
   }
@@ -248,7 +247,7 @@ export async function handleVideoVocabularyUrl(
       language: "auto", // will be determined from transcript
     };
   } catch {
-    await replyTechnical(ctx, t("videoMetadataError", lang));
+    await ctx.reply(t("videoMetadataError", lang));
     return;
   }
 
@@ -274,7 +273,7 @@ export async function handleVideoVocabularyUrl(
   // Show confirmation
   const text2 = renderConfirmation(metadata, remaining, videoEntitlement.limit, lang);
   const keyboard = buildConfirmationKeyboard(process.id, lang);
-  await replyTechnical(ctx, text2, {
+  await ctx.reply(text2, {
     parse_mode: "HTML",
     reply_markup: keyboard,
   });
@@ -583,7 +582,7 @@ export async function handleVideosCommand(ctx: BotContext): Promise<void> {
   const text = renderVideoList(processes, page, totalPages, lang);
   const keyboard = buildVideoListKeyboard(processes, page, totalPages, lang);
 
-  await replyTechnical(ctx, text, {
+  await ctx.reply(text, {
     parse_mode: "HTML",
     reply_markup: keyboard,
   });
@@ -615,7 +614,7 @@ async function showVideoSuggestions(ctx: BotContext, userId: number, lang: Suppo
 
   lines.push("", t("videoOrSendLink", lang));
 
-  await replyTechnical(ctx, lines.join("\n"), { reply_markup: keyboard });
+  await ctx.reply(lines.join("\n"), { reply_markup: keyboard });
 }
 
 /** Telegram truncates long button labels unhelpfully; do it ourselves at a word boundary. */
@@ -654,7 +653,7 @@ export async function handleVideoTryCallback(ctx: BotContext): Promise<void> {
     // A stale keyboard from before the catalogue changed — say so rather than
     // silently doing nothing.
     const lang = await resolveInterfaceLang(ctx);
-    await replyTechnical(ctx, t("videoOrSendLink", lang));
+    await ctx.reply(t("videoOrSendLink", lang));
     return;
   }
 
@@ -681,7 +680,7 @@ async function showPhraseBrowser(ctx: BotContext, processId: number, page: numbe
   const text = renderPhraseList(phrases, page, totalPages, process.videoUrl, lang);
   const keyboard = buildPhraseListKeyboard(phrases, page, totalPages, processId, lang);
 
-  await replyTechnical(ctx, text, {
+  await ctx.reply(text, {
     parse_mode: "HTML",
     reply_markup: keyboard,
     link_preview_options: { is_disabled: true },
@@ -783,6 +782,9 @@ async function processVideoInBackground(
       // 1. Get transcript (from cache or YouTube)
       let transcriptText: string;
       let transcriptType: string | undefined;
+      // process.language is a guess from user settings; the fetch may fall back
+      // to the video's real caption track, so track the actual language here.
+      let videoLang = process.language;
 
       const cached = await ctx.services.videoVocabularyRepository.findCachedTranscript(
         process.videoId,
@@ -795,6 +797,10 @@ async function processVideoInBackground(
         const transcript = await fetchTranscript(process.videoId, process.language);
         transcriptText = formatSegmentedTranscript(transcript.segments);
         transcriptType = transcript.type;
+        if (transcript.language !== "unknown" && transcript.language !== process.language) {
+          videoLang = transcript.language;
+          await ctx.services.videoVocabularyRepository.updateProcessLanguage(processId, videoLang);
+        }
         await ctx.services.videoVocabularyRepository.cacheTranscript(
           process.videoId,
           transcript.language,
@@ -805,7 +811,7 @@ async function processVideoInBackground(
 
       // 2. Get user's proficiency level for this language
       const levels = await ctx.services.userRepository.getLanguageLevels(userId);
-      const levelEntry = levels.find((l) => l.languageCode === process.language);
+      const levelEntry = levels.find((l) => l.languageCode === videoLang);
       const userLevel = levelEntry?.proficiencyLevel ?? "B1";
 
       // 3. Get extraction config and user's native language
@@ -820,12 +826,12 @@ async function processVideoInBackground(
       // 4b. Gather phrases the user already knows in this language — their saved
       // dictionary plus everything generated in their previous videos — so the AI
       // does not regenerate them.
-      const knownPhrases = await collectKnownPhrases(ctx, userId, process.language, processId);
+      const knownPhrases = await collectKnownPhrases(ctx, userId, videoLang, processId);
 
       // 5. Extract phrases using AI
       const phrases = await extractPhrasesFromTranscript(
         transcriptText,
-        process.language,
+        videoLang,
         userLevel,
         targetPhrases,
         ctx.services.ai.generateObject,

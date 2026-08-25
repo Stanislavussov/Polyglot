@@ -1,5 +1,5 @@
 {
-  "id": "89b7ace9-a8b2-48cb-89dd-90e5855178c6",
+  "id": "4ce7f264-b8b3-4f10-9828-ca8378904853",
   "prevId": "d1d2a223-a1ea-4f72-9277-d769d6158bb7",
   "version": "7",
   "dialect": "postgresql",
@@ -811,8 +811,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.momentum_events": {
-      "name": "momentum_events",
+    "public.mentor_messages": {
+      "name": "mentor_messages",
       "schema": "",
       "columns": {
         "id": {
@@ -827,57 +827,95 @@
           "primaryKey": false,
           "notNull": true
         },
-        "kind": {
-          "name": "kind",
+        "chat_id": {
+          "name": "chat_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "thread_id": {
+          "name": "thread_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role": {
+          "name": "role",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "weight": {
-          "name": "weight",
-          "type": "integer",
+        "content": {
+          "name": "content",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "default": 0
+          "notNull": true
         },
-        "occurred_at": {
-          "name": "occurred_at",
+        "telegram_message_id": {
+          "name": "telegram_message_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "interface_lang": {
+          "name": "interface_lang",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
           "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
-        },
-        "dedupe_key": {
-          "name": "dedupe_key",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
         }
       },
       "indexes": {
-        "momentum_events_user_dedupe_idx": {
-          "name": "momentum_events_user_dedupe_idx",
+        "mentor_msg_chat_tgid_idx": {
+          "name": "mentor_msg_chat_tgid_idx",
           "columns": [
             {
-              "expression": "user_id",
+              "expression": "chat_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
             },
             {
-              "expression": "dedupe_key",
+              "expression": "telegram_message_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
             }
           ],
-          "isUnique": true,
+          "isUnique": false,
           "concurrently": false,
           "method": "btree",
           "with": {}
         },
-        "momentum_events_user_time_idx": {
-          "name": "momentum_events_user_time_idx",
+        "mentor_msg_thread_idx": {
+          "name": "mentor_msg_thread_idx",
+          "columns": [
+            {
+              "expression": "thread_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "mentor_msg_user_created_idx": {
+          "name": "mentor_msg_user_created_idx",
           "columns": [
             {
               "expression": "user_id",
@@ -886,7 +924,7 @@
               "nulls": "last"
             },
             {
-              "expression": "occurred_at",
+              "expression": "created_at",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -899,9 +937,9 @@
         }
       },
       "foreignKeys": {
-        "momentum_events_user_id_users_id_fk": {
-          "name": "momentum_events_user_id_users_id_fk",
-          "tableFrom": "momentum_events",
+        "mentor_messages_user_id_users_id_fk": {
+          "name": "mentor_messages_user_id_users_id_fk",
+          "tableFrom": "mentor_messages",
           "tableTo": "users",
           "columnsFrom": [
             "user_id"
@@ -2578,78 +2616,6 @@
         "user_learning_languages_user_id_users_id_fk": {
           "name": "user_learning_languages_user_id_users_id_fk",
           "tableFrom": "user_learning_languages",
-          "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.user_momentum": {
-      "name": "user_momentum",
-      "schema": "",
-      "columns": {
-        "user_id": {
-          "name": "user_id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "score": {
-          "name": "score",
-          "type": "double precision",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "scored_at": {
-          "name": "scored_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "last_seen_at": {
-          "name": "last_seen_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "last_praise_at": {
-          "name": "last_praise_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "last_recovery_at": {
-          "name": "last_recovery_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "user_momentum_user_id_users_id_fk": {
-          "name": "user_momentum_user_id_users_id_fk",
-          "tableFrom": "user_momentum",
           "tableTo": "users",
           "columnsFrom": [
             "user_id"

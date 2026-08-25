@@ -33,7 +33,8 @@ export async function rateLimitRoutes(app: FastifyInstance) {
     keyParam: "name",
     // Feature keys ride along with the plan: the panel shows what each tier
     // actually unlocks in the bot, which is otherwise invisible until a user
-    // taps a ⭐ button. Read-only — the junction is owned by the seed.
+    // taps a ⭐ button. Editable since the seed became bootstrap-only — the
+    // junction is admin-owned state, exactly like the AI model catalog.
     list: {
       handler: async () => {
         const plans = await rateLimitPlanRepository.findAll();
@@ -50,7 +51,16 @@ export async function rateLimitRoutes(app: FastifyInstance) {
       preHandler: superadminOnly,
       handler: async (body) => {
         await assertRoutableModel(body.aiModelId);
-        return rateLimitPlanRepository.upsert(body);
+        // An absent field means "don't touch the junction" (the AI Models page
+        // upserts the whole plan just to route a model); only an explicit array
+        // rewrites it. The bot resolves features from the DB on every gate check,
+        // so the change is live immediately — no restart, no cache to bust.
+        const { features, ...plan } = body;
+        const saved = await rateLimitPlanRepository.upsert(plan);
+        if (features !== undefined) {
+          await planFeatureAccessRepository.setFeaturesForPlan(saved.name, [...new Set(features)]);
+        }
+        return { ...saved, features: await planFeatureAccessRepository.findFeaturesForPlan(saved.name) };
       },
     },
     remove: {

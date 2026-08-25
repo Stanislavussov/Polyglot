@@ -62,9 +62,8 @@ export function takeRetryAction(session: SessionData, msgId: number): RetryActio
 /**
  * Sends a failure notice carrying a retry button and remembers what to re-run.
  *
- * The notice is deliberately NOT tracked as a technical message: the retry
- * handler deletes it itself, and a pending cleanup sweep must not remove the
- * button out from under the user.
+ * The retry handler deletes the notice itself once tapped, so a double tap cannot
+ * launch two paid AI calls.
  */
 export async function replyWithRetry(
   ctx: BotContext,

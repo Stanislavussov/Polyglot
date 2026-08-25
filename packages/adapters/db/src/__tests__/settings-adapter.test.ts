@@ -155,3 +155,26 @@ describe("settingsAdapter.getSttConfig", () => {
     expect(stt).toEqual({ enabled: true, modelId: "openai/whisper-large-v3", maxDurationSec: 60 });
   });
 });
+
+describe("settingsAdapter.getMentorConfig", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("backfills a partial stored blob with the shipped defaults", async () => {
+    mockGet.mockResolvedValueOnce({ modelId: "anthropic/claude-sonnet-5" }); // maxTokens absent
+
+    const mentor = await settingsAdapter.getMentorConfig();
+
+    expect(mentor.modelId).toBe("anthropic/claude-sonnet-5"); // admin-set value preserved
+    expect(mentor.maxTokens).toBe(700); // backfilled from defaults
+  });
+
+  it("returns the shipped defaults when no mentor row has ever been saved", async () => {
+    mockGet.mockResolvedValueOnce(null);
+
+    const mentor = await settingsAdapter.getMentorConfig();
+
+    expect(mentor).toEqual({ modelId: "google/gemini-3.7-flash", maxTokens: 700 });
+  });
+});
