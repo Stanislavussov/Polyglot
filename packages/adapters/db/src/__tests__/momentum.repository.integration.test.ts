@@ -189,6 +189,35 @@ describe("momentumRepository (integration)", () => {
     ]);
   });
 
+  it("reads the claimed praise kinds out of both dedupe-key shapes, once each", async () => {
+    const userId = await freshUserId();
+    const claims = [
+      // Once-ever: the kind alone. Repeatable: the kind plus the user's local day.
+      "praise:dictionary_10",
+      "praise:mature_word:2026-04-01",
+      "praise:mature_word:2026-04-03",
+    ];
+    for (const dedupeKey of claims) {
+      await momentumRepository.recordEvent({
+        userId,
+        kind: "praise",
+        weight: 0,
+        occurredAt: new Date("2026-04-03T09:00:00.000Z"),
+        dedupeKey,
+      });
+    }
+    // An effort row of a different kind must not be mistaken for a claim.
+    await momentumRepository.recordEvent({
+      userId,
+      kind: "save",
+      weight: 2,
+      occurredAt: new Date("2026-04-03T09:00:00.000Z"),
+      dedupeKey: "save:praise-neighbour",
+    });
+
+    expect((await momentumRepository.listPraisedKinds(userId)).sort()).toEqual(["dictionary_10", "mature_word"]);
+  });
+
   it("counts active local days, ignoring days that only produced capped-out rows", async () => {
     const userId = await freshUserId();
     const since = new Date("2026-06-01T00:00:00.000Z");

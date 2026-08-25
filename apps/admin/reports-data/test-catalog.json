@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-25T18:59:04.000Z",
+  "generatedAt": "2026-08-25T19:19:28.000Z",
   "summary": {
-    "total": 3071,
+    "total": 3084,
     "business": 0,
-    "technical": 3071,
+    "technical": 3084,
     "workspaces": [
       "apps",
       "packages"
@@ -2343,10 +2343,10 @@
       "description": "Protects the bot build Ai Failover behavior so disables the split for a non finite non positive budget instead of returning a Na N split."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-191-createcontainer-creates-a-container-with-all-services",
+      "id": "apps-bot-src-tests-container-test-ts-192-createcontainer-creates-a-container-with-all-services",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 191,
+      "sourceLine": 192,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2359,10 +2359,10 @@
       "description": "Protects the bot create Container behavior: creates a container with all services."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-214-createcontainer-container-has-languagecache-methods",
+      "id": "apps-bot-src-tests-container-test-ts-215-createcontainer-container-has-languagecache-methods",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 214,
+      "sourceLine": 215,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2375,10 +2375,10 @@
       "description": "Protects the bot create Container behavior so container has language Cache methods."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-224-createcontainer-container-has-ai-methods",
+      "id": "apps-bot-src-tests-container-test-ts-225-createcontainer-container-has-ai-methods",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 224,
+      "sourceLine": 225,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2391,10 +2391,10 @@
       "description": "Protects the bot create Container behavior so container has AI methods."
     },
     {
-      "id": "apps-bot-src-tests-container-test-ts-232-createcontainer-container-services-are-callable",
+      "id": "apps-bot-src-tests-container-test-ts-233-createcontainer-container-services-are-callable",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/container.test.ts",
-      "sourceLine": 232,
+      "sourceLine": 233,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3367,10 +3367,10 @@
       "description": "Protects the bot momentum recording (integration) behavior so still delivers the translation card when the momentum repository throws."
     },
     {
-      "id": "apps-bot-src-tests-integration-momentum-surfaces-integration-test-ts-168-recovery-line-integration-prefixes-one-card-with-the-welcome-and-the-real-due-count-and-never-names-the-pause",
+      "id": "apps-bot-src-tests-integration-momentum-surfaces-integration-test-ts-177-recovery-line-integration-prefixes-one-card-with-the-welcome-and-the-real-due-count-and-never-names-the-pause",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/momentum-surfaces.integration.test.ts",
-      "sourceLine": 168,
+      "sourceLine": 177,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3383,10 +3383,10 @@
       "description": "Protects the bot recovery line (integration) behavior so prefixes one card with the welcome and the real due count, and never names the pause."
     },
     {
-      "id": "apps-bot-src-tests-integration-momentum-surfaces-integration-test-ts-198-recovery-line-integration-stays-silent-for-a-user-who-was-here-yesterday-and-advances-lastseenat-anyway",
+      "id": "apps-bot-src-tests-integration-momentum-surfaces-integration-test-ts-207-recovery-line-integration-stays-silent-for-a-user-who-was-here-yesterday-and-advances-lastseenat-anyway",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/momentum-surfaces.integration.test.ts",
-      "sourceLine": 198,
+      "sourceLine": 207,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3399,10 +3399,10 @@
       "description": "Protects the bot recovery line (integration) behavior so stays silent for a user who was here yesterday, and advances last Seen At anyway."
     },
     {
-      "id": "apps-bot-src-tests-integration-momentum-surfaces-integration-test-ts-215-recovery-line-integration-does-not-spend-the-returning-user-s-one-shot-on-a-callback-tap",
+      "id": "apps-bot-src-tests-integration-momentum-surfaces-integration-test-ts-224-recovery-line-integration-does-not-spend-the-returning-user-s-one-shot-on-a-callback-tap",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/momentum-surfaces.integration.test.ts",
-      "sourceLine": 215,
+      "sourceLine": 224,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3415,10 +3415,10 @@
       "description": "Protects the bot recovery line (integration) behavior: does not spend the returning user's one shot on a callback tap."
     },
     {
-      "id": "apps-bot-src-tests-integration-momentum-surfaces-integration-test-ts-240-recovery-line-integration-delivers-the-line-on-the-clarification-card-when-the-first-word-after-the-pause-is-ambiguous",
+      "id": "apps-bot-src-tests-integration-momentum-surfaces-integration-test-ts-249-recovery-line-integration-delivers-the-line-on-the-clarification-card-when-the-first-word-after-the-pause-is-ambiguous",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/momentum-surfaces.integration.test.ts",
-      "sourceLine": 240,
+      "sourceLine": 249,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3431,10 +3431,10 @@
       "description": "Protects the bot recovery line (integration) behavior so delivers the line on the clarification card when the first word after the pause is ambiguous."
     },
     {
-      "id": "apps-bot-src-tests-integration-momentum-surfaces-integration-test-ts-277-praise-line-integration-carries-the-tenth-word-milestone-on-the-next-card-only-and-counts-the-cooldown-suppression",
+      "id": "apps-bot-src-tests-integration-momentum-surfaces-integration-test-ts-286-praise-line-integration-carries-the-tenth-word-milestone-on-the-next-card-only-and-counts-the-cooldown-suppression",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/momentum-surfaces.integration.test.ts",
-      "sourceLine": 277,
+      "sourceLine": 286,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3447,10 +3447,10 @@
       "description": "Protects the bot praise line (integration) behavior so carries the tenth word milestone on the next card only, and counts the cooldown suppression."
     },
     {
-      "id": "apps-bot-src-tests-integration-momentum-surfaces-integration-test-ts-310-praise-line-integration-says-nothing-anywhere-while-the-praise-kill-switch-is-off",
+      "id": "apps-bot-src-tests-integration-momentum-surfaces-integration-test-ts-322-praise-line-integration-says-nothing-anywhere-while-the-praise-kill-switch-is-off",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/momentum-surfaces.integration.test.ts",
-      "sourceLine": 310,
+      "sourceLine": 322,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3463,10 +3463,10 @@
       "description": "Protects the bot praise line (integration) behavior so says nothing anywhere while the praise kill switch is off."
     },
     {
-      "id": "apps-bot-src-tests-integration-momentum-surfaces-integration-test-ts-332-praise-line-integration-puts-one-praise-line-in-the-srsdone-text-when-a-word-reaches-long-term-memory",
+      "id": "apps-bot-src-tests-integration-momentum-surfaces-integration-test-ts-352-praise-line-integration-puts-one-praise-line-in-the-srsdone-text-when-a-word-reaches-long-term-memory",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/momentum-surfaces.integration.test.ts",
-      "sourceLine": 332,
+      "sourceLine": 352,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3479,10 +3479,26 @@
       "description": "Protects the bot praise line (integration) behavior so puts one praise line in the srs Done text when a word reaches long term memory."
     },
     {
-      "id": "apps-bot-src-tests-integration-momentum-surfaces-integration-test-ts-351-praise-line-integration-yields-to-the-recovery-line-when-both-are-earned-by-the-same-update",
+      "id": "apps-bot-src-tests-integration-momentum-surfaces-integration-test-ts-374-praise-line-integration-never-praises-the-same-dictionary-milestone-twice-however-long-the-user-waits",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/momentum-surfaces.integration.test.ts",
-      "sourceLine": 351,
+      "sourceLine": 374,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "praise line (integration)"
+      ],
+      "title": "never praises the same dictionary milestone twice, however long the user waits",
+      "rawTitle": "never praises the same dictionary milestone twice, however long the user waits",
+      "name": "Bot praise line (integration) never praises the same dictionary milestone twice, however long the user waits",
+      "value": "Protects the bot praise line (integration) behavior so never praises the same dictionary milestone twice, however long the user waits.",
+      "description": "Protects the bot praise line (integration) behavior so never praises the same dictionary milestone twice, however long the user waits."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-momentum-surfaces-integration-test-ts-401-praise-line-integration-yields-to-the-recovery-line-when-both-are-earned-by-the-same-update",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/momentum-surfaces.integration.test.ts",
+      "sourceLine": 401,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3543,7 +3559,7 @@
       "description": "Protects the bot progress (integration) behavior: shows the empty state — no counters and no band — to a user with no words."
     },
     {
-      "id": "apps-bot-src-tests-integration-momentum-integration-test-ts-239-progress-integration-makes-no-outgoing-telegram-call-at-all-while-the-surface-is-off",
+      "id": "apps-bot-src-tests-integration-momentum-integration-test-ts-239-progress-integration-makes-no-outgoing-telegram-call-at-all-when-the-command-is-typed-while-the-surface-is-off",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/momentum.integration.test.ts",
       "sourceLine": 239,
@@ -3552,11 +3568,27 @@
       "suitePath": [
         "/progress (integration)"
       ],
-      "title": "makes no outgoing Telegram call at all while the surface is off",
-      "rawTitle": "makes no outgoing Telegram call at all while the surface is off",
-      "name": "Bot progress (integration) makes no outgoing Telegram call at all while the surface is off",
-      "value": "Protects the bot progress (integration) behavior so makes no outgoing Telegram call at all while the surface is off.",
-      "description": "Protects the bot progress (integration) behavior so makes no outgoing Telegram call at all while the surface is off."
+      "title": "makes no outgoing Telegram call at all when the command is typed while the surface is off",
+      "rawTitle": "makes no outgoing Telegram call at all when the command is typed while the surface is off",
+      "name": "Bot progress (integration) makes no outgoing Telegram call at all when the command is typed while the surface is off",
+      "value": "Protects the bot progress (integration) behavior so makes no outgoing Telegram call at all when the command is typed while the surface is off.",
+      "description": "Protects the bot progress (integration) behavior so makes no outgoing Telegram call at all when the command is typed while the surface is off."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-momentum-integration-test-ts-258-progress-integration-keeps-the-button-off-the-done-screen-while-the-surface-is-off-and-still-answers-a-stale-tap",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/momentum.integration.test.ts",
+      "sourceLine": 258,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "/progress (integration)"
+      ],
+      "title": "keeps the button off the done screen while the surface is off, and still answers a stale tap",
+      "rawTitle": "keeps the button off the done screen while the surface is off, and still answers a stale tap",
+      "name": "Bot progress (integration) keeps the button off the done screen while the surface is off, and still answers a stale tap",
+      "value": "Protects the bot progress (integration) behavior: keeps the button off the done screen while the surface is off, and still answers a stale tap.",
+      "description": "Protects the bot progress (integration) behavior: keeps the button off the done screen while the surface is off, and still answers a stale tap."
     },
     {
       "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-155-scheduled-notification-delivery-integration-c1-notifies-a-subscriber-who-translated-today",
@@ -3863,10 +3895,10 @@
       "description": "Protects the bot notification feedback (integration) behavior so F5: grading an already removed entry answers without resurrecting anything."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-weekly-line-integration-test-ts-171-weekly-proof-line-in-a-scheduled-notification-integration-w1-shows-the-line-once-suppresses-it-the-next-day-and-shows-it-again-after-seven-days",
+      "id": "apps-bot-src-tests-integration-notification-weekly-line-integration-test-ts-173-weekly-proof-line-in-a-scheduled-notification-integration-w1-shows-the-line-once-suppresses-it-the-next-day-and-shows-it-again-after-seven-days",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-weekly-line.integration.test.ts",
-      "sourceLine": 171,
+      "sourceLine": 173,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3879,10 +3911,10 @@
       "description": "Protects the bot weekly proof line in a scheduled notification (integration) behavior so W1: shows the line once, suppresses it the next day, and shows it again after seven days."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-weekly-line-integration-test-ts-224-weekly-proof-line-in-a-scheduled-notification-integration-w2-says-nothing-when-the-week-produced-no-evidence",
+      "id": "apps-bot-src-tests-integration-notification-weekly-line-integration-test-ts-226-weekly-proof-line-in-a-scheduled-notification-integration-w2-says-nothing-when-the-week-produced-no-evidence",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-weekly-line.integration.test.ts",
-      "sourceLine": 224,
+      "sourceLine": 226,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3895,10 +3927,10 @@
       "description": "Protects the bot weekly proof line in a scheduled notification (integration) behavior so W2: says nothing when the week produced no evidence."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-weekly-line-integration-test-ts-248-weekly-proof-line-in-a-scheduled-notification-integration-w3-with-the-kill-switch-off-the-card-is-byte-identical-to-the-formatter-s-own-output",
+      "id": "apps-bot-src-tests-integration-notification-weekly-line-integration-test-ts-250-weekly-proof-line-in-a-scheduled-notification-integration-w3-with-the-kill-switch-off-the-card-is-byte-identical-to-the-formatter-s-own-output",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-weekly-line.integration.test.ts",
-      "sourceLine": 248,
+      "sourceLine": 250,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3911,10 +3943,10 @@
       "description": "Protects the bot weekly proof line in a scheduled notification (integration) behavior so W3: with the kill switch off the card is byte identical to the formatter's own output."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-weekly-line-integration-test-ts-274-weekly-proof-line-in-a-scheduled-notification-integration-w4-a-user-who-is-not-subscribed-receives-nothing-the-layer-adds-no-outbound-message",
+      "id": "apps-bot-src-tests-integration-notification-weekly-line-integration-test-ts-276-weekly-proof-line-in-a-scheduled-notification-integration-w4-a-user-who-is-not-subscribed-receives-nothing-the-layer-adds-no-outbound-message",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-weekly-line.integration.test.ts",
-      "sourceLine": 274,
+      "sourceLine": 276,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3927,10 +3959,10 @@
       "description": "Protects the bot weekly proof line in a scheduled notification (integration) behavior so W4: a user who is not subscribed receives nothing — the layer adds no outbound message."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-weekly-line-integration-test-ts-296-weekly-proof-line-in-a-scheduled-notification-integration-w5-a-failed-delivery-does-not-burn-the-week",
+      "id": "apps-bot-src-tests-integration-notification-weekly-line-integration-test-ts-298-weekly-proof-line-in-a-scheduled-notification-integration-w5-a-failed-delivery-does-not-burn-the-week",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-weekly-line.integration.test.ts",
-      "sourceLine": 296,
+      "sourceLine": 298,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3941,6 +3973,22 @@
       "name": "Bot weekly proof line in a scheduled notification (integration) W5: a failed delivery does not burn the week",
       "value": "Protects the bot weekly proof line in a scheduled notification (integration) behavior so W5: a failed delivery does not burn the week.",
       "description": "Protects the bot weekly proof line in a scheduled notification (integration) behavior so W5: a failed delivery does not burn the week."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-notification-weekly-line-integration-test-ts-325-weekly-proof-line-in-a-scheduled-notification-integration-w6-with-recording-off-the-line-stays-away-and-writes-no-journal-row",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/notification-weekly-line.integration.test.ts",
+      "sourceLine": 325,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "weekly proof line in a scheduled notification (integration)"
+      ],
+      "title": "W6: with recording off the line stays away and writes no journal row",
+      "rawTitle": "W6: with recording off the line stays away and writes no journal row",
+      "name": "Bot weekly proof line in a scheduled notification (integration) W6: with recording off the line stays away and writes no journal row",
+      "value": "Protects the bot weekly proof line in a scheduled notification (integration) behavior so W6: with recording off the line stays away and writes no journal row.",
+      "description": "Protects the bot weekly proof line in a scheduled notification (integration) behavior so W6: with recording off the line stays away and writes no journal row."
     },
     {
       "id": "apps-bot-src-tests-integration-onboarding-integration-test-ts-80-start-onboarding-integration-creates-the-user-and-guesses-the-native-language-from-the-telegram-locale",
@@ -11678,10 +11726,10 @@
       "description": "Protects the bot render Flash Card Back — collapsible notes behavior: renders no blockquote when the card has no notes."
     },
     {
-      "id": "apps-bot-src-renderers-tests-flashcard-renderer-test-ts-54-buildflashcarddonekeyboard-puts-the-progress-button-on-a-row-of-its-own",
+      "id": "apps-bot-src-renderers-tests-flashcard-renderer-test-ts-59-buildflashcarddonekeyboard-puts-the-progress-button-on-a-row-of-its-own",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/flashcard.renderer.test.ts",
-      "sourceLine": 54,
+      "sourceLine": 59,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11692,6 +11740,22 @@
       "name": "Bot build Flash Card Done Keyboard puts the progress button on a row of its own",
       "value": "Protects the bot build Flash Card Done Keyboard behavior so puts the progress button on a row of its own.",
       "description": "Protects the bot build Flash Card Done Keyboard behavior so puts the progress button on a row of its own."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-flashcard-renderer-test-ts-63-buildflashcarddonekeyboard-omits-the-progress-button-while-the-motivation-surface-is-off",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/flashcard.renderer.test.ts",
+      "sourceLine": 63,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "buildFlashCardDoneKeyboard"
+      ],
+      "title": "omits the progress button while the motivation surface is off",
+      "rawTitle": "omits the progress button while the motivation surface is off",
+      "name": "Bot build Flash Card Done Keyboard omits the progress button while the motivation surface is off",
+      "value": "Protects the bot build Flash Card Done Keyboard behavior: omits the progress button while the motivation surface is off.",
+      "description": "Protects the bot build Flash Card Done Keyboard behavior: omits the progress button while the motivation surface is off."
     },
     {
       "id": "apps-bot-src-renderers-tests-srs-renderer-test-ts-49-rendersrsfront-localizes-the-input-type-label-in-the-review-direction-line",
@@ -11726,10 +11790,10 @@
       "description": "Protects the bot render Srs Back behavior: shows a compact source example before the target example."
     },
     {
-      "id": "apps-bot-src-renderers-tests-srs-renderer-test-ts-81-buildsrsdonekeyboard-puts-the-progress-button-on-a-row-of-its-own",
+      "id": "apps-bot-src-renderers-tests-srs-renderer-test-ts-86-buildsrsdonekeyboard-puts-the-progress-button-on-a-row-of-its-own",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/srs.renderer.test.ts",
-      "sourceLine": 81,
+      "sourceLine": 86,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11740,6 +11804,22 @@
       "name": "Bot build Srs Done Keyboard puts the progress button on a row of its own",
       "value": "Protects the bot build Srs Done Keyboard behavior so puts the progress button on a row of its own.",
       "description": "Protects the bot build Srs Done Keyboard behavior so puts the progress button on a row of its own."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-srs-renderer-test-ts-90-buildsrsdonekeyboard-omits-the-progress-button-while-the-motivation-surface-is-off",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/srs.renderer.test.ts",
+      "sourceLine": 90,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "buildSrsDoneKeyboard"
+      ],
+      "title": "omits the progress button while the motivation surface is off",
+      "rawTitle": "omits the progress button while the motivation surface is off",
+      "name": "Bot build Srs Done Keyboard omits the progress button while the motivation surface is off",
+      "value": "Protects the bot build Srs Done Keyboard behavior: omits the progress button while the motivation surface is off.",
+      "description": "Protects the bot build Srs Done Keyboard behavior: omits the progress button while the motivation surface is off."
     },
     {
       "id": "apps-bot-src-renderers-tests-translation-renderer-order-test-ts-41-rendertranslation-language-order-renders-the-user-s-order-from-an-alphabetically-keyed-record",
@@ -21806,10 +21886,26 @@
       "description": "Protects the database adapter momentum Repository (integration) behavior: returns replay events oldest first."
     },
     {
-      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-192-momentumrepository-integration-counts-active-local-days-ignoring-days-that-only-produced-capped-out-rows",
+      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-192-momentumrepository-integration-reads-the-claimed-praise-kinds-out-of-both-dedupe-key-shapes-once-each",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/momentum.repository.integration.test.ts",
       "sourceLine": 192,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "momentumRepository (integration)"
+      ],
+      "title": "reads the claimed praise kinds out of both dedupe-key shapes, once each",
+      "rawTitle": "reads the claimed praise kinds out of both dedupe-key shapes, once each",
+      "name": "Database adapter momentum Repository (integration) reads the claimed praise kinds out of both dedupe key shapes, once each",
+      "value": "Protects the database adapter momentum Repository (integration) behavior so reads the claimed praise kinds out of both dedupe key shapes, once each.",
+      "description": "Protects the database adapter momentum Repository (integration) behavior so reads the claimed praise kinds out of both dedupe key shapes, once each."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-221-momentumrepository-integration-counts-active-local-days-ignoring-days-that-only-produced-capped-out-rows",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/momentum.repository.integration.test.ts",
+      "sourceLine": 221,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -21822,10 +21918,10 @@
       "description": "Protects the database adapter momentum Repository (integration) behavior so counts active local days, ignoring days that only produced capped out rows."
     },
     {
-      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-222-createmomentumservice-over-the-real-store-charges-a-ten-card-flashcard-session-ten-rows-but-only-six-points",
+      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-251-createmomentumservice-over-the-real-store-charges-a-ten-card-flashcard-session-ten-rows-but-only-six-points",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/momentum.repository.integration.test.ts",
-      "sourceLine": 222,
+      "sourceLine": 251,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -21838,10 +21934,10 @@
       "description": "Protects the database adapter create Momentum Service over the real store behavior so charges a ten card flashcard session ten rows but only six points."
     },
     {
-      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-243-vocabularyrepository-momentum-counters-integration-counts-only-live-translations-at-or-past-the-mature-interval",
+      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-272-vocabularyrepository-momentum-counters-integration-counts-only-live-translations-at-or-past-the-mature-interval",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/momentum.repository.integration.test.ts",
-      "sourceLine": 243,
+      "sourceLine": 272,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -21854,10 +21950,10 @@
       "description": "Protects the database adapter vocabulary Repository momentum counters (integration) behavior so counts only live translations at or past the mature interval."
     },
     {
-      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-277-vocabularyrepository-momentum-counters-integration-counts-the-same-cards-finddueforsrs-would-return",
+      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-306-vocabularyrepository-momentum-counters-integration-counts-the-same-cards-finddueforsrs-would-return",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/momentum.repository.integration.test.ts",
-      "sourceLine": 277,
+      "sourceLine": 306,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -21870,10 +21966,10 @@
       "description": "Protects the database adapter vocabulary Repository momentum counters (integration) behavior so counts the same cards find Due For Srs would return."
     },
     {
-      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-309-vocabularyrepository-momentum-counters-integration-excludes-a-soft-deleted-entry-from-both-counters",
+      "id": "packages-adapters-db-src-tests-momentum-repository-integration-test-ts-338-vocabularyrepository-momentum-counters-integration-excludes-a-soft-deleted-entry-from-both-counters",
       "kind": "technical",
       "filePath": "packages/adapters/db/src/__tests__/momentum.repository.integration.test.ts",
-      "sourceLine": 309,
+      "sourceLine": 338,
       "workspace": "packages",
       "packageName": "adapters/db",
       "suitePath": [
@@ -36646,10 +36742,10 @@
       "description": "Protects the core domain active Days From Events behavior: ignores events older than the window."
     },
     {
-      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-97-record-writes-nothing-at-all-while-recording-is-off",
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-108-record-writes-nothing-at-all-while-recording-is-off",
       "kind": "technical",
       "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
-      "sourceLine": 97,
+      "sourceLine": 108,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -36662,10 +36758,10 @@
       "description": "Protects the core domain record behavior so writes nothing at all while recording is off."
     },
     {
-      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-108-record-leaves-the-snapshot-untouched-while-recording-is-off-marks-included",
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-119-record-leaves-the-snapshot-untouched-while-recording-is-off-marks-included",
       "kind": "technical",
       "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
-      "sourceLine": 108,
+      "sourceLine": 119,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -36678,10 +36774,10 @@
       "description": "Protects the core domain record behavior so leaves the snapshot untouched while recording is off, marks included."
     },
     {
-      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-124-record-credits-a-replayed-update-once-the-second-attempt-leaves-the-score-untouched",
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-134-record-credits-a-replayed-update-once-the-second-attempt-leaves-the-score-untouched",
       "kind": "technical",
       "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
-      "sourceLine": 124,
+      "sourceLine": 134,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -36694,10 +36790,10 @@
       "description": "Protects the core domain record behavior so credits a replayed update once — the second attempt leaves the score untouched."
     },
     {
-      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-136-record-spends-the-daily-cap-as-weight-and-still-writes-the-exhausted-row",
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-146-record-spends-the-daily-cap-as-weight-and-still-writes-the-exhausted-row",
       "kind": "technical",
       "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
-      "sourceLine": 136,
+      "sourceLine": 146,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -36710,10 +36806,10 @@
       "description": "Protects the core domain record behavior so spends the daily cap as weight and still writes the exhausted row."
     },
     {
-      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-150-record-starts-a-new-local-day-with-a-fresh-cap-using-the-user-s-timezone",
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-160-record-starts-a-new-local-day-with-a-fresh-cap-using-the-user-s-timezone",
       "kind": "technical",
       "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
-      "sourceLine": 150,
+      "sourceLine": 160,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -36726,10 +36822,42 @@
       "description": "Protects the core domain record behavior so starts a new local day with a fresh cap, using the user's timezone."
     },
     {
-      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-174-record-never-caps-mature",
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-184-record-advances-lastseenat-on-a-review-but-never-on-a-translate",
       "kind": "technical",
       "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
-      "sourceLine": 174,
+      "sourceLine": 184,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "record"
+      ],
+      "title": "advances lastSeenAt on a review but never on a translate",
+      "rawTitle": "advances lastSeenAt on a review but never on a translate",
+      "name": "Core domain record advances last Seen At on a review but never on a translate",
+      "value": "Protects the core domain record behavior so advances last Seen At on a review but never on a translate.",
+      "description": "Protects the core domain record behavior so advances last Seen At on a review but never on a translate."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-197-record-leaves-a-pending-recovery-line-alive-when-a-review-is-credited-first",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
+      "sourceLine": 197,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "record"
+      ],
+      "title": "leaves a pending recovery line alive when a review is credited first",
+      "rawTitle": "leaves a pending recovery line alive when a review is credited first",
+      "name": "Core domain record leaves a pending recovery line alive when a review is credited first",
+      "value": "Protects the core domain record behavior so leaves a pending recovery line alive when a review is credited first.",
+      "description": "Protects the core domain record behavior so leaves a pending recovery line alive when a review is credited first."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-209-record-never-caps-mature",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
+      "sourceLine": 209,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -36742,10 +36870,10 @@
       "description": "Protects the core domain record behavior so never caps mature."
     },
     {
-      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-184-getsnapshot-discounts-the-stored-score-to-the-moment-of-reading-without-writing",
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-219-getsnapshot-discounts-the-stored-score-to-the-moment-of-reading-without-writing",
       "kind": "technical",
       "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
-      "sourceLine": 184,
+      "sourceLine": 219,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -36758,10 +36886,10 @@
       "description": "Protects the core domain get Snapshot behavior so discounts the stored score to the moment of reading without writing."
     },
     {
-      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-200-getsnapshot-reports-an-empty-state-for-a-user-who-has-never-been-recorded",
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-235-getsnapshot-reports-an-empty-state-for-a-user-who-has-never-been-recorded",
       "kind": "technical",
       "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
-      "sourceLine": 200,
+      "sourceLine": 235,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -36774,26 +36902,26 @@
       "description": "Protects the core domain get Snapshot behavior: reports an empty state for a user who has never been recorded."
     },
     {
-      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-212-recovery-shows-nothing-for-a-user-we-have-never-seen-and-markseen-initializes-them",
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-247-recovery-shows-nothing-for-a-user-we-have-never-seen-and-the-first-touch-initializes-them",
       "kind": "technical",
       "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
-      "sourceLine": 212,
+      "sourceLine": 247,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
         "recovery"
       ],
-      "title": "shows nothing for a user we have never seen, and markSeen initializes them",
-      "rawTitle": "shows nothing for a user we have never seen, and markSeen initializes them",
-      "name": "Core domain recovery shows nothing for a user we have never seen, and mark Seen initializes them",
-      "value": "Protects the core domain recovery behavior: shows nothing for a user we have never seen, and mark Seen initializes them.",
-      "description": "Protects the core domain recovery behavior: shows nothing for a user we have never seen, and mark Seen initializes them."
+      "title": "shows nothing for a user we have never seen, and the first touch initializes them",
+      "rawTitle": "shows nothing for a user we have never seen, and the first touch initializes them",
+      "name": "Core domain recovery shows nothing for a user we have never seen, and the first touch initializes them",
+      "value": "Protects the core domain recovery behavior: shows nothing for a user we have never seen, and the first touch initializes them.",
+      "description": "Protects the core domain recovery behavior: shows nothing for a user we have never seen, and the first touch initializes them."
     },
     {
-      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-221-recovery-shows-the-line-after-a-pause-of-a-week-or-more-but-not-for-yesterday-s-user",
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-256-recovery-shows-the-line-after-a-pause-of-a-week-or-more-but-not-for-yesterday-s-user",
       "kind": "technical",
       "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
-      "sourceLine": 221,
+      "sourceLine": 256,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -36806,10 +36934,10 @@
       "description": "Protects the core domain recovery behavior: shows the line after a pause of a week or more, but not for yesterday's user."
     },
     {
-      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-231-recovery-stays-silent-while-the-kill-switch-is-off",
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-266-recovery-stays-silent-while-the-kill-switch-is-off",
       "kind": "technical",
       "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
-      "sourceLine": 231,
+      "sourceLine": 266,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -36822,10 +36950,10 @@
       "description": "Protects the core domain recovery behavior so stays silent while the kill switch is off."
     },
     {
-      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-239-recovery-keeps-lastseenat-stale-until-the-pending-line-is-actually-shown",
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-274-recovery-keeps-lastseenat-stale-until-the-pending-line-is-actually-shown",
       "kind": "technical",
       "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
-      "sourceLine": 239,
+      "sourceLine": 274,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -36838,10 +36966,10 @@
       "description": "Protects the core domain recovery behavior: keeps last Seen At stale until the pending line is actually shown."
     },
     {
-      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-254-recovery-advances-lastseenat-on-a-touch-when-no-line-is-pending",
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-289-recovery-advances-lastseenat-on-a-touch-when-no-line-is-pending",
       "kind": "technical",
       "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
-      "sourceLine": 254,
+      "sourceLine": 289,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -36854,10 +36982,26 @@
       "description": "Protects the core domain recovery behavior so advances last Seen At on a touch when no line is pending."
     },
     {
-      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-263-recovery-does-not-show-a-second-line-within-a-week-of-the-last-one",
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-298-recovery-leaves-a-mark-written-minutes-ago-alone",
       "kind": "technical",
       "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
-      "sourceLine": 263,
+      "sourceLine": 298,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "recovery"
+      ],
+      "title": "leaves a mark written minutes ago alone",
+      "rawTitle": "leaves a mark written minutes ago alone",
+      "name": "Core domain recovery leaves a mark written minutes ago alone",
+      "value": "Protects the core domain recovery behavior so leaves a mark written minutes ago alone.",
+      "description": "Protects the core domain recovery behavior so leaves a mark written minutes ago alone."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-309-recovery-does-not-show-a-second-line-within-a-week-of-the-last-one",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
+      "sourceLine": 309,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -36870,10 +37014,10 @@
       "description": "Protects the core domain recovery behavior: does not show a second line within a week of the last one."
     },
     {
-      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-279-praise-reports-the-kill-switch-as-a-suppression-reason-so-the-counter-can-see-it",
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-325-praise-reports-the-kill-switch-as-a-suppression-reason-so-the-counter-can-see-it",
       "kind": "technical",
       "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
-      "sourceLine": 279,
+      "sourceLine": 325,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -36886,10 +37030,10 @@
       "description": "Protects the core domain praise behavior: reports the kill switch as a suppression reason so the counter can see it."
     },
     {
-      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-285-praise-claims-a-praise-once-per-local-day-and-marks-the-cooldown",
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-331-praise-claims-a-praise-once-per-local-day-and-marks-the-cooldown",
       "kind": "technical",
       "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
-      "sourceLine": 285,
+      "sourceLine": 331,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -36902,10 +37046,42 @@
       "description": "Protects the core domain praise behavior so claims a praise once per local day and marks the cooldown."
     },
     {
-      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-300-praise-suppresses-on-cooldown-right-after-a-shown-praise",
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-346-praise-claims-a-once-ever-milestone-with-no-day-in-the-key-so-it-can-never-come-back",
       "kind": "technical",
       "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
-      "sourceLine": 300,
+      "sourceLine": 346,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "praise"
+      ],
+      "title": "claims a once-ever milestone with no day in the key, so it can never come back",
+      "rawTitle": "claims a once-ever milestone with no day in the key, so it can never come back",
+      "name": "Core domain praise claims a once ever milestone with no day in the key, so it can never come back",
+      "value": "Protects the core domain praise behavior so claims a once ever milestone with no day in the key, so it can never come back.",
+      "description": "Protects the core domain praise behavior so claims a once ever milestone with no day in the key, so it can never come back."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-360-praise-never-offers-a-milestone-the-journal-already-shows-as-claimed",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
+      "sourceLine": 360,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "praise"
+      ],
+      "title": "never offers a milestone the journal already shows as claimed",
+      "rawTitle": "never offers a milestone the journal already shows as claimed",
+      "name": "Core domain praise never offers a milestone the journal already shows as claimed",
+      "value": "Protects the core domain praise behavior so never offers a milestone the journal already shows as claimed.",
+      "description": "Protects the core domain praise behavior so never offers a milestone the journal already shows as claimed."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-372-praise-suppresses-on-cooldown-right-after-a-shown-praise",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
+      "sourceLine": 372,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -36918,10 +37094,10 @@
       "description": "Protects the core domain praise behavior so suppresses on cooldown right after a shown praise."
     },
     {
-      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-307-praise-suppresses-the-third-praise-of-a-rolling-week",
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-379-praise-suppresses-the-third-praise-of-a-rolling-week",
       "kind": "technical",
       "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
-      "sourceLine": 307,
+      "sourceLine": 379,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -36934,10 +37110,10 @@
       "description": "Protects the core domain praise behavior so suppresses the third praise of a rolling week."
     },
     {
-      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-319-praise-lets-a-praise-through-once-the-older-one-has-aged-out-of-the-week",
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-391-praise-lets-a-praise-through-once-the-older-one-has-aged-out-of-the-week",
       "kind": "technical",
       "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
-      "sourceLine": 319,
+      "sourceLine": 391,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -36950,10 +37126,10 @@
       "description": "Protects the core domain praise behavior so lets a praise through once the older one has aged out of the week."
     },
     {
-      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-335-countactivedays-counts-distinct-local-days-with-real-effort-inside-the-window",
+      "id": "packages-core-src-modules-momentum-tests-momentum-service-test-ts-407-countactivedays-counts-distinct-local-days-with-real-effort-inside-the-window",
       "kind": "technical",
       "filePath": "packages/core/src/modules/momentum/__tests__/momentum.service.test.ts",
-      "sourceLine": 335,
+      "sourceLine": 407,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -37014,10 +37190,10 @@
       "description": "Protects the core domain parse Motivation Config behavior so repairs one broken switch without discarding its valid siblings."
     },
     {
-      "id": "packages-core-src-modules-momentum-tests-praise-selector-test-ts-15-selectpraise-praises-a-word-that-crossed-into-long-term-memory-as-a-key-and-params",
+      "id": "packages-core-src-modules-momentum-tests-praise-selector-test-ts-16-selectpraise-praises-a-word-that-crossed-into-long-term-memory-as-a-key-and-params",
       "kind": "technical",
       "filePath": "packages/core/src/modules/momentum/__tests__/praise.selector.test.ts",
-      "sourceLine": 15,
+      "sourceLine": 16,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -37030,10 +37206,10 @@
       "description": "Protects the core domain select Praise behavior so praises a word that crossed into long term memory, as a key and params."
     },
     {
-      "id": "packages-core-src-modules-momentum-tests-praise-selector-test-ts-28-selectpraise-never-praises-a-mature-word-for-a-user-with-none",
+      "id": "packages-core-src-modules-momentum-tests-praise-selector-test-ts-30-selectpraise-never-praises-a-mature-word-for-a-user-with-none",
       "kind": "technical",
       "filePath": "packages/core/src/modules/momentum/__tests__/praise.selector.test.ts",
-      "sourceLine": 28,
+      "sourceLine": 30,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -37046,10 +37222,10 @@
       "description": "Protects the core domain select Praise behavior so never praises a mature word for a user with none."
     },
     {
-      "id": "packages-core-src-modules-momentum-tests-praise-selector-test-ts-39-selectpraise-suppresses-while-the-24h-cooldown-is-alive-and-releases-once-it-expires",
+      "id": "packages-core-src-modules-momentum-tests-praise-selector-test-ts-42-selectpraise-suppresses-while-the-24h-cooldown-is-alive-and-releases-once-it-expires",
       "kind": "technical",
       "filePath": "packages/core/src/modules/momentum/__tests__/praise.selector.test.ts",
-      "sourceLine": 39,
+      "sourceLine": 42,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -37062,10 +37238,10 @@
       "description": "Protects the core domain select Praise behavior so suppresses while the 24h cooldown is alive and releases once it expires."
     },
     {
-      "id": "packages-core-src-modules-momentum-tests-praise-selector-test-ts-53-selectpraise-suppresses-once-the-weekly-cap-is-spent",
+      "id": "packages-core-src-modules-momentum-tests-praise-selector-test-ts-57-selectpraise-suppresses-once-the-weekly-cap-is-spent",
       "kind": "technical",
       "filePath": "packages/core/src/modules/momentum/__tests__/praise.selector.test.ts",
-      "sourceLine": 53,
+      "sourceLine": 57,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -37078,10 +37254,10 @@
       "description": "Protects the core domain select Praise behavior so suppresses once the weekly cap is spent."
     },
     {
-      "id": "packages-core-src-modules-momentum-tests-praise-selector-test-ts-64-selectpraise-suppresses-with-no-evidence-when-nothing-happened",
+      "id": "packages-core-src-modules-momentum-tests-praise-selector-test-ts-69-selectpraise-suppresses-with-no-evidence-when-nothing-happened",
       "kind": "technical",
       "filePath": "packages/core/src/modules/momentum/__tests__/praise.selector.test.ts",
-      "sourceLine": 64,
+      "sourceLine": 69,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -37094,10 +37270,10 @@
       "description": "Protects the core domain select Praise behavior so suppresses with no evidence when nothing happened."
     },
     {
-      "id": "packages-core-src-modules-momentum-tests-praise-selector-test-ts-75-selectpraise-praises-a-dictionary-milestone-only-on-the-update-that-crosses-it",
+      "id": "packages-core-src-modules-momentum-tests-praise-selector-test-ts-81-selectpraise-praises-a-dictionary-milestone-only-on-the-update-that-crosses-it",
       "kind": "technical",
       "filePath": "packages/core/src/modules/momentum/__tests__/praise.selector.test.ts",
-      "sourceLine": 75,
+      "sourceLine": 81,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -37110,10 +37286,10 @@
       "description": "Protects the core domain select Praise behavior so praises a dictionary milestone only on the update that crosses it."
     },
     {
-      "id": "packages-core-src-modules-momentum-tests-praise-selector-test-ts-95-selectpraise-reports-the-highest-milestone-crossed-in-one-jump",
+      "id": "packages-core-src-modules-momentum-tests-praise-selector-test-ts-103-selectpraise-reports-the-highest-milestone-crossed-in-one-jump",
       "kind": "technical",
       "filePath": "packages/core/src/modules/momentum/__tests__/praise.selector.test.ts",
-      "sourceLine": 95,
+      "sourceLine": 103,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -37126,10 +37302,42 @@
       "description": "Protects the core domain select Praise behavior: reports the highest milestone crossed in one jump."
     },
     {
-      "id": "packages-core-src-modules-momentum-tests-praise-selector-test-ts-108-selectpraise-prefers-the-mature-word-over-a-milestone-reached-in-the-same-update",
+      "id": "packages-core-src-modules-momentum-tests-praise-selector-test-ts-117-selectpraise-never-offers-a-once-ever-milestone-this-user-has-already-claimed",
       "kind": "technical",
       "filePath": "packages/core/src/modules/momentum/__tests__/praise.selector.test.ts",
-      "sourceLine": 108,
+      "sourceLine": 117,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "selectPraise"
+      ],
+      "title": "never offers a once-ever milestone this user has already claimed",
+      "rawTitle": "never offers a once-ever milestone this user has already claimed",
+      "name": "Core domain select Praise never offers a once ever milestone this user has already claimed",
+      "value": "Protects the core domain select Praise behavior so never offers a once ever milestone this user has already claimed.",
+      "description": "Protects the core domain select Praise behavior so never offers a once ever milestone this user has already claimed."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-praise-selector-test-ts-129-selectpraise-still-offers-a-repeatable-praise-to-a-user-who-claimed-a-milestone",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/praise.selector.test.ts",
+      "sourceLine": 129,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "selectPraise"
+      ],
+      "title": "still offers a repeatable praise to a user who claimed a milestone",
+      "rawTitle": "still offers a repeatable praise to a user who claimed a milestone",
+      "name": "Core domain select Praise still offers a repeatable praise to a user who claimed a milestone",
+      "value": "Protects the core domain select Praise behavior so still offers a repeatable praise to a user who claimed a milestone.",
+      "description": "Protects the core domain select Praise behavior so still offers a repeatable praise to a user who claimed a milestone."
+    },
+    {
+      "id": "packages-core-src-modules-momentum-tests-praise-selector-test-ts-143-selectpraise-prefers-the-mature-word-over-a-milestone-reached-in-the-same-update",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/momentum/__tests__/praise.selector.test.ts",
+      "sourceLine": 143,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [

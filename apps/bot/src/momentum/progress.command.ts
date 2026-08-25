@@ -6,9 +6,11 @@
  * untouched.
  *
  * The raw score never reaches the user (§3.6): only the band phrase and the bar
- * derived from it. Under `enabled = false` the handler makes no outgoing Telegram
- * call at all — not even `answerCallbackQuery` — which reproduces the silence a
- * `/progress` update met before this feature existed.
+ * derived from it. Under `enabled = false` the typed command makes no outgoing
+ * Telegram call at all, which reproduces the silence a `/progress` update met before
+ * this feature existed. The callback still answers: the button is gated at render
+ * time, so any tap that arrives is from a keyboard printed before the switch went
+ * off, and an unanswered callback spins in the client forever.
  */
 import {
   type I18nKey,
@@ -68,9 +70,9 @@ async function resolveLang(ctx: BotContext): Promise<SupportedLang> {
   return lang && isSupported(lang) ? lang : "en";
 }
 
-async function renderProgress(ctx: BotContext, entry: ProgressEntry): Promise<boolean> {
+async function renderProgress(ctx: BotContext, entry: ProgressEntry): Promise<void> {
   const config = await ctx.services.settings.getMotivationConfig();
-  if (!config.enabled) return false;
+  if (!config.enabled) return;
 
   const now = new Date();
   const userId = ctx.user.id;
@@ -107,7 +109,6 @@ async function renderProgress(ctx: BotContext, entry: ProgressEntry): Promise<bo
 
   logEvent("momentum.progress_opened", { band: snapshot.band, entry });
   motivationProgressOpenedCounter.inc({ band: snapshot.band });
-  return true;
 }
 
 export async function handleProgressCommand(ctx: BotContext): Promise<void> {
@@ -122,6 +123,6 @@ export async function handleProgressCommand(ctx: BotContext): Promise<void> {
 export async function handleProgressCallback(ctx: BotContext): Promise<void> {
   const entry: ProgressEntry =
     ctx.callbackQuery?.data === PROGRESS_FLASHCARD_DONE_CALLBACK ? "flashcard_done" : "srs_done";
-  if (!(await renderProgress(ctx, entry))) return;
+  await renderProgress(ctx, entry);
   await ctx.answerCallbackQuery();
 }

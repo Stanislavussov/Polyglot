@@ -107,6 +107,17 @@ export const momentumRepository: MomentumRepository = {
    * the stale/garbage timezone strings user rows carry, where Postgres would raise `invalid_parameter_value`.
    * The scan is bounded — one user's journal is pruned at 90 days.
    */
+  /** The kind sits between the two colons of `praise:<kind>[:<localDay>]` (see `momentum.service.ts`). */
+  async listPraisedKinds(userId: number): Promise<string[]> {
+    const db = getDb();
+    const rows = await db
+      .selectDistinct({ praiseKind: sql<string>`split_part(${momentumEvents.dedupeKey}, ':', 2)` })
+      .from(momentumEvents)
+      .where(and(eq(momentumEvents.userId, userId), eq(momentumEvents.kind, "praise")));
+
+    return rows.map((row) => row.praiseKind);
+  },
+
   async countActiveDays(userId: number, since: Date, timezone: string): Promise<number> {
     const db = getDb();
     const rows = await db

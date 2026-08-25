@@ -43,6 +43,7 @@ vi.mock("@polyglot/adapter-db", () => ({
     applySnapshot: vi.fn().mockResolvedValue(undefined),
     sumWeightsForLocalDay: vi.fn().mockResolvedValue(0),
     countEventsSince: vi.fn().mockResolvedValue(0),
+    listPraisedKinds: vi.fn().mockResolvedValue([]),
     countActiveDays: vi.fn().mockResolvedValue(0),
     listEventsForReplay: vi.fn().mockResolvedValue([]),
   },

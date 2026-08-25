@@ -138,9 +138,13 @@ export async function handleSrsRate(ctx: BotContext): Promise<void> {
     });
     const done = t("srsDone", lang, { count: String(srs.deck.length) });
     const text = praise ? `${done}\n\n${praise}` : done;
+    const { enabled: showProgress } = await ctx.services.settings.getMotivationConfig();
     ctx.session.srs = undefined;
     try {
-      await editMessageTextOrReply(ctx, text, { parse_mode: "HTML", reply_markup: buildSrsDoneKeyboard(lang) });
+      await editMessageTextOrReply(ctx, text, {
+        parse_mode: "HTML",
+        reply_markup: buildSrsDoneKeyboard(lang, { showProgress }),
+      });
     } catch {
       /* ignore */
     }

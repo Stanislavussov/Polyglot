@@ -33,7 +33,27 @@ export interface SelectPraiseInput {
   evidence: PraiseEvidence;
   lastPraiseAt: Date | null;
   praiseCountLast7d: number;
+  /** Praise kinds this user has ever claimed, from the journal's `praise:*` dedupe keys. */
+  praisedKinds: ReadonlySet<string>;
   now: Date;
+}
+
+/**
+ * Milestones a user passes once in a lifetime. They are claimed by kind alone, and
+ * the selector refuses to offer one twice: the evidence behind them ("you have ten
+ * words") stays true forever, so nothing else would stop a user parked at exactly
+ * ten words from being congratulated for it every week.
+ */
+const ONCE_EVER_KINDS: ReadonlySet<PraiseKind> = new Set([
+  "dictionary_10",
+  "dictionary_25",
+  "dictionary_50",
+  "dictionary_100",
+  "first_mature",
+]);
+
+export function isOnceEverPraise(kind: PraiseKind): boolean {
+  return ONCE_EVER_KINDS.has(kind);
 }
 
 /**
@@ -63,22 +83,32 @@ function selectMilestone(evidence: PraiseEvidence): PraiseDecision | null {
   return null;
 }
 
-function selectEvidence(evidence: PraiseEvidence): PraiseDecision | null {
+/** Everything this evidence could pay for, best first. */
+function candidateDecisions(evidence: PraiseEvidence): PraiseDecision[] {
+  const candidates: PraiseDecision[] = [];
   // A word can only be reported as "stuck" while the user actually has stuck words —
   // the counter is read live from srsInterval, so a stale crossing must not slip past it.
   if (evidence.matureCrossedNow && evidence.matureCount > 0) {
     // The very first one is the milestone; naming the word only means something once
     // "a word of mine reached long-term memory" is no longer the news itself.
     if (evidence.matureCount === 1) {
-      return { kind: "first_mature", i18nKey: "praiseFirstMature", params: {} };
+      candidates.push({ kind: "first_mature", i18nKey: "praiseFirstMature", params: {} });
+    } else {
+      const word = evidence.matureCrossedNow.entryWord;
+      candidates.push({ kind: "mature_word", i18nKey: "praiseMatureWord", params: word ? { word } : {} });
     }
-    const word = evidence.matureCrossedNow.entryWord;
-    return { kind: "mature_word", i18nKey: "praiseMatureWord", params: word ? { word } : {} };
   }
   const milestone = selectMilestone(evidence);
-  if (milestone) return milestone;
+  if (milestone) candidates.push(milestone);
   if (evidence.hardWordRecalledToday) {
-    return { kind: "hard_word_recalled", i18nKey: "praiseHardWordRecalled", params: {} };
+    candidates.push({ kind: "hard_word_recalled", i18nKey: "praiseHardWordRecalled", params: {} });
+  }
+  return candidates;
+}
+
+function selectEvidence(evidence: PraiseEvidence, praisedKinds: ReadonlySet<string>): PraiseDecision | null {
+  for (const candidate of candidateDecisions(evidence)) {
+    if (!isOnceEverPraise(candidate.kind) || !praisedKinds.has(candidate.kind)) return candidate;
   }
   return null;
 }
@@ -90,6 +120,6 @@ export function selectPraise(input: SelectPraiseInput): PraiseOutcome {
   if (input.praiseCountLast7d >= PRAISE_WEEKLY_CAP) {
     return { suppressed: "weekly_cap" };
   }
-  const decision = selectEvidence(input.evidence);
+  const decision = selectEvidence(input.evidence, input.praisedKinds);
   return decision ? { decision } : { suppressed: "no_evidence" };
 }

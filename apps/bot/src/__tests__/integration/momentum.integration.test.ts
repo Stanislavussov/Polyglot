@@ -236,7 +236,7 @@ describe("/progress (integration)", () => {
     expect(screen.buttons).toEqual([]);
   });
 
-  it("makes no outgoing Telegram call at all while the surface is off", async () => {
+  it("makes no outgoing Telegram call at all when the command is typed while the surface is off", async () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     vi.setSystemTime(NOW);
 
@@ -251,10 +251,30 @@ describe("/progress (integration)", () => {
     harness.reset();
 
     await harness.dispatch(messageUpdate({ chatId: id, fromId: id, text: "/progress", messageId: 2 }));
+
+    expect(harness.sent).toEqual([]);
+  });
+
+  it("keeps the button off the done screen while the surface is off, and still answers a stale tap", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(NOW);
+
+    const harness = createBotHarness({ settings: motivationSettings(false) });
+    const id = uniqueTelegramId();
+    const userId = await arrangeOnboardedTranslator(id);
+    await seedVocabulary(userId, { count: 1, mature: 0, due: 1 });
+
+    // The switch has to gate the button, not just the handler: a 📈 that opens
+    // nothing is the dead-button failure this project has already shipped once.
+    expect(await finishSrsSession(harness, id)).toEqual([["srs:restart", "srs:close"]]);
+
+    // A tap can still arrive — from a keyboard printed before the switch went off.
+    // It gets no screen, but it must be answered, or the client spins on it forever.
+    harness.reset();
     await harness.dispatch(
       callbackQueryUpdate({ chatId: id, fromId: id, messageId: 1, data: "progress:open:srs_done" }),
     );
 
-    expect(harness.sent).toEqual([]);
+    expect(harness.sent.map((call) => call.method)).toEqual(["answerCallbackQuery"]);
   });
 });

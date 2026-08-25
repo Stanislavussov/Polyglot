@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 import { PRAISE_COOLDOWN_MS, PRAISE_WEEKLY_CAP, type PraiseEvidence, selectPraise } from "../praise.selector.js";
 
 const NOW = new Date("2026-08-20T12:00:00.000Z");
+const NOTHING_CLAIMED: ReadonlySet<string> = new Set();
 
 function evidence(overrides: Partial<PraiseEvidence> = {}): PraiseEvidence {
   return { dictionaryCount: 12, matureCount: 3, ...overrides };
@@ -17,6 +18,7 @@ describe("selectPraise", () => {
       evidence: evidence({ matureCrossedNow: { entryWord: "Kündigung", translationId: 7 } }),
       lastPraiseAt: null,
       praiseCountLast7d: 0,
+      praisedKinds: NOTHING_CLAIMED,
       now: NOW,
     });
 
@@ -30,6 +32,7 @@ describe("selectPraise", () => {
       evidence: evidence({ matureCount: 0, matureCrossedNow: { entryWord: "Kündigung", translationId: 7 } }),
       lastPraiseAt: null,
       praiseCountLast7d: 0,
+      praisedKinds: NOTHING_CLAIMED,
       now: NOW,
     });
 
@@ -40,6 +43,7 @@ describe("selectPraise", () => {
     const input = {
       evidence: evidence({ matureCrossedNow: { translationId: 7 } }),
       praiseCountLast7d: 0,
+      praisedKinds: NOTHING_CLAIMED,
       now: NOW,
     };
 
@@ -55,6 +59,7 @@ describe("selectPraise", () => {
       evidence: evidence({ matureCrossedNow: { translationId: 7 } }),
       lastPraiseAt: null,
       praiseCountLast7d: PRAISE_WEEKLY_CAP,
+      praisedKinds: NOTHING_CLAIMED,
       now: NOW,
     });
 
@@ -66,6 +71,7 @@ describe("selectPraise", () => {
       evidence: evidence({ dictionaryCount: 12, previousDictionaryCount: 11 }),
       lastPraiseAt: null,
       praiseCountLast7d: 0,
+      praisedKinds: NOTHING_CLAIMED,
       now: NOW,
     });
 
@@ -77,12 +83,14 @@ describe("selectPraise", () => {
       evidence: evidence({ dictionaryCount: 10, previousDictionaryCount: 9 }),
       lastPraiseAt: null,
       praiseCountLast7d: 0,
+      praisedKinds: NOTHING_CLAIMED,
       now: NOW,
     });
     const alreadyPast = selectPraise({
       evidence: evidence({ dictionaryCount: 11, previousDictionaryCount: 10 }),
       lastPraiseAt: null,
       praiseCountLast7d: 0,
+      praisedKinds: NOTHING_CLAIMED,
       now: NOW,
     });
 
@@ -97,11 +105,38 @@ describe("selectPraise", () => {
       evidence: evidence({ dictionaryCount: 52, previousDictionaryCount: 8 }),
       lastPraiseAt: null,
       praiseCountLast7d: 0,
+      praisedKinds: NOTHING_CLAIMED,
       now: NOW,
     });
 
     expect(outcome).toEqual({
       decision: { kind: "dictionary_50", i18nKey: "praiseDictionary50", params: { count: 52 } },
+    });
+  });
+
+  it("never offers a once-ever milestone this user has already claimed", () => {
+    const outcome = selectPraise({
+      evidence: evidence({ dictionaryCount: 10, previousDictionaryCount: 9 }),
+      lastPraiseAt: null,
+      praiseCountLast7d: 0,
+      praisedKinds: new Set(["dictionary_10"]),
+      now: NOW,
+    });
+
+    expect(outcome).toEqual({ suppressed: "no_evidence" });
+  });
+
+  it("still offers a repeatable praise to a user who claimed a milestone", () => {
+    const outcome = selectPraise({
+      evidence: evidence({ dictionaryCount: 10, previousDictionaryCount: 9, hardWordRecalledToday: true }),
+      lastPraiseAt: null,
+      praiseCountLast7d: 0,
+      praisedKinds: new Set(["dictionary_10"]),
+      now: NOW,
+    });
+
+    expect(outcome).toEqual({
+      decision: { kind: "hard_word_recalled", i18nKey: "praiseHardWordRecalled", params: {} },
     });
   });
 
@@ -114,6 +149,7 @@ describe("selectPraise", () => {
       }),
       lastPraiseAt: null,
       praiseCountLast7d: 0,
+      praisedKinds: NOTHING_CLAIMED,
       now: NOW,
     });
 

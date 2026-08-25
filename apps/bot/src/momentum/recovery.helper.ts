@@ -9,8 +9,8 @@
  * the one-shot, and burning it before `ctx.reply` resolves would spend a returning
  * user's single chance on a send that failed. So the caller resolves the prefix,
  * sends the card, and only then commits — deferred delivery (§2.2 S3), which is also
- * why `touchSeen` (not `markSeen`) advances `lastSeenAt` on ordinary interactions:
- * it declines to move while a decided-but-unshown line is pending.
+ * why `lastSeenAt` moves through `touchSeen`: it declines to advance the mark while a
+ * decided-but-unshown line is pending.
  */
 import { errorFields, logEvent, type SupportedLang, t } from "@polyglot/core";
 import { motivationRecoveryShownCounter } from "../metrics.js";

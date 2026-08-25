@@ -8,11 +8,12 @@
  *
  * `recoveryEnabled` / `praiseEnabled` are set by swapping `services.momentumService`
  * for one built on the same real repository with the flags this test needs — the
- * route `momentum-recording.integration.test.ts` already takes. Neither a
- * `system_settings` row (global, and this lane runs two workers against one database)
- * nor the harness's `settings` override reaches it: the container closes over the
- * SettingsService instance it was built with, so replacing `services.settings`
- * afterwards leaves the momentum service reading the real switches.
+ * route `momentum-recording.integration.test.ts` already takes. A `system_settings`
+ * row would not do: it is global, and this lane runs two workers against one database.
+ * The harness's `settings` override does not reach the momentum service either (the
+ * container closes over the SettingsService instance it was built with), so a praise
+ * test sets both: the service decides, and the footer reads the kill switch from
+ * `ctx.services.settings` before it queries any evidence.
  *
  * Time is driven with `vi.setSystemTime` over a Date-only fake, as in
  * `momentum-recording.integration.test.ts`: every momentum instant comes from the
@@ -51,6 +52,14 @@ function momentumServiceWith(flags: Partial<MotivationConfig>) {
     getMotivationConfig: async () => ({ ...DEFAULT_MOTIVATION_CONFIG, ...flags }),
     getTimezone: async () => "UTC",
   });
+}
+
+/**
+ * The same flags for the harness's settings port: the praise footer reads the kill
+ * switch there before it queries any evidence, so a praise test has to flip both.
+ */
+function motivationSettings(flags: Partial<MotivationConfig>) {
+  return { getMotivationConfig: async () => ({ ...DEFAULT_MOTIVATION_CONFIG, ...flags }) };
 }
 
 function sentTexts(sent: CapturedCall[]): string[] {
@@ -277,7 +286,10 @@ describe("praise line (integration)", () => {
   it("carries the tenth-word milestone on the next card only, and counts the cooldown suppression", async () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     vi.setSystemTime(NOW);
-    const harness = createBotHarness({ ai: deterministicTranslateAi() });
+    const harness = createBotHarness({
+      ai: deterministicTranslateAi(),
+      settings: motivationSettings({ praiseEnabled: true }),
+    });
     harness.services.momentumService = momentumServiceWith({ praiseEnabled: true });
     const id = uniqueTelegramId();
     const userId = await arrangeOnboardedTranslator(id);
@@ -310,12 +322,19 @@ describe("praise line (integration)", () => {
   it("says nothing anywhere while the praise kill switch is off", async () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     vi.setSystemTime(NOW);
-    const harness = createBotHarness({ ai: deterministicTranslateAi() });
+    const harness = createBotHarness({
+      ai: deterministicTranslateAi(),
+      settings: motivationSettings({ praiseEnabled: false }),
+    });
     harness.services.momentumService = momentumServiceWith({ praiseEnabled: false });
     const id = uniqueTelegramId();
     const userId = await arrangeOnboardedTranslator(id);
     // Exactly the evidence that would otherwise be praised on the very next card.
     await seedWords(userId, { count: 10, due: 1 });
+    // The mature counter is the praise footer's alone on these two screens, so it is
+    // what tells whether the footer paid for evidence it was never going to use.
+    const countMatureTranslations = vi.fn(vocabularyRepository.countMatureTranslations);
+    harness.services.vocabularyRepository = { ...harness.services.vocabularyRepository, countMatureTranslations };
 
     const killswitchBefore = await praiseSuppressedCount("killswitch");
     await translateWord(harness, id, "hello");
@@ -327,12 +346,16 @@ describe("praise line (integration)", () => {
 
     expect(await praiseSuppressedCount("killswitch")).toBe(killswitchBefore + 2);
     expect(await praiseRowCount(userId)).toBe(0);
+    expect(countMatureTranslations).not.toHaveBeenCalled();
   });
 
   it("puts one praise line in the srsDone text when a word reaches long-term memory", async () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     vi.setSystemTime(NOW);
-    const harness = createBotHarness({ ai: deterministicTranslateAi() });
+    const harness = createBotHarness({
+      ai: deterministicTranslateAi(),
+      settings: motivationSettings({ praiseEnabled: true }),
+    });
     harness.services.momentumService = momentumServiceWith({ praiseEnabled: true });
     const id = uniqueTelegramId();
     const userId = await arrangeOnboardedTranslator(id);
@@ -348,10 +371,40 @@ describe("praise line (integration)", () => {
     expect(await praiseRowCount(userId)).toBe(1);
   });
 
+  it("never praises the same dictionary milestone twice, however long the user waits", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(NOW);
+    const harness = createBotHarness({
+      ai: deterministicTranslateAi(),
+      settings: motivationSettings({ praiseEnabled: true }),
+    });
+    harness.services.momentumService = momentumServiceWith({ praiseEnabled: true });
+    const id = uniqueTelegramId();
+    const userId = await arrangeOnboardedTranslator(id);
+    await seedWords(userId, { count: 10 });
+
+    await translateWord(harness, id, "hello");
+    expect(lastCardText(harness.sent)).toContain(t("praiseDictionary10", "en", { count: 10 }));
+    expect(await praiseRowCount(userId)).toBe(1);
+
+    // Eight days on: the cooldown is over, the row has left the rolling week, and the
+    // dictionary still stands at exactly ten. The claim is the only thing left to
+    // keep the bot quiet — and it has to be enough.
+    vi.setSystemTime(new Date(NOW.getTime() + 8 * DAY_MS));
+    harness.reset();
+    await translateWord(harness, id, "bridge");
+
+    expect(lastCardText(harness.sent)).not.toContain(t("praiseDictionary10", "en", { count: 10 }));
+    expect(await praiseRowCount(userId)).toBe(1);
+  });
+
   it("yields to the recovery line when both are earned by the same update", async () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     vi.setSystemTime(NOW);
-    const harness = createBotHarness({ ai: deterministicTranslateAi() });
+    const harness = createBotHarness({
+      ai: deterministicTranslateAi(),
+      settings: motivationSettings({ recoveryEnabled: true, praiseEnabled: true }),
+    });
     harness.services.momentumService = momentumServiceWith({ recoveryEnabled: true, praiseEnabled: true });
     const id = uniqueTelegramId();
     const userId = await arrangeOnboardedTranslator(id);

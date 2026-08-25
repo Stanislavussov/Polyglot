@@ -118,16 +118,21 @@ export function buildFlashCardBackKeyboard(isLastCard: boolean, lang: SupportedL
   return new InlineKeyboard().text(t("flashcardNext", l), "fc:next").text(t("flashcardQuitBtn", l), "fc:quit");
 }
 
-/** Build the keyboard for the session-complete screen */
-export function buildFlashCardDoneKeyboard(lang: SupportedLang): InlineKeyboard {
+/**
+ * Build the keyboard for the session-complete screen.
+ *
+ * `showProgress` is the motivation kill switch, read by the caller: the 📈 button
+ * opens a screen that renders nothing while the switch is off, and a button that
+ * leads nowhere is this project's known dead-button failure — so the switch has to
+ * gate the button itself, not just the handler.
+ */
+export function buildFlashCardDoneKeyboard(lang: SupportedLang, options: { showProgress: boolean }): InlineKeyboard {
   const l = toLang(lang);
-  return (
-    new InlineKeyboard()
-      .text(t("flashcardNewDeckBtn", l), "fc:restart")
-      .text(t("flashcardClose", l), "fc:close")
-      // Own row: a third button beside these two makes Telegram squeeze all three
-      // captions to unreadable width (Task 81 §6, Slice 2).
-      .row()
-      .text(t("progressButton", l), PROGRESS_FLASHCARD_DONE_CALLBACK)
-  );
+  const kb = new InlineKeyboard()
+    .text(t("flashcardNewDeckBtn", l), "fc:restart")
+    .text(t("flashcardClose", l), "fc:close");
+  // Own row: a third button beside these two makes Telegram squeeze all three
+  // captions to unreadable width (Task 81 §6, Slice 2).
+  if (options.showProgress) kb.row().text(t("progressButton", l), PROGRESS_FLASHCARD_DONE_CALLBACK);
+  return kb;
 }

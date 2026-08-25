@@ -1044,7 +1044,7 @@ async function runTranslationPipeline(
     // surfaces (S2/S3) further down, so the snapshot has to be written before they
     // are read (§4.2). `recordEffort` never rejects, so a momentum outage still
     // delivers the card.
-    await recordEffort(ctx.services.momentumService, {
+    await recordEffort(ctx, {
       userId: ctx.user.id,
       kind: "translate",
       dedupeKey: `translate:${translationRequestId}`,

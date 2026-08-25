@@ -31,16 +31,35 @@ import {
   type RecordEffortResult,
   type ServiceContainer,
 } from "@polyglot/core";
+import { getRequestSettings } from "../middlewares/request-settings.js";
+import type { BotContext } from "../types.js";
 
 /**
- * Credit one effort. Never rejects, and reports `null` when the credit failed.
+ * Credit one effort for the update being handled. Never rejects.
+ *
+ * The timezone rides along from the update's own settings memo: the service needs it
+ * for the daily cap, and reading it here turns what was a `user_language_settings`
+ * SELECT per credited effort into a share of the one this update already paid for.
+ */
+export function recordEffort(ctx: BotContext, effort: RecordEffortInput): Promise<RecordEffortResult | null> {
+  return Promise.resolve()
+    .then(() => getRequestSettings(ctx, effort.userId))
+    .catch(() => null)
+    .then((settings) =>
+      creditEffort(ctx.services.momentumService, settings ? { ...effort, timezone: settings.timezone } : effort),
+    );
+}
+
+/**
+ * Credit one effort against a service directly, for the call sites with no `ctx` to
+ * memoise against. Never rejects, and reports `null` when the credit failed.
  *
  * This is the guarantee §4.2 owes: a momentum failure cannot fail a translation, a
  * save or a review session. `Promise.resolve().then(...)` rather than a bare
  * try/catch so a *synchronous* throw inside `record` is a rejection here too, and
  * every caller stays free to `void` or `await` without its own error handling.
  */
-export function recordEffort(momentum: MomentumService, effort: RecordEffortInput): Promise<RecordEffortResult | null> {
+function creditEffort(momentum: MomentumService, effort: RecordEffortInput): Promise<RecordEffortResult | null> {
   return Promise.resolve()
     .then(() => momentum.record(effort))
     .then((result) => {
@@ -78,7 +97,7 @@ export function withReviewRecording(
     ...repository,
     async logReview(userId: number, entryId: number, sessionType: string): Promise<void> {
       await repository.logReview(userId, entryId, sessionType);
-      await recordEffort(momentum(), {
+      await creditEffort(momentum(), {
         userId,
         kind: "review",
         dedupeKey: (localDay) => `review:${entryId}:${localDay}`,
@@ -102,7 +121,8 @@ export async function recordMatureIfCrossed(
   args: { userId: number; entryId: number; translationId: number; interval: number },
 ): Promise<boolean> {
   if (args.interval < MATURE_INTERVAL_DAYS) return false;
-  const result = await recordEffort(momentum, {
+  // `mature` is uncapped, so the service needs no local day and no timezone for it.
+  const result = await creditEffort(momentum, {
     userId: args.userId,
     kind: "mature",
     dedupeKey: `mature:${args.translationId}`,

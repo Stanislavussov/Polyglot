@@ -127,6 +127,8 @@ const MOTIVATION_ON: MotivationConfig = {
   recoveryEnabled: false,
 };
 const MOTIVATION_OFF: MotivationConfig = { ...MOTIVATION_ON, enabled: false };
+/** The surface is on but the journal is closed — the combination W6 is about. */
+const MOTIVATION_NOT_RECORDING: MotivationConfig = { ...MOTIVATION_ON, recordingEnabled: false };
 
 /**
  * The real scheduling pipeline pinned to this file's slot, with both just-in-time
@@ -319,5 +321,31 @@ describe("weekly proof line in a scheduled notification (integration)", () => {
       ).toBe(true);
       expect(await momentumRepository.countEventsSince(userId, "weekly_proof", new Date(0))).toBe(1);
     });
+  });
+  it("W6: with recording off the line stays away and writes no journal row", async () => {
+    // `recordingEnabled = false` is the switch that stops the journal growing. The
+    // weekly line's own "once per 7 days" is held by a `weekly_proof` row, so a line
+    // shown while recording is off could neither be recorded nor stopped — it would
+    // ride every notification. Both the row and the line must be absent.
+    const harness = createBotHarness();
+    const telegramId = uniqueTelegramId();
+    const { userId, headword } = await arrangeSubscriber(telegramId);
+    await seedMomentum(userId, "mature", 2, new Date(), "w6");
+    await seedMomentum(userId, "review", 5, new Date(), "w6");
+
+    const settings = await userRepository.getSettings(userId);
+    const payload = payloadFor(headword);
+
+    await withMotivation(MOTIVATION_NOT_RECORDING, async () => {
+      const { sendFn } = await buildDelivery(harness, () => new Date());
+      harness.reset();
+      await sendFn(userId, payload);
+
+      const mine = messagesTo(harness.sent, telegramId);
+      expect(mine).toHaveLength(1);
+      expect(textOf(mine[0]!)).toBe(formatNotificationMessage(payload, "en", languageOrderFromSettings(settings)));
+    });
+
+    expect(await momentumRepository.countEventsSince(userId, "weekly_proof", new Date(0))).toBe(0);
   });
 });

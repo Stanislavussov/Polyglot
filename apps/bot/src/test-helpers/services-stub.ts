@@ -112,7 +112,6 @@ export function createMomentumServiceStub(): ServiceContainer["momentumService"]
     }),
     decideRecovery: vi.fn().mockResolvedValue({ show: false }),
     markRecoveryShown: vi.fn().mockResolvedValue(undefined),
-    markSeen: vi.fn().mockResolvedValue(undefined),
     touchSeen: vi.fn().mockResolvedValue(undefined),
     decidePraise: vi.fn().mockResolvedValue({ suppressed: "killswitch" }),
     markPraiseShown: vi.fn().mockResolvedValue(false),

@@ -78,11 +78,16 @@ describe("renderSrsBack", () => {
 });
 
 describe("buildSrsDoneKeyboard", () => {
-  it("puts the progress button on a row of its own", () => {
-    const rows = buildSrsDoneKeyboard("en").inline_keyboard.map((row) =>
+  const rowsOf = (showProgress: boolean): string[][] =>
+    buildSrsDoneKeyboard("en", { showProgress }).inline_keyboard.map((row) =>
       row.map((button) => ("callback_data" in button ? button.callback_data : "")),
     );
 
-    expect(rows).toEqual([["srs:restart", "srs:close"], ["progress:open:srs_done"]]);
+  it("puts the progress button on a row of its own", () => {
+    expect(rowsOf(true)).toEqual([["srs:restart", "srs:close"], ["progress:open:srs_done"]]);
+  });
+
+  it("omits the progress button while the motivation surface is off", () => {
+    expect(rowsOf(false)).toEqual([["srs:restart", "srs:close"]]);
   });
 });

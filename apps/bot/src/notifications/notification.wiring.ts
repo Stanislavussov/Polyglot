@@ -163,7 +163,11 @@ export async function buildNotificationScheduling(
   ): Promise<WeeklyProof | null> => {
     try {
       const motivation = await settings.getMotivationConfig();
-      if (!motivation.enabled) return null;
+      // Both switches, not just the surface one: the "once per 7 days" rule is held by
+      // a `weekly_proof` row, so with recording off the line would have no token to
+      // stop it and would ride every single notification — and a surface that keeps
+      // growing `momentum_events` is exactly what `recordingEnabled = false` denies.
+      if (!motivation.recordingEnabled || !motivation.enabled) return null;
 
       const at = now();
       const since = new Date(at.getTime() - WEEK_MS);
@@ -187,7 +191,7 @@ export async function buildNotificationScheduling(
               kind: "weekly_proof",
               weight: 0,
               occurredAt: at,
-              dedupeKey: `weekly:${localDayKey(timezone, at)}`,
+              dedupeKey: `weekly_proof:${localDayKey(timezone, at)}`,
             });
             logEvent("momentum.weekly_line_shown", { mature, reviews });
           } catch (err) {

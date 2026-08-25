@@ -30,6 +30,12 @@ export interface MomentumRepository {
   /** Points already spent by `kind` inside the user's local day, as `[dayStart, dayEnd)` UTC instants. */
   sumWeightsForLocalDay(userId: number, kind: EffortKind, dayStart: Date, dayEnd: Date): Promise<number>;
   countEventsSince(userId: number, kind: MomentumEventKind, since: Date): Promise<number>;
+  /**
+   * Distinct praise kinds this user has ever claimed, read off the `praise:<kind>[:<localDay>]`
+   * dedupe keys of the `praise` rows. What makes a once-ever milestone once-ever, since the
+   * evidence behind it ("ten words saved") stays true forever.
+   */
+  listPraisedKinds(userId: number): Promise<string[]>;
   countActiveDays(userId: number, since: Date, timezone: string): Promise<number>;
   listEventsForReplay(userId: number): Promise<MomentumReplayEvent[]>;
 }

@@ -197,6 +197,7 @@ describe("momentum recording (integration)", () => {
       applySnapshot: down,
       sumWeightsForLocalDay: down,
       countEventsSince: down,
+      listPraisedKinds: down,
       countActiveDays: down,
       listEventsForReplay: down,
     };

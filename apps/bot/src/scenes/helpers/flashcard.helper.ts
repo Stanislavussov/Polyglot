@@ -163,7 +163,8 @@ export async function handleFcDone(ctx: BotContext): Promise<void> {
   const praise = await resolvePraiseLine(ctx, lang, "flashcard_done", new Date());
   const done = t("flashcardDone", lang, { count: String(fc.deck.length) });
   const text = praise ? `${done}\n\n${praise}` : done;
-  const kb = buildFlashCardDoneKeyboard(lang);
+  const { enabled: showProgress } = await ctx.services.settings.getMotivationConfig();
+  const kb = buildFlashCardDoneKeyboard(lang, { showProgress });
 
   await editMessageTextOrReply(ctx, text, { parse_mode: "HTML", reply_markup: kb });
   ctx.session.flashcard = undefined;

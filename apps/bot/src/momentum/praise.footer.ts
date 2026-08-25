@@ -49,6 +49,13 @@ export async function resolvePraiseLine(
   session: SessionPraiseEvidence = {},
 ): Promise<string | null> {
   try {
+    // The kill switch is read before the evidence, never after: two COUNT queries on
+    // every rendered card are exactly what a switched-off surface must not cost (§4.6).
+    if (!(await ctx.services.settings.getMotivationConfig()).praiseEnabled) {
+      motivationPraiseSuppressedCounter.inc({ reason: "killswitch" });
+      return null;
+    }
+
     const momentum = ctx.services.momentumService;
     const [dictionaryCount, matureCount] = await Promise.all([
       ctx.services.vocabularyRepository.countByUser(ctx.user.id),

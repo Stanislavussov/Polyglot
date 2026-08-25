@@ -104,7 +104,9 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
     });
     // Re-linking is a save too, and `save:<entryId>` is what keeps a word the user
     // already banked from being credited twice (§3.8).
-    void recordEffort(ctx.services.momentumService, {
+    // Awaited, not fired and forgotten: nothing rendered here depends on it, but the
+    // save is the last thing this handler does and the credit must not outlive it.
+    await recordEffort(ctx, {
       userId: ctx.user.id,
       kind: "save",
       dedupeKey: `save:${existing.id}`,
@@ -133,7 +135,7 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
     inputType,
     outcome: "created",
   });
-  void recordEffort(ctx.services.momentumService, {
+  await recordEffort(ctx, {
     userId: ctx.user.id,
     kind: "save",
     dedupeKey: `save:${newEntry.id}`,

@@ -58,6 +58,12 @@ function createFakeRepository(): FakeRepository {
     async countEventsSince(userId, kind, since) {
       return events.filter((e) => e.userId === userId && e.kind === kind && e.occurredAt >= since).length;
     },
+    async listPraisedKinds(userId) {
+      const kinds = events
+        .filter((e) => e.userId === userId && e.kind === "praise")
+        .map((e) => e.dedupeKey.split(":")[1] ?? "");
+      return [...new Set(kinds)];
+    },
     async countActiveDays(userId, since, timezone) {
       return activeDaysFromEvents(
         events.filter((e) => e.userId === userId),
@@ -71,6 +77,11 @@ function createFakeRepository(): FakeRepository {
         .map((e) => ({ kind: e.kind, weight: e.weight, occurredAt: e.occurredAt }));
     },
   };
+}
+
+/** Seed the snapshot's own mark directly: only the recovery line writes it in production. */
+async function seedLastSeen(userId: number, at: Date): Promise<void> {
+  await repo.applySnapshot(userId, { lastSeenAt: at, updatedAt: at });
 }
 
 const USER_ID = 501;
@@ -111,7 +122,6 @@ describe("record", () => {
     const service = createService();
 
     await service.touchSeen(USER_ID);
-    await service.markSeen(USER_ID);
     await service.markRecoveryShown(USER_ID);
 
     // The marks write only to the snapshot, so nothing else would stop them from
@@ -171,6 +181,31 @@ describe("record", () => {
     expect(nextDay).toEqual({ inserted: true, weight: 1 });
   });
 
+  it("advances lastSeenAt on a review but never on a translate", async () => {
+    const twoDaysAgo = new Date(NOW.getTime() - 2 * DAY_MS);
+    const service = createService();
+    await seedLastSeen(USER_ID, twoDaysAgo);
+
+    // The translate path owns the recovery line, so only it may leave the mark stale.
+    await service.record({ userId: USER_ID, kind: "translate", dedupeKey: "translate:1" });
+    expect(repo.snapshots.get(USER_ID)?.lastSeenAt).toEqual(twoDaysAgo);
+
+    await service.record({ userId: USER_ID, kind: "review", dedupeKey: "review:1" });
+    expect(repo.snapshots.get(USER_ID)?.lastSeenAt).toEqual(NOW);
+  });
+
+  it("leaves a pending recovery line alive when a review is credited first", async () => {
+    config.recoveryEnabled = true;
+    const nineDaysAgo = new Date(NOW.getTime() - 9 * DAY_MS);
+    const service = createService();
+    await seedLastSeen(USER_ID, nineDaysAgo);
+
+    await service.record({ userId: USER_ID, kind: "review", dedupeKey: "review:1" });
+
+    expect(repo.snapshots.get(USER_ID)?.lastSeenAt).toEqual(nineDaysAgo);
+    expect(await service.decideRecovery(USER_ID)).toEqual({ show: true, gapDays: 9 });
+  });
+
   it("never caps mature", async () => {
     const service = createService();
 
@@ -209,29 +244,29 @@ describe("recovery", () => {
     config.recoveryEnabled = true;
   });
 
-  it("shows nothing for a user we have never seen, and markSeen initializes them", async () => {
+  it("shows nothing for a user we have never seen, and the first touch initializes them", async () => {
     const service = createService();
 
     expect(await service.decideRecovery(USER_ID)).toEqual({ show: false });
 
-    await service.markSeen(USER_ID);
+    await service.touchSeen(USER_ID);
     expect(repo.snapshots.get(USER_ID)?.lastSeenAt).toEqual(NOW);
   });
 
   it("shows the line after a pause of a week or more, but not for yesterday's user", async () => {
     const service = createService();
 
-    await service.markSeen(USER_ID, new Date(NOW.getTime() - DAY_MS));
+    await seedLastSeen(USER_ID, new Date(NOW.getTime() - DAY_MS));
     expect(await service.decideRecovery(USER_ID)).toEqual({ show: false });
 
-    await service.markSeen(USER_ID, new Date(NOW.getTime() - 9 * DAY_MS));
+    await seedLastSeen(USER_ID, new Date(NOW.getTime() - 9 * DAY_MS));
     expect(await service.decideRecovery(USER_ID)).toEqual({ show: true, gapDays: 9 });
   });
 
   it("stays silent while the kill switch is off", async () => {
     config.recoveryEnabled = false;
     const service = createService();
-    await service.markSeen(USER_ID, new Date(NOW.getTime() - 9 * DAY_MS));
+    await seedLastSeen(USER_ID, new Date(NOW.getTime() - 9 * DAY_MS));
 
     expect(await service.decideRecovery(USER_ID)).toEqual({ show: false });
   });
@@ -239,7 +274,7 @@ describe("recovery", () => {
   it("keeps lastSeenAt stale until the pending line is actually shown", async () => {
     const service = createService();
     const nineDaysAgo = new Date(NOW.getTime() - 9 * DAY_MS);
-    await service.markSeen(USER_ID, nineDaysAgo);
+    await seedLastSeen(USER_ID, nineDaysAgo);
 
     // An intermediate screen with nowhere to render the line must not burn the chance.
     await service.touchSeen(USER_ID);
@@ -253,17 +288,28 @@ describe("recovery", () => {
 
   it("advances lastSeenAt on a touch when no line is pending", async () => {
     const service = createService();
-    await service.markSeen(USER_ID, new Date(NOW.getTime() - DAY_MS));
+    await seedLastSeen(USER_ID, new Date(NOW.getTime() - DAY_MS));
 
     await service.touchSeen(USER_ID);
 
     expect(repo.snapshots.get(USER_ID)?.lastSeenAt).toEqual(NOW);
   });
 
+  it("leaves a mark written minutes ago alone", async () => {
+    const service = createService();
+    const halfAnHourAgo = new Date(NOW.getTime() - 30 * 60 * 1000);
+    await seedLastSeen(USER_ID, halfAnHourAgo);
+
+    await service.touchSeen(USER_ID);
+
+    // Nothing reads lastSeenAt at that resolution, so the UPSERT would buy nothing.
+    expect(repo.snapshots.get(USER_ID)?.lastSeenAt).toEqual(halfAnHourAgo);
+  });
+
   it("does not show a second line within a week of the last one", async () => {
     const service = createService();
     await service.markRecoveryShown(USER_ID, new Date(NOW.getTime() - 3 * DAY_MS));
-    await service.markSeen(USER_ID, new Date(NOW.getTime() - 9 * DAY_MS));
+    await seedLastSeen(USER_ID, new Date(NOW.getTime() - 9 * DAY_MS));
 
     expect(await service.decideRecovery(USER_ID)).toEqual({ show: false });
   });
@@ -295,6 +341,32 @@ describe("praise", () => {
       dedupeKey: `praise:mature_word:${localDayKey("Europe/Berlin", NOW)}`,
     });
     expect(repo.snapshots.get(USER_ID)?.lastPraiseAt).toEqual(NOW);
+  });
+
+  it("claims a once-ever milestone with no day in the key, so it can never come back", async () => {
+    let now = NOW;
+    const service = createService(() => now);
+
+    expect(await service.markPraiseShown(USER_ID, "dictionary_10")).toBe(true);
+    expect(repo.events[0]).toMatchObject({ kind: "praise", dedupeKey: "praise:dictionary_10" });
+
+    // A week on, the first row has aged out of the weekly window and the user still
+    // has exactly ten words — the claim, not the window, is what makes this silent.
+    now = new Date(NOW.getTime() + 8 * DAY_MS);
+    expect(await service.markPraiseShown(USER_ID, "dictionary_10")).toBe(false);
+    expect(repo.events).toHaveLength(1);
+  });
+
+  it("never offers a milestone the journal already shows as claimed", async () => {
+    let now = NOW;
+    const service = createService(() => now);
+    await service.markPraiseShown(USER_ID, "dictionary_10");
+
+    now = new Date(NOW.getTime() + 8 * DAY_MS);
+
+    expect(await service.decidePraise(USER_ID, { dictionaryCount: 10, matureCount: 0 })).toEqual({
+      suppressed: "no_evidence",
+    });
   });
 
   it("suppresses on cooldown right after a shown praise", async () => {

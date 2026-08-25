@@ -91,15 +91,17 @@ export function buildSrsBackKeyboard(lang: SupportedLang): InlineKeyboard {
     .text(t("srsQuitBtn", l), "srs:quit");
 }
 
-export function buildSrsDoneKeyboard(lang: SupportedLang): InlineKeyboard {
+/**
+ * `showProgress` is the motivation kill switch, read by the caller: the 📈 button
+ * opens a screen that renders nothing while the switch is off, and a button that
+ * leads nowhere is this project's known dead-button failure — so the switch has to
+ * gate the button itself, not just the handler.
+ */
+export function buildSrsDoneKeyboard(lang: SupportedLang, options: { showProgress: boolean }): InlineKeyboard {
   const l = toLang(lang);
-  return (
-    new InlineKeyboard()
-      .text(t("srsNewSessionBtn", l), "srs:restart")
-      .text(t("srsClose", l), "srs:close")
-      // Own row: a third button beside these two makes Telegram squeeze all three
-      // captions to unreadable width (Task 81 §6, Slice 2).
-      .row()
-      .text(t("progressButton", l), PROGRESS_SRS_DONE_CALLBACK)
-  );
+  const kb = new InlineKeyboard().text(t("srsNewSessionBtn", l), "srs:restart").text(t("srsClose", l), "srs:close");
+  // Own row: a third button beside these two makes Telegram squeeze all three
+  // captions to unreadable width (Task 81 §6, Slice 2).
+  if (options.showProgress) kb.row().text(t("progressButton", l), PROGRESS_SRS_DONE_CALLBACK);
+  return kb;
 }
