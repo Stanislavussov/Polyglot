@@ -1,8 +1,7 @@
 /**
- * Momentum service — the only writer of the journal and the snapshot (§4).
- *
- * No scheduler: decay is computed lazily on read, credit happens at the moment of
- * the fact. A system without a scheduler cannot spam anyone.
+ * The only writer of the journal and the snapshot (§4). No scheduler: decay is
+ * computed lazily on read and credit happens at the moment of the fact, because a
+ * system without a scheduler cannot spam anyone.
  */
 import { logEvent } from "../../observability/events.js";
 import type { MomentumRepository } from "../../ports/momentum.repository.js";

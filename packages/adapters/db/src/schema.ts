@@ -1,4 +1,4 @@
-import type { TranslateOutput } from "@polyglot/core";
+import type { MomentumEventKind, TranslateOutput } from "@polyglot/core";
 import { sql } from "drizzle-orm";
 import {
   bigint,
@@ -19,7 +19,6 @@ import {
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
-import type { MomentumEventKind } from "./repositories/momentum.repository.js";
 import type { SourceUsage, VocabTranslationDetails, VocabularySource } from "./repositories/vocabulary.repository.js";
 
 // ─────────────────────────────────────────────

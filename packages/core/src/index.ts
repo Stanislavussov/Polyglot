@@ -164,7 +164,6 @@ export type {
 } from "./modules/momentum/momentum.service.js";
 export { createMomentumService, RECOVERY_GAP_MS } from "./modules/momentum/momentum.service.js";
 export type {
-  EffortEvent,
   EffortKind,
   MomentumBand,
   MomentumEventKind,

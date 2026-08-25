@@ -1,10 +1,7 @@
 /**
- * Momentum — the vocabulary of the motivation layer (Task 81).
- *
- * The stored `score` is only comparable after discounting it to a common
- * instant (§3.1): two users with the same number but different `scoredAt` are
- * in different shape. Nothing here renders text — the praise selector returns
- * i18n keys, and the bot owns the copy.
+ * The stored `score` is only comparable after discounting it to a common instant
+ * (§3.1): two users with the same number but different `scoredAt` are in different
+ * shape. Nothing here renders text — core returns i18n keys, the bot owns the copy.
  */
 import { z } from "zod";
 import type { I18nKey } from "../i18n/types.js";
@@ -77,15 +74,6 @@ export interface MomentumSnapshot extends MomentumState {
   lastSeenAt: Date | null;
   lastPraiseAt: Date | null;
   lastRecoveryAt: Date | null;
-}
-
-export interface EffortEvent {
-  userId: number;
-  kind: EffortKind;
-  /** Deterministic by construction — never a counted ordinal, or retries would double-credit (§3.8). */
-  dedupeKey: string;
-  occurredAt: Date;
-  timezone: string;
 }
 
 export type PraiseKind =

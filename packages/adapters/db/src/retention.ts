@@ -14,9 +14,9 @@
  * `timestamptz` columns, so the horizon does not depend on the container/process
  * timezone.
  */
+import type { MomentumEventKind } from "@polyglot/core";
 import { and, lt, notInArray } from "drizzle-orm";
 import { getDb } from "./connection.js";
-import type { MomentumEventKind } from "./repositories/momentum.repository.js";
 import {
   aiRequestLatencies,
   botSessions,
@@ -32,10 +32,10 @@ import {
 } from "./schema.js";
 
 /** Default retention horizon in days. Overridable per call / via env at the caller. */
+export const DEFAULT_RETENTION_DAYS = 90;
+
 /** Journal kinds that act as idempotency claims rather than effort; see the momentum delete below. */
 const MOMENTUM_CLAIM_KINDS: MomentumEventKind[] = ["praise", "mature", "weekly_proof"];
-
-export const DEFAULT_RETENTION_DAYS = 90;
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 

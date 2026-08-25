@@ -102,10 +102,9 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
       inputType,
       outcome: "relinked_existing",
     });
-    // Re-linking is a save too, and `save:<entryId>` is what keeps a word the user
-    // already banked from being credited twice (§3.8).
-    // Awaited, not fired and forgotten: nothing rendered here depends on it, but the
-    // save is the last thing this handler does and the credit must not outlive it.
+    // Re-linking is a save too; `save:<entryId>` is what keeps a word the user already
+    // banked from being credited twice (§3.8). Awaited because the save is the last
+    // thing this handler does and the credit must not outlive it.
     await recordEffort(ctx, {
       userId: ctx.user.id,
       kind: "save",

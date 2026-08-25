@@ -1,16 +1,6 @@
 /**
  * Momentum recording wiring (Task 81, §4.1–4.2).
  *
- * Eight call sites collapse into ONE repository wrapper plus four direct calls:
- *
- * | kind          | where                                                          |
- * |---------------|----------------------------------------------------------------|
- * | `review`      | `withReviewRecording` — covers all four `logReview` call sites  |
- * | `translate`   | direct, `translate-flow.ts` after `logTranslationRequest`       |
- * | `save`        | direct, `card-actions.ts` once the entry id is known            |
- * | `mentor_turn` | direct, `mentor-mode.helper.ts` keyed by `ctx.update.update_id` |
- * | `mature`      | `recordMatureIfCrossed`, on the single `updateSrsState` site    |
- *
  * `logTranslationRequest` is deliberately NOT wrapped: its second caller,
  * `recordAiUsage`, bills every paid AI call (video, word-picker, mentor…), so a
  * wrapper would credit a translation for watching a video and double-credit a
@@ -38,8 +28,8 @@ import type { BotContext } from "../types.js";
  * Credit one effort for the update being handled. Never rejects.
  *
  * The timezone rides along from the update's own settings memo: the service needs it
- * for the daily cap, and reading it here turns what was a `user_language_settings`
- * SELECT per credited effort into a share of the one this update already paid for.
+ * for the daily cap, and reading it here turns a `user_language_settings` SELECT per
+ * credited effort into a share of the one this update already paid for.
  */
 export function recordEffort(ctx: BotContext, effort: RecordEffortInput): Promise<RecordEffortResult | null> {
   return Promise.resolve()
@@ -51,13 +41,11 @@ export function recordEffort(ctx: BotContext, effort: RecordEffortInput): Promis
 }
 
 /**
- * Credit one effort against a service directly, for the call sites with no `ctx` to
- * memoise against. Never rejects, and reports `null` when the credit failed.
- *
- * This is the guarantee §4.2 owes: a momentum failure cannot fail a translation, a
- * save or a review session. `Promise.resolve().then(...)` rather than a bare
- * try/catch so a *synchronous* throw inside `record` is a rejection here too, and
- * every caller stays free to `void` or `await` without its own error handling.
+ * Never rejects, and reports `null` when the credit failed — the guarantee §4.2 owes:
+ * a momentum failure cannot fail a translation, a save or a review session.
+ * `Promise.resolve().then(...)` rather than a bare try/catch so a *synchronous* throw
+ * inside `record` is a rejection here too, and every caller stays free to `void` or
+ * `await` without its own error handling.
  */
 function creditEffort(momentum: MomentumService, effort: RecordEffortInput): Promise<RecordEffortResult | null> {
   return Promise.resolve()
@@ -79,8 +67,6 @@ function creditEffort(momentum: MomentumService, effort: RecordEffortInput): Pro
 }
 
 /**
- * Wrap `logReview` so every review credits momentum, from all four call sites.
- *
  * The credit is awaited inside the wrapper (the plan sketched `void`): callers that
  * already await `logReview` then observe the journal row on return, which is what
  * makes the e2e assertion deterministic instead of racing the dispatch. Callers that
@@ -107,14 +93,12 @@ export function withReviewRecording(
 }
 
 /**
- * Credit `mature` when this SRS update pushes a word past the "stuck" threshold.
- *
  * No pre-read of the previous interval: the `mature:<translationId>` dedupe key is
  * what makes "once per word, ever" hold, whatever the interval was before (§3.8) —
  * which is also why the event is logged only on the insert that actually claimed it.
  *
- * Returns whether THIS rating is the one that claimed the crossing, which is the
- * evidence the end-of-session praise line stands on (§2.2 S2).
+ * Returns whether THIS rating claimed the crossing, the evidence the end-of-session
+ * praise line stands on (§2.2 S2).
  */
 export async function recordMatureIfCrossed(
   momentum: MomentumService,

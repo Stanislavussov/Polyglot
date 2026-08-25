@@ -11,9 +11,6 @@ import { and, asc, count, eq, gte, lt, sql } from "drizzle-orm";
 import { getDb } from "../connection.js";
 import { momentumEvents, userMomentum } from "../schema.js";
 
-export type { EffortKind, MomentumEventKind } from "@polyglot/core";
-export { EFFORT_KINDS } from "@polyglot/core";
-
 export const momentumRepository: MomentumRepository = {
   async getSnapshot(userId: number): Promise<MomentumSnapshot | null> {
     const db = getDb();
@@ -101,12 +98,6 @@ export const momentumRepository: MomentumRepository = {
     return rows[0]?.value ?? 0;
   },
 
-  /**
-   * Bucketed in JS by `activeDaysFromEvents` rather than by `(occurred_at AT TIME ZONE tz)::date`:
-   * the same helper already keys the dedupe keys and the daily caps, and it falls back to UTC on
-   * the stale/garbage timezone strings user rows carry, where Postgres would raise `invalid_parameter_value`.
-   * The scan is bounded — one user's journal is pruned at 90 days.
-   */
   /** The kind sits between the two colons of `praise:<kind>[:<localDay>]` (see `momentum.service.ts`). */
   async listPraisedKinds(userId: number): Promise<string[]> {
     const db = getDb();
@@ -118,6 +109,11 @@ export const momentumRepository: MomentumRepository = {
     return rows.map((row) => row.praiseKind);
   },
 
+  /**
+   * Bucketed in JS by `activeDaysFromEvents` rather than by `(occurred_at AT TIME ZONE tz)::date`:
+   * the helper falls back to UTC on the stale/garbage timezone strings user rows carry, where
+   * Postgres would raise `invalid_parameter_value`. The scan is bounded — the journal is pruned at 90 days.
+   */
   async countActiveDays(userId: number, since: Date, timezone: string): Promise<number> {
     const db = getDb();
     const rows = await db

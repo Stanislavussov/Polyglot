@@ -760,7 +760,9 @@ async function sendTranslationCard(
   const recovery = fromTextMessage ? await resolveRecoveryPrefix(ctx, lang, now) : null;
   // Recovery wins over praise, and praise's cooldown is not spent on the loss.
   const praise = fromTextMessage && !recovery ? await resolvePraiseLine(ctx, lang, "translation_card", now) : null;
-  const cardText = recovery ? `${recovery.text}\n\n${card}` : praise ? `${card}\n\n${praise}` : card;
+  let cardText = card;
+  if (recovery) cardText = `${recovery.text}\n\n${card}`;
+  else if (praise) cardText = `${card}\n\n${praise}`;
 
   const cardMsg = await ctx.reply(cardText, { parse_mode: "HTML" });
   // Only after the send resolved: a failed delivery must not burn the one-shot.

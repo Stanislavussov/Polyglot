@@ -91,12 +91,7 @@ export function buildSrsBackKeyboard(lang: SupportedLang): InlineKeyboard {
     .text(t("srsQuitBtn", l), "srs:quit");
 }
 
-/**
- * `showProgress` is the motivation kill switch, read by the caller: the 📈 button
- * opens a screen that renders nothing while the switch is off, and a button that
- * leads nowhere is this project's known dead-button failure — so the switch has to
- * gate the button itself, not just the handler.
- */
+/** The 📈 screen renders nothing while the kill switch is off, so the switch gates the button too — not just the handler. */
 export function buildSrsDoneKeyboard(lang: SupportedLang, options: { showProgress: boolean }): InlineKeyboard {
   const l = toLang(lang);
   const kb = new InlineKeyboard().text(t("srsNewSessionBtn", l), "srs:restart").text(t("srsClose", l), "srs:close");

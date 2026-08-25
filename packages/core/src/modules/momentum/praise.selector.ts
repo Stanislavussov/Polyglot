@@ -1,7 +1,6 @@
 /**
- * Praise selection — pure, evidence-first (§2.3). Praise is only ever earned by a
- * fact that already happened; there is no branch that congratulates a user for
- * showing up. The selector returns an i18n key, never a rendered string.
+ * Evidence-first (§2.3): praise is only ever earned by a fact that already happened,
+ * so there is no branch that congratulates a user for showing up.
  */
 import type { PraiseDecision, PraiseKind } from "./momentum.types.js";
 

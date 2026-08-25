@@ -99,7 +99,7 @@ export function createSettingsStub(): ServiceContainer["settings"] {
  * as thenable, and a bare `vi.fn()` returning `undefined` would throw at the first
  * `.then`/`await` instead of doing nothing.
  */
-export function createMomentumServiceStub(): ServiceContainer["momentumService"] {
+function createMomentumServiceStub(): ServiceContainer["momentumService"] {
   return {
     record: vi.fn().mockResolvedValue({ inserted: true, weight: 1 }),
     getSnapshot: vi.fn().mockResolvedValue({

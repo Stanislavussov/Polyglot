@@ -1,11 +1,6 @@
 /**
  * Praise line — S2 of the motivation layer (Task 81, §2.2, Slice 4).
  *
- * One line appended to a card the user was going to receive anyway, and only when a
- * counted fact paid for it. The selector in core decides *which* fact and returns an
- * i18n key; this file gathers the evidence, renders the copy, and files the journal
- * token that makes "once per kind per day" and the weekly cap hold.
- *
  * Evidence timing on the translation card, which the acceptance criterion turns on:
  * the card is rendered BEFORE the user taps 💾, so the dictionary count read here is
  * the count as of the previous save. `previousDictionaryCount` is therefore left

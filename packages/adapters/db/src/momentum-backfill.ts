@@ -2,15 +2,14 @@
  * Momentum backfill — replay semantics (Task 81, plan §3.9).
  *
  * Historical effort lives in tables the motivation layer never wrote to
- * (`word_review_log`, `vocabulary_entries`, `translation_requests`), so a user who
- * was active before Slice 1 shipped would otherwise start at zero. This script
- * writes the missing journal rows with the same deterministic dedupe keys as the
- * live path, then recomputes the snapshot by replaying **all** of the user's
- * `momentum_events` — live rows included. Replay, not "sum the historical rows":
- * a naive implementation run after a week of live recording would overwrite the
- * live score with a smaller one. `applyEffort` is commutative (§3.3), so the replay
- * lands on exactly the value incremental recording would have produced, and a
- * re-run changes nothing.
+ * (`word_review_log`, `vocabulary_entries`, `translation_requests`), so a user active
+ * before Slice 1 shipped would otherwise start at zero.
+ *
+ * The snapshot is recomputed by replaying **all** of the user's `momentum_events` —
+ * live rows included — rather than summing the historical ones: a naive sum run after
+ * a week of live recording would overwrite the live score with a smaller one.
+ * `applyEffort` is commutative (§3.3), so the replay lands on exactly the value
+ * incremental recording would have produced, and a re-run changes nothing.
  *
  * It lives in the adapter rather than the bot so it is exercised by the db
  * integration lane without a bot harness.

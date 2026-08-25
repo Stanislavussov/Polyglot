@@ -1,8 +1,7 @@
 /**
- * Momentum math — pure functions over an explicit clock (§3.2–3.4). No adapters,
- * no ambient time: every entry point takes the instant as an argument, because the
- * backfill replays historical events and must produce the same result as live
- * recording did.
+ * No ambient time: every entry point takes the instant as an argument, because the
+ * backfill replays historical events and must produce the same result live recording
+ * did (§3.2–3.4).
  */
 import {
   BAND_THRESHOLDS,

@@ -1,16 +1,12 @@
 /**
  * `/progress` — the momentum screen (Task 81, Slice 2, §2.2 S1).
  *
- * Reached by the 📈 button on the two done-keyboards and by typing the command;
- * deliberately absent from the Telegram command menu (O2), so `commands.ts` is
- * untouched.
- *
  * The raw score never reaches the user (§3.6): only the band phrase and the bar
  * derived from it. Under `enabled = false` the typed command makes no outgoing
- * Telegram call at all, which reproduces the silence a `/progress` update met before
- * this feature existed. The callback still answers: the button is gated at render
- * time, so any tap that arrives is from a keyboard printed before the switch went
- * off, and an unanswered callback spins in the client forever.
+ * Telegram call at all, reproducing the silence a `/progress` update met before this
+ * feature existed. The callback still answers: the button is gated at render time, so
+ * any tap that arrives is from a keyboard printed before the switch went off, and an
+ * unanswered callback spins in the client forever.
  */
 import {
   type I18nKey,

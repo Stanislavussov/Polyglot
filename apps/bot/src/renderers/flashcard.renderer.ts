@@ -118,14 +118,7 @@ export function buildFlashCardBackKeyboard(isLastCard: boolean, lang: SupportedL
   return new InlineKeyboard().text(t("flashcardNext", l), "fc:next").text(t("flashcardQuitBtn", l), "fc:quit");
 }
 
-/**
- * Build the keyboard for the session-complete screen.
- *
- * `showProgress` is the motivation kill switch, read by the caller: the 📈 button
- * opens a screen that renders nothing while the switch is off, and a button that
- * leads nowhere is this project's known dead-button failure — so the switch has to
- * gate the button itself, not just the handler.
- */
+/** The 📈 screen renders nothing while the kill switch is off, so the switch gates the button too — not just the handler. */
 export function buildFlashCardDoneKeyboard(lang: SupportedLang, options: { showProgress: boolean }): InlineKeyboard {
   const l = toLang(lang);
   const kb = new InlineKeyboard()
