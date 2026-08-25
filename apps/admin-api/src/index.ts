@@ -13,6 +13,7 @@ import { aiModelRoutes } from "./routes/ai-models.js";
 import { authRoutes } from "./routes/auth.js";
 import { dictionaryRoutes } from "./routes/dictionary.js";
 import { mentorRoutes } from "./routes/mentor.js";
+import { motivationRoutes } from "./routes/motivation.js";
 import { notificationRoutes } from "./routes/notifications.js";
 import { onboardingDemoCardRoutes } from "./routes/onboarding-demo-cards.js";
 import { presetRoutes } from "./routes/presets.js";
@@ -86,6 +87,7 @@ export async function buildAdminApiApp() {
   await app.register(ttsRoutes, { prefix: "/api/settings" });
   await app.register(sttRoutes, { prefix: "/api/settings" });
   await app.register(mentorRoutes, { prefix: "/api/settings" });
+  await app.register(motivationRoutes, { prefix: "/api/settings" });
   await app.register(presetRoutes, { prefix: "/api/settings" });
   await app.register(wordPickerPresetRoutes, { prefix: "/api/settings" });
   await app.register(userRoutes, { prefix: "/api" });

@@ -107,7 +107,8 @@ type SettingsGroup =
   | "video-vocabulary"
   | "tts"
   | "stt"
-  | "mentor";
+  | "mentor"
+  | "motivation";
 type FieldDescriptionMap = Record<SettingsGroup, Record<string, string>>;
 
 const tabs: Array<{ key: SettingsGroup; label: string }> = [
@@ -119,6 +120,7 @@ const tabs: Array<{ key: SettingsGroup; label: string }> = [
   { key: "tts", label: "Pronunciation" },
   { key: "stt", label: "Voice input" },
   { key: "mentor", label: "Mentor" },
+  { key: "motivation", label: "Motivation" },
 ];
 
 const activeTab = ref<SettingsGroup>("ai-defaults");
@@ -155,6 +157,12 @@ const fieldDescriptions: FieldDescriptionMap = {
   tts: {},
   stt: {},
   mentor: {},
+  motivation: {
+    recordingEnabled: "Write momentum events — leave on; turning it off creates an unrecoverable gap in the journal.",
+    enabled: "/progress screen and the weekly line in notifications.",
+    praiseEnabled: "Milestone praise line on translation cards and session end.",
+    recoveryEnabled: "Welcome-back line after a 7+ day gap.",
+  },
   "video-vocabulary": {
     monthlyLimit: "Maximum number of videos a user can process per calendar month.",
     minPhrases: "Floor for the per-video phrase target. Short videos generate at least this many phrases.",
@@ -172,6 +180,8 @@ const tabDescriptions: Record<SettingsGroup, string> = {
   tts: "Speech model, voice, and length cap for the pronunciation button on translation cards.",
   stt: "Transcription model and length cap for voice messages sent to the bot.",
   mentor: "Chat model and answer-length cap for the AI mentor mode. Empty model = follow the plan-default chain.",
+  motivation:
+    "Momentum recording and the praise / progress / recovery surfaces. Recording stays on; the three display switches ship off until calibration.",
 };
 
 const fields = computed(() =>
@@ -229,6 +239,7 @@ async function loadTab(group: SettingsGroup): Promise<void> {
     else if (group === "notifications") data = toRecord(await settings.notifications.get());
     else if (group === "srs") data = toRecord(await settings.srs.get());
     else if (group === "dictionary") data = toRecord(await settings.dictionary.get());
+    else if (group === "motivation") data = toRecord(await settings.motivation.get());
     else data = toRecord(await settings.videoVocabulary.get());
 
     original.value = data;
@@ -287,6 +298,13 @@ async function save(): Promise<void> {
       });
     } else if (activeTab.value === "dictionary") {
       await settings.dictionary.update(payload);
+    } else if (activeTab.value === "motivation") {
+      await settings.motivation.update({
+        recordingEnabled: Boolean(payload.recordingEnabled),
+        enabled: Boolean(payload.enabled),
+        praiseEnabled: Boolean(payload.praiseEnabled),
+        recoveryEnabled: Boolean(payload.recoveryEnabled),
+      });
     } else {
       await settings.videoVocabulary.update({
         monthlyLimit: Number(payload.monthlyLimit),

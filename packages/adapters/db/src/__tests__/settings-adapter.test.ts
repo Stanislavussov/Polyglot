@@ -178,3 +178,79 @@ describe("settingsAdapter.getMentorConfig", () => {
     expect(mentor).toEqual({ modelId: "google/gemini-3.7-flash", maxTokens: 700 });
   });
 });
+
+describe("settingsAdapter.getMotivationConfig — kill switch read boundary", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("records but shows nothing when no motivation row has ever been saved", async () => {
+    // The state every fresh install starts in. Recording has to be on from day
+    // one or the calibration window never accumulates the distribution it exists
+    // for; the three display surfaces stay dark until that calibration lands.
+    mockGet.mockResolvedValueOnce(null);
+
+    expect(await settingsAdapter.getMotivationConfig()).toEqual({
+      recordingEnabled: true,
+      enabled: false,
+      praiseEnabled: false,
+      recoveryEnabled: false,
+    });
+  });
+
+  it("serves a valid stored blob verbatim", async () => {
+    const stored = { recordingEnabled: true, enabled: true, praiseEnabled: true, recoveryEnabled: false };
+    mockGet.mockResolvedValueOnce(stored);
+
+    expect(await settingsAdapter.getMotivationConfig()).toEqual(stored);
+  });
+
+  it("fails closed on display and open on recording for a partial blob", async () => {
+    // A row written before the recovery switch existed. A shallow merge would be
+    // enough here, but the same read must also survive the next case.
+    mockGet.mockResolvedValueOnce({ recordingEnabled: true, enabled: true });
+
+    expect(await settingsAdapter.getMotivationConfig()).toEqual({
+      recordingEnabled: true,
+      enabled: true,
+      praiseEnabled: false,
+      recoveryEnabled: false,
+    });
+  });
+
+  it("rejects a present-but-invalid switch instead of merging it through", async () => {
+    // The case getWithFallback cannot handle: the key is there, so nothing is
+    // backfilled, and a non-boolean would reach the render sites as truthy.
+    mockGet.mockResolvedValueOnce({
+      recordingEnabled: "yes",
+      enabled: "true",
+      praiseEnabled: 1,
+      recoveryEnabled: null,
+    });
+
+    expect(await settingsAdapter.getMotivationConfig()).toEqual({
+      recordingEnabled: true,
+      enabled: false,
+      praiseEnabled: false,
+      recoveryEnabled: false,
+    });
+  });
+
+  it("keeps the operator's valid choices when one sibling switch is garbage", async () => {
+    // Per-key recovery, not a whole-object fallback: a single bad key must not
+    // silently switch off a surface the operator deliberately turned on.
+    mockGet.mockResolvedValueOnce({
+      recordingEnabled: true,
+      enabled: true,
+      praiseEnabled: "nope",
+      recoveryEnabled: true,
+    });
+
+    expect(await settingsAdapter.getMotivationConfig()).toEqual({
+      recordingEnabled: true,
+      enabled: true,
+      praiseEnabled: false,
+      recoveryEnabled: true,
+    });
+  });
+});

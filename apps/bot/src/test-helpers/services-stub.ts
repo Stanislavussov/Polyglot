@@ -84,6 +84,13 @@ export function createSettingsStub(): ServiceContainer["settings"] {
     // Empty modelId = follow the default chain, so stubbed contexts keep resolving
     // through getDefaultAIModel like production does without an override.
     getMentorConfig: vi.fn().mockResolvedValue({ modelId: "", maxTokens: 700 }),
+    // Mirrors the shipped kill switch: recording on, every visible surface off.
+    getMotivationConfig: vi.fn().mockResolvedValue({
+      recordingEnabled: true,
+      enabled: false,
+      praiseEnabled: false,
+      recoveryEnabled: false,
+    }),
   };
 }
 

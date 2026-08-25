@@ -1,3 +1,4 @@
+import type { MotivationConfig } from "../modules/momentum/momentum.types.js";
 import type { AIModel } from "./ai.port.js";
 import type { SubscriptionPlan } from "./user.repository.js";
 
@@ -148,4 +149,5 @@ export interface SettingsPort {
   getTtsConfig(): Promise<TtsConfig>;
   getSttConfig(): Promise<SttConfig>;
   getMentorConfig(): Promise<MentorConfig>;
+  getMotivationConfig(): Promise<MotivationConfig>;
 }
