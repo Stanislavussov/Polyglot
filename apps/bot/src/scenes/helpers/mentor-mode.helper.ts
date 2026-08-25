@@ -17,6 +17,7 @@ import {
   t,
 } from "@polyglot/core";
 import { mentorCounter, mentorDuration } from "../../metrics.js";
+import { recordEffort } from "../../momentum/momentum.wiring.js";
 import type { BotContext } from "../../types.js";
 import { buildAiFailover, resolveDefaultAIModel, resolveFallbackAIModel } from "../../utils/ai-model.js";
 import { ensureAiQuota, ensureMentorDailyQuota, recordAiUsage } from "../../utils/ai-quota.js";
@@ -138,6 +139,15 @@ export async function handleMentorText(ctx: BotContext, text: string, opts?: Men
 
     // Bill the successful call against the shared credit ledger (T16).
     await recordAiUsage(ctx, "mentor", creditCost);
+
+    // `update_id` rather than the ledger row id: `recordAiUsage` returns void, and
+    // threading an id out of it would tie the motivation layer to the quota utility
+    // (§3.8). A replayed update carries the same id, which is the idempotency needed.
+    void recordEffort(ctx.services.momentumService, {
+      userId: ctx.user.id,
+      kind: "mentor_turn",
+      dedupeKey: `mentor_turn:${ctx.update.update_id}`,
+    });
 
     // Delete loading indicator (ignore errors if already deleted)
     await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});

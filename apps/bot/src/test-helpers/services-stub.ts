@@ -95,6 +95,32 @@ export function createSettingsStub(): ServiceContainer["settings"] {
 }
 
 /**
+ * Inert momentum service. Not an `autoMockObject`: every call site treats `record`
+ * as thenable, and a bare `vi.fn()` returning `undefined` would throw at the first
+ * `.then`/`await` instead of doing nothing.
+ */
+export function createMomentumServiceStub(): ServiceContainer["momentumService"] {
+  return {
+    record: vi.fn().mockResolvedValue({ inserted: true, weight: 1 }),
+    getSnapshot: vi.fn().mockResolvedValue({
+      score: 0,
+      at: new Date(0),
+      band: "resting",
+      lastSeenAt: null,
+      lastPraiseAt: null,
+      lastRecoveryAt: null,
+    }),
+    decideRecovery: vi.fn().mockResolvedValue({ show: false }),
+    markRecoveryShown: vi.fn().mockResolvedValue(undefined),
+    markSeen: vi.fn().mockResolvedValue(undefined),
+    touchSeen: vi.fn().mockResolvedValue(undefined),
+    decidePraise: vi.fn().mockResolvedValue({ suppressed: "killswitch" }),
+    markPraiseShown: vi.fn().mockResolvedValue(false),
+    countActiveDays: vi.fn().mockResolvedValue(0),
+  };
+}
+
+/**
  * Build a `ServiceContainer` stub for injecting into a mock `BotContext`.
  * Pass `overrides` for the repositories/ports your test actually drives —
  * everything else is an auto-mocked no-op that never touches a real adapter.
@@ -110,6 +136,7 @@ export function createServicesStub(overrides: Partial<ServiceContainer> = {}): S
     ttsCacheRepository: autoMockObject<ServiceContainer["ttsCacheRepository"]>(),
     notificationRepository: autoMockObject<ServiceContainer["notificationRepository"]>(),
     mentorMessageRepository: autoMockObject<ServiceContainer["mentorMessageRepository"]>(),
+    momentumService: createMomentumServiceStub(),
     onboardingDemoCardRepository: autoMockObject<ServiceContainer["onboardingDemoCardRepository"]>(),
     translationRequestRepository: autoMockObject<ServiceContainer["translationRequestRepository"]>(),
     languageDetectionRepository: autoMockObject<ServiceContainer["languageDetectionRepository"]>(),

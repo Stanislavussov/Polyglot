@@ -3,6 +3,7 @@
  */
 import type { ContextLookupFn } from "../modules/context-enrichment/types.js";
 import type { FindWordLanguagesFn } from "../modules/language-detect/types.js";
+import type { MomentumService } from "../modules/momentum/momentum.service.js";
 import type { AIPort } from "./ai.port.js";
 import type { FeatureAccessPort } from "./feature-access.port.js";
 import type { IdentityRepository } from "./identity.repository.js";
@@ -41,6 +42,8 @@ export interface ServiceContainer {
   notificationRepository: NotificationRepository;
   /** Durable mentor-chat threads — reply-continuation lookups and history (mentor MVP). */
   mentorMessageRepository: MentorMessageRepository;
+  /** Effort journal and momentum snapshot — the only writer of `momentum_events` (Task 81). */
+  momentumService: MomentumService;
   translationRequestRepository: TranslationRequestRepository;
   languageDetectionRepository: LanguageDetectionRepository;
   requestTimingRepository: RequestTimingRepository;

@@ -38,6 +38,7 @@ import {
   languageDetectionRepository,
   loadLanguageCache,
   mentorMessageRepository,
+  momentumRepository,
   normalizeToIso1,
   notificationRepository,
   onboardingDemoCardRepository,
@@ -66,10 +67,11 @@ import type {
   SpeechOptions,
   TranscribeOptions,
 } from "@polyglot/core";
-import { type ServiceContainer, SettingsService, setAICircuitObserver } from "@polyglot/core";
+import { createMomentumService, type ServiceContainer, SettingsService, setAICircuitObserver } from "@polyglot/core";
 import type { ZodSchema } from "zod";
 import { createFeatureAccess } from "./feature-access.js";
 import { aiCircuitStateGauge, aiCircuitTransitionsCounter, aiFallbackCounter } from "./metrics.js";
+import { withReviewRecording } from "./momentum/momentum.wiring.js";
 import { mockPaymentAdapter } from "./payment.js";
 import { buildAiFailover, resolveFallbackAIModel } from "./utils/ai-model.js";
 import { clampAiBudgetToOpGuard } from "./utils/long-op.js";
@@ -191,15 +193,28 @@ export function createContainer(): ServiceContainer {
     transcribe: (options: TranscribeOptions) => transcribeAudio(options),
   };
 
+  // The kill switch and the timezone are read per call, never latched here: the
+  // container is built once at startup, and `recordingEnabled` must be able to go
+  // dark from the admin panel without a restart (§4.1).
+  const momentumService = createMomentumService({
+    momentumRepository,
+    getMotivationConfig: () => settings.getMotivationConfig(),
+    getTimezone: async (userId) => (await userRepository.getSettings(userId))?.timezone ?? "UTC",
+  });
+
   const container: ServiceContainer = {
     userRepository,
     identityRepository,
     vocabularyRepository,
     vocabularyDictionaryRepository,
     translationTemplateRepository,
-    wordReviewRepository,
+    // Object-spread wrapper in the composition root: repositories arrive as plain
+    // named exports with no observer hook, so this is the only place a review can
+    // credit momentum from all four `logReview` call sites at once (§4.1).
+    wordReviewRepository: withReviewRecording(wordReviewRepository, () => container.momentumService),
     notificationRepository,
     mentorMessageRepository,
+    momentumService,
     onboardingDemoCardRepository,
     translationRequestRepository,
     languageDetectionRepository,

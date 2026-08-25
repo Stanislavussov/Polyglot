@@ -1,0 +1,113 @@
+/**
+ * Momentum recording wiring (Task 81, §4.1–4.2).
+ *
+ * Eight call sites collapse into ONE repository wrapper plus four direct calls:
+ *
+ * | kind          | where                                                          |
+ * |---------------|----------------------------------------------------------------|
+ * | `review`      | `withReviewRecording` — covers all four `logReview` call sites  |
+ * | `translate`   | direct, `translate-flow.ts` after `logTranslationRequest`       |
+ * | `save`        | direct, `card-actions.ts` once the entry id is known            |
+ * | `mentor_turn` | direct, `mentor-mode.helper.ts` keyed by `ctx.update.update_id` |
+ * | `mature`      | `recordMatureIfCrossed`, on the single `updateSrsState` site    |
+ *
+ * `logTranslationRequest` is deliberately NOT wrapped: its second caller,
+ * `recordAiUsage`, bills every paid AI call (video, word-picker, mentor…), so a
+ * wrapper would credit a translation for watching a video and double-credit a
+ * mentor turn (§4.1).
+ *
+ * `mature` is a direct call rather than an `updateSrsState` wrapper — which the plan
+ * preferred — because that port method receives only `translationId`, so a wrapper
+ * would have to query the owning user on every SRS rating. `updateSrsState` has
+ * exactly one production call site; a second one must call this helper too.
+ */
+import {
+  EFFORT_WEIGHTS,
+  errorFields,
+  logEvent,
+  MATURE_INTERVAL_DAYS,
+  type MomentumService,
+  type RecordEffortInput,
+  type RecordEffortResult,
+  type ServiceContainer,
+} from "@polyglot/core";
+
+/**
+ * Credit one effort. Never rejects, and reports `null` when the credit failed.
+ *
+ * This is the guarantee §4.2 owes: a momentum failure cannot fail a translation, a
+ * save or a review session. `Promise.resolve().then(...)` rather than a bare
+ * try/catch so a *synchronous* throw inside `record` is a rejection here too, and
+ * every caller stays free to `void` or `await` without its own error handling.
+ */
+export function recordEffort(momentum: MomentumService, effort: RecordEffortInput): Promise<RecordEffortResult | null> {
+  return Promise.resolve()
+    .then(() => momentum.record(effort))
+    .then((result) => {
+      if (result.inserted) {
+        logEvent(
+          "momentum.effort_recorded",
+          { kind: effort.kind, weight: result.weight, capped: result.weight < EFFORT_WEIGHTS[effort.kind] },
+          "debug",
+        );
+      }
+      return result;
+    })
+    .catch((err: unknown) => {
+      logEvent("momentum.record_failed", { kind: effort.kind, ...errorFields(err) }, "error");
+      return null;
+    });
+}
+
+/**
+ * Wrap `logReview` so every review credits momentum, from all four call sites.
+ *
+ * The credit is awaited inside the wrapper (the plan sketched `void`): callers that
+ * already await `logReview` then observe the journal row on return, which is what
+ * makes the e2e assertion deterministic instead of racing the dispatch. Callers that
+ * fire-and-forget (`logReviewSafe`) are unaffected — they still do not block.
+ *
+ * `momentum` is a getter, not a value, so a test that swaps `services.momentumService`
+ * is honoured here as well as at the direct call sites.
+ */
+export function withReviewRecording(
+  repository: ServiceContainer["wordReviewRepository"],
+  momentum: () => MomentumService,
+): ServiceContainer["wordReviewRepository"] {
+  return {
+    ...repository,
+    async logReview(userId: number, entryId: number, sessionType: string): Promise<void> {
+      await repository.logReview(userId, entryId, sessionType);
+      await recordEffort(momentum(), {
+        userId,
+        kind: "review",
+        dedupeKey: (localDay) => `review:${entryId}:${localDay}`,
+      });
+    },
+  };
+}
+
+/**
+ * Credit `mature` when this SRS update pushes a word past the "stuck" threshold.
+ *
+ * No pre-read of the previous interval: the `mature:<translationId>` dedupe key is
+ * what makes "once per word, ever" hold, whatever the interval was before (§3.8) —
+ * which is also why the event is logged only on the insert that actually claimed it.
+ */
+export async function recordMatureIfCrossed(
+  momentum: MomentumService,
+  args: { userId: number; entryId: number; translationId: number; interval: number },
+): Promise<void> {
+  if (args.interval < MATURE_INTERVAL_DAYS) return;
+  const result = await recordEffort(momentum, {
+    userId: args.userId,
+    kind: "mature",
+    dedupeKey: `mature:${args.translationId}`,
+  });
+  if (!result?.inserted) return;
+  logEvent("momentum.mature_word", {
+    entryId: args.entryId,
+    translationId: args.translationId,
+    interval: args.interval,
+  });
+}

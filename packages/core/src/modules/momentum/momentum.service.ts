@@ -31,7 +31,13 @@ export interface MomentumServiceDeps {
 export interface RecordEffortInput {
   userId: number;
   kind: EffortKind;
-  dedupeKey: string;
+  /**
+   * The deterministic key (§3.8), or — for a key bucketed by the user's local day
+   * such as `review:<entryId>:<YYYY-MM-DD>` — a factory receiving that day. The
+   * factory form exists so the caller does not repeat the timezone lookup the daily
+   * cap already performs.
+   */
+  dedupeKey: string | ((localDay: string) => string);
   occurredAt?: Date;
 }
 
@@ -93,10 +99,12 @@ export function createMomentumService(deps: MomentumServiceDeps) {
       if (!config.recordingEnabled) return { inserted: false, weight: 0 };
 
       const occurredAt = effort.occurredAt ?? clock();
+      let timezone: string | null = null;
+      const resolveTimezone = async (): Promise<string> => (timezone ??= await deps.getTimezone(effort.userId));
+
       let weight = EFFORT_WEIGHTS[effort.kind];
       if (effort.kind !== "mature") {
-        const timezone = await deps.getTimezone(effort.userId);
-        const { start, end } = localDayBounds(timezone, occurredAt);
+        const { start, end } = localDayBounds(await resolveTimezone(), occurredAt);
         const usedToday = await repo.sumWeightsForLocalDay(effort.userId, effort.kind, start, end);
         weight = cappedWeight(effort.kind, usedToday);
       }
@@ -106,7 +114,10 @@ export function createMomentumService(deps: MomentumServiceDeps) {
         kind: effort.kind,
         weight,
         occurredAt,
-        dedupeKey: effort.dedupeKey,
+        dedupeKey:
+          typeof effort.dedupeKey === "string"
+            ? effort.dedupeKey
+            : effort.dedupeKey(localDayKey(await resolveTimezone(), occurredAt)),
       });
       if (!inserted) return { inserted: false, weight };
 

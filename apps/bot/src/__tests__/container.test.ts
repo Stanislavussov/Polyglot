@@ -37,6 +37,15 @@ vi.mock("@polyglot/adapter-db", () => ({
     getInactiveUsers: vi.fn().mockResolvedValue([]),
     disableNotifications: vi.fn().mockResolvedValue(undefined),
   },
+  momentumRepository: {
+    getSnapshot: vi.fn().mockResolvedValue(null),
+    recordEvent: vi.fn().mockResolvedValue(true),
+    applySnapshot: vi.fn().mockResolvedValue(undefined),
+    sumWeightsForLocalDay: vi.fn().mockResolvedValue(0),
+    countEventsSince: vi.fn().mockResolvedValue(0),
+    countActiveDays: vi.fn().mockResolvedValue(0),
+    listEventsForReplay: vi.fn().mockResolvedValue([]),
+  },
   mentorMessageRepository: {
     record: vi.fn().mockResolvedValue(undefined),
     findThreadByMessage: vi.fn().mockResolvedValue(null),
@@ -188,6 +197,7 @@ describe("createContainer", () => {
     expect(container.vocabularyRepository).toBeDefined();
     expect(container.translationTemplateRepository).toBeDefined();
     expect(container.wordReviewRepository).toBeDefined();
+    expect(container.momentumService).toBeDefined();
     expect(container.notificationRepository).toBeDefined();
     expect(container.onboardingDemoCardRepository).toBeDefined();
     expect(container.translationRequestRepository).toBeDefined();

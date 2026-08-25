@@ -7,6 +7,7 @@ import {
   type SupportedLang,
   t,
 } from "@polyglot/core";
+import { recordMatureIfCrossed } from "../../momentum/momentum.wiring.js";
 import {
   buildSrsBackKeyboard,
   buildSrsDoneKeyboard,
@@ -86,6 +87,12 @@ export async function handleSrsRate(ctx: BotContext): Promise<void> {
 
   try {
     await ctx.services.vocabularyRepository.updateSrsState(card.translationId, nextState);
+    await recordMatureIfCrossed(ctx.services.momentumService, {
+      userId: ctx.user.id,
+      entryId: card.entryId,
+      translationId: card.translationId,
+      interval: nextState.interval,
+    });
     await ctx.services.wordReviewRepository.logReview(ctx.user.id, card.entryId, "srs");
     // The scheduling decision itself: a card resurfacing too soon or never
     // again is only explainable from the interval/ease the rating produced.

@@ -48,6 +48,7 @@ import {
   unrecognizedWordCounter,
 } from "../../metrics.js";
 import { getRequestSettings } from "../../middlewares/request-settings.js";
+import { recordEffort } from "../../momentum/momentum.wiring.js";
 import {
   buildTranslationKeyboard,
   renderSentenceTranslation,
@@ -1016,13 +1017,23 @@ async function runTranslationPipeline(
     if (output.correction) {
       inputCorrectionCounter.inc({ outcome: "auto_corrected", input_type: classification.type });
     }
-    await ctx.services.translationRequestRepository.logTranslationRequest(
+    const translationRequestId = await ctx.services.translationRequestRepository.logTranslationRequest(
       ctx.user.id,
       word,
       sourceLang,
       targetLangs,
       creditCost,
     );
+
+    // Awaited, unlike the other credit sites: this same update renders the momentum
+    // surfaces (S2/S3) further down, so the snapshot has to be written before they
+    // are read (§4.2). `recordEffort` never rejects, so a momentum outage still
+    // delivers the card.
+    await recordEffort(ctx.services.momentumService, {
+      userId: ctx.user.id,
+      kind: "translate",
+      dedupeKey: `translate:${translationRequestId}`,
+    });
 
     if (timing) {
       ctx.services.requestTimingRepository

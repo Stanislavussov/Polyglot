@@ -88,6 +88,39 @@ export const onboardingStepCounter = new Counter({
   labelNames: ["step", "outcome"] as const,
 });
 
+/**
+ * Motivation-layer counters (Task 81 §7.3). Every label set is a bounded enum —
+ * `kind` is a PraiseKind, `surface` one of the four motivation surfaces, `reason`
+ * one of cooldown/weekly_cap/killswitch/no_evidence, `band` one of four ranges —
+ * so cardinality stays in the same order as `bot_onboarding_step_total`.
+ *
+ * Praise suppression is a counter and NOT a log event on purpose: production runs
+ * at `info`, suppression happens more than once per user action, and a safety
+ * signal nobody can see is not a safety signal.
+ */
+export const motivationPraiseCounter = new Counter({
+  name: "bot_motivation_praise_total",
+  help: "Motivation praise lines actually shown, by praise kind and the surface that carried them",
+  labelNames: ["kind", "surface"] as const,
+});
+
+export const motivationPraiseSuppressedCounter = new Counter({
+  name: "bot_motivation_praise_suppressed_total",
+  help: "Praise decisions withheld, by reason (cooldown, weekly_cap, killswitch, no_evidence)",
+  labelNames: ["reason"] as const,
+});
+
+export const motivationProgressOpenedCounter = new Counter({
+  name: "bot_motivation_progress_opened_total",
+  help: "Progress screen opens, by momentum band",
+  labelNames: ["band"] as const,
+});
+
+export const motivationRecoveryShownCounter = new Counter({
+  name: "bot_motivation_recovery_shown_total",
+  help: "Recovery lines shown to a returning user — volume only, no labels",
+});
+
 export const mentorCounter = new Counter({
   name: "bot_mentor_requests_total",
   help: "Total mentor chat requests",
