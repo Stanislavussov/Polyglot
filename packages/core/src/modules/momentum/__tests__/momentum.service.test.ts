@@ -105,6 +105,22 @@ describe("record", () => {
     expect(repo.snapshots.size).toBe(0);
   });
 
+  it("leaves the snapshot untouched while recording is off, marks included", async () => {
+    config.recordingEnabled = false;
+    config.recoveryEnabled = true;
+    const service = createService();
+
+    await service.touchSeen(USER_ID);
+    await service.markSeen(USER_ID);
+    await service.markRecoveryShown(USER_ID);
+
+    // The marks write only to the snapshot, so nothing else would stop them from
+    // creating a `user_momentum` row for a bot whose recording is switched off (§4.6).
+    expect(await service.markPraiseShown(USER_ID, "mature_word")).toBe(false);
+    expect(repo.events).toHaveLength(0);
+    expect(repo.snapshots.size).toBe(0);
+  });
+
   it("credits a replayed update once — the second attempt leaves the score untouched", async () => {
     const service = createService();
 

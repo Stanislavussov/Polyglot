@@ -7,14 +7,22 @@
  * i18n keys, and the bot owns the copy.
  */
 import { z } from "zod";
+import type { I18nKey } from "../i18n/types.js";
 
 /** Kinds that carry effort weight. `praise` is a journal token, not an effort — see {@link MomentumEventKind}. */
 export const EFFORT_KINDS = ["translate", "save", "review", "mentor_turn", "mature"] as const;
 
 export type EffortKind = (typeof EFFORT_KINDS)[number];
 
-/** What the journal's `kind` column holds: every effort, plus the weightless `praise` token (§3.8). */
-export type MomentumEventKind = EffortKind | "praise";
+/**
+ * What the journal's `kind` column holds: every effort, plus two weightless tokens (§3.8).
+ *
+ * `weekly_proof` is separate from `praise` rather than another `praise:` key because
+ * `decidePraise` counts `praise` rows to enforce the two-per-week praise cap — filing
+ * the notification's weekly line there would silently spend one of the card's two
+ * praise slots every week for every subscriber.
+ */
+export type MomentumEventKind = EffortKind | "praise" | "weekly_proof";
 
 export const EFFORT_WEIGHTS: Record<EffortKind, number> = {
   translate: 1,
@@ -80,12 +88,25 @@ export interface EffortEvent {
   timezone: string;
 }
 
-export type PraiseKind = "mature_word" | "dictionary_10" | "dictionary_50" | "dictionary_100" | "hard_word_recalled";
+export type PraiseKind =
+  | "mature_word"
+  | "first_mature"
+  | "dictionary_10"
+  | "dictionary_25"
+  | "dictionary_50"
+  | "dictionary_100"
+  | "hard_word_recalled";
 
-/** An i18n key plus params — never a rendered string; core does not own copy. */
+/**
+ * An i18n key plus params — never a rendered string; core does not own copy.
+ *
+ * `I18nKey` rather than `string`: the selector is the only place that decides which
+ * copy a praise carries, so a key that no locale defines must fail the build here
+ * and not degrade into a raw key printed at the user (`t` falls back to the key).
+ */
 export interface PraiseDecision {
   kind: PraiseKind;
-  i18nKey: string;
+  i18nKey: I18nKey;
   params: Record<string, string | number>;
 }
 

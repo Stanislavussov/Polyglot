@@ -262,6 +262,15 @@ export interface SessionData {
     deck: SrsDueVocabularyCard[];
     currentIndex: number;
     cardMsgId?: number;
+    /**
+     * Praise evidence accumulated by this session, for the line on `srsDone`
+     * (momentum §2.2 S2). Primitives only: the session is jsonb, so anything
+     * key-ordered comes back reordered — the word itself is looked up in `deck`
+     * by this id at render time rather than carried alongside it.
+     */
+    maturedTranslationId?: number;
+    /** A card the user had graded "hard" was answered good or easy in this session. */
+    hardRecalled?: boolean;
   };
   /**
    * Mentor mode state (Task 66, reply-threads MVP).

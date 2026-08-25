@@ -36,24 +36,28 @@ export interface SelectPraiseInput {
   now: Date;
 }
 
-const DICTIONARY_MILESTONES = [100, 50, 10] as const;
-
-const MILESTONE_KINDS: Record<(typeof DICTIONARY_MILESTONES)[number], PraiseKind> = {
-  10: "dictionary_10",
-  50: "dictionary_50",
-  100: "dictionary_100",
-};
+/**
+ * Descending, so the largest milestone a count satisfies wins. Kind and copy key are
+ * carried literally rather than built as `praiseDictionary${n}`: a template string is
+ * not an `I18nKey`, and the cast that would make it one is exactly what lets a typo
+ * reach the user as a raw key.
+ */
+const DICTIONARY_MILESTONES = [
+  { count: 100, kind: "dictionary_100", i18nKey: "praiseDictionary100" },
+  { count: 50, kind: "dictionary_50", i18nKey: "praiseDictionary50" },
+  { count: 25, kind: "dictionary_25", i18nKey: "praiseDictionary25" },
+  { count: 10, kind: "dictionary_10", i18nKey: "praiseDictionary10" },
+] as const satisfies ReadonlyArray<{ count: number; kind: PraiseKind; i18nKey: PraiseDecision["i18nKey"] }>;
 
 function selectMilestone(evidence: PraiseEvidence): PraiseDecision | null {
   const previous = evidence.previousDictionaryCount;
   for (const milestone of DICTIONARY_MILESTONES) {
     const crossed =
       previous === undefined
-        ? evidence.dictionaryCount === milestone
-        : previous < milestone && evidence.dictionaryCount >= milestone;
+        ? evidence.dictionaryCount === milestone.count
+        : previous < milestone.count && evidence.dictionaryCount >= milestone.count;
     if (crossed) {
-      const kind = MILESTONE_KINDS[milestone];
-      return { kind, i18nKey: `praiseDictionary${milestone}`, params: { count: evidence.dictionaryCount } };
+      return { kind: milestone.kind, i18nKey: milestone.i18nKey, params: { count: evidence.dictionaryCount } };
     }
   }
   return null;
@@ -63,6 +67,11 @@ function selectEvidence(evidence: PraiseEvidence): PraiseDecision | null {
   // A word can only be reported as "stuck" while the user actually has stuck words —
   // the counter is read live from srsInterval, so a stale crossing must not slip past it.
   if (evidence.matureCrossedNow && evidence.matureCount > 0) {
+    // The very first one is the milestone; naming the word only means something once
+    // "a word of mine reached long-term memory" is no longer the news itself.
+    if (evidence.matureCount === 1) {
+      return { kind: "first_mature", i18nKey: "praiseFirstMature", params: {} };
+    }
     const word = evidence.matureCrossedNow.entryWord;
     return { kind: "mature_word", i18nKey: "praiseMatureWord", params: word ? { word } : {} };
   }

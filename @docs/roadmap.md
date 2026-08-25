@@ -114,7 +114,9 @@ User can translate any word or phrase in multi-language mode, with CEFR, synonym
 - On save (from FEAT-30): first review scheduled for next day
 
 **Won't have in 2.0:**
-- Leaderboards, streaks — *motivation layer; deferred to v2.2*
+- Leaderboards, streaks — *still won't have, and now permanently: the motivation layer shipped in Task 81
+  (2026-08-25) as a decaying momentum index with no series, no XP and no comparison between users. Leaderboards
+  and streaks are explicit non-goals of `@docs/adr/0002-motivation-is-a-decaying-momentum-not-a-streak.md`.*
 - Quiz impact on SRS interval — *BRD open question #9; assess after first SRS cohort*
 
 ---

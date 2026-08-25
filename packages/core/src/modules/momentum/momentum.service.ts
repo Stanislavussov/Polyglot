@@ -75,6 +75,16 @@ export function createMomentumService(deps: MomentumServiceDeps) {
     };
   }
 
+  /**
+   * `recordingEnabled` gates every write, journal row and snapshot alike (§4.6).
+   * The seen/praise/recovery marks are snapshot-only, so without this check a bot
+   * with recording off would still create `user_momentum` rows — a kill switch that
+   * does not fully stop writing is not a kill switch.
+   */
+  async function recordingAllowed(): Promise<boolean> {
+    return (await deps.getMotivationConfig()).recordingEnabled;
+  }
+
   async function decideRecovery(userId: number, now = clock()): Promise<RecoveryDecision> {
     const config = await deps.getMotivationConfig();
     if (!config.recoveryEnabled) return { show: false };
@@ -138,10 +148,12 @@ export function createMomentumService(deps: MomentumServiceDeps) {
 
     /** The recovery line has been delivered: both the pause and the cooldown restart here. */
     async markRecoveryShown(userId: number, now = clock()): Promise<void> {
+      if (!(await recordingAllowed())) return;
       await repo.applySnapshot(userId, { lastSeenAt: now, lastRecoveryAt: now, updatedAt: now });
     },
 
     async markSeen(userId: number, now = clock()): Promise<void> {
+      if (!(await recordingAllowed())) return;
       await repo.applySnapshot(userId, { lastSeenAt: now, updatedAt: now });
     },
 
@@ -151,6 +163,7 @@ export function createMomentumService(deps: MomentumServiceDeps) {
      * line would burn the user's single chance to receive it.
      */
     async touchSeen(userId: number, now = clock()): Promise<void> {
+      if (!(await recordingAllowed())) return;
       const pending = await decideRecovery(userId, now);
       if (pending.show) return;
       await repo.applySnapshot(userId, { lastSeenAt: now, updatedAt: now });
@@ -170,6 +183,7 @@ export function createMomentumService(deps: MomentumServiceDeps) {
 
     /** Returns whether this praise was newly claimed — a replayed update loses the race and stays silent. */
     async markPraiseShown(userId: number, kind: PraiseKind, now = clock()): Promise<boolean> {
+      if (!(await recordingAllowed())) return false;
       const timezone = await deps.getTimezone(userId);
       const inserted = await repo.recordEvent({
         userId,

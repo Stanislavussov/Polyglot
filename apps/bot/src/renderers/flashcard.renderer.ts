@@ -6,6 +6,7 @@
 import type { LanguageOrderContext, SupportedLang, WordDisplayData } from "@polyglot/core";
 import { getLangFlag, isSupported, orderRecordEntries, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
+import { PROGRESS_FLASHCARD_DONE_CALLBACK } from "../momentum/progress.command.js";
 import { expandableSection } from "./card-sections.js";
 import { formatInputType } from "./input-type-label.js";
 import { renderSourceUsage } from "./source-usage.renderer.js";
@@ -120,5 +121,13 @@ export function buildFlashCardBackKeyboard(isLastCard: boolean, lang: SupportedL
 /** Build the keyboard for the session-complete screen */
 export function buildFlashCardDoneKeyboard(lang: SupportedLang): InlineKeyboard {
   const l = toLang(lang);
-  return new InlineKeyboard().text(t("flashcardNewDeckBtn", l), "fc:restart").text(t("flashcardClose", l), "fc:close");
+  return (
+    new InlineKeyboard()
+      .text(t("flashcardNewDeckBtn", l), "fc:restart")
+      .text(t("flashcardClose", l), "fc:close")
+      // Own row: a third button beside these two makes Telegram squeeze all three
+      // captions to unreadable width (Task 81 §6, Slice 2).
+      .row()
+      .text(t("progressButton", l), PROGRESS_FLASHCARD_DONE_CALLBACK)
+  );
 }

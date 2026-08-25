@@ -126,6 +126,8 @@ export interface SrsDueVocabularyCard {
   usageNote: string | null;
   connotationWarning: string | null;
   details: VocabTranslationDetails | null;
+  /** The entry's user grade; `hard` is what makes a correct recall worth praising (momentum §2.2 S2). */
+  difficulty: VocabDifficulty | null;
   srsEaseFactor: number;
   srsInterval: number;
   srsDueDate: Date | null;

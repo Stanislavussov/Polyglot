@@ -46,10 +46,24 @@ const LANGUAGE_FAT = {
   connotationWarning: null,
 };
 
+export interface TranslateAiOptions {
+  /**
+   * Headword the metadata fixture reports as NOT a real word, which drives the
+   * pipeline's unrecognized-word guard to `needs_clarification`. Matched against the
+   * prompt (which carries the headword), so a test can send one word into the
+   * clarification branch and another straight to a card with the same mock.
+   */
+  unrecognizedWord?: string;
+}
+
 /** An AI override (for the harness `ai` option) that drives translate() to an accepted card. */
-export function deterministicTranslateAi(): Partial<AIPort> {
-  const generateObject: AIPort["generateObject"] = async (_prompt, schema) => {
-    for (const fixture of [PREFLIGHT_PROCEED, JUDGE_CLEAN, METADATA_FAT, LANGUAGE_FAT]) {
+export function deterministicTranslateAi(options: TranslateAiOptions = {}): Partial<AIPort> {
+  const generateObject: AIPort["generateObject"] = async (prompt, schema) => {
+    const metadata =
+      options.unrecognizedWord && prompt.includes(options.unrecognizedWord)
+        ? { ...METADATA_FAT, sourceWordRecognized: false, suggestedCorrection: null }
+        : METADATA_FAT;
+    for (const fixture of [PREFLIGHT_PROCEED, JUDGE_CLEAN, metadata, LANGUAGE_FAT]) {
       const parsed = schema.safeParse(fixture);
       if (parsed.success) return parsed.data;
     }

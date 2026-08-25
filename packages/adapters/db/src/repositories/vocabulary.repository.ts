@@ -549,6 +549,7 @@ export const vocabularyRepository = {
         usageNote: vocabularyTranslations.usageNote,
         connotationWarning: vocabularyTranslations.connotationWarning,
         details: vocabularyTranslations.details,
+        difficulty: vocabularyEntries.difficulty,
         srsEaseFactor: vocabularyTranslations.srsEaseFactor,
         srsInterval: vocabularyTranslations.srsInterval,
         srsDueDate: vocabularyTranslations.srsDueDate,

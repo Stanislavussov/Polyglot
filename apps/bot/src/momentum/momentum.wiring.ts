@@ -93,21 +93,25 @@ export function withReviewRecording(
  * No pre-read of the previous interval: the `mature:<translationId>` dedupe key is
  * what makes "once per word, ever" hold, whatever the interval was before (§3.8) —
  * which is also why the event is logged only on the insert that actually claimed it.
+ *
+ * Returns whether THIS rating is the one that claimed the crossing, which is the
+ * evidence the end-of-session praise line stands on (§2.2 S2).
  */
 export async function recordMatureIfCrossed(
   momentum: MomentumService,
   args: { userId: number; entryId: number; translationId: number; interval: number },
-): Promise<void> {
-  if (args.interval < MATURE_INTERVAL_DAYS) return;
+): Promise<boolean> {
+  if (args.interval < MATURE_INTERVAL_DAYS) return false;
   const result = await recordEffort(momentum, {
     userId: args.userId,
     kind: "mature",
     dedupeKey: `mature:${args.translationId}`,
   });
-  if (!result?.inserted) return;
+  if (!result?.inserted) return false;
   logEvent("momentum.mature_word", {
     entryId: args.entryId,
     translationId: args.translationId,
     interval: args.interval,
   });
+  return true;
 }

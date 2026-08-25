@@ -23,6 +23,11 @@ import { mainKeyboardMiddleware } from "./middlewares/main-keyboard.js";
 import { modeRouterMiddleware } from "./middlewares/mode-router.js";
 import { updateMetricsMiddleware } from "./middlewares/update-metrics.js";
 import {
+  handleProgressCallback,
+  handleProgressCommand,
+  PROGRESS_CALLBACK_PATTERN,
+} from "./momentum/progress.command.js";
+import {
   handleNotifFeedbackCallback,
   handleNotifLearnedCallback,
   handleNotifRevealCallback,
@@ -362,6 +367,9 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   onCommand("changes", changesCommand);
   onCommand("videos", handleVideosCommand);
   onCommand("pick", handlePickWordsCommand);
+  // Typable but deliberately absent from the Telegram command menu (Task 81, O2):
+  // the screen's entry point is the 📈 button on the two done-keyboards.
+  onCommand("progress", handleProgressCommand);
   onCommand("report", async (ctx) => {
     await ctx.conversation.enter("handleReportIssue");
   });
@@ -489,6 +497,8 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   onCallback("fc:restart", handleFcRestart);
   onCallback("fc:quit", handleFcQuit);
   onCallback("fc:close", handleFcClose);
+
+  onCallback(PROGRESS_CALLBACK_PATTERN, handleProgressCallback);
 
   onCallback("srs:reveal", handleSrsReveal);
   onCallback(/^srs:rate:(again|hard|good|easy)$/, handleSrsRate);

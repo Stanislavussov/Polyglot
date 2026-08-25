@@ -5,7 +5,7 @@
 import type { WordDisplayData } from "@polyglot/core";
 import { createLanguageOrderContext } from "@polyglot/core";
 import { describe, expect, it } from "vitest";
-import { renderFlashCardBack } from "../flashcard.renderer.js";
+import { buildFlashCardDoneKeyboard, renderFlashCardBack } from "../flashcard.renderer.js";
 
 const ORDER = createLanguageOrderContext({ nativeLang: "ru", learningLangs: ["en"] });
 
@@ -47,5 +47,15 @@ describe("renderFlashCardBack — collapsible notes", () => {
       },
     };
     expect(renderFlashCardBack(bare, 1, 1, "ru", ORDER)).not.toContain("blockquote");
+  });
+});
+
+describe("buildFlashCardDoneKeyboard", () => {
+  it("puts the progress button on a row of its own", () => {
+    const rows = buildFlashCardDoneKeyboard("en").inline_keyboard.map((row) =>
+      row.map((button) => ("callback_data" in button ? button.callback_data : "")),
+    );
+
+    expect(rows).toEqual([["fc:restart", "fc:close"], ["progress:open:flashcard_done"]]);
   });
 });

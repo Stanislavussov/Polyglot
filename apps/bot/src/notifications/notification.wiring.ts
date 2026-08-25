@@ -3,6 +3,7 @@ import {
   getAllLangs,
   getLang,
   identityRepository,
+  momentumRepository,
   notificationRepository,
   onboardingDemoCardRepository,
   settingsAdapter,
@@ -21,8 +22,11 @@ import {
 import {
   type AIFailover,
   createSubscriptionService,
+  errorFields,
   type GenerateObjectFn,
   isSupported,
+  localDayKey,
+  logEvent,
   logger,
   type ServiceContainer,
   SettingsService,
@@ -96,6 +100,27 @@ export interface NotificationSchedulingOverrides {
    * also assert the override was never called.
    */
   generateObject?: GenerateObjectFn;
+  /**
+   * The clock the weekly proof line reads (Task 81, S4). Injected for the same
+   * reason `SchedulerDeps.now` is: "not more than once per 7 days" is only
+   * testable against time the test controls, and every momentum timestamp is
+   * written by the application rather than by the database (§4.4).
+   */
+  now?: () => Date;
+}
+
+const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+
+/**
+ * The weekly proof line, prepared but not yet claimed.
+ *
+ * Split in two because the week must be burned only by a delivery that actually
+ * happened: a send that throws goes back through the scheduler's retry ladder, and
+ * a token recorded before it would silence the retry's card for the next 7 days.
+ */
+interface WeeklyProof {
+  line: string;
+  commit: () => Promise<void>;
 }
 
 /**
@@ -117,6 +142,64 @@ export async function buildNotificationScheduling(
 }> {
   const settings = new SettingsService(settingsAdapter);
   const contextualModel = await resolveDefaultAIModel(settings);
+  const now = overrides.now ?? ((): Date => new Date());
+
+  /**
+   * The motivation layer's only outbound surface (Task 81, §2.2 S4): one line
+   * inside an already-subscribed notification, at most once every 7 days.
+   *
+   * This file has no `ctx.services`, so — per §4.1 — the repository comes straight
+   * from `@polyglot/adapter-db` and the kill switch is read through the same
+   * `SettingsService` instance the rest of the file uses, on every call rather than
+   * latched, so switching `motivation.enabled` off takes effect without a redeploy.
+   *
+   * Returns `null` on any failure: the momentum layer must never cost a user their
+   * notification (§4.2).
+   */
+  const prepareWeeklyProof = async (
+    userId: number,
+    lang: SupportedLang,
+    timezone: string,
+  ): Promise<WeeklyProof | null> => {
+    try {
+      const motivation = await settings.getMotivationConfig();
+      if (!motivation.enabled) return null;
+
+      const at = now();
+      const since = new Date(at.getTime() - WEEK_MS);
+      // A rolling window, not a calendar week: "once per 7 days" must not let a
+      // Sunday send and a Monday send both through.
+      if ((await momentumRepository.countEventsSince(userId, "weekly_proof", since)) > 0) return null;
+
+      const [mature, reviews] = await Promise.all([
+        momentumRepository.countEventsSince(userId, "mature", since),
+        momentumRepository.countEventsSince(userId, "review", since),
+      ]);
+      // Praise is paid for by evidence (§0.1): a week of zeroes has nothing to prove.
+      if (mature === 0 && reviews === 0) return null;
+
+      return {
+        line: t("weeklyProofLine", lang, { mature, reviews }),
+        commit: async () => {
+          try {
+            await momentumRepository.recordEvent({
+              userId,
+              kind: "weekly_proof",
+              weight: 0,
+              occurredAt: at,
+              dedupeKey: `weekly:${localDayKey(timezone, at)}`,
+            });
+            logEvent("momentum.weekly_line_shown", { mature, reviews });
+          } catch (err) {
+            logEvent("momentum.record_failed", { kind: "weekly_proof", ...errorFields(err) }, "error");
+          }
+        },
+      };
+    } catch (err) {
+      logEvent("momentum.record_failed", { kind: "weekly_proof", ...errorFields(err) }, "error");
+      return null;
+    }
+  };
 
   // Scheduled-notification JIT translations run in the background, but they must
   // still fail over on a transient primary-model error just like foreground bot
@@ -254,16 +337,23 @@ Return translations as JSON array.`;
     }
 
     const kb = buildNotificationKeyboard(lang, payload.word.entryId);
+    const weeklyProof = await prepareWeeklyProof(userId, lang, settings?.timezone ?? "UTC");
     // Derived here, at render time, from the settings row already loaded above —
     // so the card's language order never depends on the payload's key order,
     // which would not survive a queue or worker boundary.
-    const message = formatNotificationMessage(payload, lang, languageOrderFromSettings(settings));
+    const message = formatNotificationMessage(
+      payload,
+      lang,
+      languageOrderFromSettings(settings),
+      weeklyProof ? { footer: weeklyProof.line } : {},
+    );
     await withDeliveryMetrics(() =>
       api.sendMessage(telegramId, message, {
         parse_mode: "HTML",
         reply_markup: kb,
       }),
     );
+    await weeklyProof?.commit();
   };
 
   const reEngagementSendFn = async (userId: number, message: string): Promise<void> => {

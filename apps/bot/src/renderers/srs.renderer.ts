@@ -1,6 +1,7 @@
 import type { SrsDueVocabularyCard, SupportedLang } from "@polyglot/core";
 import { getLangFlag, getLanguageName, isSupported, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
+import { PROGRESS_SRS_DONE_CALLBACK } from "../momentum/progress.command.js";
 import { formatInputType } from "./input-type-label.js";
 import { renderCompactSourceExample } from "./source-usage.renderer.js";
 
@@ -92,5 +93,13 @@ export function buildSrsBackKeyboard(lang: SupportedLang): InlineKeyboard {
 
 export function buildSrsDoneKeyboard(lang: SupportedLang): InlineKeyboard {
   const l = toLang(lang);
-  return new InlineKeyboard().text(t("srsNewSessionBtn", l), "srs:restart").text(t("srsClose", l), "srs:close");
+  return (
+    new InlineKeyboard()
+      .text(t("srsNewSessionBtn", l), "srs:restart")
+      .text(t("srsClose", l), "srs:close")
+      // Own row: a third button beside these two makes Telegram squeeze all three
+      // captions to unreadable width (Task 81 §6, Slice 2).
+      .row()
+      .text(t("progressButton", l), PROGRESS_SRS_DONE_CALLBACK)
+  );
 }

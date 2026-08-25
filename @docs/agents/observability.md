@@ -83,7 +83,7 @@ callback is therefore logged with no second edit** — keep using the helpers.
 | Settings | `settings.native_lang_changed`, `.interface_lang_changed`, `.learning_lang_added`/`_removed`, `.notifications_toggled`, `.notification_*_changed`, `.timezone_changed` |
 | SRS / flashcards | `srs.card_rated`, `srs.session_finished`, `flashcard.session_started`, `.session_finished` |
 | Notifications / cron | `notification.sent`, `notification.dictionary_exhausted`, `notification.preset.picked`/`.exhausted`/`.no_candidates`/`.unresolvable`, `nudge.*`, `retention.*` |
-| Momentum (Task 81) | `momentum.effort_recorded` (debug — `kind`, `weight`, `capped`), `momentum.record_failed` (error), `momentum.mature_word` (`entryId`, `translationId`, `interval`) |
+| Momentum (Task 81) | `momentum.effort_recorded` (debug — `kind`, `weight`, `capped`), `momentum.record_failed` (error), `momentum.mature_word` (`entryId`, `translationId`, `interval`), `momentum.praise_shown` (`praiseKind`, `surface`, `band`), `momentum.recovery_shown` (`gapDays` — logged here and never printed to the user), `momentum.progress_opened` (`band`, `entry`: `srs_done` \| `flashcard_done` \| `command`), `momentum.weekly_line_shown` (`mature`, `reviews`), `momentum.backfill_finished` (`users`, `events`) / `momentum.recompute_failed` (error, `userId`) |
 | Voice input (Task 80) | `voice.transcribed`, `.transcribe_failed`, `.transcribe_empty`, `.too_long` |
 | Pronunciation (Task 77) | `card.tts_played`, `.tts_failed`, `.tts_state_lost` |
 | Errors | `bot.error`, `bot.error_handler_failed` |
