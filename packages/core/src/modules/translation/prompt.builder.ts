@@ -413,8 +413,12 @@ export function buildMetadataPrompt(
     ? `
 - Assess whether the source headword "${text}" is a real, correctly-spelled word or fixed expression in ${sourceLangName}:
   * Set "sourceWordRecognized" to false when it is NOT a standard word — a misspelling, missing/wrong diacritics (e.g. Czech "stroha" is not a word; the real word is "strohá"), or invented/gibberish. Otherwise set it to true.
-  * When "sourceWordRecognized" is false AND you are confident of the intended correct spelling, put that correct form in "suggestedCorrection" (e.g. "strohá"). Otherwise set "suggestedCorrection" to null.
+  * Put the intended correct spelling in "suggestedCorrection" (e.g. "strohá") whenever "${text}" is a MISSPELLING of a word and you are confident which word that is — INCLUDING when you set "sourceWordRecognized" to true. A regional, colloquial, older or stylistic variant that is itself correct (British "colour", Czech "brzo") is NOT a misspelling: leave "suggestedCorrection" null. Otherwise set it to null too; never repeat the input unchanged.
   * Judge the exact written form: high confidence about the language does NOT mean the spelling is correct.
+  * A brand, company, product, or place name is NOT a way to rescue an unknown form. When the only reading that makes "${text}" a word is "it could be the name of something", set "sourceWordRecognized" to false — unless it is a named entity you actually know to exist and could name concretely.
+  * Hedge about whether it EXISTS and the answer is false: "not attested", "possibly constructed", "may appear in names", "I am not sure this is a word".
+  * Register is not existence. Slang, colloquialisms, dialect, professional or internet jargon, vulgarities and recent coinages are real words — "sourceWordRecognized" is true for them even when no dictionary lists them. Learners send exactly these.
+  * Recognizable parts do NOT make a whole. A form built from real morphemes (e.g. a plausible-looking compound) is still false unless that exact compound is itself established in ${sourceLangName}.
   * NEVER invent meanings, senses, or synonyms for an unrecognized word. When "sourceWordRecognized" is false, set "primarySense" to null rather than inventing one — a sense you can narrate is not evidence that the written form is a real word.`
     : "";
 
