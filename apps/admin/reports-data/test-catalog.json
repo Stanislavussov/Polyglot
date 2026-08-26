@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-26T09:34:29.000Z",
+  "generatedAt": "2026-08-26T09:37:28.000Z",
   "summary": {
-    "total": 3123,
+    "total": 3128,
     "business": 0,
-    "technical": 3123,
+    "technical": 3128,
     "workspaces": [
       "apps",
       "packages"
@@ -4597,6 +4597,22 @@
       "name": "Bot word card consistency (integration) W5: a Reveal button that outlived its word answers instead of rendering an empty card",
       "value": "Protects the bot word card consistency (integration) behavior so W5: a Reveal button that outlived its word answers instead of rendering an empty card.",
       "description": "Protects the bot word card consistency (integration) behavior so W5: a Reveal button that outlived its word answers instead of rendering an empty card."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-word-card-consistency-integration-test-ts-254-word-card-consistency-integration-w6-a-word-with-no-translation-into-the-reader-s-language-leads-with-a-note-not-a-fake-answer",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/word-card-consistency.integration.test.ts",
+      "sourceLine": 254,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "word card consistency (integration)"
+      ],
+      "title": "W6: a word with no translation into the reader's language leads with a note, not a fake answer",
+      "rawTitle": "W6: a word with no translation into the reader's language leads with a note, not a fake answer",
+      "name": "Bot word card consistency (integration) W6: a word with no translation into the reader's language leads with a note, not a fake answer",
+      "value": "Protects the bot word card consistency (integration) behavior so W6: a word with no translation into the reader's language leads with a note, not a fake answer.",
+      "description": "Protects the bot word card consistency (integration) behavior so W6: a word with no translation into the reader's language leads with a note, not a fake answer."
     },
     {
       "id": "apps-bot-src-tests-integration-word-picker-integration-test-ts-96-word-picker-integration-takes-a-learner-from-the-menu-tap-to-a-saved-word",
@@ -10942,10 +10958,10 @@
       "description": "Protects the bot send Release Announcement behavior so continues when one Telegram send fails."
     },
     {
-      "id": "apps-bot-src-renderers-tests-card-grammar-consistency-test-ts-210-card-grammar-a-reveal-style-front-hands-over-nothing-srs-front-names-the-language-being-recalled-the-one-line-it-cannot-lose",
+      "id": "apps-bot-src-renderers-tests-card-grammar-consistency-test-ts-220-card-grammar-a-reveal-style-front-hands-over-nothing-srs-front-names-the-language-being-recalled-the-one-line-it-cannot-lose",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/card-grammar.consistency.test.ts",
-      "sourceLine": 210,
+      "sourceLine": 220,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12446,10 +12462,10 @@
       "description": "Protects the bot render Word Card — stored prose behavior: keeps the prose visible when the card carries no answer — there it IS the answer."
     },
     {
-      "id": "apps-bot-src-renderers-tests-word-card-test-ts-175-renderwordcard-stored-prose-folds-the-prose-for-a-word-already-in-the-reader-s-own-language",
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-174-renderwordcard-stored-prose-folds-the-prose-for-a-word-already-in-the-reader-s-own-language",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
-      "sourceLine": 175,
+      "sourceLine": 174,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12462,26 +12478,90 @@
       "description": "Protects the bot render Word Card — stored prose behavior so folds the prose for a word already in the reader's own language."
     },
     {
-      "id": "apps-bot-src-renderers-tests-word-card-test-ts-189-renderwordcard-stored-prose-renders-visible-prose-unlabelled-when-the-reader-s-language-is-unknown",
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-187-renderwordcard-stored-prose-falls-back-to-the-stored-gloss-when-no-explanation-was-saved",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
-      "sourceLine": 189,
+      "sourceLine": 187,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
         "renderWordCard — stored prose"
       ],
-      "title": "renders visible prose unlabelled when the reader's language is unknown",
-      "rawTitle": "renders visible prose unlabelled when the reader's language is unknown",
-      "name": "Bot render Word Card — stored prose renders visible prose unlabelled when the reader's language is unknown",
-      "value": "Protects the bot render Word Card — stored prose behavior: renders visible prose unlabelled when the reader's language is unknown.",
-      "description": "Protects the bot render Word Card — stored prose behavior: renders visible prose unlabelled when the reader's language is unknown."
+      "title": "falls back to the stored gloss when no explanation was saved",
+      "rawTitle": "falls back to the stored gloss when no explanation was saved",
+      "name": "Bot render Word Card — stored prose falls back to the stored gloss when no explanation was saved",
+      "value": "Protects the bot render Word Card — stored prose behavior: falls back to the stored gloss when no explanation was saved.",
+      "description": "Protects the bot render Word Card — stored prose behavior: falls back to the stored gloss when no explanation was saved."
     },
     {
-      "id": "apps-bot-src-renderers-tests-word-card-test-ts-198-renderwordcard-language-blocks-keeps-the-first-example-visible-and-collapses-the-rest-with-the-notes",
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-223-renderwordcard-a-card-with-no-answer-in-the-reader-s-language-never-labels-prose-with-a-language-so-nothing-but-a-translation-wears-that-badge",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
-      "sourceLine": 198,
+      "sourceLine": 223,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "renderWordCard — a card with no answer in the reader's language"
+      ],
+      "title": "never labels prose with a language, so nothing but a translation wears that badge",
+      "rawTitle": "never labels prose with a language, so nothing but a translation wears that badge",
+      "name": "Bot render Word Card — a card with no answer in the reader's language never labels prose with a language, so nothing but a translation wears that badge",
+      "value": "Protects the bot render Word Card — a card with no answer in the reader's language behavior so never labels prose with a language, so nothing but a translation wears that badge.",
+      "description": "Protects the bot render Word Card — a card with no answer in the reader's language behavior so never labels prose with a language, so nothing but a translation wears that badge."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-230-renderwordcard-a-card-with-no-answer-in-the-reader-s-language-shows-one-paragraph-not-the-explanation-and-the-gloss-both",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
+      "sourceLine": 230,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "renderWordCard — a card with no answer in the reader's language"
+      ],
+      "title": "shows one paragraph, not the explanation and the gloss both",
+      "rawTitle": "shows one paragraph, not the explanation and the gloss both",
+      "name": "Bot render Word Card — a card with no answer in the reader's language shows one paragraph, not the explanation and the gloss both",
+      "value": "Protects the bot render Word Card — a card with no answer in the reader's language behavior: shows one paragraph, not the explanation and the gloss both.",
+      "description": "Protects the bot render Word Card — a card with no answer in the reader's language behavior: shows one paragraph, not the explanation and the gloss both."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-239-renderwordcard-a-card-with-no-answer-in-the-reader-s-language-still-shows-the-answer-it-does-have-in-the-shared-grammar",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
+      "sourceLine": 239,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "renderWordCard — a card with no answer in the reader's language"
+      ],
+      "title": "still shows the answer it does have, in the shared grammar",
+      "rawTitle": "still shows the answer it does have, in the shared grammar",
+      "name": "Bot render Word Card — a card with no answer in the reader's language still shows the answer it does have, in the shared grammar",
+      "value": "Protects the bot render Word Card — a card with no answer in the reader's language behavior so still shows the answer it does have, in the shared grammar.",
+      "description": "Protects the bot render Word Card — a card with no answer in the reader's language behavior so still shows the answer it does have, in the shared grammar."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-245-renderwordcard-a-card-with-no-answer-in-the-reader-s-language-keeps-the-meaning-visible-with-no-answer-it-is-the-only-meaning-there-is",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
+      "sourceLine": 245,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "renderWordCard — a card with no answer in the reader's language"
+      ],
+      "title": "keeps the meaning visible — with no answer it is the only meaning there is",
+      "rawTitle": "keeps the meaning visible — with no answer it is the only meaning there is",
+      "name": "Bot render Word Card — a card with no answer in the reader's language keeps the meaning visible — with no answer it is the only meaning there is",
+      "value": "Protects the bot render Word Card — a card with no answer in the reader's language behavior: keeps the meaning visible — with no answer it is the only meaning there is.",
+      "description": "Protects the bot render Word Card — a card with no answer in the reader's language behavior: keeps the meaning visible — with no answer it is the only meaning there is."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-256-renderwordcard-language-blocks-keeps-the-first-example-visible-and-collapses-the-rest-with-the-notes",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
+      "sourceLine": 256,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12494,10 +12574,10 @@
       "description": "Protects the bot render Word Card — language blocks behavior: keeps the first example visible and collapses the rest with the notes."
     },
     {
-      "id": "apps-bot-src-renderers-tests-word-card-test-ts-227-renderwordcard-language-blocks-renders-no-blockquote-when-there-is-nothing-to-collapse",
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-285-renderwordcard-language-blocks-renders-no-blockquote-when-there-is-nothing-to-collapse",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
-      "sourceLine": 227,
+      "sourceLine": 285,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12510,10 +12590,10 @@
       "description": "Protects the bot render Word Card — language blocks behavior: renders no blockquote when there is nothing to collapse."
     },
     {
-      "id": "apps-bot-src-renderers-tests-word-card-test-ts-240-renderwordcard-language-blocks-promotes-the-answer-language-directly-under-the-headword",
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-298-renderwordcard-language-blocks-promotes-the-answer-language-directly-under-the-headword",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
-      "sourceLine": 240,
+      "sourceLine": 298,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12526,10 +12606,10 @@
       "description": "Protects the bot render Word Card — language blocks behavior so promotes the answer language directly under the headword."
     },
     {
-      "id": "apps-bot-src-renderers-tests-word-card-test-ts-260-renderwordcard-language-blocks-keeps-the-given-order-when-no-answer-language-is-named",
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-318-renderwordcard-language-blocks-keeps-the-given-order-when-no-answer-language-is-named",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
-      "sourceLine": 260,
+      "sourceLine": 318,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12542,10 +12622,10 @@
       "description": "Protects the bot render Word Card — language blocks behavior: keeps the given order when no answer language is named."
     },
     {
-      "id": "apps-bot-src-renderers-tests-word-card-test-ts-276-renderwordcard-language-blocks-never-promotes-a-block-whose-language-no-longer-resolves",
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-334-renderwordcard-language-blocks-never-promotes-a-block-whose-language-no-longer-resolves",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
-      "sourceLine": 276,
+      "sourceLine": 334,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12558,10 +12638,10 @@
       "description": "Protects the bot render Word Card — language blocks behavior so never promotes a block whose language no longer resolves."
     },
     {
-      "id": "apps-bot-src-renderers-tests-word-card-test-ts-337-renderwordcard-invariants-emits-only-the-tags-telegram-s-html-subset-allows-each-balanced",
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-395-renderwordcard-invariants-emits-only-the-tags-telegram-s-html-subset-allows-each-balanced",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
-      "sourceLine": 337,
+      "sourceLine": 395,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12574,10 +12654,10 @@
       "description": "Protects the bot render Word Card — invariants behavior so emits only the tags Telegram's HTML subset allows, each balanced."
     },
     {
-      "id": "apps-bot-src-renderers-tests-word-card-test-ts-349-renderwordcard-invariants-never-opens-a-blockquote-it-has-nothing-to-put-in",
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-407-renderwordcard-invariants-never-opens-a-blockquote-it-has-nothing-to-put-in",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
-      "sourceLine": 349,
+      "sourceLine": 407,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12590,10 +12670,10 @@
       "description": "Protects the bot render Word Card — invariants behavior so never opens a blockquote it has nothing to put in."
     },
     {
-      "id": "apps-bot-src-renderers-tests-word-card-test-ts-360-renderwordcard-invariants-escapes-a-tag-hidden-in-stored-data-instead-of-emitting-it",
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-418-renderwordcard-invariants-escapes-a-tag-hidden-in-stored-data-instead-of-emitting-it",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
-      "sourceLine": 360,
+      "sourceLine": 418,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12606,10 +12686,10 @@
       "description": "Protects the bot render Word Card — invariants behavior: escapes a tag hidden in stored data instead of emitting it."
     },
     {
-      "id": "apps-bot-src-renderers-tests-word-card-test-ts-372-renderwordcard-invariants-falls-back-to-the-raw-input-when-the-stored-citation-form-is-blank",
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-430-renderwordcard-invariants-falls-back-to-the-raw-input-when-the-stored-citation-form-is-blank",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
-      "sourceLine": 372,
+      "sourceLine": 430,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12622,10 +12702,10 @@
       "description": "Protects the bot render Word Card — invariants behavior: falls back to the raw input when the stored citation form is blank."
     },
     {
-      "id": "apps-bot-src-renderers-tests-word-card-test-ts-386-renderwordcard-invariants-drops-blank-stored-prose-rather-than-rendering-an-empty-note",
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-444-renderwordcard-invariants-drops-blank-stored-prose-rather-than-rendering-an-empty-note",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
-      "sourceLine": 386,
+      "sourceLine": 444,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [

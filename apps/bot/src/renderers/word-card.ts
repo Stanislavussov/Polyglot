@@ -95,11 +95,6 @@ function langBlock(entry: WordCardLang, lang: SupportedLang): string[] {
   return lines;
 }
 
-/** Prose with nowhere to fold into: it is the answer, so it keeps its own line. */
-function proseLine(text: string, nativeLang: string | undefined): string {
-  return nativeLang ? `${langLabel(nativeLang)} ${esc(text)}` : esc(text);
-}
-
 export function renderWordCard(card: WordCardData, lang: SupportedLang): string {
   const usage = card.sourceUsage;
   // The canonical citation form when one was stored (German "die Arbeit" for the
@@ -109,7 +104,11 @@ export function renderWordCard(card: WordCardData, lang: SupportedLang): string 
 
   const answer = card.answerLang ? card.langs.find((entry) => entry.code === card.answerLang) : undefined;
   const others = card.langs.filter((entry) => entry !== answer);
-  const prose = [usage?.explanation, card.nativeMeaning].filter((text): text is string => Boolean(text?.trim()));
+  // One paragraph, never two. The stored explanation and the stored gloss describe
+  // the same word at different lengths, and the translate card renders one or the
+  // other — showing both put two walls of description between the headword and the
+  // answer. The explanation wins because it is the fuller text.
+  const prose = [usage?.explanation, card.nativeMeaning].find((text) => text?.trim());
 
   const sections: string[][] = [
     [`${emoji}${flagOf(card.sourceLang)} <b>${esc(headword)}</b>${synonymSuffix(usage?.synonyms)}`],
@@ -122,15 +121,20 @@ export function renderWordCard(card: WordCardData, lang: SupportedLang): string 
   const proseIsSupplementary =
     Boolean(answer) || (card.nativeLang !== undefined && card.nativeLang === card.sourceLang);
 
+  // Always a note, never a language label: `🇷🇺 RU:` introduces a translation
+  // everywhere else on the card, so wearing it made a paragraph of description
+  // read as the answer the reader was looking for.
+  const proseNote = prose ? `💡 ${esc(prose)}` : undefined;
+
   if (answer) {
     sections.push(langBlock(answer, lang));
-  } else if (prose.length > 0 && !proseIsSupplementary) {
-    sections.push(prose.map((text) => proseLine(text, card.nativeLang)));
+  } else if (proseNote && !proseIsSupplementary) {
+    sections.push([proseNote]);
   }
 
   const { visible, folded } = splitExamples(usage?.examples);
-  if (proseIsSupplementary) {
-    folded.push(...prose.map((text) => `💡 ${esc(text)}`));
+  if (proseNote && proseIsSupplementary) {
+    folded.push(proseNote);
   }
   sections.push([...visible, ...expandableSection(folded)]);
 

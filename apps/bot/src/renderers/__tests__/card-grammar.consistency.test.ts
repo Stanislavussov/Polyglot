@@ -187,12 +187,22 @@ describe("card grammar — every surface renders a saved word the same way", () 
     expect(card).not.toMatch(/<i>[^<]*·/);
   });
 
-  it.each(SURFACES)("%s folds the stored prose below the promoted answer", (_name, card, promoted) => {
-    expect(card).toContain("💡 Занятие за плату.");
-    // Never a bare visible line of its own — that layout is what put the reader's
-    // own language below two lines of description in the first place.
-    expect(card).not.toMatch(/^Занятие за плату\.$/m);
-    expect(card.indexOf(`<b>${promoted}</b>`)).toBeLessThan(card.indexOf("Занятие за плату."));
+  it.each(SURFACES)("%s folds one paragraph of prose below the promoted answer", (_name, card, promoted) => {
+    // The stored explanation, as a note — and the shorter gloss saying the same
+    // thing again is not rendered at all. Two paragraphs of description above the
+    // answer is the layout the reported card was showing.
+    expect(card).toContain("💡 Работа, труд.");
+    expect(card).not.toContain(WORD.nativeMeaning);
+    expect(card.indexOf(`<b>${promoted}</b>`)).toBeLessThan(card.indexOf("Работа, труд."));
+  });
+
+  it.each(SURFACES)("%s never prefixes prose with a language label", (_name, card) => {
+    // `🇷🇺 RU:` introduces a translation everywhere else on the card; prose wearing
+    // it read as the answer the reader was hunting for.
+    const answerLines = card.split("\n").filter((line) => /^\S+ [A-Z]{2}: /u.test(line));
+    for (const line of answerLines) {
+      expect(line).toMatch(/^\S+ [A-Z]{2}: <b>/u);
+    }
   });
 });
 

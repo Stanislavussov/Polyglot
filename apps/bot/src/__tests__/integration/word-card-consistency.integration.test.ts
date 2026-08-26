@@ -16,7 +16,7 @@
  *
  * Every case walks a real user path: translate → save → open it from somewhere.
  */
-import { vocabularyRepository } from "@polyglot/adapter-db";
+import { userRepository, vocabularyRepository } from "@polyglot/adapter-db";
 import { describe, expect, it } from "vitest";
 import { arrangeOnboardedTranslator } from "../../test-helpers/integration/arrange.js";
 import type { BotHarness, CapturedCall } from "../../test-helpers/integration/bot-harness.js";
@@ -249,5 +249,48 @@ describe("word card consistency (integration)", () => {
     expect(textsOf(harness.sent)).toEqual([]);
     const markupEdits = harness.sent.filter((call) => call.method === "editMessageReplyMarkup");
     expect(markupEdits.at(-1)?.payload.reply_markup).toEqual({ inline_keyboard: [] });
+  });
+
+  it("W6: a word with no translation into the reader's language leads with a note, not a fake answer", async () => {
+    // The reported card. It reaches this state without anything going wrong: the
+    // word was saved while another language was native (or its row was never
+    // written), so the card has real answers — just none in the language the
+    // reader thinks in. What it must not do is dress the stored description up
+    // with the `RU:` label every actual translation on the card wears.
+    const harness = createBotHarness({ ai: deterministicTranslateAi() });
+    const id = uniqueTelegramId();
+    const { userId } = await arrangeSavedWord(harness, id);
+
+    // The user switches their native language to one the saved entry has no row
+    // for; every stored translation is now a learning language.
+    await userRepository.updateSettings(userId, {
+      interfaceLang: "en",
+      nativeLang: "de",
+      learningLangs: ["en", "cs"],
+      lastSourceLang: null,
+    });
+
+    harness.reset();
+    await harness.dispatch(messageUpdate({ chatId: id, fromId: id, text: "/dictionary" }));
+    const list = lastKeyboard(harness.sent);
+    const viewButton = list.buttons.find((data) => data.startsWith("dict:view:"));
+    if (!viewButton) throw new Error(`expected a dict:view button, got ${list.buttons.join(", ")}`);
+
+    harness.reset();
+    await harness.dispatch(
+      callbackQueryUpdate({ chatId: id, fromId: id, messageId: list.messageId, data: viewButton }),
+    );
+    const card = lastCardText(harness.sent);
+
+    // The stored description is a note, and there is exactly one of it.
+    expect(card).toContain("💡 ");
+    expect(card.split("\n").filter((line) => line.startsWith("💡 "))).toHaveLength(1);
+    // Every language-labelled line is a real translation, in bold.
+    for (const line of answerLines(card)) {
+      expect(line).toMatch(ANSWER_LINE);
+    }
+    // And the answers the entry does have are still there, under the headword.
+    expect(answerLines(card).length).toBeGreaterThan(0);
+    expect(card.indexOf(`<b>${WORD}</b>`)).toBeLessThan(card.indexOf(answerLines(card)[0] ?? ""));
   });
 });
