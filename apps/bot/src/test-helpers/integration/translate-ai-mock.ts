@@ -54,6 +54,11 @@ export interface TranslateAiOptions {
    * clarification branch and another straight to a card with the same mock.
    */
   unrecognizedWord?: string;
+  /**
+   * Makes the preflight fixture report `misspelled` as a probable typo with
+   * `correctedText` offered, driving the preflight branch of the clarification.
+   */
+  typoSuggestion?: { misspelled: string; correctedText: string };
 }
 
 /** An AI override (for the harness `ai` option) that drives translate() to an accepted card. */
@@ -63,7 +68,27 @@ export function deterministicTranslateAi(options: TranslateAiOptions = {}): Part
       options.unrecognizedWord && prompt.includes(options.unrecognizedWord)
         ? { ...METADATA_FAT, sourceWordRecognized: false, suggestedCorrection: null }
         : METADATA_FAT;
-    for (const fixture of [PREFLIGHT_PROCEED, JUDGE_CLEAN, metadata, LANGUAGE_FAT]) {
+    const typo = options.typoSuggestion;
+    const preflight =
+      typo && prompt.includes(typo.misspelled)
+        ? {
+            confidence: 0.4,
+            outcome: "confirm_typo_suggestion",
+            reasonCode: "probable_typo",
+            explanation: "That spelling is not a word.",
+            options: [
+              {
+                id: "fix",
+                label: typo.correctedText,
+                value: typo.correctedText,
+                kind: "typo_correction",
+                correctedText: typo.correctedText,
+              },
+              { id: "as-written", label: "Translate as written", value: "as_written", kind: "translate_as_written" },
+            ],
+          }
+        : PREFLIGHT_PROCEED;
+    for (const fixture of [preflight, JUDGE_CLEAN, metadata, LANGUAGE_FAT]) {
       const parsed = schema.safeParse(fixture);
       if (parsed.success) return parsed.data;
     }

@@ -155,7 +155,10 @@ function outOfSetLanguageFromCorrection(
   nativeLang: string,
   learningLangs: string[],
 ): string | undefined {
-  if (ambiguity.reason !== "unrecognized_word") {
+  // Both correction-bearing reasons: the metadata existence guard answers
+  // "unrecognized_word", the spelling preflight "possible_typo", and either can
+  // be the coerced out-of-set language rather than a typo.
+  if (ambiguity.reason !== "unrecognized_word" && ambiguity.reason !== "possible_typo") {
     return undefined;
   }
   const correction = (ambiguity.options ?? []).find((option) => option.kind === "typo_correction")?.correctedText;

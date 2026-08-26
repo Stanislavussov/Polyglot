@@ -60,6 +60,13 @@ function createMockCtx(callbackData: string, messageReplyMarkup?: { inline_keybo
 
 beforeEach(() => {
   vi.clearAllMocks();
+  // `clearAllMocks` drops recorded calls but keeps implementations, so the cases
+  // below that make a repository answer "not saved" or throw would leak that
+  // answer into whichever test the runner happens to place next — which is a
+  // silent pass until the day the order changes. Re-establish the happy path.
+  vocabularyRepository.findById.mockReset();
+  vocabularyRepository.setDifficulty.mockResolvedValue(true);
+  vocabularyRepository.delete.mockResolvedValue(undefined);
 });
 
 describe("handleNotifRevealCallback", () => {

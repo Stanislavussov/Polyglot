@@ -81,6 +81,14 @@ function makeValidResult(overrides?: Partial<TranslationResult>): TranslationRes
   };
 }
 
+const PREFLIGHT_PROCEED = {
+  confidence: 0.95,
+  outcome: "proceed",
+  reasonCode: "low_confidence",
+  explanation: "No clarification needed.",
+  options: [],
+};
+
 /** Split a TranslationResult into metadata and per-language blocks for parallel mock setup */
 function splitForMock(result: TranslationResult) {
   const { translations, ...metadata } = result;
@@ -101,6 +109,9 @@ function createTranslateMock(
 ) {
   const { metadata, langBlocks } = splitForMock(result);
   return vi.fn().mockImplementation(async (prompt: string) => {
+    // Single words always reach the preflight now; tests that care about its
+    // verdict override this with mockResolvedValueOnce, which takes precedence.
+    if (prompt.includes("preflight ambiguity checker")) return PREFLIGHT_PROCEED;
     if (prompt.includes("Do NOT include any translations")) return metadata;
     for (const [lang, block] of Object.entries(langBlocks)) {
       if (prompt.includes(`translation block for language "${lang}"`)) return block;
@@ -558,24 +569,145 @@ describe("translate", () => {
     expect(unwrap(result).original).toBe("helllo");
   });
 
-  it("does not run the preflight on a dictionary miss when detection is confident (decoupled from DB lookup)", async () => {
-    // The offline Wiktionary import is incomplete, so a valid word's absence is
-    // not a typo signal. At high detection confidence the preflight is skipped
-    // and the input is translated directly — no "preflight ambiguity checker".
+  it("still spell-checks a single word when language detection is confident", async () => {
+    // Confident language detection says "this is Czech", not "this is spelled
+    // right" — so the preflight runs anyway and can offer the correct form.
+    const mockGenerate = createTranslateMock(makeValidResult()).mockResolvedValueOnce({
+      confidence: 0.4,
+      outcome: "confirm_typo_suggestion",
+      reasonCode: "probable_typo",
+      explanation: "This is not a Czech word.",
+      options: [
+        { id: "fix", label: "strohá", value: "strohá", kind: "typo_correction", correctedText: "strohá" },
+        { id: "as-written", label: "Translate as written", value: "as_written", kind: "translate_as_written" },
+      ],
+    });
+
+    const result = await translate(
+      { ...defaultInput, word: "stroha", sourceLang: "cs", targetLangs: ["en"], detectionConfidence: 0.95 },
+      mockGenerate,
+    );
+
+    expect(result.status).toBe("needs_clarification");
+    if (result.status === "needs_clarification") {
+      expect(result.ambiguity.reason).toBe("possible_typo");
+      expect(result.ambiguity.options).toEqual(
+        expect.arrayContaining([expect.objectContaining({ kind: "typo_correction", correctedText: "strohá" })]),
+      );
+    }
+    expect(mockGenerate.mock.calls[0]?.[0]).toContain("preflight ambiguity checker");
+  });
+
+  it("ignores a non-spelling preflight verdict on a confident word", async () => {
+    // Confident detection reaches the preflight only for the spelling pass. English
+    // "gift" is also German "Gift", and the model may say so — but that word
+    // translated straight through before, and must keep doing so.
+    const mockGenerate = createTranslateMock(makeValidResult()).mockResolvedValueOnce({
+      confidence: 0.3,
+      outcome: "clarify_source_language",
+      reasonCode: "homograph_across_languages",
+      explanation: "This spelling is English or German.",
+      options: [
+        { id: "en", label: "English", value: "en", kind: "source_language", langCode: "en" },
+        { id: "de", label: "German", value: "de", kind: "source_language", langCode: "de" },
+      ],
+    });
+
+    const result = await translate({ ...defaultInput, word: "gift", detectionConfidence: 0.95 }, mockGenerate);
+
+    expect(result.status).toBe("accepted");
+  });
+
+  it("still honours a language clarification when detection itself was unsure", async () => {
+    const mockGenerate = createTranslateMock(makeValidResult()).mockResolvedValueOnce({
+      confidence: 0.3,
+      outcome: "clarify_source_language",
+      reasonCode: "homograph_across_languages",
+      explanation: "This spelling is English or German.",
+      options: [
+        { id: "en", label: "English", value: "en", kind: "source_language", langCode: "en" },
+        { id: "de", label: "German", value: "de", kind: "source_language", langCode: "de" },
+      ],
+    });
+
+    const result = await translate({ ...defaultInput, word: "gift", detectionConfidence: 0.3 }, mockGenerate);
+
+    expect(result.status).toBe("needs_clarification");
+  });
+
+  it("translates instead of asking when the preflight's only 'correction' is the input itself", async () => {
+    // Reported: «Слово selmostroj не найдено в словарях» with a single button
+    // "selmostroj (исправить на selmostroj)". A confirmation that offers no
+    // different spelling has nothing to confirm — the existence guard on the
+    // metadata call is the net for a genuinely unknown word.
+    const mockGenerate = createTranslateMock(makeValidResult()).mockResolvedValueOnce({
+      confidence: 0.4,
+      outcome: "confirm_typo_suggestion",
+      reasonCode: "probable_typo",
+      explanation: "Not found in dictionaries.",
+      options: [
+        { id: "same", label: "hello", value: "hello", kind: "typo_correction", correctedText: "hello" },
+        { id: "as-written", label: "Translate as written", value: "as_written", kind: "translate_as_written" },
+      ],
+    });
+
+    const result = await translate({ ...defaultInput, detectionConfidence: 0.95 }, mockGenerate);
+
+    expect(result.status).toBe("accepted");
+  });
+
+  it("drops a no-op correction but keeps a real one in the same confirmation", async () => {
+    const mockGenerate = createTranslateMock(makeValidResult()).mockResolvedValueOnce({
+      confidence: 0.4,
+      outcome: "confirm_typo_suggestion",
+      reasonCode: "probable_typo",
+      explanation: "Two readings.",
+      options: [
+        { id: "same", label: "stroha", value: "stroha", kind: "typo_correction", correctedText: "stroha" },
+        { id: "fix", label: "strohá", value: "strohá", kind: "typo_correction", correctedText: "strohá" },
+        { id: "as-written", label: "Translate as written", value: "as_written", kind: "translate_as_written" },
+      ],
+    });
+
+    const result = await translate(
+      { ...defaultInput, word: "stroha", sourceLang: "cs", targetLangs: ["en"], detectionConfidence: 0.95 },
+      mockGenerate,
+    );
+
+    expect(result.status).toBe("needs_clarification");
+    if (result.status !== "needs_clarification") throw new Error("expected needs_clarification");
+    const corrections = (result.ambiguity.options ?? []).filter((o) => o.kind === "typo_correction");
+    expect(corrections.map((o) => o.correctedText)).toEqual(["strohá"]);
+  });
+
+  it("does not re-run the preflight on a confident word after the user chose to translate as written", async () => {
     const mockGenerate = createTranslateMock(makeValidResult());
 
     await translate(
-      { ...defaultInput, word: "stroha", sourceLang: "cs", targetLangs: ["en"], detectionConfidence: 0.95 },
+      {
+        ...defaultInput,
+        detectionConfidence: 0.95,
+        correctionPolicy: { skipInputCorrection: true },
+      },
       mockGenerate,
     );
 
     expect(mockGenerate.mock.calls[0]?.[0]).not.toContain("preflight ambiguity checker");
   });
 
-  it("keeps the confidence-only gate when no dictionary lookup was performed", async () => {
+  it("keeps the confidence-only gate for sentences", async () => {
     const mockGenerate = createTranslateMock(makeValidResult());
 
-    await translate({ ...defaultInput, detectionConfidence: 0.95 }, mockGenerate);
+    await translate(
+      {
+        ...defaultInput,
+        word: "Kde je nejbližší zastávka autobusu?",
+        inputType: "sentence",
+        outputConfig: SENTENCE_OUTPUT,
+        detectionConfidence: 0.95,
+      },
+      mockGenerate,
+    );
 
     expect(mockGenerate.mock.calls[0]?.[0]).not.toContain("preflight ambiguity checker");
   });
@@ -602,9 +734,9 @@ describe("translate", () => {
       mockGenerate,
     );
 
-    // 1 metadata (which resolves the sense) + 1 language call
-    expect(mockGenerate).toHaveBeenCalledTimes(2);
-    expect(mockGenerate.mock.calls[0]?.[2]).toBe("openai/gpt-4o-mini");
+    // 1 preflight + 1 metadata (which resolves the sense) + 1 language call
+    expect(mockGenerate).toHaveBeenCalledTimes(3);
+    expect(mockGenerate.mock.calls[1]?.[2]).toBe("openai/gpt-4o-mini");
     expect(result.status).toBe("accepted");
     if (result.status === "accepted") {
       expect(result.quality.riskLevel).toBe("low");
@@ -807,7 +939,7 @@ describe("translate", () => {
     expect(mockGenerate).toHaveBeenCalledTimes(2);
   });
 
-  it("keeps a dictionary-backed confident word on the low-risk path without judge", async () => {
+  it("keeps a dictionary-backed confident word on the low-risk path without judge (plus the spelling preflight)", async () => {
     const mockGenerate = createTranslateMock(makeValidResult());
 
     const result = await translate(
@@ -830,8 +962,8 @@ describe("translate", () => {
       expect(result.quality.riskLevel).toBe("low");
       expect(result.quality.judgeResult).toBeUndefined();
     }
-    // 1 metadata + 1 language = 2 parallel calls, no judge
-    expect(mockGenerate).toHaveBeenCalledTimes(2);
+    // 1 preflight + 1 metadata + 1 language, no judge
+    expect(mockGenerate).toHaveBeenCalledTimes(3);
   });
 
   it("runs the semantic judge for phrase translations", async () => {
@@ -1660,6 +1792,43 @@ describe("unrecognized-word guard (Task 70)", () => {
 
     expect(decision.status).toBe("accepted");
     expect(unwrap(decision).unverified).toBeUndefined();
+  });
+
+  it("offers the correct spelling even when the model called the word recognized", async () => {
+    // The model can rationalize a non-word as a name and still know the standard
+    // form; the card must never render the typed form as if it were real.
+    const mock = createExistenceMock(makeValidResult(), { recognized: true, correction: "strohá" });
+
+    const decision = await translate({ ...base, word: "stroha" }, mock);
+
+    expect(decision.status).toBe("needs_clarification");
+    if (decision.status !== "needs_clarification") throw new Error("expected needs_clarification");
+    const correction = decision.ambiguity.options?.find((o) => o.kind === "typo_correction");
+    expect(correction?.correctedText).toBe("strohá");
+    // It called the word real, so the card must not claim the opposite.
+    expect(decision.ambiguity.reason).toBe("possible_typo");
+  });
+
+  it("treats a correction that only differs in capitalization as no correction", async () => {
+    const mock = createExistenceMock(makeValidResult(), { recognized: true, correction: "Hello" });
+
+    const decision = await translate({ ...base, word: "hello" }, mock);
+
+    expect(decision.status).toBe("accepted");
+    expect(unwrap(decision).unverified).toBeUndefined();
+  });
+
+  it("treats a correction that only differs in Unicode normalization as no correction", async () => {
+    // NFD "strohá" (a + combining acute) is the same text as the NFC input; a
+    // button whose label is indistinguishable from what the user typed is noise.
+    const mock = createExistenceMock(makeValidResult(), {
+      recognized: true,
+      correction: "strohá".normalize("NFD"),
+    });
+
+    const decision = await translate({ ...base, word: "strohá".normalize("NFC") }, mock);
+
+    expect(decision.status).toBe("accepted");
   });
 
   it("does not gate when the caller opts out of the existence assessment", async () => {
