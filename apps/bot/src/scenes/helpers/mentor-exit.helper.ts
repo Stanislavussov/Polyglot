@@ -11,7 +11,6 @@
 import { FEATURE_KEYS, isSupported, type SupportedLang, t } from "@polyglot/core";
 import type { InlineKeyboardMarkup } from "grammy/types";
 import type { BotContext } from "../../types.js";
-import { replyTechnical } from "../../utils/message-cleanup.js";
 import { activateTranslateMode } from "../translate.scene.js";
 import { ensurePaidFeatureForMessage } from "./paid-feature.helper.js";
 
@@ -49,7 +48,7 @@ export async function handleMentorExitCallback(ctx: BotContext): Promise<void> {
   // says where the user LANDED — a bare "ru → cs" line after leaving a chat mode
   // reads as noise, not as "you are back in translation, send a word".
   const { lang, fromLang, toLangs } = await activateTranslateMode(ctx);
-  await replyTechnical(ctx, t("translateModeReturned", lang, { fromLang, toLangs }));
+  await ctx.reply(t("translateModeReturned", lang, { fromLang, toLangs }));
 }
 
 /**
@@ -74,5 +73,5 @@ export async function handleMentorNewTopicCallback(ctx: BotContext): Promise<voi
   // Empty object = "fresh thread, no recovery" — the first turn mints a new id.
   ctx.session.mentor = {};
 
-  await replyTechnical(ctx, t("mentorNewTopicStarted", lang));
+  await ctx.reply(t("mentorNewTopicStarted", lang));
 }

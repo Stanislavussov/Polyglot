@@ -6,7 +6,6 @@
  */
 import { FEATURE_KEYS, isSupported, type SupportedLang, t } from "@polyglot/core";
 import type { BotContext } from "../types.js";
-import { replyTechnical } from "../utils/message-cleanup.js";
 import { mentorExitKeyboard } from "./helpers/mentor-exit.helper.js";
 import { ensurePaidFeatureForMessage } from "./helpers/paid-feature.helper.js";
 
@@ -32,5 +31,5 @@ export async function handleMentorCommand(ctx: BotContext): Promise<void> {
   // the first turn mints a new thread id.
   ctx.session.mentor = {};
 
-  await replyTechnical(ctx, t("mentorModeOn", lang), { reply_markup: mentorExitKeyboard(lang) });
+  await ctx.reply(t("mentorModeOn", lang), { reply_markup: mentorExitKeyboard(lang) });
 }

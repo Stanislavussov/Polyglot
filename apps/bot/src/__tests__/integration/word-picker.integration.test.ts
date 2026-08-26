@@ -2,9 +2,9 @@
  * Word picker — grammY e2e integration test.
  *
  * Drives the whole feature through the real dispatcher against the real Postgres:
- * the main-menu tap that opens the angle list, the tap on an angle that generates
- * a set, and the save that puts an item in the learner's dictionary. Only the AI
- * boundary is a deterministic mock.
+ * the menu route that opens the angle list, the tap on an angle that generates a set,
+ * and the save that puts an item in the learner's dictionary. Only the AI boundary is
+ * a deterministic mock.
  */
 import {
   getLang,
@@ -23,7 +23,6 @@ import {
 } from "../../test-helpers/integration/bot-harness.js";
 import { uniqueTelegramId } from "../../test-helpers/integration/id-factory.js";
 import { deterministicTranslateAi } from "../../test-helpers/integration/translate-ai-mock.js";
-import { buildMainKeyboard } from "../../utils/main-menu.js";
 
 const PICKED_WORDS = ["prozvonit", "vyzvánět"];
 
@@ -50,13 +49,6 @@ function pickerAi(): Partial<AIPort> {
   return { ...translate, generateObject };
 }
 
-/** The main-menu label a user taps to open the picker, taken from the keyboard itself. */
-function pickWordsLabel(): string {
-  const label = buildMainKeyboard("en").keyboard[0]?.[0];
-  if (!label || typeof label === "string") throw new Error("main keyboard has no pick-words button");
-  return label.text;
-}
-
 function inlineButtons(call: CapturedCall | undefined): string[] {
   const markup = call?.payload.reply_markup as
     | { inline_keyboard?: Array<Array<{ callback_data?: string }>> }
@@ -69,6 +61,21 @@ function inlineButtons(call: CapturedCall | undefined): string[] {
 
 function sentMessages(sent: CapturedCall[]): CapturedCall[] {
   return sent.filter((call) => call.method === "sendMessage");
+}
+
+/**
+ * The learner's real route into the picker: /menu → 🎓 Learning → ✨ Pick.
+ * Resets the harness so the caller sees only what the picker itself sent.
+ */
+async function openPicker(harness: ReturnType<typeof createBotHarness>, id: number): Promise<void> {
+  await harness.dispatch(messageUpdate({ chatId: id, fromId: id, text: "/menu" }));
+  const menu = sentMessages(harness.sent).find((call) => inlineButtons(call).includes("menu:learn"));
+  if (!menu) throw new Error("/menu sent no menu");
+  const menuId = menu.messageId ?? 1;
+
+  await harness.dispatch(callbackQueryUpdate({ chatId: id, fromId: id, messageId: menuId, data: "menu:learn" }));
+  harness.reset();
+  await harness.dispatch(callbackQueryUpdate({ chatId: id, fromId: id, messageId: menuId, data: "lrn:pick" }));
 }
 
 async function arrangeAngle(slug: string): Promise<number> {
@@ -92,8 +99,8 @@ describe("word picker (integration)", () => {
     const userId = await arrangeOnboardedTranslator(id, { nativeLang: "en", learningLangs: ["cs"] });
     const presetId = await arrangeAngle(`test-angle-${id}`);
 
-    // Act 1: the main-menu button opens the angle list.
-    await harness.dispatch(messageUpdate({ chatId: id, fromId: id, text: pickWordsLabel() }));
+    // Act 1: the menu route opens the angle list.
+    await openPicker(harness, id);
 
     const listCall = sentMessages(harness.sent).find((call) =>
       inlineButtons(call).some((data) => data.startsWith("wp:p:")),
@@ -142,7 +149,7 @@ describe("word picker (integration)", () => {
     const presetId = await arrangeAngle(`test-angle-repeat-${id}`);
     const otherPresetId = await arrangeAngle(`test-angle-spare-${id}`);
 
-    await harness.dispatch(messageUpdate({ chatId: id, fromId: id, text: pickWordsLabel() }));
+    await openPicker(harness, id);
     const listCall = sentMessages(harness.sent).find((call) =>
       inlineButtons(call).some((data) => data.startsWith("wp:p:")),
     );

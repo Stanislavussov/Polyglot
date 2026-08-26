@@ -5,7 +5,6 @@
  */
 import { isSupported, type SupportedLang, t } from "@polyglot/core";
 import type { BotContext } from "../types.js";
-import { replyTechnical } from "../utils/message-cleanup.js";
 
 /**
  * Switches the chat into translate mode (session + DB) and resolves the
@@ -40,5 +39,5 @@ export async function activateTranslateMode(
  */
 export async function handleTranslateCommand(ctx: BotContext): Promise<void> {
   const { lang, fromLang, toLangs } = await activateTranslateMode(ctx);
-  await replyTechnical(ctx, t("translateModeOn", lang, { fromLang, toLangs }));
+  await ctx.reply(t("translateModeOn", lang, { fromLang, toLangs }));
 }

@@ -48,6 +48,9 @@ import {
   unrecognizedWordCounter,
 } from "../../metrics.js";
 import { getRequestSettings } from "../../middlewares/request-settings.js";
+import { recordEffort } from "../../momentum/momentum.wiring.js";
+import { resolvePraiseLine } from "../../momentum/praise.footer.js";
+import { commitRecovery, resolveRecoveryPrefix } from "../../momentum/recovery.helper.js";
 import {
   buildTranslationKeyboard,
   renderSentenceTranslation,
@@ -65,7 +68,6 @@ import {
   TRANSLATION_BUDGET_MS,
   withTimeout,
 } from "../../utils/long-op.js";
-import { cleanupTechnicalMessages, replyTechnical } from "../../utils/message-cleanup.js";
 import { parseTranslateInput } from "../../utils/parse-translate-input.js";
 import { encodeTranslateRetryText, replyWithRetry } from "../../utils/retry-action.js";
 import { validateTranslatableText } from "../../utils/validate-text-input.js";
@@ -113,7 +115,7 @@ async function ensureTranslationQuota(
     getMonthlyWindowStart(),
   );
   if (usedCredits + creditCost > entitlements.translationsPerMonth) {
-    await replyTechnical(ctx, t("rateLimitExceeded", lang), { reply_markup: buildUpgradeKeyboard(lang) });
+    await ctx.reply(t("rateLimitExceeded", lang), { reply_markup: buildUpgradeKeyboard(lang) });
     return null;
   }
 
@@ -153,7 +155,10 @@ function outOfSetLanguageFromCorrection(
   nativeLang: string,
   learningLangs: string[],
 ): string | undefined {
-  if (ambiguity.reason !== "unrecognized_word") {
+  // Both correction-bearing reasons: the metadata existence guard answers
+  // "unrecognized_word", the spelling preflight "possible_typo", and either can
+  // be the coerced out-of-set language rather than a typo.
+  if (ambiguity.reason !== "unrecognized_word" && ambiguity.reason !== "possible_typo") {
     return undefined;
   }
   const correction = (ambiguity.options ?? []).find((option) => option.kind === "typo_correction")?.correctedText;
@@ -308,7 +313,7 @@ async function showTranslationClarification(
     ? `${promptText}\n\n${t("translationClarifyLanguageHint", params.lang)}`
     : promptText;
 
-  await replyTechnical(ctx, message, { reply_markup: keyboard });
+  await ctx.reply(message, { reply_markup: keyboard });
 }
 
 /**
@@ -344,17 +349,8 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
   const contextHint = parsed.contextHint;
 
   if (cleanWord.length === 0) {
-    await replyTechnical(ctx, t("contextMarkerNeedsText", lang));
+    await ctx.reply(t("contextMarkerNeedsText", lang));
     return;
-  }
-
-  // A text message was already swept centrally before any handler ran. Sweeping
-  // again mid-handler would delete anything a middleware sent for THIS update —
-  // the class of bug that used to eat the one-time main-menu hint. Callback-driven
-  // entries (retry, activation nudge) bypass the central sweep, so they still
-  // clear the chat here.
-  if (!ctx.message) {
-    await cleanupTechnicalMessages(ctx);
   }
 
   const textValidation = validateTranslatableText(cleanWord);
@@ -367,12 +363,12 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
       digits: "inputRejectedDigits",
       tooLong: "inputRejectedTooLong",
     } as const;
-    await replyTechnical(ctx, t(keyByReason[reason], lang, { max: "500" }));
+    await ctx.reply(t(keyByReason[reason], lang, { max: "500" }));
     return;
   }
 
   if (learningLangs.length === 0) {
-    await replyTechnical(ctx, t("translationUnavailable", lang));
+    await ctx.reply(t("translationUnavailable", lang));
     return;
   }
 
@@ -486,7 +482,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
       .catch((err: unknown) => {
         logEvent("language_detection.record_failed", errorFields(err), "warn");
       });
-    await replyTechnical(ctx, t("languageNotSelected", lang, { lang: getLanguageName(outOfSetLang, lang) }));
+    await ctx.reply(t("languageNotSelected", lang, { lang: getLanguageName(outOfSetLang, lang) }));
     return;
   }
 
@@ -575,7 +571,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
     }
     keyboard.text(t("mistypeCancel", lang), "tr:langselect:cancel");
 
-    await replyTechnical(ctx, promptText, { reply_markup: keyboard });
+    await ctx.reply(promptText, { reply_markup: keyboard });
     return;
   } else if (detection.ambiguousCandidates && detection.ambiguousCandidates.length > 0) {
     // Weak ambiguity such as shared Latin script is not enough to interrupt the
@@ -624,7 +620,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
       .text(t("mistypeConfirm", lang), "tr:mistype:confirm")
       .text(t("mistypeCancel", lang), "tr:mistype:cancel");
 
-    await replyTechnical(ctx, warningText, { reply_markup: keyboard });
+    await ctx.reply(warningText, { reply_markup: keyboard });
     return;
   }
 
@@ -758,7 +754,22 @@ async function sendTranslationCard(
       ? `${t("detectedLang", lang, { lang: getLanguageName(opts.detectedLang, lang) })}\n${body}`
       : body;
 
-  const cardMsg = await ctx.reply(card, { parse_mode: "HTML" });
+  // Motivation lines (§2.2 S2/S3) ride only on a card a TEXT message asked for.
+  // `sendTranslationCard` is also reached from the mistype-confirm and clarify-option
+  // callbacks; those carry nothing by design, and the pending recovery line waits for
+  // the first card a text message produces (deferred delivery, §2.2 S3).
+  const now = new Date();
+  const fromTextMessage = ctx.message?.text !== undefined;
+  const recovery = fromTextMessage ? await resolveRecoveryPrefix(ctx, lang, now) : null;
+  // Recovery wins over praise, and praise's cooldown is not spent on the loss.
+  const praise = fromTextMessage && !recovery ? await resolvePraiseLine(ctx, lang, "translation_card", now) : null;
+  let cardText = card;
+  if (recovery) cardText = `${recovery.text}\n\n${card}`;
+  else if (praise) cardText = `${card}\n\n${praise}`;
+
+  const cardMsg = await ctx.reply(cardText, { parse_mode: "HTML" });
+  // Only after the send resolved: a failed delivery must not burn the one-shot.
+  if (recovery) await commitRecovery(ctx, recovery.gapDays, now);
 
   const showGrammarButton =
     inputType !== "word" && (inputType === "sentence" || !effectiveTemplate.fields.grammarBreakdown);
@@ -1026,13 +1037,23 @@ async function runTranslationPipeline(
     if (output.correction) {
       inputCorrectionCounter.inc({ outcome: "auto_corrected", input_type: classification.type });
     }
-    await ctx.services.translationRequestRepository.logTranslationRequest(
+    const translationRequestId = await ctx.services.translationRequestRepository.logTranslationRequest(
       ctx.user.id,
       word,
       sourceLang,
       targetLangs,
       creditCost,
     );
+
+    // Awaited, unlike the other credit sites: this same update renders the momentum
+    // surfaces (S2/S3) further down, so the snapshot has to be written before they
+    // are read (§4.2). `recordEffort` never rejects, so a momentum outage still
+    // delivers the card.
+    await recordEffort(ctx, {
+      userId: ctx.user.id,
+      kind: "translate",
+      dedupeKey: `translate:${translationRequestId}`,
+    });
 
     if (timing) {
       ctx.services.requestTimingRepository
@@ -1131,7 +1152,7 @@ async function runTranslationPipeline(
       });
       return;
     }
-    await replyTechnical(ctx, t("translationError", lang));
+    await ctx.reply(t("translationError", lang));
   }
 }
 
@@ -1257,5 +1278,5 @@ export async function handleMistypeCancelCallback(ctx: BotContext): Promise<void
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
 
   await ctx.answerCallbackQuery();
-  await replyTechnical(ctx, t("translateModeHint", lang));
+  await ctx.reply(t("translateModeHint", lang));
 }

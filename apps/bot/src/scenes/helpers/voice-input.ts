@@ -12,7 +12,6 @@ import { errorFields, FEATURE_KEYS, isSupported, logEvent, type SupportedLang, t
 import { getRequestSettings } from "../../middlewares/request-settings.js";
 import type { BotContext } from "../../types.js";
 import { sendTypingIndicator } from "../../utils/long-op.js";
-import { replyTechnical } from "../../utils/message-cleanup.js";
 import { downloadTelegramFile } from "../../utils/telegram-file.js";
 import { ensurePaidFeatureForMessage } from "./paid-feature.helper.js";
 import { handleTranslateText } from "./translate-flow.js";
@@ -41,7 +40,7 @@ export async function handleVoiceMessage(ctx: BotContext): Promise<boolean> {
 
   if (voice.duration > stt.maxDurationSec) {
     logEvent("voice.too_long", { durationSec: voice.duration, maxDurationSec: stt.maxDurationSec });
-    await replyTechnical(ctx, t("voiceTooLong", lang, { max: String(stt.maxDurationSec) }));
+    await ctx.reply(t("voiceTooLong", lang, { max: String(stt.maxDurationSec) }));
     return true;
   }
 
@@ -61,13 +60,13 @@ export async function handleVoiceMessage(ctx: BotContext): Promise<boolean> {
     generationId = result.generationId;
   } catch (err) {
     logEvent("voice.transcribe_failed", { durationSec: voice.duration, ...errorFields(err) }, "error");
-    await replyTechnical(ctx, t("voiceTranscriptionFailed", lang));
+    await ctx.reply(t("voiceTranscriptionFailed", lang));
     return true;
   }
 
   if (!text) {
     logEvent("voice.transcribe_empty", { durationSec: voice.duration });
-    await replyTechnical(ctx, t("voiceTranscriptionFailed", lang));
+    await ctx.reply(t("voiceTranscriptionFailed", lang));
     return true;
   }
 

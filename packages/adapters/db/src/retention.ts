@@ -14,7 +14,8 @@
  * `timestamptz` columns, so the horizon does not depend on the container/process
  * timezone.
  */
-import { lt } from "drizzle-orm";
+import type { MomentumEventKind } from "@polyglot/core";
+import { and, lt, notInArray } from "drizzle-orm";
 import { getDb } from "./connection.js";
 import {
   aiRequestLatencies,
@@ -22,6 +23,7 @@ import {
   dictionaryLookupLogs,
   languageDetectionEvents,
   mentorMessages,
+  momentumEvents,
   notificationHistory,
   translationRequests,
   translationRequestTimings,
@@ -31,6 +33,9 @@ import {
 
 /** Default retention horizon in days. Overridable per call / via env at the caller. */
 export const DEFAULT_RETENTION_DAYS = 90;
+
+/** Journal kinds that act as idempotency claims rather than effort; see the momentum delete below. */
+const MOMENTUM_CLAIM_KINDS: MomentumEventKind[] = ["praise", "mature", "weekly_proof"];
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
@@ -57,6 +62,7 @@ export async function runTelemetryRetention(retentionDays = DEFAULT_RETENTION_DA
     languageDetectionEventsDeleted,
     notificationHistoryDeleted,
     wordReviewLogDeleted,
+    momentumEventsDeleted,
     botSessionsDeleted,
     userDailyRequestCountsDeleted,
     mentorMessagesDeleted,
@@ -85,6 +91,14 @@ export async function runTelemetryRetention(retentionDays = DEFAULT_RETENTION_DA
       id: notificationHistory.id,
     }),
     db.delete(wordReviewLog).where(lt(wordReviewLog.reviewedAt, cutoff)).returning({ id: wordReviewLog.id }),
+    // The `user_momentum` snapshot is deliberately never pruned: it is the durable
+    // score, while this journal is only its audit trail. Weightless claim tokens
+    // are kept too: pruning `praise:<kind>` / `mature:<id>` would re-arm a
+    // once-ever praise or re-credit a matured word after 90 days.
+    db
+      .delete(momentumEvents)
+      .where(and(lt(momentumEvents.occurredAt, cutoff), notInArray(momentumEvents.kind, MOMENTUM_CLAIM_KINDS)))
+      .returning({ id: momentumEvents.id }),
     // Stale grammY sessions: an active chat re-touches `updated_at` on every turn,
     // so only long-abandoned sessions fall past the horizon.
     db.delete(botSessions).where(lt(botSessions.updatedAt, cutoff)).returning({ key: botSessions.key }),
@@ -105,6 +119,7 @@ export async function runTelemetryRetention(retentionDays = DEFAULT_RETENTION_DA
     language_detection_events: languageDetectionEventsDeleted.length,
     notification_history: notificationHistoryDeleted.length,
     word_review_log: wordReviewLogDeleted.length,
+    momentum_events: momentumEventsDeleted.length,
     bot_sessions: botSessionsDeleted.length,
     user_daily_request_counts: userDailyRequestCountsDeleted.length,
     mentor_messages: mentorMessagesDeleted.length,

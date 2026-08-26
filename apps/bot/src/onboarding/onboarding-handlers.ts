@@ -18,7 +18,6 @@ import { handleVideosCommand } from "../scenes/helpers/video-vocabulary.helper.j
 import { handleSettingsCommand } from "../scenes/settings.scene.js";
 import { handleReviewCommand } from "../scenes/srs.scene.js";
 import type { BotContext } from "../types.js";
-import { replyTechnical } from "../utils/message-cleanup.js";
 import { cacheDemoCard, resolveHookWord, sendCachedDemoCard } from "./hook-cards.js";
 import {
   isOnboardingFeature,
@@ -335,9 +334,9 @@ async function runDemoTranslation(ctx: BotContext, text: string): Promise<DemoOu
  *
  * The only outcome that must NOT complete is `awaiting`: the pipeline has asked
  * the user something and is holding the conversation open, so sending the
- * completion screen would sweep the question away and graduate them having never
- * seen a card. They stay on the demo screen; answering produces their card, and
- * the next word finishes the flow.
+ * completion screen would bury the question and graduate them having never seen a
+ * card. They stay on the demo screen; answering produces their card, and the next
+ * word finishes the flow.
  *
  * `none` — input refused (emoji, digits, over-long), quota exhausted, or the
  * pipeline failing internally (`handleTranslateText` catches its own errors and
@@ -451,7 +450,7 @@ export async function onboardingTextMiddleware(ctx: BotContext, next: NextFuncti
 async function reportDemoFailure(ctx: BotContext, state: OnboardingState, err: unknown): Promise<void> {
   logEvent("onboarding.demo_failed", errorFields(err), "error");
   recordOnboardingStep(ONBOARDING_STEPS.demo, "failed");
-  await replyTechnical(ctx, t("onbDemoFailed", state.interfaceLang));
+  await ctx.reply(t("onbDemoFailed", state.interfaceLang));
 }
 
 /**

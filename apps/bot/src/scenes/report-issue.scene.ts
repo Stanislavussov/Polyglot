@@ -2,8 +2,7 @@ import type { Conversation } from "@grammyjs/conversations";
 import { type IssueType, logger, type SupportedLang, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import type { BotContext, ConversationContext } from "../types.js";
-import { matchMainMenuAction } from "../utils/main-menu.js";
-import { cleanupTechnicalMessages, replyTechnical } from "../utils/message-cleanup.js";
+import { matchMenuTap } from "../utils/main-menu.js";
 import { editMessageTextOrReply } from "./helpers/edit-message.helper.js";
 
 const BACK = Symbol("back");
@@ -31,8 +30,8 @@ async function stepChooseType(
     .row()
     .text(t("reportOther", lang), "report:type:other");
 
-  await replyTechnical(ctx, t("reportTitle", lang));
-  await replyTechnical(ctx, t("reportChooseType", lang), { reply_markup: keyboard });
+  await ctx.reply(t("reportTitle", lang));
+  await ctx.reply(t("reportChooseType", lang), { reply_markup: keyboard });
 
   // `next: true` on every wait: an update the predicate rejects must fall
   // through to downstream middleware (exitActiveConversations, mode-router)
@@ -64,7 +63,7 @@ async function stepEnterDescription(
 ): Promise<string | BackAction> {
   const backKeyboard = new InlineKeyboard().text(`⬅️ ${t("back", lang)}`, "report:back");
 
-  await replyTechnical(ctx, t("reportEnterDescription", lang), { reply_markup: backKeyboard });
+  await ctx.reply(t("reportEnterDescription", lang), { reply_markup: backKeyboard });
 
   while (true) {
     const response = await conversation.waitUntil(
@@ -73,7 +72,7 @@ async function stepEnterDescription(
         // Commands and main-menu keyboard taps are entry points, not description
         // text — reject them so they fall through and exit this dialog instead.
         if (text?.startsWith("/")) return false;
-        if (text !== undefined && matchMainMenuAction(text) !== undefined) return false;
+        if (text !== undefined && matchMenuTap(text) !== undefined) return false;
         return !!text || ctx.callbackQuery?.data === "report:back";
       },
       { next: true },
@@ -88,7 +87,7 @@ async function stepEnterDescription(
       const text = response.message.text.trim();
 
       if (text.length > MAX_DESCRIPTION_LENGTH) {
-        await replyTechnical(ctx, t("reportTooLong", lang));
+        await ctx.reply(t("reportTooLong", lang));
         continue;
       }
 
@@ -113,7 +112,7 @@ async function stepPreview(
     .row()
     .text(t("reportCancel", lang), "report:cancel");
 
-  await replyTechnical(ctx, preview, { parse_mode: "HTML", reply_markup: keyboard });
+  await ctx.reply(preview, { parse_mode: "HTML", reply_markup: keyboard });
 
   const response = await conversation.waitUntil(
     (ctx) => {
@@ -144,7 +143,7 @@ async function stepPreview(
  */
 export async function handleReportIssue(conversation: ReportConversation, ctx: ConversationContext): Promise<void> {
   if (!ctx.user) {
-    await replyTechnical(ctx, "Please use /start first.");
+    await ctx.reply("Please use /start first.");
     return;
   }
   const userId = ctx.user.id;
@@ -161,8 +160,7 @@ export async function handleReportIssue(conversation: ReportConversation, ctx: C
   do {
     const descriptionOrBack = await stepEnterDescription(conversation, ctx, lang);
     if (descriptionOrBack === BACK) {
-      await cleanupTechnicalMessages(ctx);
-      await replyTechnical(ctx, t("reportCancelled", lang));
+      await ctx.reply(t("reportCancelled", lang));
       return;
     }
     description = descriptionOrBack;
@@ -170,16 +168,14 @@ export async function handleReportIssue(conversation: ReportConversation, ctx: C
   } while (action === "edit");
 
   if (action === "cancel") {
-    await cleanupTechnicalMessages(ctx);
-    await replyTechnical(ctx, t("reportCancelled", lang));
+    await ctx.reply(t("reportCancelled", lang));
     return;
   }
 
   // action === "send"
-  await cleanupTechnicalMessages(ctx);
   await conversation.external(async () => {
     await ctx.services.reportedIssueRepository.create(userId, type, description);
   });
-  await replyTechnical(ctx, t("reportSent", lang));
+  await ctx.reply(t("reportSent", lang));
   logger.info({ userId, type }, "User submitted a report");
 }

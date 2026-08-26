@@ -185,8 +185,8 @@ interface PipelineContext {
    */
   judgeRan: boolean;
   /**
-   * Whether the AI preflight actually reached the model. False on the common
-   * path, where confident language detection lets it short-circuit before any
+   * Whether the AI preflight actually reached the model. Single-word input
+   * always does; batch/topic flows and clarify re-runs short-circuit before any
    * round-trip — see {@link phaseDidWork}.
    */
   preflightRan: boolean;
@@ -309,12 +309,12 @@ function structuralPreflightStep(ctx: PipelineContext): StepOutcome {
 
 /** Step 2 — AI preflight: clarify source language / meaning / typo, or silently correct. */
 async function aiPreflightStep(ctx: PipelineContext, generateObjectFn: GenerateObjectFn): Promise<StepOutcome> {
-  // The preflight only reaches the model for low-confidence detection; recording
-  // whether it did keeps its phase timing off the metric on the common path where
-  // it short-circuits (see `phaseDidWork`). `shouldRunAIPreflight` is pure, so
-  // asking it here costs nothing and keeps the decision explicit at the step.
+  // Recording whether the preflight reached the model keeps its phase timing off
+  // the metric when it short-circuits (see `phaseDidWork`) — batch/topic flows and
+  // clarify re-runs. `shouldRunAIPreflight` is pure, so asking it here costs
+  // nothing and keeps the decision explicit at the step.
   ctx.preflightRan = shouldRunAIPreflight(ctx.input);
-  const preflight = await runAIPreflight(ctx.input, generateObjectFn);
+  const preflight = await runAIPreflight(ctx.input, generateObjectFn, ctx.budget);
   if (preflight.kind === "clarify") {
     return { kind: "exit", decision: { status: "needs_clarification", ambiguity: preflight.ambiguity } };
   }
@@ -590,19 +590,51 @@ function unrecognizedGuardStep(ctx: PipelineContext): StepOutcome {
   // unverified so the reply carries a caveat and the saved entry is excluded
   // from notifications/SRS suggestions.
   const { sourceAssessment } = ctx;
-  if (sourceAssessment && !sourceAssessment.recognized) {
+  if (sourceAssessment && !isRecognizedAsWritten(sourceAssessment, ctx.input.word)) {
     if (ctx.input.correctionPolicy?.skipInputCorrection !== true) {
       return {
         kind: "exit",
         decision: {
           status: "needs_clarification",
-          ambiguity: buildUnrecognizedAmbiguity(ctx.input, sourceAssessment.correction),
+          // A model that recognized the word and still offered a correction is
+          // describing a typo, not an unknown form — saying "«colour» is not a
+          // standard English word" would claim more than it did.
+          ambiguity: buildUnrecognizedAmbiguity(
+            ctx.input,
+            sourceAssessment.correction,
+            sourceAssessment.recognized ? "possible_typo" : "unrecognized_word",
+          ),
         },
       };
     }
     ctx.unverified = true;
   }
   return CONTINUE;
+}
+
+/**
+ * A correction that differs from the input overrides a `recognized: true`: the
+ * model contradicted itself (it rationalized the form as a word yet still knows
+ * the standard spelling), and a card must never render the wrong headword as if
+ * it were real. Capitalization alone is not a spelling difference.
+ */
+function isRecognizedAsWritten(assessment: { recognized: boolean; correction: string | null }, word: string): boolean {
+  return assessment.recognized && !isRealCorrection(assessment.correction, word);
+}
+
+/**
+ * Whether `correction` actually rewrites `word`. Compared NFC-normalized, since
+ * a model answering "strohá" in NFD and an NFC input are the same text in two
+ * different JS strings — and offering the user a button whose label is
+ * indistinguishable from what they typed is worse than not offering one.
+ */
+function isRealCorrection(correction: string | null | undefined, word: string): boolean {
+  const trimmed = correction?.trim();
+  if (!trimmed) {
+    return false;
+  }
+  const normalize = (value: string): string => value.trim().normalize("NFC").toLocaleLowerCase();
+  return normalize(trimmed) !== normalize(word);
 }
 
 /** Step 5 — deterministic validation and targeted per-language repair. */
@@ -1110,12 +1142,18 @@ function shouldRunAIPreflight(input: TranslateInput): input is TranslateInput & 
   if (input.detectionConfidence === undefined) {
     return false;
   }
-  // Only low-confidence language detection triggers the preflight. Dictionary
-  // presence is deliberately NOT a gate: the offline Wiktionary import is
-  // incomplete, so a valid word's absence is not a typo signal (e.g. the common
-  // verb "tow" is not in the table at all). Spelling/existence is instead judged
-  // by the AI existence check (Task 70, `assessSourceExistence`).
-  return input.detectionConfidence < PREFLIGHT_DEFAULTS.autoProceedAboveConfidence;
+  // Dictionary presence is deliberately NOT a gate: the offline Wiktionary
+  // import is incomplete, so a valid word's absence is not a typo signal (e.g.
+  // the common verb "tow" is not in the table at all).
+  if (input.detectionConfidence < PREFLIGHT_DEFAULTS.autoProceedAboveConfidence) {
+    return true;
+  }
+  // Language confidence answers "which language", not "is this spelled like a
+  // real word" — Czech "selmostroj" detected cs @0.90 skipped the preflight and
+  // came back as a confidently fabricated bridge-construction company. Single
+  // words therefore always get the spelling pass; re-runs do not, because every
+  // typo outcome is neutralized under `skipInputCorrection` anyway.
+  return (input.inputType ?? "word") === "word" && input.correctionPolicy?.skipInputCorrection !== true;
 }
 
 function preflightOutcomeToReason(outcome: PreflightResult["outcome"]): TranslationAmbiguity["reason"] {
@@ -1147,7 +1185,11 @@ type PreflightDirective =
   | { kind: "correct"; correctedText: string; explanation: string }
   | { kind: "clarify"; ambiguity: TranslationAmbiguity };
 
-async function runAIPreflight(input: TranslateInput, generateObjectFn: GenerateObjectFn): Promise<PreflightDirective> {
+async function runAIPreflight(
+  input: TranslateInput,
+  generateObjectFn: GenerateObjectFn,
+  budget: TranslationBudget,
+): Promise<PreflightDirective> {
   if (!shouldRunAIPreflight(input)) {
     return { kind: "proceed" };
   }
@@ -1167,6 +1209,7 @@ async function runAIPreflight(input: TranslateInput, generateObjectFn: GenerateO
     input.model,
     {
       ...(input.userId !== undefined ? { userId: input.userId } : {}),
+      ...spendableWindow(budget),
     },
   );
 
@@ -1174,13 +1217,30 @@ async function runAIPreflight(input: TranslateInput, generateObjectFn: GenerateO
     return { kind: "proceed" };
   }
 
+  // Confident detection reaches the preflight only for the spelling pass, so it
+  // may correct a typo and nothing else. Honouring "which language did you
+  // mean?" here would put a clarification in front of ordinary words that used
+  // to translate straight through (English "gift" is also German "Gift").
+  if (
+    input.detectionConfidence >= PREFLIGHT_DEFAULTS.autoProceedAboveConfidence &&
+    result.outcome !== "proceed_with_correction" &&
+    result.outcome !== "confirm_typo_suggestion"
+  ) {
+    return { kind: "proceed" };
+  }
+
   // Silent minor-typo fix (Task 69). Suppressed on verbatim re-runs, and a
   // no-op "correction" (same text, or a missing corrected form) proceeds as-is.
   if (result.outcome === "proceed_with_correction") {
-    if (input.correctionPolicy?.skipInputCorrection || !result.correctedText || result.correctedText === input.word) {
+    const correctedText = result.correctedText?.trim();
+    if (
+      input.correctionPolicy?.skipInputCorrection ||
+      correctedText === undefined ||
+      !isRealCorrection(correctedText, input.word)
+    ) {
       return { kind: "proceed" };
     }
-    return { kind: "correct", correctedText: result.correctedText, explanation: result.explanation };
+    return { kind: "correct", correctedText, explanation: result.explanation };
   }
 
   // After the language/mistype confirmation, or on "translate as written",
@@ -1190,6 +1250,18 @@ async function runAIPreflight(input: TranslateInput, generateObjectFn: GenerateO
   }
 
   if (result.outcome === "clarify_meaning" && input.inputType === "word") {
+    return { kind: "proceed" };
+  }
+
+  // A model asked for a spelling it cannot improve on answers with the input
+  // itself ("selmostroj (исправить на selmostroj)"). Such an option is noise at
+  // best and, when it is the only thing the confirmation was for, the whole
+  // prompt is — the metadata existence guard is the net for a word that is
+  // genuinely unknown, and it offers "translate as written" with a caveat.
+  const options = result.options.filter(
+    (option) => option.kind !== "typo_correction" || isRealCorrection(option.correctedText, input.word),
+  );
+  if (result.outcome === "confirm_typo_suggestion" && !options.some((option) => option.kind === "typo_correction")) {
     return { kind: "proceed" };
   }
 
@@ -1203,7 +1275,7 @@ async function runAIPreflight(input: TranslateInput, generateObjectFn: GenerateO
     ambiguity: {
       reason,
       message: result.explanation,
-      options: result.options.map((option) => ({
+      options: options.map((option) => ({
         id: option.id,
         label: option.label,
         value: option.value,
@@ -1626,15 +1698,20 @@ export function sanitizeEmoji(value: string): string {
  * not a UI string); the "translate as written" option carries no label so the
  * channel localizes it from `kind`.
  */
-function buildUnrecognizedAmbiguity(input: TranslateInput, correction: string | null): TranslationAmbiguity {
+function buildUnrecognizedAmbiguity(
+  input: TranslateInput,
+  correction: string | null,
+  reason: TranslationAmbiguity["reason"] = "unrecognized_word",
+): TranslationAmbiguity {
   const options: TranslationAmbiguity["options"] = [];
 
-  if (correction?.trim() && correction !== input.word) {
+  if (isRealCorrection(correction, input.word)) {
+    const corrected = (correction as string).trim();
     options.push({
       kind: "typo_correction",
-      label: correction,
-      value: correction,
-      correctedText: correction,
+      label: corrected,
+      value: corrected,
+      correctedText: corrected,
     });
   }
 
@@ -1644,7 +1721,7 @@ function buildUnrecognizedAmbiguity(input: TranslateInput, correction: string | 
   });
 
   return {
-    reason: "unrecognized_word",
+    reason,
     params: { word: input.word, lang: input.sourceLang },
     options,
   };

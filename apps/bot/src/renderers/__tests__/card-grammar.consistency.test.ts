@@ -138,6 +138,7 @@ const SRS_CARD: SrsDueVocabularyCard = {
   usageNote: WORD.usageNote,
   connotationWarning: null,
   details: { synonyms: [{ text: WORD.targetSynonym }], examples: [WORD.targetExample] },
+  difficulty: null,
   srsEaseFactor: 2.5,
   srsInterval: 0,
   srsDueDate: null,

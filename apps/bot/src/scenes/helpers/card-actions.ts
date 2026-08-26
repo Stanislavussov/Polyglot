@@ -21,6 +21,7 @@ import {
   t,
   translateWithContext,
 } from "@polyglot/core";
+import { recordEffort } from "../../momentum/momentum.wiring.js";
 import {
   buildGrammarLangKeyboard,
   buildTranslationKeyboard,
@@ -101,6 +102,14 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
       inputType,
       outcome: "relinked_existing",
     });
+    // Re-linking is a save too; `save:<entryId>` is what keeps a word the user already
+    // banked from being credited twice (§3.8). Awaited because the save is the last
+    // thing this handler does and the credit must not outlive it.
+    await recordEffort(ctx, {
+      userId: ctx.user.id,
+      kind: "save",
+      dedupeKey: `save:${existing.id}`,
+    });
     await showSavedCard(ctx, output, lang, nativeLang, inputType);
     await ctx.answerCallbackQuery();
     return;
@@ -124,6 +133,11 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
     targetLangs: Object.keys(output.translations),
     inputType,
     outcome: "created",
+  });
+  await recordEffort(ctx, {
+    userId: ctx.user.id,
+    kind: "save",
+    dedupeKey: `save:${newEntry.id}`,
   });
 
   // Step 6 — Update this entry in the map

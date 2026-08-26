@@ -139,7 +139,6 @@ import {
 import { MAX_LEARNING_LANGS } from "../../constants.js";
 import { inputCorrectionCounter } from "../../metrics.js";
 import { getRequestSettings } from "../../middlewares/request-settings.js";
-import { technicalCleanupMiddleware } from "../../middlewares/technical-cleanup.js";
 import { createSettingsStub } from "../../test-helpers/services-stub.js";
 import type { BotContext, SessionData } from "../../types.js";
 import { handleEtymologyCallback, handleRegenCallback } from "./card-actions.js";
@@ -410,20 +409,6 @@ describe("handleTranslateText — context enrichment", () => {
 
     expect(ctx.reply).toHaveBeenCalledWith("Enter a word or phrase before the context marker.");
     expect(translateWithContext).not.toHaveBeenCalled();
-  });
-
-  it("queues a rejection notice for cleanup so it does not outlive the next message", async () => {
-    const ctx = createMockCtx();
-    await handleTranslateText(ctx, "#finance");
-
-    expect(ctx.session.technicalMessages).toContain(1);
-  });
-
-  it("never queues the translation card — content stays on screen forever", async () => {
-    const ctx = createMockCtx();
-    await handleTranslateText(ctx, "hello");
-
-    expect(ctx.session.technicalMessages ?? []).toEqual([]);
   });
 
   it("handleRegenCallback is a stub that just answers the callback query", async () => {
@@ -1010,6 +995,35 @@ describe("handleTranslateText — out-of-set language detection", () => {
     expect(ctx.session.pendingOutOfSet).toBeDefined();
   });
 
+  it("offers add-and-translate when the SPELLING PREFLIGHT is what caught the unstudied language", async () => {
+    // Same incident as above, but intercepted one step earlier: the preflight now
+    // runs on every confident word, so the coerced Kazakh comes back as
+    // "possible_typo" instead of "unrecognized_word". The out-of-set guard must
+    // still fire — otherwise the user is offered a spelling fix in a language
+    // they do not study.
+    vi.mocked(translateWithContext).mockResolvedValueOnce({
+      status: "needs_clarification",
+      ambiguity: {
+        reason: "possible_typo",
+        params: { word: "кыздарай", lang: "ru" },
+        options: [
+          { kind: "typo_correction", label: "қыздар-ай", value: "қыздар-ай", correctedText: "қыздар-ай" },
+          { kind: "translate_as_written", value: "as_written" },
+        ],
+      },
+    });
+
+    const ctx = createMockCtx();
+    await handleTranslateText(ctx, "кыздарай");
+
+    const promptCall = vi.mocked(ctx.reply).mock.calls.find((call) => call[1]?.reply_markup !== undefined);
+    const keyboard = promptCall?.[1]?.reply_markup as { inline_keyboard: Array<Array<{ callback_data: string }>> };
+    const callbackData = keyboard.inline_keyboard.flat().map((button) => button.callback_data);
+
+    expect(callbackData).toEqual(expect.arrayContaining(["tr:oos:add:kk", "tr:oos:once:kk", "tr:oos:cancel"]));
+    expect(ctx.session.pendingOutOfSet).toBeDefined();
+  });
+
   it("keeps the spelling correction for a same-alphabet typo (no false out-of-set)", async () => {
     // "fajcit" (Slovak) coerces to studied Czech; the AI correction "fajčit" is a
     // valid Czech word sharing the Czech alphabet — no exclusive letter, so the
@@ -1515,11 +1529,11 @@ describe("handleEtymologyCallback — loading feedback on the card", () => {
 });
 
 /**
- * The sweep must never reach a translation card. These drive the real sequence
- * a user produces — translate, then translate again — through the real central
- * middleware, rather than asserting the ledger in isolation.
+ * The bot deletes exactly one kind of message: the "translating…" placeholder it
+ * replaces with the card. Everything else the user sees — cards, notices, menus —
+ * stays in the chat. These drive the real sequence a user produces.
  */
-describe("translation cards survive the technical-message sweep", () => {
+describe("nothing but the loading placeholder is ever deleted", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockUserRepository.getSettings.mockResolvedValue({
@@ -1557,7 +1571,6 @@ describe("translation cards survive the technical-message sweep", () => {
     const ctx = createTextCtx();
 
     await handleTranslateText(ctx, "hello");
-    await technicalCleanupMiddleware(ctx, vi.fn());
     await handleTranslateText(ctx, "world");
 
     // Two cards on screen; the only deletions are the flow's own "translating…"
@@ -1568,19 +1581,14 @@ describe("translation cards survive the technical-message sweep", () => {
     }
   });
 
-  it("sweeps a rejection notice on the next word without touching the card that follows", async () => {
+  it("leaves a rejection notice on screen when the next word is translated", async () => {
     const ctx = createTextCtx();
 
-    // A rejected input sends one notice and nothing else — the only message here
-    // the sweep is allowed to remove.
+    // A rejected input sends one notice and nothing else.
     await handleTranslateText(ctx, "#finance");
-    expect(ctx.session.technicalMessages).toEqual([FIRST_ID]);
-
-    await technicalCleanupMiddleware(ctx, vi.fn());
     await handleTranslateText(ctx, "hello");
 
-    expect(deletedIds(ctx)).toContain(FIRST_ID);
-    expect(ctx.session.technicalMessages).toEqual([]);
+    expect(deletedIds(ctx)).not.toContain(FIRST_ID);
     const [cardId] = cardIds(ctx);
     expect(cardId).toBeDefined();
     expect(deletedIds(ctx)).not.toContain(cardId);

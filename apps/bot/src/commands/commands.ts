@@ -1,6 +1,5 @@
 import { logger, type SupportedLang, t } from "@polyglot/core";
 import type { Api, RawApi } from "grammy";
-import { canUseChangesCommand } from "./changes.js";
 
 /** Locales that have dedicated i18n locale files. */
 const LOCALES_WITH_FILES: readonly SupportedLang[] = ["en", "ru", "cs"];
@@ -21,50 +20,34 @@ export interface BotCommand {
  */
 const COMMAND_ICONS = {
   start: "🚀",
-  pick: "✨",
-  translate: "🔤",
+  menu: "☰",
   dictionary: "📖",
-  flashcard: "🎴",
-  videos: "🎬",
-  mentor: "🧑‍🏫",
-  review: "🔁",
-  template: "📝",
+  learn: "🎓",
   settings: "⚙️",
   report: "🐛",
-  changes: "🆕",
 } as const;
 
 /**
  * Returns the bot commands with descriptions localized to the given language,
  * each prefixed with its icon from {@link COMMAND_ICONS}.
  *
- * The everyday entry points — pick words, dictionary, flash cards, videos — are also on the
- * persistent reply keyboard (`utils/main-menu.ts`), which is where a user is meant
- * to tap them. They stay listed here as the fallback path: a reply keyboard lives
- * on the message that delivered it, so clearing the chat history or deleting that
- * message takes the menu away, and without these entries the features would be
- * reachable only by typing the command from memory.
+ * `/menu` plus the categories it holds. The reply keyboard (`utils/main-menu.ts`) carries
+ * only the three hot buttons, so this list is where the rest stays reachable by name.
+ *
+ * The commands that used to be listed here — `/translate`, `/pick`, `/flashcard`,
+ * `/videos`, `/template`, `/review`, `/mentor`, `/changes` — are still registered in
+ * `bot-factory.ts`. Only their advertisement is gone: typing one still works, and so
+ * does tapping one in old chat history, which is why they were not deleted outright.
  */
-export function getLocalizedCommands(lang: SupportedLang, options: { includeChanges?: boolean } = {}): BotCommand[] {
-  const commands = [
+export function getLocalizedCommands(lang: SupportedLang): BotCommand[] {
+  return [
     { command: "start", description: `${COMMAND_ICONS.start} ${t("cmdDescStart", lang)}` },
-    { command: "translate", description: `${COMMAND_ICONS.translate} ${t("cmdDescTranslate", lang)}` },
-    { command: "pick", description: `${COMMAND_ICONS.pick} ${t("cmdDescPick", lang)}` },
+    { command: "menu", description: `${COMMAND_ICONS.menu} ${t("cmdDescMenu", lang)}` },
     { command: "dictionary", description: `${COMMAND_ICONS.dictionary} ${t("cmdDescDictionary", lang)}` },
-    { command: "flashcard", description: `${COMMAND_ICONS.flashcard} ${t("cmdDescFlashcard", lang)}` },
-    { command: "videos", description: `${COMMAND_ICONS.videos} ${t("cmdDescVideos", lang)}` },
-    { command: "mentor", description: `${COMMAND_ICONS.mentor} ${t("cmdDescMentor", lang)}` },
-    // { command: "review", description: `${COMMAND_ICONS.review} ${t("cmdDescReview", lang)}` },
-    { command: "template", description: `${COMMAND_ICONS.template} ${t("cmdDescTemplate", lang)}` },
+    { command: "learn", description: `${COMMAND_ICONS.learn} ${t("cmdDescLearn", lang)}` },
     { command: "settings", description: `${COMMAND_ICONS.settings} ${t("cmdDescSettings", lang)}` },
     { command: "report", description: `${COMMAND_ICONS.report} ${t("cmdDescReport", lang)}` },
   ];
-
-  if (options.includeChanges) {
-    commands.push({ command: "changes", description: `${COMMAND_ICONS.changes} ${t("cmdDescChanges", lang)}` });
-  }
-
-  return commands;
 }
 
 /**
@@ -104,14 +87,9 @@ export async function setBotCommands(api: Api<RawApi>): Promise<void> {
  * Called after onboarding or when the user changes their interface language.
  * Errors are logged but never thrown — user flow is not blocked.
  */
-export async function setUserCommands(
-  api: Api<RawApi>,
-  chatId: number,
-  lang: SupportedLang,
-  audienceGroup: string,
-): Promise<void> {
+export async function setUserCommands(api: Api<RawApi>, chatId: number, lang: SupportedLang): Promise<void> {
   try {
-    await api.setMyCommands(getLocalizedCommands(lang, { includeChanges: canUseChangesCommand(audienceGroup) }), {
+    await api.setMyCommands(getLocalizedCommands(lang), {
       scope: { type: "chat", chat_id: chatId },
       language_code: lang,
     });

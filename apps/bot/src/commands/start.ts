@@ -28,7 +28,7 @@ export async function startCommand(ctx: BotContext): Promise<void> {
     const lang: SupportedLang = isSupported(rawLang) ? rawLang : "en";
     const chatId = ctx.from?.id;
     if (chatId) {
-      await setUserCommands(ctx.api, chatId, lang, user.audienceGroup);
+      await setUserCommands(ctx.api, chatId, lang);
     }
     // /start re-installs the main-menu keyboard, so the one-time hint from
     // mainKeyboardMiddleware would be redundant for this chat. The greeting is the

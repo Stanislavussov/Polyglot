@@ -226,7 +226,7 @@ describe("buildFlashCardBackKeyboard", () => {
 
 describe("buildFlashCardDoneKeyboard", () => {
   it("has fc:restart and fc:close buttons", () => {
-    const kb = buildFlashCardDoneKeyboard("en");
+    const kb = buildFlashCardDoneKeyboard("en", { showProgress: false });
     const data = JSON.stringify(kb);
     expect(data).toContain("fc:restart");
     expect(data).toContain("fc:close");

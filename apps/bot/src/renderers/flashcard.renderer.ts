@@ -6,6 +6,7 @@
 import type { LanguageOrderContext, SupportedLang, WordDisplayData } from "@polyglot/core";
 import { isSupported, orderRecordEntries, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
+import { PROGRESS_FLASHCARD_DONE_CALLBACK } from "../momentum/progress.command.js";
 import { esc } from "./card-sections.js";
 import { citationOnly, renderWordCard } from "./word-card.js";
 
@@ -95,8 +96,14 @@ export function buildFlashCardBackKeyboard(isLastCard: boolean, lang: SupportedL
   return new InlineKeyboard().text(t("flashcardNext", l), "fc:next").text(t("flashcardQuitBtn", l), "fc:quit");
 }
 
-/** Build the keyboard for the session-complete screen */
-export function buildFlashCardDoneKeyboard(lang: SupportedLang): InlineKeyboard {
+/** The 📈 screen renders nothing while the kill switch is off, so the switch gates the button too — not just the handler. */
+export function buildFlashCardDoneKeyboard(lang: SupportedLang, options: { showProgress: boolean }): InlineKeyboard {
   const l = toLang(lang);
-  return new InlineKeyboard().text(t("flashcardNewDeckBtn", l), "fc:restart").text(t("flashcardClose", l), "fc:close");
+  const kb = new InlineKeyboard()
+    .text(t("flashcardNewDeckBtn", l), "fc:restart")
+    .text(t("flashcardClose", l), "fc:close");
+  // Own row: a third button beside these two makes Telegram squeeze all three
+  // captions to unreadable width (Task 81 §6, Slice 2).
+  if (options.showProgress) kb.row().text(t("progressButton", l), PROGRESS_FLASHCARD_DONE_CALLBACK);
+  return kb;
 }

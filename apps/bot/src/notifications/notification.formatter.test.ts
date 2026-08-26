@@ -123,6 +123,26 @@ describe("formatNotificationMessage", () => {
     expect(lines.findIndex((l) => l.includes("dům"))).toBeLessThan(lines.findIndex((l) => l.includes("🇩🇪")));
   });
 
+  // ── Footer (Task 81, S4) ───────────────────────────────────────
+  // The motivation layer is off by default and gated behind a kill switch, so
+  // "no footer" is the state almost every card ships in: it must be identical to
+  // the card as it was before the slot existed, byte for byte.
+
+  it("renders the card unchanged when no footer is passed", () => {
+    expect(formatNotificationMessage(srsPayload, "en", ruNative, {})).toBe(
+      formatNotificationMessage(srsPayload, "en", ruNative),
+    );
+  });
+
+  it("puts the footer last, separated from the translations", () => {
+    const footer = "This week — in long-term memory: 3, reviews: 14.";
+    const msg = formatNotificationMessage(srsPayload, "en", ruNative, { footer });
+
+    expect(msg.endsWith(`\n\n${footer}`)).toBe(true);
+    // Everything the card said without a footer is still there, in order.
+    expect(msg.startsWith(formatNotificationMessage(srsPayload, "en", ruNative))).toBe(true);
+  });
+
   it("bolds the answer and leaves secondary languages plain", () => {
     const msg = formatNotificationMessage(srsPayload, "en", ruNative);
     expect(msg).toContain("🇷🇺 <b>дом</b>");

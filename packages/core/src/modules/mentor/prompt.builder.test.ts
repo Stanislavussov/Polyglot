@@ -19,6 +19,26 @@ describe("buildMentorSystemPrompt", () => {
     expect(prompt).toContain("ru");
   });
 
+  it("annotates each learning language with its CEFR level", () => {
+    const prompt = buildMentorSystemPrompt({ ...opts, levels: { cs: "A2", ru: "C1" } });
+    expect(prompt).toContain("cs (A2)");
+    expect(prompt).toContain("ru (C1)");
+  });
+
+  it("leaves a language without a stored level unannotated", () => {
+    const prompt = buildMentorSystemPrompt({ ...opts, levels: { cs: "A2" } });
+    expect(prompt).toContain("cs (A2)");
+    expect(prompt).not.toMatch(/ru \(/);
+  });
+
+  it("tells the AI to calibrate the answer and examples to the level", () => {
+    const prompt = buildMentorSystemPrompt({ ...opts, levels: { cs: "A2" } });
+    expect(prompt).toMatch(/calibrate/i);
+    expect(prompt).toContain("A1-A2");
+    expect(prompt).toContain("C1-C2");
+    expect(prompt).toMatch(/assume B1/i);
+  });
+
   it("instructs the AI to answer language questions directly", () => {
     const prompt = buildMentorSystemPrompt(opts);
     expect(prompt).toMatch(/answer.*directly|direct(ly)? answer/i);

@@ -64,15 +64,6 @@ describe("mainKeyboardMiddleware", () => {
     expect(ctx.session.mainKeyboardVersion).toBe(MAIN_KEYBOARD_VERSION);
   });
 
-  it("keeps the carrier message out of the technical-cleanup list, which would delete the keyboard with it", async () => {
-    const ctx = createMockCtx();
-
-    await mainKeyboardMiddleware(ctx, vi.fn());
-
-    expect(ctx.session.mainKeyboardMessageId).toBe(42);
-    expect(ctx.session.technicalMessages ?? []).not.toContain(42);
-  });
-
   it("leaves the chat unmarked when the send fails, so the next message retries", async () => {
     const ctx = createMockCtx();
     vi.mocked(ctx.reply).mockRejectedValueOnce(new Error("Bad Request: chat not found"));

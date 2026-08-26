@@ -4,7 +4,6 @@ import { handlerChain } from "./observability/handler-log.js";
 import { describeUpdate } from "./observability/update-descriptor.js";
 import type { BotContext } from "./types.js";
 import { isUserFacingTimeout } from "./utils/long-op.js";
-import { replyTechnical } from "./utils/message-cleanup.js";
 
 type BotErrorType = "telegram" | "network" | "application";
 
@@ -71,7 +70,7 @@ export async function handleBotError(err: BotError<BotContext>): Promise<void> {
     // again shortly" notice instead of the hard generic error.
     if (errorType !== "telegram") {
       const key = isUserFacingTimeout(cause) ? "loadingTimeout" : "genericError";
-      await replyTechnical(ctx, t(key, safeLang(ctx))).catch(() => {});
+      await ctx.reply(t(key, safeLang(ctx))).catch(() => {});
     }
   } catch (handlerErr) {
     // The error handler itself must never throw.

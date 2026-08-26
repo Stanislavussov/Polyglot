@@ -18,6 +18,7 @@ import {
   translateWithContext,
 } from "@polyglot/core";
 import { inputCorrectionCounter, unrecognizedWordCounter } from "../../metrics.js";
+import { commitRecovery, resolveRecoveryPrefix } from "../../momentum/recovery.helper.js";
 import {
   buildTranslationKeyboard,
   renderSentenceTranslation,
@@ -27,7 +28,6 @@ import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
 import { resolveLanguageOrder } from "../../utils/language-order.js";
 import { LONG_OP_TIMEOUT_MS, startTypingKeepalive, withTimeout } from "../../utils/long-op.js";
-import { replyTechnical } from "../../utils/message-cleanup.js";
 import { ensurePaidFeature, resolveLockedFeatures } from "./paid-feature.helper.js";
 import { answerStaleCallback } from "./stale-callback.helper.js";
 import { handleMistypeConfirmCallback } from "./translate-flow.js";
@@ -95,7 +95,7 @@ export async function handleClarifyPostCallback(ctx: BotContext): Promise<void> 
   ctx.session.awaitingTranslationClarificationContext = true;
   ctx.session.pendingPostTranslationClarifyMsgId = msgId;
 
-  await replyTechnical(ctx, t("clarifyTranslationPrompt", lang));
+  await ctx.reply(t("clarifyTranslationPrompt", lang));
   await ctx.answerCallbackQuery();
 }
 
@@ -120,14 +120,14 @@ export async function handleTranslationClarificationCallback(ctx: BotContext): P
   if (data === "tr:clarify:cancel") {
     clearPendingClarification(ctx);
     await ctx.answerCallbackQuery();
-    await replyTechnical(ctx, t("translateModeHint", lang));
+    await ctx.reply(t("translateModeHint", lang));
     return;
   }
 
   if (data === "tr:clarify:context") {
     ctx.session.awaitingTranslationClarificationContext = true;
     await ctx.answerCallbackQuery();
-    await replyTechnical(ctx, t("translationClarifyContextPrompt", lang));
+    await ctx.reply(t("translationClarifyContextPrompt", lang));
     return;
   }
 
@@ -232,7 +232,7 @@ export async function handleTranslationClarificationContextText(ctx: BotContext,
       const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
       const iLang = settings?.interfaceLang ?? "en";
       const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
-      await replyTechnical(ctx, t("translationError", lang));
+      await ctx.reply(t("translationError", lang));
       return;
     }
 
@@ -307,7 +307,16 @@ export async function handleTranslationClarificationContextText(ctx: BotContext,
       // card and advance the pending-card pointers to it.
       const pronounceLangs = await resolvePronounceLangs(ctx, decision.output, entry.inputType, order);
 
-      const newMsg = await ctx.reply(cardText, { parse_mode: "HTML" });
+      // Recovery only (§2.2 S3): a returning user's line has ONE chance, and the
+      // clarify path is where a first word after the pause commonly lands. Praise is
+      // deliberately not offered here — it is event-driven and rare, so it waits for
+      // the next ordinary card rather than widening this slice's surface.
+      const now = new Date();
+      const recovery = await resolveRecoveryPrefix(ctx, lang, now);
+      const newMsg = await ctx.reply(recovery ? `${recovery.text}\n\n${cardText}` : cardText, {
+        parse_mode: "HTML",
+      });
+      if (recovery) await commitRecovery(ctx, recovery.gapDays, now);
       const keyboard = buildTranslationKeyboard({
         interfaceLang: lang,
         msgId: newMsg.message_id,
@@ -339,7 +348,7 @@ export async function handleTranslationClarificationContextText(ctx: BotContext,
     const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
     const iLang = settings?.interfaceLang ?? "en";
     const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
-    await replyTechnical(ctx, t("translationError", lang));
+    await ctx.reply(t("translationError", lang));
     return;
   }
 

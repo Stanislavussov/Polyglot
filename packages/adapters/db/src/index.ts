@@ -19,6 +19,8 @@ export {
   loadLanguageCache,
   normalizeToIso1,
 } from "./language-cache.js";
+export type { MomentumBackfillOptions, MomentumBackfillResult } from "./momentum-backfill.js";
+export { runMomentumBackfill } from "./momentum-backfill.js";
 export type { AdminUser } from "./repositories/admin-user.repository.js";
 export { adminUserRepository } from "./repositories/admin-user.repository.js";
 export type { AIModelRow } from "./repositories/ai-model.repository.js";
@@ -51,6 +53,7 @@ export type {
 } from "./repositories/language-detection.repository.js";
 export { languageDetectionRepository } from "./repositories/language-detection.repository.js";
 export { mentorMessageRepository } from "./repositories/mentor-message.repository.js";
+export { momentumRepository } from "./repositories/momentum.repository.js";
 export {
   DEFAULT_NOTIFICATION_TIME,
   DEFAULT_NOTIFICATION_TYPE,

@@ -127,13 +127,6 @@ export interface SessionData {
    */
   mainKeyboardVersion?: number;
   /**
-   * Message id that delivered the main-menu keyboard. Telegram binds a reply
-   * keyboard to its carrier message, so deleting that message wipes the keyboard
-   * off the user's screen — `cleanupTechnicalMessages` uses this to re-arm
-   * delivery if the carrier is ever deleted.
-   */
-  mainKeyboardMessageId?: number;
-  /**
    * Template constructor wizard state (Task 32).
    * Set when user enters the template customization flow.
    * Cleared on save, cancel, or session loss.
@@ -269,6 +262,15 @@ export interface SessionData {
     deck: SrsDueVocabularyCard[];
     currentIndex: number;
     cardMsgId?: number;
+    /**
+     * Praise evidence accumulated by this session, for the line on `srsDone`
+     * (momentum §2.2 S2). Primitives only: the session is jsonb, so anything
+     * key-ordered comes back reordered — the word itself is looked up in `deck`
+     * by this id at render time rather than carried alongside it.
+     */
+    maturedTranslationId?: number;
+    /** A card the user had graded "hard" was answered good or easy in this session. */
+    hardRecalled?: boolean;
   };
   /**
    * Mentor mode state (Task 66, reply-threads MVP).
@@ -282,11 +284,6 @@ export interface SessionData {
   mentor?: {
     threadId?: string;
   };
-  /**
-   * Technical message IDs to delete after scene ends or settings change.
-   * Translation cards and user words are never added here.
-   */
-  technicalMessages?: number[];
 }
 
 /** Custom context properties injected by auth middleware */

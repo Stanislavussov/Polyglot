@@ -3,6 +3,7 @@ import type {
   AIModel,
   DictionaryConfig,
   MentorConfig,
+  MotivationConfig,
   NotificationDefaults,
   PlanLimitConfig,
   SettingsPort,
@@ -12,7 +13,7 @@ import type {
   TtsConfig,
   VideoVocabularyConfig,
 } from "@polyglot/core";
-import { parseAIGenerationDefaults } from "@polyglot/core";
+import { parseAIGenerationDefaults, parseMotivationConfig } from "@polyglot/core";
 import { aiModelRepository } from "./repositories/ai-model.repository.js";
 import { rateLimitPlanRepository } from "./repositories/rate-limit-plan.repository.js";
 import { systemSettingsRepository } from "./repositories/system-settings.repository.js";
@@ -209,5 +210,12 @@ export const settingsAdapter: SettingsPort = {
 
   async getMentorConfig(): Promise<MentorConfig> {
     return getWithFallback<MentorConfig>("mentor", DEFAULTS.mentor);
+  },
+
+  async getMotivationConfig(): Promise<MotivationConfig> {
+    // Parsed, not merged: `getWithFallback` heals a MISSING key but lets a
+    // present-but-invalid one through, and for a kill switch that is the one
+    // failure mode that matters (plan §4.6).
+    return parseMotivationConfig(await systemSettingsRepository.get("motivation"));
   },
 };

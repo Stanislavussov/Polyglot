@@ -14,7 +14,22 @@ import type {
   VocabularySource,
   VocabularyTranslation,
 } from "@polyglot/core";
-import { and, asc, count, desc, eq, ilike, inArray, isNull, lte, notInArray, or, type SQL, sql } from "drizzle-orm";
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  gte,
+  ilike,
+  inArray,
+  isNull,
+  lte,
+  notInArray,
+  or,
+  type SQL,
+  sql,
+} from "drizzle-orm";
 import { getDb } from "../connection.js";
 import { escapeLikePattern } from "../like-escape.js";
 import { vocabularyDictionaryEntries, vocabularyEntries, vocabularyTranslations } from "../schema.js";
@@ -84,6 +99,23 @@ function originalSearchFilter(search?: string): SQL | undefined {
 /** Resolve the ORDER BY clause for the dictionary browse list. */
 function dictionaryListOrder(sort: DictionaryListSort | undefined): SQL {
   return sort === "alpha" ? asc(vocabularyEntries.original) : desc(vocabularyEntries.createdAt);
+}
+
+/** The user's live translation rows, on a `vocabulary_translations ⋈ vocabulary_entries` join. */
+function liveTranslationsOf(userId: number): SQL | undefined {
+  return and(
+    eq(vocabularyEntries.userId, userId),
+    eq(vocabularyEntries.isActive, true),
+    eq(vocabularyTranslations.isActive, true),
+  );
+}
+
+/** Shared by `findDueForSrs` and its COUNT twin so the two can never drift apart. */
+function dueForSrsFilter(userId: number, now: Date): SQL | undefined {
+  return and(
+    liveTranslationsOf(userId),
+    or(isNull(vocabularyTranslations.srsDueDate), lte(vocabularyTranslations.srsDueDate, now)),
+  );
 }
 
 /* ------------------------------------------------------------------ */
@@ -517,6 +549,7 @@ export const vocabularyRepository = {
         usageNote: vocabularyTranslations.usageNote,
         connotationWarning: vocabularyTranslations.connotationWarning,
         details: vocabularyTranslations.details,
+        difficulty: vocabularyEntries.difficulty,
         srsEaseFactor: vocabularyTranslations.srsEaseFactor,
         srsInterval: vocabularyTranslations.srsInterval,
         srsDueDate: vocabularyTranslations.srsDueDate,
@@ -524,18 +557,33 @@ export const vocabularyRepository = {
       })
       .from(vocabularyTranslations)
       .innerJoin(vocabularyEntries, eq(vocabularyTranslations.entryId, vocabularyEntries.id))
-      .where(
-        and(
-          eq(vocabularyEntries.userId, userId),
-          eq(vocabularyEntries.isActive, true),
-          eq(vocabularyTranslations.isActive, true),
-          or(isNull(vocabularyTranslations.srsDueDate), lte(vocabularyTranslations.srsDueDate, now)),
-        ),
-      )
+      .where(dueForSrsFilter(userId, now))
       .orderBy(asc(vocabularyTranslations.srsDueDate), asc(vocabularyTranslations.createdAt))
       .limit(limit);
 
     return rows;
+  },
+
+  async countDueForSrs(userId: number, now: Date): Promise<number> {
+    const db = getDb();
+    const result = await db
+      .select({ value: count() })
+      .from(vocabularyTranslations)
+      .innerJoin(vocabularyEntries, eq(vocabularyTranslations.entryId, vocabularyEntries.id))
+      .where(dueForSrsFilter(userId, now));
+
+    return result[0]?.value ?? 0;
+  },
+
+  async countMatureTranslations(userId: number, minInterval: number): Promise<number> {
+    const db = getDb();
+    const result = await db
+      .select({ value: count() })
+      .from(vocabularyTranslations)
+      .innerJoin(vocabularyEntries, eq(vocabularyTranslations.entryId, vocabularyEntries.id))
+      .where(and(liveTranslationsOf(userId), gte(vocabularyTranslations.srsInterval, minInterval)));
+
+    return result[0]?.value ?? 0;
   },
 
   async updateSrsState(translationId: number, state: UpdateSrsStateInput): Promise<void> {
