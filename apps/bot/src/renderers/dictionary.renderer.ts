@@ -12,11 +12,9 @@ import type {
   VocabularyDictionaryWithCount,
   VocabularyEntryWithTranslations,
 } from "@polyglot/core";
-import { getLangFlag, isSupported, orderTranslations, t } from "@polyglot/core";
+import { isSupported, orderTranslations, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
-import { expandableSection } from "./card-sections.js";
-import { formatInputType } from "./input-type-label.js";
-import { renderSourceUsage } from "./source-usage.renderer.js";
+import { renderWordCard } from "./word-card.js";
 
 /** Page size for dictionary list */
 export const DICTIONARY_PAGE_SIZE = 15;
@@ -115,6 +113,10 @@ export function renderDictionaryList(
 
 /**
  * Render a single dictionary entry detail view as HTML.
+ *
+ * Native language first, then the learning languages in the order the user chose
+ * them: row order out of Postgres is plan-dependent and moves after any UPDATE,
+ * so the sequence is derived here rather than inherited from the rows.
  */
 export function renderDictionaryEntry(
   entry: VocabularyEntryWithTranslations,
@@ -122,65 +124,29 @@ export function renderDictionaryEntry(
   lang: SupportedLang,
   order: LanguageOrderContext,
 ): string {
-  const l = toLang(lang);
-  const lines: string[] = [];
-
-  // Header
-  const emoji = entry.emoji ?? "";
-  const header = emoji ? `${emoji} <b>${esc(entry.original)}</b>` : `<b>${esc(entry.original)}</b>`;
-  lines.push(header);
-  if (entry.nativeMeaning) {
-    lines.push(esc(entry.nativeMeaning));
-  }
-
-  // Source language flag + input type
-  const sourceLangCode = langResolver(entry.sourceLangId);
-  const srcFlag = sourceLangCode ? (getLangFlag(sourceLangCode) ?? "🔤") : "🔤";
-  lines.push(`<i>${esc(formatInputType(entry.inputType, l))} · ${srcFlag}</i>`);
-
-  const sourceUsage = renderSourceUsage(entry.original, sourceLangCode ?? "", entry.sourceUsage);
-  if (sourceUsage.length > 0) {
-    lines.push("", ...sourceUsage);
-  }
-
-  // Native language first, then the learning languages in the order the user
-  // chose them. The previous comparator returned 0 for every non-native pair, so
-  // — Array.prototype.sort being stable — it preserved whatever order the rows
-  // happened to arrive in.
-  const sortedTranslations = orderTranslations(entry.translations, order, langResolver);
-
-  // Translations
-  for (const tr of sortedTranslations) {
-    lines.push("");
-    const langCode = langResolver(tr.targetLangId);
-    const flag = langCode ? (getLangFlag(langCode) ?? "🔤") : "🔤";
-
-    const codePart = langCode ? ` ${esc(langCode.toUpperCase())}:` : "";
-    lines.push(`${flag}${codePart} <b>${esc(tr.text)}</b>`);
-
-    // Details from JSONB
-    const details = tr.details as VocabTranslationDetails | null;
-    if (details?.synonyms && details.synonyms.length > 0) {
-      lines.push(`(${details.synonyms.map((s) => esc(s.text)).join(", ")})`);
-    }
-    const notes: string[] = [];
-    if (details?.examples && details.examples.length > 0) {
-      const [first, ...rest] = details.examples.map(
-        (ex) => `💬 <i>${esc(ex.target)}</i>${ex.native ? ` (${esc(ex.native)})` : ""}`,
-      );
-      lines.push(first!);
-      notes.push(...rest);
-    }
-    if (tr.usageNote) {
-      notes.push(`💡 ${esc(tr.usageNote)}`);
-    }
-    if (tr.connotationWarning) {
-      notes.push(`⚠️ ${esc(tr.connotationWarning)}`);
-    }
-    lines.push(...expandableSection(notes));
-  }
-
-  return lines.join("\n").trim();
+  return renderWordCard(
+    {
+      original: entry.original,
+      emoji: entry.emoji,
+      sourceLang: langResolver(entry.sourceLangId),
+      nativeMeaning: entry.nativeMeaning,
+      sourceUsage: entry.sourceUsage,
+      langs: orderTranslations(entry.translations, order, langResolver).map((tr) => {
+        const details = tr.details as VocabTranslationDetails | null;
+        return {
+          code: langResolver(tr.targetLangId),
+          text: tr.text,
+          synonyms: details?.synonyms,
+          examples: details?.examples,
+          usageNote: tr.usageNote,
+          connotationWarning: tr.connotationWarning,
+        };
+      }),
+      answerLang: order.nativeLang,
+      nativeLang: order.nativeLang,
+    },
+    toLang(lang),
+  );
 }
 
 /**

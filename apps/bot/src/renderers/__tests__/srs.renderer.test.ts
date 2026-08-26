@@ -45,18 +45,25 @@ const sampleCard: SrsDueVocabularyCard = {
 };
 
 describe("renderSrsFront", () => {
-  it("localizes the input type label in the review direction line", () => {
+  it("names the language being recalled and puts the source flag beside the word", () => {
     const html = renderSrsFront(sampleCard, "ru", "en", 2, 20, "ru");
 
     expect(html).toContain("Повторение 2 из 20");
-    expect(html).toContain("<b>Обрисовать проблему</b>");
-    expect(html).toContain("слово · 🇷🇺 → 🇬🇧 English");
-    expect(html).not.toContain("word · 🇷🇺 → 🇬🇧 English");
+    expect(html).toContain("<i>→ 🇬🇧 English</i>");
+    expect(html).toContain("📝 🇷🇺 <b>Обрисовать проблему</b>");
+    // The input-type chrome the translate card never had.
+    expect(html).not.toContain("слово ·");
+  });
+
+  it("keeps the saved source examples off the front — they carry the answer", () => {
+    const html = renderSrsFront(sampleCard, "ru", "en", 2, 20, "ru");
+
+    expect(html).not.toContain("Сначала обрисуем проблему.");
   });
 });
 
 describe("renderSrsBack", () => {
-  it("shows a compact source example before the target example", () => {
+  it("puts the recalled answer under the headword, with the source example below it", () => {
     const card = {
       ...sampleCard,
       details: {
@@ -69,9 +76,16 @@ describe("renderSrsBack", () => {
 
     const html = renderSrsBack(card, "ru", "en", 2, 20, "ru");
 
-    expect(html).toContain("Сначала обрисуем проблему.");
-    expect(html).toContain("First, let us outline the problem.");
-    expect(html).toContain("Let me outline the problem.");
+    expect(html).toContain("🇬🇧 EN: <b>outline the problem</b>");
+    expect(html).toContain("💬 <i>Let me outline the problem.</i> (Позвольте обрисовать проблему.)");
+    expect(html).toContain("💬 <i>Сначала обрисуем проблему.</i> (First, let us outline the problem.)");
     expect(html).toContain("💡 Употребляется для краткого изложения основных пунктов.");
+    expect(html.indexOf("<b>outline the problem</b>")).toBeLessThan(html.indexOf("Сначала обрисуем проблему."));
+  });
+
+  it("folds the stored explanation rather than dropping it", () => {
+    const html = renderSrsBack(sampleCard, "ru", "en", 2, 20, "ru");
+
+    expect(html).toContain("<blockquote expandable>💡 Кратко представить основные стороны проблемы.</blockquote>");
   });
 });

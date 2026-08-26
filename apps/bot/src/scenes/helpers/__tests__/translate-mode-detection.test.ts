@@ -176,6 +176,15 @@ function createMockCtx(): BotContext {
 describe("handleTranslateText — auto-detect language direction", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // `clearAllMocks` drops recorded calls but keeps implementations — including
+    // `...Once` values that were queued and never consumed, because the case that
+    // queued them fed single-word input and only one detection path ran. Such a
+    // leftover decides the *next* test's detection branch, which is invisible in
+    // file order and fails the moment the runner shuffles. `mockReset` restores
+    // the implementation the module factory gave `vi.fn(impl)` and drains the
+    // queue with it.
+    vi.mocked(detectLanguageWithConfidence).mockReset();
+    vi.mocked(detectLanguageWithConfidenceAsync).mockReset();
     mockUserRepository.getSettings.mockResolvedValue({
       interfaceLang: "en",
       nativeLang: "ru",

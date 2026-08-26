@@ -246,20 +246,18 @@ describe("renderDictionaryEntry", () => {
     return map[id];
   };
 
-  it("contains original word with emoji", () => {
+  it("contains original word with emoji and the source flag beside it", () => {
     const html = renderDictionaryEntry(entryWithDetails, langResolver);
-    expect(html).toContain("🍎 <b>apple</b>");
+    expect(html).toContain("🍎 🇬🇧 <b>apple</b>");
   });
 
-  it("shows source language flag and input type", () => {
-    const html = renderDictionaryEntry(entryWithDetails, langResolver);
-    expect(html).toContain("word · 🇬🇧");
-  });
-
-  it("localizes source input type", () => {
+  it("carries no input-type chrome line — the translate card has none", () => {
     const html = renderDictionaryEntry(entryWithDetails, langResolver, "ru");
-    expect(html).toContain("слово · 🇬🇧");
-    expect(html).not.toContain("word · 🇬🇧");
+
+    expect(html).not.toContain("слово ·");
+    expect(html).not.toContain("word ·");
+    // The headword is the first line; nothing labels the card above it.
+    expect(html.split("\n")[0]).toContain("<b>apple</b>");
   });
 
   it("contains translations without transcription", () => {
@@ -434,6 +432,8 @@ describe("DICTIONARY_PAGE_SIZE", () => {
 
 describe("renderDictionaryEntry — collapsible examples", () => {
   const langResolver = (id: number) => ({ 1: "en", 2: "cs", 3: "ru" })[id];
+  /** A ru-native user learning Czech — so the card carries a native answer. */
+  const RU_NATIVE = createLanguageOrderContext({ nativeLang: "ru", learningLangs: ["cs"] });
 
   it("keeps examples visible and collapses usage guidance into a blockquote", () => {
     const html = renderDictionaryEntry(entryWithDetails, langResolver, "ru");
@@ -443,13 +443,16 @@ describe("renderDictionaryEntry — collapsible examples", () => {
     expect(html).toContain("<blockquote expandable>💡 Нейтральное слово для обозначения фрукта.</blockquote>");
   });
 
-  it("collapses the source-usage explanation below its visible examples", () => {
-    const html = renderDictionaryEntry(entryWithDetails, langResolver, "ru");
+  it("collapses the stored prose below the source examples once the answer is on the card", () => {
+    const html = renderDictionaryEntryRaw(entryWithDetails, langResolver, "ru", RU_NATIVE);
+    const answerIdx = html.indexOf("🇷🇺 RU: <b>яблоко</b>");
     const exampleIdx = html.indexOf("💬 <i>This apple is sweet.</i>");
-    const collapsedIdx = html.indexOf(
-      "<blockquote expandable>ℹ️ Used for the fruit, not the technology company.</blockquote>",
-    );
-    expect(exampleIdx).toBeGreaterThan(-1);
+    const collapsedIdx = html.indexOf("💡 Used for the fruit, not the technology company.");
+
+    // Answer first, then the source example, then the prose folded under it.
+    expect(answerIdx).toBeGreaterThan(-1);
+    expect(exampleIdx).toBeGreaterThan(answerIdx);
     expect(collapsedIdx).toBeGreaterThan(exampleIdx);
+    expect(html).toContain("<blockquote expandable>💡 Used for the fruit, not the technology company.\n💡 A fruit.");
   });
 });

@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-24T15:50:19.000Z",
+  "generatedAt": "2026-08-24T17:08:42.000Z",
   "summary": {
-    "total": 2966,
+    "total": 2993,
     "business": 0,
-    "technical": 2966,
+    "technical": 2993,
     "workspaces": [
       "apps",
       "packages"
@@ -2551,7 +2551,7 @@
       "description": "Protects the bot render Flash Card Front behavior so contains emoji."
     },
     {
-      "id": "apps-bot-src-tests-flashcard-renderer-test-ts-106-renderflashcardfront-contains-source-language-flag",
+      "id": "apps-bot-src-tests-flashcard-renderer-test-ts-106-renderflashcardfront-contains-the-source-language-flag-beside-the-word",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/flashcard.renderer.test.ts",
       "sourceLine": 106,
@@ -2560,14 +2560,14 @@
       "suitePath": [
         "renderFlashCardFront"
       ],
-      "title": "contains source language flag",
-      "rawTitle": "contains source language flag",
-      "name": "Bot render Flash Card Front contains source language flag",
-      "value": "Protects the bot render Flash Card Front behavior so contains source language flag.",
-      "description": "Protects the bot render Flash Card Front behavior so contains source language flag."
+      "title": "contains the source language flag beside the word",
+      "rawTitle": "contains the source language flag beside the word",
+      "name": "Bot render Flash Card Front contains the source language flag beside the word",
+      "value": "Protects the bot render Flash Card Front behavior so contains the source language flag beside the word.",
+      "description": "Protects the bot render Flash Card Front behavior so contains the source language flag beside the word."
     },
     {
-      "id": "apps-bot-src-tests-flashcard-renderer-test-ts-111-renderflashcardfront-contains-input-type",
+      "id": "apps-bot-src-tests-flashcard-renderer-test-ts-111-renderflashcardfront-carries-no-input-type-chrome-line-the-translate-card-has-none",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/flashcard.renderer.test.ts",
       "sourceLine": 111,
@@ -2576,33 +2576,33 @@
       "suitePath": [
         "renderFlashCardFront"
       ],
-      "title": "contains input type",
-      "rawTitle": "contains input type",
-      "name": "Bot render Flash Card Front contains input type",
-      "value": "Protects the bot render Flash Card Front behavior so contains input type.",
-      "description": "Protects the bot render Flash Card Front behavior so contains input type."
+      "title": "carries no input-type chrome line — the translate card has none",
+      "rawTitle": "carries no input-type chrome line — the translate card has none",
+      "name": "Bot render Flash Card Front carries no input type chrome line — the translate card has none",
+      "value": "Protects the bot render Flash Card Front behavior so carries no input type chrome line — the translate card has none.",
+      "description": "Protects the bot render Flash Card Front behavior so carries no input type chrome line — the translate card has none."
     },
     {
-      "id": "apps-bot-src-tests-flashcard-renderer-test-ts-116-renderflashcardfront-localizes-input-type",
+      "id": "apps-bot-src-tests-flashcard-renderer-test-ts-117-renderflashcardfront-keeps-the-saved-source-examples-off-the-front-they-carry-the-answer",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/flashcard.renderer.test.ts",
-      "sourceLine": 116,
+      "sourceLine": 117,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
         "renderFlashCardFront"
       ],
-      "title": "localizes input type",
-      "rawTitle": "localizes input type",
-      "name": "Bot render Flash Card Front localizes input type",
-      "value": "Protects the bot render Flash Card Front behavior so localizes input type.",
-      "description": "Protects the bot render Flash Card Front behavior so localizes input type."
+      "title": "keeps the saved source examples off the front — they carry the answer",
+      "rawTitle": "keeps the saved source examples off the front — they carry the answer",
+      "name": "Bot render Flash Card Front keeps the saved source examples off the front — they carry the answer",
+      "value": "Protects the bot render Flash Card Front behavior: keeps the saved source examples off the front — they carry the answer.",
+      "description": "Protects the bot render Flash Card Front behavior: keeps the saved source examples off the front — they carry the answer."
     },
     {
-      "id": "apps-bot-src-tests-flashcard-renderer-test-ts-122-renderflashcardfront-does-not-contain-translation-text",
+      "id": "apps-bot-src-tests-flashcard-renderer-test-ts-123-renderflashcardfront-does-not-contain-translation-text",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/flashcard.renderer.test.ts",
-      "sourceLine": 122,
+      "sourceLine": 123,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2615,10 +2615,10 @@
       "description": "Protects the bot render Flash Card Front behavior: does NOT contain translation text."
     },
     {
-      "id": "apps-bot-src-tests-flashcard-renderer-test-ts-132-renderflashcardback-contains-the-original-word",
+      "id": "apps-bot-src-tests-flashcard-renderer-test-ts-133-renderflashcardback-contains-the-original-word",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/flashcard.renderer.test.ts",
-      "sourceLine": 132,
+      "sourceLine": 133,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2631,10 +2631,10 @@
       "description": "Protects the bot render Flash Card Back behavior so contains the original word."
     },
     {
-      "id": "apps-bot-src-tests-flashcard-renderer-test-ts-137-renderflashcardback-contains-all-translations",
+      "id": "apps-bot-src-tests-flashcard-renderer-test-ts-138-renderflashcardback-contains-all-translations",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/flashcard.renderer.test.ts",
-      "sourceLine": 137,
+      "sourceLine": 138,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2647,10 +2647,10 @@
       "description": "Protects the bot render Flash Card Back behavior so contains all translations."
     },
     {
-      "id": "apps-bot-src-tests-flashcard-renderer-test-ts-143-renderflashcardback-renders-translation-text-without-transcription",
+      "id": "apps-bot-src-tests-flashcard-renderer-test-ts-144-renderflashcardback-renders-translation-text-without-transcription",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/flashcard.renderer.test.ts",
-      "sourceLine": 143,
+      "sourceLine": 144,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2663,10 +2663,10 @@
       "description": "Protects the bot render Flash Card Back behavior: renders translation text without transcription."
     },
     {
-      "id": "apps-bot-src-tests-flashcard-renderer-test-ts-150-renderflashcardback-contains-target-language-flags",
+      "id": "apps-bot-src-tests-flashcard-renderer-test-ts-151-renderflashcardback-contains-target-language-flags",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/flashcard.renderer.test.ts",
-      "sourceLine": 150,
+      "sourceLine": 151,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2679,10 +2679,10 @@
       "description": "Protects the bot render Flash Card Back behavior so contains target language flags."
     },
     {
-      "id": "apps-bot-src-tests-flashcard-renderer-test-ts-156-renderflashcardback-contains-synonyms-when-present",
+      "id": "apps-bot-src-tests-flashcard-renderer-test-ts-157-renderflashcardback-contains-synonyms-when-present",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/flashcard.renderer.test.ts",
-      "sourceLine": 156,
+      "sourceLine": 157,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2695,10 +2695,10 @@
       "description": "Protects the bot render Flash Card Back behavior so contains synonyms when present."
     },
     {
-      "id": "apps-bot-src-tests-flashcard-renderer-test-ts-161-renderflashcardback-contains-examples-when-present",
+      "id": "apps-bot-src-tests-flashcard-renderer-test-ts-162-renderflashcardback-contains-examples-when-present",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/flashcard.renderer.test.ts",
-      "sourceLine": 161,
+      "sourceLine": 162,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2711,10 +2711,10 @@
       "description": "Protects the bot render Flash Card Back behavior so contains examples when present."
     },
     {
-      "id": "apps-bot-src-tests-flashcard-renderer-test-ts-166-renderflashcardback-shows-saved-source-language-usage-guidance",
+      "id": "apps-bot-src-tests-flashcard-renderer-test-ts-167-renderflashcardback-shows-saved-source-language-usage-guidance",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/flashcard.renderer.test.ts",
-      "sourceLine": 166,
+      "sourceLine": 167,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2727,10 +2727,10 @@
       "description": "Protects the bot render Flash Card Back behavior: shows saved source language usage guidance."
     },
     {
-      "id": "apps-bot-src-tests-flashcard-renderer-test-ts-174-renderflashcardback-shows-regular-target-usage-guidance-separately",
+      "id": "apps-bot-src-tests-flashcard-renderer-test-ts-175-renderflashcardback-shows-regular-target-usage-guidance-separately",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/flashcard.renderer.test.ts",
-      "sourceLine": 174,
+      "sourceLine": 175,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2743,10 +2743,10 @@
       "description": "Protects the bot render Flash Card Back behavior: shows regular target usage guidance separately."
     },
     {
-      "id": "apps-bot-src-tests-flashcard-renderer-test-ts-180-renderflashcardback-renders-without-synonyms-when-they-are-absent",
+      "id": "apps-bot-src-tests-flashcard-renderer-test-ts-181-renderflashcardback-renders-without-synonyms-when-they-are-absent",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/flashcard.renderer.test.ts",
-      "sourceLine": 180,
+      "sourceLine": 181,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2759,10 +2759,10 @@
       "description": "Protects the bot render Flash Card Back behavior: renders without synonyms when they are absent."
     },
     {
-      "id": "apps-bot-src-tests-flashcard-renderer-test-ts-186-renderflashcardback-contains-progress-string",
+      "id": "apps-bot-src-tests-flashcard-renderer-test-ts-187-renderflashcardback-contains-progress-string",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/flashcard.renderer.test.ts",
-      "sourceLine": 186,
+      "sourceLine": 187,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2775,10 +2775,10 @@
       "description": "Protects the bot render Flash Card Back behavior so contains progress string."
     },
     {
-      "id": "apps-bot-src-tests-flashcard-renderer-test-ts-196-buildflashcardfrontkeyboard-has-fc-reveal-and-fc-quit-buttons",
+      "id": "apps-bot-src-tests-flashcard-renderer-test-ts-197-buildflashcardfrontkeyboard-has-fc-reveal-and-fc-quit-buttons",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/flashcard.renderer.test.ts",
-      "sourceLine": 196,
+      "sourceLine": 197,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2791,10 +2791,10 @@
       "description": "Protects the bot build Flash Card Front Keyboard behavior so has fc:reveal and fc:quit buttons."
     },
     {
-      "id": "apps-bot-src-tests-flashcard-renderer-test-ts-207-buildflashcardbackkeyboard-has-fc-next-and-fc-quit-when-not-last-card",
+      "id": "apps-bot-src-tests-flashcard-renderer-test-ts-208-buildflashcardbackkeyboard-has-fc-next-and-fc-quit-when-not-last-card",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/flashcard.renderer.test.ts",
-      "sourceLine": 207,
+      "sourceLine": 208,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2807,10 +2807,10 @@
       "description": "Protects the bot build Flash Card Back Keyboard behavior so has fc:next and fc:quit when not last card."
     },
     {
-      "id": "apps-bot-src-tests-flashcard-renderer-test-ts-215-buildflashcardbackkeyboard-has-fc-done-and-fc-restart-when-last-card",
+      "id": "apps-bot-src-tests-flashcard-renderer-test-ts-216-buildflashcardbackkeyboard-has-fc-done-and-fc-restart-when-last-card",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/flashcard.renderer.test.ts",
-      "sourceLine": 215,
+      "sourceLine": 216,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -2823,10 +2823,10 @@
       "description": "Protects the bot build Flash Card Back Keyboard behavior so has fc:done and fc:restart when last card."
     },
     {
-      "id": "apps-bot-src-tests-flashcard-renderer-test-ts-227-buildflashcarddonekeyboard-has-fc-restart-and-fc-close-buttons",
+      "id": "apps-bot-src-tests-flashcard-renderer-test-ts-228-buildflashcarddonekeyboard-has-fc-restart-and-fc-close-buttons",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/flashcard.renderer.test.ts",
-      "sourceLine": 227,
+      "sourceLine": 228,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3893,6 +3893,86 @@
       "name": "Bot voice message → translation (integration) replies with the transcription failed message when transcribe rejects, and persists nothing",
       "value": "Protects the bot voice message → translation (integration) behavior so replies with the transcription failed message when transcribe rejects, and persists nothing.",
       "description": "Protects the bot voice message → translation (integration) behavior so replies with the transcription failed message when transcribe rejects, and persists nothing."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-word-card-consistency-integration-test-ts-137-word-card-consistency-integration-w1-a-revealed-notification-renders-in-the-same-grammar-as-the-translate-card",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/word-card-consistency.integration.test.ts",
+      "sourceLine": 137,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "word card consistency (integration)"
+      ],
+      "title": "W1: a revealed notification renders in the same grammar as the translate card",
+      "rawTitle": "W1: a revealed notification renders in the same grammar as the translate card",
+      "name": "Bot word card consistency (integration) W1: a revealed notification renders in the same grammar as the translate card",
+      "value": "Protects the bot word card consistency (integration) behavior so W1: a revealed notification renders in the same grammar as the translate card.",
+      "description": "Protects the bot word card consistency (integration) behavior so W1: a revealed notification renders in the same grammar as the translate card."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-word-card-consistency-integration-test-ts-151-word-card-consistency-integration-w2-the-dictionary-entry-renders-in-the-same-grammar-as-the-translate-card",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/word-card-consistency.integration.test.ts",
+      "sourceLine": 151,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "word card consistency (integration)"
+      ],
+      "title": "W2: the dictionary entry renders in the same grammar as the translate card",
+      "rawTitle": "W2: the dictionary entry renders in the same grammar as the translate card",
+      "name": "Bot word card consistency (integration) W2: the dictionary entry renders in the same grammar as the translate card",
+      "value": "Protects the bot word card consistency (integration) behavior so W2: the dictionary entry renders in the same grammar as the translate card.",
+      "description": "Protects the bot word card consistency (integration) behavior so W2: the dictionary entry renders in the same grammar as the translate card."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-word-card-consistency-integration-test-ts-170-word-card-consistency-integration-w3-a-flashcard-hides-the-answer-on-the-front-and-reveals-it-in-the-shared-grammar",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/word-card-consistency.integration.test.ts",
+      "sourceLine": 170,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "word card consistency (integration)"
+      ],
+      "title": "W3: a flashcard hides the answer on the front and reveals it in the shared grammar",
+      "rawTitle": "W3: a flashcard hides the answer on the front and reveals it in the shared grammar",
+      "name": "Bot word card consistency (integration) W3: a flashcard hides the answer on the front and reveals it in the shared grammar",
+      "value": "Protects the bot word card consistency (integration) behavior so W3: a flashcard hides the answer on the front and reveals it in the shared grammar.",
+      "description": "Protects the bot word card consistency (integration) behavior so W3: a flashcard hides the answer on the front and reveals it in the shared grammar."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-word-card-consistency-integration-test-ts-192-word-card-consistency-integration-w4-an-srs-review-names-the-recalled-language-and-reveals-it-in-the-shared-grammar",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/word-card-consistency.integration.test.ts",
+      "sourceLine": 192,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "word card consistency (integration)"
+      ],
+      "title": "W4: an SRS review names the recalled language and reveals it in the shared grammar",
+      "rawTitle": "W4: an SRS review names the recalled language and reveals it in the shared grammar",
+      "name": "Bot word card consistency (integration) W4: an SRS review names the recalled language and reveals it in the shared grammar",
+      "value": "Protects the bot word card consistency (integration) behavior so W4: an SRS review names the recalled language and reveals it in the shared grammar.",
+      "description": "Protects the bot word card consistency (integration) behavior so W4: an SRS review names the recalled language and reveals it in the shared grammar."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-word-card-consistency-integration-test-ts-229-word-card-consistency-integration-w5-a-reveal-button-that-outlived-its-word-answers-instead-of-rendering-an-empty-card",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/word-card-consistency.integration.test.ts",
+      "sourceLine": 229,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "word card consistency (integration)"
+      ],
+      "title": "W5: a Reveal button that outlived its word answers instead of rendering an empty card",
+      "rawTitle": "W5: a Reveal button that outlived its word answers instead of rendering an empty card",
+      "name": "Bot word card consistency (integration) W5: a Reveal button that outlived its word answers instead of rendering an empty card",
+      "value": "Protects the bot word card consistency (integration) behavior so W5: a Reveal button that outlived its word answers instead of rendering an empty card.",
+      "description": "Protects the bot word card consistency (integration) behavior so W5: a Reveal button that outlived its word answers instead of rendering an empty card."
     },
     {
       "id": "apps-bot-src-tests-integration-word-picker-integration-test-ts-89-word-picker-integration-takes-a-learner-from-the-menu-tap-to-a-saved-word",
@@ -8222,10 +8302,10 @@
       "description": "Protects the bot update Metrics Middleware behavior: does not warn about fast updates."
     },
     {
-      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-66-handlenotifrevealcallback-renders-full-dictionary-entry-and-updates-message",
+      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-73-handlenotifrevealcallback-renders-full-dictionary-entry-and-updates-message",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.callbacks.test.ts",
-      "sourceLine": 66,
+      "sourceLine": 73,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8238,10 +8318,10 @@
       "description": "Protects the bot handle Notif Reveal Callback behavior: renders full dictionary entry and updates message."
     },
     {
-      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-90-handlenotifrevealcallback-keeps-a-previously-stored-grade-marked-on-the-revealed-keyboard",
+      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-97-handlenotifrevealcallback-keeps-a-previously-stored-grade-marked-on-the-revealed-keyboard",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.callbacks.test.ts",
-      "sourceLine": 90,
+      "sourceLine": 97,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8254,10 +8334,10 @@
       "description": "Protects the bot handle Notif Reveal Callback behavior: keeps a previously stored grade marked on the revealed keyboard."
     },
     {
-      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-105-handlenotifrevealcallback-handles-missing-entry-gracefully",
+      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-112-handlenotifrevealcallback-handles-missing-entry-gracefully",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.callbacks.test.ts",
-      "sourceLine": 105,
+      "sourceLine": 112,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8270,10 +8350,10 @@
       "description": "Protects the bot handle Notif Reveal Callback behavior: handles missing entry gracefully."
     },
     {
-      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-117-handlenotifrevealcallback-handles-invalid-entryid-gracefully",
+      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-124-handlenotifrevealcallback-handles-invalid-entryid-gracefully",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.callbacks.test.ts",
-      "sourceLine": 117,
+      "sourceLine": 124,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8286,10 +8366,10 @@
       "description": "Protects the bot handle Notif Reveal Callback behavior: handles invalid entry Id gracefully."
     },
     {
-      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-126-handlenotifrevealcallback-shows-a-persistent-loading-button-on-the-notification-while-the-card-loads",
+      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-133-handlenotifrevealcallback-shows-a-persistent-loading-button-on-the-notification-while-the-card-loads",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.callbacks.test.ts",
-      "sourceLine": 126,
+      "sourceLine": 133,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8302,10 +8382,10 @@
       "description": "Protects the bot handle Notif Reveal Callback behavior: shows a persistent loading button on the notification while the card loads."
     },
     {
-      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-136-handlenotifrevealcallback-restores-the-buttons-and-tells-the-user-when-loading-takes-too-long",
+      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-143-handlenotifrevealcallback-restores-the-buttons-and-tells-the-user-when-loading-takes-too-long",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.callbacks.test.ts",
-      "sourceLine": 136,
+      "sourceLine": 143,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8318,10 +8398,10 @@
       "description": "Protects the bot handle Notif Reveal Callback behavior so restores the buttons and tells the user when loading takes too long."
     },
     {
-      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-162-handlenotiffeedbackcallback-persists-the-grade-and-confirms-with-a-toast",
+      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-169-handlenotiffeedbackcallback-persists-the-grade-and-confirms-with-a-toast",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.callbacks.test.ts",
-      "sourceLine": 162,
+      "sourceLine": 169,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8334,10 +8414,10 @@
       "description": "Protects the bot handle Notif Feedback Callback behavior: persists the grade and confirms with a toast."
     },
     {
-      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-173-handlenotiffeedbackcallback-re-renders-the-initial-keyboard-variant-when-the-message-still-shows-reveal",
+      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-180-handlenotiffeedbackcallback-re-renders-the-initial-keyboard-variant-when-the-message-still-shows-reveal",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.callbacks.test.ts",
-      "sourceLine": 173,
+      "sourceLine": 180,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8350,10 +8430,10 @@
       "description": "Protects the bot handle Notif Feedback Callback behavior so re renders the initial keyboard variant when the message still shows Reveal."
     },
     {
-      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-186-handlenotiffeedbackcallback-re-renders-the-revealed-keyboard-variant-when-reveal-is-gone",
+      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-193-handlenotiffeedbackcallback-re-renders-the-revealed-keyboard-variant-when-reveal-is-gone",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.callbacks.test.ts",
-      "sourceLine": 186,
+      "sourceLine": 193,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8366,10 +8446,10 @@
       "description": "Protects the bot handle Notif Feedback Callback behavior so re renders the revealed keyboard variant when Reveal is gone."
     },
     {
-      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-196-handlenotiffeedbackcallback-tells-the-user-when-the-entry-no-longer-exists-instead-of-editing-the-keyboard",
+      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-203-handlenotiffeedbackcallback-tells-the-user-when-the-entry-no-longer-exists-instead-of-editing-the-keyboard",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.callbacks.test.ts",
-      "sourceLine": 196,
+      "sourceLine": 203,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8382,10 +8462,10 @@
       "description": "Protects the bot handle Notif Feedback Callback behavior so tells the user when the entry no longer exists instead of editing the keyboard."
     },
     {
-      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-206-handlenotiffeedbackcallback-ignores-a-malformed-grade-without-touching-the-repository",
+      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-213-handlenotiffeedbackcallback-ignores-a-malformed-grade-without-touching-the-repository",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.callbacks.test.ts",
-      "sourceLine": 206,
+      "sourceLine": 213,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8398,10 +8478,10 @@
       "description": "Protects the bot handle Notif Feedback Callback behavior: ignores a malformed grade without touching the repository."
     },
     {
-      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-215-handlenotiffeedbackcallback-alerts-on-a-persistence-failure",
+      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-222-handlenotiffeedbackcallback-alerts-on-a-persistence-failure",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.callbacks.test.ts",
-      "sourceLine": 215,
+      "sourceLine": 222,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8414,10 +8494,10 @@
       "description": "Protects the bot handle Notif Feedback Callback behavior so alerts on a persistence failure."
     },
     {
-      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-226-handlenotiflearnedcallback-soft-deletes-entry-and-shows-confirmation",
+      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-233-handlenotiflearnedcallback-soft-deletes-entry-and-shows-confirmation",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.callbacks.test.ts",
-      "sourceLine": 226,
+      "sourceLine": 233,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8430,10 +8510,10 @@
       "description": "Protects the bot handle Notif Learned Callback behavior so soft deletes entry and shows confirmation."
     },
     {
-      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-240-handlenotiflearnedcallback-handles-invalid-entryid-gracefully",
+      "id": "apps-bot-src-notifications-notification-callbacks-test-ts-247-handlenotiflearnedcallback-handles-invalid-entryid-gracefully",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.callbacks.test.ts",
-      "sourceLine": 240,
+      "sourceLine": 247,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10302,6 +10382,22 @@
       "description": "Protects the bot send Release Announcement behavior so continues when one Telegram send fails."
     },
     {
+      "id": "apps-bot-src-renderers-tests-card-grammar-consistency-test-ts-209-card-grammar-a-reveal-style-front-hands-over-nothing-srs-front-names-the-language-being-recalled-the-one-line-it-cannot-lose",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/card-grammar.consistency.test.ts",
+      "sourceLine": 209,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "card grammar — a reveal-style front hands over nothing"
+      ],
+      "title": "srs front names the language being recalled — the one line it cannot lose",
+      "rawTitle": "srs front names the language being recalled — the one line it cannot lose",
+      "name": "Bot card grammar — a reveal style front hands over nothing srs front names the language being recalled — the one line it cannot lose",
+      "value": "Protects the bot card grammar — a reveal style front hands over nothing behavior so srs front names the language being recalled — the one line it cannot lose.",
+      "description": "Protects the bot card grammar — a reveal style front hands over nothing behavior so srs front names the language being recalled — the one line it cannot lose."
+    },
+    {
       "id": "apps-bot-src-renderers-tests-card-sections-test-ts-32-assemblecard-emits-sections-in-card-section-order-regardless-of-the-order-the-caller-writes-them",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/card-sections.test.ts",
@@ -10750,7 +10846,7 @@
       "description": "Protects the bot render Dictionary List behavior so truncates long words."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-249-renderdictionaryentry-contains-original-word-with-emoji",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-249-renderdictionaryentry-contains-original-word-with-emoji-and-the-source-flag-beside-it",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
       "sourceLine": 249,
@@ -10759,14 +10855,14 @@
       "suitePath": [
         "renderDictionaryEntry"
       ],
-      "title": "contains original word with emoji",
-      "rawTitle": "contains original word with emoji",
-      "name": "Bot render Dictionary Entry contains original word with emoji",
-      "value": "Protects the bot render Dictionary Entry behavior so contains original word with emoji.",
-      "description": "Protects the bot render Dictionary Entry behavior so contains original word with emoji."
+      "title": "contains original word with emoji and the source flag beside it",
+      "rawTitle": "contains original word with emoji and the source flag beside it",
+      "name": "Bot render Dictionary Entry contains original word with emoji and the source flag beside it",
+      "value": "Protects the bot render Dictionary Entry behavior so contains original word with emoji and the source flag beside it.",
+      "description": "Protects the bot render Dictionary Entry behavior so contains original word with emoji and the source flag beside it."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-254-renderdictionaryentry-shows-source-language-flag-and-input-type",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-254-renderdictionaryentry-carries-no-input-type-chrome-line-the-translate-card-has-none",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
       "sourceLine": 254,
@@ -10775,33 +10871,17 @@
       "suitePath": [
         "renderDictionaryEntry"
       ],
-      "title": "shows source language flag and input type",
-      "rawTitle": "shows source language flag and input type",
-      "name": "Bot render Dictionary Entry shows source language flag and input type",
-      "value": "Protects the bot render Dictionary Entry behavior: shows source language flag and input type.",
-      "description": "Protects the bot render Dictionary Entry behavior: shows source language flag and input type."
+      "title": "carries no input-type chrome line — the translate card has none",
+      "rawTitle": "carries no input-type chrome line — the translate card has none",
+      "name": "Bot render Dictionary Entry carries no input type chrome line — the translate card has none",
+      "value": "Protects the bot render Dictionary Entry behavior so carries no input type chrome line — the translate card has none.",
+      "description": "Protects the bot render Dictionary Entry behavior so carries no input type chrome line — the translate card has none."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-259-renderdictionaryentry-localizes-source-input-type",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-263-renderdictionaryentry-contains-translations-without-transcription",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 259,
-      "workspace": "apps",
-      "packageName": "bot",
-      "suitePath": [
-        "renderDictionaryEntry"
-      ],
-      "title": "localizes source input type",
-      "rawTitle": "localizes source input type",
-      "name": "Bot render Dictionary Entry localizes source input type",
-      "value": "Protects the bot render Dictionary Entry behavior so localizes source input type.",
-      "description": "Protects the bot render Dictionary Entry behavior so localizes source input type."
-    },
-    {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-265-renderdictionaryentry-contains-translations-without-transcription",
-      "kind": "technical",
-      "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 265,
+      "sourceLine": 263,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10814,10 +10894,10 @@
       "description": "Protects the bot render Dictionary Entry behavior so contains translations without transcription."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-272-renderdictionaryentry-shows-synonyms-from-details",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-270-renderdictionaryentry-shows-synonyms-from-details",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 272,
+      "sourceLine": 270,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10830,10 +10910,10 @@
       "description": "Protects the bot render Dictionary Entry behavior: shows synonyms from details."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-277-renderdictionaryentry-shows-examples-from-details",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-275-renderdictionaryentry-shows-examples-from-details",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 277,
+      "sourceLine": 275,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10846,10 +10926,10 @@
       "description": "Protects the bot render Dictionary Entry behavior: shows examples from details."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-282-renderdictionaryentry-shows-regular-usage-guidance-separately-from-warnings",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-280-renderdictionaryentry-shows-regular-usage-guidance-separately-from-warnings",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 282,
+      "sourceLine": 280,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10862,10 +10942,10 @@
       "description": "Protects the bot render Dictionary Entry behavior: shows regular usage guidance separately from warnings."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-288-renderdictionaryentry-preserves-the-full-saved-source-language-learning-card",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-286-renderdictionaryentry-preserves-the-full-saved-source-language-learning-card",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 288,
+      "sourceLine": 286,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10878,10 +10958,10 @@
       "description": "Protects the bot render Dictionary Entry behavior: preserves the full saved source language learning card."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-296-renderdictionaryentry-escapes-html-inside-saved-source-usage",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-294-renderdictionaryentry-escapes-html-inside-saved-source-usage",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 296,
+      "sourceLine": 294,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10894,10 +10974,10 @@
       "description": "Protects the bot render Dictionary Entry behavior: escapes HTML inside saved source usage."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-316-renderdictionaryentry-falls-back-to-when-langresolver-returns-undefined",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-314-renderdictionaryentry-falls-back-to-when-langresolver-returns-undefined",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 316,
+      "sourceLine": 314,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10910,10 +10990,10 @@
       "description": "Protects the bot render Dictionary Entry behavior: falls back to 🔤 when lang Resolver returns undefined."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-326-builddictionarylistkeyboard-has-one-button-per-entry-with-dict-view-dictionaryid-id-page-callback",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-324-builddictionarylistkeyboard-has-one-button-per-entry-with-dict-view-dictionaryid-id-page-callback",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 326,
+      "sourceLine": 324,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10926,10 +11006,10 @@
       "description": "Protects the bot build Dictionary List Keyboard behavior so has one button per entry with dict:view:{dictionary Id}:{id}:{page} callback."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-335-builddictionarylistkeyboard-has-navigation-buttons-when-1-page",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-333-builddictionarylistkeyboard-has-navigation-buttons-when-1-page",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 335,
+      "sourceLine": 333,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10942,10 +11022,10 @@
       "description": "Protects the bot build Dictionary List Keyboard behavior so has navigation buttons when > 1 page."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-346-builddictionarylistkeyboard-no-prev-button-on-page-1",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-344-builddictionarylistkeyboard-no-prev-button-on-page-1",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 346,
+      "sourceLine": 344,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10958,10 +11038,10 @@
       "description": "Protects the bot build Dictionary List Keyboard behavior so no prev button on page 1."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-356-builddictionarylistkeyboard-no-next-button-on-last-page",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-354-builddictionarylistkeyboard-no-next-button-on-last-page",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 356,
+      "sourceLine": 354,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10974,10 +11054,10 @@
       "description": "Protects the bot build Dictionary List Keyboard behavior so no next button on last page."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-366-builddictionarylistkeyboard-no-navigation-row-when-1-page",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-364-builddictionarylistkeyboard-no-navigation-row-when-1-page",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 366,
+      "sourceLine": 364,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10990,10 +11070,10 @@
       "description": "Protects the bot build Dictionary List Keyboard behavior so no navigation row when 1 page."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-375-builddictionarylistkeyboard-has-close-button",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-373-builddictionarylistkeyboard-has-close-button",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 375,
+      "sourceLine": 373,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11006,10 +11086,10 @@
       "description": "Protects the bot build Dictionary List Keyboard behavior so has close button."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-382-builddictionarylistkeyboard-entry-buttons-show-emoji-original",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-380-builddictionarylistkeyboard-entry-buttons-show-emoji-original",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 382,
+      "sourceLine": 380,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11022,10 +11102,10 @@
       "description": "Protects the bot build Dictionary List Keyboard behavior so entry buttons show emoji + original."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-392-builddictionaryentrykeyboard-has-delete-and-back-buttons",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-390-builddictionaryentrykeyboard-has-delete-and-back-buttons",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 392,
+      "sourceLine": 390,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11038,10 +11118,10 @@
       "description": "Protects the bot build Dictionary Entry Keyboard behavior so has delete and back buttons."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-402-builddictionaryentrykeyboard-uses-i18n-for-button-labels",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-400-builddictionaryentrykeyboard-uses-i18n-for-button-labels",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 402,
+      "sourceLine": 400,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11054,10 +11134,10 @@
       "description": "Protects the bot build Dictionary Entry Keyboard behavior: uses i18n for button labels."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-412-builddeleteconfirmkeyboard-has-confirm-delete-and-cancel-buttons",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-410-builddeleteconfirmkeyboard-has-confirm-delete-and-cancel-buttons",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 412,
+      "sourceLine": 410,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11070,10 +11150,10 @@
       "description": "Protects the bot build Delete Confirm Keyboard behavior so has confirm delete and cancel buttons."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-420-builddeleteconfirmkeyboard-uses-i18n-for-button-labels",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-418-builddeleteconfirmkeyboard-uses-i18n-for-button-labels",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 420,
+      "sourceLine": 418,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11086,10 +11166,10 @@
       "description": "Protects the bot build Delete Confirm Keyboard behavior: uses i18n for button labels."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-430-dictionary-page-size-is-15",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-428-dictionary-page-size-is-15",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
-      "sourceLine": 430,
+      "sourceLine": 428,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11118,7 +11198,7 @@
       "description": "Protects the bot render Dictionary Entry — collapsible examples behavior: keeps examples visible and collapses usage guidance into a blockquote."
     },
     {
-      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-446-renderdictionaryentry-collapsible-examples-collapses-the-source-usage-explanation-below-its-visible-examples",
+      "id": "apps-bot-src-renderers-tests-dictionary-renderer-test-ts-446-renderdictionaryentry-collapsible-examples-collapses-the-stored-prose-below-the-source-examples-once-the-answer-is-on-the-card",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/dictionary.renderer.test.ts",
       "sourceLine": 446,
@@ -11127,11 +11207,11 @@
       "suitePath": [
         "renderDictionaryEntry — collapsible examples"
       ],
-      "title": "collapses the source-usage explanation below its visible examples",
-      "rawTitle": "collapses the source-usage explanation below its visible examples",
-      "name": "Bot render Dictionary Entry — collapsible examples collapses the source usage explanation below its visible examples",
-      "value": "Protects the bot render Dictionary Entry — collapsible examples behavior so collapses the source usage explanation below its visible examples.",
-      "description": "Protects the bot render Dictionary Entry — collapsible examples behavior so collapses the source usage explanation below its visible examples."
+      "title": "collapses the stored prose below the source examples once the answer is on the card",
+      "rawTitle": "collapses the stored prose below the source examples once the answer is on the card",
+      "name": "Bot render Dictionary Entry — collapsible examples collapses the stored prose below the source examples once the answer is on the card",
+      "value": "Protects the bot render Dictionary Entry — collapsible examples behavior so collapses the stored prose below the source examples once the answer is on the card.",
+      "description": "Protects the bot render Dictionary Entry — collapsible examples behavior so collapses the stored prose below the source examples once the answer is on the card."
     },
     {
       "id": "apps-bot-src-renderers-tests-flashcard-renderer-order-test-ts-34-renderflashcardback-language-order-renders-the-user-s-order-from-an-alphabetically-keyed-record",
@@ -11198,7 +11278,7 @@
       "description": "Protects the bot render Flash Card Back — collapsible notes behavior: renders no blockquote when the card has no notes."
     },
     {
-      "id": "apps-bot-src-renderers-tests-srs-renderer-test-ts-48-rendersrsfront-localizes-the-input-type-label-in-the-review-direction-line",
+      "id": "apps-bot-src-renderers-tests-srs-renderer-test-ts-48-rendersrsfront-names-the-language-being-recalled-and-puts-the-source-flag-beside-the-word",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/srs.renderer.test.ts",
       "sourceLine": 48,
@@ -11207,27 +11287,59 @@
       "suitePath": [
         "renderSrsFront"
       ],
-      "title": "localizes the input type label in the review direction line",
-      "rawTitle": "localizes the input type label in the review direction line",
-      "name": "Bot render Srs Front localizes the input type label in the review direction line",
-      "value": "Protects the bot render Srs Front behavior so localizes the input type label in the review direction line.",
-      "description": "Protects the bot render Srs Front behavior so localizes the input type label in the review direction line."
+      "title": "names the language being recalled and puts the source flag beside the word",
+      "rawTitle": "names the language being recalled and puts the source flag beside the word",
+      "name": "Bot render Srs Front names the language being recalled and puts the source flag beside the word",
+      "value": "Protects the bot render Srs Front behavior so names the language being recalled and puts the source flag beside the word.",
+      "description": "Protects the bot render Srs Front behavior so names the language being recalled and puts the source flag beside the word."
     },
     {
-      "id": "apps-bot-src-renderers-tests-srs-renderer-test-ts-59-rendersrsback-shows-a-compact-source-example-before-the-target-example",
+      "id": "apps-bot-src-renderers-tests-srs-renderer-test-ts-58-rendersrsfront-keeps-the-saved-source-examples-off-the-front-they-carry-the-answer",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/srs.renderer.test.ts",
-      "sourceLine": 59,
+      "sourceLine": 58,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "renderSrsFront"
+      ],
+      "title": "keeps the saved source examples off the front — they carry the answer",
+      "rawTitle": "keeps the saved source examples off the front — they carry the answer",
+      "name": "Bot render Srs Front keeps the saved source examples off the front — they carry the answer",
+      "value": "Protects the bot render Srs Front behavior: keeps the saved source examples off the front — they carry the answer.",
+      "description": "Protects the bot render Srs Front behavior: keeps the saved source examples off the front — they carry the answer."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-srs-renderer-test-ts-66-rendersrsback-puts-the-recalled-answer-under-the-headword-with-the-source-example-below-it",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/srs.renderer.test.ts",
+      "sourceLine": 66,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
         "renderSrsBack"
       ],
-      "title": "shows a compact source example before the target example",
-      "rawTitle": "shows a compact source example before the target example",
-      "name": "Bot render Srs Back shows a compact source example before the target example",
-      "value": "Protects the bot render Srs Back behavior: shows a compact source example before the target example.",
-      "description": "Protects the bot render Srs Back behavior: shows a compact source example before the target example."
+      "title": "puts the recalled answer under the headword, with the source example below it",
+      "rawTitle": "puts the recalled answer under the headword, with the source example below it",
+      "name": "Bot render Srs Back puts the recalled answer under the headword, with the source example below it",
+      "value": "Protects the bot render Srs Back behavior so puts the recalled answer under the headword, with the source example below it.",
+      "description": "Protects the bot render Srs Back behavior so puts the recalled answer under the headword, with the source example below it."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-srs-renderer-test-ts-86-rendersrsback-folds-the-stored-explanation-rather-than-dropping-it",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/srs.renderer.test.ts",
+      "sourceLine": 86,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "renderSrsBack"
+      ],
+      "title": "folds the stored explanation rather than dropping it",
+      "rawTitle": "folds the stored explanation rather than dropping it",
+      "name": "Bot render Srs Back folds the stored explanation rather than dropping it",
+      "value": "Protects the bot render Srs Back behavior so folds the stored explanation rather than dropping it.",
+      "description": "Protects the bot render Srs Back behavior so folds the stored explanation rather than dropping it."
     },
     {
       "id": "apps-bot-src-renderers-tests-translation-renderer-order-test-ts-41-rendertranslation-language-order-renders-the-user-s-order-from-an-alphabetically-keyed-record",
@@ -11580,6 +11692,326 @@
       "name": "Bot render Translation — collapsible details (expandable blockquote) keeps source usage examples visible and collapses the explanation on reverse learning cards",
       "value": "Protects the bot render Translation — collapsible details (expandable blockquote) behavior: keeps source usage examples visible and collapses the explanation on reverse learning cards.",
       "description": "Protects the bot render Translation — collapsible details (expandable blockquote) behavior: keeps source usage examples visible and collapses the explanation on reverse learning cards."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-59-renderwordcard-parity-with-the-translate-card-renders-a-saved-word-exactly-as-the-translate-card-renders-it",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
+      "sourceLine": 59,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "renderWordCard — parity with the translate card"
+      ],
+      "title": "renders a saved word exactly as the translate card renders it",
+      "rawTitle": "renders a saved word exactly as the translate card renders it",
+      "name": "Bot render Word Card — parity with the translate card renders a saved word exactly as the translate card renders it",
+      "value": "Protects the bot render Word Card — parity with the translate card behavior: renders a saved word exactly as the translate card renders it.",
+      "description": "Protects the bot render Word Card — parity with the translate card behavior: renders a saved word exactly as the translate card renders it."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-87-renderwordcard-headword-puts-the-source-flag-beside-the-word-and-no-provenance-chrome-above-it",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
+      "sourceLine": 87,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "renderWordCard — headword"
+      ],
+      "title": "puts the source flag beside the word and no provenance chrome above it",
+      "rawTitle": "puts the source flag beside the word and no provenance chrome above it",
+      "name": "Bot render Word Card — headword puts the source flag beside the word and no provenance chrome above it",
+      "value": "Protects the bot render Word Card — headword behavior so puts the source flag beside the word and no provenance chrome above it.",
+      "description": "Protects the bot render Word Card — headword behavior so puts the source flag beside the word and no provenance chrome above it."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-98-renderwordcard-headword-prefers-the-stored-citation-form-over-the-raw-input",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
+      "sourceLine": 98,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "renderWordCard — headword"
+      ],
+      "title": "prefers the stored citation form over the raw input",
+      "rawTitle": "prefers the stored citation form over the raw input",
+      "name": "Bot render Word Card — headword prefers the stored citation form over the raw input",
+      "value": "Protects the bot render Word Card — headword behavior so prefers the stored citation form over the raw input.",
+      "description": "Protects the bot render Word Card — headword behavior so prefers the stored citation form over the raw input."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-105-renderwordcard-headword-keeps-synonyms-on-the-word-s-own-line-rather-than-below-it",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
+      "sourceLine": 105,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "renderWordCard — headword"
+      ],
+      "title": "keeps synonyms on the word's own line rather than below it",
+      "rawTitle": "keeps synonyms on the word's own line rather than below it",
+      "name": "Bot render Word Card — headword keeps synonyms on the word's own line rather than below it",
+      "value": "Protects the bot render Word Card — headword behavior: keeps synonyms on the word's own line rather than below it.",
+      "description": "Protects the bot render Word Card — headword behavior: keeps synonyms on the word's own line rather than below it."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-119-renderwordcard-headword-falls-back-to-for-a-language-whose-row-no-longer-resolves",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
+      "sourceLine": 119,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "renderWordCard — headword"
+      ],
+      "title": "falls back to 🔤 for a language whose row no longer resolves",
+      "rawTitle": "falls back to 🔤 for a language whose row no longer resolves",
+      "name": "Bot render Word Card — headword falls back to 🔤 for a language whose row no longer resolves",
+      "value": "Protects the bot render Word Card — headword behavior: falls back to 🔤 for a language whose row no longer resolves.",
+      "description": "Protects the bot render Word Card — headword behavior: falls back to 🔤 for a language whose row no longer resolves."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-126-renderwordcard-headword-escapes-html-in-every-slot",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
+      "sourceLine": 126,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "renderWordCard — headword"
+      ],
+      "title": "escapes HTML in every slot",
+      "rawTitle": "escapes HTML in every slot",
+      "name": "Bot render Word Card — headword escapes HTML in every slot",
+      "value": "Protects the bot render Word Card — headword behavior: escapes HTML in every slot.",
+      "description": "Protects the bot render Word Card — headword behavior: escapes HTML in every slot."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-154-renderwordcard-stored-prose-folds-the-prose-below-the-examples-once-the-answer-is-on-the-card",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
+      "sourceLine": 154,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "renderWordCard — stored prose"
+      ],
+      "title": "folds the prose below the examples once the answer is on the card",
+      "rawTitle": "folds the prose below the examples once the answer is on the card",
+      "name": "Bot render Word Card — stored prose folds the prose below the examples once the answer is on the card",
+      "value": "Protects the bot render Word Card — stored prose behavior so folds the prose below the examples once the answer is on the card.",
+      "description": "Protects the bot render Word Card — stored prose behavior so folds the prose below the examples once the answer is on the card."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-167-renderwordcard-stored-prose-keeps-the-prose-visible-when-the-card-carries-no-answer-there-it-is-the-answer",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
+      "sourceLine": 167,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "renderWordCard — stored prose"
+      ],
+      "title": "keeps the prose visible when the card carries no answer — there it IS the answer",
+      "rawTitle": "keeps the prose visible when the card carries no answer — there it IS the answer",
+      "name": "Bot render Word Card — stored prose keeps the prose visible when the card carries no answer — there it IS the answer",
+      "value": "Protects the bot render Word Card — stored prose behavior: keeps the prose visible when the card carries no answer — there it IS the answer.",
+      "description": "Protects the bot render Word Card — stored prose behavior: keeps the prose visible when the card carries no answer — there it IS the answer."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-175-renderwordcard-stored-prose-folds-the-prose-for-a-word-already-in-the-reader-s-own-language",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
+      "sourceLine": 175,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "renderWordCard — stored prose"
+      ],
+      "title": "folds the prose for a word already in the reader's own language",
+      "rawTitle": "folds the prose for a word already in the reader's own language",
+      "name": "Bot render Word Card — stored prose folds the prose for a word already in the reader's own language",
+      "value": "Protects the bot render Word Card — stored prose behavior so folds the prose for a word already in the reader's own language.",
+      "description": "Protects the bot render Word Card — stored prose behavior so folds the prose for a word already in the reader's own language."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-189-renderwordcard-stored-prose-renders-visible-prose-unlabelled-when-the-reader-s-language-is-unknown",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
+      "sourceLine": 189,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "renderWordCard — stored prose"
+      ],
+      "title": "renders visible prose unlabelled when the reader's language is unknown",
+      "rawTitle": "renders visible prose unlabelled when the reader's language is unknown",
+      "name": "Bot render Word Card — stored prose renders visible prose unlabelled when the reader's language is unknown",
+      "value": "Protects the bot render Word Card — stored prose behavior: renders visible prose unlabelled when the reader's language is unknown.",
+      "description": "Protects the bot render Word Card — stored prose behavior: renders visible prose unlabelled when the reader's language is unknown."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-198-renderwordcard-language-blocks-keeps-the-first-example-visible-and-collapses-the-rest-with-the-notes",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
+      "sourceLine": 198,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "renderWordCard — language blocks"
+      ],
+      "title": "keeps the first example visible and collapses the rest with the notes",
+      "rawTitle": "keeps the first example visible and collapses the rest with the notes",
+      "name": "Bot render Word Card — language blocks keeps the first example visible and collapses the rest with the notes",
+      "value": "Protects the bot render Word Card — language blocks behavior: keeps the first example visible and collapses the rest with the notes.",
+      "description": "Protects the bot render Word Card — language blocks behavior: keeps the first example visible and collapses the rest with the notes."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-227-renderwordcard-language-blocks-renders-no-blockquote-when-there-is-nothing-to-collapse",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
+      "sourceLine": 227,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "renderWordCard — language blocks"
+      ],
+      "title": "renders no blockquote when there is nothing to collapse",
+      "rawTitle": "renders no blockquote when there is nothing to collapse",
+      "name": "Bot render Word Card — language blocks renders no blockquote when there is nothing to collapse",
+      "value": "Protects the bot render Word Card — language blocks behavior: renders no blockquote when there is nothing to collapse.",
+      "description": "Protects the bot render Word Card — language blocks behavior: renders no blockquote when there is nothing to collapse."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-240-renderwordcard-language-blocks-promotes-the-answer-language-directly-under-the-headword",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
+      "sourceLine": 240,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "renderWordCard — language blocks"
+      ],
+      "title": "promotes the answer language directly under the headword",
+      "rawTitle": "promotes the answer language directly under the headword",
+      "name": "Bot render Word Card — language blocks promotes the answer language directly under the headword",
+      "value": "Protects the bot render Word Card — language blocks behavior so promotes the answer language directly under the headword.",
+      "description": "Protects the bot render Word Card — language blocks behavior so promotes the answer language directly under the headword."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-260-renderwordcard-language-blocks-keeps-the-given-order-when-no-answer-language-is-named",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
+      "sourceLine": 260,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "renderWordCard — language blocks"
+      ],
+      "title": "keeps the given order when no answer language is named",
+      "rawTitle": "keeps the given order when no answer language is named",
+      "name": "Bot render Word Card — language blocks keeps the given order when no answer language is named",
+      "value": "Protects the bot render Word Card — language blocks behavior: keeps the given order when no answer language is named.",
+      "description": "Protects the bot render Word Card — language blocks behavior: keeps the given order when no answer language is named."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-276-renderwordcard-language-blocks-never-promotes-a-block-whose-language-no-longer-resolves",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
+      "sourceLine": 276,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "renderWordCard — language blocks"
+      ],
+      "title": "never promotes a block whose language no longer resolves",
+      "rawTitle": "never promotes a block whose language no longer resolves",
+      "name": "Bot render Word Card — language blocks never promotes a block whose language no longer resolves",
+      "value": "Protects the bot render Word Card — language blocks behavior so never promotes a block whose language no longer resolves.",
+      "description": "Protects the bot render Word Card — language blocks behavior so never promotes a block whose language no longer resolves."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-337-renderwordcard-invariants-emits-only-the-tags-telegram-s-html-subset-allows-each-balanced",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
+      "sourceLine": 337,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "renderWordCard — invariants"
+      ],
+      "title": "emits only the tags Telegram's HTML subset allows, each balanced",
+      "rawTitle": "emits only the tags Telegram's HTML subset allows, each balanced",
+      "name": "Bot render Word Card — invariants emits only the tags Telegram's HTML subset allows, each balanced",
+      "value": "Protects the bot render Word Card — invariants behavior so emits only the tags Telegram's HTML subset allows, each balanced.",
+      "description": "Protects the bot render Word Card — invariants behavior so emits only the tags Telegram's HTML subset allows, each balanced."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-349-renderwordcard-invariants-never-opens-a-blockquote-it-has-nothing-to-put-in",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
+      "sourceLine": 349,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "renderWordCard — invariants"
+      ],
+      "title": "never opens a blockquote it has nothing to put in",
+      "rawTitle": "never opens a blockquote it has nothing to put in",
+      "name": "Bot render Word Card — invariants never opens a blockquote it has nothing to put in",
+      "value": "Protects the bot render Word Card — invariants behavior so never opens a blockquote it has nothing to put in.",
+      "description": "Protects the bot render Word Card — invariants behavior so never opens a blockquote it has nothing to put in."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-360-renderwordcard-invariants-escapes-a-tag-hidden-in-stored-data-instead-of-emitting-it",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
+      "sourceLine": 360,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "renderWordCard — invariants"
+      ],
+      "title": "escapes a tag hidden in stored data instead of emitting it",
+      "rawTitle": "escapes a tag hidden in stored data instead of emitting it",
+      "name": "Bot render Word Card — invariants escapes a tag hidden in stored data instead of emitting it",
+      "value": "Protects the bot render Word Card — invariants behavior: escapes a tag hidden in stored data instead of emitting it.",
+      "description": "Protects the bot render Word Card — invariants behavior: escapes a tag hidden in stored data instead of emitting it."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-372-renderwordcard-invariants-falls-back-to-the-raw-input-when-the-stored-citation-form-is-blank",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
+      "sourceLine": 372,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "renderWordCard — invariants"
+      ],
+      "title": "falls back to the raw input when the stored citation form is blank",
+      "rawTitle": "falls back to the raw input when the stored citation form is blank",
+      "name": "Bot render Word Card — invariants falls back to the raw input when the stored citation form is blank",
+      "value": "Protects the bot render Word Card — invariants behavior: falls back to the raw input when the stored citation form is blank.",
+      "description": "Protects the bot render Word Card — invariants behavior: falls back to the raw input when the stored citation form is blank."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-386-renderwordcard-invariants-drops-blank-stored-prose-rather-than-rendering-an-empty-note",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
+      "sourceLine": 386,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "renderWordCard — invariants"
+      ],
+      "title": "drops blank stored prose rather than rendering an empty note",
+      "rawTitle": "drops blank stored prose rather than rendering an empty note",
+      "name": "Bot render Word Card — invariants drops blank stored prose rather than rendering an empty note",
+      "value": "Protects the bot render Word Card — invariants behavior so drops blank stored prose rather than rendering an empty note.",
+      "description": "Protects the bot render Word Card — invariants behavior so drops blank stored prose rather than rendering an empty note."
     },
     {
       "id": "apps-bot-src-scenes-helpers-tests-dictionary-helper-test-ts-152-handledictpage-calls-findbyuserpaginated-with-correct-offset",
@@ -12297,10 +12729,10 @@
       "description": "Protects the bot translate flow — user facing timeout behavior: keeps the plain error — with no retry button — for a hard failure."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-187-handletranslatetext-auto-detect-language-direction-calls-translatewithcontext-with-userid-and-word",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-196-handletranslatetext-auto-detect-language-direction-calls-translatewithcontext-with-userid-and-word",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 187,
+      "sourceLine": 196,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12313,10 +12745,10 @@
       "description": "Protects the bot handle Translate Text — auto detect language direction behavior: calls translate With Context with user Id and word."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-199-handletranslatetext-auto-detect-language-direction-detects-language-from-clean-text-without-trailing-context-marker",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-208-handletranslatetext-auto-detect-language-direction-detects-language-from-clean-text-without-trailing-context-marker",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 199,
+      "sourceLine": 208,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12329,10 +12761,10 @@
       "description": "Protects the bot handle Translate Text — auto detect language direction behavior: detects language from clean text without trailing context marker."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-206-handletranslatetext-auto-detect-language-direction-calls-translatewithcontext-with-correct-model-and-outputconfig",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-215-handletranslatetext-auto-detect-language-direction-calls-translatewithcontext-with-correct-model-and-outputconfig",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 206,
+      "sourceLine": 215,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12345,10 +12777,10 @@
       "description": "Protects the bot handle Translate Text — auto detect language direction behavior: calls translate With Context with correct model and output Config."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-215-handletranslatetext-auto-detect-language-direction-records-the-resolved-translation-direction-as-a-queryable-event",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-224-handletranslatetext-auto-detect-language-direction-records-the-resolved-translation-direction-as-a-queryable-event",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 215,
+      "sourceLine": 224,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12361,10 +12793,10 @@
       "description": "Protects the bot handle Translate Text — auto detect language direction behavior: records the resolved translation direction as a queryable event."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-228-handletranslatetext-auto-detect-language-direction-handles-russian-cyrillic-input",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-237-handletranslatetext-auto-detect-language-direction-handles-russian-cyrillic-input",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 228,
+      "sourceLine": 237,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12377,10 +12809,10 @@
       "description": "Protects the bot handle Translate Text — auto detect language direction behavior: handles Russian (Cyrillic) input."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-238-handletranslatetext-auto-detect-language-direction-falls-back-to-native-learning-for-ambiguous-input",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-247-handletranslatetext-auto-detect-language-direction-falls-back-to-native-learning-for-ambiguous-input",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 238,
+      "sourceLine": 247,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12393,10 +12825,10 @@
       "description": "Protects the bot handle Translate Text — auto detect language direction behavior: falls back to native→learning for ambiguous input."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-260-handletranslatetext-auto-detect-language-direction-attaches-the-source-override-menu-when-detection-is-a-weak-ambiguity-guess",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-269-handletranslatetext-auto-detect-language-direction-attaches-the-source-override-menu-when-detection-is-a-weak-ambiguity-guess",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 260,
+      "sourceLine": 269,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12409,10 +12841,10 @@
       "description": "Protects the bot handle Translate Text — auto detect language direction behavior so attaches the source override menu when detection is a weak ambiguity guess."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-282-handletranslatetext-auto-detect-language-direction-does-not-attach-the-source-override-menu-on-a-confident-detection",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-291-handletranslatetext-auto-detect-language-direction-does-not-attach-the-source-override-menu-on-a-confident-detection",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 282,
+      "sourceLine": 291,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12425,10 +12857,10 @@
       "description": "Protects the bot handle Translate Text — auto detect language direction behavior: does NOT attach the source override menu on a confident detection."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-334-handletranslatetext-english-in-sync-candidates-for-multi-word-input-us-b-includes-english-among-the-sync-detection-candidates-for-a-multi-word-phrase",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-343-handletranslatetext-english-in-sync-candidates-for-multi-word-input-us-b-includes-english-among-the-sync-detection-candidates-for-a-multi-word-phrase",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 334,
+      "sourceLine": 343,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12441,10 +12873,10 @@
       "description": "Protects the bot handle Translate Text — English in sync candidates for multi word input (US B) behavior: includes English among the sync detection candidates for a multi word phrase."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-341-handletranslatetext-english-in-sync-candidates-for-multi-word-input-us-b-does-not-add-english-to-the-sync-candidates-for-a-single-word",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-350-handletranslatetext-english-in-sync-candidates-for-multi-word-input-us-b-does-not-add-english-to-the-sync-candidates-for-a-single-word",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 341,
+      "sourceLine": 350,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12457,10 +12889,10 @@
       "description": "Protects the bot handle Translate Text — English in sync candidates for multi word input (US B) behavior: does NOT add English to the sync candidates for a single word."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-350-handletranslatetext-english-in-sync-candidates-for-multi-word-input-us-b-translates-a-franc-identified-english-phrase-as-english-source-targeting-the-studied-language",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-359-handletranslatetext-english-in-sync-candidates-for-multi-word-input-us-b-translates-a-franc-identified-english-phrase-as-english-source-targeting-the-studied-language",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 350,
+      "sourceLine": 359,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12473,10 +12905,10 @@
       "description": "Protects the bot handle Translate Text — English in sync candidates for multi word input (US B) behavior: translates a franc identified English phrase as English source, targeting the studied language."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-367-handletranslatetext-english-in-sync-candidates-for-multi-word-input-us-b-puts-the-native-language-first-in-the-targets-for-an-english-source-the-user-does-not-study",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-376-handletranslatetext-english-in-sync-candidates-for-multi-word-input-us-b-puts-the-native-language-first-in-the-targets-for-an-english-source-the-user-does-not-study",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 367,
+      "sourceLine": 376,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12489,10 +12921,10 @@
       "description": "Protects the bot handle Translate Text — English in sync candidates for multi word input (US B) behavior so puts the native language first in the targets for an English source the user does not study."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-375-handletranslatetext-english-in-sync-candidates-for-multi-word-input-us-b-never-targets-the-source-language-itself",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-384-handletranslatetext-english-in-sync-candidates-for-multi-word-input-us-b-never-targets-the-source-language-itself",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 375,
+      "sourceLine": 384,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12505,10 +12937,10 @@
       "description": "Protects the bot handle Translate Text — English in sync candidates for multi word input (US B) behavior so never targets the source language itself."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-399-handletranslatetext-mistype-warning-task-58-shows-mistype-warning-when-detectlanguage-returns-undefined",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-408-handletranslatetext-mistype-warning-task-58-shows-mistype-warning-when-detectlanguage-returns-undefined",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 399,
+      "sourceLine": 408,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12521,10 +12953,10 @@
       "description": "Protects the bot handle Translate Text — mistype warning (Task 58) behavior: shows mistype warning when detect Language returns undefined."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-410-handletranslatetext-mistype-warning-task-58-stores-pending-state-in-session-when-language-cannot-be-detected",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-419-handletranslatetext-mistype-warning-task-58-stores-pending-state-in-session-when-language-cannot-be-detected",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 410,
+      "sourceLine": 419,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12537,10 +12969,10 @@
       "description": "Protects the bot handle Translate Text — mistype warning (Task 58) behavior: stores pending state in session when language cannot be detected."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-419-handletranslatetext-mistype-warning-task-58-stores-clean-pending-word-and-context-hint-when-language-cannot-be-detected",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-428-handletranslatetext-mistype-warning-task-58-stores-clean-pending-word-and-context-hint-when-language-cannot-be-detected",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 419,
+      "sourceLine": 428,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12553,10 +12985,10 @@
       "description": "Protects the bot handle Translate Text — mistype warning (Task 58) behavior: stores clean pending word and context hint when language cannot be detected."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-427-handletranslatetext-mistype-warning-task-58-does-not-call-translatewithcontext-when-language-cannot-be-detected",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-436-handletranslatetext-mistype-warning-task-58-does-not-call-translatewithcontext-when-language-cannot-be-detected",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 427,
+      "sourceLine": 436,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12569,10 +13001,10 @@
       "description": "Protects the bot handle Translate Text — mistype warning (Task 58) behavior: does not call translate With Context when language cannot be detected."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-434-handletranslatetext-mistype-warning-task-58-asks-for-source-language-when-fast-has-dictionary-evidence-in-english-and-german",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-443-handletranslatetext-mistype-warning-task-58-asks-for-source-language-when-fast-has-dictionary-evidence-in-english-and-german",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 434,
+      "sourceLine": 443,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12585,10 +13017,10 @@
       "description": "Protects the bot handle Translate Text — mistype warning (Task 58) behavior so asks for source language when fast has dictionary evidence in English and German."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-467-handletranslatetext-mistype-warning-task-58-does-not-ask-for-source-language-for-weak-shared-script-ambiguity-only",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-476-handletranslatetext-mistype-warning-task-58-does-not-ask-for-source-language-for-weak-shared-script-ambiguity-only",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 467,
+      "sourceLine": 476,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12601,10 +13033,10 @@
       "description": "Protects the bot handle Translate Text — mistype warning (Task 58) behavior: does not ask for source language for weak shared script ambiguity only."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-527-handlemistypeconfirmcallback-task-58-proceeds-with-translation-when-confirm-callback-is-triggered",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-536-handlemistypeconfirmcallback-task-58-proceeds-with-translation-when-confirm-callback-is-triggered",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 527,
+      "sourceLine": 536,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12617,10 +13049,10 @@
       "description": "Protects the bot handle Mistype Confirm Callback — Task 58 behavior so proceeds with translation when confirm callback is triggered."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-543-handlemistypeconfirmcallback-task-58-shows-session-expired-alert-when-no-pending-state",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-552-handlemistypeconfirmcallback-task-58-shows-session-expired-alert-when-no-pending-state",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 543,
+      "sourceLine": 552,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12633,10 +13065,10 @@
       "description": "Protects the bot handle Mistype Confirm Callback — Task 58 behavior: shows session expired alert when no pending state."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-564-handlemistypecancelcallback-task-58-clears-pending-state-when-cancel-callback-is-triggered",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-573-handlemistypecancelcallback-task-58-clears-pending-state-when-cancel-callback-is-triggered",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 564,
+      "sourceLine": 573,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12649,10 +13081,10 @@
       "description": "Protects the bot handle Mistype Cancel Callback — Task 58 behavior so clears pending state when cancel callback is triggered."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-577-handlemistypecancelcallback-task-58-replies-with-translate-mode-hint-after-cancel",
+      "id": "apps-bot-src-scenes-helpers-tests-translate-mode-detection-test-ts-586-handlemistypecancelcallback-task-58-replies-with-translate-mode-hint-after-cancel",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/translate-mode-detection.test.ts",
-      "sourceLine": 577,
+      "sourceLine": 586,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
