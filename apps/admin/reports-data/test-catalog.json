@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-26T11:28:25.000Z",
+  "generatedAt": "2026-08-30T12:29:17.000Z",
   "summary": {
-    "total": 3128,
+    "total": 3131,
     "business": 0,
-    "technical": 3128,
+    "technical": 3131,
     "workspaces": [
       "apps",
       "packages"
@@ -4231,10 +4231,10 @@
       "description": "Protects the bot spelling preflight (integration) behavior so still renders a card for a correctly spelled word with the same mock."
     },
     {
-      "id": "apps-bot-src-tests-integration-translate-flow-integration-test-ts-29-translate-happy-path-integration-translates-a-word-renders-a-save-card-and-persists-vocab-on-save",
+      "id": "apps-bot-src-tests-integration-translate-flow-integration-test-ts-52-translate-happy-path-integration-translates-a-word-renders-a-save-card-and-persists-vocab-on-save",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/translate-flow.integration.test.ts",
-      "sourceLine": 29,
+      "sourceLine": 52,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4247,10 +4247,10 @@
       "description": "Protects the bot translate happy path (integration) behavior: translates a word, renders a save card, and persists vocab on save."
     },
     {
-      "id": "apps-bot-src-tests-integration-translate-flow-integration-test-ts-59-translate-happy-path-integration-translates-an-english-phrase-into-the-native-language-even-when-english-is-not-studied",
+      "id": "apps-bot-src-tests-integration-translate-flow-integration-test-ts-82-translate-happy-path-integration-translates-an-english-phrase-into-the-native-language-even-when-english-is-not-studied",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/translate-flow.integration.test.ts",
-      "sourceLine": 59,
+      "sourceLine": 82,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4261,6 +4261,54 @@
       "name": "Bot translate happy path (integration) translates an English phrase into the native language even when English is not studied",
       "value": "Protects the bot translate happy path (integration) behavior: translates an English phrase into the native language even when English is not studied.",
       "description": "Protects the bot translate happy path (integration) behavior: translates an English phrase into the native language even when English is not studied."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-translate-flow-integration-test-ts-112-translate-happy-path-integration-keeps-every-card-button-after-a-save-with-the-save-button-flipped-to-its-saved-state",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/translate-flow.integration.test.ts",
+      "sourceLine": 112,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "translate happy path (integration)"
+      ],
+      "title": "keeps every card button after a save, with the save button flipped to its saved state",
+      "rawTitle": "keeps every card button after a save, with the save button flipped to its saved state",
+      "name": "Bot translate happy path (integration) keeps every card button after a save, with the save button flipped to its saved state",
+      "value": "Protects the bot translate happy path (integration) behavior: keeps every card button after a save, with the save button flipped to its saved state.",
+      "description": "Protects the bot translate happy path (integration) behavior: keeps every card button after a save, with the save button flipped to its saved state."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-translate-flow-integration-test-ts-142-translate-happy-path-integration-re-sends-the-card-with-its-buttons-when-the-card-is-too-old-to-edit",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/translate-flow.integration.test.ts",
+      "sourceLine": 142,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "translate happy path (integration)"
+      ],
+      "title": "re-sends the card with its buttons when the card is too old to edit",
+      "rawTitle": "re-sends the card with its buttons when the card is too old to edit",
+      "name": "Bot translate happy path (integration) re sends the card with its buttons when the card is too old to edit",
+      "value": "Protects the bot translate happy path (integration) behavior so re sends the card with its buttons when the card is too old to edit.",
+      "description": "Protects the bot translate happy path (integration) behavior so re sends the card with its buttons when the card is too old to edit."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-translate-flow-integration-test-ts-166-translate-happy-path-integration-answers-a-second-save-tap-with-the-already-saved-alert-and-leaves-the-card-intact",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/translate-flow.integration.test.ts",
+      "sourceLine": 166,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "translate happy path (integration)"
+      ],
+      "title": "answers a second save tap with the already-saved alert and leaves the card intact",
+      "rawTitle": "answers a second save tap with the already-saved alert and leaves the card intact",
+      "name": "Bot translate happy path (integration) answers a second save tap with the already saved alert and leaves the card intact",
+      "value": "Protects the bot translate happy path (integration) behavior so answers a second save tap with the already saved alert and leaves the card intact.",
+      "description": "Protects the bot translate happy path (integration) behavior so answers a second save tap with the already saved alert and leaves the card intact."
     },
     {
       "id": "apps-bot-src-tests-integration-translation-order-integration-test-ts-85-translation-language-order-integration-renders-the-user-s-language-order-on-the-first-card-the-saved-card-and-the-dictionary-card",
