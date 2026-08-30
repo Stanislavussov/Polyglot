@@ -5,6 +5,7 @@
 import type { SupportedLang, WordPickerItem, WordPickerPreset, WordPickerRun } from "@polyglot/core";
 import { t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
+import { answerLine, esc as escapeHtml, exampleLine, headwordLine, meaningLine } from "./card-sections.js";
 
 export const PICK_PRESET_PREFIX = "wp:p:";
 export const PICK_LANG_PREFIX = "wp:l:";
@@ -49,6 +50,14 @@ export function buildLangKeyboard(
   return kb;
 }
 
+/**
+ * One picked set: a header naming the preset, then one card per word.
+ *
+ * Each word is the same headword + answer + example the translate card uses, so
+ * a word looks identical here and on the card it opens as. It stays to those
+ * three lines because a set holds up to a dozen words — the shared grammar is
+ * the line shapes, not the number of sections a single-word card can afford.
+ */
 export function renderPickedSet(
   run: WordPickerRun,
   items: WordPickerItem[],
@@ -60,14 +69,15 @@ export function renderPickedSet(
   for (const item of items) {
     const level = item.level ? ` <i>(${escapeHtml(item.level)})</i>` : "";
     const saved = item.savedEntryId ? " ✅" : "";
-    lines.push(`${item.emoji ?? "🔹"} <b>${escapeHtml(item.word)}</b>${level}${saved}`);
-    lines.push(`→ ${escapeHtml(item.nativeTranslation)}`);
+    lines.push(
+      headwordLine(item.word, { emoji: item.emoji, sourceLang: run.langCode, badge: `${level}${saved}` }),
+      answerLine(run.nativeLang, item.nativeTranslation),
+    );
     if (item.exampleTarget) {
-      const native = item.exampleNative ? `\n   ${escapeHtml(item.exampleNative)}` : "";
-      lines.push(`<i>«${escapeHtml(item.exampleTarget)}»</i>${native}`);
+      lines.push(exampleLine(item.exampleTarget, item.exampleNative));
     }
     if (item.note) {
-      lines.push(`💡 ${escapeHtml(item.note)}`);
+      lines.push(meaningLine(item.note));
     }
     lines.push("");
   }
@@ -97,10 +107,6 @@ export function buildPickedSetKeyboard(
   kb.text(`🔄 ${t("pickMore", lang)}`, `${PICK_MORE_PREFIX}${run.id}`).row();
   kb.text(t("pickClose", lang), PICK_CLOSE);
   return kb;
-}
-
-function escapeHtml(text: string): string {
-  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
 function truncate(text: string, maxLen: number): string {

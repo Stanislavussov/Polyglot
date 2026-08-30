@@ -677,7 +677,18 @@ async function showPhraseBrowser(ctx: BotContext, processId: number, page: numbe
   const totalPhrases = await ctx.services.videoVocabularyRepository.countPhrasesByProcess(processId);
   const totalPages = Math.max(1, Math.ceil(totalPhrases / PHRASES_PER_PAGE));
 
-  const text = renderPhraseList(phrases, page, totalPages, process.videoUrl, lang);
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
+  const text = renderPhraseList(
+    phrases,
+    page,
+    totalPages,
+    process.videoUrl,
+    {
+      source: process.language,
+      native: settings?.nativeLang ?? undefined,
+    },
+    lang,
+  );
   const keyboard = buildPhraseListKeyboard(phrases, page, totalPages, processId, lang);
 
   await ctx.reply(text, {
@@ -705,7 +716,18 @@ async function showPhraseBrowserEdit(
   const totalPhrases = await ctx.services.videoVocabularyRepository.countPhrasesByProcess(processId);
   const totalPages = Math.max(1, Math.ceil(totalPhrases / PHRASES_PER_PAGE));
 
-  const text = renderPhraseList(phrases, page, totalPages, process.videoUrl, lang);
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
+  const text = renderPhraseList(
+    phrases,
+    page,
+    totalPages,
+    process.videoUrl,
+    {
+      source: process.language,
+      native: settings?.nativeLang ?? undefined,
+    },
+    lang,
+  );
   const keyboard = buildPhraseListKeyboard(phrases, page, totalPages, processId, lang);
 
   await editMessageTextOrReply(ctx, text, {

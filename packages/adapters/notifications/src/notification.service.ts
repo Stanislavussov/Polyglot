@@ -111,9 +111,13 @@ export function createDictionaryWordPicker(deps: DictionaryWordPickerDeps) {
       return null;
     }
 
+    const sourceLang = entry.sourceLangId === undefined ? undefined : deps.getLangCode(entry.sourceLangId);
+
     return {
       original: entry.original,
+      ...(entry.headword?.trim() ? { headword: entry.headword } : {}),
       emoji: entry.emoji ?? "📖",
+      ...(sourceLang ? { sourceLang } : {}),
       nativeMeaning: entry.nativeMeaning ?? undefined,
       translations,
       ...(Object.keys(translationDetails).length > 0 ? { translationDetails } : {}),
@@ -167,6 +171,9 @@ export function createContextualWordPicker(deps: ContextualWordPickerDeps) {
       return {
         original: sentence,
         emoji: "🎯",
+        // `buildContextSentencePrompt` writes the sentence in the first language
+        // it is given, so that is the language of `original`.
+        ...(allLangs[0] ? { sourceLang: allLangs[0] } : {}),
         translations,
         source: "contextual" as const,
       };

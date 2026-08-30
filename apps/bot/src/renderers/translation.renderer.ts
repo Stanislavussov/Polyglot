@@ -7,10 +7,8 @@ import type {
   FeatureKey,
   LanguageOrderContext,
   LanguageTranslation,
-  LanguageTranslationEntry,
   SupportedLang,
   TemplateFields,
-  TopicWord,
   TranslateOutput,
 } from "@polyglot/core";
 import { FEATURE_KEYS, getLangFlag, isSupported, orderRecordEntries, t } from "@polyglot/core";
@@ -288,26 +286,6 @@ function renderLangBlock(code: string, lt: LanguageTranslation, lang: SupportedL
   lines.push(...expandableSection(details));
 
   return lines.join("\n");
-}
-
-/**
- * Render a single topic word card for Telegram (HTML).
- *
- * Compact format showing the word and its translations per language.
- */
-export function renderTopicWord(word: TopicWord): string {
-  const lines: string[] = [];
-  lines.push(`<b>${esc(word.original)}</b>`);
-  lines.push("");
-
-  for (const [code, entry] of Object.entries(word.translations)) {
-    const e = entry as LanguageTranslationEntry;
-    const header = `<b>${esc(e.text)}</b>`;
-    const flag = getLangFlag(code) ?? "🔤";
-    lines.push(`${flag} ${esc(code.toUpperCase())}: ${header}`);
-  }
-
-  return lines.join("\n").trim();
 }
 
 /**

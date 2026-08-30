@@ -386,6 +386,9 @@ describe("pickContextualWord", () => {
     expect(result).toEqual({
       original: "Один кофе, пожалуйста.",
       emoji: "🎯",
+      // The prompt writes the sentence in the first language it is given, so the
+      // card can flag it like any other headword.
+      sourceLang: "ru",
       translations: { ru: "Один кофе, пожалуйста.", en: "One coffee, please." },
       source: "contextual",
     });

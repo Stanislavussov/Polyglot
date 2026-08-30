@@ -42,6 +42,7 @@ describe("formatNotificationMessage", () => {
     word: {
       original: "house",
       emoji: "🏠",
+      sourceLang: "en",
       nativeMeaning: "A building where people live.",
       translations: { cs: "dům", ru: "дом" },
       source: "srs",
@@ -59,9 +60,15 @@ describe("formatNotificationMessage", () => {
     },
   };
 
-  it("renders emoji and original word in bold", () => {
+  it("renders emoji, the source flag and the word — the headword the Reveal card shows", () => {
     const msg = formatNotificationMessage(srsPayload, "en", ruNative);
-    expect(msg).toContain("🏠 <b>house</b>");
+    expect(msg).toContain("🏠 🇬🇧 <b>house</b>");
+  });
+
+  it("keeps the flag slot when the word's language cannot be resolved", () => {
+    const { sourceLang: _dropped, ...word } = srsPayload.word;
+    const msg = formatNotificationMessage({ ...srsPayload, word }, "en", ruNative);
+    expect(msg).toContain("🏠 🔤 <b>house</b>");
   });
 
   it("shows SRS source label for dictionary words", () => {
@@ -143,11 +150,12 @@ describe("formatNotificationMessage", () => {
     expect(msg.startsWith(formatNotificationMessage(srsPayload, "en", ruNative))).toBe(true);
   });
 
-  it("bolds the answer and leaves secondary languages plain", () => {
+  it("gives every language the same bold answer line", () => {
+    // A secondary language is still a translation. Demoting it to plain text made
+    // one card read as two kinds of list, and differ from the card behind Reveal.
     const msg = formatNotificationMessage(srsPayload, "en", ruNative);
-    expect(msg).toContain("🇷🇺 <b>дом</b>");
-    expect(msg).toContain("🇨🇿 dům");
-    expect(msg).not.toContain("<b>dům</b>");
+    expect(msg).toContain("🇷🇺 RU: <b>дом</b>");
+    expect(msg).toContain("🇨🇿 CS: <b>dům</b>");
   });
 
   it("renders synonyms inline on the answer", () => {
@@ -166,9 +174,9 @@ describe("formatNotificationMessage", () => {
     };
     const msg = formatNotificationMessage(payload, "en", ruNative);
 
-    expect(msg).toContain("🇷🇺 <b>незрелый</b> (начинающий, зарождающийся)");
+    expect(msg).toContain("🇷🇺 RU: <b>незрелый</b> (начинающий, зарождающийся)");
     // Secondary languages stay to one line — the detail is a "Reveal" tap away.
-    expect(msg).toContain("🇨🇿 počínající");
+    expect(msg).toContain("🇨🇿 CS: <b>počínající</b>");
     expect(msg).not.toContain("nastávající");
   });
 

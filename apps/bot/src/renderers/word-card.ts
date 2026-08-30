@@ -13,8 +13,8 @@
  * does not follow fails there rather than in a user's chat.
  */
 import type { Example, SourceUsage, SupportedLang, Synonym } from "@polyglot/core";
-import { getLangFlag, t } from "@polyglot/core";
-import { esc, expandableSection } from "./card-sections.js";
+import { t } from "@polyglot/core";
+import { answerLine, esc, exampleLine, expandableSection, headwordLine, meaningLine } from "./card-sections.js";
 
 /** One language's answer, as the card shows it. */
 export interface WordCardLang {
@@ -58,35 +58,23 @@ export function citationOnly(usage: SourceUsage | null | undefined): SourceUsage
   return usage ? { headword: usage.headword, explanation: "", synonyms: usage.synonyms, examples: [] } : undefined;
 }
 
-function flagOf(code: string | undefined): string {
-  return (code ? getLangFlag(code) : undefined) ?? "🔤";
-}
-
-/** `🇷🇺 RU:` — the label the translate card puts before every translation. */
-function langLabel(code: string | undefined): string {
-  return code ? `${flagOf(code)} ${esc(code.toUpperCase())}:` : flagOf(code);
-}
-
-function synonymSuffix(synonyms: readonly Synonym[] | undefined): string {
-  return synonyms && synonyms.length > 0 ? ` (${synonyms.map((s) => esc(s.text)).join(", ")})` : "";
-}
-
-function exampleLine(example: Example): string {
-  return `💬 <i>${esc(example.target)}</i>${example.native ? ` (${esc(example.native)})` : ""}`;
+/** Synonym rows carry `{ text }`; the shared atoms take bare strings. */
+function texts(synonyms: readonly Synonym[] | undefined): readonly string[] {
+  return (synonyms ?? []).map((synonym) => synonym.text);
 }
 
 /** The first example stays visible under the word; the rest fold with the prose. */
 function splitExamples(examples: readonly Example[] | undefined): { visible: string[]; folded: string[] } {
-  const [first, ...rest] = (examples ?? []).map(exampleLine);
+  const [first, ...rest] = (examples ?? []).map((example) => exampleLine(example.target, example.native));
   return { visible: first ? [first] : [], folded: rest };
 }
 
 function langBlock(entry: WordCardLang, lang: SupportedLang): string[] {
-  const lines = [`${langLabel(entry.code)} <b>${esc(entry.text)}</b>${synonymSuffix(entry.synonyms)}`];
+  const lines = [answerLine(entry.code, entry.text, texts(entry.synonyms))];
   const { visible, folded } = splitExamples(entry.examples);
   lines.push(...visible);
   if (entry.usageNote) {
-    folded.push(`💡 ${esc(entry.usageNote)}`);
+    folded.push(meaningLine(entry.usageNote));
   }
   if (entry.connotationWarning) {
     folded.push(t("connotationWarning", lang, { warning: esc(entry.connotationWarning) }));
@@ -100,7 +88,6 @@ export function renderWordCard(card: WordCardData, lang: SupportedLang): string 
   // The canonical citation form when one was stored (German "die Arbeit" for the
   // input "arbeit"); the raw input stays in `original` for save/dedup.
   const headword = usage?.headword?.trim() ? usage.headword : card.original;
-  const emoji = card.emoji ? `${esc(card.emoji)} ` : "";
 
   const answer = card.answerLang ? card.langs.find((entry) => entry.code === card.answerLang) : undefined;
   const others = card.langs.filter((entry) => entry !== answer);
@@ -111,7 +98,7 @@ export function renderWordCard(card: WordCardData, lang: SupportedLang): string 
   const prose = [usage?.explanation, card.nativeMeaning].find((text) => text?.trim());
 
   const sections: string[][] = [
-    [`${emoji}${flagOf(card.sourceLang)} <b>${esc(headword)}</b>${synonymSuffix(usage?.synonyms)}`],
+    [headwordLine(headword, { emoji: card.emoji, sourceLang: card.sourceLang, synonyms: texts(usage?.synonyms) })],
   ];
 
   // The stored prose is supplementary — and folds below the examples — whenever
@@ -124,7 +111,7 @@ export function renderWordCard(card: WordCardData, lang: SupportedLang): string 
   // Always a note, never a language label: `🇷🇺 RU:` introduces a translation
   // everywhere else on the card, so wearing it made a paragraph of description
   // read as the answer the reader was looking for.
-  const proseNote = prose ? `💡 ${esc(prose)}` : undefined;
+  const proseNote = prose ? meaningLine(prose) : undefined;
 
   if (answer) {
     sections.push(langBlock(answer, lang));

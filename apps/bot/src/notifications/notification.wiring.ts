@@ -230,6 +230,8 @@ export async function buildNotificationScheduling(
         id: e.id,
         original: e.original,
         emoji: e.emoji,
+        sourceLangId: e.sourceLangId,
+        headword: e.sourceUsage?.headword,
         nativeMeaning: e.nativeMeaning,
         createdAt: e.createdAt,
         unverified: e.unverified,

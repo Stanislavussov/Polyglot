@@ -9,14 +9,7 @@
 import type { NotificationPayload } from "@polyglot/adapter-notifications";
 import { type LanguageOrderContext, orderRecordEntries, type SupportedLang, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
-import {
-  answerLine,
-  assembleCard,
-  emptySections,
-  headwordLine,
-  meaningLine,
-  otherLangLine,
-} from "../renderers/card-sections.js";
+import { answerLine, assembleCard, emptySections, headwordLine, meaningLine } from "../renderers/card-sections.js";
 
 /**
  * Format a notification payload as a Telegram HTML message.
@@ -64,12 +57,16 @@ export function formatNotificationMessage(
     // Above the headword: it labels the whole card ("from your dictionary")
     // rather than competing with the answer for the reader's attention.
     provenance: [`<i>${sourceLabel}</i>`],
-    headword: [headwordLine(word.original, { emoji: word.emoji })],
+    headword: [
+      headwordLine(word.headword?.trim() || word.original, { emoji: word.emoji, sourceLang: word.sourceLang }),
+    ],
     answer: answer ? [answerLine(answer[0], answer[1], word.translationDetails?.[answer[0]]?.synonyms ?? [])] : [],
     meaning: word.nativeMeaning ? [meaningLine(word.nativeMeaning)] : [],
     // Secondary languages stay to one line each — the card is a nudge, not a
-    // dictionary entry, and the full detail is one "Reveal" tap away.
-    others: others.map(([code, text]) => otherLangLine(code, text)),
+    // dictionary entry, and the full detail is one "Reveal" tap away. The line
+    // itself is the same answer line the first language gets: a translation looks
+    // like a translation wherever it sits.
+    others: others.map(([code, text]) => answerLine(code, text)),
     // Blank separator first: glued to the last translation the weekly line would
     // read as one more language on the card.
     footer: options.footer ? ["", options.footer] : [],

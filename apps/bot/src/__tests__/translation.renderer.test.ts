@@ -1,11 +1,10 @@
-import type { TemplateFields, TopicWord, TranslateOutput } from "@polyglot/core";
+import type { TemplateFields, TranslateOutput } from "@polyglot/core";
 import { createLanguageOrderContext } from "@polyglot/core";
 import { describe, expect, it, vi } from "vitest";
 import {
   buildTranslationKeyboard,
   renderQualityWarning,
   renderSentenceTranslation as renderSentenceTranslationRaw,
-  renderTopicWord,
   renderTranslation as renderTranslationRaw,
 } from "../renderers/translation.renderer.js";
 
@@ -414,73 +413,6 @@ describe("renderTranslation", () => {
   });
 });
 
-describe("renderTopicWord", () => {
-  const sampleWord: TopicWord = {
-    original: "apple",
-    translations: {
-      cs: {
-        text: "jablko",
-        synonyms: [],
-        examples: [],
-      },
-      de: {
-        text: "Apfel",
-        synonyms: [],
-        examples: [],
-      },
-    },
-  };
-
-  it("renders original word as bold header", () => {
-    const result = renderTopicWord(sampleWord);
-    expect(result).toContain("<b>apple</b>");
-  });
-
-  it("renders translations with language flags from DB", () => {
-    const result = renderTopicWord(sampleWord);
-    expect(result).toContain("🇨🇿 CS: <b>jablko</b>");
-    expect(result).toContain("🇩🇪 DE:");
-  });
-
-  it("falls back to 🔤 in topic word when getLangFlag returns undefined", () => {
-    const unknownWord: TopicWord = {
-      original: "test",
-      translations: {
-        zz: {
-          text: "test",
-          synonyms: [],
-          examples: [],
-        },
-      },
-    };
-    const result = renderTopicWord(unknownWord);
-    expect(result).toContain("🔤 ZZ:");
-  });
-
-  it("renders translation text without transcription", () => {
-    const result = renderTopicWord(sampleWord);
-    expect(result).toContain("🇨🇿 CS: <b>jablko</b>");
-    expect(result).toContain("🇩🇪 DE: <b>Apfel</b>");
-    expect(result).not.toContain("[");
-  });
-
-  it("escapes HTML in word text", () => {
-    const xssWord: TopicWord = {
-      original: "<b>bad</b>",
-      translations: {
-        cs: {
-          text: "špatný & zlý",
-          synonyms: [],
-          examples: [],
-        },
-      },
-    };
-    const result = renderTopicWord(xssWord);
-    expect(result).toContain("&lt;b&gt;bad&lt;/b&gt;");
-    expect(result).toContain("špatný &amp; zlý");
-  });
-});
-
 describe("buildTranslationKeyboard", () => {
   const cbData = (btn: unknown): string | undefined => (btn as { callback_data?: string }).callback_data;
   const lastRow = (kb: ReturnType<typeof buildTranslationKeyboard>) =>
@@ -862,28 +794,6 @@ describe("renderTranslation — idiomatic equivalents", () => {
     const result = renderTranslation(mixedOutput, "en");
     expect(result).toContain("<b>No pain, no gain</b>");
     expect(result).toContain("<b>sans travail pas de gâteau</b>");
-  });
-});
-
-describe("renderTopicWord — idiomatic equivalents", () => {
-  it("renders topic word with idiomatic fields transparently", () => {
-    const idiomaticWord: TopicWord = {
-      original: "The early bird catches the worm",
-      translations: {
-        cs: {
-          text: "Ranní ptáče dál doskáče",
-          expressionType: "idiomatic_equivalent",
-          equivalentNote: "Czech proverb with same meaning",
-          synonyms: [],
-          examples: [],
-        },
-      },
-    };
-    const result = renderTopicWord(idiomaticWord);
-    expect(result).toContain("<b>The early bird catches the worm</b>");
-    expect(result).toContain("<b>Ranní ptáče dál doskáče</b>");
-    expect(result).not.toContain("idiomatic_equivalent");
-    expect(result).not.toContain("equivalentNote");
   });
 });
 

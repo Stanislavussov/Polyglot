@@ -5,6 +5,7 @@
 import type { VideoPhrase, VideoProcess } from "@polyglot/core";
 import { type SupportedLang, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
+import { answerLine, esc as escapeHtml, exampleLine, headwordLine } from "./card-sections.js";
 
 export function renderConfirmation(
   metadata: { title: string; durationSeconds: number; language: string },
@@ -30,11 +31,17 @@ export function buildConfirmationKeyboard(processId: number, lang: SupportedLang
     .text(t("videoCancel", lang), `vid:cancel:${processId}`);
 }
 
+/**
+ * One page of extracted phrases, each as the headword + answer + example the
+ * translate card uses. The ▶️ deep link is this surface's own line — it is the
+ * one thing a phrase from a video has that a saved word does not.
+ */
 export function renderPhraseList(
   phrases: VideoPhrase[],
   page: number,
   totalPages: number,
   videoUrl: string,
+  langs: { source: string; native?: string },
   lang: SupportedLang,
 ): string {
   if (phrases.length === 0) {
@@ -44,21 +51,26 @@ export function renderPhraseList(
   const lines: string[] = [];
   for (const phrase of phrases) {
     const typeLabel = phrase.phraseType
-      ? `[${phrase.phraseType === "word" ? t("videoTypeWord", lang) : t("videoTypePhrase", lang)}]`
+      ? ` [${phrase.phraseType === "word" ? t("videoTypeWord", lang) : t("videoTypePhrase", lang)}]`
       : "";
-    const levelLabel = phrase.level ? `(${phrase.level})` : "";
+    const levelLabel = phrase.level ? ` <i>(${escapeHtml(phrase.level)})</i>` : "";
     const saved = phrase.savedEntryId ? " ✅" : "";
     const timestamp = phrase.timestampSeconds != null ? formatTimestamp(phrase.timestampSeconds) : "";
     const linkTime = phrase.timestampSeconds != null ? Math.max(0, phrase.timestampSeconds - 3) : null;
     const deepLink = linkTime != null ? `<a href="${videoUrl}&amp;t=${linkTime}">▶️ ${timestamp}</a>` : "";
 
-    const emojiPrefix = phrase.emoji ? `${phrase.emoji} ` : "🔹 ";
-    lines.push(`${emojiPrefix}<b>${escapeHtml(phrase.phrase)}</b> ${typeLabel} ${levelLabel}${saved}`);
+    lines.push(
+      headwordLine(phrase.phrase, {
+        emoji: phrase.emoji,
+        sourceLang: langs.source,
+        badge: `${typeLabel}${levelLabel}${saved}`,
+      }),
+    );
     if (phrase.nativeTranslation) {
-      lines.push(`→ ${escapeHtml(phrase.nativeTranslation)}`);
+      lines.push(answerLine(langs.native, phrase.nativeTranslation));
     }
     if (phrase.context) {
-      lines.push(`<i>"${escapeHtml(phrase.context)}"</i>`);
+      lines.push(exampleLine(phrase.context));
     }
     if (deepLink) {
       lines.push(deepLink);
@@ -169,10 +181,6 @@ export function buildVideoListKeyboard(
 }
 
 /* ---- Helpers ---- */
-
-function escapeHtml(text: string): string {
-  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-}
 
 function truncate(text: string, maxLen: number): string {
   return text.length > maxLen ? `${text.slice(0, maxLen - 1)}…` : text;

@@ -91,7 +91,7 @@ async function resolvePreset(
       lang: candidate.lang,
       origin: "demo_card_cache",
     });
-    return toSuggestedWord(candidate.headword, cached);
+    return toSuggestedWord(candidate.headword, cached, candidate.lang);
   }
 
   if (!deps.translateHeadword) return null;
@@ -100,13 +100,14 @@ async function resolvePreset(
   if (!translated) return null;
 
   logEvent("notification.preset.picked", { headword: candidate.headword, lang: candidate.lang, origin: "jit" });
-  return toSuggestedWord(candidate.headword, translated);
+  return toSuggestedWord(candidate.headword, translated, candidate.lang);
 }
 
-function toSuggestedWord(headword: string, output: PresetTranslation): SuggestedWord {
+function toSuggestedWord(headword: string, output: PresetTranslation, sourceLang?: string): SuggestedWord {
   return {
     original: headword,
     emoji: output.emoji ?? "✨",
+    ...(sourceLang ? { sourceLang } : {}),
     ...(output.nativeMeaning !== undefined && { nativeMeaning: output.nativeMeaning }),
     translations: output.translations,
     source: "preset",
