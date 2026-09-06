@@ -49,16 +49,21 @@ export function esc(text: string): string {
   return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
+/** A language's flag, or `🔤` when the code is unknown or has no flag. */
+export function langFlag(code: string | undefined): string {
+  return (code ? getLangFlag(code) : undefined) ?? "🔤";
+}
+
 /**
- * Render a language's label.
+ * `🇷🇺 RU:` — what precedes every translation on every card.
  *
- * The flag alone when one resolves — pairing it with the ISO code says the same
- * thing twice. When it does not resolve, the code is kept: a bare `🔤` would
- * leave the reader unable to tell which language the line belongs to.
+ * The ISO code rides along with the flag rather than being dropped as
+ * duplication: flags are hard to tell apart at a glance (🇷🇺/🇧🇾, 🇩🇪/🇧🇪, and any
+ * pair on a small screen), and a reader scanning a multi-language card is
+ * looking for one specific language.
  */
-export function langLabel(code: string): string {
-  const flag = getLangFlag(code);
-  return flag ?? `🔤 ${esc(code.toUpperCase())}:`;
+export function langLabel(code: string | undefined): string {
+  return code ? `${langFlag(code)} ${esc(code.toUpperCase())}:` : langFlag(code);
 }
 
 /** Join synonyms into the trailing `(a, b)` form shared by the headword and answer lines. */
@@ -67,26 +72,35 @@ function synonymSuffix(synonyms: readonly string[]): string {
 }
 
 /**
- * The word being learned. `sourceFlag` is the card's only source-language flag —
- * surfaces that also render a source-usage block must not repeat it there.
+ * The word being learned: emoji, the source-language flag, the word, and its
+ * source-language synonyms — the card's only source-language flag, so a surface
+ * that also renders a source-usage block must not repeat it there.
+ *
+ * The flag precedes the word rather than trailing it: it says which language the
+ * reader is looking at, which is needed before the word, not after.
  */
 export function headwordLine(
   headword: string,
-  options: { emoji?: string; sourceLang?: string; synonyms?: readonly string[] } = {},
+  options: {
+    emoji?: string | null;
+    sourceLang?: string;
+    synonyms?: readonly string[];
+    /** Trailing per-surface badge — a CEFR level, a saved ✅. Never content. */
+    badge?: string;
+  } = {},
 ): string {
   const emoji = options.emoji ? `${esc(options.emoji)} ` : "";
-  const flag = options.sourceLang ? ` ${getLangFlag(options.sourceLang) ?? "🔤"}` : "";
-  return `${emoji}<b>${esc(headword)}</b>${flag}${synonymSuffix(options.synonyms ?? [])}`;
+  const synonyms = synonymSuffix(options.synonyms ?? []);
+  return `${emoji}${langFlag(options.sourceLang)} <b>${esc(headword)}</b>${synonyms}${options.badge ?? ""}`;
 }
 
-/** The answer — bold, because it is what the reader came for. */
-export function answerLine(code: string, text: string, synonyms: readonly string[] = []): string {
+/**
+ * A translation — bold, because it is what the reader came for. Every language on
+ * the card gets this same line: a secondary language is still an answer, and
+ * demoting it to plain text made one card read as two different kinds of list.
+ */
+export function answerLine(code: string | undefined, text: string, synonyms: readonly string[] = []): string {
   return `${langLabel(code)} <b>${esc(text)}</b>${synonymSuffix(synonyms)}`;
-}
-
-/** A secondary language: one line, unbolded, no synonyms. */
-export function otherLangLine(code: string, text: string): string {
-  return `${langLabel(code)} ${esc(text)}`;
 }
 
 /**
@@ -99,7 +113,7 @@ export function meaningLine(text: string): string {
 }
 
 /** An example sentence, with its native gloss in parentheses when there is one. */
-export function exampleLine(target: string, native?: string): string {
+export function exampleLine(target: string, native?: string | null): string {
   return `💬 <i>${esc(target)}</i>${native ? ` (${esc(native)})` : ""}`;
 }
 

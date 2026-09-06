@@ -32,7 +32,22 @@ export type WordSource = NotificationType | "preset";
 /** A word suggested in a notification, with translations per language. */
 export interface SuggestedWord {
   original: string;
+  /**
+   * Citation form to display when the stored card has one (German "die Arbeit"
+   * for the input "arbeit"). `original` stays the raw word the entry is keyed by;
+   * without this the nudge said "arbeit" and the card behind its Reveal button
+   * said "die Arbeit" — one message, two names for the same word.
+   */
+  headword?: string;
   emoji: string;
+  /**
+   * ISO 639-1 code of the language the word itself is in — the flag beside the
+   * headword. Absent only when the source language cannot be resolved, which the
+   * card renders as `🔤` rather than by dropping the flag: the compact card and
+   * the card behind its Reveal button are the same message, so their headwords
+   * must not differ.
+   */
+  sourceLang?: string;
   nativeMeaning?: string;
   translations: Record<string, string>; // lang code -> translation text
   /** Per-translation context (synonyms) for richer notification rendering. */
@@ -59,6 +74,10 @@ export interface VocabEntry {
   id: number;
   original: string;
   emoji: string | null;
+  /** Language of `original`, resolved to a code by the caller's `getLangCode`. */
+  sourceLangId?: number;
+  /** Stored citation form of `original`, when the card saved one. */
+  headword?: string | null;
   nativeMeaning?: string | null;
   createdAt: Date;
   /**

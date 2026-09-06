@@ -687,9 +687,10 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
 }
 
 /**
- * Whether the translated headword already exists in the user's default
- * dictionary. Shared by both translation entry points (T22/B2) — identical FK
- * resolution + duplicate lookup that was previously copied per handler.
+ * The default-dictionary entry id the translated headword already occupies, or
+ * undefined when the word is not banked yet. The id — not a bare boolean — is what
+ * the card's session entry carries, so every later redraw of the card knows it is
+ * a saved word.
  *
  * The two SELECTs below are DATA-DEPENDENT and must stay sequential: the row
  * returned by `findByOriginalAndSource` supplies the `existing.id` that
@@ -697,7 +698,11 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
  * query must not run at all). They look like an obvious `Promise.all` candidate
  * — they are not.
  */
-async function resolveIsAlreadySaved(ctx: BotContext, output: TranslateOutput, isSentence: boolean): Promise<boolean> {
+async function resolveSavedWordId(
+  ctx: BotContext,
+  output: TranslateOutput,
+  isSentence: boolean,
+): Promise<number | undefined> {
   const sourceLangEntry = ctx.services.languageCache.getLang(output.sourceLang);
   const existing =
     sourceLangEntry && !isSentence
@@ -707,9 +712,12 @@ async function resolveIsAlreadySaved(ctx: BotContext, output: TranslateOutput, i
           sourceLangEntry.id,
         )
       : null;
-  return existing
-    ? await ctx.services.vocabularyDictionaryRepository.entryBelongsToDefault(ctx.user.id, existing.id)
-    : false;
+  if (!existing) return undefined;
+  const belongsToDefault = await ctx.services.vocabularyDictionaryRepository.entryBelongsToDefault(
+    ctx.user.id,
+    existing.id,
+  );
+  return belongsToDefault ? existing.id : undefined;
 }
 
 /**
@@ -731,7 +739,8 @@ async function sendTranslationCard(
     isSentence: boolean;
     inputType: InputType;
     effectiveTemplate: ReturnType<typeof resolveTemplate>;
-    isAlreadySaved: boolean;
+    /** Dictionary entry id when the word is already banked — drives the ✅ Saved button. */
+    savedWordId?: number;
     contextHint?: string;
     /** Main flow only: prefixes a "detected language" banner when it differs from native. */
     detectedLang?: string;
@@ -741,7 +750,7 @@ async function sendTranslationCard(
     withInlineGrammar: boolean;
   },
 ): Promise<void> {
-  const { output, lang, nativeLang, needsReview, isSentence, inputType, effectiveTemplate, isAlreadySaved } = opts;
+  const { output, lang, nativeLang, needsReview, isSentence, inputType, effectiveTemplate, savedWordId } = opts;
 
   ctx.session.pendingTranslation = output;
 
@@ -804,7 +813,7 @@ async function sendTranslationCard(
   const keyboard = buildTranslationKeyboard({
     interfaceLang: lang,
     msgId: cardMsg.message_id,
-    isAlreadySaved,
+    isAlreadySaved: savedWordId !== undefined,
     showGrammarButton,
     showGrammarDetailButton: hasInlineGrammar,
     showEtymologyButton,
@@ -822,6 +831,7 @@ async function sendTranslationCard(
     inputType,
     contextHint: opts.contextHint,
     grammarBreakdown: inlineBreakdown,
+    savedWordId,
   });
 }
 
@@ -1078,7 +1088,7 @@ async function runTranslationPipeline(
     // Delete loading message
     await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
 
-    const isAlreadySaved = await resolveIsAlreadySaved(ctx, output, isSentence);
+    const savedWordId = await resolveSavedWordId(ctx, output, isSentence);
 
     await sendTranslationCard(ctx, {
       output,
@@ -1089,7 +1099,7 @@ async function runTranslationPipeline(
       isSentence,
       inputType: classification.type,
       effectiveTemplate,
-      isAlreadySaved,
+      savedWordId,
       contextHint,
       detectedLang,
       sourceLanguageDoubtful,

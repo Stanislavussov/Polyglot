@@ -453,6 +453,8 @@ describe("renderDictionaryEntry — collapsible examples", () => {
     expect(answerIdx).toBeGreaterThan(-1);
     expect(exampleIdx).toBeGreaterThan(answerIdx);
     expect(collapsedIdx).toBeGreaterThan(exampleIdx);
-    expect(html).toContain("<blockquote expandable>💡 Used for the fruit, not the technology company.\n💡 A fruit.");
+    // One paragraph: the stored explanation, not it and the shorter gloss both.
+    expect(html).toContain("<blockquote expandable>💡 Used for the fruit, not the technology company.</blockquote>");
+    expect(html).not.toContain("💡 A fruit.");
   });
 });
