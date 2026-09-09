@@ -131,6 +131,9 @@ the CI gate of an in-flight production deploy and kill the release.
   Dev-specific values go to the `development` environment under the **same
   names**: `gh secret set <NAME> --env development`. Never move or rename the
   repository-level (prod) secrets — `production` inherits them as-is.
+  `scripts/sync-dev-secrets.sh` pushes the whole dev set from `.env.dev`
+  (host, domains, dev bot token, OpenRouter key, SSH key contents, known_hosts,
+  a generated `JWT_SECRET`) — every call carries `--env development`.
 - Sync **infra/Ansible** vars from `.env.prod`:
   `VPS_HOST`, `VPS_USER`, `VPS_SSH_PORT`, `DEPLOY_USER_SSH_KEY`, `ACME_EMAIL`,
   `ADMIN_PANEL_DOMAIN`, `ADMIN_API_DOMAIN`, `GRAFANA_DOMAIN`, `LANDING_DOMAIN`,
