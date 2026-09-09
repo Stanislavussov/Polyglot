@@ -2,11 +2,20 @@ name: Deploy to VPS
 
 on:
   push:
-    branches: [master]
+    branches: [master, develop]
   workflow_dispatch:
 
+# Branch selects the target: master → production, anything else → development.
+# The GitHub environment of the same name supplies the host-specific secrets
+# (VPS_*, *_DOMAIN, DATABASE_URL, BOT_TOKEN, JWT_SECRET, ...); a name missing
+# from the environment falls back to the repository secret, so `production`
+# stays empty and inherits everything, while `development` overrides only what
+# differs. Both jobs that read secrets must carry the same `environment:`.
 env:
   REGISTRY: docker.io
+  DEPLOY_ENV: ${{ github.ref == 'refs/heads/master' && 'production' || 'development' }}
+  # dev images are tagged dev-<sha> so a Docker Hub listing tells the two apart.
+  IMAGE_TAG: ${{ github.ref == 'refs/heads/master' && github.sha || format('dev-{0}', github.sha) }}
 
 permissions:
   contents: read
@@ -25,6 +34,7 @@ jobs:
     needs: ci
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    environment: ${{ github.ref == 'refs/heads/master' && 'production' || 'development' }}
     # Images go to Docker Hub (REGISTRY: docker.io) authenticated with
     # DOCKER_TOKEN, never to GHCR, so the GitHub Packages write scope this job
     # used to request granted something nothing here uses.
@@ -64,7 +74,7 @@ jobs:
           file: deploy/Dockerfile
           target: production
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/polyglot-bot:${{ github.sha }}
+          tags: ${{ secrets.DOCKER_USERNAME }}/polyglot-bot:${{ env.IMAGE_TAG }}
           cache-from: type=gha,scope=bot
           cache-to: type=gha,mode=max,scope=bot
 
@@ -74,7 +84,7 @@ jobs:
           file: deploy/Dockerfile.admin-api
           target: production
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/polyglot-admin-api:${{ github.sha }}
+          tags: ${{ secrets.DOCKER_USERNAME }}/polyglot-admin-api:${{ env.IMAGE_TAG }}
           cache-from: type=gha,scope=admin-api
           cache-to: type=gha,mode=max,scope=admin-api
 
@@ -86,7 +96,7 @@ jobs:
           build-args: |
             PUBLIC_API_URL=https://${{ secrets.ADMIN_API_DOMAIN }}
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/polyglot-admin:${{ github.sha }}
+          tags: ${{ secrets.DOCKER_USERNAME }}/polyglot-admin:${{ env.IMAGE_TAG }}
           cache-from: type=gha,scope=admin
           cache-to: type=gha,mode=max,scope=admin
 
@@ -98,7 +108,7 @@ jobs:
           file: deploy/Dockerfile.landing
           target: production
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/polyglot-landing:${{ github.sha }}
+          tags: ${{ secrets.DOCKER_USERNAME }}/polyglot-landing:${{ env.IMAGE_TAG }}
           cache-from: type=gha,scope=landing
           cache-to: type=gha,mode=min,scope=landing
 
@@ -114,13 +124,14 @@ jobs:
           file: deploy/Dockerfile
           target: migrate
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/polyglot:migrate-${{ github.sha }}
+          tags: ${{ secrets.DOCKER_USERNAME }}/polyglot:migrate-${{ env.IMAGE_TAG }}
           cache-from: type=gha,scope=bot
 
   deploy:
     needs: push
     runs-on: ubuntu-latest
     timeout-minutes: 35
+    environment: ${{ github.ref == 'refs/heads/master' && 'production' || 'development' }}
     # Mutex on the VPS Docker daemon, shared with deploy-monitoring.yml, which
     # declares the identical group. Scoped to this job rather than the whole
     # workflow on purpose: the host is only touched for the ~2 min this job runs,
@@ -128,8 +139,11 @@ jobs:
     # group and a newer one evicts the older, so a wider window raises the chance
     # of silently dropping a queued monitoring deploy (deploy.yml never deploys
     # monitoring, so such a run is not absorbed — it must be re-dispatched).
+    # The group name `vps-host` is load-bearing for prod: deploy-monitoring.yml
+    # declares the identical group. Dev is a separate host and daemon, so it gets
+    # its own mutex and never queues behind a prod release.
     concurrency:
-      group: vps-host
+      group: ${{ github.ref == 'refs/heads/master' && 'vps-host' || 'vps-host-dev' }}
       cancel-in-progress: false
     steps:
       - name: Checkout code
@@ -139,6 +153,10 @@ jobs:
         run: |
           cp deploy/docker-compose.yml ./docker-compose.yml
 
+          # Release announcements are a production-only signal: the dev bot
+          # talks to testers' chats and must not narrate every develop push.
+          RELEASE_ANNOUNCEMENT_BASE64=""
+          if [ "$DEPLOY_ENV" = "production" ]; then
           RELEASE_ANNOUNCEMENT_BASE64="$(python - <<'PY'
           from pathlib import Path
           import base64
@@ -176,12 +194,13 @@ jobs:
               print(base64.b64encode(message.encode("utf-8")).decode("ascii"))
           PY
           )"
+          fi
 
-          echo "BOT_IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/polyglot-bot:${{ github.sha }}" >> .env
-          echo "MIGRATE_IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/polyglot:migrate-${{ github.sha }}" >> .env
-          echo "ADMIN_API_IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/polyglot-admin-api:${{ github.sha }}" >> .env
-          echo "ADMIN_IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/polyglot-admin:${{ github.sha }}" >> .env
-          echo "LANDING_IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/polyglot-landing:${{ github.sha }}" >> .env
+          echo "BOT_IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/polyglot-bot:${{ env.IMAGE_TAG }}" >> .env
+          echo "MIGRATE_IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/polyglot:migrate-${{ env.IMAGE_TAG }}" >> .env
+          echo "ADMIN_API_IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/polyglot-admin-api:${{ env.IMAGE_TAG }}" >> .env
+          echo "ADMIN_IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/polyglot-admin:${{ env.IMAGE_TAG }}" >> .env
+          echo "LANDING_IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/polyglot-landing:${{ env.IMAGE_TAG }}" >> .env
           echo "BOT_TOKEN=${{ secrets.BOT_TOKEN }}" >> .env
           echo "OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}" >> .env
           echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env

@@ -5,7 +5,15 @@ separate pipelines** — never conflate them.
 
 ## 1. App deploy (containers)
 
-- File: `.github/workflows/deploy.yml`, triggered on push to `master`.
+- File: `.github/workflows/deploy.yml`, triggered on push to `master`
+  (→ production VPS) and `develop` (→ dev VPS, `admin.dev.polyglot.monster`).
+- The branch picks the GitHub **environment** on the `push` and `deploy` jobs
+  (`production` / `development`), and the environment supplies the host-specific
+  secrets. Lookup falls back to repository secrets, so `production` is empty and
+  inherits everything, while `development` holds only what differs: `VPS_*`,
+  `ADMIN_*_DOMAIN`, `DATABASE_URL`, `BOT_TOKEN`, `JWT_SECRET`,
+  `OPENROUTER_API_KEY`. Same workflow, same compose file, same container names;
+  dev images are tagged `dev-<sha>`; release announcements are prod-only.
 - Builds/pushes the Docker images and runs `docker compose up` on the VPS.
 - Touches **containers only** — it never configures nginx, TLS, or host packages.
 - Image names, ports, `NODE_ENV`, and `*_URL` values are **computed inside the
@@ -38,9 +46,10 @@ still rebuild, which is correct, since the source changed too.
 
 ### Concurrency
 
-`deploy.yml`'s `deploy` job and the whole of `deploy-monitoring.yml` share the
-`vps-host` concurrency group: one mutex on the VPS Docker daemon, since both
-touch the same host and `deploy.yml` has no `paths` filter. It sits on the job
+`deploy.yml`'s `deploy` job (on `master`) and the whole of `deploy-monitoring.yml`
+share the `vps-host` concurrency group: one mutex on the VPS Docker daemon, since
+both touch the same host and `deploy.yml` has no `paths` filter. A `develop`
+deploy uses `vps-host-dev` — a different host, so it never queues behind prod. It sits on the job
 rather than the workflow so the mutex is held for the ~2 min the host is busy,
 not the ~8 min including `ci` and `push`.
 
@@ -102,6 +111,9 @@ the CI gate of an in-flight production deploy and kill the release.
 ## 3. GitHub Actions secrets
 
 - Manage with `gh secret set <NAME>` (value via stdin, never on the CLI).
+  Dev-specific values go to the `development` environment under the **same
+  names**: `gh secret set <NAME> --env development`. Never move or rename the
+  repository-level (prod) secrets — `production` inherits them as-is.
 - Sync **infra/Ansible** vars from `.env.prod`:
   `VPS_HOST`, `VPS_USER`, `VPS_SSH_PORT`, `DEPLOY_USER_SSH_KEY`, `ACME_EMAIL`,
   `ADMIN_PANEL_DOMAIN`, `ADMIN_API_DOMAIN`, `GRAFANA_DOMAIN`, `LANDING_DOMAIN`,

@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- **Pushing `develop` now deploys to the dev VPS.** `deploy.yml` picks the GitHub environment by branch (`master` → `production`, `develop` → `development`); the environment supplies the host-specific secrets and falls back to the repository secrets, so production is untouched. Dev images are tagged `dev-<sha>`, dev deploys use their own concurrency group, and release announcements stay production-only.
 - `pnpm ansible:dev` provisions the dev VPS from `.env.dev` (`POLYGLOT_ENV=dev`); `pnpm ansible` keeps sourcing `.env.prod`. The wrapper now prints the resolved `[env] user@host` before running and rejects unknown environments. `.env.dev` is git-ignored alongside `.env.prod`.
 
 ### Fixed
