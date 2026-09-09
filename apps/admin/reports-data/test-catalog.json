@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-09-09T18:41:09.000Z",
+  "generatedAt": "2026-09-09T18:43:46.000Z",
   "summary": {
-    "total": 3145,
+    "total": 3153,
     "business": 0,
-    "technical": 3145,
+    "technical": 3153,
     "workspaces": [
       "apps",
       "packages"
@@ -3319,10 +3319,10 @@
       "description": "Protects the bot menu navigation (integration) behavior so leads from the settings root through the language group and back."
     },
     {
-      "id": "apps-bot-src-tests-integration-message-persistence-integration-test-ts-42-message-persistence-integration-deletes-only-the-loading-placeholder-while-the-user-goes-on-translating",
+      "id": "apps-bot-src-tests-integration-message-persistence-integration-test-ts-45-message-persistence-integration-deletes-only-the-loading-placeholder-while-the-user-goes-on-translating",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/message-persistence.integration.test.ts",
-      "sourceLine": 42,
+      "sourceLine": 45,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3335,10 +3335,26 @@
       "description": "Protects the bot message persistence (integration) behavior so deletes only the loading placeholder while the user goes on translating."
     },
     {
-      "id": "apps-bot-src-tests-integration-message-persistence-integration-test-ts-55-message-persistence-integration-leaves-a-rejection-notice-on-screen-when-the-next-word-is-translated",
+      "id": "apps-bot-src-tests-integration-message-persistence-integration-test-ts-58-message-persistence-integration-leaves-no-loader-ticker-running-once-the-card-has-replaced-the-placeholder",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/message-persistence.integration.test.ts",
-      "sourceLine": 55,
+      "sourceLine": 58,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "message persistence (integration)"
+      ],
+      "title": "leaves no loader ticker running once the card has replaced the placeholder",
+      "rawTitle": "leaves no loader ticker running once the card has replaced the placeholder",
+      "name": "Bot message persistence (integration) leaves no loader ticker running once the card has replaced the placeholder",
+      "value": "Protects the bot message persistence (integration) behavior so leaves no loader ticker running once the card has replaced the placeholder.",
+      "description": "Protects the bot message persistence (integration) behavior so leaves no loader ticker running once the card has replaced the placeholder."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-message-persistence-integration-test-ts-76-message-persistence-integration-leaves-a-rejection-notice-on-screen-when-the-next-word-is-translated",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/message-persistence.integration.test.ts",
+      "sourceLine": 76,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -17947,10 +17963,10 @@
       "description": "Protects the bot classify Input behavior so trims leading trailing whitespace before classification."
     },
     {
-      "id": "apps-bot-src-utils-long-op-test-ts-22-withtimeout-returns-the-result-when-the-work-finishes-in-time",
+      "id": "apps-bot-src-utils-long-op-test-ts-25-withtimeout-returns-the-result-when-the-work-finishes-in-time",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/long-op.test.ts",
-      "sourceLine": 22,
+      "sourceLine": 25,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -17963,10 +17979,10 @@
       "description": "Protects the bot with Timeout behavior: returns the result when the work finishes in time."
     },
     {
-      "id": "apps-bot-src-utils-long-op-test-ts-26-withtimeout-rejects-with-operationtimeouterror-when-the-work-exceeds-the-limit",
+      "id": "apps-bot-src-utils-long-op-test-ts-29-withtimeout-rejects-with-operationtimeouterror-when-the-work-exceeds-the-limit",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/long-op.test.ts",
-      "sourceLine": 26,
+      "sourceLine": 29,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -17979,10 +17995,10 @@
       "description": "Protects the bot with Timeout behavior: rejects with Operation Timeout Error when the work exceeds the limit."
     },
     {
-      "id": "apps-bot-src-utils-long-op-test-ts-39-withtimeout-propagates-the-work-s-own-failure-unchanged",
+      "id": "apps-bot-src-utils-long-op-test-ts-42-withtimeout-propagates-the-work-s-own-failure-unchanged",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/long-op.test.ts",
-      "sourceLine": 39,
+      "sourceLine": 42,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -17995,10 +18011,10 @@
       "description": "Protects the bot with Timeout behavior so propagates the work's own failure unchanged."
     },
     {
-      "id": "apps-bot-src-utils-long-op-test-ts-45-clampaibudgettoopguard-b8-two-layer-timeout-invariant-keeps-a-budget-already-below-the-outer-guard-unchanged",
+      "id": "apps-bot-src-utils-long-op-test-ts-48-clampaibudgettoopguard-b8-two-layer-timeout-invariant-keeps-a-budget-already-below-the-outer-guard-unchanged",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/long-op.test.ts",
-      "sourceLine": 45,
+      "sourceLine": 48,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -18011,10 +18027,10 @@
       "description": "Protects the bot clamp Ai Budget To Op Guard (B8: two layer timeout invariant) behavior: keeps a budget already below the outer guard unchanged."
     },
     {
-      "id": "apps-bot-src-utils-long-op-test-ts-49-clampaibudgettoopguard-b8-two-layer-timeout-invariant-clamps-a-budget-that-meets-or-exceeds-the-outer-guard-below-it",
+      "id": "apps-bot-src-utils-long-op-test-ts-52-clampaibudgettoopguard-b8-two-layer-timeout-invariant-clamps-a-budget-that-meets-or-exceeds-the-outer-guard-below-it",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/long-op.test.ts",
-      "sourceLine": 49,
+      "sourceLine": 52,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -18027,10 +18043,10 @@
       "description": "Protects the bot clamp Ai Budget To Op Guard (B8: two layer timeout invariant) behavior so clamps a budget that meets or exceeds the outer guard below it."
     },
     {
-      "id": "apps-bot-src-utils-long-op-test-ts-55-clampaibudgettoopguard-b8-two-layer-timeout-invariant-guarantees-the-ai-budget-is-always-strictly-below-the-outer-op-guard",
+      "id": "apps-bot-src-utils-long-op-test-ts-58-clampaibudgettoopguard-b8-two-layer-timeout-invariant-guarantees-the-ai-budget-is-always-strictly-below-the-outer-op-guard",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/long-op.test.ts",
-      "sourceLine": 55,
+      "sourceLine": 58,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -18043,10 +18059,10 @@
       "description": "Protects the bot clamp Ai Budget To Op Guard (B8: two layer timeout invariant) behavior so guarantees the AI budget is always strictly below the outer op guard."
     },
     {
-      "id": "apps-bot-src-utils-long-op-test-ts-64-sendtypingindicator-never-fails-the-flow-when-telegram-rejects-the-chat-action",
+      "id": "apps-bot-src-utils-long-op-test-ts-67-sendtypingindicator-never-fails-the-flow-when-telegram-rejects-the-chat-action",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/long-op.test.ts",
-      "sourceLine": 64,
+      "sourceLine": 67,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -18059,10 +18075,10 @@
       "description": "Protects the bot send Typing Indicator behavior so never fails the flow when Telegram rejects the chat action."
     },
     {
-      "id": "apps-bot-src-utils-long-op-test-ts-75-starttypingkeepalive-sends-typing-immediately-and-refreshes-it-on-an-interval-until-stopped",
+      "id": "apps-bot-src-utils-long-op-test-ts-78-starttypingkeepalive-sends-typing-immediately-and-refreshes-it-on-an-interval-until-stopped",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/long-op.test.ts",
-      "sourceLine": 75,
+      "sourceLine": 78,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -18073,6 +18089,118 @@
       "name": "Bot start Typing Keepalive sends typing immediately and refreshes it on an interval until stopped",
       "value": "Protects the bot start Typing Keepalive behavior: sends typing immediately and refreshes it on an interval until stopped.",
       "description": "Protects the bot start Typing Keepalive behavior: sends typing immediately and refreshes it on an interval until stopped."
+    },
+    {
+      "id": "apps-bot-src-utils-long-op-test-ts-119-sendloader-opens-on-a-first-stage-phrase",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/long-op.test.ts",
+      "sourceLine": 119,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "sendLoader"
+      ],
+      "title": "opens on a first-stage phrase",
+      "rawTitle": "opens on a first-stage phrase",
+      "name": "Bot send Loader opens on a first stage phrase",
+      "value": "Protects the bot send Loader behavior so opens on a first stage phrase.",
+      "description": "Protects the bot send Loader behavior so opens on a first stage phrase."
+    },
+    {
+      "id": "apps-bot-src-utils-long-op-test-ts-128-sendloader-walks-the-wait-forward-through-later-stages-without-ever-repeating-itself",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/long-op.test.ts",
+      "sourceLine": 128,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "sendLoader"
+      ],
+      "title": "walks the wait forward through later stages without ever repeating itself",
+      "rawTitle": "walks the wait forward through later stages without ever repeating itself",
+      "name": "Bot send Loader walks the wait forward through later stages without ever repeating itself",
+      "value": "Protects the bot send Loader behavior so walks the wait forward through later stages without ever repeating itself.",
+      "description": "Protects the bot send Loader behavior so walks the wait forward through later stages without ever repeating itself."
+    },
+    {
+      "id": "apps-bot-src-utils-long-op-test-ts-147-sendloader-keeps-drawing-fresh-last-stage-phrases-while-a-wait-runs-to-the-guard",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/long-op.test.ts",
+      "sourceLine": 147,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "sendLoader"
+      ],
+      "title": "keeps drawing fresh last-stage phrases while a wait runs to the guard",
+      "rawTitle": "keeps drawing fresh last-stage phrases while a wait runs to the guard",
+      "name": "Bot send Loader keeps drawing fresh last stage phrases while a wait runs to the guard",
+      "value": "Protects the bot send Loader behavior: keeps drawing fresh last stage phrases while a wait runs to the guard.",
+      "description": "Protects the bot send Loader behavior: keeps drawing fresh last stage phrases while a wait runs to the guard."
+    },
+    {
+      "id": "apps-bot-src-utils-long-op-test-ts-163-sendloader-stops-rotating-once-stopped",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/long-op.test.ts",
+      "sourceLine": 163,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "sendLoader"
+      ],
+      "title": "stops rotating once stopped",
+      "rawTitle": "stops rotating once stopped",
+      "name": "Bot send Loader stops rotating once stopped",
+      "value": "Protects the bot send Loader behavior so stops rotating once stopped.",
+      "description": "Protects the bot send Loader behavior so stops rotating once stopped."
+    },
+    {
+      "id": "apps-bot-src-utils-long-op-test-ts-174-sendloader-survives-a-rejected-edit-a-cosmetic-tick-must-never-break-the-flow",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/long-op.test.ts",
+      "sourceLine": 174,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "sendLoader"
+      ],
+      "title": "survives a rejected edit — a cosmetic tick must never break the flow",
+      "rawTitle": "survives a rejected edit — a cosmetic tick must never break the flow",
+      "name": "Bot send Loader survives a rejected edit — a cosmetic tick must never break the flow",
+      "value": "Protects the bot send Loader behavior so survives a rejected edit — a cosmetic tick must never break the flow.",
+      "description": "Protects the bot send Loader behavior so survives a rejected edit — a cosmetic tick must never break the flow."
+    },
+    {
+      "id": "apps-bot-src-utils-long-op-test-ts-189-dismissloader-silences-the-ticker-before-removing-the-message-it-edits",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/long-op.test.ts",
+      "sourceLine": 189,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "dismissLoader"
+      ],
+      "title": "silences the ticker before removing the message it edits",
+      "rawTitle": "silences the ticker before removing the message it edits",
+      "name": "Bot dismiss Loader silences the ticker before removing the message it edits",
+      "value": "Protects the bot dismiss Loader behavior so silences the ticker before removing the message it edits.",
+      "description": "Protects the bot dismiss Loader behavior so silences the ticker before removing the message it edits."
+    },
+    {
+      "id": "apps-bot-src-utils-long-op-test-ts-201-dismissloader-ignores-a-message-telegram-has-already-dropped",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/long-op.test.ts",
+      "sourceLine": 201,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "dismissLoader"
+      ],
+      "title": "ignores a message Telegram has already dropped",
+      "rawTitle": "ignores a message Telegram has already dropped",
+      "name": "Bot dismiss Loader ignores a message Telegram has already dropped",
+      "value": "Protects the bot dismiss Loader behavior: ignores a message Telegram has already dropped.",
+      "description": "Protects the bot dismiss Loader behavior: ignores a message Telegram has already dropped."
     },
     {
       "id": "apps-bot-src-utils-main-menu-test-ts-14-hot-button-keyboard-carries-the-three-everyday-actions-on-one-row",

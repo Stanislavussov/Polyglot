@@ -3,7 +3,14 @@
  * bound them with a timeout so the user never stares at an endless loader,
  * and show a typing indicator during silent pre-phases.
  */
-import { AICircuitOpenError, AITimeoutError, type SupportedLang, t } from "@polyglot/core";
+import {
+  AICircuitOpenError,
+  AITimeoutError,
+  type LoaderKind,
+  loaderPhraseKeys,
+  type SupportedLang,
+  t,
+} from "@polyglot/core";
 import type { InlineKeyboardMarkup } from "grammy/types";
 import type { BotContext } from "../types.js";
 
@@ -129,4 +136,59 @@ export function startTypingKeepalive(ctx: BotContext): () => void {
   sendTypingIndicator(ctx);
   const interval = setInterval(() => sendTypingIndicator(ctx), TYPING_KEEPALIVE_MS);
   return () => clearInterval(interval);
+}
+
+/** How often the loader message swaps to a fresh phrase. */
+const LOADER_TICK_MS = 5_000;
+
+/**
+ * A loader message together with the ticker that keeps rewriting it.
+ *
+ * `stop()` MUST run before the message is deleted — otherwise the interval
+ * outlives its message and keeps editing an id Telegram no longer knows.
+ * {@link dismissLoader} does both in the right order.
+ */
+export interface Loader {
+  chatId: number;
+  messageId: number;
+  stop: () => void;
+}
+
+/**
+ * A phrase for `stage` that is not the one already on screen: Telegram rejects an
+ * edit that leaves the text unchanged, and a repeat would read as a frozen bot.
+ */
+function pickLoaderPhrase(kind: LoaderKind, stage: number, lang: SupportedLang, current?: string): string {
+  const options = loaderPhraseKeys(kind, stage)
+    .map((key) => t(key, lang))
+    .filter((text) => text !== current);
+  return options[Math.floor(Math.random() * options.length)] ?? current ?? "";
+}
+
+/**
+ * Sends the loader message for a long operation and walks its text forward while
+ * the operation runs: a fresh phrase every {@link LOADER_TICK_MS}, drawn from the
+ * stage that matches how long the user has been waiting. Most translations finish
+ * inside the first tick and never move — the rotation exists for the tail.
+ */
+export async function sendLoader(ctx: BotContext, kind: LoaderKind, lang: SupportedLang): Promise<Loader> {
+  let current = pickLoaderPhrase(kind, 0, lang);
+  // Captured now: the ticks fire long after the handler's own frame is gone.
+  const chatId = ctx.chat!.id;
+  const message = await ctx.reply(current);
+
+  let stage = 0;
+  const interval = setInterval(() => {
+    stage += 1;
+    current = pickLoaderPhrase(kind, stage, lang, current);
+    void ctx.api.editMessageText(chatId, message.message_id, current).catch(() => undefined);
+  }, LOADER_TICK_MS);
+
+  return { chatId, messageId: message.message_id, stop: () => clearInterval(interval) };
+}
+
+/** Stops the ticker, then removes the loader message. Never throws. */
+export async function dismissLoader(ctx: BotContext, loader: Loader): Promise<void> {
+  loader.stop();
+  await ctx.api.deleteMessage(loader.chatId, loader.messageId).catch(() => {});
 }

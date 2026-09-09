@@ -17,5 +17,6 @@ export {
   isSupportedLanguage,
   normalizeToIso1,
 } from "./language-registry.js";
+export { allLoaderPhraseKeys, type LoaderKind, loaderPhraseKeys } from "./loader-phrases.js";
 // Types
 export type { I18nKey, Locale, LocaleMessages, SupportedLang } from "./types.js";

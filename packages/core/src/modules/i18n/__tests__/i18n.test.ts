@@ -46,20 +46,20 @@ describe("i18n — t()", () => {
 
   // Translation pipeline keys
   it("returns translation-pipeline keys", () => {
-    expect(t("translating", "en")).toBe("⏳ Translating...");
+    expect(t("loaderTranslateStart1", "en")).toBe("🔤 Translating...");
     expect(t("translationError", "en")).toContain("Translation failed");
     expect(t("translationUnavailable", "en")).toContain("unavailable");
     expect(t("translationNeedsReview", "en")).toContain("inaccuracies");
   });
 
   it("returns translation-pipeline keys in Russian", () => {
-    expect(t("translating", "ru")).toBe("⏳ Перевожу...");
+    expect(t("loaderTranslateStart1", "ru")).toBe("🔤 Перевожу...");
     expect(t("translationError", "ru")).toContain("Ошибка");
     expect(t("translationUnavailable", "ru")).toContain("недоступен");
   });
 
   it("returns translation-pipeline keys in Czech", () => {
-    expect(t("translating", "cs")).toBe("⏳ Překládám...");
+    expect(t("loaderTranslateStart1", "cs")).toBe("🔤 Překládám...");
     expect(t("translationError", "cs")).toContain("selhal");
   });
 
@@ -782,7 +782,7 @@ describe("i18n — locale consistency", () => {
       "langAdded",
       "langRemoved",
       "enterWordToTranslate",
-      "translating",
+      "loaderTranslateStart1",
       "translationError",
       "translationUnavailable",
       "contextMarkerNeedsText",
@@ -942,7 +942,7 @@ describe("i18n — locale consistency", () => {
   it("ru.json covers all keys from en.json", () => {
     const keysToCheck: I18nKey[] = [
       "welcome",
-      "translating",
+      "loaderTranslateStart1",
       "translationError",
       "translationUnavailable",
       "translationNeedsReview",
@@ -961,7 +961,7 @@ describe("i18n — locale consistency", () => {
   it("cs.json covers all keys from en.json", () => {
     const keysToCheck: I18nKey[] = [
       "welcome",
-      "translating",
+      "loaderTranslateStart1",
       "translationError",
       "translationUnavailable",
       "translationNeedsReview",
