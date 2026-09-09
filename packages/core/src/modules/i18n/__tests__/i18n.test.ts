@@ -366,7 +366,7 @@ describe("i18n — t()", () => {
   });
 
   it("returns cmdDescDictionary in English", () => {
-    expect(t("cmdDescDictionary", "en")).toBe("Open your personal dictionary");
+    expect(t("cmdDescDictionary", "en")).toBe("My dictionary");
   });
 
   it("returns cmdDescTemplate in English", () => {
@@ -374,23 +374,23 @@ describe("i18n — t()", () => {
   });
 
   it("returns cmdDescSettings in English", () => {
-    expect(t("cmdDescSettings", "en")).toBe("Language & notification settings");
+    expect(t("cmdDescSettings", "en")).toBe("Settings");
   });
 
   it("returns command description keys in Russian", () => {
     expect(t("cmdDescStart", "ru")).toBe("Запустить бота / перезапустить онбординг");
     expect(t("cmdDescTranslate", "ru")).toBe("Перевести слово или фразу");
-    expect(t("cmdDescDictionary", "ru")).toBe("Открыть личный словарь");
+    expect(t("cmdDescDictionary", "ru")).toBe("Мой словарь");
     expect(t("cmdDescTemplate", "ru")).toBe("Настроить шаблон перевода");
-    expect(t("cmdDescSettings", "ru")).toBe("Настройки языков и уведомлений");
+    expect(t("cmdDescSettings", "ru")).toBe("Настройки");
   });
 
   it("returns command description keys in Czech", () => {
     expect(t("cmdDescStart", "cs")).toBe("Spustit bota / restartovat onboarding");
     expect(t("cmdDescTranslate", "cs")).toBe("Přeložit slovo nebo frázi");
-    expect(t("cmdDescDictionary", "cs")).toBe("Otevřít osobní slovník");
+    expect(t("cmdDescDictionary", "cs")).toBe("Můj slovník");
     expect(t("cmdDescTemplate", "cs")).toBe("Přizpůsobit šablonu překladu");
-    expect(t("cmdDescSettings", "cs")).toBe("Nastavení jazyků a notifikací");
+    expect(t("cmdDescSettings", "cs")).toBe("Nastavení");
   });
 
   // Quality uncertain key (task 37)

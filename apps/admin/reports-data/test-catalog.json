@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-30T12:29:17.000Z",
+  "generatedAt": "2026-09-09T16:04:27.000Z",
   "summary": {
     "total": 3131,
     "business": 0,
@@ -7934,7 +7934,7 @@
       "description": "Protects the bot changes Command behavior so replies with delivered changes for testers."
     },
     {
-      "id": "apps-bot-src-commands-commands-test-ts-5-bot-commands-lists-menu-and-the-categories-it-holds-and-nothing-else",
+      "id": "apps-bot-src-commands-commands-test-ts-5-bot-commands-leads-with-the-practice-entries-and-trails-with-configuration",
       "kind": "technical",
       "filePath": "apps/bot/src/commands/commands.test.ts",
       "sourceLine": 5,
@@ -7943,11 +7943,11 @@
       "suitePath": [
         "bot commands"
       ],
-      "title": "lists /menu and the categories it holds, and nothing else",
-      "rawTitle": "lists /menu and the categories it holds, and nothing else",
-      "name": "Bot bot commands lists menu and the categories it holds, and nothing else",
-      "value": "Protects the bot bot commands behavior so lists menu and the categories it holds, and nothing else.",
-      "description": "Protects the bot bot commands behavior so lists menu and the categories it holds, and nothing else."
+      "title": "leads with the practice entries and trails with configuration",
+      "rawTitle": "leads with the practice entries and trails with configuration",
+      "name": "Bot bot commands leads with the practice entries and trails with configuration",
+      "value": "Protects the bot bot commands behavior so leads with the practice entries and trails with configuration.",
+      "description": "Protects the bot bot commands behavior so leads with the practice entries and trails with configuration."
     },
     {
       "id": "apps-bot-src-commands-commands-test-ts-11-bot-commands-keeps-the-retired-entry-points-out-of-the-list",
@@ -7966,10 +7966,10 @@
       "description": "Protects the bot bot commands behavior: keeps the retired entry points out of the list."
     },
     {
-      "id": "apps-bot-src-commands-commands-test-ts-21-bot-commands-prefixes-every-command-description-with-a-unique-icon",
+      "id": "apps-bot-src-commands-commands-test-ts-34-bot-commands-prefixes-every-command-description-with-a-unique-icon",
       "kind": "technical",
       "filePath": "apps/bot/src/commands/commands.test.ts",
-      "sourceLine": 21,
+      "sourceLine": 34,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -7982,10 +7982,10 @@
       "description": "Protects the bot bot commands behavior so prefixes every command description with a unique icon."
     },
     {
-      "id": "apps-bot-src-commands-commands-test-ts-33-bot-commands-scopes-the-same-commands-to-a-single-chat",
+      "id": "apps-bot-src-commands-commands-test-ts-44-bot-commands-scopes-the-same-commands-to-a-single-chat",
       "kind": "technical",
       "filePath": "apps/bot/src/commands/commands.test.ts",
-      "sourceLine": 33,
+      "sourceLine": 44,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
