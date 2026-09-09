@@ -110,7 +110,7 @@ export async function showFinalScreen(ctx: BotContext, state: OnboardingState): 
   // rather than a second message after it: the inline feature buttons that used to
   // sit here (dictionary, training, video) were the same modes a second time, and
   // the message that delivered the keyboard then explained them a third. The ⌨️
-  // icon is still named — a `oneTime()` keyboard folds away after use, so an
+  // icon is still named: the keyboard arrives open and the user collapses it, so an
   // unnamed icon is a menu the user has to rediscover by accident.
   await installMainKeyboard(
     ctx,

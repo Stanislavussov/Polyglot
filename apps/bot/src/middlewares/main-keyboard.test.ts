@@ -52,7 +52,9 @@ describe("mainKeyboardMiddleware", () => {
     // text already names them, and the hint that spelled them out read as a third
     // copy of the same menu.
     expect(text).toContain("⌨️");
-    expect(options?.reply_markup).toMatchObject({ one_time_keyboard: true });
+    expect(options?.reply_markup).toMatchObject({ resize_keyboard: true });
+    // The hint points at the ⌨️ icon, so collapsing the menu stays the user's call.
+    expect(options?.reply_markup).not.toHaveProperty("one_time_keyboard");
     expect(next).toHaveBeenCalled();
   });
 

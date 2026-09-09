@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-09-09T16:04:27.000Z",
+  "generatedAt": "2026-09-09T16:45:53.000Z",
   "summary": {
-    "total": 3131,
+    "total": 3133,
     "business": 0,
-    "technical": 3131,
+    "technical": 3133,
     "workspaces": [
       "apps",
       "packages"
@@ -3015,10 +3015,10 @@
       "description": "Protects the bot live plan feature configuration (integration) behavior so an admin edit to plan feature access flips the mentor gate without a restart."
     },
     {
-      "id": "apps-bot-src-tests-integration-main-keyboard-integration-test-ts-46-main-menu-keyboard-integration-is-delivered-once-and-never-deleted-by-the-translations-that-follow",
+      "id": "apps-bot-src-tests-integration-main-keyboard-integration-test-ts-56-main-menu-keyboard-integration-is-delivered-once-and-never-deleted-by-the-translations-that-follow",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/main-keyboard.integration.test.ts",
-      "sourceLine": 46,
+      "sourceLine": 56,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3031,10 +3031,10 @@
       "description": "Protects the bot main menu keyboard (integration) behavior so is delivered once and never deleted by the translations that follow."
     },
     {
-      "id": "apps-bot-src-tests-integration-main-keyboard-integration-test-ts-77-main-menu-keyboard-integration-re-installs-the-keyboard-on-start-so-a-user-who-lost-it-can-get-it-back",
+      "id": "apps-bot-src-tests-integration-main-keyboard-integration-test-ts-87-main-menu-keyboard-integration-re-installs-the-keyboard-on-start-so-a-user-who-lost-it-can-get-it-back",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/main-keyboard.integration.test.ts",
-      "sourceLine": 77,
+      "sourceLine": 87,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3045,6 +3045,38 @@
       "name": "Bot main menu keyboard (integration) re installs the keyboard on start so a user who lost it can get it back",
       "value": "Protects the bot main menu keyboard (integration) behavior so re installs the keyboard on start so a user who lost it can get it back.",
       "description": "Protects the bot main menu keyboard (integration) behavior so re installs the keyboard on start so a user who lost it can get it back."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-main-keyboard-integration-test-ts-111-main-menu-keyboard-integration-sends-markup-with-neither-the-fold-away-flag-nor-the-pinned-one",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/main-keyboard.integration.test.ts",
+      "sourceLine": 111,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "main-menu keyboard (integration)"
+      ],
+      "title": "sends markup with neither the fold-away flag nor the pinned one",
+      "rawTitle": "sends markup with neither the fold-away flag nor the pinned one",
+      "name": "Bot main menu keyboard (integration) sends markup with neither the fold away flag nor the pinned one",
+      "value": "Protects the bot main menu keyboard (integration) behavior: sends markup with neither the fold away flag nor the pinned one.",
+      "description": "Protects the bot main menu keyboard (integration) behavior: sends markup with neither the fold away flag nor the pinned one."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-main-keyboard-integration-test-ts-128-main-menu-keyboard-integration-re-delivers-to-a-chat-left-on-the-previous-keyboard-version-then-goes-quiet-again",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/main-keyboard.integration.test.ts",
+      "sourceLine": 128,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "main-menu keyboard (integration)"
+      ],
+      "title": "re-delivers to a chat left on the previous keyboard version, then goes quiet again",
+      "rawTitle": "re-delivers to a chat left on the previous keyboard version, then goes quiet again",
+      "name": "Bot main menu keyboard (integration) re delivers to a chat left on the previous keyboard version, then goes quiet again",
+      "value": "Protects the bot main menu keyboard (integration) behavior so re delivers to a chat left on the previous keyboard version, then goes quiet again.",
+      "description": "Protects the bot main menu keyboard (integration) behavior so re delivers to a chat left on the previous keyboard version, then goes quiet again."
     },
     {
       "id": "apps-bot-src-tests-integration-mentor-thread-integration-test-ts-47-mentor-mode-with-reply-threads-integration-runs-a-mentor-conversation-persists-the-thread-and-continues-it-via-reply-from-translate-mode",
@@ -7998,10 +8030,10 @@
       "description": "Protects the bot bot commands behavior so scopes the same commands to a single chat."
     },
     {
-      "id": "apps-bot-src-commands-start-test-ts-80-startcommand-sets-activemode-to-translate-for-onboarded-users",
+      "id": "apps-bot-src-commands-start-test-ts-81-startcommand-sets-activemode-to-translate-for-onboarded-users",
       "kind": "technical",
       "filePath": "apps/bot/src/commands/start.test.ts",
-      "sourceLine": 80,
+      "sourceLine": 81,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8014,10 +8046,10 @@
       "description": "Protects the bot start Command behavior so sets active Mode to 'translate' for onboarded users."
     },
     {
-      "id": "apps-bot-src-commands-start-test-ts-93-startcommand-re-installs-the-main-menu-keyboard-for-onboarded-users",
+      "id": "apps-bot-src-commands-start-test-ts-94-startcommand-re-installs-the-main-menu-keyboard-for-onboarded-users",
       "kind": "technical",
       "filePath": "apps/bot/src/commands/start.test.ts",
-      "sourceLine": 93,
+      "sourceLine": 94,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8030,10 +8062,10 @@
       "description": "Protects the bot start Command behavior so re installs the main menu keyboard for onboarded users."
     },
     {
-      "id": "apps-bot-src-commands-start-test-ts-108-startcommand-persists-activemode-to-db-for-onboarded-users",
+      "id": "apps-bot-src-commands-start-test-ts-109-startcommand-persists-activemode-to-db-for-onboarded-users",
       "kind": "technical",
       "filePath": "apps/bot/src/commands/start.test.ts",
-      "sourceLine": 108,
+      "sourceLine": 109,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8046,10 +8078,10 @@
       "description": "Protects the bot start Command behavior: persists active Mode to DB for onboarded users."
     },
     {
-      "id": "apps-bot-src-commands-start-test-ts-116-startcommand-resumes-stateless-onboarding-for-non-onboarded-users-no-mode-change",
+      "id": "apps-bot-src-commands-start-test-ts-117-startcommand-resumes-stateless-onboarding-for-non-onboarded-users-no-mode-change",
       "kind": "technical",
       "filePath": "apps/bot/src/commands/start.test.ts",
-      "sourceLine": 116,
+      "sourceLine": 117,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8062,10 +8094,10 @@
       "description": "Protects the bot start Command behavior so resumes stateless onboarding for non onboarded users (no mode change)."
     },
     {
-      "id": "apps-bot-src-commands-start-test-ts-126-startcommand-does-nothing-when-user-is-not-in-context",
+      "id": "apps-bot-src-commands-start-test-ts-127-startcommand-does-nothing-when-user-is-not-in-context",
       "kind": "technical",
       "filePath": "apps/bot/src/commands/start.test.ts",
-      "sourceLine": 126,
+      "sourceLine": 127,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8606,10 +8638,10 @@
       "description": "Protects the bot main Keyboard Middleware behavior: sends the keyboard with a hint in the user's interface language on first contact."
     },
     {
-      "id": "apps-bot-src-middlewares-main-keyboard-test-ts-59-mainkeyboardmiddleware-marks-the-chat-so-the-hint-is-never-repeated",
+      "id": "apps-bot-src-middlewares-main-keyboard-test-ts-61-mainkeyboardmiddleware-marks-the-chat-so-the-hint-is-never-repeated",
       "kind": "technical",
       "filePath": "apps/bot/src/middlewares/main-keyboard.test.ts",
-      "sourceLine": 59,
+      "sourceLine": 61,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8622,10 +8654,10 @@
       "description": "Protects the bot main Keyboard Middleware behavior: marks the chat so the hint is never repeated."
     },
     {
-      "id": "apps-bot-src-middlewares-main-keyboard-test-ts-67-mainkeyboardmiddleware-leaves-the-chat-unmarked-when-the-send-fails-so-the-next-message-retries",
+      "id": "apps-bot-src-middlewares-main-keyboard-test-ts-69-mainkeyboardmiddleware-leaves-the-chat-unmarked-when-the-send-fails-so-the-next-message-retries",
       "kind": "technical",
       "filePath": "apps/bot/src/middlewares/main-keyboard.test.ts",
-      "sourceLine": 67,
+      "sourceLine": 69,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8638,10 +8670,10 @@
       "description": "Protects the bot main Keyboard Middleware behavior so leaves the chat unmarked when the send fails, so the next message retries."
     },
     {
-      "id": "apps-bot-src-middlewares-main-keyboard-test-ts-76-mainkeyboardmiddleware-stays-silent-for-a-chat-that-already-has-the-current-keyboard",
+      "id": "apps-bot-src-middlewares-main-keyboard-test-ts-78-mainkeyboardmiddleware-stays-silent-for-a-chat-that-already-has-the-current-keyboard",
       "kind": "technical",
       "filePath": "apps/bot/src/middlewares/main-keyboard.test.ts",
-      "sourceLine": 76,
+      "sourceLine": 78,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8654,10 +8686,10 @@
       "description": "Protects the bot main Keyboard Middleware behavior so stays silent for a chat that already has the current keyboard."
     },
     {
-      "id": "apps-bot-src-middlewares-main-keyboard-test-ts-86-mainkeyboardmiddleware-re-sends-when-the-stored-version-is-older-than-the-current-layout",
+      "id": "apps-bot-src-middlewares-main-keyboard-test-ts-88-mainkeyboardmiddleware-re-sends-when-the-stored-version-is-older-than-the-current-layout",
       "kind": "technical",
       "filePath": "apps/bot/src/middlewares/main-keyboard.test.ts",
-      "sourceLine": 86,
+      "sourceLine": 88,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8670,10 +8702,10 @@
       "description": "Protects the bot main Keyboard Middleware behavior so re sends when the stored version is older than the current layout."
     },
     {
-      "id": "apps-bot-src-middlewares-main-keyboard-test-ts-95-mainkeyboardmiddleware-leaves-users-mid-onboarding-alone-they-get-the-keyboard-once-onboarding-marks-them-done",
+      "id": "apps-bot-src-middlewares-main-keyboard-test-ts-97-mainkeyboardmiddleware-leaves-users-mid-onboarding-alone-they-get-the-keyboard-once-onboarding-marks-them-done",
       "kind": "technical",
       "filePath": "apps/bot/src/middlewares/main-keyboard.test.ts",
-      "sourceLine": 95,
+      "sourceLine": 97,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8686,10 +8718,10 @@
       "description": "Protects the bot main Keyboard Middleware behavior so leaves users mid onboarding alone — they get the keyboard once onboarding marks them done."
     },
     {
-      "id": "apps-bot-src-middlewares-main-keyboard-test-ts-106-mainkeyboardmiddleware-ignores-non-message-updates-which-cannot-carry-a-reply-keyboard",
+      "id": "apps-bot-src-middlewares-main-keyboard-test-ts-108-mainkeyboardmiddleware-ignores-non-message-updates-which-cannot-carry-a-reply-keyboard",
       "kind": "technical",
       "filePath": "apps/bot/src/middlewares/main-keyboard.test.ts",
-      "sourceLine": 106,
+      "sourceLine": 108,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10478,10 +10510,10 @@
       "description": "Protects the bot onboarding — screen 3 (instruction + feature entry points) behavior: closes on one message that carries the mode menu, with no inline copy of it."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-738-onboarding-screen-3-instruction-feature-entry-points-names-the-icon-that-brings-the-folded-away-menu-back",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-739-onboarding-screen-3-instruction-feature-entry-points-names-the-icon-that-brings-the-folded-away-menu-back",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 738,
+      "sourceLine": 739,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10494,10 +10526,10 @@
       "description": "Protects the bot onboarding — screen 3 (instruction + feature entry points) behavior so names the icon that brings the folded away menu back."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-757-onboarding-screen-3-instruction-feature-entry-points-routes-each-feature-button-to-the-existing-scene-handler",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-760-onboarding-screen-3-instruction-feature-entry-points-routes-each-feature-button-to-the-existing-scene-handler",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 757,
+      "sourceLine": 760,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10510,10 +10542,10 @@
       "description": "Protects the bot onboarding — screen 3 (instruction + feature entry points) behavior: routes each feature button to the existing scene handler."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-772-onboarding-screen-3-instruction-feature-entry-points-sends-the-screencast-only-when-an-asset-is-configured-and-never-fails-on-its-absence",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-775-onboarding-screen-3-instruction-feature-entry-points-sends-the-screencast-only-when-an-asset-is-configured-and-never-fails-on-its-absence",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 772,
+      "sourceLine": 775,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10526,10 +10558,10 @@
       "description": "Protects the bot onboarding — screen 3 (instruction + feature entry points) behavior: sends the screencast only when an asset is configured, and never fails on its absence."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-782-onboarding-screen-3-instruction-feature-entry-points-sends-the-screencast-when-a-file-id-is-configured",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-785-onboarding-screen-3-instruction-feature-entry-points-sends-the-screencast-when-a-file-id-is-configured",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 782,
+      "sourceLine": 785,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10542,10 +10574,10 @@
       "description": "Protects the bot onboarding — screen 3 (instruction + feature entry points) behavior: sends the screencast when a file id is configured."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-796-onboarding-screen-3-instruction-feature-entry-points-still-delivers-the-instruction-screen-when-the-screencast-fails-to-send",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-799-onboarding-screen-3-instruction-feature-entry-points-still-delivers-the-instruction-screen-when-the-screencast-fails-to-send",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 796,
+      "sourceLine": 799,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10558,10 +10590,10 @@
       "description": "Protects the bot onboarding — screen 3 (instruction + feature entry points) behavior so still delivers the instruction screen when the screencast fails to send."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-817-onboarding-statelessness-and-instrumentation-resumes-on-the-furthest-screen-reached-however-long-the-gap-between-taps",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-820-onboarding-statelessness-and-instrumentation-resumes-on-the-furthest-screen-reached-however-long-the-gap-between-taps",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 817,
+      "sourceLine": 820,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10574,10 +10606,10 @@
       "description": "Protects the bot onboarding — statelessness and instrumentation behavior so resumes on the furthest screen reached, however long the gap between taps."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-832-onboarding-statelessness-and-instrumentation-resumes-on-the-demo-screen-once-the-language-step-is-done",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-835-onboarding-statelessness-and-instrumentation-resumes-on-the-demo-screen-once-the-language-step-is-done",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 832,
+      "sourceLine": 835,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10590,10 +10622,10 @@
       "description": "Protects the bot onboarding — statelessness and instrumentation behavior so resumes on the demo screen once the language step is done."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-841-onboarding-statelessness-and-instrumentation-keeps-every-button-live-after-an-arbitrary-pause-a-stale-tap-is-still-handled",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-844-onboarding-statelessness-and-instrumentation-keeps-every-button-live-after-an-arbitrary-pause-a-stale-tap-is-still-handled",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 841,
+      "sourceLine": 844,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10606,10 +10638,10 @@
       "description": "Protects the bot onboarding — statelessness and instrumentation behavior: keeps every button live after an arbitrary pause — a stale tap is still handled."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-854-onboarding-statelessness-and-instrumentation-records-a-step-for-every-screen-and-never-rewinds-the-furthest-step-reached",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-857-onboarding-statelessness-and-instrumentation-records-a-step-for-every-screen-and-never-rewinds-the-furthest-step-reached",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 854,
+      "sourceLine": 857,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10622,10 +10654,10 @@
       "description": "Protects the bot onboarding — statelessness and instrumentation behavior: records a step for every screen, and never rewinds the furthest step reached."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-873-onboarding-statelessness-and-instrumentation-reaches-the-first-real-card-in-five-taps-from-start",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-876-onboarding-statelessness-and-instrumentation-reaches-the-first-real-card-in-five-taps-from-start",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 873,
+      "sourceLine": 876,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10638,10 +10670,10 @@
       "description": "Protects the bot onboarding — statelessness and instrumentation behavior so reaches the first real card in five taps from start."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-887-onboarding-statelessness-and-instrumentation-passes-text-through-to-the-rest-of-the-chain-when-another-flow-is-waiting-on-it",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-890-onboarding-statelessness-and-instrumentation-passes-text-through-to-the-rest-of-the-chain-when-another-flow-is-waiting-on-it",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 887,
+      "sourceLine": 890,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10654,10 +10686,10 @@
       "description": "Protects the bot onboarding — statelessness and instrumentation behavior so passes text through to the rest of the chain when another flow is waiting on it."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-903-onboarding-statelessness-and-instrumentation-consumes-demo-screen-text-itself-when-no-other-flow-is-waiting",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-906-onboarding-statelessness-and-instrumentation-consumes-demo-screen-text-itself-when-no-other-flow-is-waiting",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 903,
+      "sourceLine": 906,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10670,10 +10702,10 @@
       "description": "Protects the bot onboarding — statelessness and instrumentation behavior so consumes demo screen text itself when no other flow is waiting."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-915-onboarding-statelessness-and-instrumentation-ignores-an-onboarding-tap-from-a-user-who-has-already-finished",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-918-onboarding-statelessness-and-instrumentation-ignores-an-onboarding-tap-from-a-user-who-has-already-finished",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 915,
+      "sourceLine": 918,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10686,10 +10718,10 @@
       "description": "Protects the bot onboarding — statelessness and instrumentation behavior: ignores an onboarding tap from a user who has already finished."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-930-onboarding-recovery-and-reversibility-puts-a-tap-on-a-pre-task-72-keyboard-back-onto-a-live-screen",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-933-onboarding-recovery-and-reversibility-puts-a-tap-on-a-pre-task-72-keyboard-back-onto-a-live-screen",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 930,
+      "sourceLine": 933,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10702,10 +10734,10 @@
       "description": "Protects the bot onboarding — recovery and reversibility behavior so puts a tap on a pre Task 72 keyboard back onto a live screen."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-947-onboarding-recovery-and-reversibility-acknowledges-a-legacy-tap-from-an-already-onboarded-user-without-re-rendering",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-950-onboarding-recovery-and-reversibility-acknowledges-a-legacy-tap-from-an-already-onboarded-user-without-re-rendering",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 947,
+      "sourceLine": 950,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10718,10 +10750,10 @@
       "description": "Protects the bot onboarding — recovery and reversibility behavior so acknowledges a legacy tap from an already onboarded user without re rendering."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-958-onboarding-recovery-and-reversibility-lets-the-user-take-back-a-wrongly-guessed-native-language",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-961-onboarding-recovery-and-reversibility-lets-the-user-take-back-a-wrongly-guessed-native-language",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 958,
+      "sourceLine": 961,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10734,10 +10766,10 @@
       "description": "Protects the bot onboarding — recovery and reversibility behavior so lets the user take back a wrongly guessed native language."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-974-onboarding-recovery-and-reversibility-drops-a-learning-language-that-becomes-the-native-language-on-a-back-and-change",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-977-onboarding-recovery-and-reversibility-drops-a-learning-language-that-becomes-the-native-language-on-a-back-and-change",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 974,
+      "sourceLine": 977,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10750,10 +10782,10 @@
       "description": "Protects the bot onboarding — recovery and reversibility behavior so drops a learning language that becomes the native language on a back and change."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-989-onboarding-recovery-and-reversibility-sends-a-replacement-message-when-a-screen-is-too-old-to-edit",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-992-onboarding-recovery-and-reversibility-sends-a-replacement-message-when-a-screen-is-too-old-to-edit",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 989,
+      "sourceLine": 992,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -17977,7 +18009,7 @@
       "description": "Protects the bot hot button keyboard behavior so carries the three everyday actions on one row."
     },
     {
-      "id": "apps-bot-src-utils-main-menu-test-ts-22-hot-button-keyboard-folds-away-after-use-instead-of-pinning-itself-to-the-bottom-of-the-chat",
+      "id": "apps-bot-src-utils-main-menu-test-ts-22-hot-button-keyboard-leaves-the-keyboard-collapsible-but-never-asks-the-client-to-retire-it",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/main-menu.test.ts",
       "sourceLine": 22,
@@ -17986,17 +18018,17 @@
       "suitePath": [
         "hot-button keyboard"
       ],
-      "title": "folds away after use instead of pinning itself to the bottom of the chat",
-      "rawTitle": "folds away after use instead of pinning itself to the bottom of the chat",
-      "name": "Bot hot button keyboard folds away after use instead of pinning itself to the bottom of the chat",
-      "value": "Protects the bot hot button keyboard behavior so folds away after use instead of pinning itself to the bottom of the chat.",
-      "description": "Protects the bot hot button keyboard behavior so folds away after use instead of pinning itself to the bottom of the chat."
+      "title": "leaves the keyboard collapsible but never asks the client to retire it",
+      "rawTitle": "leaves the keyboard collapsible but never asks the client to retire it",
+      "name": "Bot hot button keyboard leaves the keyboard collapsible but never asks the client to retire it",
+      "value": "Protects the bot hot button keyboard behavior so leaves the keyboard collapsible but never asks the client to retire it.",
+      "description": "Protects the bot hot button keyboard behavior so leaves the keyboard collapsible but never asks the client to retire it."
     },
     {
-      "id": "apps-bot-src-utils-main-menu-test-ts-32-hot-button-keyboard-keeps-every-hot-button-label-inside-the-one-line-width-budget",
+      "id": "apps-bot-src-utils-main-menu-test-ts-33-hot-button-keyboard-keeps-every-hot-button-label-inside-the-one-line-width-budget",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/main-menu.test.ts",
-      "sourceLine": 32,
+      "sourceLine": 33,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -18009,10 +18041,10 @@
       "description": "Protects the bot hot button keyboard behavior: keeps every hot button label inside the one line width budget."
     },
     {
-      "id": "apps-bot-src-utils-main-menu-test-ts-42-hot-button-keyboard-matches-a-tap-in-every-supported-language-back-to-its-action",
+      "id": "apps-bot-src-utils-main-menu-test-ts-43-hot-button-keyboard-matches-a-tap-in-every-supported-language-back-to-its-action",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/main-menu.test.ts",
-      "sourceLine": 42,
+      "sourceLine": 43,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -18025,10 +18057,10 @@
       "description": "Protects the bot hot button keyboard behavior so matches a tap in every supported language back to its action."
     },
     {
-      "id": "apps-bot-src-utils-main-menu-test-ts-50-hot-button-keyboard-still-runs-the-modes-whose-buttons-moved-into-menu",
+      "id": "apps-bot-src-utils-main-menu-test-ts-51-hot-button-keyboard-still-runs-the-modes-whose-buttons-moved-into-menu",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/main-menu.test.ts",
-      "sourceLine": 50,
+      "sourceLine": 51,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -18041,10 +18073,10 @@
       "description": "Protects the bot hot button keyboard behavior so still runs the modes whose buttons moved into menu."
     },
     {
-      "id": "apps-bot-src-utils-main-menu-test-ts-58-hot-button-keyboard-matches-both-generations-of-the-picker-label-long-and-one-word",
+      "id": "apps-bot-src-utils-main-menu-test-ts-59-hot-button-keyboard-matches-both-generations-of-the-picker-label-long-and-one-word",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/main-menu.test.ts",
-      "sourceLine": 58,
+      "sourceLine": 59,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -18057,10 +18089,10 @@
       "description": "Protects the bot hot button keyboard behavior so matches both generations of the picker label, long and one word."
     },
     {
-      "id": "apps-bot-src-utils-main-menu-test-ts-67-hot-button-keyboard-covers-every-label-the-retired-keys-currently-render-so-no-locale-is-left-unmatched",
+      "id": "apps-bot-src-utils-main-menu-test-ts-68-hot-button-keyboard-covers-every-label-the-retired-keys-currently-render-so-no-locale-is-left-unmatched",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/main-menu.test.ts",
-      "sourceLine": 67,
+      "sourceLine": 68,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -18073,10 +18105,10 @@
       "description": "Protects the bot hot button keyboard behavior so covers every label the retired keys currently render, so no locale is left unmatched."
     },
     {
-      "id": "apps-bot-src-utils-main-menu-test-ts-74-hot-button-keyboard-still-matches-labels-from-a-language-the-user-has-since-switched-away-from",
+      "id": "apps-bot-src-utils-main-menu-test-ts-75-hot-button-keyboard-still-matches-labels-from-a-language-the-user-has-since-switched-away-from",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/main-menu.test.ts",
-      "sourceLine": 74,
+      "sourceLine": 75,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -18089,10 +18121,10 @@
       "description": "Protects the bot hot button keyboard behavior so still matches labels from a language the user has since switched away from."
     },
     {
-      "id": "apps-bot-src-utils-main-menu-test-ts-81-hot-button-keyboard-does-not-match-an-ordinary-word-the-user-wants-translated",
+      "id": "apps-bot-src-utils-main-menu-test-ts-82-hot-button-keyboard-does-not-match-an-ordinary-word-the-user-wants-translated",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/main-menu.test.ts",
-      "sourceLine": 81,
+      "sourceLine": 82,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -18105,10 +18137,10 @@
       "description": "Protects the bot hot button keyboard behavior: does not match an ordinary word the user wants translated."
     },
     {
-      "id": "apps-bot-src-utils-main-menu-test-ts-87-hot-button-keyboard-exposes-every-live-and-retired-label-so-bot-hears-intercepts-taps-before-translate-mode",
+      "id": "apps-bot-src-utils-main-menu-test-ts-88-hot-button-keyboard-exposes-every-live-and-retired-label-so-bot-hears-intercepts-taps-before-translate-mode",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/main-menu.test.ts",
-      "sourceLine": 87,
+      "sourceLine": 88,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -18121,10 +18153,10 @@
       "description": "Protects the bot hot button keyboard behavior so exposes every live and retired label so bot hears intercepts taps before translate mode."
     },
     {
-      "id": "apps-bot-src-utils-main-menu-test-ts-97-hot-button-keyboard-pins-the-keyboard-version-which-is-what-re-delivers-a-changed-layout",
+      "id": "apps-bot-src-utils-main-menu-test-ts-98-hot-button-keyboard-pins-the-keyboard-version-which-is-what-re-delivers-a-changed-layout",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/main-menu.test.ts",
-      "sourceLine": 97,
+      "sourceLine": 98,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [

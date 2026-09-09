@@ -726,10 +726,11 @@ describe("onboarding — screen 3 (instruction + feature entry points)", () => {
     // second message repeating the same modes in prose to deliver the keyboard.
     const closing = vi.mocked(h.ctx.reply).mock.calls.at(-1);
     const markup = closing?.[1] as {
-      reply_markup?: { inline_keyboard?: Keyboard; one_time_keyboard?: boolean };
+      reply_markup?: { inline_keyboard?: Keyboard; resize_keyboard?: boolean };
     };
     expect(markup?.reply_markup?.inline_keyboard).toBeUndefined();
-    expect(markup?.reply_markup).toMatchObject({ one_time_keyboard: true });
+    expect(markup?.reply_markup).toMatchObject({ resize_keyboard: true });
+    expect(markup?.reply_markup).not.toHaveProperty("one_time_keyboard");
     // The instructions and the hand-off are the same message now.
     expect(String(closing?.[0])).toContain("Готово");
     expect(String(closing?.[0])).not.toContain("/translate");
@@ -746,12 +747,14 @@ describe("onboarding — screen 3 (instruction + feature entry points)", () => {
     // user is shown it — a hand-off that never happens leaves it undiscoverable.
     const handover = vi.mocked(h.ctx.reply).mock.calls.at(-1);
     // Names the icon, not just the menu: the whole point of the hand-off is that a
-    // folded-away keyboard is invisible until the user knows where to tap.
+    // collapsed keyboard is invisible until the user knows where to tap.
     expect(String(handover?.[0])).toContain("⌨️");
     expect(String(handover?.[0])).toContain("Карточки");
-    expect((handover?.[1] as { reply_markup?: { one_time_keyboard?: boolean } })?.reply_markup).toMatchObject({
-      one_time_keyboard: true,
-    });
+    const handoverMarkup = (handover?.[1] as { reply_markup?: { resize_keyboard?: boolean } })?.reply_markup;
+    expect(handoverMarkup).toMatchObject({ resize_keyboard: true });
+    // The named icon is the way back, so the hand-off must not send a keyboard that
+    // collapses itself again on the user's first tap.
+    expect(handoverMarkup).not.toHaveProperty("one_time_keyboard");
   });
 
   it("routes each feature button to the existing scene handler", async () => {
