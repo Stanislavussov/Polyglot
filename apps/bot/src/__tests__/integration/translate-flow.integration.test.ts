@@ -163,6 +163,37 @@ describe("translate happy path (integration)", () => {
     expect(text).toContain(t("savedToDict", "en"));
   });
 
+  // A sentence typed in a learning language rendered with no trace of what the user
+  // typed — the header was suppressed as "reverse learning" and the source-language
+  // block skipped — so the card was translations of an invisible original, and the
+  // user could not tell what the Save button was about to bank.
+  it("shows the original sentence on the card and banks it when the sentence is in a learning language", async () => {
+    const harness = createBotHarness({ ai: deterministicTranslateAi() });
+    const id = uniqueTelegramId();
+    const userId = await arrangeOnboardedTranslator(id, { nativeLang: "ru", learningLangs: ["en", "cs"] });
+    const sentence = "Can you tell me where the nearest pharmacy is";
+
+    await harness.dispatch(messageUpdate({ chatId: id, fromId: id, text: sentence }));
+
+    const cardText = harness.sent
+      .filter((c) => c.method === "sendMessage")
+      .map((c) => String(c.payload.text ?? ""))
+      .join("\n");
+    expect(cardText).toContain(sentence);
+
+    const { messageId: cardMsgId } = lastRenderedCard(harness.sent);
+    harness.reset();
+    await harness.dispatch(
+      callbackQueryUpdate({ chatId: id, fromId: id, messageId: cardMsgId, data: `tr:save:${cardMsgId}` }),
+    );
+
+    const en = await languageRepository.findByCode("en");
+    if (!en) throw new Error("expected seeded language 'en'");
+    const saved = await vocabularyRepository.findByOriginalAndSource(userId, sentence, en.id);
+    expect(saved).not.toBeNull();
+    expect(saved?.inputType).toBe("sentence");
+  });
+
   it("answers a second save tap with the already-saved alert and leaves the card intact", async () => {
     // Arrange
     const harness = createBotHarness({ ai: deterministicTranslateAi() });

@@ -164,7 +164,10 @@ export function renderTranslation(
   const sourceFlag = getLangFlag(output.sourceLang) ?? "🔤";
   if (sourceUsageLines.length > 0) {
     lines.push(...sourceUsageLines);
-  } else if (!hideSourceText) {
+  } else {
+    // Reverse direction without a sourceUsage block (the model may omit it) still
+    // needs the headword: dropping it left the user with translations of a word
+    // the card never named.
     lines.push(`${emojiPrefix(output.emoji)}${sourceFlag} <b>${esc(output.original)}</b>${nativeSyns}`);
   }
   const nativeMeaningLine = renderNativeMeaningLine(nativeLang, output.nativeMeaning);
@@ -320,9 +323,9 @@ export function renderSentenceTranslation(
   const hideSourceText = isReverseLearningTranslation(output, nativeLang);
 
   const sourceFlag = getLangFlag(output.sourceLang) ?? "🔤";
-  if (!hideSourceText) {
-    lines.push(`${emojiPrefix(output.emoji)}${sourceFlag} <b>${esc(output.original)}</b>`);
-  }
+  // Always shown, in both directions: a sentence has no sourceUsage block to carry
+  // the original the way a word card does, so hiding it left an unanchored card.
+  lines.push(`${emojiPrefix(output.emoji)}${sourceFlag} <b>${esc(output.original)}</b>`);
   const nativeMeaningLine = renderNativeMeaningLine(nativeLang, output.nativeMeaning);
   const hasNativeTranslation = nativeLang !== undefined && output.translations[nativeLang] !== undefined;
   if (nativeMeaningLine && nativeLang !== output.sourceLang && !hasNativeTranslation) {

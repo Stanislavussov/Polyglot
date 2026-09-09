@@ -411,6 +411,25 @@ describe("renderTranslation", () => {
     expect(result).not.toContain("nábožná kudlanka");
     expect(result).not.toContain("Na zahradě seděla kudlanka");
   });
+
+  // sourceUsage is nullish in the schema — when the model omits it the headword
+  // has nowhere else to come from, and the card used to drop the word entirely.
+  it("falls back to the plain headword when the model returned no sourceUsage", () => {
+    const output: TranslateOutput = {
+      original: "kudlanka",
+      sourceLang: "cs",
+      emoji: "🪲",
+      nativeSynonyms: [],
+      translations: {
+        ru: { text: "богомол", synonyms: [], examples: [] },
+      },
+    };
+
+    const result = renderTranslation(output, "ru", undefined, "ru");
+
+    expect(result).toContain("🪲 🇨🇿 <b>kudlanka</b>");
+    expect(result).toContain("богомол");
+  });
 });
 
 describe("buildTranslationKeyboard", () => {
@@ -1092,6 +1111,38 @@ describe("renderSentenceTranslation", () => {
     };
     const result = renderSentenceTranslation(unknownLang, "en");
     expect(result).toContain("🔤 XX:");
+  });
+
+  // A sentence typed in a learning language used to render with no trace of what
+  // was typed: the header was suppressed as "reverse learning" and the source
+  // language block skipped, leaving translations of an invisible original.
+  describe("sentence written in a learning language", () => {
+    const learningSourceSentence: TranslateOutput = {
+      original: "Ich habe gestern ein Buch über Geschichte gelesen.",
+      sourceLang: "de",
+      emoji: "📚",
+      nativeSynonyms: [],
+      translations: {
+        ru: { text: "Вчера я прочитал книгу по истории.", synonyms: [], examples: [] },
+        en: { text: "Yesterday I read a book about history.", synonyms: [], examples: [] },
+      },
+    };
+
+    it("still shows the original sentence as the header", () => {
+      const result = renderSentenceTranslation(learningSourceSentence, "ru", "ru");
+      expect(result).toContain("📚 🇩🇪 <b>Ich habe gestern ein Buch über Geschichte gelesen.</b>");
+    });
+
+    it("does not repeat the original as a source-language translation block", () => {
+      const withSourceEcho: TranslateOutput = {
+        ...learningSourceSentence,
+        translations: {
+          ...learningSourceSentence.translations,
+          de: { text: "Ich habe gestern ein Buch über Geschichte gelesen.", synonyms: [], examples: [] },
+        },
+      };
+      expect(renderSentenceTranslation(withSourceEcho, "ru", "ru")).not.toContain("🇩🇪 DE: <b>");
+    });
   });
 });
 

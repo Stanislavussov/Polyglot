@@ -698,20 +698,11 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
  * query must not run at all). They look like an obvious `Promise.all` candidate
  * — they are not.
  */
-async function resolveSavedWordId(
-  ctx: BotContext,
-  output: TranslateOutput,
-  isSentence: boolean,
-): Promise<number | undefined> {
+async function resolveSavedWordId(ctx: BotContext, output: TranslateOutput): Promise<number | undefined> {
   const sourceLangEntry = ctx.services.languageCache.getLang(output.sourceLang);
-  const existing =
-    sourceLangEntry && !isSentence
-      ? await ctx.services.vocabularyRepository.findByOriginalAndSource(
-          ctx.user.id,
-          output.original,
-          sourceLangEntry.id,
-        )
-      : null;
+  const existing = sourceLangEntry
+    ? await ctx.services.vocabularyRepository.findByOriginalAndSource(ctx.user.id, output.original, sourceLangEntry.id)
+    : null;
   if (!existing) return undefined;
   const belongsToDefault = await ctx.services.vocabularyDictionaryRepository.entryBelongsToDefault(
     ctx.user.id,
@@ -1088,7 +1079,7 @@ async function runTranslationPipeline(
     // Delete loading message
     await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
 
-    const savedWordId = await resolveSavedWordId(ctx, output, isSentence);
+    const savedWordId = await resolveSavedWordId(ctx, output);
 
     await sendTranslationCard(ctx, {
       output,
