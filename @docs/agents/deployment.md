@@ -65,11 +65,18 @@ the CI gate of an in-flight production deploy and kill the release.
 - Playbook: `deploy/ansible/site.yml`, run via the wrapper:
 
   ```bash
-  pnpm ansible          # → scripts/run-ansible.sh → ansible-playbook site.yml
+  pnpm ansible          # prod: sources .env.prod → ansible-playbook site.yml
+  pnpm ansible:dev      # dev:  sources .env.dev  (POLYGLOT_ENV=dev)
   ```
 
-- The wrapper sources `.env.prod` (must exist locally) and requires
-  `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY` (a **path** to the private key file).
+- The wrapper sources `.env.<POLYGLOT_ENV>` (`prod` by default; must exist
+  locally, both are git-ignored) and requires `VPS_HOST`, `VPS_USER`,
+  `VPS_SSH_KEY` (a **path** to the private key file). It prints the resolved
+  `[env] user@host` before running — read it; the playbook itself has no notion
+  of environment, the env file is the only thing that selects the target host.
+- The dev host (`polyglot-dev`, `admin.dev.polyglot.monster` /
+  `api.dev.polyglot.monster`) is the rehearsal target for provisioning changes:
+  apply there first, then to prod under the explicit-prod rule below.
 - Configures UFW, Docker, nginx reverse proxies, and certbot TLS.
 - Each routing block is **gated by its domain env var** — the play degrades
   gracefully when one is unset:

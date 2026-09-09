@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- `pnpm ansible:dev` provisions the dev VPS from `.env.dev` (`POLYGLOT_ENV=dev`); `pnpm ansible` keeps sourcing `.env.prod`. The wrapper now prints the resolved `[env] user@host` before running and rejects unknown environments. `.env.dev` is git-ignored alongside `.env.prod`.
+
 ### Fixed
 
 - **Production TLS can now be provisioned on Ubuntu 26.04, and the sshd hardening actually applies.** Restoring the reinstalled prod host (2026-09-06) surfaced two provisioning defects. The playbook still used `ansible.builtin.apt_key` for the Docker repository — the `apt-key` binary no longer exists on Ubuntu ≥ 26.04, so provisioning a fresh host died before Docker; the key now lands in `/etc/apt/keyrings/docker.asc` with a `signed-by` repo entry. And the SSH hardening had never actually worked: sshd takes the first value it sees and includes `sshd_config.d/*` before the main config, so the provider's `50-cloud-init.conf` (`PasswordAuthentication yes`) silently overrode the playbook's `lineinfile` edits the whole time — root password login stayed open for months while Ansible reported the hardening green. The hardening now ships as a `00-` drop-in that sorts ahead of cloud-init's, with the main-config edits kept as defense in depth; `PermitRootLogin` is deliberately left alone until provisioning connects as the deploy user (Task 82).
