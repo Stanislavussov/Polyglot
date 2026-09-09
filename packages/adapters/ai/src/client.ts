@@ -43,6 +43,22 @@ export function getClient(): ReturnType<typeof createOpenRouter> {
 }
 
 /**
+ * Returns the resolved OpenRouter API key, applying the same precedence as
+ * {@link getClient} (injected key wins, then `OPENROUTER_API_KEY`).
+ *
+ * Exists for the endpoints the AI SDK provider does not cover — currently
+ * `/audio/speech`, which is called with a plain `fetch` — so those calls read the
+ * key from one place rather than reaching for `process.env` on their own.
+ */
+export function getApiKey(): string {
+  const apiKey = _apiKey ?? process.env.OPENROUTER_API_KEY;
+  if (!apiKey) {
+    throw new Error("OPENROUTER_API_KEY is not set. Configure it in your .env file.");
+  }
+  return apiKey;
+}
+
+/**
  * Returns a Vercel AI SDK model instance for the given model ID.
  * @param modelId — OpenRouter model ID, e.g. "openai/gpt-4o"
  */

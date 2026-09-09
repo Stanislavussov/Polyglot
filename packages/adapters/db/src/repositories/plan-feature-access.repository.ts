@@ -4,7 +4,7 @@ import { planFeatureAccess } from "../schema.js";
 
 /**
  * Junction repository gating which premium feature keys each plan unlocks.
- * Mirrors the aiModelPlanAccess pattern (delete + re-insert for a plan).
+ * Set-per-plan junction: delete + re-insert the plan's rows in one transaction.
  */
 export const planFeatureAccessRepository = {
   async findFeaturesForPlan(planName: string): Promise<string[]> {

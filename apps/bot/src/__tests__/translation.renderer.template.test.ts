@@ -3,8 +3,31 @@
  * Verifies that TemplateFields controls which sections appear in the card.
  */
 import type { TemplateFields, TranslateOutput } from "@polyglot/core";
+import { createLanguageOrderContext } from "@polyglot/core";
 import { describe, expect, it, vi } from "vitest";
-import { renderTranslation } from "../renderers/translation.renderer.js";
+import { renderTranslation as renderTranslationRaw } from "../renderers/translation.renderer.js";
+
+/** These cases assert which sections appear, not their language sequence. */
+const NO_ORDER = createLanguageOrderContext({ learningLangs: [] });
+const renderTranslation = (
+  output: TranslateOutput,
+  interfaceLang?: string,
+  templateFields?: TemplateFields,
+  nativeLang?: string,
+  needsReview?: boolean,
+  grammarBreakdown?: Record<string, string[]>,
+  etymology?: string,
+): string =>
+  renderTranslationRaw(
+    output,
+    NO_ORDER,
+    interfaceLang,
+    templateFields,
+    nativeLang,
+    needsReview,
+    grammarBreakdown,
+    etymology,
+  );
 
 // Mock getLangFlag from @polyglot/core
 vi.mock("@polyglot/core", async () => {

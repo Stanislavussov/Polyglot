@@ -1,4 +1,5 @@
 import type {
+  ActivationNudgeCandidate,
   AudienceGroup,
   NewUser,
   SubscriptionPlan,
@@ -6,12 +7,47 @@ import type {
   UserLanguageSettings,
   UserLearningLanguage,
 } from "@polyglot/core";
-import { and, eq, ilike, inArray, sql } from "drizzle-orm";
+import { ACTIVATION_NUDGE_SOURCE, logger } from "@polyglot/core";
+import { and, count, eq, gte, ilike, inArray, isNotNull, lte, notExists, sql } from "drizzle-orm";
 import { getDb } from "../connection.js";
 import { escapeLikePattern } from "../like-escape.js";
-import { releaseAnnouncementDeliveries, userLanguageSettings, userLearningLanguages, users } from "../schema.js";
+import {
+  notificationHistory,
+  releaseAnnouncementDeliveries,
+  translationRequests,
+  userLanguageSettings,
+  userLearningLanguages,
+  users,
+} from "../schema.js";
 
-export type { AudienceGroup, NewUser, SubscriptionPlan, User, UserLanguageSettings };
+export type { ActivationNudgeCandidate, AudienceGroup, NewUser, SubscriptionPlan, User, UserLanguageSettings };
+
+/** How long after finishing onboarding the activation nudge becomes due. */
+export const ACTIVATION_NUDGE_DELAY_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * How far back the nudge window reaches. Without an upper bound this is not a
+ * D+1 nudge at all: a user who onboarded three months ago, never translated, and
+ * has long since forgotten the bot would be sent "Still curious?" as though they
+ * had signed up yesterday. Today that is masked only by `onboarded_at` being a
+ * new column with no old rows in it — the accident expires on its own.
+ *
+ * The window is deliberately wider than the daily cron interval (72h against a
+ * 24h cadence) so a missed sweep — a deploy, an outage, a paused cron — does not
+ * silently skip a whole day's cohort. Overlapping sweeps cannot double-send: the
+ * `notification_history` row written on delivery is what makes the nudge
+ * one-shot, not the width of this window.
+ */
+export const ACTIVATION_NUDGE_MAX_AGE_MS = 72 * 60 * 60 * 1000;
+
+/**
+ * Fan-out cap for a single nudge sweep. The cron runs daily and the eligible
+ * cohort is "users who onboarded yesterday and never translated", so a healthy
+ * day is far below this; hitting the cap means either a backlog after downtime
+ * or a bug, and either way we would rather send 500 messages and log it than
+ * hand Telegram an unbounded burst. The remainder is picked up tomorrow.
+ */
+export const ACTIVATION_NUDGE_BATCH_LIMIT = 500;
 
 /** Internal insert type for Drizzle — kept local to avoid leaking DB-specific inference. */
 type InsertUserLanguageSettings = typeof userLanguageSettings.$inferInsert;
@@ -298,15 +334,108 @@ export const userRepository = {
     await db.insert(releaseAnnouncementDeliveries).values({ releaseId, audienceGroup, userId }).onConflictDoNothing();
   },
 
-  /** Mark user as onboarded (3-step flow per BRD §5). */
+  /**
+   * Mark user as onboarded. Step 4 is the "complete" screen of the Task 72
+   * 4-screen flow (native → languages → demo → complete).
+   *
+   * Rows completed under the previous 3-screen flow carry `onboarding_step = 3`
+   * and are not backfilled, so read `onboarded` — never the step alone — to tell
+   * a finished user from one who abandoned on the demo screen.
+   */
   async markOnboarded(userId: number): Promise<User> {
     const db = getDb();
     const rows = await db
       .update(users)
-      .set({ onboarded: true, onboardingStep: 3 })
+      .set({ onboarded: true, onboardingStep: 4, onboardedAt: new Date() })
       .where(eq(users.id, userId))
       .returning();
     return rows[0]!;
+  },
+
+  /**
+   * Users due the one-off D+1 activation nudge (Task 72, slice 8).
+   *
+   * Both "has not translated since finishing" and "has not been nudged" are
+   * correlated `NOT EXISTS` subqueries rather than a client-side filter: the
+   * alternative is pulling every onboarded user into the process and then
+   * issuing a query per user, which is unbounded work for a set that is almost
+   * always empty.
+   *
+   * `onboarded_at IS NULL` is excluded deliberately — see the column comment in
+   * `schema.ts`. Those are pre-slice-8 rows whose completion instant is
+   * unknowable; treating them as eligible would nudge months-old accounts.
+   */
+  async findActivationNudgeCandidates(
+    now: Date,
+    limit: number = ACTIVATION_NUDGE_BATCH_LIMIT,
+  ): Promise<ActivationNudgeCandidate[]> {
+    const db = getDb();
+    const cutoff = new Date(now.getTime() - ACTIVATION_NUDGE_DELAY_MS);
+    const oldest = new Date(now.getTime() - ACTIVATION_NUDGE_MAX_AGE_MS);
+
+    const rows = await db
+      .select({
+        userId: users.id,
+        telegramId: users.telegramId,
+        interfaceLang: userLanguageSettings.interfaceLang,
+        nativeLang: userLanguageSettings.nativeLang,
+        learningLangs: userLanguageSettings.learningLangs,
+      })
+      .from(users)
+      .innerJoin(userLanguageSettings, eq(userLanguageSettings.userId, users.id))
+      .where(
+        and(
+          eq(users.onboarded, true),
+          eq(users.isActive, true),
+          isNotNull(users.onboardedAt),
+          lte(users.onboardedAt, cutoff),
+          gte(users.onboardedAt, oldest),
+          // `notification_enabled` is deliberately NOT consulted here, and the
+          // omission is load-bearing rather than an oversight. The column
+          // defaults to **false** and governs the recurring vocabulary-reminder
+          // scheduler, which users opt *into*; filtering on it would exclude
+          // every user who simply never visited that setting — i.e. almost all
+          // of them — and quietly reduce this sweep to a no-op.
+          //
+          // The harm it looks like it would prevent is already prevented: a user
+          // who blocked the bot is retired on the first failed send (the
+          // `notification_history` row below), so they are never re-selected, and
+          // this is a single lifecycle message rather than a subscription.
+          notExists(
+            db
+              .select({ one: sql`1` })
+              .from(translationRequests)
+              .where(
+                and(eq(translationRequests.userId, users.id), gte(translationRequests.createdAt, users.onboardedAt)),
+              ),
+          ),
+          notExists(
+            db
+              .select({ one: sql`1` })
+              .from(notificationHistory)
+              .where(
+                and(eq(notificationHistory.userId, users.id), eq(notificationHistory.source, ACTIVATION_NUDGE_SOURCE)),
+              ),
+          ),
+        ),
+      )
+      .limit(limit);
+
+    if (rows.length >= limit) {
+      logger.warn({ limit }, "Activation-nudge batch hit the fan-out cap — remainder deferred to the next sweep");
+    }
+    return rows;
+  },
+
+  /** Onboarding funnel: users grouped by the furthest step reached, split by completion. */
+  async getOnboardingFunnel(): Promise<Array<{ step: number; onboarded: boolean; count: number }>> {
+    const db = getDb();
+    const rows = await db
+      .select({ step: users.onboardingStep, onboarded: users.onboarded, count: count() })
+      .from(users)
+      .groupBy(users.onboardingStep, users.onboarded)
+      .orderBy(users.onboardingStep, users.onboarded);
+    return rows.map((row) => ({ step: row.step, onboarded: row.onboarded, count: Number(row.count) }));
   },
 
   /** Get CEFR proficiency levels for all learning languages. */

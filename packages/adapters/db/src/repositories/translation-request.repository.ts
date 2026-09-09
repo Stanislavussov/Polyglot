@@ -1,5 +1,5 @@
 import type { TranslationRequest } from "@polyglot/core";
-import { and, desc, eq, gte, inArray, sql, sum } from "drizzle-orm";
+import { and, count, desc, eq, gte, inArray, sql, sum } from "drizzle-orm";
 import { getDb } from "../connection.js";
 import { languages, translationRequests, translationRequestTargetLangs, userDailyRequestCounts } from "../schema.js";
 
@@ -89,6 +89,21 @@ export const translationRequestRepository = {
       .where(and(eq(translationRequests.userId, userId), gte(translationRequests.createdAt, windowStart)));
     const value = rows[0]?.value;
     return value ? Number(value) : 0;
+  },
+
+  async countRequestsInWindow(userId: number, original: string, windowStart: Date): Promise<number> {
+    const db = getDb();
+    const rows = await db
+      .select({ value: count() })
+      .from(translationRequests)
+      .where(
+        and(
+          eq(translationRequests.userId, userId),
+          eq(translationRequests.original, original),
+          gte(translationRequests.createdAt, windowStart),
+        ),
+      );
+    return Number(rows[0]?.value ?? 0);
   },
 
   /**

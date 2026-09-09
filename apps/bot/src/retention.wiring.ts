@@ -10,7 +10,7 @@
  * one-shot `docker compose run`, not a recurring job).
  */
 import { runTelemetryRetention } from "@polyglot/adapter-db";
-import { logger } from "@polyglot/core";
+import { errorFields, logEvent, newTraceId, runWithTrace } from "@polyglot/core";
 import cron from "node-cron";
 
 /** Internal state for the running cron task. */
@@ -20,13 +20,16 @@ let retentionTask: cron.ScheduledTask | null = null;
 const RETENTION_CRON = "15 3 * * *";
 
 async function runRetentionSweep(): Promise<void> {
-  try {
-    const deleted = await runTelemetryRetention();
-    logger.info({ deleted }, "Telemetry retention sweep complete");
-  } catch (err) {
-    // Never let a failed sweep crash the process — it retries on the next tick.
-    logger.error({ err }, "Telemetry retention sweep failed — continuing");
-  }
+  // Its own trace, so the rows a sweep pruned are attributable to that run.
+  await runWithTrace({ traceId: newTraceId(), source: "cron", jobName: "telemetry_retention" }, async () => {
+    try {
+      const deleted = await runTelemetryRetention();
+      logEvent("retention.sweep_finished", { deleted });
+    } catch (err) {
+      // Never let a failed sweep crash the process — it retries on the next tick.
+      logEvent("retention.sweep_failed", errorFields(err), "error");
+    }
+  });
 }
 
 /**
@@ -35,14 +38,14 @@ async function runRetentionSweep(): Promise<void> {
  */
 export function wireTelemetryRetention(): void {
   if (retentionTask) {
-    logger.warn({}, "Telemetry retention already scheduled — ignoring duplicate call");
+    logEvent("retention.schedule_duplicate_ignored", {}, "warn");
     return;
   }
 
   retentionTask = cron.schedule(RETENTION_CRON, () => {
     void runRetentionSweep();
   });
-  logger.info({ schedule: RETENTION_CRON }, "Telemetry retention scheduled");
+  logEvent("retention.scheduled", { schedule: RETENTION_CRON });
 }
 
 /** Stop the retention cron job gracefully. */
@@ -50,6 +53,6 @@ export function stopTelemetryRetention(): void {
   if (retentionTask) {
     retentionTask.stop();
     retentionTask = null;
-    logger.info({}, "Telemetry retention scheduler stopped");
+    logEvent("retention.scheduler_stopped", {});
   }
 }

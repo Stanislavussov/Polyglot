@@ -9,6 +9,7 @@ import {
   type AIFallbackEvent,
   generateChat,
   generateObject,
+  generateSpeech,
   generateText,
   setAIApiKey,
   setAICircuitBreakerEnabled,
@@ -17,6 +18,7 @@ import {
   setAIModelPriceProvider,
   setAIRequestMetricSink,
   setAIRequestTimeoutProvider,
+  transcribeAudio,
 } from "@polyglot/adapter-ai";
 // Re-export directly from adapters
 import {
@@ -35,8 +37,11 @@ import {
   isLanguageCacheLoaded,
   languageDetectionRepository,
   loadLanguageCache,
+  mentorMessageRepository,
+  momentumRepository,
   normalizeToIso1,
   notificationRepository,
+  onboardingDemoCardRepository,
   planFeatureAccessRepository,
   reportedIssueRepository,
   requestTimingRepository,
@@ -44,19 +49,31 @@ import {
   subscriptionRepository,
   translationRequestRepository,
   translationTemplateRepository,
+  ttsCacheRepository,
   userRepository,
   videoVocabularyRepository,
   vocabularyDictionaryRepository,
   vocabularyRepository,
+  wordPickerPresetRepository,
+  wordPickerRunRepository,
   wordReviewRepository,
 } from "@polyglot/adapter-db";
-import type { AICircuitEvent, AIFailover, ChatMessage, ChatOptions, GenerateOptions } from "@polyglot/core";
-import { type ServiceContainer, SettingsService, setAICircuitObserver } from "@polyglot/core";
+import type {
+  AICircuitEvent,
+  AIFailover,
+  ChatMessage,
+  ChatOptions,
+  GenerateOptions,
+  SpeechOptions,
+  TranscribeOptions,
+} from "@polyglot/core";
+import { createMomentumService, type ServiceContainer, SettingsService, setAICircuitObserver } from "@polyglot/core";
 import type { ZodSchema } from "zod";
 import { createFeatureAccess } from "./feature-access.js";
 import { aiCircuitStateGauge, aiCircuitTransitionsCounter, aiFallbackCounter } from "./metrics.js";
+import { withReviewRecording } from "./momentum/momentum.wiring.js";
 import { mockPaymentAdapter } from "./payment.js";
-import { buildAiFailover } from "./utils/ai-model.js";
+import { buildAiFailover, resolveFallbackAIModel } from "./utils/ai-model.js";
 import { clampAiBudgetToOpGuard } from "./utils/long-op.js";
 
 /**
@@ -67,6 +84,12 @@ import { clampAiBudgetToOpGuard } from "./utils/long-op.js";
  * Anything else (including unset) stays default-ON.
  */
 const DISABLE_VALUES = new Set(["false", "0", "off", "no"]);
+
+/** How long a user's timezone may be reused for momentum's local-day bucketing. */
+const TIMEZONE_CACHE_TTL_MS = 60_000;
+
+/** Entries kept before the whole timezone cache is dropped. */
+const TIMEZONE_CACHE_MAX = 5_000;
 
 /** True unless the env var is set to a recognized "disable" value (case/whitespace-insensitive). */
 function isCircuitBreakerEnabled(raw: string | undefined): boolean {
@@ -147,14 +170,18 @@ export function createContainer(): ServiceContainer {
     return model ? { costPer1kInput: model.costPer1kInput, costPer1kOutput: model.costPer1kOutput } : null;
   });
 
-  // Resolves the fixed failover split from the same admin-managed budget the abort
-  // timeout uses (B = clamped requestTimeoutMs). Every bot AI call routes through
-  // this so real traffic gets failover; the model passed to each generate call is
-  // the primary, and the hardcoded fallback is the second model. Returns undefined
-  // when B is too small to reserve a fallback window — then the call runs unsplit.
+  // Resolves the failover split from admin-managed settings: the budget from the
+  // same clamped requestTimeoutMs the abort timeout uses, and the second model from
+  // the DB `ai_models.is_fallback` flag. Every bot AI call routes through this so
+  // real traffic gets failover; the model passed to each generate call is the
+  // primary. Returns undefined when B is too small to reserve a fallback window, or
+  // when no fallback model is configured — then the call runs unsplit.
   const resolveFailover = async (): Promise<AIFailover | undefined> => {
-    const budgetMs = clampAiBudgetToOpGuard((await settings.getAIGenerationDefaults()).requestTimeoutMs);
-    return buildAiFailover(budgetMs);
+    const [defaults, fallbackModel] = await Promise.all([
+      settings.getAIGenerationDefaults(),
+      resolveFallbackAIModel(settings),
+    ]);
+    return buildAiFailover(clampAiBudgetToOpGuard(defaults.requestTimeoutMs), fallbackModel);
   };
   const ai = {
     generateObject: async <T>(prompt: string, schema: ZodSchema<T>, model: string, options?: GenerateOptions) =>
@@ -163,7 +190,39 @@ export function createContainer(): ServiceContainer {
       generateText(prompt, model, { ...options, failover: await resolveFailover() }),
     generateChat: async (messages: ChatMessage[], model: string, options?: ChatOptions) =>
       generateChat(messages, model, { ...options, failover: await resolveFailover() }),
+    // No failover split: a failed pronunciation is a toast, not a broken card, and
+    // the split machinery is shaped around the completion endpoints (Task 77).
+    generateSpeech: (options: SpeechOptions) => generateSpeech(options),
+    // Same reasoning as generateSpeech: no failover split. A failed transcription
+    // is a "couldn't hear that" reply, and the split machinery is shaped around
+    // the completion endpoints.
+    transcribe: (options: TranscribeOptions) => transcribeAudio(options),
   };
+
+  // Fallback for the credit sites with no `ctx` to read the update's settings memo —
+  // `withReviewRecording` above all, which fires once per rated card. A minute of
+  // staleness costs at most one effort bucketed into the timezone the user just left.
+  const timezoneCache = new Map<number, { timezone: string; readAt: number }>();
+  const getTimezone = async (userId: number): Promise<string> => {
+    const cached = timezoneCache.get(userId);
+    const now = Date.now();
+    if (cached && now - cached.readAt < TIMEZONE_CACHE_TTL_MS) return cached.timezone;
+    const timezone = (await userRepository.getSettings(userId))?.timezone ?? "UTC";
+    // The bot is long-lived and every user that ever acts lands here, so the map is
+    // dropped wholesale rather than left to grow for the process's lifetime.
+    if (timezoneCache.size >= TIMEZONE_CACHE_MAX) timezoneCache.clear();
+    timezoneCache.set(userId, { timezone, readAt: now });
+    return timezone;
+  };
+
+  // The kill switch is read per call, never latched here: the container is built once
+  // at startup, and `recordingEnabled` must be able to go dark from the admin panel
+  // without a restart (§4.1).
+  const momentumService = createMomentumService({
+    momentumRepository,
+    getMotivationConfig: () => settings.getMotivationConfig(),
+    getTimezone,
+  });
 
   const container: ServiceContainer = {
     userRepository,
@@ -171,8 +230,14 @@ export function createContainer(): ServiceContainer {
     vocabularyRepository,
     vocabularyDictionaryRepository,
     translationTemplateRepository,
-    wordReviewRepository,
+    // Object-spread wrapper in the composition root: repositories arrive as plain
+    // named exports with no observer hook, so this is the only place a review can
+    // credit momentum from all four `logReview` call sites at once (§4.1).
+    wordReviewRepository: withReviewRecording(wordReviewRepository, () => container.momentumService),
     notificationRepository,
+    mentorMessageRepository,
+    momentumService,
+    onboardingDemoCardRepository,
     translationRequestRepository,
     languageDetectionRepository,
     requestTimingRepository,
@@ -195,6 +260,9 @@ export function createContainer(): ServiceContainer {
     ai,
     settings,
     videoVocabularyRepository,
+    wordPickerPresetRepository,
+    wordPickerRunRepository,
+    ttsCacheRepository,
     featureAccess: createFeatureAccess({ settings, planFeatureAccess: planFeatureAccessRepository }),
     paymentPort: mockPaymentAdapter,
     subscriptionRepository,

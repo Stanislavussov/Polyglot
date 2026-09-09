@@ -116,7 +116,13 @@ vi.mock("@polyglot/infra", () => ({
   logger: mockLogger,
 }));
 
-import { detectLanguageWithConfidence, detectLanguageWithConfidenceAsync, translateWithContext } from "@polyglot/core";
+import {
+  detectLanguageWithConfidence,
+  detectLanguageWithConfidenceAsync,
+  setLogger,
+  translateWithContext,
+} from "@polyglot/core";
+import { createSettingsStub } from "../../../test-helpers/services-stub.js";
 import type { BotContext, SessionData } from "../../../types.js";
 import { handleMistypeCancelCallback, handleMistypeConfirmCallback, handleTranslateText } from "../translate-flow.js";
 
@@ -160,19 +166,9 @@ function createMockCtx(): BotContext {
       requestTimingRepository: { record: vi.fn().mockResolvedValue(undefined) },
       contextLookup: mockLookupContext,
       wordLanguageSweep: vi.fn().mockResolvedValue([]),
-      settings: {
-        getPlanLimit: () =>
-          Promise.resolve({
-            name: "free",
-            label: "Free",
-            translationLimit: 50,
-            creditCost: 1,
-            isActive: true,
-            isDefault: true,
-          }),
-      },
       languageCache: mockLanguageCache,
       ai: mockAi,
+      settings: createSettingsStub(),
     },
   } as unknown as BotContext;
 }
@@ -180,6 +176,15 @@ function createMockCtx(): BotContext {
 describe("handleTranslateText — auto-detect language direction", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // `clearAllMocks` drops recorded calls but keeps implementations — including
+    // `...Once` values that were queued and never consumed, because the case that
+    // queued them fed single-word input and only one detection path ran. Such a
+    // leftover decides the *next* test's detection branch, which is invisible in
+    // file order and fails the moment the runner shuffles. `mockReset` restores
+    // the implementation the module factory gave `vi.fn(impl)` and drains the
+    // queue with it.
+    vi.mocked(detectLanguageWithConfidence).mockReset();
+    vi.mocked(detectLanguageWithConfidenceAsync).mockReset();
     mockUserRepository.getSettings.mockResolvedValue({
       interfaceLang: "en",
       nativeLang: "ru",
@@ -216,16 +221,17 @@ describe("handleTranslateText — auto-detect language direction", () => {
     expect(callArgs).toHaveProperty("outputConfig");
   });
 
-  it("logs debug info about resolved direction", async () => {
+  it("records the resolved translation direction as a queryable event", async () => {
+    setLogger(mockLogger);
     const ctx = createMockCtx();
     await handleTranslateText(ctx, "привет");
 
-    expect(mockLogger.debug).toHaveBeenCalledWith(
-      expect.objectContaining({
-        word: "привет",
-      }),
-      expect.any(String),
-    );
+    const directionEvent = vi
+      .mocked(mockLogger.info)
+      .mock.calls.find(([fields]) => fields.event === "translation.direction_resolved");
+
+    expect(directionEvent).toBeDefined();
+    expect(directionEvent?.[0]).toMatchObject({ word: "привет", sourceLang: expect.any(String) });
   });
 
   it("handles Russian (Cyrillic) input", async () => {
@@ -358,6 +364,29 @@ describe("handleTranslateText — English in sync candidates for multi-word inpu
     const callArgs = vi.mocked(translateWithContext).mock.calls[0][0];
     expect(callArgs.sourceLang).toBe("en");
     expect(callArgs.targetLangs).toContain("de");
+  });
+
+  // English is accepted as a source even when the user does not study it — but
+  // the card is useless without the language the learner actually thinks in.
+  // This is the same rule `resolve-direction.ts` applies when the source is a
+  // learning language; it was never applied to the English lingua-franca case,
+  // so a ru-native studying only German got German-only cards for every English
+  // word. The assertion above passed throughout, because `toContain` proves
+  // presence and says nothing about what is missing.
+  it("puts the native language first in the targets for an English source the user does not study", async () => {
+    const ctx = createMockCtx();
+    await handleTranslateText(ctx, "I will get you");
+
+    const callArgs = vi.mocked(translateWithContext).mock.calls[0][0];
+    expect(callArgs.targetLangs).toEqual(["ru", "de"]);
+  });
+
+  it("never targets the source language itself", async () => {
+    const ctx = createMockCtx();
+    await handleTranslateText(ctx, "I will get you");
+
+    const callArgs = vi.mocked(translateWithContext).mock.calls[0][0];
+    expect(callArgs.targetLangs).not.toContain(callArgs.sourceLang);
   });
 });
 

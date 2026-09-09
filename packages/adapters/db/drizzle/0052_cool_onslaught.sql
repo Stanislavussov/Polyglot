@@ -1,0 +1,1 @@
+ALTER TABLE "rate_limit_plans" ADD COLUMN "price_usd_cents" integer;

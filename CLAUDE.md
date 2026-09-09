@@ -29,7 +29,7 @@ All database schema work goes through `drizzle-kit`, but agents must not run pro
 ```bash
 pnpm db:generate   # generate migrations from schema changes
 pnpm db:push       # push schema changes to the local/dev database
-pnpm db:check      # check for schema drift
+pnpm db:check      # validate the migration folder/journal (NOT a drift check)
 ```
 
 - Edit `packages/adapters/db/src/schema.ts`, then generate migrations
@@ -62,6 +62,15 @@ For every feature, bug fix, refactor, or behavior change that touches source cod
 
 If a change is too small to need a new test, explicitly state why existing tests or static checks already cover the behavior.
 
+#### 5a. E2E coverage for cross-cutting features (mandatory)
+
+A flow that crosses layers (bot command/callback/conversation → service → persisted state, or scheduler → delivery) is **not done** without an `*.integration.test.ts` driving it through the real dispatcher against the real Postgres, written per the `bot-testing` skill (`.claude/skills/bot-testing/SKILL.md`) — read it first.
+
+- Bot-facing → `apps/bot/src/__tests__/integration/`; persistence-only → `packages/adapters/db/src/__tests__/`.
+- A mock-only unit test never satisfies this rule.
+- Run `pnpm test:integration` before claiming completion — the standard gate (`pnpm test`) runs the unit lane only.
+- Skip only by naming the existing integration test that covers the flow. "Hard to test" or "later" is a blocker, not a completion.
+
 ### 6. Deployment & Host Provisioning
 
 Two **separate** pipelines — never conflate them. Canonical guidance: `@docs/agents/deployment.md`.
@@ -81,6 +90,18 @@ Run these steps **when there are related code changes** (a change isn't done unt
 - Added/changed an infra var in `.env.prod` that Ansible or the deploy workflow consumes → push it with `gh secret set`, or CI runs with stale values.
 - App-code/container-only changes → none of this applies; the app-deploy pipeline covers it.
 
+### 7. Comments Carry the Why, Not the What
+
+Write a comment only where the code cannot state its own reason: a workaround for an external quirk (Telegram/API/driver behavior), a non-obvious invariant or ordering constraint, a deliberate trade-off, a gotcha that already caused an incident. Name the cause so the comment stays checkable.
+
+Leave everything else uncommented — the names, types, and tests already carry it:
+
+- Functions, hooks, and handlers whose name and signature state their contract need no header, JSDoc, or `@param`/`@returns` block.
+- Lines that restate the code below them (`// increment the counter`), section banners, and step-by-step narration of an obvious flow are noise; delete them on sight when editing nearby code.
+- When a block seems to need a comment explaining *what* it does, extract it into a well-named function instead.
+
+One clear line beats a multi-line explanation. Prefer `//` over block comments.
+
 ## Project Context
 
 - **Monorepo**: pnpm workspaces (`packages/*`, `packages/adapters/*`, `apps/*`)
@@ -92,4 +113,5 @@ Run these steps **when there are related code changes** (a change isn't done unt
   - `@docs/agents/quality-gate.md` — required checks after changes.
   - `@docs/agents/workflows.md` — planning, implementation, review, and documentation flows.
   - `@docs/agents/testing-strategy-tdd.md` — spec-first TDD and test strategy.
+  - `@docs/agents/observability.md` — trace context, the event catalogue, and how to add a log line.
   - `@docs/agents/skills.md` — compact role index for domain-specific work.

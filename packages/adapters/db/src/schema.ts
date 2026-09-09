@@ -1,8 +1,10 @@
+import type { MomentumEventKind, TranslateOutput } from "@polyglot/core";
 import { sql } from "drizzle-orm";
 import {
   bigint,
   boolean,
   date,
+  doublePrecision,
   index,
   integer,
   jsonb,
@@ -14,6 +16,7 @@ import {
   text,
   timestamp,
   uniqueIndex,
+  uuid,
   varchar,
 } from "drizzle-orm/pg-core";
 import type { SourceUsage, VocabTranslationDetails, VocabularySource } from "./repositories/vocabulary.repository.js";
@@ -115,6 +118,14 @@ export const users = pgTable("users", {
   subscriptionPlan: text("subscription_plan").default("free").notNull(),
   onboardingStep: integer("onboarding_step").default(0).notNull(),
   onboarded: boolean("onboarded").default(false).notNull(),
+  /**
+   * When onboarding was completed (Task 72, slice 8). Nullable on purpose: rows
+   * that finished onboarding before this column existed carry NULL and are
+   * never backfilled, because there is no way to reconstruct the instant. Every
+   * "since onboarding" query must therefore treat NULL as *not eligible* — a
+   * months-old account has no D+1 window left, and nudging it would be spam.
+   */
+  onboardedAt: timestamp("onboarded_at", { withTimezone: true }),
   isActive: boolean("is_active").default(true).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
@@ -164,8 +175,16 @@ export const userLanguageSettings = pgTable("user_language_settings", {
   lastSourceLang: text("last_source_lang"),
   /** Whether daily word notifications are enabled */
   notificationEnabled: boolean("notification_enabled").default(false).notNull(),
-  /** Preferred notification times in user's local time ("HH:MM" each). Up to 12. Empty = not configured. */
-  notificationTimes: text("notification_times").array().notNull().default(["08:00"]),
+  /**
+   * Preferred notification times in user's local time ("HH:MM" each). Up to 12.
+   *
+   * **Empty = not configured**, and the default is empty precisely so that state
+   * is representable. A non-empty default would make "never opened settings"
+   * indistinguishable from "deliberately picked this hour", which is what forces
+   * a guess later. The schedule is filled in when the user turns notifications
+   * on, from the admin-managed `notifications.defaultTime`.
+   */
+  notificationTimes: text("notification_times").array().notNull().default([]),
   /** Notification word source: 'suggested' (AI) | 'srs' (dictionary review) | 'contextual' (AI + user context) */
   notificationType: text("notification_type").$type<"suggested" | "srs" | "contextual">().default("srs").notNull(),
   /** User-provided context for AI-generated contextual notifications (e.g., "preparing for job interview") */
@@ -202,6 +221,8 @@ export const vocabularyEntries = pgTable(
      * Unverified entries are excluded from daily notifications and SRS picks.
      */
     unverified: boolean("unverified").default(false).notNull(),
+    /** Notification feedback grade ('hard' | 'normal' | 'easy'); null = unrated, weighted as normal. */
+    difficulty: text("difficulty").$type<"hard" | "normal" | "easy">(),
     isActive: boolean("is_active").default(true).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
@@ -398,6 +419,36 @@ export const topicTranslationCache = pgTable(
 );
 
 // ─────────────────────────────────────────────
+// Onboarding demo cards — pre-rendered "hook" cards (Task 72)
+// The headword list is the code-side source of truth
+// (packages/core/src/modules/onboarding/hook-words.ts); this table caches the
+// rendered card per (sourceLang, nativeLang, headword) so the onboarding demo
+// costs no AI call on the tap path.
+// ─────────────────────────────────────────────
+export const onboardingDemoCards = pgTable(
+  "onboarding_demo_cards",
+  {
+    id: serial("id").primaryKey(),
+    /** Learning language the headword belongs to (ISO 639-1) */
+    sourceLang: text("source_lang").notNull(),
+    /** Native language the card was rendered for (ISO 639-1) */
+    nativeLang: text("native_lang").notNull(),
+    headword: text("headword").notNull(),
+    /** Serialized TranslateOutput — the exact payload renderTranslation consumes */
+    payload: jsonb("payload").$type<TranslateOutput>().notNull(),
+    /** Ordering within the hook keyboard */
+    sortOrder: integer("sort_order").default(0).notNull(),
+    /** Reviewed and safe to show. Unreviewed cards are never served. */
+    isActive: boolean("is_active").default(false).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [uniqueIndex("onboarding_demo_cards_key_idx").on(t.sourceLang, t.nativeLang, t.headword)],
+);
+
+export type OnboardingDemoCard = typeof onboardingDemoCards.$inferSelect;
+export type NewOnboardingDemoCard = typeof onboardingDemoCards.$inferInsert;
+
+// ─────────────────────────────────────────────
 // User translation templates — customizable output fields
 // 1-to-1 with users. Controls which sections appear in translation output.
 // ─────────────────────────────────────────────
@@ -473,6 +524,37 @@ export const notificationHistory = pgTable(
 );
 
 export type NotificationHistory = typeof notificationHistory.$inferSelect;
+
+// ─────────────────────────────────────────────
+// Mentor messages — durable mentor-chat threads
+// Telegram exposes only ONE reply level (reply_to_message), so thread
+// reconstruction from a reply depends on us keeping our own
+// (chat_id, telegram_message_id) → thread_id mapping. Also the raw material for
+// phase-2 topic summaries (keyed by thread_id).
+// ─────────────────────────────────────────────
+export const mentorMessages = pgTable(
+  "mentor_messages",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    chatId: bigint("chat_id", { mode: "number" }).notNull(),
+    threadId: uuid("thread_id").notNull(),
+    role: text("role").$type<"user" | "assistant">().notNull(),
+    content: text("content").notNull(),
+    telegramMessageId: bigint("telegram_message_id", { mode: "number" }).notNull(),
+    interfaceLang: text("interface_lang"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    index("mentor_msg_chat_tgid_idx").on(t.chatId, t.telegramMessageId),
+    index("mentor_msg_thread_idx").on(t.threadId, t.id),
+    index("mentor_msg_user_created_idx").on(t.userId, t.createdAt),
+  ],
+);
+
+export type MentorMessage = typeof mentorMessages.$inferSelect;
 
 // ─────────────────────────────────────────────
 // Release announcement deliveries — one successful send per release/user/group
@@ -571,9 +653,31 @@ export const rateLimitPlans = pgTable("rate_limit_plans", {
   videoLimit: integer("video_limit"),
   /** Window the video allowance is measured over. `none` = feature disabled for this plan. */
   videoWindow: videoWindowEnum("video_window").default("none").notNull(),
+  /**
+   * Max mentor turns per UTC day. `null` = unlimited. Separate from the credit
+   * meter because the mentor model is priced above the translate default: the
+   * unmetered Plus plan still needs a ceiling on the expensive calls, while Pro
+   * sells the unlimited mentor.
+   */
+  mentorDailyLimit: integer("mentor_daily_limit"),
+  /**
+   * Display price in US cents shown on the upgrade screen. `null` = not for sale
+   * (the free plan). Deliberately NOT a billing price: real charges will pin an
+   * immutable `plan_prices` version per subscription (tech-req 16 §4.1), so this
+   * column only drives copy and is safe for an admin to edit at any time.
+   */
+  priceUsdCents: integer("price_usd_cents"),
   isActive: boolean("is_active").default(true).notNull(),
   /** Users are reassigned here when another plan is deleted. Exactly one default is expected. */
   isDefault: boolean("is_default").default(false).notNull(),
+  /**
+   * The AI model this plan's users are served by. `null` = use the globally
+   * default model (`ai_models.is_default`). This replaced an implicit rule where a
+   * plan's model was "the default model if the plan was allowed to use it,
+   * otherwise the alphabetically first allowed model" — unreadable in the admin
+   * panel and impossible to predict. Routing is now one explicit choice per plan.
+   */
+  aiModelId: varchar("ai_model_id", { length: 255 }).references(() => aiModels.id, { onDelete: "set null" }),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
@@ -589,7 +693,7 @@ export const aiRequestLatencies = pgTable(
     /** OpenRouter model ID, e.g. "openai/gpt-4o" */
     modelId: varchar("model_id", { length: 255 }).notNull(),
     /** AI adapter method that produced the request */
-    requestKind: text("request_kind").$type<"object" | "text" | "chat">().notNull(),
+    requestKind: text("request_kind").$type<"object" | "text" | "chat" | "speech" | "transcription">().notNull(),
     durationMs: integer("duration_ms").notNull(),
     inputTokens: integer("input_tokens").default(0).notNull(),
     outputTokens: integer("output_tokens").default(0).notNull(),
@@ -691,32 +795,21 @@ export const aiModels = pgTable("ai_models", {
   isEnabled: boolean("is_enabled").default(true).notNull(),
   /** Default cost fallback for unknown models */
   isDefault: boolean("is_default").default(false).notNull(),
+  /**
+   * The model the AI failover retries on when the primary (default) model fails.
+   * Admin-managed here rather than hardcoded in the bot, so a bad fallback can be
+   * swapped without a redeploy. At most one row carries it (see
+   * `aiModelRepository.setFallback`).
+   */
+  isFallback: boolean("is_fallback").default(false).notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
 export type AIModelRow = typeof aiModels.$inferSelect;
 
 // ─────────────────────────────────────────────
-// AI model access — which subscription plans can use each model
-// ─────────────────────────────────────────────
-export const aiModelPlanAccess = pgTable(
-  "ai_model_plan_access",
-  {
-    modelId: varchar("model_id", { length: 255 })
-      .notNull()
-      .references(() => aiModels.id, { onDelete: "cascade" }),
-    planName: varchar("plan_name", { length: 50 })
-      .notNull()
-      .references(() => rateLimitPlans.name, { onDelete: "cascade" }),
-  },
-  (t) => [primaryKey({ columns: [t.modelId, t.planName] }), index("ai_model_plan_access_plan_idx").on(t.planName)],
-);
-
-export type AIModelPlanAccess = typeof aiModelPlanAccess.$inferSelect;
-
-// ─────────────────────────────────────────────
 // Plan feature access — which premium features each plan unlocks
-// Mirrors aiModelPlanAccess: a junction gating feature keys per plan.
+// A junction gating feature keys per plan.
 // ─────────────────────────────────────────────
 export const planFeatureAccess = pgTable(
   "plan_feature_access",
@@ -800,6 +893,14 @@ export const videoProcesses = pgTable(
     /** 'pending' | 'processing' | 'completed' | 'failed' */
     status: text("status").$type<"pending" | "processing" | "completed" | "failed">().default("pending").notNull(),
     errorMessage: text("error_message"),
+    /**
+     * The one free video offered from the onboarding suggestions (Task 72). Free
+     * plan allowance is 3 *lifetime*, so spending one on a demo the user has not
+     * yet seen the value of is a third of everything they get. Trial rows are
+     * excluded from both usage counts; one per user, enforced by
+     * `hasCompletedTrial`.
+     */
+    isTrial: boolean("is_trial").default(false).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },
@@ -901,3 +1002,178 @@ export const subscriptions = pgTable(
 
 export type Subscription = typeof subscriptions.$inferSelect;
 export type SubscriptionStatus = "active" | "past_due" | "canceled" | "expired";
+
+// ─────────────────────────────────────────────
+// TTS cache — synthesized pronunciations, keyed by Telegram file_id
+// ─────────────────────────────────────────────
+/**
+ * One row per successfully synthesized pronunciation. The payload we keep is the
+ * Telegram `file_id`, not the audio: re-sending a `file_id` costs neither an
+ * OpenRouter call nor an upload, which is what makes the button free to press
+ * repeatedly.
+ *
+ * The cache is deliberately global rather than per-user — a `file_id` is scoped to
+ * the bot token, so any row is resendable to any chat this bot serves, and the same
+ * word in the same language sounds the same for everyone.
+ *
+ * `modelId` and `voice` are part of the key so switching either in the admin
+ * settings invalidates the old audio by construction instead of serving a voice the
+ * admin just changed away from.
+ */
+export const ttsCache = pgTable(
+  "tts_cache",
+  {
+    id: serial("id").primaryKey(),
+    /** SHA-256 of the normalized text — keeps the unique index narrow and fixed-width. */
+    textHash: varchar("text_hash", { length: 64 }).notNull(),
+    /** The spoken text itself, kept for debugging and admin inspection. */
+    text: text("text").notNull(),
+    langCode: varchar("lang_code", { length: 16 }).notNull(),
+    /** OpenRouter speech model that produced this audio. */
+    modelId: varchar("model_id", { length: 255 }).notNull(),
+    /** Voice used; empty string for models with no voice concept. */
+    voice: varchar("voice", { length: 64 }).default("").notNull(),
+    telegramFileId: text("telegram_file_id").notNull(),
+    /** Characters billed for this synthesis — the unit OpenRouter charges on. */
+    charCount: integer("char_count").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    lastUsedAt: timestamp("last_used_at", { withTimezone: true }).defaultNow().notNull(),
+    useCount: integer("use_count").default(1).notNull(),
+  },
+  (t) => [
+    uniqueIndex("tts_cache_key_idx").on(t.textHash, t.langCode, t.modelId, t.voice),
+    // Supports future least-recently-used eviction; nothing prunes yet by design.
+    index("tts_cache_last_used_idx").on(t.lastUsedAt),
+  ],
+);
+
+export type TtsCacheRow = typeof ttsCache.$inferSelect;
+
+// ─────────────────────────────────────────────
+// Word picker — curated "angles" on a language, authored in the admin panel
+// and offered to the user as the first step in the main menu.
+// ─────────────────────────────────────────────
+export const wordPickerPresets = pgTable(
+  "word_picker_presets",
+  {
+    id: serial("id").primaryKey(),
+    /** Stable key the seeder matches on, so an admin-edited preset survives re-seeding. */
+    slug: varchar("slug", { length: 64 }).notNull(),
+    emoji: varchar("emoji", { length: 16 }).default("✨").notNull(),
+    /** Shown when the user's interface language has no entry in `titleI18n`. */
+    title: varchar("title", { length: 120 }).notNull(),
+    /** Interface-language code → title. Partial by design; missing codes fall back to `title`. */
+    titleI18n: jsonb("title_i18n").$type<Record<string, string>>().default({}).notNull(),
+    /** The instruction handed to the model — the angle itself. */
+    prompt: text("prompt").notNull(),
+    /** Learning languages this angle is offered for; empty means every language. */
+    learningLangs: text("learning_langs").array().default(sql`ARRAY[]::text[]`).notNull(),
+    sortOrder: integer("sort_order").default(0).notNull(),
+    isActive: boolean("is_active").default(true).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [uniqueIndex("wpp_slug_idx").on(t.slug), index("wpp_active_order_idx").on(t.isActive, t.sortOrder)],
+);
+
+export type WordPickerPreset = typeof wordPickerPresets.$inferSelect;
+
+/** One generated set: a user tapped one angle for one learning language. */
+export const wordPickerRuns = pgTable(
+  "word_picker_runs",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    /**
+     * The angle this set came from. `set null` rather than cascade: deleting a
+     * preset in the admin panel must not delete word sets users are still
+     * browsing, which is why the title is snapshotted alongside it.
+     */
+    presetId: integer("preset_id").references(() => wordPickerPresets.id, { onDelete: "set null" }),
+    /** Preset title as shown when the set was generated. */
+    presetTitle: varchar("preset_title", { length: 120 }).notNull(),
+    presetEmoji: varchar("preset_emoji", { length: 16 }).default("✨").notNull(),
+    /** Learning language the set was generated in (ISO 639-1). */
+    langCode: text("lang_code").notNull(),
+    nativeLang: text("native_lang").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [index("wpr_user_preset_idx").on(t.userId, t.presetId, t.langCode)],
+);
+
+export type WordPickerRun = typeof wordPickerRuns.$inferSelect;
+
+export const wordPickerItems = pgTable(
+  "word_picker_items",
+  {
+    id: serial("id").primaryKey(),
+    runId: integer("run_id")
+      .references(() => wordPickerRuns.id, { onDelete: "cascade" })
+      .notNull(),
+    word: text("word").notNull(),
+    nativeTranslation: text("native_translation").notNull(),
+    emoji: varchar("emoji", { length: 16 }),
+    /** 'word' | 'phrase' | 'idiom' | 'collocation' */
+    itemType: text("item_type"),
+    /** CEFR level: A1–C2 */
+    level: varchar("level", { length: 8 }),
+    /** Example sentence in the learning language, with its native translation. */
+    exampleTarget: text("example_target"),
+    exampleNative: text("example_native"),
+    /** What the angle reveals about this item, in the learner's native language. */
+    note: text("note"),
+    sortOrder: integer("sort_order").notNull(),
+    savedEntryId: integer("saved_entry_id").references(() => vocabularyEntries.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [index("wpi_run_sort_idx").on(t.runId, t.sortOrder)],
+);
+
+export type WordPickerItem = typeof wordPickerItems.$inferSelect;
+
+// ─────────────────────────────────────────────
+// Momentum — effort journal + per-user snapshot (Task 81)
+// ─────────────────────────────────────────────
+
+/** Append-only effort journal; pruned by `runTelemetryRetention` because it is audit, not truth. */
+export const momentumEvents = pgTable(
+  "momentum_events",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    kind: text("kind").$type<MomentumEventKind>().notNull(),
+    /** Points after the daily cap is applied; 0 means capped out or a 'praise' token. */
+    weight: integer("weight").default(0).notNull(),
+    /** Written by the app from an injected clock; defaultNow() is only a fallback. */
+    occurredAt: timestamp("occurred_at", { withTimezone: true }).defaultNow().notNull(),
+    /** Idempotency unit: a deterministic key, never a computed counter. */
+    dedupeKey: text("dedupe_key").notNull(),
+  },
+  (t) => [
+    uniqueIndex("momentum_events_user_dedupe_idx").on(t.userId, t.dedupeKey),
+    index("momentum_events_user_time_idx").on(t.userId, t.occurredAt),
+  ],
+);
+
+/** Durable snapshot, one row per user; deliberately NOT pruned by retention. */
+export const userMomentum = pgTable("user_momentum", {
+  userId: integer("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .primaryKey(),
+  /**
+   * Momentum discounted to `scoredAt`; not comparable across rows without
+   * re-discounting both to a common instant. doublePrecision, not real: a
+   * backfill replay sums hundreds of terms.
+   */
+  score: doublePrecision("score").default(0).notNull(),
+  scoredAt: timestamp("scored_at", { withTimezone: true }).defaultNow().notNull(),
+  /** Last interaction as motivation sees it — not the same thing as users.lastInteractionAt. */
+  lastSeenAt: timestamp("last_seen_at", { withTimezone: true }),
+  lastPraiseAt: timestamp("last_praise_at", { withTimezone: true }),
+  lastRecoveryAt: timestamp("last_recovery_at", { withTimezone: true }),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});

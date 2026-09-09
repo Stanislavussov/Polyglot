@@ -7,6 +7,7 @@
  * text, and drive the post-translation "Clarify" button on a rendered card.
  */
 import {
+  FEATURE_KEYS,
   isSupported,
   isSupportedLanguage,
   logger,
@@ -17,6 +18,7 @@ import {
   translateWithContext,
 } from "@polyglot/core";
 import { inputCorrectionCounter, unrecognizedWordCounter } from "../../metrics.js";
+import { commitRecovery, resolveRecoveryPrefix } from "../../momentum/recovery.helper.js";
 import {
   buildTranslationKeyboard,
   renderSentenceTranslation,
@@ -24,14 +26,17 @@ import {
 } from "../../renderers/translation.renderer.js";
 import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
+import { resolveLanguageOrder } from "../../utils/language-order.js";
 import { LONG_OP_TIMEOUT_MS, startTypingKeepalive, withTimeout } from "../../utils/long-op.js";
-import { trackTechnicalMessage } from "../../utils/message-cleanup.js";
+import { ensurePaidFeature, resolveLockedFeatures } from "./paid-feature.helper.js";
+import { answerStaleCallback } from "./stale-callback.helper.js";
 import { handleMistypeConfirmCallback } from "./translate-flow.js";
 import {
   clearPendingClarification,
   getUserLanguageGroup,
   isEtymologyEligible,
   normalizeLearningLangs,
+  resolvePronounceLangs,
   showAddLanguagePrompt,
 } from "./translate-mode.shared.js";
 import { setTranslationEntry } from "./translation-map.helper.js";
@@ -73,10 +78,13 @@ export async function handleClarifyPostCallback(ctx: BotContext): Promise<void> 
   const entry = ctx.session.translationMap?.[String(msgId)];
 
   if (!entry) {
-    await ctx.answerCallbackQuery({
-      text: "⚠️ Session expired. Please translate the word again.",
-      show_alert: true,
-    });
+    await answerStaleCallback(ctx, { action: "tr:clarifypost", msgId });
+    return;
+  }
+
+  // Paid feature: a Free user's tap becomes the upgrade screen, never a prompt
+  // for context that would then be ignored.
+  if (!(await ensurePaidFeature(ctx, FEATURE_KEYS.clarification))) {
     return;
   }
 
@@ -99,10 +107,7 @@ export async function handleTranslationClarificationCallback(ctx: BotContext): P
   const pending = ctx.session.pendingClarification;
   if (!data || !pending) {
     clearPendingClarification(ctx);
-    await ctx.answerCallbackQuery({
-      text: "⚠️ Session expired. Please translate the word again.",
-      show_alert: true,
-    });
+    await answerStaleCallback(ctx, { action: "tr:clarify" });
     return;
   }
 
@@ -115,16 +120,14 @@ export async function handleTranslationClarificationCallback(ctx: BotContext): P
   if (data === "tr:clarify:cancel") {
     clearPendingClarification(ctx);
     await ctx.answerCallbackQuery();
-    const msg = await ctx.reply(t("translateModeHint", lang));
-    trackTechnicalMessage(ctx, msg.message_id);
+    await ctx.reply(t("translateModeHint", lang));
     return;
   }
 
   if (data === "tr:clarify:context") {
     ctx.session.awaitingTranslationClarificationContext = true;
     await ctx.answerCallbackQuery();
-    const msg = await ctx.reply(t("translationClarifyContextPrompt", lang));
-    trackTechnicalMessage(ctx, msg.message_id);
+    await ctx.reply(t("translationClarifyContextPrompt", lang));
     return;
   }
 
@@ -154,9 +157,11 @@ export async function handleTranslationClarificationCallback(ctx: BotContext): P
     const index = Number.parseInt(data.replace("tr:clarify:option:", ""), 10);
     const option = pending.options?.[index];
     if (!option) {
-      await ctx.answerCallbackQuery({
-        text: "⚠️ Session expired. Please translate the word again.",
-        show_alert: true,
+      await answerStaleCallback(ctx, {
+        action: "tr:clarify:option",
+        word: pending.word,
+        contextHint: pending.contextHint,
+        lang,
       });
       return;
     }
@@ -287,9 +292,10 @@ export async function handleTranslationClarificationContextText(ctx: BotContext,
         throw new Error("Unexpected needs_clarification in post-translation clarify flow");
       }
 
+      const order = await resolveLanguageOrder(ctx);
       const cardText = isSentence
-        ? `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(decision.output, lang, nativeLang)}`
-        : renderTranslation(decision.output, lang, effectiveTemplate.fields, nativeLang);
+        ? `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(decision.output, order, lang, nativeLang)}`
+        : renderTranslation(decision.output, order, lang, effectiveTemplate.fields, nativeLang);
 
       const showGrammarButton =
         entry.inputType !== "word" && (isSentence || !effectiveTemplate.fields.grammarBreakdown);
@@ -299,15 +305,26 @@ export async function handleTranslationClarificationContextText(ctx: BotContext,
       // card stays put as a snapshot (which also avoids Telegram's 48h edit
       // limit). Preserve any accumulated "Other meaning" history for the new
       // card and advance the pending-card pointers to it.
-      const newMsg = await ctx.reply(cardText, { parse_mode: "HTML" });
-      const keyboard = buildTranslationKeyboard(
-        lang,
-        newMsg.message_id,
-        undefined,
+      const pronounceLangs = await resolvePronounceLangs(ctx, decision.output, entry.inputType, order);
+
+      // Recovery only (§2.2 S3): a returning user's line has ONE chance, and the
+      // clarify path is where a first word after the pause commonly lands. Praise is
+      // deliberately not offered here — it is event-driven and rare, so it waits for
+      // the next ordinary card rather than widening this slice's surface.
+      const now = new Date();
+      const recovery = await resolveRecoveryPrefix(ctx, lang, now);
+      const newMsg = await ctx.reply(recovery ? `${recovery.text}\n\n${cardText}` : cardText, {
+        parse_mode: "HTML",
+      });
+      if (recovery) await commitRecovery(ctx, recovery.gapDays, now);
+      const keyboard = buildTranslationKeyboard({
+        interfaceLang: lang,
+        msgId: newMsg.message_id,
         showGrammarButton,
-        undefined,
         showEtymologyButton,
-      );
+        pronounceLangs,
+        locked: await resolveLockedFeatures(ctx),
+      });
       await ctx.api.editMessageReplyMarkup(ctx.chat!.id, newMsg.message_id, { reply_markup: keyboard });
 
       setTranslationEntry(ctx.session, newMsg.message_id, {

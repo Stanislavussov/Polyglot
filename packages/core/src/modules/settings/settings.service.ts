@@ -2,14 +2,18 @@ import type { AIModel } from "../../ports/ai.port.js";
 import type {
   AIGenerationDefaults,
   DictionaryConfig,
+  MentorConfig,
   NotificationDefaults,
   PlanLimitConfig,
   SettingsPort,
   SrsConfig,
+  SttConfig,
   TranslationPresetConfig,
+  TtsConfig,
   VideoVocabularyConfig,
 } from "../../ports/settings.port.js";
 import type { SubscriptionPlan } from "../../ports/user.repository.js";
+import type { MotivationConfig } from "../momentum/momentum.types.js";
 import { AI_GENERATION_DEFAULTS } from "./ai-defaults.schema.js";
 
 const CACHE_TTL_MS = 60_000;
@@ -19,14 +23,17 @@ interface CacheEntry<T> {
   expiresAt: number;
 }
 
+/** Mirrors the seeded plans (`apps/admin-api/src/seed.ts`) — keep the two in step. */
 const FALLBACK_PLAN_LIMITS: PlanLimitConfig[] = [
   {
     name: "free",
     label: "Free",
-    translationLimit: 20,
+    translationLimit: 10,
     creditCost: 1,
-    videoLimit: 3,
-    videoWindow: "lifetime",
+    videoLimit: 0,
+    videoWindow: "none",
+    mentorDailyLimit: 0,
+    priceUsdCents: null,
     isActive: true,
     isDefault: true,
   },
@@ -35,8 +42,10 @@ const FALLBACK_PLAN_LIMITS: PlanLimitConfig[] = [
     label: "Plus",
     translationLimit: null,
     creditCost: 1,
-    videoLimit: 10,
+    videoLimit: 20,
     videoWindow: "monthly",
+    mentorDailyLimit: 30,
+    priceUsdCents: 500,
     isActive: true,
     isDefault: false,
   },
@@ -47,6 +56,8 @@ const FALLBACK_PLAN_LIMITS: PlanLimitConfig[] = [
     creditCost: 1,
     videoLimit: null,
     videoWindow: "monthly",
+    mentorDailyLimit: null,
+    priceUsdCents: 1000,
     isActive: true,
     isDefault: false,
   },
@@ -57,6 +68,8 @@ const FALLBACK_PLAN_LIMITS: PlanLimitConfig[] = [
     creditCost: 1,
     videoLimit: null,
     videoWindow: "monthly",
+    mentorDailyLimit: null,
+    priceUsdCents: null,
     isActive: true,
     isDefault: false,
   },
@@ -127,10 +140,54 @@ const FALLBACK_AI_DEFAULTS: AIGenerationDefaults = AI_GENERATION_DEFAULTS;
 const FALLBACK_SRS: SrsConfig = { minEaseFactor: 1.3, defaultEaseFactor: 2.5 };
 
 const FALLBACK_NOTIFICATIONS: NotificationDefaults = {
-  defaultTime: "08:00",
+  defaultTime: "19:00",
   defaultType: "srs",
   inactivityDays: 14,
   notificationTimesLimit: 12,
+};
+
+/**
+ * TTS is on by default. Kept byte-identical to `DEFAULTS.tts` in the db adapter —
+ * this copy is the last-resort fallback when the settings port itself is
+ * unreachable, so the two disagreeing would mean the button silently changes
+ * behaviour during a database blip. The model/format rationale (and why Gemini
+ * TTS is not it) lives with that adapter constant.
+ */
+const FALLBACK_TTS: TtsConfig = {
+  enabled: true,
+  modelId: "x-ai/grok-voice-tts-1.0",
+  voice: "eve",
+  maxChars: 200,
+};
+
+/**
+ * STT is on by default. Kept byte-identical to `DEFAULTS.stt` in the db adapter —
+ * this copy is the last-resort fallback when the settings port itself is
+ * unreachable, so the two disagreeing would mean voice-message handling silently
+ * changes behaviour during a database blip. Verified against the live API on
+ * 2026-08-23: OpenRouter's `/audio/transcriptions` accepts OGG/Opus (Telegram's
+ * voice format) directly and transcribed ru/kk/de correctly at ~$0.0002/min.
+ */
+const FALLBACK_STT: SttConfig = {
+  enabled: true,
+  // Full large-v3, not -turbo — turbo drifted spoken Russian into an English
+  // translation on real phone audio (see settings-adapter.ts DEFAULTS.stt).
+  modelId: "openai/whisper-large-v3",
+  maxDurationSec: 60,
+};
+
+/**
+ * Mentor answers with a smarter model than the translate pipeline: a mentor turn
+ * is a free-form grammar explanation, where the flash-lite default reads flat.
+ * Kept byte-identical to `DEFAULTS.mentor` in the db adapter — this copy is the
+ * last-resort fallback when the settings port itself is unreachable. An empty
+ * modelId means "follow the plan-default-fallback chain", never "disabled".
+ * gemini-3.7-flash picked 2026-08-24: mid-tier quality at $0.375/$1.875 per 1M
+ * (~1.5x the flash-lite default), strong multilingual coverage, chat-fast.
+ */
+const FALLBACK_MENTOR: MentorConfig = {
+  modelId: "google/gemini-3.7-flash",
+  maxTokens: 700,
 };
 
 const FALLBACK_DICTIONARY: DictionaryConfig = {
@@ -264,33 +321,42 @@ export class SettingsService implements SettingsPort {
     return result;
   }
 
-  async getEnabledAIModelsForPlan(plan: SubscriptionPlan): Promise<AIModel[]> {
-    const cacheKey = `enabledAIModels:${plan}`;
-    const cached = this.getCached<AIModel[]>(cacheKey);
-    if (cached) return cached;
-    const dbModels = await this.port.getEnabledAIModelsForPlan(plan);
-    const result = dbModels.length > 0 ? dbModels : await this.getEnabledAIModels();
-    this.setCache(cacheKey, result);
-    return result;
-  }
-
+  /**
+   * DB only. When no model is flagged as default the chain continues to the
+   * admin-set fallback model — also a DB row — and ends at `null`. A hardcoded
+   * model id here used to hide an empty/misconfigured `ai_models` table behind a
+   * slug nobody could change without a redeploy; callers now decide what an
+   * unconfigured system means for them.
+   */
   async getDefaultAIModel(): Promise<string | null> {
-    const cached = this.getCached<string | null>("defaultAIModel");
+    const cached = this.getCached<string>("defaultAIModel");
     if (cached) return cached;
-    const dbDefault = await this.port.getDefaultAIModel();
-    const result = dbDefault ?? "openai/gpt-5-nano";
-    this.setCache("defaultAIModel", result);
+    const result = (await this.port.getDefaultAIModel()) ?? (await this.port.getFallbackAIModel());
+    if (result) this.setCache("defaultAIModel", result);
     return result;
   }
 
   async getDefaultAIModelForPlan(plan: SubscriptionPlan): Promise<string | null> {
     const cacheKey = `defaultAIModel:${plan}`;
-    const cached = this.getCached<string | null>(cacheKey);
+    const cached = this.getCached<string>(cacheKey);
     if (cached) return cached;
     const dbDefault = await this.port.getDefaultAIModelForPlan(plan);
     const result = dbDefault ?? (await this.getDefaultAIModel());
-    this.setCache(cacheKey, result);
+    if (result) this.setCache(cacheKey, result);
     return result;
+  }
+
+  /**
+   * Cached like the other model reads. A `null` result (no enabled model flagged
+   * as fallback) is deliberately NOT cached: it is the unconfigured state, and the
+   * next read should pick up an admin flagging one without waiting out the TTL.
+   */
+  async getFallbackAIModel(): Promise<string | null> {
+    const cached = this.getCached<string>("fallbackAIModel");
+    if (cached) return cached;
+    const dbFallback = await this.port.getFallbackAIModel();
+    if (dbFallback) this.setCache("fallbackAIModel", dbFallback);
+    return dbFallback;
   }
 
   async getAIGenerationDefaults(): Promise<AIGenerationDefaults> {
@@ -341,14 +407,49 @@ export class SettingsService implements SettingsPort {
     this.setCache("videoVocabulary", config);
     return config;
   }
+
+  async getTtsConfig(): Promise<TtsConfig> {
+    const cached = this.getCached<TtsConfig>("tts");
+    if (cached) return cached;
+    const config = await this.port.getTtsConfig();
+    this.setCache("tts", config);
+    return config;
+  }
+
+  async getSttConfig(): Promise<SttConfig> {
+    const cached = this.getCached<SttConfig>("stt");
+    if (cached) return cached;
+    const config = await this.port.getSttConfig();
+    this.setCache("stt", config);
+    return config;
+  }
+
+  async getMentorConfig(): Promise<MentorConfig> {
+    const cached = this.getCached<MentorConfig>("mentor");
+    if (cached) return cached;
+    const config = await this.port.getMentorConfig();
+    this.setCache("mentor", config);
+    return config;
+  }
+
+  async getMotivationConfig(): Promise<MotivationConfig> {
+    const cached = this.getCached<MotivationConfig>("motivation");
+    if (cached) return cached;
+    const config = await this.port.getMotivationConfig();
+    this.setCache("motivation", config);
+    return config;
+  }
 }
 
 export {
   FALLBACK_AI_DEFAULTS,
   FALLBACK_AI_MODELS,
   FALLBACK_DICTIONARY,
+  FALLBACK_MENTOR,
   FALLBACK_NOTIFICATIONS,
   FALLBACK_PLAN_LIMITS,
   FALLBACK_PRESETS,
   FALLBACK_SRS,
+  FALLBACK_STT,
+  FALLBACK_TTS,
 };

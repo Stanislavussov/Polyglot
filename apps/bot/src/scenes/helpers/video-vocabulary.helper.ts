@@ -12,14 +12,15 @@ import {
 import {
   computePhraseTarget,
   extractPhrasesFromTranscript,
+  getVideoSuggestionsForLangs,
   isSupported,
   logger,
   resolveEntitlements,
-  resolveOutputConfig,
+  resolveVideoSuggestion,
   type SupportedLang,
   t,
-  translateWithContext,
 } from "@polyglot/core";
+import { InlineKeyboard } from "grammy";
 import { videoEnrichmentCounter, videoProcessingCounter, videoProcessingDuration } from "../../metrics.js";
 import {
   buildConfirmationKeyboard,
@@ -30,11 +31,9 @@ import {
   renderVideoList,
 } from "../../renderers/video-vocabulary.renderer.js";
 import type { BotContext } from "../../types.js";
-import { resolveDefaultAIModel } from "../../utils/ai-model.js";
 import { ensureAiQuota, recordAiUsage } from "../../utils/ai-quota.js";
-import { trackTechnicalMessage } from "../../utils/message-cleanup.js";
-import { toVocabularyInput } from "../../utils/vocabulary-mapper.js";
 import { editMessageTextOrReply } from "./edit-message.helper.js";
+import { enrichEntryInBackground } from "./entry-enrichment.helper.js";
 import { buildUpgradeKeyboard } from "./subscription.helper.js";
 
 const PHRASES_PER_PAGE = 5;
@@ -120,6 +119,25 @@ function buildNativeTranslation(
   return translations;
 }
 
+/** Enrich a saved video phrase, counting the outcome on the video metric. */
+function enrichVideoEntry(
+  ctx: BotContext,
+  entryId: number,
+  word: string,
+  inputType: "word" | "phrase",
+  sourceLangCode: string,
+  userId: number,
+): Promise<void> {
+  return enrichEntryInBackground(ctx, {
+    entryId,
+    word,
+    inputType,
+    sourceLangCode,
+    userId,
+    onOutcome: (status) => videoEnrichmentCounter.inc({ status }),
+  });
+}
+
 /**
  * Feature launch date — the free-tier lifetime video trial only counts analyses
  * created on or after this date, so existing users aren't retroactively locked out.
@@ -140,83 +158,25 @@ function getCurrentYearMonth(): string {
   return `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}`;
 }
 
-/**
- * Enrich a vocabulary entry in the background with full template translation.
- * Called after optimistic save — errors are logged but not surfaced to user.
- */
-async function enrichVideoEntryInBackground(
-  entryId: number,
-  phrase: string,
-  inputType: "word" | "phrase",
-  sourceLangCode: string,
-  userId: number,
-  ctx: BotContext,
-): Promise<void> {
-  try {
-    const savedTemplate = await ctx.services.translationTemplateRepository.getByUserId(userId);
-    const userTpl = savedTemplate ? { name: savedTemplate.name, fields: savedTemplate.fields } : null;
-    const outputConfig = resolveOutputConfig(userTpl, inputType, phrase.length);
-
-    const userSettings = await ctx.services.userRepository.getSettings(userId);
-    const nativeLang = userSettings?.nativeLang ?? "en";
-    const learningLangs = userSettings?.learningLangs ?? [];
-
-    // Build target languages: all user's learning languages except the source
-    const targetLangs = learningLangs.filter((l) => l !== sourceLangCode);
-    if (targetLangs.length === 0) targetLangs.push(nativeLang);
-
-    const model = await resolveDefaultAIModel(ctx.services.settings, ctx.user?.subscriptionPlan);
-
-    const decision = await translateWithContext(
-      {
-        word: phrase,
-        sourceLang: sourceLangCode,
-        targetLangs,
-        nativeLang,
-        model,
-        outputConfig,
-        inputType,
-        userId,
-      },
-      {
-        lookupContext: async () => [],
-        generateObjectFn: ctx.services.ai.generateObject,
-      },
-    );
-
-    if (decision.status === "accepted" || decision.status === "needs_review") {
-      const vocabInput = toVocabularyInput(
-        decision.output,
-        0, // sourceLangId not used for update path
-        inputType,
-        (code) => ctx.services.languageCache.getLang(code)?.id ?? null,
-      );
-
-      await ctx.services.vocabularyRepository.updateEntry(entryId, {
-        emoji: vocabInput.emoji,
-        nativeMeaning: vocabInput.nativeMeaning,
-        sourceUsage: vocabInput.sourceUsage,
-      });
-
-      if (vocabInput.translations.length > 0) {
-        await ctx.services.vocabularyRepository.updateAllTranslations(entryId, vocabInput.translations);
-      }
-    }
-    videoEnrichmentCounter.inc({ status: "success" });
-  } catch (error) {
-    videoEnrichmentCounter.inc({ status: "error" });
-    logger.error(
-      { entryId, phrase, error: error instanceof Error ? error.message : String(error) },
-      "Failed to enrich video vocabulary entry",
-    );
-  }
-}
-
 /* ------------------------------------------------------------------ */
 /*  Entry point — YouTube URL detected                                 */
 /* ------------------------------------------------------------------ */
 
-export async function handleVideoVocabularyUrl(ctx: BotContext, text: string): Promise<void> {
+export interface VideoVocabularyOptions {
+  /**
+   * This URL came from the onboarding suggestions. If the user has not spent
+   * their giveaway yet, the run skips the plan allowance and is recorded as a
+   * trial. Free plan is 3 videos *lifetime*, so charging one to a demo the user
+   * has not yet seen the value of takes a third of everything they get.
+   */
+  fromOnboarding?: boolean;
+}
+
+export async function handleVideoVocabularyUrl(
+  ctx: BotContext,
+  text: string,
+  options: VideoVocabularyOptions = {},
+): Promise<void> {
   const lang = await resolveInterfaceLang(ctx);
   const userId = ctx.user?.id;
   if (!userId) return;
@@ -239,8 +199,7 @@ export async function handleVideoVocabularyUrl(ctx: BotContext, text: string): P
     return;
   }
   if (existing?.status === "processing" || existing?.status === "pending") {
-    const msg = await ctx.reply(t("videoAlreadyProcessing", lang));
-    trackTechnicalMessage(ctx, msg.message_id);
+    await ctx.reply(t("videoAlreadyProcessing", lang));
     return;
   }
 
@@ -254,14 +213,18 @@ export async function handleVideoVocabularyUrl(ctx: BotContext, text: string): P
     planFeatures: [],
   });
 
+  // Resolved before the allowance check so the giveaway can bypass it entirely.
+  const isTrial = options.fromOnboarding
+    ? !(await ctx.services.videoVocabularyRepository.hasCompletedTrial(userId))
+    : false;
+
   let usageCount = 0;
-  if (videoEntitlement.window === "none") {
+  if (!isTrial && videoEntitlement.window === "none") {
     // Video not available on this plan → US-6 attaches the upgrade CTA keyboard here.
-    const msg = await ctx.reply(t("videoLimitReached", lang), { reply_markup: buildUpgradeKeyboard(lang) });
-    trackTechnicalMessage(ctx, msg.message_id);
+    await ctx.reply(t("videoLimitReached", lang), { reply_markup: buildUpgradeKeyboard(lang) });
     return;
   }
-  if (videoEntitlement.limit !== null) {
+  if (!isTrial && videoEntitlement.limit !== null) {
     usageCount =
       videoEntitlement.window === "lifetime"
         ? await ctx.services.videoVocabularyRepository.getLifetimeUsageCount(userId, VIDEO_TRIAL_START)
@@ -269,8 +232,7 @@ export async function handleVideoVocabularyUrl(ctx: BotContext, text: string): P
     if (usageCount >= videoEntitlement.limit) {
       // Free trial exhausted (3 lifetime) or Plus monthly cap hit — the prime
       // conversion moment, so surface the upgrade CTA here too.
-      const msg = await ctx.reply(t("videoLimitReached", lang), { reply_markup: buildUpgradeKeyboard(lang) });
-      trackTechnicalMessage(ctx, msg.message_id);
+      await ctx.reply(t("videoLimitReached", lang), { reply_markup: buildUpgradeKeyboard(lang) });
       return;
     }
   }
@@ -285,8 +247,7 @@ export async function handleVideoVocabularyUrl(ctx: BotContext, text: string): P
       language: "auto", // will be determined from transcript
     };
   } catch {
-    const msg = await ctx.reply(t("videoMetadataError", lang));
-    trackTechnicalMessage(ctx, msg.message_id);
+    await ctx.reply(t("videoMetadataError", lang));
     return;
   }
 
@@ -303,6 +264,7 @@ export async function handleVideoVocabularyUrl(ctx: BotContext, text: string): P
     title: metadata.title,
     durationSeconds: metadata.durationSeconds,
     language: videoLang,
+    isTrial,
   });
 
   metadata.language = videoLang;
@@ -311,11 +273,10 @@ export async function handleVideoVocabularyUrl(ctx: BotContext, text: string): P
   // Show confirmation
   const text2 = renderConfirmation(metadata, remaining, videoEntitlement.limit, lang);
   const keyboard = buildConfirmationKeyboard(process.id, lang);
-  const msg = await ctx.reply(text2, {
+  await ctx.reply(text2, {
     parse_mode: "HTML",
     reply_markup: keyboard,
   });
-  trackTechnicalMessage(ctx, msg.message_id);
 }
 
 /* ------------------------------------------------------------------ */
@@ -464,7 +425,7 @@ export async function handleVideoSavePhraseCallback(ctx: BotContext): Promise<vo
 
     // Enrich with full template translation in background
     const entryInputType = phrase.phraseType === "word" ? ("word" as const) : ("phrase" as const);
-    void enrichVideoEntryInBackground(entry.id, phrase.phrase, entryInputType, process.language, userId, ctx);
+    void enrichVideoEntry(ctx, entry.id, phrase.phrase, entryInputType, process.language, userId);
   }
 
   // Re-render the current page
@@ -579,7 +540,7 @@ export async function handleVideoSaveAllCallback(ctx: BotContext): Promise<void>
   if (enrichmentQueue.length > 0) {
     void (async () => {
       for (const item of enrichmentQueue) {
-        await enrichVideoEntryInBackground(item.entryId, item.phrase, item.inputType, process.language, userId, ctx);
+        await enrichVideoEntry(ctx, item.entryId, item.phrase, item.inputType, process.language, userId);
       }
     })();
   }
@@ -610,14 +571,93 @@ export async function handleVideosCommand(ctx: BotContext): Promise<void> {
   const totalCount = await ctx.services.videoVocabularyRepository.countProcessesByUser(userId, excludeFailed);
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
+  // A user who has just finished onboarding has nothing here, and the bare
+  // "send me a YouTube link" that used to fill this screen is a dead end: it
+  // never says what kind of video works. Offer curated starters instead.
+  if (processes.length === 0) {
+    await showVideoSuggestions(ctx, userId, lang);
+    return;
+  }
+
   const text = renderVideoList(processes, page, totalPages, lang);
   const keyboard = buildVideoListKeyboard(processes, page, totalPages, lang);
 
-  const msg = await ctx.reply(text, {
+  await ctx.reply(text, {
     parse_mode: "HTML",
     reply_markup: keyboard,
   });
-  trackTechnicalMessage(ctx, msg.message_id);
+}
+
+/**
+ * The empty-state screen: curated starter videos for the languages the user
+ * studies, plus the fallback invitation to paste any link.
+ *
+ * Degrades to the plain invitation when none of the user's learning languages has
+ * a verified pick — better an honest empty screen than a suggestion in the wrong
+ * language.
+ */
+async function showVideoSuggestions(ctx: BotContext, userId: number, lang: SupportedLang): Promise<void> {
+  const settings = await ctx.services.userRepository.getSettings(userId);
+  const suggestions = getVideoSuggestionsForLangs(settings?.learningLangs ?? []);
+
+  const lines = [t("videoNoVideos", lang)];
+  const keyboard = new InlineKeyboard();
+
+  if (suggestions.length > 0) {
+    lines.push("", t("videoTryThese", lang));
+    for (const suggestion of suggestions) {
+      const flag = ctx.services.languageCache.getLangFlag(suggestion.lang);
+      const label = `${flag ? `${flag} ` : ""}${truncateLabel(suggestion.title)}`;
+      keyboard.text(label, `${VIDEO_TRY_PREFIX}${suggestion.lang}:${suggestion.index}`).row();
+    }
+  }
+
+  lines.push("", t("videoOrSendLink", lang));
+
+  await ctx.reply(lines.join("\n"), { reply_markup: keyboard });
+}
+
+/** Telegram truncates long button labels unhelpfully; do it ourselves at a word boundary. */
+function truncateLabel(title: string, max = 34): string {
+  if (title.length <= max) return title;
+  const cut = title.slice(0, max);
+  const boundary = cut.lastIndexOf(" ");
+  return `${(boundary > max / 2 ? cut.slice(0, boundary) : cut).trimEnd()}…`;
+}
+
+/** Callback prefix for a tap on a curated starter video. */
+export const VIDEO_TRY_PREFIX = "vid:try:";
+export const VIDEO_TRY_PATTERN = /^vid:try:/;
+
+/**
+ * A curated starter video was tapped. Runs the normal pipeline, flagged as coming
+ * from onboarding so the user's one free trial can absorb it instead of a third
+ * of their lifetime free allowance.
+ */
+export async function handleVideoTryCallback(ctx: BotContext): Promise<void> {
+  await ctx.answerCallbackQuery();
+
+  const data = ctx.callbackQuery?.data;
+  if (!data) return;
+
+  const payload = data.slice(VIDEO_TRY_PREFIX.length);
+  const separator = payload.lastIndexOf(":");
+  if (separator <= 0) return;
+
+  const suggestionLang = payload.slice(0, separator);
+  const index = Number(payload.slice(separator + 1));
+  if (!Number.isInteger(index)) return;
+
+  const suggestion = resolveVideoSuggestion(suggestionLang, index);
+  if (!suggestion) {
+    // A stale keyboard from before the catalogue changed — say so rather than
+    // silently doing nothing.
+    const lang = await resolveInterfaceLang(ctx);
+    await ctx.reply(t("videoOrSendLink", lang));
+    return;
+  }
+
+  await handleVideoVocabularyUrl(ctx, suggestion.url, { fromOnboarding: true });
 }
 
 /* ------------------------------------------------------------------ */
@@ -637,15 +677,25 @@ async function showPhraseBrowser(ctx: BotContext, processId: number, page: numbe
   const totalPhrases = await ctx.services.videoVocabularyRepository.countPhrasesByProcess(processId);
   const totalPages = Math.max(1, Math.ceil(totalPhrases / PHRASES_PER_PAGE));
 
-  const text = renderPhraseList(phrases, page, totalPages, process.videoUrl, lang);
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
+  const text = renderPhraseList(
+    phrases,
+    page,
+    totalPages,
+    process.videoUrl,
+    {
+      source: process.language,
+      native: settings?.nativeLang ?? undefined,
+    },
+    lang,
+  );
   const keyboard = buildPhraseListKeyboard(phrases, page, totalPages, processId, lang);
 
-  const msg = await ctx.reply(text, {
+  await ctx.reply(text, {
     parse_mode: "HTML",
     reply_markup: keyboard,
     link_preview_options: { is_disabled: true },
   });
-  trackTechnicalMessage(ctx, msg.message_id);
 }
 
 async function showPhraseBrowserEdit(
@@ -666,7 +716,18 @@ async function showPhraseBrowserEdit(
   const totalPhrases = await ctx.services.videoVocabularyRepository.countPhrasesByProcess(processId);
   const totalPages = Math.max(1, Math.ceil(totalPhrases / PHRASES_PER_PAGE));
 
-  const text = renderPhraseList(phrases, page, totalPages, process.videoUrl, lang);
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
+  const text = renderPhraseList(
+    phrases,
+    page,
+    totalPages,
+    process.videoUrl,
+    {
+      source: process.language,
+      native: settings?.nativeLang ?? undefined,
+    },
+    lang,
+  );
   const keyboard = buildPhraseListKeyboard(phrases, page, totalPages, processId, lang);
 
   await editMessageTextOrReply(ctx, text, {
@@ -743,6 +804,9 @@ async function processVideoInBackground(
       // 1. Get transcript (from cache or YouTube)
       let transcriptText: string;
       let transcriptType: string | undefined;
+      // process.language is a guess from user settings; the fetch may fall back
+      // to the video's real caption track, so track the actual language here.
+      let videoLang = process.language;
 
       const cached = await ctx.services.videoVocabularyRepository.findCachedTranscript(
         process.videoId,
@@ -755,6 +819,10 @@ async function processVideoInBackground(
         const transcript = await fetchTranscript(process.videoId, process.language);
         transcriptText = formatSegmentedTranscript(transcript.segments);
         transcriptType = transcript.type;
+        if (transcript.language !== "unknown" && transcript.language !== process.language) {
+          videoLang = transcript.language;
+          await ctx.services.videoVocabularyRepository.updateProcessLanguage(processId, videoLang);
+        }
         await ctx.services.videoVocabularyRepository.cacheTranscript(
           process.videoId,
           transcript.language,
@@ -765,7 +833,7 @@ async function processVideoInBackground(
 
       // 2. Get user's proficiency level for this language
       const levels = await ctx.services.userRepository.getLanguageLevels(userId);
-      const levelEntry = levels.find((l) => l.languageCode === process.language);
+      const levelEntry = levels.find((l) => l.languageCode === videoLang);
       const userLevel = levelEntry?.proficiencyLevel ?? "B1";
 
       // 3. Get extraction config and user's native language
@@ -780,12 +848,12 @@ async function processVideoInBackground(
       // 4b. Gather phrases the user already knows in this language — their saved
       // dictionary plus everything generated in their previous videos — so the AI
       // does not regenerate them.
-      const knownPhrases = await collectKnownPhrases(ctx, userId, process.language, processId);
+      const knownPhrases = await collectKnownPhrases(ctx, userId, videoLang, processId);
 
       // 5. Extract phrases using AI
       const phrases = await extractPhrasesFromTranscript(
         transcriptText,
-        process.language,
+        videoLang,
         userLevel,
         targetPhrases,
         ctx.services.ai.generateObject,

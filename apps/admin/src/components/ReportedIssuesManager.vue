@@ -27,6 +27,7 @@
       <table class="min-w-max divide-y divide-gray-200 sm:min-w-full">
         <thead class="bg-gray-50">
           <tr>
+            <th class="px-4 py-3 text-left text-xs font-semibold tracking-wide text-gray-600 uppercase">ID</th>
             <th class="px-4 py-3 text-left text-xs font-semibold tracking-wide text-gray-600 uppercase">Report</th>
             <th class="px-4 py-3 text-left text-xs font-semibold tracking-wide text-gray-600 uppercase">User</th>
             <th class="px-4 py-3 text-left text-xs font-semibold tracking-wide text-gray-600 uppercase">Type</th>
@@ -37,6 +38,16 @@
         </thead>
         <tbody class="divide-y divide-gray-100">
           <tr v-for="issue in list" :key="issue.id" class="transition-colors hover:bg-gray-50">
+            <td class="whitespace-nowrap px-4 py-3 text-sm">
+              <button
+                type="button"
+                class="rounded font-mono text-sm text-gray-700 transition-colors hover:text-indigo-600"
+                title="Copy ID"
+                @click="copyIssueId(issue.id)"
+              >
+                #{{ issue.id }}
+              </button>
+            </td>
             <td class="max-w-xl px-4 py-3 text-sm text-gray-900">
               <p class="line-clamp-3 whitespace-normal break-words">{{ issue.description }}</p>
             </td>
@@ -78,7 +89,7 @@
       </table>
     </div>
 
-    <AppModal v-if="selectedIssue" title="Issue Details" size="lg" @close="selectedIssue = null">
+    <AppModal v-if="selectedIssue" :title="`Issue #${selectedIssue.id}`" size="lg" @close="selectedIssue = null">
       <div class="space-y-4">
         <div>
           <h3 class="text-sm font-semibold text-gray-700 uppercase">Description</h3>
@@ -227,6 +238,19 @@ async function loadIssues(): Promise<void> {
   } finally {
     loading.value = false;
   }
+}
+
+async function copyIssueId(id: number): Promise<void> {
+  if (successTimer) clearTimeout(successTimer);
+  try {
+    await navigator.clipboard.writeText(String(id));
+    successMessage.value = `ID ${id} copied to clipboard`;
+  } catch {
+    successMessage.value = `Issue ID: ${id}`;
+  }
+  successTimer = setTimeout(() => {
+    successMessage.value = "";
+  }, 3000);
 }
 
 function userLabel(issue: ReportedIssue): string {

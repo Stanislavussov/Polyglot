@@ -15,7 +15,7 @@
       "project": ["src/**/*.{astro,ts}"]
     },
     "apps/bot": {
-      "entry": ["src/release-announcement.cli.ts"],
+      "entry": ["src/release-announcement.cli.ts", "src/momentum.backfill.wiring.ts"],
       "project": ["src/**/*.ts"]
     },
     "packages/adapters/ai": {

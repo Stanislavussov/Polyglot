@@ -1,0 +1,1 @@
+ALTER TABLE "rate_limit_plans" ADD COLUMN "mentor_daily_limit" integer;

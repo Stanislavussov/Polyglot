@@ -146,4 +146,38 @@ describe("vocabularyRepository (integration)", () => {
       .where(and(eq(vocabularyEntries.userId, userId), eq(vocabularyEntries.original, "perro")));
     expect(rows).toHaveLength(1);
   });
+
+  it("persists a notification difficulty grade and returns it via findByUser", async () => {
+    const userId = await freshUserId();
+    const es = await langId("es");
+    const en = await langId("en");
+
+    const created = await vocabularyRepository.create(userId, entryInput("lluvia", es, en, "rain"));
+    expect((await vocabularyRepository.findByUser(userId))[0]?.difficulty).toBeNull();
+
+    expect(await vocabularyRepository.setDifficulty(created.id, userId, "hard")).toBe(true);
+    expect((await vocabularyRepository.findByUser(userId))[0]?.difficulty).toBe("hard");
+
+    // Re-grading overwrites the previous grade.
+    expect(await vocabularyRepository.setDifficulty(created.id, userId, "easy")).toBe(true);
+    expect((await vocabularyRepository.findByUser(userId))[0]?.difficulty).toBe("easy");
+  });
+
+  it("refuses to grade another user's entry or a nonexistent one", async () => {
+    const ownerId = await freshUserId();
+    const strangerId = await freshUserId();
+    const es = await langId("es");
+    const en = await langId("en");
+
+    const created = await vocabularyRepository.create(ownerId, entryInput("sol", es, en, "sun"));
+
+    expect(await vocabularyRepository.setDifficulty(created.id, strangerId, "hard")).toBe(false);
+    expect((await vocabularyRepository.findByUser(ownerId))[0]?.difficulty).toBeNull();
+
+    expect(await vocabularyRepository.setDifficulty(999_999_999, ownerId, "hard")).toBe(false);
+
+    // A stale button on a removed word must not grade its ghost.
+    await vocabularyRepository.delete(created.id);
+    expect(await vocabularyRepository.setDifficulty(created.id, ownerId, "hard")).toBe(false);
+  });
 });

@@ -139,6 +139,7 @@ import {
 import { MAX_LEARNING_LANGS } from "../../constants.js";
 import { inputCorrectionCounter } from "../../metrics.js";
 import { getRequestSettings } from "../../middlewares/request-settings.js";
+import { createSettingsStub } from "../../test-helpers/services-stub.js";
 import type { BotContext, SessionData } from "../../types.js";
 import { handleEtymologyCallback, handleRegenCallback } from "./card-actions.js";
 import { handleTranslationClarificationCallback, handleTranslationClarificationContextText } from "./clarification.js";
@@ -193,17 +194,6 @@ function createMockCtx(overrides?: Partial<SessionData>, callbackData?: string, 
     user: { id: 1, telegramId: 123456789 },
     services: {
       userRepository: mockUserRepository,
-      settings: {
-        getPlanLimit: () =>
-          Promise.resolve({
-            name: "free",
-            label: "Free",
-            translationLimit: 50,
-            creditCost: 1,
-            isActive: true,
-            isDefault: true,
-          }),
-      },
       vocabularyRepository: mockVocabularyRepository,
       translationTemplateRepository: mockTranslationTemplateRepository,
       translationRequestRepository: mockTranslationRequestRepository,
@@ -213,6 +203,7 @@ function createMockCtx(overrides?: Partial<SessionData>, callbackData?: string, 
       wordLanguageSweep: mockSweepWordLanguages,
       languageCache: mockLanguageCache,
       ai: mockAi,
+      settings: createSettingsStub(),
     },
   } as unknown as BotContext;
 }
@@ -1004,6 +995,35 @@ describe("handleTranslateText — out-of-set language detection", () => {
     expect(ctx.session.pendingOutOfSet).toBeDefined();
   });
 
+  it("offers add-and-translate when the SPELLING PREFLIGHT is what caught the unstudied language", async () => {
+    // Same incident as above, but intercepted one step earlier: the preflight now
+    // runs on every confident word, so the coerced Kazakh comes back as
+    // "possible_typo" instead of "unrecognized_word". The out-of-set guard must
+    // still fire — otherwise the user is offered a spelling fix in a language
+    // they do not study.
+    vi.mocked(translateWithContext).mockResolvedValueOnce({
+      status: "needs_clarification",
+      ambiguity: {
+        reason: "possible_typo",
+        params: { word: "кыздарай", lang: "ru" },
+        options: [
+          { kind: "typo_correction", label: "қыздар-ай", value: "қыздар-ай", correctedText: "қыздар-ай" },
+          { kind: "translate_as_written", value: "as_written" },
+        ],
+      },
+    });
+
+    const ctx = createMockCtx();
+    await handleTranslateText(ctx, "кыздарай");
+
+    const promptCall = vi.mocked(ctx.reply).mock.calls.find((call) => call[1]?.reply_markup !== undefined);
+    const keyboard = promptCall?.[1]?.reply_markup as { inline_keyboard: Array<Array<{ callback_data: string }>> };
+    const callbackData = keyboard.inline_keyboard.flat().map((button) => button.callback_data);
+
+    expect(callbackData).toEqual(expect.arrayContaining(["tr:oos:add:kk", "tr:oos:once:kk", "tr:oos:cancel"]));
+    expect(ctx.session.pendingOutOfSet).toBeDefined();
+  });
+
   it("keeps the spelling correction for a same-alphabet typo (no false out-of-set)", async () => {
     // "fajcit" (Slovak) coerces to studied Czech; the AI correction "fajčit" is a
     // valid Czech word sharing the Czech alphabet — no exclusive letter, so the
@@ -1458,6 +1478,8 @@ describe("handleEtymologyCallback — loading feedback on the card", () => {
       .mockResolvedValue(undefined);
     (ctx.services as unknown as { featureAccess: unknown }).featureAccess = {
       checkFeatureAccess: vi.fn().mockResolvedValue({ hasAccess: true }),
+      listFeatures: vi.fn().mockResolvedValue(new Set<string>()),
+      listPlanFeatures: vi.fn().mockResolvedValue(new Set<string>()),
     };
     return ctx;
   }
@@ -1503,5 +1525,72 @@ describe("handleEtymologyCallback — loading feedback on the card", () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+});
+
+/**
+ * The bot deletes exactly one kind of message: the "translating…" placeholder it
+ * replaces with the card. Everything else the user sees — cards, notices, menus —
+ * stays in the chat. These drive the real sequence a user produces.
+ */
+describe("nothing but the loading placeholder is ever deleted", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockUserRepository.getSettings.mockResolvedValue({
+      interfaceLang: "en",
+      nativeLang: "ru",
+      learningLangs: ["cs", "de"],
+    });
+    mockTranslationRequestRepository.getUserCreditsInWindow.mockResolvedValue(0);
+  });
+
+  const FIRST_ID = 100;
+
+  /** A ctx whose every reply gets a fresh message id, as Telegram would assign. */
+  function createTextCtx(): BotContext {
+    const ctx = createMockCtx();
+    let nextId = FIRST_ID;
+    vi.mocked(ctx.reply).mockImplementation(() => Promise.resolve({ message_id: nextId++ } as never));
+    return Object.assign(ctx, { message: { message_id: 1, text: "hello" } }) as BotContext;
+  }
+
+  /** Ids of the cards sent so far — the HTML replies, as opposed to plain notices. */
+  function cardIds(ctx: BotContext): number[] {
+    return vi
+      .mocked(ctx.reply)
+      .mock.calls.map((call, index) => ({ id: FIRST_ID + index, html: call[1]?.parse_mode === "HTML" }))
+      .filter((reply) => reply.html)
+      .map((reply) => reply.id);
+  }
+
+  function deletedIds(ctx: BotContext): number[] {
+    return vi.mocked(ctx.api.deleteMessage).mock.calls.map((call) => call[1]);
+  }
+
+  it("keeps the previous card when the user translates the next word", async () => {
+    const ctx = createTextCtx();
+
+    await handleTranslateText(ctx, "hello");
+    await handleTranslateText(ctx, "world");
+
+    // Two cards on screen; the only deletions are the flow's own "translating…"
+    // placeholders, which it removes itself before posting each card.
+    expect(cardIds(ctx)).toHaveLength(2);
+    for (const cardId of cardIds(ctx)) {
+      expect(deletedIds(ctx)).not.toContain(cardId);
+    }
+  });
+
+  it("leaves a rejection notice on screen when the next word is translated", async () => {
+    const ctx = createTextCtx();
+
+    // A rejected input sends one notice and nothing else.
+    await handleTranslateText(ctx, "#finance");
+    await handleTranslateText(ctx, "hello");
+
+    expect(deletedIds(ctx)).not.toContain(FIRST_ID);
+    const [cardId] = cardIds(ctx);
+    expect(cardId).toBeDefined();
+    expect(deletedIds(ctx)).not.toContain(cardId);
   });
 });

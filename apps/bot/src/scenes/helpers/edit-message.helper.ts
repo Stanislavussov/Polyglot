@@ -13,6 +13,7 @@
  * message). A benign "message is not modified" rejection stays a silent no-op.
  */
 import { GrammyError } from "grammy";
+import type { Message } from "grammy/types";
 import type { BotContext, ConversationContext } from "../../types.js";
 
 /**
@@ -58,21 +59,41 @@ function isMessageNotModified(err: unknown): boolean {
  * to edit, send the same text + keyboard as a fresh message instead. A benign
  * "message is not modified" error is swallowed. Any other error is rethrown so
  * the global bot-error handler can see genuine failures.
+ *
+ * Returns the **newly sent** message when it had to fall back, and `undefined`
+ * when the edit succeeded (or was a no-op).
  */
 export async function editMessageTextOrReply(
   ctx: EditableContext,
   text: string,
   options?: EditOrReplyOptions,
-): Promise<void> {
+): Promise<Message.TextMessage | undefined> {
   try {
     await ctx.editMessageText(text, options);
+    return undefined;
   } catch (err) {
-    if (isMessageNotModified(err)) return;
+    if (isMessageNotModified(err)) return undefined;
     if (isEditImpossible(err)) {
-      await ctx.reply(text, options);
-      return;
+      return await ctx.reply(text, options);
     }
     throw err;
+  }
+}
+
+/**
+ * Dismiss a menu message the user is done with.
+ *
+ * Deleting is the clean outcome. Telegram refuses it past 48 hours, and then stripping the
+ * keyboard is the next best thing: the menu stays on screen but stops answering, so a
+ * button like ✕ Close — which has no follow-up screen to explain itself — is not left
+ * looking broken. Past 48 h the edit is refused too; nothing in the Bot API can do better,
+ * and sending a fresh "closed" message would be noisier than doing nothing.
+ */
+export async function dismissMenuMessage(ctx: EditableContext): Promise<void> {
+  try {
+    await ctx.deleteMessage();
+  } catch {
+    await editMessageReplyMarkupOrIgnore(ctx, { reply_markup: { inline_keyboard: [] } });
   }
 }
 

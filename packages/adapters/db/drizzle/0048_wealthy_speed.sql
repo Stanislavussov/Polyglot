@@ -1,0 +1,1 @@
+ALTER TABLE "video_processes" ADD COLUMN "is_trial" boolean DEFAULT false NOT NULL;

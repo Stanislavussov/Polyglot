@@ -199,6 +199,57 @@ export const requestStats = {
   getUserRequestCounts: (days = 30) => get<UserRequestCountsResponse>(`/api/stats/user-request-counts?days=${days}`),
 };
 
+/** One (furthest step reached, completed?) bucket of the onboarding funnel (Task 72). */
+export interface OnboardingFunnelRow {
+  step: number;
+  onboarded: boolean;
+  count: number;
+}
+
+export const onboardingFunnel = {
+  list: () => get<OnboardingFunnelRow[]>("/api/stats/onboarding-funnel"),
+};
+
+/** A cached onboarding hook card awaiting (or holding) review approval (Task 72). */
+export interface OnboardingDemoCard {
+  id: number;
+  sourceLang: string;
+  nativeLang: string;
+  headword: string;
+  payload: Record<string, unknown>;
+  sortOrder: number;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface OnboardingDemoCardCounts {
+  cached: number;
+  active: number;
+}
+
+export interface OnboardingDemoCardListResponse {
+  cards: OnboardingDemoCard[];
+  total: number;
+  page: number;
+  limit: number;
+  counts: OnboardingDemoCardCounts;
+}
+
+export const onboardingDemoCards = {
+  list: (page = 1, limit = 20, isActive: "true" | "false" | "" = "", search = "") => {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (isActive) params.set("isActive", isActive);
+    if (search) params.set("search", search);
+    return get<OnboardingDemoCardListResponse>(`/api/onboarding-demo-cards?${params.toString()}`);
+  },
+  /**
+   * Publish or un-publish a card. Keyed by the natural triple rather than the row
+   * id — that is what the bot looks up and what the warm-up script writes.
+   */
+  setActive: (card: Pick<OnboardingDemoCard, "sourceLang" | "nativeLang" | "headword">, isActive: boolean) =>
+    put<{ isActive: boolean }>("/api/onboarding-demo-cards/active", { ...card, isActive }),
+};
+
 export interface LanguageDetectionDaySummary {
   date: string;
   warningShown: number;
@@ -270,9 +321,19 @@ export interface PlanLimitConfig {
   translationLimit: number | null;
   creditCost: number;
   videoLimit: number | null;
+  mentorDailyLimit: number | null;
   videoWindow: "none" | "lifetime" | "monthly";
+  /** Display price in US cents (500 = $5/mo). null = not for sale. */
+  priceUsdCents: number | null;
   isActive: boolean;
   isDefault: boolean;
+  /** Model this plan's users are served by. null = use the globally default model. */
+  aiModelId: string | null;
+  /**
+   * Feature keys the plan unlocks (`plan_feature_access`). Omit the field to
+   * leave the stored set untouched; the plans form always sends it.
+   */
+  features?: string[];
 }
 
 export const rateLimits = {
@@ -292,10 +353,11 @@ export interface AIModel {
   costPer1kOutput: number;
   isEnabled: boolean;
   isDefault?: boolean;
-  allowedPlans: string[];
+  /** Model the bot fails over to when the main model fails. At most one. */
+  isFallback?: boolean;
 }
 
-export type OpenRouterModel = Omit<AIModel, "allowedPlans" | "isDefault" | "isEnabled"> & {
+export type OpenRouterModel = Omit<AIModel, "isDefault" | "isFallback" | "isEnabled"> & {
   purpose: string;
 };
 
@@ -306,7 +368,8 @@ function modelPath(id: string): string {
 export const aiModels = {
   list: () => get<AIModel[]>("/api/settings/ai-models"),
   listOpenRouter: () => get<OpenRouterModel[]>("/api/settings/ai-models/openrouter"),
-  create: (model: Omit<AIModel, "isDefault">) => post<AIModel>("/api/settings/ai-models", model),
+  create: (model: Omit<AIModel, "isDefault" | "isFallback">) => post<AIModel>("/api/settings/ai-models", model),
+  setFallback: (modelId: string | null) => put<void>("/api/settings/ai-models/fallback", { modelId }),
   update: (id: string, model: Partial<AIModel>) => put<AIModel>(`/api/settings/ai-models/${modelPath(id)}`, model),
   delete: (id: string) => del<void>(`/api/settings/ai-models/${modelPath(id)}`),
   setDefault: (id: string) => put<void>(`/api/settings/ai-models/${modelPath(id)}/set-default`, {}),
@@ -357,6 +420,66 @@ export interface VideoVocabularySettings {
   extractionModelId: string;
 }
 
+export interface TtsSettings {
+  enabled: boolean;
+  modelId: string;
+  voice: string;
+  maxChars: number;
+}
+
+/** One OpenRouter speech model, as offered in the TTS model picker. */
+export interface TtsModelOption {
+  id: string;
+  name: string;
+  voices: string[];
+  pricePerMillionChars: number;
+}
+
+/** Outcome of synthesizing one probe word with a candidate model/voice. */
+export interface TtsProbeResult {
+  ok: boolean;
+  durationMs: number;
+  status: number;
+  bytes?: number;
+  contentType?: string;
+  error?: string;
+}
+
+export interface SttSettings {
+  enabled: boolean;
+  modelId: string;
+  maxDurationSec: number;
+}
+
+/** One OpenRouter transcription model, as offered in the STT model picker. */
+export interface SttModelOption {
+  id: string;
+  name: string;
+  pricing: { prompt: string };
+}
+
+export interface MentorSettings {
+  /** Empty string = follow the regular default-model chain (never "disabled"). */
+  modelId: string;
+  maxTokens: number;
+}
+
+/** One OpenRouter chat model, as offered in the mentor model picker. */
+export interface MentorModelOption {
+  id: string;
+  name: string;
+  /** USD per token, raw from OpenRouter — format per 1M in the UI. */
+  pricing: { prompt: string; completion: string };
+}
+
+/** The motivation kill switch. Recording is what the calibration window needs; the other three gate rendering. */
+export interface MotivationSettings {
+  recordingEnabled: boolean;
+  enabled: boolean;
+  praiseEnabled: boolean;
+  recoveryEnabled: boolean;
+}
+
 export const settings = {
   aiDefaults: {
     get: () => get<AIDefaults>("/api/settings/ai-defaults"),
@@ -377,6 +500,26 @@ export const settings = {
   videoVocabulary: {
     get: () => get<VideoVocabularySettings>("/api/settings/video-vocabulary"),
     update: (s: VideoVocabularySettings) => put<VideoVocabularySettings>("/api/settings/video-vocabulary", s),
+  },
+  tts: {
+    get: () => get<TtsSettings>("/api/settings/tts"),
+    update: (s: TtsSettings) => put<TtsSettings>("/api/settings/tts", s),
+    models: () => get<TtsModelOption[]>("/api/settings/tts/models"),
+    probe: (modelId: string, voice: string) => post<TtsProbeResult>("/api/settings/tts/probe", { modelId, voice }),
+  },
+  stt: {
+    get: () => get<SttSettings>("/api/settings/stt"),
+    update: (s: SttSettings) => put<SttSettings>("/api/settings/stt", s),
+    models: () => get<SttModelOption[]>("/api/settings/stt/models"),
+  },
+  mentor: {
+    get: () => get<MentorSettings>("/api/settings/mentor"),
+    update: (s: MentorSettings) => put<MentorSettings>("/api/settings/mentor", s),
+    models: () => get<MentorModelOption[]>("/api/settings/mentor/models"),
+  },
+  motivation: {
+    get: () => get<MotivationSettings>("/api/settings/motivation"),
+    update: (s: MotivationSettings) => put<MotivationSettings>("/api/settings/motivation", s),
   },
 };
 
@@ -399,6 +542,31 @@ export const presets = {
   create: (preset: Omit<Preset, "id">) => post<Preset>("/api/settings/presets", preset),
   update: (id: string, preset: Partial<Preset>) => put<Preset>(`/api/settings/presets/${id}`, preset),
   delete: (id: string) => del<void>(`/api/settings/presets/${id}`),
+};
+
+// Word-picker presets — curated angles offered in the bot's main menu
+export interface WordPickerPreset {
+  id: number;
+  slug: string;
+  emoji: string;
+  title: string;
+  titleI18n: Record<string, string>;
+  prompt: string;
+  learningLangs: string[];
+  sortOrder: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type WordPickerPresetInput = Omit<WordPickerPreset, "id" | "createdAt" | "updatedAt">;
+
+export const wordPickerPresets = {
+  list: () => get<WordPickerPreset[]>("/api/settings/word-picker-presets"),
+  create: (preset: WordPickerPresetInput) => post<WordPickerPreset>("/api/settings/word-picker-presets", preset),
+  update: (id: number, preset: Partial<WordPickerPresetInput>) =>
+    put<WordPickerPreset>(`/api/settings/word-picker-presets/${id}`, preset),
+  delete: (id: number) => del<void>(`/api/settings/word-picker-presets/${id}`),
 };
 
 // Users

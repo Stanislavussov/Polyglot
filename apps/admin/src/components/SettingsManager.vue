@@ -19,7 +19,14 @@
     </div>
 
     <div class="mt-6">
-      <p v-if="loading" class="text-sm text-gray-400">Loading...</p>
+      <!-- TTS needs a live model picker and a synthesis probe, neither of which the
+           generic key/value renderer can express, so it brings its own form. -->
+      <TtsSettingsForm v-if="activeTab === 'tts'" />
+      <!-- STT needs the same live model picker as TTS, so it also brings its own form. -->
+      <SttSettingsForm v-else-if="activeTab === 'stt'" />
+      <!-- Mentor needs the chat-model picker, so it also brings its own form. -->
+      <MentorSettingsForm v-else-if="activeTab === 'mentor'" />
+      <p v-else-if="loading" class="text-sm text-gray-400">Loading...</p>
       <p v-else-if="loadError" class="text-sm text-red-600">{{ loadError }}</p>
       <form v-else class="space-y-4" @submit.prevent="save">
         <p class="text-sm text-gray-500">{{ activeTabDescription }}</p>
@@ -86,10 +93,22 @@
 import { Info } from "lucide-vue-next";
 import { computed, onMounted, reactive, ref, watch } from "vue";
 import { settings } from "../lib/api";
+import MentorSettingsForm from "./MentorSettingsForm.vue";
+import SttSettingsForm from "./SttSettingsForm.vue";
+import TtsSettingsForm from "./TtsSettingsForm.vue";
 
 type SettingsValue = string | number | boolean;
 type SettingsRecord = Record<string, SettingsValue>;
-type SettingsGroup = "ai-defaults" | "notifications" | "srs" | "dictionary" | "video-vocabulary";
+type SettingsGroup =
+  | "ai-defaults"
+  | "notifications"
+  | "srs"
+  | "dictionary"
+  | "video-vocabulary"
+  | "tts"
+  | "stt"
+  | "mentor"
+  | "motivation";
 type FieldDescriptionMap = Record<SettingsGroup, Record<string, string>>;
 
 const tabs: Array<{ key: SettingsGroup; label: string }> = [
@@ -98,6 +117,10 @@ const tabs: Array<{ key: SettingsGroup; label: string }> = [
   { key: "srs", label: "SRS" },
   { key: "dictionary", label: "Dictionary" },
   { key: "video-vocabulary", label: "Video Vocabulary" },
+  { key: "tts", label: "Pronunciation" },
+  { key: "stt", label: "Voice input" },
+  { key: "mentor", label: "Mentor" },
+  { key: "motivation", label: "Motivation" },
 ];
 
 const activeTab = ref<SettingsGroup>("ai-defaults");
@@ -117,7 +140,8 @@ const fieldDescriptions: FieldDescriptionMap = {
     requestTimeoutMs: "Wall-clock budget in milliseconds for a single AI call (including retries) before it is aborted and the user sees a 'taking longer' message. Keep below 20000 (the bot's loader timeout) so the request is truly cancelled instead of abandoned.",
   },
   notifications: {
-    defaultTime: "Default local time for scheduled user notifications. Use 24-hour HH:MM format.",
+    defaultTime:
+      "Local time seeded into a user's schedule the first time they enable notifications without having picked a time. Existing users keep the time they already have — changing this value does not move anyone, and has no observable effect at all until the next user opts in. 24-hour HH:MM format.",
     defaultType: "Default notification source for users who have not chosen one: suggested words, SRS reviews, or contextual prompts.",
     inactivityDays: "Number of inactive days after which notification handling treats a user as inactive.",
   },
@@ -129,6 +153,15 @@ const fieldDescriptions: FieldDescriptionMap = {
     flashcardLimit: "Maximum number of dictionary entries shown when building flashcards.",
     notificationDictLimit: "Maximum number of dictionary entries considered when selecting notification content.",
     wordOfDayLimit: "Maximum number of dictionary entries considered for word-of-day style suggestions.",
+  },
+  tts: {},
+  stt: {},
+  mentor: {},
+  motivation: {
+    recordingEnabled: "Write momentum events — leave on; turning it off creates an unrecoverable gap in the journal.",
+    enabled: "/progress screen and the weekly line in notifications.",
+    praiseEnabled: "Milestone praise line on translation cards and session end.",
+    recoveryEnabled: "Welcome-back line after a 7+ day gap.",
   },
   "video-vocabulary": {
     monthlyLimit: "Maximum number of videos a user can process per calendar month.",
@@ -144,6 +177,11 @@ const tabDescriptions: Record<SettingsGroup, string> = {
   srs: "Scheduling parameters for spaced repetition cards and review intervals.",
   dictionary: "Caps used when dictionary entries are selected for flashcards, notifications, and daily suggestions.",
   "video-vocabulary": "Limits and AI model used when extracting vocabulary phrases from YouTube videos. Phrase count scales with video length between the min and max.",
+  tts: "Speech model, voice, and length cap for the pronunciation button on translation cards.",
+  stt: "Transcription model and length cap for voice messages sent to the bot.",
+  mentor: "Chat model and answer-length cap for the AI mentor mode. Empty model = follow the plan-default chain.",
+  motivation:
+    "Momentum recording and the praise / progress / recovery surfaces. Recording stays on; the three display switches ship off until calibration.",
 };
 
 const fields = computed(() =>
@@ -188,6 +226,9 @@ function tabLabel(group: SettingsGroup): string {
 }
 
 async function loadTab(group: SettingsGroup): Promise<void> {
+  // TtsSettingsForm/SttSettingsForm load and save themselves; running the generic
+  // loader for them would fetch a shape this component cannot render.
+  if (group === "tts" || group === "stt" || group === "mentor") return;
   loading.value = true;
   loadError.value = "";
   saveError.value = "";
@@ -198,6 +239,7 @@ async function loadTab(group: SettingsGroup): Promise<void> {
     else if (group === "notifications") data = toRecord(await settings.notifications.get());
     else if (group === "srs") data = toRecord(await settings.srs.get());
     else if (group === "dictionary") data = toRecord(await settings.dictionary.get());
+    else if (group === "motivation") data = toRecord(await settings.motivation.get());
     else data = toRecord(await settings.videoVocabulary.get());
 
     original.value = data;
@@ -256,6 +298,13 @@ async function save(): Promise<void> {
       });
     } else if (activeTab.value === "dictionary") {
       await settings.dictionary.update(payload);
+    } else if (activeTab.value === "motivation") {
+      await settings.motivation.update({
+        recordingEnabled: Boolean(payload.recordingEnabled),
+        enabled: Boolean(payload.enabled),
+        praiseEnabled: Boolean(payload.praiseEnabled),
+        recoveryEnabled: Boolean(payload.recoveryEnabled),
+      });
     } else {
       await settings.videoVocabulary.update({
         monthlyLimit: Number(payload.monthlyLimit),

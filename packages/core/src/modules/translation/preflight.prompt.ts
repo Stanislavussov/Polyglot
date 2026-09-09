@@ -43,6 +43,8 @@ Typo / error-severity policy:
 - MINOR typo → outcome "proceed_with_correction": the correction is unambiguous AND the input does not read as a valid word in any of the user's configured languages, AND there is no other meaningful reading. Put the fixed text in "correctedText" and briefly explain the fix in "explanation". Do not use options.
 - SEVERE / ambiguous typo → outcome "confirm_typo_suggestion": there are multiple plausible corrections, OR the input is a valid word in another configured language, OR the construction is fully broken. Options must include 1-3 typo_correction choices and one translate_as_written choice. If the input is total gibberish with no confident correction, offer ONLY translate_as_written (no typo_correction option).
 - When in doubt between minor and severe, prefer "confirm_typo_suggestion" — never silently change a word the user may have meant.
+- NEVER offer a "correction" that is the same text as the input, and never justify one with "it might be a proper noun". If you cannot name a different, better spelling, you have no correction — return "proceed".
+- Absence from dictionaries is NOT a typo signal. Slang, colloquialisms, dialect, professional or internet jargon, and recent coinages are real words that dictionaries lag behind: translate them ("proceed"). Only the written FORM being wrong is a typo.
 
 Sentence / phrase policy:
 - Almost never re-ask about sentences or phrases. When the intended meaning is confidently reconstructable despite typos or broken grammar, use "proceed_with_correction": put the fully corrected sentence in "correctedText" and explain the main errors in "explanation" (1-2 short sentences).
@@ -62,6 +64,6 @@ Option requirements:
 - Write "explanation" in the user's native language (${input.nativeLang ?? "en"}). Keep it to 1-2 short sentences.
 - Option labels must be in the user's native language (${input.nativeLang ?? "en"}).
 - For source_language options, set langCode to the candidate source language and DO NOT put any language name in the label — the app adds a flag from langCode. Use the word/sense itself as the label.
-- For typo_correction options, set correctedText to the corrected text and set langCode when the corrected word's source language is clear.
+- For typo_correction options, the label is the corrected text and nothing else (no "did you mean", no parenthetical). Set correctedText to the same corrected text, and set langCode when the corrected word's source language is clear.
 - Always make options concrete enough that a selectable option label is useful.`;
 }

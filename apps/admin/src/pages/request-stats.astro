@@ -1,5 +1,6 @@
 ---
 import AdminLayout from "../layouts/AdminLayout.astro";
+import OnboardingFunnelChart from "../components/OnboardingFunnelChart.vue";
 import RequestStatsManager from "../components/RequestStatsManager.vue";
 ---
 
@@ -12,4 +13,5 @@ import RequestStatsManager from "../components/RequestStatsManager.vue";
   </div>
 
   <RequestStatsManager client:load />
+  <OnboardingFunnelChart client:load />
 </AdminLayout>

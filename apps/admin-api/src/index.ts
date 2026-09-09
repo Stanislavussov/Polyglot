@@ -12,14 +12,20 @@ import { aiDefaultRoutes } from "./routes/ai-defaults.js";
 import { aiModelRoutes } from "./routes/ai-models.js";
 import { authRoutes } from "./routes/auth.js";
 import { dictionaryRoutes } from "./routes/dictionary.js";
+import { mentorRoutes } from "./routes/mentor.js";
+import { motivationRoutes } from "./routes/motivation.js";
 import { notificationRoutes } from "./routes/notifications.js";
+import { onboardingDemoCardRoutes } from "./routes/onboarding-demo-cards.js";
 import { presetRoutes } from "./routes/presets.js";
 import { rateLimitRoutes } from "./routes/rate-limits.js";
 import { reportedIssueRoutes } from "./routes/reported-issues.js";
 import { srsRoutes } from "./routes/srs.js";
 import { statsRoutes } from "./routes/stats.js";
+import { sttRoutes } from "./routes/stt.js";
+import { ttsRoutes } from "./routes/tts.js";
 import { userRoutes } from "./routes/users.js";
 import { videoVocabularyRoutes } from "./routes/video-vocabulary.js";
+import { wordPickerPresetRoutes } from "./routes/word-picker-presets.js";
 
 const PORT = Number.parseInt(process.env.PORT ?? "3001", 10);
 const HOST = process.env.HOST ?? "0.0.0.0";
@@ -78,9 +84,15 @@ export async function buildAdminApiApp() {
   await app.register(srsRoutes, { prefix: "/api/settings" });
   await app.register(dictionaryRoutes, { prefix: "/api/settings" });
   await app.register(videoVocabularyRoutes, { prefix: "/api/settings" });
+  await app.register(ttsRoutes, { prefix: "/api/settings" });
+  await app.register(sttRoutes, { prefix: "/api/settings" });
+  await app.register(mentorRoutes, { prefix: "/api/settings" });
+  await app.register(motivationRoutes, { prefix: "/api/settings" });
   await app.register(presetRoutes, { prefix: "/api/settings" });
+  await app.register(wordPickerPresetRoutes, { prefix: "/api/settings" });
   await app.register(userRoutes, { prefix: "/api" });
   await app.register(reportedIssueRoutes, { prefix: "/api" });
+  await app.register(onboardingDemoCardRoutes, { prefix: "/api" });
   await app.register(statsRoutes, { prefix: "/api" });
 
   return app;

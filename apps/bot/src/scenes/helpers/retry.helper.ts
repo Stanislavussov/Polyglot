@@ -1,0 +1,50 @@
+/**
+ * Handler behind the "🔄 Try again" button attached to user-facing timeout
+ * notices (see `utils/retry-action.ts`).
+ */
+import { logger } from "@polyglot/core";
+import type { BotContext } from "../../types.js";
+import { takeRetryAction } from "../../utils/retry-action.js";
+import { handleMentorText } from "./mentor-mode.helper.js";
+import { answerStaleCallback } from "./stale-callback.helper.js";
+import { handleTranslateText } from "./translate-flow.js";
+
+/**
+ * Re-runs the operation that timed out, from the top of its flow.
+ *
+ * Restarting at the flow's entry point (rather than resuming mid-pipeline) is
+ * deliberate: the timeout abandoned an in-flight request whose partial state is
+ * not recoverable, and a fresh run re-resolves quota, model, and — for
+ * translation — language detection, which is exactly what a user retyping the
+ * word would get. The retried attempt is metered like any other AI call.
+ */
+export async function handleRetryCallback(ctx: BotContext): Promise<void> {
+  const noticeMsgId = ctx.callbackQuery?.message?.message_id;
+  const action = noticeMsgId === undefined ? undefined : takeRetryAction(ctx.session, noticeMsgId);
+
+  if (!action) {
+    // Restart, eviction, or a second tap on an already-used button. Nothing to
+    // recover from: the action was consumed, and the input it carried with it.
+    await answerStaleCallback(ctx, { action: "retry" });
+    // Drop the dead button so the notice cannot be tapped again.
+    await ctx.editMessageReplyMarkup().catch(() => {});
+    return;
+  }
+
+  // Ack before the multi-second retry so Telegram's button spinner stops.
+  await ctx.answerCallbackQuery().catch(() => {});
+
+  // Remove the notice: the retry owns the conversation from here, and leaving a
+  // tappable copy behind would let a double tap launch two paid AI calls.
+  if (ctx.chat && noticeMsgId !== undefined) {
+    await ctx.api.deleteMessage(ctx.chat.id, noticeMsgId).catch(() => {});
+  }
+
+  logger.debug({ userId: ctx.user.id, kind: action.kind }, "Retrying timed-out operation");
+
+  if (action.kind === "mentor") {
+    await handleMentorText(ctx, action.text, { threadId: action.threadId });
+    return;
+  }
+  await handleTranslateText(ctx, action.text);
+}

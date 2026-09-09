@@ -76,6 +76,7 @@ vi.mock("@polyglot/infra", () => ({
   logger: mockLogger,
 }));
 
+import { createSettingsStub } from "../../../test-helpers/services-stub.js";
 import type { BotContext, SessionData } from "../../../types.js";
 import { handleSaveCallback, handleSkipCallback } from "../card-actions.js";
 import { handleTranslateText } from "../translate-flow.js";
@@ -120,6 +121,7 @@ function createMockCtx(nextSourceLang?: string | null, callbackData?: string): B
       wordLanguageSweep: vi.fn().mockResolvedValue([]),
       languageCache: mockLanguageCache,
       ai: mockAi,
+      settings: createSettingsStub(),
     },
   } as unknown as BotContext;
 }

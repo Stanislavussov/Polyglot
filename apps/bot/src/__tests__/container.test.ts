@@ -37,6 +37,28 @@ vi.mock("@polyglot/adapter-db", () => ({
     getInactiveUsers: vi.fn().mockResolvedValue([]),
     disableNotifications: vi.fn().mockResolvedValue(undefined),
   },
+  momentumRepository: {
+    getSnapshot: vi.fn().mockResolvedValue(null),
+    recordEvent: vi.fn().mockResolvedValue(true),
+    applySnapshot: vi.fn().mockResolvedValue(undefined),
+    sumWeightsForLocalDay: vi.fn().mockResolvedValue(0),
+    countEventsSince: vi.fn().mockResolvedValue(0),
+    listPraisedKinds: vi.fn().mockResolvedValue([]),
+    countActiveDays: vi.fn().mockResolvedValue(0),
+    listEventsForReplay: vi.fn().mockResolvedValue([]),
+  },
+  mentorMessageRepository: {
+    record: vi.fn().mockResolvedValue(undefined),
+    findThreadByMessage: vi.fn().mockResolvedValue(null),
+    getRecentMessages: vi.fn().mockResolvedValue([]),
+    findLatestThreadId: vi.fn().mockResolvedValue(null),
+  },
+  onboardingDemoCardRepository: {
+    findActive: vi.fn().mockResolvedValue([]),
+    findOne: vi.fn().mockResolvedValue(null),
+    hasCached: vi.fn().mockResolvedValue(false),
+    upsert: vi.fn().mockResolvedValue(undefined),
+  },
   translationRequestRepository: {
     logTranslationRequest: vi.fn().mockResolvedValue(1),
     getUserCreditsInWindow: vi.fn().mockResolvedValue(0),
@@ -62,6 +84,12 @@ vi.mock("@polyglot/adapter-db", () => ({
     extend: vi.fn().mockResolvedValue(undefined),
     updateStatus: vi.fn().mockResolvedValue(undefined),
   },
+  ttsCacheRepository: {
+    find: vi.fn().mockResolvedValue(null),
+    save: vi.fn().mockResolvedValue(undefined),
+    touch: vi.fn().mockResolvedValue(undefined),
+    remove: vi.fn().mockResolvedValue(undefined),
+  },
   createContextLookup: vi.fn(() => vi.fn().mockResolvedValue([])),
   createWordLanguageSweep: vi.fn(() => vi.fn().mockResolvedValue([])),
   aiRequestLatencyRepository: {
@@ -84,6 +112,20 @@ vi.mock("@polyglot/adapter-db", () => ({
     cacheTranscript: vi.fn().mockResolvedValue(undefined),
     updateProcessStatus: vi.fn().mockResolvedValue(undefined),
   },
+  wordPickerPresetRepository: {
+    findById: vi.fn().mockResolvedValue(null),
+    findActiveForLangs: vi.fn().mockResolvedValue([]),
+  },
+  wordPickerRunRepository: {
+    createRun: vi.fn().mockResolvedValue({ id: 1 }),
+    saveItems: vi.fn().mockResolvedValue([]),
+    findRunById: vi.fn().mockResolvedValue(null),
+    findItemsByRun: vi.fn().mockResolvedValue([]),
+    findItemById: vi.fn().mockResolvedValue(null),
+    findUnsavedItemsByRun: vi.fn().mockResolvedValue([]),
+    markItemSaved: vi.fn().mockResolvedValue(undefined),
+    findWordsShownTo: vi.fn().mockResolvedValue([]),
+  },
   settingsAdapter: {
     getPlanLimits: vi.fn().mockResolvedValue([]),
     getPlanLimit: vi.fn().mockResolvedValue(null),
@@ -98,7 +140,7 @@ vi.mock("@polyglot/adapter-db", () => ({
     getSrsConfig: vi.fn().mockResolvedValue({ minEaseFactor: 1.3, defaultEaseFactor: 2.5 }),
     getNotificationDefaults: vi
       .fn()
-      .mockResolvedValue({ defaultTime: "08:00", defaultType: "srs", inactivityDays: 14, notificationTimesLimit: 12 }),
+      .mockResolvedValue({ defaultTime: "19:00", defaultType: "srs", inactivityDays: 14, notificationTimesLimit: 12 }),
     getDictionaryConfig: vi.fn().mockResolvedValue({ flashcardLimit: 10, notificationDictLimit: 1, wordOfDayLimit: 1 }),
     getTranslationPresets: vi.fn().mockResolvedValue([]),
     getVideoVocabularyConfig: vi.fn().mockResolvedValue({
@@ -156,7 +198,9 @@ describe("createContainer", () => {
     expect(container.vocabularyRepository).toBeDefined();
     expect(container.translationTemplateRepository).toBeDefined();
     expect(container.wordReviewRepository).toBeDefined();
+    expect(container.momentumService).toBeDefined();
     expect(container.notificationRepository).toBeDefined();
+    expect(container.onboardingDemoCardRepository).toBeDefined();
     expect(container.translationRequestRepository).toBeDefined();
     expect(container.languageDetectionRepository).toBeDefined();
     expect(container.requestTimingRepository).toBeDefined();

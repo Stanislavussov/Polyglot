@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, relative } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -6,9 +7,32 @@ import ts from "typescript";
 const DEFAULT_ROOTS = ["apps", "packages"];
 const TEST_FILE_PATTERN = /\.(test|spec)\.[cm]?[jt]sx?$/;
 const TEST_FUNCTIONS = new Set(["it", "test"]);
+// Stamp used when the commit date cannot be read (no git, shallow/empty repo).
+// A fixed value keeps the report reproducible; a wall clock would not.
+const FALLBACK_GENERATED_AT = "1970-01-01T00:00:00.000Z";
+
+// The catalog is regenerated on every CI run and in the deploy workflow, and the
+// result is both git-tracked and copied into the admin Docker image. A wall-clock
+// stamp therefore made the file differ on every run: it produced the spurious
+// diffs CLAUDE.md tells you to `git restore`, and it changed the Docker build
+// context each deploy, so `COPY apps/ apps/` invalidated the compile layers and
+// no amount of layer caching could ever hit them. The commit date is stable for
+// a given tree, which is exactly the property both callers need.
+function resolveGeneratedAt(rootDir) {
+  try {
+    const committedAt = execFileSync("git", ["log", "-1", "--format=%cI"], {
+      cwd: rootDir,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
+    return committedAt ? new Date(committedAt).toISOString() : FALLBACK_GENERATED_AT;
+  } catch {
+    return FALLBACK_GENERATED_AT;
+  }
+}
 
 export function buildTestCatalogReport({ rootDir = process.cwd(), jsonOutputPath, htmlOutputPath } = {}) {
-  const generatedAt = new Date().toISOString();
+  const generatedAt = resolveGeneratedAt(rootDir);
   const scenarios = collectTestCatalog(rootDir);
   const catalog = {
     generatedAt,

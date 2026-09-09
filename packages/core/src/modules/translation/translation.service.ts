@@ -13,7 +13,7 @@
  * Knows nothing about the user — works only with text and languages.
  */
 
-import { getLogger } from "../../logger.js";
+import { logEvent } from "../../observability/events.js";
 import type { GenerateObjectFn } from "../../ports/ai.port.js";
 import { analyzeInput } from "../input-analysis/input-analyzer.js";
 import { validate } from "../validation/validation.service.js";
@@ -185,8 +185,8 @@ interface PipelineContext {
    */
   judgeRan: boolean;
   /**
-   * Whether the AI preflight actually reached the model. False on the common
-   * path, where confident language detection lets it short-circuit before any
+   * Whether the AI preflight actually reached the model. Single-word input
+   * always does; batch/topic flows and clarify re-runs short-circuit before any
    * round-trip — see {@link phaseDidWork}.
    */
   preflightRan: boolean;
@@ -260,9 +260,10 @@ function reportPhase(hooks: TranslationHooks | undefined, phase: TranslationPhas
   try {
     onPhase(phase, elapsedMs);
   } catch (error) {
-    getLogger().warn(
+    logEvent(
+      "translation.phase_observer_failed",
       { phase, observerError: error instanceof Error ? error.message : String(error) },
-      "translation phase observer threw; ignored",
+      "warn",
     );
   }
 }
@@ -308,12 +309,12 @@ function structuralPreflightStep(ctx: PipelineContext): StepOutcome {
 
 /** Step 2 — AI preflight: clarify source language / meaning / typo, or silently correct. */
 async function aiPreflightStep(ctx: PipelineContext, generateObjectFn: GenerateObjectFn): Promise<StepOutcome> {
-  // The preflight only reaches the model for low-confidence detection; recording
-  // whether it did keeps its phase timing off the metric on the common path where
-  // it short-circuits (see `phaseDidWork`). `shouldRunAIPreflight` is pure, so
-  // asking it here costs nothing and keeps the decision explicit at the step.
+  // Recording whether the preflight reached the model keeps its phase timing off
+  // the metric when it short-circuits (see `phaseDidWork`) — batch/topic flows and
+  // clarify re-runs. `shouldRunAIPreflight` is pure, so asking it here costs
+  // nothing and keeps the decision explicit at the step.
   ctx.preflightRan = shouldRunAIPreflight(ctx.input);
-  const preflight = await runAIPreflight(ctx.input, generateObjectFn);
+  const preflight = await runAIPreflight(ctx.input, generateObjectFn, ctx.budget);
   if (preflight.kind === "clarify") {
     return { kind: "exit", decision: { status: "needs_clarification", ambiguity: preflight.ambiguity } };
   }
@@ -337,7 +338,7 @@ async function aiPreflightStep(ctx: PipelineContext, generateObjectFn: GenerateO
 async function generateStep(ctx: PipelineContext, generateObjectFn: GenerateObjectFn): Promise<StepOutcome> {
   const normalizedInput = ctx.input;
 
-  const request: TranslationRequest = {
+  let request: TranslationRequest = {
     text: normalizedInput.word,
     sourceLang: normalizedInput.sourceLang,
     targetLangs: normalizedInput.targetLangs,
@@ -350,16 +351,13 @@ async function generateStep(ctx: PipelineContext, generateObjectFn: GenerateObje
   };
   ctx.request = request;
 
-  getLogger().info(
-    {
-      original: ctx.rawInput.word,
-      sourceLang: ctx.rawInput.sourceLang,
-      targetLangs: ctx.rawInput.targetLangs,
-      topic: ctx.rawInput.topic,
-      model: ctx.rawInput.model,
-    },
-    "translation request started",
-  );
+  logEvent("translation.pipeline.started", {
+    original: ctx.rawInput.word,
+    sourceLang: ctx.rawInput.sourceLang,
+    targetLangs: ctx.rawInput.targetLangs,
+    topic: ctx.rawInput.topic,
+    model: ctx.rawInput.model,
+  });
 
   const preliminaryRiskLevel = assessRiskLevel(normalizedInput, ctx.analysis.features, []);
   const generationModel = selectGenerationModel(normalizedInput, preliminaryRiskLevel);
@@ -392,19 +390,27 @@ async function generateStep(ctx: PipelineContext, generateObjectFn: GenerateObje
   const assessExistence =
     normalizedInput.correctionPolicy?.assessSourceExistence === true && normalizedInput.inputType !== "sentence";
 
-  // Build parallel generation tasks: 1 metadata + N per-language calls
-  const metadataSchema = buildMetadataSchema(
-    normalizedInput.outputConfig,
-    requiresNativeOutput,
-    requiresSourceUsage,
-    requiresNativeOutput,
-    assessExistence,
-  );
+  // Generation runs as 1 metadata call followed by N parallel per-language calls.
+  const metadataSchemaWith = (includeSenseAnchor: boolean) =>
+    buildMetadataSchema(
+      normalizedInput.outputConfig,
+      requiresNativeOutput,
+      requiresSourceUsage,
+      requiresNativeOutput,
+      assessExistence,
+      includeSenseAnchor,
+    );
+  const baseMetadataSchema = metadataSchemaWith(false);
   // Sentence output disables every top-level metadata field (emoji, nativeMeaning,
   // sourceUsage, nativeSynonyms, existence), leaving a property-less schema. Sending
   // an empty-object schema to the live provider is a wasted round-trip and a provider
   // rejection risk, so skip the metadata call entirely and synthesize an empty result.
-  const metadataHasFields = Object.keys(metadataSchema.shape).length > 0;
+  const metadataHasFields = Object.keys(baseMetadataSchema.shape).length > 0;
+  // The sense anchor rides along on the metadata call rather than earning one of
+  // its own: asking for it never adds a round-trip, and a flow with no metadata
+  // call (sentences) has no polysemy problem to solve.
+  const resolveSenseAnchor = metadataHasFields && normalizedInput.inputType !== "sentence";
+  const metadataSchema = resolveSenseAnchor ? metadataSchemaWith(true) : baseMetadataSchema;
 
   const isLearningSource =
     normalizedInput.nativeLang !== undefined && normalizedInput.sourceLang !== normalizedInput.nativeLang;
@@ -426,31 +432,62 @@ async function generateStep(ctx: PipelineContext, generateObjectFn: GenerateObje
     ...(normalizedInput.userId !== undefined ? { userId: normalizedInput.userId } : {}),
   };
 
-  let metadataPrompt = buildMetadataPrompt(request, assessExistence);
-  let languagePrompts = new Map(
-    normalizedInput.targetLangs.map((lang) => [lang, buildSingleLanguagePrompt(request, lang)]),
-  );
   let result: TranslationResult | undefined;
   let sourceAssessment: { recognized: boolean; correction: string | null } | undefined;
   let lastErrors: string[] = [];
+  // Set once the previous attempt failed, turning both prompt sets strict.
+  let strictErrors: string[] | undefined;
 
   for (let attempt = 0; attempt <= MAX_FULL_RETRIES; attempt++) {
     try {
       ctx.attemptCount++;
 
-      const [metadataResult, ...langResults] = await Promise.all([
-        metadataHasFields
-          ? generateObjectFn(metadataPrompt, metadataSchema, generationModel, generateOptions)
-          : Promise.resolve({} as Record<string, never>),
-        ...languageTasks.map((task) =>
+      const metadataPrompt =
+        strictErrors === undefined
+          ? buildMetadataPrompt(request, assessExistence, resolveSenseAnchor)
+          : buildMetadataStrictPrompt(request, strictErrors, assessExistence, resolveSenseAnchor);
+      // Sequencing the metadata call ahead of the fan-out made generation
+      // additive rather than concurrent, so each phase now gets the clock it may
+      // actually spend. Without this a slow metadata call would run to the AI
+      // adapter's own (larger) default timeout and eat the repair window, the
+      // judge reserve, and — with two serial phases — the caller's outer guard.
+      const metadataResult = metadataHasFields
+        ? await generateObjectFn(metadataPrompt, metadataSchema, generationModel, {
+            ...generateOptions,
+            ...spendableWindow(ctx.budget),
+          })
+        : ({} as Record<string, never>);
+
+      // Anchor the per-language calls to the sense the metadata call settled on.
+      // They run as independent AI calls, so without this each one picks a sense
+      // of its own and a polysemous word yields a card whose blocks disagree.
+      // Assigned even when absent: an attempt that resolves no sense must not
+      // inherit the previous attempt's anchor, or the language blocks would be
+      // anchored to one attempt while the emoji and nativeMeaning come from
+      // another — the very mismatch this exists to prevent.
+      const senseAnchor = readSenseAnchor(metadataResult);
+      if (senseAnchor !== request.senseAnchor) {
+        request = { ...request, senseAnchor };
+        ctx.request = request;
+        if (senseAnchor !== undefined) {
+          // Which sense the card committed to is the first thing to check when a
+          // block reads out of context; the card itself only shows the result.
+          logEvent("translation.sense_anchored", { original: normalizedInput.word, senseAnchor }, "debug");
+        }
+      }
+
+      const langResults = await Promise.all(
+        languageTasks.map((task) =>
           generateObjectFn(
-            languagePrompts.get(task.lang) as string,
+            strictErrors === undefined
+              ? buildSingleLanguagePrompt(request, task.lang)
+              : buildSingleLanguageStrictPrompt(request, task.lang, strictErrors),
             task.schema as import("zod").ZodSchema<LanguageTranslation>,
             generationModel,
-            generateOptions,
+            { ...generateOptions, ...spendableWindow(ctx.budget) },
           ),
         ),
-      ]);
+      );
 
       const translations: Record<string, LanguageTranslation> = {};
       for (let i = 0; i < languageTasks.length; i++) {
@@ -483,13 +520,10 @@ async function generateStep(ctx: PipelineContext, generateObjectFn: GenerateObje
     } catch (generationError) {
       const errorMsg = generationError instanceof Error ? generationError.message : String(generationError);
 
-      getLogger().warn(
-        {
-          original: ctx.rawInput.word,
-          retryCount: attempt,
-          failReason: errorMsg,
-        },
-        "AI generation failed",
+      logEvent(
+        "translation.generation_failed",
+        { original: ctx.rawInput.word, retryCount: attempt, failReason: errorMsg },
+        "warn",
       );
 
       // Task 2.5b — a whole-batch retry is only started while the budget still
@@ -500,10 +534,7 @@ async function generateStep(ctx: PipelineContext, generateObjectFn: GenerateObje
       }
 
       lastErrors = [`[generation] ${errorMsg}`];
-      metadataPrompt = buildMetadataStrictPrompt(request, lastErrors, assessExistence);
-      languagePrompts = new Map(
-        normalizedInput.targetLangs.map((lang) => [lang, buildSingleLanguageStrictPrompt(request, lang, lastErrors)]),
-      );
+      strictErrors = lastErrors;
       continue;
     }
 
@@ -532,19 +563,13 @@ async function generateStep(ctx: PipelineContext, generateObjectFn: GenerateObje
       break;
     }
 
-    getLogger().warn(
-      {
-        original: ctx.rawInput.word,
-        retryCount: attempt,
-        failReason: lastErrors.join(" | "),
-      },
-      "translation schema validation failed",
+    logEvent(
+      "translation.schema_validation_failed",
+      { original: ctx.rawInput.word, retryCount: attempt, failReason: lastErrors.join(" | ") },
+      "warn",
     );
 
-    metadataPrompt = buildMetadataStrictPrompt(request, lastErrors, assessExistence);
-    languagePrompts = new Map(
-      normalizedInput.targetLangs.map((lang) => [lang, buildSingleLanguageStrictPrompt(request, lang, lastErrors)]),
-    );
+    strictErrors = lastErrors;
   }
 
   if (!result) {
@@ -565,19 +590,51 @@ function unrecognizedGuardStep(ctx: PipelineContext): StepOutcome {
   // unverified so the reply carries a caveat and the saved entry is excluded
   // from notifications/SRS suggestions.
   const { sourceAssessment } = ctx;
-  if (sourceAssessment && !sourceAssessment.recognized) {
+  if (sourceAssessment && !isRecognizedAsWritten(sourceAssessment, ctx.input.word)) {
     if (ctx.input.correctionPolicy?.skipInputCorrection !== true) {
       return {
         kind: "exit",
         decision: {
           status: "needs_clarification",
-          ambiguity: buildUnrecognizedAmbiguity(ctx.input, sourceAssessment.correction),
+          // A model that recognized the word and still offered a correction is
+          // describing a typo, not an unknown form — saying "«colour» is not a
+          // standard English word" would claim more than it did.
+          ambiguity: buildUnrecognizedAmbiguity(
+            ctx.input,
+            sourceAssessment.correction,
+            sourceAssessment.recognized ? "possible_typo" : "unrecognized_word",
+          ),
         },
       };
     }
     ctx.unverified = true;
   }
   return CONTINUE;
+}
+
+/**
+ * A correction that differs from the input overrides a `recognized: true`: the
+ * model contradicted itself (it rationalized the form as a word yet still knows
+ * the standard spelling), and a card must never render the wrong headword as if
+ * it were real. Capitalization alone is not a spelling difference.
+ */
+function isRecognizedAsWritten(assessment: { recognized: boolean; correction: string | null }, word: string): boolean {
+  return assessment.recognized && !isRealCorrection(assessment.correction, word);
+}
+
+/**
+ * Whether `correction` actually rewrites `word`. Compared NFC-normalized, since
+ * a model answering "strohá" in NFD and an NFC input are the same text in two
+ * different JS strings — and offering the user a button whose label is
+ * indistinguishable from what they typed is worse than not offering one.
+ */
+function isRealCorrection(correction: string | null | undefined, word: string): boolean {
+  const trimmed = correction?.trim();
+  if (!trimmed) {
+    return false;
+  }
+  const normalize = (value: string): string => value.trim().normalize("NFC").toLocaleLowerCase();
+  return normalize(trimmed) !== normalize(word);
 }
 
 /** Step 5 — deterministic validation and targeted per-language repair. */
@@ -594,13 +651,15 @@ async function validateAndRepairStep(ctx: PipelineContext, generateObjectFn: Gen
   );
 
   if (hasBlockingIssues(issues)) {
-    getLogger().warn(
+    logEvent(
+      "translation.validation_failed",
       {
         original: normalizedInput.word,
         retryCount: 0,
         failReason: issues.map((issue) => issue.message).join(" | "),
+        failedFields: issues.map((issue) => `${issue.severity}:${issue.fieldPath}`),
       },
-      "translation validation failed",
+      "warn",
     );
     const repaired = await repairTranslationBlocks(
       result,
@@ -660,9 +719,10 @@ async function judgeStep(ctx: PipelineContext, generateObjectFn: GenerateObjectF
       // the user, but never as a silently `accepted` card: the blocking issue
       // below routes it to needs_review through the normal finalize path.
       // A judge that answers in time is untouched — only the clock falls back.
-      getLogger().warn(
+      logEvent(
+        "translation.judge_timed_out",
         { original: normalizedInput.word, judgeBudgetMs: judged.budgetMs },
-        "semantic judge exceeded its time budget; returning the validated pre-judge result as needs_review",
+        "warn",
       );
       ctx.result = result;
       ctx.issues = [...issues, buildJudgeTimeoutIssue()];
@@ -797,14 +857,11 @@ function finalizeStep(ctx: PipelineContext): StepOutcome {
     // needs_review (the error line below) — the metric the plan asks for.
     const advisoryIssues = issues.filter((issue) => issue.severity === "advisory");
     if (advisoryIssues.length > 0) {
-      getLogger().info(
-        {
-          original: normalizedInput.word,
-          advisoryCount: advisoryIssues.length,
-          advisoryReasons: advisoryIssues.map((issue) => issue.message).join(" | "),
-        },
-        "translation accepted with advisory (non-blocking) issues",
-      );
+      logEvent("translation.accepted_with_advisories", {
+        original: normalizedInput.word,
+        advisoryCount: advisoryIssues.length,
+        advisoryReasons: advisoryIssues.map((issue) => issue.message).join(" | "),
+      });
     }
     return {
       kind: "exit",
@@ -825,13 +882,15 @@ function finalizeStep(ctx: PipelineContext): StepOutcome {
     };
   }
 
-  getLogger().error(
+  logEvent(
+    "translation.needs_review",
     {
       original: normalizedInput.word,
       retryCount: Math.max(0, ctx.attemptCount - 1),
       failReason: issues.map((issue) => issue.message).join(" | "),
+      failedFields: issues.map((issue) => `${issue.severity}:${issue.fieldPath}`),
     },
-    "translation validation failed after all retries — returning needs_review",
+    "error",
   );
 
   return {
@@ -1083,12 +1142,18 @@ function shouldRunAIPreflight(input: TranslateInput): input is TranslateInput & 
   if (input.detectionConfidence === undefined) {
     return false;
   }
-  // Only low-confidence language detection triggers the preflight. Dictionary
-  // presence is deliberately NOT a gate: the offline Wiktionary import is
-  // incomplete, so a valid word's absence is not a typo signal (e.g. the common
-  // verb "tow" is not in the table at all). Spelling/existence is instead judged
-  // by the AI existence check (Task 70, `assessSourceExistence`).
-  return input.detectionConfidence < PREFLIGHT_DEFAULTS.autoProceedAboveConfidence;
+  // Dictionary presence is deliberately NOT a gate: the offline Wiktionary
+  // import is incomplete, so a valid word's absence is not a typo signal (e.g.
+  // the common verb "tow" is not in the table at all).
+  if (input.detectionConfidence < PREFLIGHT_DEFAULTS.autoProceedAboveConfidence) {
+    return true;
+  }
+  // Language confidence answers "which language", not "is this spelled like a
+  // real word" — Czech "selmostroj" detected cs @0.90 skipped the preflight and
+  // came back as a confidently fabricated bridge-construction company. Single
+  // words therefore always get the spelling pass; re-runs do not, because every
+  // typo outcome is neutralized under `skipInputCorrection` anyway.
+  return (input.inputType ?? "word") === "word" && input.correctionPolicy?.skipInputCorrection !== true;
 }
 
 function preflightOutcomeToReason(outcome: PreflightResult["outcome"]): TranslationAmbiguity["reason"] {
@@ -1120,7 +1185,11 @@ type PreflightDirective =
   | { kind: "correct"; correctedText: string; explanation: string }
   | { kind: "clarify"; ambiguity: TranslationAmbiguity };
 
-async function runAIPreflight(input: TranslateInput, generateObjectFn: GenerateObjectFn): Promise<PreflightDirective> {
+async function runAIPreflight(
+  input: TranslateInput,
+  generateObjectFn: GenerateObjectFn,
+  budget: TranslationBudget,
+): Promise<PreflightDirective> {
   if (!shouldRunAIPreflight(input)) {
     return { kind: "proceed" };
   }
@@ -1140,6 +1209,7 @@ async function runAIPreflight(input: TranslateInput, generateObjectFn: GenerateO
     input.model,
     {
       ...(input.userId !== undefined ? { userId: input.userId } : {}),
+      ...spendableWindow(budget),
     },
   );
 
@@ -1147,13 +1217,30 @@ async function runAIPreflight(input: TranslateInput, generateObjectFn: GenerateO
     return { kind: "proceed" };
   }
 
+  // Confident detection reaches the preflight only for the spelling pass, so it
+  // may correct a typo and nothing else. Honouring "which language did you
+  // mean?" here would put a clarification in front of ordinary words that used
+  // to translate straight through (English "gift" is also German "Gift").
+  if (
+    input.detectionConfidence >= PREFLIGHT_DEFAULTS.autoProceedAboveConfidence &&
+    result.outcome !== "proceed_with_correction" &&
+    result.outcome !== "confirm_typo_suggestion"
+  ) {
+    return { kind: "proceed" };
+  }
+
   // Silent minor-typo fix (Task 69). Suppressed on verbatim re-runs, and a
   // no-op "correction" (same text, or a missing corrected form) proceeds as-is.
   if (result.outcome === "proceed_with_correction") {
-    if (input.correctionPolicy?.skipInputCorrection || !result.correctedText || result.correctedText === input.word) {
+    const correctedText = result.correctedText?.trim();
+    if (
+      input.correctionPolicy?.skipInputCorrection ||
+      correctedText === undefined ||
+      !isRealCorrection(correctedText, input.word)
+    ) {
       return { kind: "proceed" };
     }
-    return { kind: "correct", correctedText: result.correctedText, explanation: result.explanation };
+    return { kind: "correct", correctedText, explanation: result.explanation };
   }
 
   // After the language/mistype confirmation, or on "translate as written",
@@ -1163,6 +1250,18 @@ async function runAIPreflight(input: TranslateInput, generateObjectFn: GenerateO
   }
 
   if (result.outcome === "clarify_meaning" && input.inputType === "word") {
+    return { kind: "proceed" };
+  }
+
+  // A model asked for a spelling it cannot improve on answers with the input
+  // itself ("selmostroj (исправить на selmostroj)"). Such an option is noise at
+  // best and, when it is the only thing the confirmation was for, the whole
+  // prompt is — the metadata existence guard is the net for a word that is
+  // genuinely unknown, and it offers "translate as written" with a caveat.
+  const options = result.options.filter(
+    (option) => option.kind !== "typo_correction" || isRealCorrection(option.correctedText, input.word),
+  );
+  if (result.outcome === "confirm_typo_suggestion" && !options.some((option) => option.kind === "typo_correction")) {
     return { kind: "proceed" };
   }
 
@@ -1176,7 +1275,7 @@ async function runAIPreflight(input: TranslateInput, generateObjectFn: GenerateO
     ambiguity: {
       reason,
       message: result.explanation,
-      options: result.options.map((option) => ({
+      options: options.map((option) => ({
         id: option.id,
         label: option.label,
         value: option.value,
@@ -1247,9 +1346,10 @@ async function repairTranslationBlocks(
       // limit when no `deadlineAt` was supplied.
       const repairWindowMs = spendableBeforeJudgeReserve(budget);
       if (repairWindowMs !== undefined && repairWindowMs <= 0) {
-        getLogger().warn(
+        logEvent(
+          "translation.repair_budget_exhausted",
           { original: input.word, remainingMs: budget.remainingMs(), reserveMs: RESERVED_JUDGE_MS },
-          "translation repair budget exhausted; returning the best validated result so far",
+          "warn",
         );
         return { result: workingResult, issues: sourceIssues, attemptCount };
       }
@@ -1278,9 +1378,10 @@ async function repairTranslationBlocks(
         // The round overran its share of the clock. Its late answer is discarded
         // (it cannot be cancelled) and the best already-validated result so far
         // is handed back, leaving the judge reservation intact.
-        getLogger().warn(
+        logEvent(
+          "translation.repair_timed_out",
           { original: input.word, remainingMs: budget.remainingMs(), repairWindowMs },
-          "translation repair exceeded its time box; returning the best validated result so far",
+          "warn",
         );
         return { result: workingResult, issues: sourceIssues, attemptCount };
       }
@@ -1327,13 +1428,14 @@ async function repairTranslationBlocks(
         break;
       }
 
-      getLogger().warn(
+      logEvent(
+        "translation.repair_validation_failed",
         {
           original: input.word,
           retryCount: attempt + 1,
           failReason: remainingLangIssues.map((issue) => issue.message).join(" | "),
         },
-        "translation validation failed",
+        "warn",
       );
 
       sourceIssues = issues;
@@ -1341,6 +1443,36 @@ async function repairTranslationBlocks(
   }
 
   return { result: workingResult, issues: sourceIssues, attemptCount };
+}
+
+/**
+ * The clock a generation call may spend, as `generateObject` options.
+ *
+ * Empty when the request is unbounded, which leaves the AI adapter's own default
+ * timeout in charge — byte-for-byte the behavior before generation was split
+ * into two serial phases.
+ */
+function spendableWindow(budget: TranslationBudget): { budgetMs?: number } {
+  const windowMs = spendableBeforeJudgeReserve(budget);
+  return windowMs !== undefined && windowMs > 0 ? { budgetMs: windowMs } : {};
+}
+
+/**
+ * The sense every language block must render, as returned by the metadata call.
+ * Absent when the flow does not resolve one (sentences, metadata-less configs)
+ * or when the model answered `null` because it could not name one — generation
+ * then proceeds unanchored rather than failing.
+ */
+function readSenseAnchor(metadataResult: object): string | undefined {
+  if (!("primarySense" in metadataResult)) {
+    return undefined;
+  }
+  const value = (metadataResult as { primarySense?: unknown }).primarySense;
+  if (typeof value !== "string") {
+    return undefined;
+  }
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : undefined;
 }
 
 function extractLanguageTranslation(value: unknown, lang: string): LanguageTranslation {
@@ -1408,13 +1540,14 @@ async function judgeTranslation(
       attemptCount: initialAttemptCount + 1,
     };
   } catch (error) {
-    getLogger().warn(
+    logEvent(
+      "translation.judge_failed",
       {
         original: input.word,
         model: generationModel,
         judgeError: error instanceof Error ? error.message : String(error),
       },
-      "semantic judge failed; continuing with deterministic validation only",
+      "warn",
     );
 
     return { judgeResult: undefined, issues: [], attemptCount: initialAttemptCount };
@@ -1460,6 +1593,11 @@ Target languages: ${request.targetLangs.join(", ")}
 ${request.nativeLang ? `Native language: ${request.nativeLang}` : ""}
 ${request.topic ? `Context hint: ${request.topic}` : ""}
 ${request.inputType ? `Input type: ${request.inputType}` : ""}
+${
+  request.senseAnchor
+    ? `Sense anchor (authoritative): this card deliberately covers ONE sense of the source text — ${request.senseAnchor}. Judge every block against THAT sense: a faithful rendering of the anchored sense is never a "wrong main meaning", even when another sense of the source text is more common. A block that renders a DIFFERENT sense IS a blocking issue.`
+    : ""
+}
 
 Candidate translation JSON:
 ${JSON.stringify(result, null, 2)}
@@ -1560,15 +1698,20 @@ export function sanitizeEmoji(value: string): string {
  * not a UI string); the "translate as written" option carries no label so the
  * channel localizes it from `kind`.
  */
-function buildUnrecognizedAmbiguity(input: TranslateInput, correction: string | null): TranslationAmbiguity {
+function buildUnrecognizedAmbiguity(
+  input: TranslateInput,
+  correction: string | null,
+  reason: TranslationAmbiguity["reason"] = "unrecognized_word",
+): TranslationAmbiguity {
   const options: TranslationAmbiguity["options"] = [];
 
-  if (correction?.trim() && correction !== input.word) {
+  if (isRealCorrection(correction, input.word)) {
+    const corrected = (correction as string).trim();
     options.push({
       kind: "typo_correction",
-      label: correction,
-      value: correction,
-      correctedText: correction,
+      label: corrected,
+      value: corrected,
+      correctedText: corrected,
     });
   }
 
@@ -1578,7 +1721,7 @@ function buildUnrecognizedAmbiguity(input: TranslateInput, correction: string | 
   });
 
   return {
-    reason: "unrecognized_word",
+    reason,
     params: { word: input.word, lang: input.sourceLang },
     options,
   };
@@ -1598,9 +1741,10 @@ function toOutput(
   if (result.emoji !== undefined) {
     emoji = sanitizeEmoji(result.emoji);
     if (emoji !== result.emoji) {
-      getLogger().warn(
+      logEvent(
+        "translation.emoji_sanitized",
         { original: input.word, rawEmoji: result.emoji, sanitized: emoji },
-        "AI returned non-emoji string in emoji field, replaced with fallback",
+        "warn",
       );
     }
   }

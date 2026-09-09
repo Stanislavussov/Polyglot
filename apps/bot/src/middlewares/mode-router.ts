@@ -7,16 +7,18 @@
  */
 
 import { isVideoUrl, isYouTubeUrl } from "@polyglot/adapter-youtube";
-import { isSupported, logger, type SupportedLang, t } from "@polyglot/core";
+import { isSupported, logEvent, type SupportedLang, t } from "@polyglot/core";
 import type { NextFunction } from "grammy";
+import { markHandled } from "../observability/handler-log.js";
 import { handleTranslationClarificationContextText } from "../scenes/helpers/clarification.js";
 import { handleDictionaryNameInput } from "../scenes/helpers/dictionary.helper.js";
 import { handleMentorText } from "../scenes/helpers/mentor-mode.helper.js";
+import { tryHandleMentorReply } from "../scenes/helpers/mentor-thread.helper.js";
 import { handleNotifContextTextInput } from "../scenes/helpers/settings.helper.js";
 import { handleTranslateText } from "../scenes/helpers/translate-flow.js";
 import { handleVideoVocabularyUrl } from "../scenes/helpers/video-vocabulary.helper.js";
+import { handleVoiceMessage } from "../scenes/helpers/voice-input.js";
 import type { BotContext } from "../types.js";
-import { trackTechnicalMessage } from "../utils/message-cleanup.js";
 import { detectNonTextContent, isEmojiOnly } from "../utils/validate-text-input.js";
 import { getRequestSettings } from "./request-settings.js";
 
@@ -52,11 +54,18 @@ export async function modeRouterMiddleware(ctx: BotContext, next: NextFunction):
   // Non-text messages (stickers, GIFs, photos, voice, etc.)
   if (!text) {
     if (ctx.user?.onboarded) {
+      // A voice message is translatable input when speech-to-text is on; the
+      // handler returns false when it is off, so the rejection below stays the
+      // unchanged fallback.
+      if (ctx.message.voice && (await handleVoiceMessage(ctx))) {
+        markHandled(ctx, "modeRouter:voice");
+        return;
+      }
       const nonTextType = detectNonTextContent(ctx.message as unknown as Record<string, unknown>);
-      logger.debug({ nonTextType, userId: ctx.from?.id }, "Non-text message received from onboarded user");
+      markHandled(ctx, "modeRouter:nonText");
+      logEvent("mode_router.rejected", { reason: "non_text", contentType: nonTextType });
       const lang = await resolveInterfaceLang(ctx);
-      const msg = await ctx.reply(t("textOnly", lang));
-      trackTechnicalMessage(ctx, msg.message_id);
+      await ctx.reply(t("textOnly", lang));
       return;
     }
     return next();
@@ -65,10 +74,10 @@ export async function modeRouterMiddleware(ctx: BotContext, next: NextFunction):
   // Emoji-only messages — cannot be translated
   if (isEmojiOnly(text)) {
     if (ctx.user?.onboarded) {
-      logger.debug({ textPreview: text, userId: ctx.from?.id }, "Emoji-only message received");
+      markHandled(ctx, "modeRouter:emojiOnly");
+      logEvent("mode_router.rejected", { reason: "emoji_only" });
       const lang = await resolveInterfaceLang(ctx);
-      const msg = await ctx.reply(t("emojiNotSupported", lang));
-      trackTechnicalMessage(ctx, msg.message_id);
+      await ctx.reply(t("emojiNotSupported", lang));
       return;
     }
     return next();
@@ -76,44 +85,60 @@ export async function modeRouterMiddleware(ctx: BotContext, next: NextFunction):
 
   // Capture notification context text input
   if (ctx.session.awaitingNotifContext) {
+    markHandled(ctx, "modeRouter:notifContext");
     await handleNotifContextTextInput(ctx);
     return;
   }
 
   if (ctx.session.dictionaryWizard) {
+    markHandled(ctx, "modeRouter:dictionaryName");
     await handleDictionaryNameInput(ctx);
     return;
   }
 
   if (ctx.session.awaitingTranslationClarificationContext) {
+    markHandled(ctx, "modeRouter:clarificationContext");
     await handleTranslationClarificationContextText(ctx, text);
     return;
   }
 
+  // Reply to a mentor answer → continue that thread, regardless of active mode.
+  // After the wizard interceptors (one-shot prompts sent moments earlier win),
+  // before URL detection (an explicit reply names its target).
+  if (ctx.user?.onboarded && ctx.message.reply_to_message) {
+    if (await tryHandleMentorReply(ctx, text)) {
+      markHandled(ctx, "modeRouter:mentorReply");
+      return;
+    }
+  }
+
   // YouTube URL → video vocabulary flow
   if (ctx.user?.onboarded && isYouTubeUrl(text)) {
+    markHandled(ctx, "modeRouter:youtubeUrl");
     await handleVideoVocabularyUrl(ctx, text);
     return;
   }
   // Non-YouTube video URL → "only YouTube supported"
   if (ctx.user?.onboarded && isVideoUrl(text)) {
+    markHandled(ctx, "modeRouter:unsupportedVideoUrl");
+    logEvent("mode_router.rejected", { reason: "non_youtube_video_url" });
     const lang = await resolveInterfaceLang(ctx);
-    const msg = await ctx.reply(t("videoOnlyYouTube", lang));
-    trackTechnicalMessage(ctx, msg.message_id);
+    await ctx.reply(t("videoOnlyYouTube", lang));
     return;
   }
 
   // Route based on active mode
   const mode = ctx.session.activeMode;
-  const userId = ctx.from?.id;
 
-  logger.debug({ mode, textPreview: text.slice(0, 30), userId }, "Mode router: routing message");
+  logEvent("mode_router.routed", { mode, textLength: text.length });
 
   switch (mode) {
     case "translate":
+      markHandled(ctx, "modeRouter:translate");
       await handleTranslateText(ctx, text);
       return; // Don't call next() — we handled it
     case "mentor":
+      markHandled(ctx, "modeRouter:mentor");
       await handleMentorText(ctx, text);
       return;
     default: {
@@ -123,7 +148,8 @@ export async function modeRouterMiddleware(ctx: BotContext, next: NextFunction):
       const user = ctx.user;
 
       if (user?.onboarded) {
-        logger.warn({ mode, userId }, "Onboarded user hit idle mode — falling back to translate");
+        markHandled(ctx, "modeRouter:idleFallback");
+        logEvent("mode_router.idle_fallback", { mode }, "warn");
         ctx.session.activeMode = "translate";
         await ctx.services.userRepository.updateActiveMode(user.id, "translate");
         await handleTranslateText(ctx, text);
@@ -131,11 +157,12 @@ export async function modeRouterMiddleware(ctx: BotContext, next: NextFunction):
       }
 
       // Non-onboarded user — show hint to start onboarding
+      markHandled(ctx, "modeRouter:welcomeHint");
+      logEvent("mode_router.welcome_hint", {});
       const settings = user ? await getRequestSettings(ctx, user.id) : null;
       const rawLang = settings?.interfaceLang ?? "en";
       const lang: SupportedLang = isSupported(rawLang) ? rawLang : "en";
-      const msg = await ctx.reply(t("welcome", lang));
-      trackTechnicalMessage(ctx, msg.message_id);
+      await ctx.reply(t("welcome", lang));
       return;
     }
   }

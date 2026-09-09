@@ -16,27 +16,37 @@ import { setAIFallbackObserver, withModelFailover } from "@polyglot/adapter-ai";
 import { resetBreakerRegistry } from "@polyglot/core";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const { mockUserRepository, mockSettings, mockTranslationRequestRepository } = vi.hoisted(() => ({
-  mockUserRepository: {
-    getSettings: vi.fn().mockResolvedValue({ interfaceLang: "en", nativeLang: "en", learningLangs: ["cs"] }),
-  },
-  mockSettings: {
-    getDefaultAIModel: vi.fn().mockResolvedValue("openai/gpt-4o"),
-    getDefaultAIModelForPlan: vi.fn().mockResolvedValue("openai/gpt-4o"),
-    getPlanLimit: vi.fn().mockResolvedValue({
-      name: "free",
-      label: "Free",
-      translationLimit: 50,
-      creditCost: 1,
-      isActive: true,
-      isDefault: true,
-    }),
-  },
-  mockTranslationRequestRepository: {
-    getUserCreditsInWindow: vi.fn().mockResolvedValue(0),
-    logTranslationRequest: vi.fn().mockResolvedValue(1),
-  },
-}));
+const { mockUserRepository, mockSettings, mockTranslationRequestRepository, mockMentorMessageRepository } = vi.hoisted(
+  () => ({
+    mockMentorMessageRepository: {
+      record: vi.fn().mockResolvedValue(undefined),
+      findThreadByMessage: vi.fn().mockResolvedValue(null),
+      getRecentMessages: vi.fn().mockResolvedValue([]),
+      findLatestThreadId: vi.fn().mockResolvedValue(null),
+    },
+    mockUserRepository: {
+      getSettings: vi.fn().mockResolvedValue({ interfaceLang: "en", nativeLang: "en", learningLangs: ["cs"] }),
+      getLanguageLevels: vi.fn().mockResolvedValue([{ languageCode: "cs", proficiencyLevel: "B2" }]),
+    },
+    mockSettings: {
+      getDefaultAIModel: vi.fn().mockResolvedValue("openai/gpt-4o"),
+      getDefaultAIModelForPlan: vi.fn().mockResolvedValue("openai/gpt-4o"),
+      getMentorConfig: vi.fn().mockResolvedValue({ modelId: "", maxTokens: 700 }),
+      getPlanLimit: vi.fn().mockResolvedValue({
+        name: "free",
+        label: "Free",
+        translationLimit: 50,
+        creditCost: 1,
+        isActive: true,
+        isDefault: true,
+      }),
+    },
+    mockTranslationRequestRepository: {
+      getUserCreditsInWindow: vi.fn().mockResolvedValue(0),
+      logTranslationRequest: vi.fn().mockResolvedValue(1),
+    },
+  }),
+);
 
 vi.mock("../metrics.js", () => ({
   mentorCounter: { inc: vi.fn() },
@@ -46,14 +56,21 @@ vi.mock("../metrics.js", () => ({
 import { mentorCounter } from "../metrics.js";
 import { handleMentorText } from "../scenes/helpers/mentor-mode.helper.js";
 import type { BotContext, SessionData } from "../types.js";
-import { FALLBACK_AI_MODEL } from "../utils/ai-model.js";
+
+/** The admin-configured failover model this suite routes the second attempt to. */
+const ADMIN_FALLBACK_MODEL = "openai/gpt-5-nano";
 
 /** The provider seam: primary (1st call) 429s; the fallback model (2nd call) succeeds. */
 function buildFailoverAi(provider: (model: string) => Promise<string>) {
   return {
     generateChat: (_messages: unknown, model: string) =>
       withModelFailover(
-        { primaryModel: model, fallbackModel: FALLBACK_AI_MODEL, primaryBudgetMs: 10_000, reservedFallbackMs: 5_000 },
+        {
+          primaryModel: model,
+          fallbackModel: ADMIN_FALLBACK_MODEL,
+          primaryBudgetMs: 10_000,
+          reservedFallbackMs: 5_000,
+        },
         (attemptModel: string) => provider(attemptModel),
       ),
   };
@@ -64,6 +81,8 @@ function createMockCtx(ai: ReturnType<typeof buildFailoverAi>): BotContext {
   return {
     from: { id: 123456789 },
     chat: { id: 123456789 },
+    // The momentum credit for a mentor turn is keyed by `update_id` (Task 81 §3.8).
+    update: { update_id: 555 },
     session,
     reply: vi.fn().mockResolvedValue({ message_id: 100 }),
     user: { id: 1, telegramId: 123456789, onboarded: true, subscriptionPlan: "free" },
@@ -72,6 +91,7 @@ function createMockCtx(ai: ReturnType<typeof buildFailoverAi>): BotContext {
       ai,
       settings: mockSettings,
       translationRequestRepository: mockTranslationRequestRepository,
+      mentorMessageRepository: mockMentorMessageRepository,
     },
     api: { deleteMessage: vi.fn().mockResolvedValue(undefined) },
   } as unknown as BotContext;
@@ -103,7 +123,7 @@ describe("handleMentorText with failover", () => {
 
     // The primary (openai/gpt-4o) 429d; the fallback model produced the reply.
     expect(provider).toHaveBeenNthCalledWith(1, "openai/gpt-4o");
-    expect(provider).toHaveBeenNthCalledWith(2, FALLBACK_AI_MODEL);
+    expect(provider).toHaveBeenNthCalledWith(2, ADMIN_FALLBACK_MODEL);
 
     // User got the coaching reply (loading indicator first, then the answer) — no error.
     const replies = vi.mocked(ctx.reply).mock.calls;
@@ -114,7 +134,7 @@ describe("handleMentorText with failover", () => {
     // The failover was counted for the metric.
     expect(observer).toHaveBeenCalledWith({
       fromModel: "openai/gpt-4o",
-      toModel: FALLBACK_AI_MODEL,
+      toModel: ADMIN_FALLBACK_MODEL,
       reason: "rate_limit",
     });
   });

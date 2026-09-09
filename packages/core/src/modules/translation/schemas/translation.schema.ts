@@ -235,6 +235,7 @@ export function buildMetadataSchema(
   requireSourceUsage = false,
   requireExampleNative = false,
   assessExistence = false,
+  includeSenseAnchor = false,
 ) {
   const includeNativeSynonyms = config?.includeNativeSynonyms !== false;
   const includeEmoji = config?.includeEmoji !== false;
@@ -244,6 +245,15 @@ export function buildMetadataSchema(
     ...(requireNative && includeNativeMeaning && { nativeMeaning: z.string().min(1, "Native meaning is required") }),
     ...(requireSourceUsage && { sourceUsage: buildSourceUsageSchema(config, requireExampleNative) }),
     ...(includeNativeSynonyms && { nativeSynonyms: z.array(synonymSchema) }),
+    ...(includeSenseAnchor && {
+      // The one sense the whole card renders; fed back into the per-language
+      // prompts so no block drifts to a different sense of a polysemous word.
+      // Nullable, never required-non-empty: a model that cannot name a sense
+      // (an unrecognized headword, say) must be able to say so and let the card
+      // generate unanchored, instead of failing schema validation and taking a
+      // whole otherwise-good translation down with it.
+      primarySense: z.string().nullable(),
+    }),
     ...(assessExistence && {
       // Task 70 — defense-in-depth existence guard. `sourceWordRecognized`
       // is false for misspellings, missing diacritics, and invented words.

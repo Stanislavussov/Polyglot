@@ -3,7 +3,6 @@ import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { logger } from "@polyglot/core";
 import type { BotContext } from "../types.js";
-import { trackTechnicalMessage } from "../utils/message-cleanup.js";
 
 const MAX_TELEGRAM_TEXT_LENGTH = 3900;
 
@@ -76,12 +75,10 @@ export async function changesCommand(ctx: BotContext): Promise<void> {
   try {
     const message = await readDeliveredChanges();
     for (const chunk of splitTelegramText(message)) {
-      const msg = await ctx.reply(chunk);
-      trackTechnicalMessage(ctx, msg.message_id);
+      await ctx.reply(chunk);
     }
   } catch (err) {
     logger.error({ err }, "Failed to read delivered changes");
-    const msg = await ctx.reply("Delivered changes are temporarily unavailable.");
-    trackTechnicalMessage(ctx, msg.message_id);
+    await ctx.reply("Delivered changes are temporarily unavailable.");
   }
 }

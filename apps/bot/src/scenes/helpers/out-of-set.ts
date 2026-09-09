@@ -7,9 +7,10 @@
  * pipeline via `handleMistypeConfirmCallback`.
  */
 import {
+  errorFields,
   isSupported,
   isSupportedLanguage,
-  logger,
+  logEvent,
   resolveDirectionFromSource,
   type SupportedLang,
   t,
@@ -17,8 +18,8 @@ import {
 import { MAX_LEARNING_LANGS } from "../../constants.js";
 import { clearRequestSettings } from "../../middlewares/request-settings.js";
 import type { BotContext } from "../../types.js";
-import { trackTechnicalMessage } from "../../utils/message-cleanup.js";
 import { editMessageReplyMarkupOrIgnore } from "./edit-message.helper.js";
+import { answerStaleCallback } from "./stale-callback.helper.js";
 import { handleMistypeConfirmCallback } from "./translate-flow.js";
 import { clearPendingClarification, getUserLanguageGroup, normalizeLearningLangs } from "./translate-mode.shared.js";
 
@@ -53,8 +54,7 @@ export async function handleOutOfSetCallback(ctx: BotContext): Promise<void> {
     settle();
     await ctx.answerCallbackQuery();
     await removeKeyboard();
-    const msg = await ctx.reply(t("translateModeHint", lang));
-    trackTechnicalMessage(ctx, msg.message_id);
+    await ctx.reply(t("translateModeHint", lang));
     return;
   }
 
@@ -66,8 +66,12 @@ export async function handleOutOfSetCallback(ctx: BotContext): Promise<void> {
   // language no longer matches the entry stored for this message.
   if (!pending || (!isAdd && !isOnce) || !isSupportedLanguage(sourceLang) || sourceLang !== pending.lang) {
     settle();
-    await ctx.answerCallbackQuery({ text: t("staleSession", lang), show_alert: true });
     await removeKeyboard();
+    await answerStaleCallback(ctx, {
+      action: "tr:oos",
+      lang,
+      ...(pending?.word !== undefined && { word: pending.word }),
+    });
     return;
   }
 
@@ -88,13 +92,14 @@ export async function handleOutOfSetCallback(ctx: BotContext): Promise<void> {
     try {
       await ctx.services.userRepository.updateLearningLangs(ctx.user.id, nextLangs);
       effectiveLearning = nextLangs;
+      logEvent("language.added_from_out_of_set", { sourceLang, learningLangs: nextLangs });
       // This update continues into `handleMistypeConfirmCallback` below, which
       // re-reads the settings. Drop the request memo (warmed by the auth
       // middleware before this write) so that read sees the language just added
       // instead of re-classifying it as out-of-set and re-offering it.
       clearRequestSettings(ctx);
     } catch (err) {
-      logger.warn({ err, sourceLang }, "Failed to add out-of-set language");
+      logEvent("language.add_from_out_of_set_failed", { sourceLang, ...errorFields(err) }, "warn");
       await ctx.answerCallbackQuery({ text: t("translationError", lang), show_alert: true });
       return;
     }
@@ -111,7 +116,7 @@ export async function handleOutOfSetCallback(ctx: BotContext): Promise<void> {
       targetLangs,
     })
     .catch((err: unknown) => {
-      logger.warn({ err }, "Failed to record language detection event");
+      logEvent("language_detection.record_failed", errorFields(err), "warn");
     });
 
   const pendingWord = pending.word;
@@ -158,7 +163,7 @@ export async function handleLangSelectCallback(ctx: BotContext): Promise<void> {
           word: pendingWord,
         })
         .catch((err: unknown) => {
-          logger.warn({ err }, "Failed to record language detection event");
+          logEvent("language_detection.record_failed", errorFields(err), "warn");
         });
     }
 
@@ -167,8 +172,7 @@ export async function handleLangSelectCallback(ctx: BotContext): Promise<void> {
     const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
 
     await ctx.answerCallbackQuery();
-    const msg = await ctx.reply(t("translateModeHint", lang));
-    trackTechnicalMessage(ctx, msg.message_id);
+    await ctx.reply(t("translateModeHint", lang));
     return;
   }
 
@@ -183,15 +187,20 @@ export async function handleLangSelectCallback(ctx: BotContext): Promise<void> {
   });
 
   if (!direction) {
+    // Read the pending input before the reset below wipes it — it is what lets
+    // the stale answer offer a retry instead of a dead end.
+    const pendingWord = ctx.session.pendingWord;
+    const pendingContextHint = ctx.session.pendingContextHint;
     ctx.session.pendingDetectedLang = undefined;
     ctx.session.pendingWord = undefined;
     ctx.session.pendingContextHint = undefined;
     ctx.session.pendingDirection = undefined;
     clearPendingClarification(ctx);
 
-    await ctx.answerCallbackQuery({
-      text: "⚠️ Session expired. Please translate the word again.",
-      show_alert: true,
+    await answerStaleCallback(ctx, {
+      action: "tr:langselect",
+      ...(pendingWord !== undefined && { word: pendingWord }),
+      ...(pendingContextHint !== undefined && { contextHint: pendingContextHint }),
     });
     return;
   }
@@ -224,7 +233,7 @@ export async function handleSrcLangOverrideCallback(ctx: BotContext): Promise<vo
 
   const entry = ctx.session.translationMap?.[msgId];
   if (!entry) {
-    await ctx.answerCallbackQuery({ text: t("staleSession", lang), show_alert: true });
+    await answerStaleCallback(ctx, { action: "tr:srclang", msgId, lang });
     return;
   }
 
@@ -248,7 +257,7 @@ export async function handleSrcLangOverrideCallback(ctx: BotContext): Promise<vo
       targetLangs: direction.targetLangs,
     })
     .catch((err: unknown) => {
-      logger.warn({ err }, "Failed to record language detection event");
+      logEvent("language_detection.record_failed", errorFields(err), "warn");
     });
 
   ctx.session.pendingDetectedLang = undefined;

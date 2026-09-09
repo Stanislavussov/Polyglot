@@ -75,6 +75,34 @@ its layer: no cross-boundary changes.
 - Receives a `sendFn` by injection; never imports the bot.
 - Delivery scheduling is injectable; log-and-continue on send errors; respect the user's timezone.
 - Timezone/language defaults come from DB constants, not hardcoded values.
+- **A scheduled notification is content the user subscribed to, not a nudge.**
+  The user opened the 48-slot grid and picked a time; suppressing that because
+  they are already engaged is like skipping someone's alarm because they woke up
+  yesterday. Scheduled notifications are an explicit opt-in subscription and
+  always fire while enabled. `INACTIVITY_DAYS = 14` is a **reachability ceiling**
+  (stop mailing the abandoned), not targeting. Re-engagement of people who never
+  subscribed is a *different job with a different audience* and is currently
+  unbuilt — no query can reach that audience, because every notification query
+  leads with `notification_enabled = true`.
+  - Standing tension, deliberately deferred: `processInactiveUsers` (the 14-day
+    auto-pause) remains the one path that revokes an explicit opt-in without the
+    user asking. It is not silent — it sends `notifPaused` first — but it sits
+    against the rule that the user's explicit choice is data, not a hint.
+- **The `/settings` toggle is the only path that enables notifications.** Anything
+  that sets `notification_enabled = true` must also carry the "seed the admin
+  default into an empty `notification_times`" rule;
+  `userRepository.updateNotificationPrefs` currently has no production callers and
+  must not silently become a second enable path. (knip cannot warn about this —
+  `knip.json` sets `"exports": "off"`.) An enabled user with an empty schedule is
+  permanently ineligible, which reproduces "the UI says on and nothing arrives"
+  by a different route.
+- **Word selection is layered and never repeats:** the user's dictionary → a
+  curated preset when the dictionary is empty *or exhausted* → the
+  empty-dictionary prompt. A picker that has nothing new returns `null` so the
+  next layer runs; it must never re-send a word the user has already received.
+- Preset words come from the curated hook list, served from the reviewed
+  demo-card cache first and translated just-in-time otherwise, so the layer is
+  never silently dead for an uncached language pair.
 
 ### Core modules — `packages/core/*` (general)
 
@@ -123,6 +151,23 @@ its layer: no cross-boundary changes.
 - No business logic — it composes and calls core services; no direct DB access (go through repositories).
 - All user-facing text through i18n; modes/languages from DB constants and the cache.
 - One scene per file; keep scenes small and focused.
+
+### Onboarding — `apps/bot/src/onboarding`
+
+- **Stateless by contract (Task 72).** Never introduce a grammY conversation, a session field,
+  or any other in-memory step state here. Every screen is re-derived from the database
+  (`users.onboarding_step` + `user_language_settings` + `user_learning_languages`) on each
+  update. This is what makes the flow immune to the wait-timeout, swallowed-message and
+  replayed-`ctx.session` failure classes — reintroducing held state reintroduces all three.
+- A choice is persisted the moment it is made, so any update can resume from it. A learning
+  language is written to `learningLangs` **only** together with its CEFR level.
+- All callback data lives under the `onb:` prefix, registered as a single handler group.
+  Anything an already-onboarded user can tap (the D+1 nudge) must use a different prefix.
+- Curated hook words are core data (`packages/core/src/modules/onboarding/hook-words.ts`);
+  rendered cards are cache (`onboarding_demo_cards`). Generation never publishes — only the
+  explicit `setActive` review step does, and unreviewed rows are invisible to every read path.
+- The demo tap path must not call an AI adapter. A cache miss falls back to the production
+  translate flow; it never grows a second pipeline.
 
 ## Dependency Direction
 

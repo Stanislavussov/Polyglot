@@ -1,12 +1,13 @@
 import {
   DEFAULT_NOTIFICATION_TIME,
   formatNotificationTime,
+  getLogger,
   NOTIFICATION_TYPES,
   type NotificationType,
   type NotificationUser,
   parseNotificationMinutes,
 } from "@polyglot/core";
-import { and, eq, gte, isNotNull, isNull, lt, or } from "drizzle-orm";
+import { and, desc, eq, gte, isNotNull, isNull, lt, or } from "drizzle-orm";
 import { getDb } from "../connection.js";
 import { notificationHistory, userLanguageSettings } from "../schema.js";
 
@@ -90,14 +91,30 @@ export const notificationRepository = {
         ),
       );
 
-    return rows.filter((user) => {
+    let droppedByTimezone = 0;
+    const eligible = rows.filter((user) => {
       const localMinutes = getLocalMinutes(user.timezone, utcHour, utcMinute);
-      if (localMinutes < 0) return false;
+      if (localMinutes < 0) {
+        droppedByTimezone++;
+        return false;
+      }
       // Eligible if ANY configured slot falls in the current window. Empty list = not configured.
       return user.notificationTimes.some((time) =>
         isWithinCurrentNotificationSlot(localMinutes, parseNotificationMinutes(time)),
       );
     });
+
+    // An unparseable timezone excludes a subscriber from every window forever,
+    // and until now did so in complete silence — which is precisely how a total
+    // notification outage hides. Counted, not merely returned.
+    if (droppedByTimezone > 0) {
+      getLogger().warn(
+        { droppedByTimezone, utcHour, utcMinute },
+        "Subscribers excluded from the notification window by an unparseable timezone",
+      );
+    }
+
+    return eligible;
   },
 
   /**
@@ -157,6 +174,24 @@ export const notificationRepository = {
   async recordSentWord(userId: number, original: string, source: string): Promise<void> {
     const db = getDb();
     await db.insert(notificationHistory).values({ userId, original, source });
+  },
+
+  /**
+   * The single most recently notified word, ignoring age.
+   *
+   * The rolling de-dup window answers "what has this user seen lately"; this
+   * answers "what did they see last", which is the only thing that can
+   * guarantee no word arrives twice in a row once the window rolls over.
+   */
+  async getLastSentWord(userId: number): Promise<string | null> {
+    const db = getDb();
+    const rows = await db
+      .select({ original: notificationHistory.original })
+      .from(notificationHistory)
+      .where(eq(notificationHistory.userId, userId))
+      .orderBy(desc(notificationHistory.sentAt))
+      .limit(1);
+    return rows[0]?.original ?? null;
   },
 
   async getSentWordsSince(userId: number, since: Date): Promise<string[]> {

@@ -11,19 +11,30 @@ const { mockLogger } = vi.hoisted(() => ({
   mockLogger: { error: vi.fn(), info: vi.fn(), debug: vi.fn(), warn: vi.fn() },
 }));
 
-vi.mock("@polyglot/core", () => ({
-  defaultFeatureAccess: { checkFeatureAccess: vi.fn().mockResolvedValue({ hasAccess: true }) },
-  generateEtymology: vi.fn(),
-  generateGrammarBreakdown: vi.fn(),
-  generateGrammarDetail: vi.fn(),
-  getLangFlag: vi.fn(() => "🏳️"),
-  isSupported: vi.fn(() => true),
-  logger: mockLogger,
-  resolveOutputConfig: vi.fn(() => ({})),
-  resolveTemplate: vi.fn(() => ({ fields: {} })),
-  t: vi.fn((key: string) => `[${key}]`),
-  translateWithContext: vi.fn(),
-}));
+// Spread the real module rather than enumerating exports: an exhaustive mock
+// breaks whenever the code under test reaches for a new core export, and the
+// failure surfaces as an unrelated "No X export is defined" at import time.
+vi.mock("@polyglot/core", async () => {
+  const actual = await vi.importActual<typeof import("@polyglot/core")>("@polyglot/core");
+  return {
+    ...actual,
+    defaultFeatureAccess: {
+      checkFeatureAccess: vi.fn().mockResolvedValue({ hasAccess: true }),
+      listFeatures: vi.fn().mockResolvedValue(new Set(actual.ALL_FEATURES)),
+      listPlanFeatures: vi.fn().mockResolvedValue(new Set(actual.ALL_FEATURES)),
+    },
+    generateEtymology: vi.fn(),
+    generateGrammarBreakdown: vi.fn(),
+    generateGrammarDetail: vi.fn(),
+    getLangFlag: vi.fn(() => "🏳️"),
+    isSupported: vi.fn(() => true),
+    logger: mockLogger,
+    resolveOutputConfig: vi.fn(() => ({})),
+    resolveTemplate: vi.fn(() => ({ fields: {} })),
+    t: vi.fn((key: string) => `[${key}]`),
+    translateWithContext: vi.fn(),
+  };
+});
 
 vi.mock("../../renderers/translation.renderer.js", () => ({
   buildGrammarLangKeyboard: vi.fn(() => ({ inline_keyboard: [] })),
@@ -44,7 +55,12 @@ vi.mock("./edit-message.helper.js", () => ({
   editMessageReplyMarkupOrIgnore: vi.fn().mockResolvedValue(undefined),
   editMessageTextOrReply: vi.fn().mockResolvedValue(undefined),
 }));
-vi.mock("./translate-mode.shared.js", () => ({ isEtymologyEligible: vi.fn(() => false) }));
+vi.mock("./translate-mode.shared.js", () => ({
+  isEtymologyEligible: vi.fn(() => false),
+  // No pronunciation row here — this fixture is about append-not-edit, and the
+  // real helper would need a full language-order context to answer.
+  resolvePronounceLangs: vi.fn(async () => []),
+}));
 
 import type { QualityMetadata, TranslateOutput } from "@polyglot/core";
 import { translateWithContext } from "@polyglot/core";

@@ -5,20 +5,23 @@
  * Each re-renders or extends the card in place.
  */
 import {
-  defaultFeatureAccess,
+  errorFields,
+  FEATURE_KEYS,
   generateEtymology,
   generateGrammarBreakdown,
   generateGrammarDetail,
   getLangFlag,
   isSupported,
-  logger,
+  logEvent,
+  orderLangCodes,
   resolveOutputConfig,
   resolveTemplate,
   type SupportedLang,
-  type TranslateOutput,
   t,
   translateWithContext,
 } from "@polyglot/core";
+import type { InlineKeyboard } from "grammy";
+import { recordEffort } from "../../momentum/momentum.wiring.js";
 import {
   buildGrammarLangKeyboard,
   buildTranslationKeyboard,
@@ -27,11 +30,17 @@ import {
 } from "../../renderers/translation.renderer.js";
 import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
+import { languageOrderFromSettings, resolveLanguageOrder } from "../../utils/language-order.js";
 import { isUserFacingTimeout, LONG_OP_TIMEOUT_MS, loadingKeyboard, withTimeout } from "../../utils/long-op.js";
 import { toVocabularyInput } from "../../utils/vocabulary-mapper.js";
 import { editMessageReplyMarkupOrIgnore, editMessageTextOrReply } from "./edit-message.helper.js";
-import { isEtymologyEligible } from "./translate-mode.shared.js";
+import { ensurePaidFeature, resolveLockedFeatures } from "./paid-feature.helper.js";
+import { answerStaleCallback } from "./stale-callback.helper.js";
+import { isEtymologyEligible, resolvePronounceLangs } from "./translate-mode.shared.js";
 import { setTranslationEntry } from "./translation-map.helper.js";
+
+/** Per-message translation state kept in the session, keyed by the card's message id. */
+type TranslationEntry = NonNullable<BotContext["session"]["translationMap"]>[string];
 
 /**
  * Handles Save callback in translate mode — full FEAT-30 flow.
@@ -43,11 +52,7 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
   const entry = ctx.session.translationMap?.[String(msgId)];
 
   if (!entry) {
-    logger.warn({ userId: ctx.from?.id, msgId }, "Save clicked but translation entry not found (session lost?)");
-    await ctx.answerCallbackQuery({
-      text: "⚠️ Session expired. Please translate the word again.",
-      show_alert: true,
-    });
+    await answerStaleCallback(ctx, { action: "tr:save", msgId });
     return;
   }
 
@@ -62,7 +67,11 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
   // Step 2 — FK resolution
   const sourceLangEntry = ctx.services.languageCache.getLang(output.sourceLang);
   if (!sourceLangEntry) {
-    logger.error({ sourceLang: output.sourceLang }, "Source language not found in cache");
+    logEvent(
+      "vocabulary.save_failed",
+      { reason: "source_language_not_cached", sourceLang: output.sourceLang },
+      "error",
+    );
     await ctx.answerCallbackQuery({ text: t("translationError", lang) });
     return;
   }
@@ -80,6 +89,11 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
       existing.id,
     );
     if (belongsToDefault) {
+      // The word can be in the dictionary while THIS card still offers Save (it was
+      // banked from another card or from the dictionary itself). Bring the card to
+      // the saved state so the button stops lying, then say so.
+      entry.savedWordId = existing.id;
+      await showSavedCard(ctx, entry, msgId, lang, nativeLang);
       await ctx.answerCallbackQuery({
         text: t("alreadySaved", lang),
         show_alert: true,
@@ -89,7 +103,22 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
 
     await ctx.services.vocabularyDictionaryRepository.addEntryToDefault(ctx.user.id, existing.id);
     entry.savedWordId = existing.id;
-    await showSavedCard(ctx, output, lang, nativeLang, inputType);
+    logEvent("vocabulary.saved", {
+      entryId: existing.id,
+      word: output.original,
+      sourceLang: output.sourceLang,
+      inputType,
+      outcome: "relinked_existing",
+    });
+    // Re-linking is a save too; `save:<entryId>` is what keeps a word the user already
+    // banked from being credited twice (§3.8). Awaited because the save is the last
+    // thing this handler does and the credit must not outlive it.
+    await recordEffort(ctx, {
+      userId: ctx.user.id,
+      kind: "save",
+      dedupeKey: `save:${existing.id}`,
+    });
+    await showSavedCard(ctx, entry, msgId, lang, nativeLang);
     await ctx.answerCallbackQuery();
     return;
   }
@@ -105,37 +134,47 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
   // Step 5 — Persist
   const newEntry = await ctx.services.vocabularyRepository.create(ctx.user.id, vocabInput);
   await ctx.services.vocabularyDictionaryRepository.addEntryToDefault(ctx.user.id, newEntry.id);
+  logEvent("vocabulary.saved", {
+    entryId: newEntry.id,
+    word: output.original,
+    sourceLang: output.sourceLang,
+    targetLangs: Object.keys(output.translations),
+    inputType,
+    outcome: "created",
+  });
+  await recordEffort(ctx, {
+    userId: ctx.user.id,
+    kind: "save",
+    dedupeKey: `save:${newEntry.id}`,
+  });
 
   // Step 6 — Update this entry in the map
   entry.savedWordId = newEntry.id;
 
-  await showSavedCard(ctx, output, lang, nativeLang, inputType);
+  await showSavedCard(ctx, entry, msgId, lang, nativeLang);
   await ctx.answerCallbackQuery();
 }
 
+/**
+ * Re-render the card after a save. The keyboard is rebuilt and passed along:
+ * `editMessageText` with no `reply_markup` STRIPS the inline keyboard, which is
+ * what used to leave a saved card with no buttons and force the user into the
+ * dictionary to keep working on the word.
+ */
 async function showSavedCard(
   ctx: BotContext,
-  output: TranslateOutput,
+  entry: TranslationEntry,
+  msgId: number,
   lang: SupportedLang,
   nativeLang: string,
-  inputType?: string,
 ): Promise<void> {
-  const savedTemplate = await ctx.services.translationTemplateRepository.getByUserId(ctx.user.id);
-  const userTpl = savedTemplate ? { name: savedTemplate.name, fields: savedTemplate.fields } : null;
-  const effectiveTemplate = resolveTemplate(userTpl);
-
-  const isSentence = inputType === "sentence";
-  const cardText = isSentence
-    ? `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(output, lang, nativeLang)}`
-    : renderTranslation(output, lang, effectiveTemplate.fields, nativeLang);
-  const savedCard = `${cardText}\n\n${t("savedToDict", lang)}`;
-  await editMessageTextOrReply(ctx, savedCard, {
-    parse_mode: "HTML",
-  });
+  const { text, keyboard } = await buildCardView(ctx, entry, msgId, lang, nativeLang);
+  await editMessageTextOrReply(ctx, text, { reply_markup: keyboard, parse_mode: "HTML" });
 }
 
 /** @deprecated Kept for old messages with skip buttons. */
 export async function handleSkipCallback(ctx: BotContext): Promise<void> {
+  logEvent("vocabulary.save_skipped", {});
   await ctx.answerCallbackQuery();
 }
 
@@ -166,10 +205,13 @@ export async function handleAltMeaningCallback(ctx: BotContext): Promise<void> {
   const entry = ctx.session.translationMap?.[String(msgId)];
 
   if (!entry) {
-    await ctx.answerCallbackQuery({
-      text: "⚠️ Session expired. Please translate the word again.",
-      show_alert: true,
-    });
+    await answerStaleCallback(ctx, { action: "tr:altmeaning", msgId });
+    return;
+  }
+
+  // Paid feature: "Other meaning" is a second full AI pass, so the gate comes
+  // before any work — and before the loading message a Free user would see flash.
+  if (!(await ensurePaidFeature(ctx, FEATURE_KEYS.clarification))) {
     return;
   }
 
@@ -244,9 +286,10 @@ export async function handleAltMeaningCallback(ctx: BotContext): Promise<void> {
       return;
     }
 
+    const order = await resolveLanguageOrder(ctx);
     const cardText = isSentence
-      ? `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(decision.output, lang, nativeLang)}`
-      : renderTranslation(decision.output, lang, effectiveTemplate.fields, nativeLang);
+      ? `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(decision.output, order, lang, nativeLang)}`
+      : renderTranslation(decision.output, order, lang, effectiveTemplate.fields, nativeLang);
 
     const showGrammarButton = entry.inputType !== "word" && (isSentence || !effectiveTemplate.fields.grammarBreakdown);
     const showEtymologyButton = isEtymologyEligible(entry.inputType, decision.output.sourceLang, nativeLang);
@@ -255,15 +298,17 @@ export async function handleAltMeaningCallback(ctx: BotContext): Promise<void> {
     // as a snapshot. Carry the accumulated negative constraints forward into the
     // new card's entry so a further "Other meaning" tap still excludes every
     // sense shown so far, and point the pending-card pointers at the new card.
+    const pronounceLangs = await resolvePronounceLangs(ctx, decision.output, entry.inputType, order);
+
     const newMsg = await ctx.reply(cardText, { parse_mode: "HTML" });
-    const keyboard = buildTranslationKeyboard(
-      lang,
-      newMsg.message_id,
-      undefined,
+    const keyboard = buildTranslationKeyboard({
+      interfaceLang: lang,
+      msgId: newMsg.message_id,
       showGrammarButton,
-      undefined,
       showEtymologyButton,
-    );
+      pronounceLangs,
+      locked: await resolveLockedFeatures(ctx),
+    });
     await ctx.api.editMessageReplyMarkup(ctx.chat!.id, newMsg.message_id, { reply_markup: keyboard });
 
     setTranslationEntry(ctx.session, newMsg.message_id, {
@@ -276,7 +321,7 @@ export async function handleAltMeaningCallback(ctx: BotContext): Promise<void> {
     ctx.session.pendingTranslation = decision.output;
   } catch (err) {
     await clearLoading();
-    logger.error({ err, word: entry.output.original }, "Alt meaning regeneration failed");
+    logEvent("card.alt_meaning_failed", { word: entry.output.original, ...errorFields(err) }, "error");
     // The previous card is untouched; a timeout is worth surfacing as such, any
     // other failure on this secondary action reads better as "no more meanings".
     const alertText = isUserFacingTimeout(err) ? t("loadingTimeout", lang) : t("translationNoMoreMeanings", lang);
@@ -296,10 +341,7 @@ export async function handleGrammarBreakdownCallback(ctx: BotContext): Promise<v
   const entry = ctx.session.translationMap?.[String(msgId)];
 
   if (!entry) {
-    await ctx.answerCallbackQuery({
-      text: "⚠️ Session expired. Please translate the word again.",
-      show_alert: true,
-    });
+    await answerStaleCallback(ctx, { action: "tr:grammar", msgId });
     return;
   }
 
@@ -308,14 +350,7 @@ export async function handleGrammarBreakdownCallback(ctx: BotContext): Promise<v
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
   const nativeLang = settings?.nativeLang ?? "en";
 
-  // Check feature access
-  const featureAccess = ctx.services.featureAccess ?? defaultFeatureAccess;
-  const access = await featureAccess.checkFeatureAccess(ctx.user, "grammarBreakdown");
-  if (!access.hasAccess) {
-    await ctx.answerCallbackQuery({
-      text: t("grammarLocked", lang),
-      show_alert: true,
-    });
+  if (!(await ensurePaidFeature(ctx, FEATURE_KEYS.grammarBreakdown, lang))) {
     return;
   }
 
@@ -355,7 +390,7 @@ export async function handleGrammarBreakdownCallback(ctx: BotContext): Promise<v
     entry.grammarBreakdown = result;
     await reRenderCard(ctx, entry, msgId, lang, nativeLang);
   } catch (err) {
-    logger.error({ err, word: entry.output.original }, "Grammar breakdown generation failed");
+    logEvent("card.grammar_breakdown_failed", { word: entry.output.original, ...errorFields(err) }, "error");
     try {
       await reRenderCard(ctx, entry, msgId, lang, nativeLang);
     } catch {
@@ -377,10 +412,7 @@ export async function handleEtymologyCallback(ctx: BotContext): Promise<void> {
   const entry = ctx.session.translationMap?.[String(msgId)];
 
   if (!entry) {
-    await ctx.answerCallbackQuery({
-      text: "⚠️ Session expired. Please translate the word again.",
-      show_alert: true,
-    });
+    await answerStaleCallback(ctx, { action: "tr:etymology", msgId });
     return;
   }
 
@@ -389,14 +421,7 @@ export async function handleEtymologyCallback(ctx: BotContext): Promise<void> {
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
   const nativeLang = settings?.nativeLang ?? "en";
 
-  // Check feature access
-  const featureAccess = ctx.services.featureAccess ?? defaultFeatureAccess;
-  const access = await featureAccess.checkFeatureAccess(ctx.user, "etymology");
-  if (!access.hasAccess) {
-    await ctx.answerCallbackQuery({
-      text: t("etymologyLocked", lang),
-      show_alert: true,
-    });
+  if (!(await ensurePaidFeature(ctx, FEATURE_KEYS.etymology, lang))) {
     return;
   }
 
@@ -430,7 +455,7 @@ export async function handleEtymologyCallback(ctx: BotContext): Promise<void> {
     entry.etymology = result;
     await reRenderCard(ctx, entry, msgId, lang, nativeLang);
   } catch (err) {
-    logger.error({ err, word: entry.output.original }, "Etymology generation failed");
+    logEvent("card.etymology_failed", { word: entry.output.original, ...errorFields(err) }, "error");
     try {
       await reRenderCard(ctx, entry, msgId, lang, nativeLang);
     } catch {
@@ -443,26 +468,28 @@ export async function handleEtymologyCallback(ctx: BotContext): Promise<void> {
 }
 
 /**
- * Re-render a translation card with whichever on-demand sections have been
- * generated (grammar breakdown and/or etymology), and rebuild the keyboard so
- * each learning-aid button hides once its section is shown.
+ * Card text + keyboard for an entry's CURRENT state: whichever on-demand sections
+ * have been generated, each learning-aid button hidden once its section is on the
+ * card, and the saved state once the word is in the dictionary.
  */
-async function reRenderCard(
+async function buildCardView(
   ctx: BotContext,
-  entry: NonNullable<BotContext["session"]["translationMap"]>[string],
+  entry: TranslationEntry,
   msgId: number,
   lang: SupportedLang,
   nativeLang: string,
-): Promise<void> {
+): Promise<{ text: string; keyboard: InlineKeyboard }> {
   const isSentence = entry.inputType === "sentence";
   const savedTpl = await ctx.services.translationTemplateRepository.getByUserId(ctx.user.id);
   const userTpl = savedTpl ? { name: savedTpl.name, fields: savedTpl.fields } : null;
   const effectiveTemplate = resolveTemplate(userTpl);
 
-  const cardText = isSentence
-    ? `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(entry.output, lang, nativeLang, false, entry.grammarBreakdown)}`
+  const order = await resolveLanguageOrder(ctx);
+  const body = isSentence
+    ? `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(entry.output, order, lang, nativeLang, false, entry.grammarBreakdown)}`
     : renderTranslation(
         entry.output,
+        order,
         lang,
         effectiveTemplate.fields,
         nativeLang,
@@ -471,26 +498,39 @@ async function reRenderCard(
         entry.etymology,
       );
 
+  const isSaved = entry.savedWordId !== undefined;
   const grammarShown = !!entry.grammarBreakdown;
   const etymologyShown = !!entry.etymology;
   const grammarEligible = entry.inputType !== "word" && (isSentence || !effectiveTemplate.fields.grammarBreakdown);
 
+  const pronounceLangs = await resolvePronounceLangs(ctx, entry.output, entry.inputType, order);
+
   // Grammar button hides once shown (replaced by the Details button for phrases);
   // etymology button hides once its section is on the card.
-  const showGrammarButton = grammarEligible && !grammarShown;
-  const showGrammarDetailButton = grammarShown && !isSentence;
-  const showEtymologyButton =
-    isEtymologyEligible(entry.inputType, entry.output.sourceLang, nativeLang) && !etymologyShown;
-
-  const keyboard = buildTranslationKeyboard(
-    lang,
+  const keyboard = buildTranslationKeyboard({
+    interfaceLang: lang,
     msgId,
-    undefined,
-    showGrammarButton,
-    showGrammarDetailButton,
-    showEtymologyButton,
-  );
-  await ctx.api.editMessageText(ctx.chat!.id, msgId, cardText, {
+    isAlreadySaved: isSaved,
+    showGrammarButton: grammarEligible && !grammarShown,
+    showGrammarDetailButton: grammarShown && !isSentence,
+    showEtymologyButton: isEtymologyEligible(entry.inputType, entry.output.sourceLang, nativeLang) && !etymologyShown,
+    pronounceLangs,
+    locked: await resolveLockedFeatures(ctx),
+  });
+
+  return { text: isSaved ? `${body}\n\n${t("savedToDict", lang)}` : body, keyboard };
+}
+
+/** Redraw a card in place after an on-demand section was generated. */
+async function reRenderCard(
+  ctx: BotContext,
+  entry: TranslationEntry,
+  msgId: number,
+  lang: SupportedLang,
+  nativeLang: string,
+): Promise<void> {
+  const { text, keyboard } = await buildCardView(ctx, entry, msgId, lang, nativeLang);
+  await ctx.api.editMessageText(ctx.chat!.id, msgId, text, {
     reply_markup: keyboard,
     parse_mode: "HTML",
   });
@@ -506,10 +546,7 @@ export async function handleGrammarDetailCallback(ctx: BotContext): Promise<void
   const entry = ctx.session.translationMap?.[String(msgId)];
 
   if (!entry?.grammarBreakdown) {
-    await ctx.answerCallbackQuery({
-      text: "⚠️ Session expired. Please translate the word again.",
-      show_alert: true,
-    });
+    await answerStaleCallback(ctx, { action: "tr:gramdetail", msgId });
     return;
   }
 
@@ -517,19 +554,18 @@ export async function handleGrammarDetailCallback(ctx: BotContext): Promise<void
   const iLang = settings?.interfaceLang ?? "en";
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
 
-  // Check feature access
-  const featureAccess = ctx.services.featureAccess ?? defaultFeatureAccess;
-  const access = await featureAccess.checkFeatureAccess(ctx.user, "grammarDetail");
-  if (!access.hasAccess) {
-    await ctx.answerCallbackQuery({
-      text: t("grammarDetailLocked", lang),
-      show_alert: true,
-    });
+  if (!(await ensurePaidFeature(ctx, FEATURE_KEYS.grammarDetail, lang))) {
     return;
   }
 
   // Show language selection keyboard
-  const langCodes = Object.keys(entry.grammarBreakdown).filter((code) => entry.grammarBreakdown![code]!.length > 0);
+  // Keep the empty-breakdown filter: a button for a language with no grammar data
+  // would be dead. Order what survives, so the buttons do not reshuffle between
+  // taps — the breakdown record comes back from the session alphabetized.
+  const langCodes = orderLangCodes(
+    Object.keys(entry.grammarBreakdown).filter((code) => entry.grammarBreakdown![code]!.length > 0),
+    languageOrderFromSettings(settings),
+  );
 
   const langKeyboard = buildGrammarLangKeyboard(langCodes, lang, msgId);
   await ctx.api.editMessageReplyMarkup(ctx.chat!.id, msgId, { reply_markup: langKeyboard });
@@ -548,10 +584,7 @@ export async function handleGrammarLangSelectCallback(ctx: BotContext): Promise<
 
   const entry = ctx.session.translationMap?.[String(msgId)];
   if (!entry) {
-    await ctx.answerCallbackQuery({
-      text: "⚠️ Session expired. Please translate the word again.",
-      show_alert: true,
-    });
+    await answerStaleCallback(ctx, { action: "tr:gramlang", msgId });
     return;
   }
 
@@ -559,16 +592,44 @@ export async function handleGrammarLangSelectCallback(ctx: BotContext): Promise<
   const iLang = settings?.interfaceLang ?? "en";
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
   const nativeLang = settings?.nativeLang ?? "en";
+  // Every keyboard rebuild below is a restore, so the pronunciation row has to be
+  // recomputed too — otherwise the speaker silently disappears once a user opens
+  // the grammar-detail flow on a card.
+  const detailPronounceLangs = await resolvePronounceLangs(
+    ctx,
+    entry.output,
+    entry.inputType,
+    languageOrderFromSettings(settings),
+  );
+  const locked = await resolveLockedFeatures(ctx);
+  /** The card's normal keyboard, with the detail button back — every exit from this flow restores it. */
+  const restoreKeyboard = () =>
+    buildTranslationKeyboard({
+      interfaceLang: lang,
+      msgId,
+      isAlreadySaved: entry.savedWordId !== undefined,
+      showGrammarDetailButton: true,
+      pronounceLangs: detailPronounceLangs,
+      locked,
+    });
 
   // Cancel — restore normal keyboard with detail button
   if (langCodeOrCancel === "cancel") {
-    const keyboard = buildTranslationKeyboard(lang, msgId, undefined, undefined, true);
+    const keyboard = restoreKeyboard();
     await ctx.api.editMessageReplyMarkup(ctx.chat!.id, msgId, { reply_markup: keyboard });
     await ctx.answerCallbackQuery();
     return;
   }
 
-  // Language selected — generate detailed grammar
+  // Language selected — this is where grammar detail actually spends an AI call,
+  // so it carries its own gate rather than trusting the one on `tr:gramdetail`:
+  // the language keyboard survives on the card after the flow is abandoned, and a
+  // subscription can lapse between opening it and tapping a language. Cancel stays
+  // ungated above so a stale keyboard can always be dismissed.
+  if (!(await ensurePaidFeature(ctx, FEATURE_KEYS.grammarDetail, lang))) {
+    return;
+  }
+
   const langCode = langCodeOrCancel;
   const translation = entry.output.translations[langCode];
   const breakdown = entry.grammarBreakdown?.[langCode];
@@ -608,11 +669,11 @@ export async function handleGrammarLangSelectCallback(ctx: BotContext): Promise<
     await ctx.reply(header + escapeHtml(detailText), { parse_mode: "HTML" });
 
     // Restore keyboard with detail button
-    const keyboard = buildTranslationKeyboard(lang, msgId, undefined, undefined, true);
+    const keyboard = restoreKeyboard();
     await ctx.api.editMessageReplyMarkup(ctx.chat!.id, msgId, { reply_markup: keyboard });
   } catch (err) {
-    logger.error({ err, word: entry.output.original, langCode }, "Grammar detail generation failed");
-    const keyboard = buildTranslationKeyboard(lang, msgId, undefined, undefined, true);
+    logEvent("card.grammar_detail_failed", { word: entry.output.original, langCode, ...errorFields(err) }, "error");
+    const keyboard = restoreKeyboard();
     await ctx.api.editMessageReplyMarkup(ctx.chat!.id, msgId, { reply_markup: keyboard }).catch(() => {});
     await ctx.answerCallbackQuery({ text: longOpFailureText(err, lang), show_alert: true });
     return;

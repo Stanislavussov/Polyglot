@@ -91,3 +91,166 @@ describe("settingsAdapter.getSrsConfig — getWithFallback shallow-merge (non-ai
     expect(srs.defaultEaseFactor).toBe(2.5); // backfilled from defaults
   });
 });
+
+describe("settingsAdapter.getNotificationDefaults", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("returns 19:00 when no notifications row has ever been saved", async () => {
+    // The state every fresh database and every integration run starts in: the
+    // only writer of this key is the admin-api notifications route. This value is
+    // what a new user's schedule gets seeded with at their first opt-in, and what
+    // the admin form pre-fills on a fresh install.
+    mockGet.mockResolvedValueOnce(null);
+
+    const notifications = await settingsAdapter.getNotificationDefaults();
+
+    expect(notifications.defaultTime).toBe("19:00");
+  });
+
+  it("preserves an admin-set time and backfills the keys a legacy blob lacks", async () => {
+    mockGet.mockResolvedValueOnce({ defaultTime: "21:30" }); // written before the other three existed
+
+    const notifications = await settingsAdapter.getNotificationDefaults();
+
+    expect(notifications.defaultTime).toBe("21:30"); // admin choice wins over the default
+    expect(notifications.defaultType).toBe("srs");
+    expect(notifications.inactivityDays).toBe(14);
+    expect(notifications.notificationTimesLimit).toBe(12);
+  });
+
+  it("lets a present-but-invalid stored time through — canonicalization is the caller's job", async () => {
+    // getWithFallback heals MISSING keys only. This is not a defect to fix here:
+    // it is why the notification toggle canonicalizes through
+    // parseNotificationMinutes before writing anything into user data.
+    mockGet.mockResolvedValueOnce({ defaultTime: "not a time" });
+
+    const notifications = await settingsAdapter.getNotificationDefaults();
+
+    expect(notifications.defaultTime).toBe("not a time");
+  });
+});
+
+describe("settingsAdapter.getSttConfig", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("backfills a partial stored blob with the shipped defaults", async () => {
+    mockGet.mockResolvedValueOnce({ modelId: "x" }); // enabled/maxDurationSec absent
+
+    const stt = await settingsAdapter.getSttConfig();
+
+    expect(stt.modelId).toBe("x"); // admin-set value preserved
+    expect(stt.enabled).toBe(true); // backfilled from defaults
+    expect(stt.maxDurationSec).toBe(60); // backfilled from defaults
+  });
+
+  it("returns the shipped defaults when no stt row has ever been saved", async () => {
+    mockGet.mockResolvedValueOnce(null);
+
+    const stt = await settingsAdapter.getSttConfig();
+
+    expect(stt).toEqual({ enabled: true, modelId: "openai/whisper-large-v3", maxDurationSec: 60 });
+  });
+});
+
+describe("settingsAdapter.getMentorConfig", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("backfills a partial stored blob with the shipped defaults", async () => {
+    mockGet.mockResolvedValueOnce({ modelId: "anthropic/claude-sonnet-5" }); // maxTokens absent
+
+    const mentor = await settingsAdapter.getMentorConfig();
+
+    expect(mentor.modelId).toBe("anthropic/claude-sonnet-5"); // admin-set value preserved
+    expect(mentor.maxTokens).toBe(700); // backfilled from defaults
+  });
+
+  it("returns the shipped defaults when no mentor row has ever been saved", async () => {
+    mockGet.mockResolvedValueOnce(null);
+
+    const mentor = await settingsAdapter.getMentorConfig();
+
+    expect(mentor).toEqual({ modelId: "google/gemini-3.7-flash", maxTokens: 700 });
+  });
+});
+
+describe("settingsAdapter.getMotivationConfig — kill switch read boundary", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("records but shows nothing when no motivation row has ever been saved", async () => {
+    // The state every fresh install starts in. Recording has to be on from day
+    // one or the calibration window never accumulates the distribution it exists
+    // for; the three display surfaces stay dark until that calibration lands.
+    mockGet.mockResolvedValueOnce(null);
+
+    expect(await settingsAdapter.getMotivationConfig()).toEqual({
+      recordingEnabled: true,
+      enabled: false,
+      praiseEnabled: false,
+      recoveryEnabled: false,
+    });
+  });
+
+  it("serves a valid stored blob verbatim", async () => {
+    const stored = { recordingEnabled: true, enabled: true, praiseEnabled: true, recoveryEnabled: false };
+    mockGet.mockResolvedValueOnce(stored);
+
+    expect(await settingsAdapter.getMotivationConfig()).toEqual(stored);
+  });
+
+  it("fails closed on display and open on recording for a partial blob", async () => {
+    // A row written before the recovery switch existed. A shallow merge would be
+    // enough here, but the same read must also survive the next case.
+    mockGet.mockResolvedValueOnce({ recordingEnabled: true, enabled: true });
+
+    expect(await settingsAdapter.getMotivationConfig()).toEqual({
+      recordingEnabled: true,
+      enabled: true,
+      praiseEnabled: false,
+      recoveryEnabled: false,
+    });
+  });
+
+  it("rejects a present-but-invalid switch instead of merging it through", async () => {
+    // The case getWithFallback cannot handle: the key is there, so nothing is
+    // backfilled, and a non-boolean would reach the render sites as truthy.
+    mockGet.mockResolvedValueOnce({
+      recordingEnabled: "yes",
+      enabled: "true",
+      praiseEnabled: 1,
+      recoveryEnabled: null,
+    });
+
+    expect(await settingsAdapter.getMotivationConfig()).toEqual({
+      recordingEnabled: true,
+      enabled: false,
+      praiseEnabled: false,
+      recoveryEnabled: false,
+    });
+  });
+
+  it("keeps the operator's valid choices when one sibling switch is garbage", async () => {
+    // Per-key recovery, not a whole-object fallback: a single bad key must not
+    // silently switch off a surface the operator deliberately turned on.
+    mockGet.mockResolvedValueOnce({
+      recordingEnabled: true,
+      enabled: true,
+      praiseEnabled: "nope",
+      recoveryEnabled: true,
+    });
+
+    expect(await settingsAdapter.getMotivationConfig()).toEqual({
+      recordingEnabled: true,
+      enabled: true,
+      praiseEnabled: false,
+      recoveryEnabled: true,
+    });
+  });
+});

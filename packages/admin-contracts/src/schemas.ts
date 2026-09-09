@@ -23,6 +23,22 @@ export const audienceGroupSchema = z.enum(["admin", "tester", "product"]);
 
 // ── Rate-limit plans ──────────────────────────────────────────────────────────
 
+/**
+ * Premium feature keys a plan can unlock (the `plan_feature_access` junction).
+ * Mirrors `FEATURE_KEYS` in @polyglot/core — this package ships to the browser
+ * bundle and cannot depend on core, so the list is duplicated here and a drift
+ * test in apps/admin-api keeps the two in lockstep.
+ */
+export const featureKeySchema = z.enum([
+  "grammarBreakdown",
+  "etymology",
+  "grammarDetail",
+  "clarification",
+  "pronunciation",
+  "voiceInput",
+  "mentor",
+]);
+
 export const rateLimitPlanSchema = z.object({
   name: z.string().min(1, "Name is required").max(50, "Name is too long"),
   label: z.string().min(1, "Label is required").max(100, "Label is too long"),
@@ -34,6 +50,25 @@ export const rateLimitPlanSchema = z.object({
     .nullable()
     .default(null),
   videoWindow: z.enum(["none", "lifetime", "monthly"]).default("none"),
+  /** Max mentor turns per UTC day. `null` = unlimited (Pro's pitch). */
+  mentorDailyLimit: z.coerce
+    .number()
+    .int("Mentor daily limit must be an integer")
+    .min(0, "Mentor daily limit cannot be negative")
+    .nullable()
+    .default(null),
+  /**
+   * Display price in US cents (500 = $5/mo). `null` = not for sale, which is the
+   * only way to withdraw a plan from the upgrade screen — so `0` is rejected
+   * rather than treated as "free but purchasable", where a typo would publish a
+   * plan anyone can activate for nothing.
+   */
+  priceUsdCents: z.coerce
+    .number()
+    .int("Price must be an integer number of cents")
+    .min(1, "Price must be at least 1 cent — leave empty for a plan that is not for sale")
+    .nullable()
+    .default(null),
   creditCost: z.coerce
     .number()
     .int("Credit cost must be an integer")
@@ -41,6 +76,14 @@ export const rateLimitPlanSchema = z.object({
     .default(1),
   isActive: z.boolean().default(true),
   isDefault: z.boolean().default(false),
+  /** Model this plan's users are served by. null = use the globally default model. */
+  aiModelId: z.string().min(1).max(255).nullable().default(null),
+  /**
+   * Feature keys the plan unlocks. Optional on purpose: a body without the field
+   * leaves the junction untouched, so a caller editing only plan columns (e.g.
+   * the AI Models page routing a plan to a model) can never silently wipe access.
+   */
+  features: z.array(featureKeySchema).optional(),
 });
 
 // ── Translation presets ───────────────────────────────────────────────────────
@@ -66,6 +109,32 @@ export const presetUpdateSchema = z.object({
   isActive: z.boolean().optional(),
 });
 
+// ── Word-picker presets ───────────────────────────────────────────────────────
+
+/**
+ * A curated angle on a language, offered to the user as the first step in the
+ * bot's main menu. `prompt` is the instruction handed to the model, so it is the
+ * field that decides what the angle actually produces — hence the length floor.
+ */
+export const wordPickerPresetCreateSchema = z.object({
+  slug: z
+    .string()
+    .min(1, "Slug is required")
+    .max(64, "Slug is too long")
+    .regex(/^[a-z0-9-]+$/, "Use lowercase letters, digits and hyphens"),
+  emoji: z.string().min(1, "Emoji is required").max(16, "Emoji is too long"),
+  title: z.string().min(1, "Title is required").max(120, "Title is too long"),
+  /** Interface-language code → title; missing codes fall back to `title`. */
+  titleI18n: z.record(z.string(), z.string().max(120, "Translated title is too long")).default({}),
+  prompt: z.string().min(20, "Describe the angle in at least 20 characters").max(4000, "Prompt is too long"),
+  /** Learning languages this angle is offered for; empty means every language. */
+  learningLangs: z.array(z.string().min(2).max(16)).default([]),
+  sortOrder: z.coerce.number().int("Order must be an integer").min(0, "Order cannot be negative").default(0),
+  isActive: z.boolean().default(true),
+});
+
+export const wordPickerPresetUpdateSchema = wordPickerPresetCreateSchema.omit({ slug: true }).partial();
+
 // ── AI models ─────────────────────────────────────────────────────────────────
 
 export const aiModelCreateSchema = z.object({
@@ -77,7 +146,7 @@ export const aiModelCreateSchema = z.object({
   costPer1kOutput: z.coerce.number().min(0, "Output cost cannot be negative"),
   isEnabled: z.boolean().default(true),
   isDefault: z.boolean().default(false),
-  allowedPlans: z.array(z.string().min(1).max(50)).min(1, "Choose at least one subscription plan"),
+  isFallback: z.boolean().default(false),
 });
 
 export const aiModelUpdateSchema = z.object({
@@ -88,11 +157,16 @@ export const aiModelUpdateSchema = z.object({
   costPer1kOutput: z.coerce.number().min(0).optional(),
   isEnabled: z.boolean().optional(),
   isDefault: z.boolean().optional(),
-  allowedPlans: z.array(z.string().min(1).max(50)).optional(),
+  isFallback: z.boolean().optional(),
 });
 
 export const aiModelSelectSchema = z.object({
   id: z.string().min(1, "Choose a model"),
+});
+
+/** Body of the "which model is the failover" write. `null` = no failover model. */
+export const aiModelFallbackSchema = z.object({
+  modelId: z.string().min(1).max(255).nullable(),
 });
 
 // ── Settings: AI generation defaults ──────────────────────────────────────────
@@ -143,6 +217,62 @@ export const dictionarySettingsSchema = z.object({
 });
 
 // ── Settings: video vocabulary ─────────────────────────────────────────────────
+
+/**
+ * TTS settings. `voice` may be empty because some speech models expose no voice
+ * concept at all, but `modelId` may not: an enabled config with a blank model
+ * renders no pronunciation button, which reads as a broken feature rather than a
+ * disabled one. Turning it off is what `enabled: false` is for.
+ */
+export const ttsSettingsSchema = z.object({
+  enabled: z.coerce.boolean(),
+  modelId: z.string().min(1, "TTS model is required"),
+  voice: z.string(),
+  maxChars: z.coerce.number().int("Max characters must be an integer").min(1).max(5000),
+});
+
+/**
+ * STT (voice-message transcription) settings. Same enabled/modelId coupling as
+ * TTS above: an enabled config with a blank model would try to transcribe with
+ * nothing to call, which reads as a broken feature rather than a disabled one.
+ */
+export const sttSettingsSchema = z
+  .object({
+    enabled: z.coerce.boolean(),
+    modelId: z.string(),
+    maxDurationSec: z.coerce.number().int("Max duration must be an integer").min(1).max(600),
+  })
+  .refine((c) => !c.enabled || c.modelId.trim().length > 0, {
+    message: "STT model is required when enabled",
+    path: ["modelId"],
+  });
+
+/**
+ * Mentor-chat settings. Unlike TTS/STT there is no enabled/model coupling: an
+ * empty `modelId` does not disable the feature (mentor has its own entitlement
+ * gate) — it means "answer with the regular default-model chain".
+ */
+export const mentorSettingsSchema = z.object({
+  modelId: z.string().max(255, "Model ID is too long"),
+  maxTokens: z.coerce
+    .number()
+    .int("Max tokens must be an integer")
+    .min(100, "Max tokens must be at least 100")
+    .max(4000, "Max tokens cannot exceed 4000"),
+});
+
+/**
+ * Motivation kill switch — four independent booleans, no coercion. `z.coerce.boolean()`
+ * is wrong here: it turns the string "false" a form might submit into `true`, which
+ * for a switch whose whole job is turning a surface OFF is the one failure that
+ * matters. Every key is required so a partial PUT can never leave a stale switch.
+ */
+export const motivationSettingsSchema = z.object({
+  recordingEnabled: z.boolean(),
+  enabled: z.boolean(),
+  praiseEnabled: z.boolean(),
+  recoveryEnabled: z.boolean(),
+});
 
 export const videoVocabularySettingsSchema = z
   .object({

@@ -1,5 +1,6 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
+import type { AIRequestLog } from "@polyglot/adapter-ai";
 import type {
   DetectionEvidence,
   DetectionResult,
@@ -58,7 +59,9 @@ export interface DetectionBenchmarkCase {
 
 export interface BenchmarkRequestMetric {
   model: string;
-  requestKind: "object" | "text" | "chat";
+  // Mirrors the adapter rather than re-declaring the union, so a new request kind
+  // (e.g. "speech") cannot silently break this report.
+  requestKind: AIRequestLog["requestKind"];
   inputTokens: number;
   outputTokens: number;
   costUsd: number;

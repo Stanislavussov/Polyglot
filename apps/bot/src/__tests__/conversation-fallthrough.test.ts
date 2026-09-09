@@ -1,8 +1,10 @@
 /**
  * Regression tests for the 2026-07-06 "bot went silent" incident.
  *
- * Spec: an active conversation (onboarding / report-issue) must never
- * silently swallow updates its wait predicate rejects.
+ * Spec: an active conversation must never silently swallow updates its wait
+ * predicate rejects. Onboarding left the conversation engine entirely in Task 72
+ * (it is a set of stateless handlers now, so it cannot swallow anything), which
+ * leaves report-issue as the flow this guards.
  *  - Plain text sent mid-dialog falls through to downstream middleware
  *    (mode-router) and produces a visible reply.
  *  - Commands sent mid-dialog fall through, exit the stale conversation

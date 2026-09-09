@@ -29,7 +29,7 @@ All database schema work goes through `drizzle-kit`, but agents must not run pro
 ```bash
 pnpm db:generate   # generate migrations from schema changes
 pnpm db:push       # push schema changes to the local/dev database
-pnpm db:check      # check for schema drift
+pnpm db:check      # validate the migration folder/journal (NOT a drift check)
 ```
 
 - Edit `packages/adapters/db/src/schema.ts`, then generate migrations

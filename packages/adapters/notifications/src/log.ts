@@ -1,9 +1,10 @@
 /**
  * Notification log utilities.
  *
- * Logs notification lifecycle events using core's getLogger().
+ * Emits notification lifecycle events onto the structured event stream.
  */
-import { getLogger, type NotificationType } from "@polyglot/core";
+import { logEvent } from "@polyglot/core";
+import type { WordSource } from "./types.js";
 
 /**
  * Log a successfully dispatched notification.
@@ -13,7 +14,6 @@ import { getLogger, type NotificationType } from "@polyglot/core";
  * - 'suggested': AI-suggested word based on user's saved topics
  * - 'srs': Word from dictionary due for SRS review
  */
-export function logNotificationSent(params: { userId: number; type: NotificationType; wordId?: number }): void {
-  const logger = getLogger();
-  logger.info(params, "Notification sent");
+export function logNotificationSent(params: { userId: number; type: WordSource; wordId?: number }): void {
+  logEvent("notification.sent", params);
 }

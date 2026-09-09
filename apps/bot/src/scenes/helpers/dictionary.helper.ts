@@ -3,7 +3,7 @@
  */
 
 import type { SupportedLang, VocabularyDictionaryWithCount } from "@polyglot/core";
-import { isSupported, logger, resolveOutputConfig, resolveTemplate, t, translate } from "@polyglot/core";
+import { errorFields, isSupported, logEvent, resolveOutputConfig, resolveTemplate, t, translate } from "@polyglot/core";
 import {
   buildDeleteConfirmKeyboard,
   buildDictionaryChoiceKeyboard,
@@ -19,24 +19,13 @@ import {
 } from "../../renderers/dictionary.renderer.js";
 import { renderTranslation } from "../../renderers/translation.renderer.js";
 import type { BotContext } from "../../types.js";
+import { resolveDefaultAIModel } from "../../utils/ai-model.js";
 import { ensureAiQuota, recordAiUsage } from "../../utils/ai-quota.js";
+import { languageOrderFromSettings, makeLangCodeResolver, resolveLanguageOrder } from "../../utils/language-order.js";
 import { isUserFacingTimeout, LONG_OP_TIMEOUT_MS, withTimeout } from "../../utils/long-op.js";
-import { cleanupTechnicalMessages } from "../../utils/message-cleanup.js";
 import { editMessageTextOrReply } from "./edit-message.helper.js";
 
 const MAX_DICTIONARY_NAME_LENGTH = 32;
-
-function makeLangCodeResolver(ctx: BotContext): (id: number) => string | undefined {
-  return (id) => ctx.services.languageCache.getAllLangs().find((l) => l.id === id)?.code;
-}
-
-async function resolveNativeLangId(ctx: BotContext): Promise<number | undefined> {
-  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
-  const nativeLangCode = settings?.nativeLang;
-  if (!nativeLangCode) return undefined;
-  const found = ctx.services.languageCache.getAllLangs().find((l) => l.code === nativeLangCode);
-  return found?.id;
-}
 
 async function getUserLang(ctx: BotContext): Promise<SupportedLang> {
   const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
@@ -85,7 +74,16 @@ async function showDictionaryList(ctx: BotContext, dictionaryId: number, page: n
     dictionary.id,
   );
 
-  const text = renderDictionaryList(entries, safePage, totalPages, total, lang, dictionary.name);
+  const text = renderDictionaryList(
+    entries,
+    safePage,
+    totalPages,
+    total,
+    lang,
+    makeLangCodeResolver(ctx),
+    await resolveLanguageOrder(ctx),
+    dictionary.name,
+  );
   const kb = buildDictionaryListKeyboard(entries, safePage, totalPages, lang, dictionary.id);
 
   await editMessageTextOrReply(ctx, text, { parse_mode: "HTML", reply_markup: kb });
@@ -134,6 +132,7 @@ export async function handleDictionaryNameInput(ctx: BotContext): Promise<void> 
 
   if (wizard.action === "create") {
     const dictionary = await ctx.services.vocabularyDictionaryRepository.create(ctx.user.id, name);
+    logEvent("dictionary.created", { dictionaryId: dictionary.id, nameLength: name.length });
     ctx.session.dictionaryWizard = undefined;
     await ctx.reply(t("dictionaryCreated", lang, { name: dictionary.name }));
     await showDictionaryList(ctx, dictionary.id, 1);
@@ -153,6 +152,7 @@ export async function handleDictionaryNameInput(ctx: BotContext): Promise<void> 
     return;
   }
 
+  logEvent("dictionary.renamed", { dictionaryId: renamed.id, nameLength: name.length });
   await ctx.reply(t("dictionaryRenamed", lang, { name: renamed.name }));
   await showDictionaryList(ctx, renamed.id, ctx.session.dictionary?.currentPage ?? 1);
 }
@@ -191,8 +191,8 @@ export async function handleDictView(ctx: BotContext): Promise<void> {
     return;
   }
 
-  const nativeLangId = await resolveNativeLangId(ctx);
-  const text = renderDictionaryEntry(entry, makeLangCodeResolver(ctx), lang, { nativeLangId });
+  const order = await resolveLanguageOrder(ctx);
+  const text = renderDictionaryEntry(entry, makeLangCodeResolver(ctx), lang, order);
   const hasTranslations = entry.translations.length > 0;
   const kb = buildDictionaryEntryKeyboard(entryId, page, lang, dictionaryId, { hasTranslations });
 
@@ -249,6 +249,14 @@ export async function handleDictConfirmDelete(ctx: BotContext): Promise<void> {
   if (remainingMemberships === 0) {
     await ctx.services.vocabularyRepository.hardDelete(entryId);
   }
+  // `hardDeleted` distinguishes "removed from this list" from "gone entirely",
+  // which is the difference between a recoverable and an unrecoverable mistake.
+  logEvent("dictionary.entry_removed", {
+    dictionaryId,
+    entryId,
+    remainingMemberships,
+    hardDeleted: remainingMemberships === 0,
+  });
   await ctx.answerCallbackQuery({ text: t("wordDeleted", lang) });
   await showDictionaryList(ctx, dictionaryId, page);
 }
@@ -332,6 +340,7 @@ export async function handleDictConfirmDeleteDictionary(ctx: BotContext): Promis
   }
   const lang = await getUserLang(ctx);
   const deleted = await ctx.services.vocabularyDictionaryRepository.delete(ctx.user.id, dictionaryId);
+  logEvent("dictionary.deleted", { dictionaryId, deleted });
   await ctx.answerCallbackQuery({ text: deleted ? t("wordDeleted", lang) : t("noResults", lang) });
   await showSwitcher(ctx);
 }
@@ -393,6 +402,7 @@ export async function handleDictAdd(ctx: BotContext): Promise<void> {
   }
 
   await ctx.services.vocabularyDictionaryRepository.addEntry(toDictionaryId, entryId);
+  logEvent("dictionary.entry_added", { fromDictionaryId, toDictionaryId, entryId });
   await ctx.answerCallbackQuery({ text: t("dictionaryEntryAdded", lang, { name: toDictionary.name }) });
   await showDictionaryList(ctx, fromDictionaryId, page);
 }
@@ -421,6 +431,7 @@ export async function handleDictMove(ctx: BotContext): Promise<void> {
     return;
   }
 
+  logEvent("dictionary.entry_moved", { fromDictionaryId, toDictionaryId, entryId });
   await ctx.answerCallbackQuery({ text: t("dictionaryEntryMoved", lang, { name: toDictionary.name }) });
   await showDictionaryList(ctx, fromDictionaryId, page);
 }
@@ -428,7 +439,6 @@ export async function handleDictMove(ctx: BotContext): Promise<void> {
 export async function handleDictClose(ctx: BotContext): Promise<void> {
   ctx.session.dictionary = undefined;
   ctx.session.dictionaryWizard = undefined;
-  await cleanupTechnicalMessages(ctx);
   try {
     await ctx.deleteMessage();
   } catch {
@@ -478,8 +488,8 @@ export async function handleDictTranslate(ctx: BotContext): Promise<void> {
   }
 
   // Show loading state in the message itself (persists until translation completes)
-  const nativeLangId = await resolveNativeLangId(ctx);
-  const loadingText = renderDictionaryEntry(entry, makeLangCodeResolver(ctx), lang, { nativeLangId });
+  const order = await resolveLanguageOrder(ctx);
+  const loadingText = renderDictionaryEntry(entry, makeLangCodeResolver(ctx), lang, order);
   await editMessageTextOrReply(ctx, `${loadingText}\n\n⏳ ${t("videoProcessingStarted", lang)}`, {
     parse_mode: "HTML",
     reply_markup: undefined,
@@ -498,10 +508,7 @@ export async function handleDictTranslate(ctx: BotContext): Promise<void> {
   if (targetLangs.length === 0) return;
 
   try {
-    const modelId =
-      (await ctx.services.settings.getDefaultAIModelForPlan(ctx.user.subscriptionPlan)) ??
-      (await ctx.services.settings.getDefaultAIModel()) ??
-      "openai/gpt-5-nano";
+    const modelId = await resolveDefaultAIModel(ctx.services.settings, ctx.user.subscriptionPlan);
 
     // Load user's translation template for output config
     // Use "phrase" context to ensure grammar breakdown is included (if enabled in template)
@@ -529,7 +536,7 @@ export async function handleDictTranslate(ctx: BotContext): Promise<void> {
     await recordAiUsage(ctx, "dictionaryTranslate", creditCost, sourceLangObj.code, targetLangs);
 
     if (decision.status === "needs_clarification") {
-      logger.warn({ entryId, userId, status: decision.status }, "Dict translate: needs clarification");
+      logEvent("dictionary.translate_needs_clarification", { entryId, status: decision.status }, "warn");
       return;
     }
 
@@ -567,7 +574,13 @@ export async function handleDictTranslate(ctx: BotContext): Promise<void> {
 
     // Render using the SAME renderer as normal translate mode — identical output
     const templateFields = resolveTemplate(userTpl).fields;
-    const translationText = renderTranslation(output, lang, templateFields, settings.nativeLang);
+    const translationText = renderTranslation(
+      output,
+      languageOrderFromSettings(settings),
+      lang,
+      templateFields,
+      settings.nativeLang,
+    );
 
     // Update the message with the translation result + dictionary buttons
     const updatedEntry = await ctx.services.vocabularyRepository.findById(entryId);
@@ -575,9 +588,9 @@ export async function handleDictTranslate(ctx: BotContext): Promise<void> {
     const kb = buildDictionaryEntryKeyboard(entryId, page, lang, dictionaryId, { hasTranslations });
     await editMessageTextOrReply(ctx, translationText, { parse_mode: "HTML", reply_markup: kb });
   } catch (err) {
-    logger.error({ err, entryId, userId }, "Failed to translate dictionary entry");
+    logEvent("dictionary.translate_failed", { entryId, ...errorFields(err) }, "error");
     // Restore the card on error
-    const text = renderDictionaryEntry(entry, makeLangCodeResolver(ctx), lang, { nativeLangId });
+    const text = renderDictionaryEntry(entry, makeLangCodeResolver(ctx), lang, order);
     const kb = buildDictionaryEntryKeyboard(entryId, page, lang, dictionaryId, { hasTranslations: false });
     const failureNote = isUserFacingTimeout(err) ? t("loadingTimeout", lang) : `❌ ${t("videoProcessingFailed", lang)}`;
     await editMessageTextOrReply(ctx, `${text}\n\n${failureNote}`, {

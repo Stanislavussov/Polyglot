@@ -19,9 +19,11 @@ export {
   loadLanguageCache,
   normalizeToIso1,
 } from "./language-cache.js";
+export type { MomentumBackfillOptions, MomentumBackfillResult } from "./momentum-backfill.js";
+export { runMomentumBackfill } from "./momentum-backfill.js";
 export type { AdminUser } from "./repositories/admin-user.repository.js";
 export { adminUserRepository } from "./repositories/admin-user.repository.js";
-export type { AIModelRow, AIModelWithPlans } from "./repositories/ai-model.repository.js";
+export type { AIModelRow } from "./repositories/ai-model.repository.js";
 export { aiModelRepository } from "./repositories/ai-model.repository.js";
 export type {
   AIRequestKind,
@@ -50,6 +52,8 @@ export type {
   RecordLanguageDetectionEventInput,
 } from "./repositories/language-detection.repository.js";
 export { languageDetectionRepository } from "./repositories/language-detection.repository.js";
+export { mentorMessageRepository } from "./repositories/mentor-message.repository.js";
+export { momentumRepository } from "./repositories/momentum.repository.js";
 export {
   DEFAULT_NOTIFICATION_TIME,
   DEFAULT_NOTIFICATION_TYPE,
@@ -60,6 +64,13 @@ export {
   notificationRepository,
   parseNotificationMinutes,
 } from "./repositories/notification.repository.js";
+export type {
+  OnboardingDemoCardCounts,
+  OnboardingDemoCardListFilters,
+  OnboardingDemoCardListResult,
+  UpsertOnboardingDemoCardInput,
+} from "./repositories/onboarding-demo-card.repository.js";
+export { onboardingDemoCardRepository } from "./repositories/onboarding-demo-card.repository.js";
 export { planFeatureAccessRepository } from "./repositories/plan-feature-access.repository.js";
 export type { RateLimitPlan } from "./repositories/rate-limit-plan.repository.js";
 export { rateLimitPlanRepository } from "./repositories/rate-limit-plan.repository.js";
@@ -90,6 +101,7 @@ export type { TranslationRequest } from "./repositories/translation-request.repo
 export { translationRequestRepository } from "./repositories/translation-request.repository.js";
 export type { SavedTranslationTemplate } from "./repositories/translation-template.repository.js";
 export { translationTemplateRepository } from "./repositories/translation-template.repository.js";
+export { ttsCacheRepository } from "./repositories/tts-cache.repository.js";
 export type {
   AudienceGroup,
   NewUser,
@@ -130,6 +142,16 @@ export {
   vocabularyDictionaryRepository,
 } from "./repositories/vocabulary-dictionary.repository.js";
 export { wordContextRepository } from "./repositories/word-context.repository.js";
+export type { WordPickerPreset, WordPickerPresetInput } from "./repositories/word-picker-preset.repository.js";
+export { wordPickerPresetRepository } from "./repositories/word-picker-preset.repository.js";
+export type {
+  CreateWordPickerRunInput,
+  WordPickerItem,
+  WordPickerItemInput,
+  WordPickerRun,
+} from "./repositories/word-picker-run.repository.js";
+export { wordPickerRunRepository } from "./repositories/word-picker-run.repository.js";
+
 export type { WordReview } from "./repositories/word-review.repository.js";
 export { wordReviewRepository } from "./repositories/word-review.repository.js";
 export type { RetentionResult } from "./retention.js";

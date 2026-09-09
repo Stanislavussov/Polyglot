@@ -14,6 +14,16 @@ For every source-code feature, bug fix, refactor, or behavior change:
 5. If no new test is needed, state why existing tests or static checks already cover
    the behavior.
 
+## Mandatory E2E Coverage for Cross-Cutting Features
+
+A flow that crosses layers (bot command/callback/conversation → service → persisted
+state, or scheduler → delivery) is not done without an `*.integration.test.ts` driving
+it through the real dispatcher against the real Postgres. Bot-facing tests live in
+`apps/bot/src/__tests__/integration/`, persistence-only ones in
+`packages/adapters/db/src/__tests__/`. A mock-only unit test does not satisfy this.
+Run `pnpm test:integration` before claiming completion — `pnpm test` is the unit lane
+only. Harness-specific recipes: the `bot-testing` skill.
+
 ## Behavior Spec
 
 A useful spec names:

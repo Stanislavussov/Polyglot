@@ -6,15 +6,15 @@
  */
 
 import type {
+  LanguageOrderContext,
   SupportedLang,
   VocabTranslationDetails,
   VocabularyDictionaryWithCount,
   VocabularyEntryWithTranslations,
 } from "@polyglot/core";
-import { getLangFlag, isSupported, t } from "@polyglot/core";
+import { isSupported, orderTranslations, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
-import { formatInputType } from "./input-type-label.js";
-import { renderSourceUsage } from "./source-usage.renderer.js";
+import { renderWordCard } from "./word-card.js";
 
 /** Page size for dictionary list */
 export const DICTIONARY_PAGE_SIZE = 15;
@@ -47,6 +47,8 @@ export function renderDictionaryList(
   totalPages: number,
   totalWords: number,
   lang: SupportedLang,
+  langResolver: (id: number) => string | undefined,
+  order: LanguageOrderContext,
   dictionaryName?: string,
 ): string {
   const l = toLang(lang);
@@ -74,8 +76,10 @@ export function renderDictionaryList(
     const emoji = entry.emoji ?? "";
     const original = truncate(entry.original, MAX_WORD_LENGTH);
 
-    // Show up to 2 translation texts, plus "+N" if more
-    const translationTexts = entry.translations.map((tr) => tr.text);
+    // Show up to 2 translation texts, plus "+N" if more. Ordering before the
+    // slice matters: it decides *which* two languages the user sees, so an
+    // unordered read made the preview itself non-deterministic.
+    const translationTexts = orderTranslations(entry.translations, order, langResolver).map((tr) => tr.text);
     let translationSummary: string;
     if (translationTexts.length <= 2) {
       translationSummary = translationTexts.map((t) => esc(t)).join(", ");
@@ -109,79 +113,40 @@ export function renderDictionaryList(
 
 /**
  * Render a single dictionary entry detail view as HTML.
+ *
+ * Native language first, then the learning languages in the order the user chose
+ * them: row order out of Postgres is plan-dependent and moves after any UPDATE,
+ * so the sequence is derived here rather than inherited from the rows.
  */
 export function renderDictionaryEntry(
   entry: VocabularyEntryWithTranslations,
   langResolver: (id: number) => string | undefined,
-  lang: SupportedLang = "en",
-  options?: { nativeLangId?: number },
+  lang: SupportedLang,
+  order: LanguageOrderContext,
 ): string {
-  const l = toLang(lang);
-  const lines: string[] = [];
-
-  // Header
-  const emoji = entry.emoji ?? "";
-  const header = emoji ? `${emoji} <b>${esc(entry.original)}</b>` : `<b>${esc(entry.original)}</b>`;
-  lines.push(header);
-  if (entry.nativeMeaning) {
-    lines.push(esc(entry.nativeMeaning));
-  }
-
-  // Source language flag + input type
-  const sourceLangCode = langResolver(entry.sourceLangId);
-  const srcFlag = sourceLangCode ? (getLangFlag(sourceLangCode) ?? "🔤") : "🔤";
-  lines.push(`<i>${esc(formatInputType(entry.inputType, l))} · ${srcFlag}</i>`);
-
-  const sourceUsage = renderSourceUsage(entry.original, sourceLangCode ?? "", entry.sourceUsage);
-  if (sourceUsage.length > 0) {
-    lines.push("", ...sourceUsage);
-  }
-
-  // Sort translations: native language first, then the rest
-  const sortedTranslations = [...entry.translations].sort((a, b) => {
-    const aIsNative = options?.nativeLangId != null && a.targetLangId === options.nativeLangId;
-    const bIsNative = options?.nativeLangId != null && b.targetLangId === options.nativeLangId;
-    if (aIsNative && !bIsNative) return -1;
-    if (!aIsNative && bIsNative) return 1;
-    return 0;
-  });
-
-  // Translations
-  for (const tr of sortedTranslations) {
-    lines.push("");
-    const langCode = langResolver(tr.targetLangId);
-    const flag = langCode ? (getLangFlag(langCode) ?? "🔤") : "🔤";
-
-    const codePart = langCode ? ` ${esc(langCode.toUpperCase())}:` : "";
-    lines.push(`${flag}${codePart} <b>${esc(tr.text)}</b>`);
-
-    if (tr.usageNote) {
-      lines.push(`💡 ${esc(tr.usageNote)}`);
-    }
-
-    if (tr.connotationWarning) {
-      lines.push(`⚠️ ${esc(tr.connotationWarning)}`);
-    }
-
-    // Details from JSONB
-    const details = tr.details as VocabTranslationDetails | null;
-    if (details) {
-      // Synonyms
-      if (details.synonyms && details.synonyms.length > 0) {
-        lines.push(`(${details.synonyms.map((s) => esc(s.text)).join(", ")})`);
-      }
-
-      // Examples
-      if (details.examples && details.examples.length > 0) {
-        for (const ex of details.examples) {
-          const native = ex.native ? ` (${esc(ex.native)})` : "";
-          lines.push(`💬 <i>${esc(ex.target)}</i>${native}`);
-        }
-      }
-    }
-  }
-
-  return lines.join("\n").trim();
+  return renderWordCard(
+    {
+      original: entry.original,
+      emoji: entry.emoji,
+      sourceLang: langResolver(entry.sourceLangId),
+      nativeMeaning: entry.nativeMeaning,
+      sourceUsage: entry.sourceUsage,
+      langs: orderTranslations(entry.translations, order, langResolver).map((tr) => {
+        const details = tr.details as VocabTranslationDetails | null;
+        return {
+          code: langResolver(tr.targetLangId),
+          text: tr.text,
+          synonyms: details?.synonyms,
+          examples: details?.examples,
+          usageNote: tr.usageNote,
+          connotationWarning: tr.connotationWarning,
+        };
+      }),
+      answerLang: order.nativeLang,
+      nativeLang: order.nativeLang,
+    },
+    toLang(lang),
+  );
 }
 
 /**

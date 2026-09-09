@@ -6,6 +6,7 @@ import type {
   SrsDueVocabularyCard,
   UpdateSrsStateInput,
   UpdateTranslationData,
+  VocabDifficulty,
   VocabTranslationDetails,
   VocabularyEntry,
   VocabularyEntryWithSourceLang,
@@ -13,7 +14,22 @@ import type {
   VocabularySource,
   VocabularyTranslation,
 } from "@polyglot/core";
-import { and, asc, count, desc, eq, ilike, inArray, isNull, lte, notInArray, or, type SQL, sql } from "drizzle-orm";
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  gte,
+  ilike,
+  inArray,
+  isNull,
+  lte,
+  notInArray,
+  or,
+  type SQL,
+  sql,
+} from "drizzle-orm";
 import { getDb } from "../connection.js";
 import { escapeLikePattern } from "../like-escape.js";
 import { vocabularyDictionaryEntries, vocabularyEntries, vocabularyTranslations } from "../schema.js";
@@ -26,6 +42,7 @@ export type {
   SrsDueVocabularyCard,
   UpdateSrsStateInput,
   UpdateTranslationData,
+  VocabDifficulty,
   VocabTranslationDetails,
   VocabularyEntry,
   VocabularyEntryWithSourceLang,
@@ -40,6 +57,15 @@ export type {
 
 /**
  * Groups flat translation rows by entryId and attaches them to entries.
+ *
+ * Row order here is whatever the select returned. Every translation select now
+ * carries an explicit `ORDER BY target_lang_id` — not because that is the order
+ * users should see (it is not; display order follows the user's own language
+ * order and is applied at render time), but because without it Postgres is free
+ * to return rows in plan-dependent order, which shifts whenever a tuple is
+ * rewritten. `updateSrsState` writes the indexed `srs_due_date` column, so it is
+ * not HOT-eligible and relocates the row — meaning a card's translation order
+ * drifted after every review. An explicit order makes reads reproducible.
  */
 function assembleEntriesWithTranslations(
   entries: VocabularyEntry[],
@@ -73,6 +99,23 @@ function originalSearchFilter(search?: string): SQL | undefined {
 /** Resolve the ORDER BY clause for the dictionary browse list. */
 function dictionaryListOrder(sort: DictionaryListSort | undefined): SQL {
   return sort === "alpha" ? asc(vocabularyEntries.original) : desc(vocabularyEntries.createdAt);
+}
+
+/** The user's live translation rows, on a `vocabulary_translations ⋈ vocabulary_entries` join. */
+function liveTranslationsOf(userId: number): SQL | undefined {
+  return and(
+    eq(vocabularyEntries.userId, userId),
+    eq(vocabularyEntries.isActive, true),
+    eq(vocabularyTranslations.isActive, true),
+  );
+}
+
+/** Shared by `findDueForSrs` and its COUNT twin so the two can never drift apart. */
+function dueForSrsFilter(userId: number, now: Date): SQL | undefined {
+  return and(
+    liveTranslationsOf(userId),
+    or(isNull(vocabularyTranslations.srsDueDate), lte(vocabularyTranslations.srsDueDate, now)),
+  );
 }
 
 /* ------------------------------------------------------------------ */
@@ -193,7 +236,8 @@ export const vocabularyRepository = {
     const translations = await db
       .select()
       .from(vocabularyTranslations)
-      .where(and(eq(vocabularyTranslations.entryId, entry.id), eq(vocabularyTranslations.isActive, true)));
+      .where(and(eq(vocabularyTranslations.entryId, entry.id), eq(vocabularyTranslations.isActive, true)))
+      .orderBy(asc(vocabularyTranslations.targetLangId));
 
     return { ...entry, translations };
   },
@@ -236,7 +280,8 @@ export const vocabularyRepository = {
     const translations = await db
       .select()
       .from(vocabularyTranslations)
-      .where(and(inArray(vocabularyTranslations.entryId, entryIds), eq(vocabularyTranslations.isActive, true)));
+      .where(and(inArray(vocabularyTranslations.entryId, entryIds), eq(vocabularyTranslations.isActive, true)))
+      .orderBy(asc(vocabularyTranslations.targetLangId));
 
     return assembleEntriesWithTranslations(entries, translations);
   },
@@ -254,7 +299,8 @@ export const vocabularyRepository = {
     const translations = await db
       .select()
       .from(vocabularyTranslations)
-      .where(eq(vocabularyTranslations.entryId, entry.id));
+      .where(eq(vocabularyTranslations.entryId, entry.id))
+      .orderBy(asc(vocabularyTranslations.targetLangId));
 
     return { ...entry, translations };
   },
@@ -282,7 +328,8 @@ export const vocabularyRepository = {
     const translations = await db
       .select()
       .from(vocabularyTranslations)
-      .where(and(inArray(vocabularyTranslations.entryId, entryIds), eq(vocabularyTranslations.isActive, true)));
+      .where(and(inArray(vocabularyTranslations.entryId, entryIds), eq(vocabularyTranslations.isActive, true)))
+      .orderBy(asc(vocabularyTranslations.targetLangId));
 
     return assembleEntriesWithTranslations(entries, translations);
   },
@@ -502,6 +549,7 @@ export const vocabularyRepository = {
         usageNote: vocabularyTranslations.usageNote,
         connotationWarning: vocabularyTranslations.connotationWarning,
         details: vocabularyTranslations.details,
+        difficulty: vocabularyEntries.difficulty,
         srsEaseFactor: vocabularyTranslations.srsEaseFactor,
         srsInterval: vocabularyTranslations.srsInterval,
         srsDueDate: vocabularyTranslations.srsDueDate,
@@ -509,18 +557,33 @@ export const vocabularyRepository = {
       })
       .from(vocabularyTranslations)
       .innerJoin(vocabularyEntries, eq(vocabularyTranslations.entryId, vocabularyEntries.id))
-      .where(
-        and(
-          eq(vocabularyEntries.userId, userId),
-          eq(vocabularyEntries.isActive, true),
-          eq(vocabularyTranslations.isActive, true),
-          or(isNull(vocabularyTranslations.srsDueDate), lte(vocabularyTranslations.srsDueDate, now)),
-        ),
-      )
+      .where(dueForSrsFilter(userId, now))
       .orderBy(asc(vocabularyTranslations.srsDueDate), asc(vocabularyTranslations.createdAt))
       .limit(limit);
 
     return rows;
+  },
+
+  async countDueForSrs(userId: number, now: Date): Promise<number> {
+    const db = getDb();
+    const result = await db
+      .select({ value: count() })
+      .from(vocabularyTranslations)
+      .innerJoin(vocabularyEntries, eq(vocabularyTranslations.entryId, vocabularyEntries.id))
+      .where(dueForSrsFilter(userId, now));
+
+    return result[0]?.value ?? 0;
+  },
+
+  async countMatureTranslations(userId: number, minInterval: number): Promise<number> {
+    const db = getDb();
+    const result = await db
+      .select({ value: count() })
+      .from(vocabularyTranslations)
+      .innerJoin(vocabularyEntries, eq(vocabularyTranslations.entryId, vocabularyEntries.id))
+      .where(and(liveTranslationsOf(userId), gte(vocabularyTranslations.srsInterval, minInterval)));
+
+    return result[0]?.value ?? 0;
   },
 
   async updateSrsState(translationId: number, state: UpdateSrsStateInput): Promise<void> {
@@ -572,6 +635,7 @@ export const vocabularyRepository = {
               sourceUsage: vocabularyEntries.sourceUsage,
               source: vocabularyEntries.source,
               unverified: vocabularyEntries.unverified,
+              difficulty: vocabularyEntries.difficulty,
               isActive: vocabularyEntries.isActive,
               createdAt: vocabularyEntries.createdAt,
               updatedAt: vocabularyEntries.updatedAt,
@@ -596,7 +660,8 @@ export const vocabularyRepository = {
     const translations = await db
       .select()
       .from(vocabularyTranslations)
-      .where(and(inArray(vocabularyTranslations.entryId, entryIds), eq(vocabularyTranslations.isActive, true)));
+      .where(and(inArray(vocabularyTranslations.entryId, entryIds), eq(vocabularyTranslations.isActive, true)))
+      .orderBy(asc(vocabularyTranslations.targetLangId));
 
     return assembleEntriesWithTranslations(entries, translations);
   },
@@ -624,6 +689,27 @@ export const vocabularyRepository = {
       .update(vocabularyTranslations)
       .set({ isActive: false, updatedAt: now })
       .where(eq(vocabularyTranslations.entryId, entryId));
+  },
+
+  /**
+   * Persist the user's notification feedback grade for an entry.
+   * Owner-scoped so a forged callback cannot rate another user's entry, and
+   * active-only so a stale button on a removed word cannot grade its ghost.
+   */
+  async setDifficulty(entryId: number, userId: number, difficulty: VocabDifficulty): Promise<boolean> {
+    const db = getDb();
+    const updated = await db
+      .update(vocabularyEntries)
+      .set({ difficulty, updatedAt: new Date() })
+      .where(
+        and(
+          eq(vocabularyEntries.id, entryId),
+          eq(vocabularyEntries.userId, userId),
+          eq(vocabularyEntries.isActive, true),
+        ),
+      )
+      .returning({ id: vocabularyEntries.id });
+    return updated.length > 0;
   },
 
   /**

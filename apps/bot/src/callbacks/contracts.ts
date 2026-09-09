@@ -1,7 +1,15 @@
 export type CallbackRestartSafetyClass = "stateless-restorable" | "session-backed" | "intentionally-ephemeral";
 
 export interface CallbackContract {
-  family: "translation" | "flashcard" | "srs" | "dictionary" | "template" | "settings" | "notification";
+  family:
+    | "translation"
+    | "flashcard"
+    | "srs"
+    | "dictionary"
+    | "template"
+    | "settings"
+    | "notification"
+    | "subscription";
   prefix: string;
   restartSafety: CallbackRestartSafetyClass;
   durableLookupKey: string;
@@ -84,6 +92,15 @@ export const callbackContracts = [
     dbSource: "session translationMap",
     expiryBehavior: "localized stale translation callback",
     maxExampleData: "tr:gramlang:de:2147483647",
+  },
+  {
+    family: "translation",
+    prefix: "tr:say",
+    restartSafety: "session-backed",
+    durableLookupKey: "target language code plus Telegram message_id",
+    dbSource: "session translationMap for the text; tts_cache for the audio file_id",
+    expiryBehavior: "localized stale translation callback and stale callback metric",
+    maxExampleData: "tr:say:zh-Hant:2147483647",
   },
   {
     family: "translation",
@@ -248,13 +265,49 @@ export const callbackContracts = [
     maxExampleData: "set:notif:time:23:59",
   },
   {
+    family: "subscription",
+    prefix: "plan:upgrade",
+    restartSafety: "stateless-restorable",
+    durableLookupKey: "none — the screen is rebuilt from the plan catalog",
+    dbSource: "rate_limit_plans and plan_feature_access",
+    expiryBehavior: "re-renders the current plan comparison; never expires",
+    maxExampleData: "plan:upgrade",
+  },
+  {
+    family: "subscription",
+    prefix: "plan:buy",
+    restartSafety: "stateless-restorable",
+    durableLookupKey: "plan name",
+    dbSource: "rate_limit_plans (a plan that is inactive or unpriced is refused)",
+    expiryBehavior: "localized checkoutFailed when the plan is no longer for sale",
+    maxExampleData: "plan:buy:unlimited",
+  },
+  {
+    family: "subscription",
+    prefix: "plan:confirm",
+    restartSafety: "stateless-restorable",
+    durableLookupKey: "plan name",
+    dbSource: "rate_limit_plans, then subscriptions on activation",
+    expiryBehavior: "localized checkoutFailed when the plan is no longer for sale",
+    maxExampleData: "plan:confirm:unlimited",
+  },
+  {
+    family: "subscription",
+    prefix: "plan:cancel",
+    restartSafety: "intentionally-ephemeral",
+    durableLookupKey: "none",
+    dbSource: "none — nothing was written before confirmation",
+    expiryBehavior: "acknowledges and says nothing was charged",
+    maxExampleData: "plan:cancel",
+  },
+  {
     family: "notification",
     prefix: "notif",
     restartSafety: "stateless-restorable",
     durableLookupKey: "vocabulary entry id",
     dbSource: "vocabulary entries + notification history",
     expiryBehavior: "answer callback and remove stale keyboard when possible",
-    maxExampleData: "notif:reveal:123",
+    maxExampleData: "notif:fb:normal:123",
   },
 ] as const satisfies readonly CallbackContract[];
 

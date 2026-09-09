@@ -2,6 +2,7 @@
  * Tests for dictionary renderer.
  */
 import type { VocabularyEntryWithTranslations } from "@polyglot/adapter-db";
+import { createLanguageOrderContext, type SupportedLang } from "@polyglot/core";
 import { describe, expect, it, vi } from "vitest";
 
 // Mock @polyglot/core — keep actual i18n + provide getLangFlag
@@ -23,9 +24,30 @@ import {
   buildDictionaryEntryKeyboard,
   buildDictionaryListKeyboard,
   DICTIONARY_PAGE_SIZE,
-  renderDictionaryEntry,
-  renderDictionaryList,
+  renderDictionaryEntry as renderDictionaryEntryRaw,
+  renderDictionaryList as renderDictionaryListRaw,
 } from "../dictionary.renderer.js";
+
+/**
+ * These cases assert card content, not language sequence. Ordering behaviour has
+ * its own suite in dictionary.renderer.order.test.ts.
+ */
+const NO_ORDER = createLanguageOrderContext({ learningLangs: [] });
+const renderDictionaryEntry = (
+  entry: VocabularyEntryWithTranslations,
+  langResolver: (id: number) => string | undefined,
+  lang: SupportedLang = "en",
+): string => renderDictionaryEntryRaw(entry, langResolver, lang, NO_ORDER);
+
+const renderDictionaryList = (
+  entries: VocabularyEntryWithTranslations[],
+  page: number,
+  totalPages: number,
+  totalWords: number,
+  lang: SupportedLang,
+  dictionaryName?: string,
+): string =>
+  renderDictionaryListRaw(entries, page, totalPages, totalWords, lang, (id) => `l${id}`, NO_ORDER, dictionaryName);
 
 /** Extract callback_data from an inline keyboard button (union type). */
 const cbData = (btn: unknown): string | undefined => (btn as { callback_data?: string }).callback_data;
@@ -49,6 +71,7 @@ function makeEntry(
     sourceUsage: null,
     source: null,
     unverified: false,
+    difficulty: null,
     isActive: true,
     createdAt: new Date("2025-01-01"),
     updatedAt: new Date("2025-01-01"),
@@ -100,6 +123,7 @@ const entryWithDetails: VocabularyEntryWithTranslations = {
   },
   source: null,
   unverified: false,
+  difficulty: null,
   isActive: true,
   createdAt: new Date("2025-01-01"),
   updatedAt: new Date("2025-01-01"),
@@ -222,20 +246,18 @@ describe("renderDictionaryEntry", () => {
     return map[id];
   };
 
-  it("contains original word with emoji", () => {
+  it("contains original word with emoji and the source flag beside it", () => {
     const html = renderDictionaryEntry(entryWithDetails, langResolver);
-    expect(html).toContain("🍎 <b>apple</b>");
+    expect(html).toContain("🍎 🇬🇧 <b>apple</b>");
   });
 
-  it("shows source language flag and input type", () => {
-    const html = renderDictionaryEntry(entryWithDetails, langResolver);
-    expect(html).toContain("word · 🇬🇧");
-  });
-
-  it("localizes source input type", () => {
+  it("carries no input-type chrome line — the translate card has none", () => {
     const html = renderDictionaryEntry(entryWithDetails, langResolver, "ru");
-    expect(html).toContain("слово · 🇬🇧");
-    expect(html).not.toContain("word · 🇬🇧");
+
+    expect(html).not.toContain("слово ·");
+    expect(html).not.toContain("word ·");
+    // The headword is the first line; nothing labels the card above it.
+    expect(html.split("\n")[0]).toContain("<b>apple</b>");
   });
 
   it("contains translations without transcription", () => {
@@ -405,5 +427,34 @@ describe("buildDeleteConfirmKeyboard", () => {
 describe("DICTIONARY_PAGE_SIZE", () => {
   it("is 15", () => {
     expect(DICTIONARY_PAGE_SIZE).toBe(15);
+  });
+});
+
+describe("renderDictionaryEntry — collapsible examples", () => {
+  const langResolver = (id: number) => ({ 1: "en", 2: "cs", 3: "ru" })[id];
+  /** A ru-native user learning Czech — so the card carries a native answer. */
+  const RU_NATIVE = createLanguageOrderContext({ nativeLang: "ru", learningLangs: ["cs"] });
+
+  it("keeps examples visible and collapses usage guidance into a blockquote", () => {
+    const html = renderDictionaryEntry(entryWithDetails, langResolver, "ru");
+    expect(html).toContain("💬 <i>Я ем яблоко.</i> (I eat an apple.)");
+    expect(html).toContain("💬 <i>This apple is sweet.</i> (Это яблоко сладкое.)");
+    expect(html).not.toContain("blockquote expandable>💬");
+    expect(html).toContain("<blockquote expandable>💡 Нейтральное слово для обозначения фрукта.</blockquote>");
+  });
+
+  it("collapses the stored prose below the source examples once the answer is on the card", () => {
+    const html = renderDictionaryEntryRaw(entryWithDetails, langResolver, "ru", RU_NATIVE);
+    const answerIdx = html.indexOf("🇷🇺 RU: <b>яблоко</b>");
+    const exampleIdx = html.indexOf("💬 <i>This apple is sweet.</i>");
+    const collapsedIdx = html.indexOf("💡 Used for the fruit, not the technology company.");
+
+    // Answer first, then the source example, then the prose folded under it.
+    expect(answerIdx).toBeGreaterThan(-1);
+    expect(exampleIdx).toBeGreaterThan(answerIdx);
+    expect(collapsedIdx).toBeGreaterThan(exampleIdx);
+    // One paragraph: the stored explanation, not it and the shorter gloss both.
+    expect(html).toContain("<blockquote expandable>💡 Used for the fruit, not the technology company.</blockquote>");
+    expect(html).not.toContain("💡 A fruit.");
   });
 });

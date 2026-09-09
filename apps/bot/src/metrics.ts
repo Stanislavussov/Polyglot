@@ -76,6 +76,51 @@ export const unrecognizedWordCounter = new Counter({
   labelNames: ["outcome"] as const,
 });
 
+export const staleCallbackCounter = new Counter({
+  name: "bot_stale_callback_total",
+  help: "Inline-button taps whose backing state was already gone, by guard and whether the card's input could still seed a one-tap retry",
+  labelNames: ["action", "recovered"] as const,
+});
+
+export const onboardingStepCounter = new Counter({
+  name: "bot_onboarding_step_total",
+  help: "Onboarding screen entries and outcomes (Task 72) — labels are a bounded enum, never free-form",
+  labelNames: ["step", "outcome"] as const,
+});
+
+/**
+ * Motivation-layer counters (Task 81 §7.3). Every label set is a bounded enum —
+ * `kind` is a PraiseKind, `surface` one of the four motivation surfaces, `reason`
+ * one of cooldown/weekly_cap/killswitch/no_evidence, `band` one of four ranges —
+ * so cardinality stays in the same order as `bot_onboarding_step_total`.
+ *
+ * Praise suppression is a counter and NOT a log event on purpose: production runs
+ * at `info`, suppression happens more than once per user action, and a safety
+ * signal nobody can see is not a safety signal.
+ */
+export const motivationPraiseCounter = new Counter({
+  name: "bot_motivation_praise_total",
+  help: "Motivation praise lines actually shown, by praise kind and the surface that carried them",
+  labelNames: ["kind", "surface"] as const,
+});
+
+export const motivationPraiseSuppressedCounter = new Counter({
+  name: "bot_motivation_praise_suppressed_total",
+  help: "Praise decisions withheld, by reason (cooldown, weekly_cap, killswitch, no_evidence)",
+  labelNames: ["reason"] as const,
+});
+
+export const motivationProgressOpenedCounter = new Counter({
+  name: "bot_motivation_progress_opened_total",
+  help: "Progress screen opens, by momentum band",
+  labelNames: ["band"] as const,
+});
+
+export const motivationRecoveryShownCounter = new Counter({
+  name: "bot_motivation_recovery_shown_total",
+  help: "Recovery lines shown to a returning user — volume only, no labels",
+});
+
 export const mentorCounter = new Counter({
   name: "bot_mentor_requests_total",
   help: "Total mentor chat requests",
@@ -153,6 +198,18 @@ export const videoEnrichmentCounter = new Counter({
   labelNames: ["status"] as const,
 });
 
+export const wordPickCounter = new Counter({
+  name: "bot_word_pick_total",
+  help: "Word-picker set generations by outcome (generated / empty / failed)",
+  labelNames: ["status"] as const,
+});
+
+export const wordPickEnrichmentCounter = new Counter({
+  name: "bot_word_pick_enrichment_total",
+  help: "Background enrichment attempts for entries saved from a word-picker set",
+  labelNames: ["status"] as const,
+});
+
 export const updateHandlingDuration = new Histogram({
   name: "bot_update_handling_duration_seconds",
   help: "Time from update receipt to handler completion",
@@ -181,6 +238,22 @@ export const runnerDeathCounter = new Counter({
 export const botBootCounter = new Counter({
   name: "bot_boot_total",
   help: "Bot process boots (incremented once at startup) — a rising rate signals a restart loop",
+});
+
+/**
+ * OpenRouter key spend, polled from `GET /api/v1/key` (Task 78). Two gauges
+ * rather than a pre-divided ratio, so the alert picks its own threshold and a
+ * dashboard can show dollars; the division happens in PromQL. Both are absent
+ * for a key with no spend limit — see `ai-credit.wiring.ts`.
+ */
+export const aiCreditUsageGauge = new Gauge({
+  name: "bot_ai_credit_usage_usd",
+  help: "OpenRouter key spend to date, in USD (Task 78) — absent when the key has no spend limit",
+});
+
+export const aiCreditLimitGauge = new Gauge({
+  name: "bot_ai_credit_limit_usd",
+  help: "OpenRouter key spend limit, in USD (Task 78) — absent when the key has no spend limit",
 });
 
 // ── HTTP server ──────────────────────────────────────────────────────

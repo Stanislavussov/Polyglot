@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { SENTENCE_OUTPUT } from "../../../shared/translation-output.presets.js";
 import {
   buildMetadataPrompt,
+  buildSingleLanguagePrompt,
   buildStrictPrompt,
   buildTranslationPrompt,
   USER_INPUT_INJECTION_GUARD,
@@ -643,5 +644,83 @@ describe("buildTranslationPrompt — grammar breakdown", () => {
       ["[schema] missing field"],
     );
     expect(prompt).toContain("grammarBreakdown");
+  });
+});
+
+describe("sense anchor", () => {
+  const wordRequest: TranslationRequest = {
+    text: "wasted",
+    sourceLang: "en",
+    targetLangs: ["cs"],
+    nativeLang: "ru",
+    inputType: "word",
+  };
+
+  it("asks the metadata call for a primarySense on word input", () => {
+    const prompt = buildMetadataPrompt(wordRequest);
+    expect(prompt).toContain("primarySense");
+  });
+
+  it("does not ask for a primarySense on sentence input", () => {
+    const prompt = buildMetadataPrompt({
+      ...wordRequest,
+      text: "He got wasted last night.",
+      inputType: "sentence",
+      outputConfig: SENTENCE_OUTPUT,
+    });
+    expect(prompt).not.toContain("primarySense");
+  });
+
+  it("anchors every field of a language block to the sense when one is given", () => {
+    const prompt = buildTranslationPrompt({
+      ...wordRequest,
+      senseAnchor: "intoxicated by alcohol or drugs (slang)",
+    });
+    expect(prompt).toContain("intoxicated by alcohol or drugs (slang)");
+    expect(prompt).toContain("SENSE ANCHOR");
+  });
+
+  it("omits the anchor block when no sense was resolved", () => {
+    expect(buildTranslationPrompt(wordRequest)).not.toContain("SENSE ANCHOR");
+  });
+
+  it("stops asking for a different-sense alternative once anchored", () => {
+    const unanchored = buildTranslationPrompt(wordRequest);
+    const anchored = buildTranslationPrompt({ ...wordRequest, senseAnchor: "squandered, used up in vain" });
+    expect(unanchored).toContain("another common sense");
+    expect(anchored).not.toContain("another common sense");
+  });
+
+  it('lets an unrecognized headword answer "unknown" instead of inventing a sense', () => {
+    const prompt = buildMetadataPrompt(wordRequest, true);
+    expect(prompt).toContain("primarySense");
+    expect(prompt).toContain('set "primarySense" to null');
+  });
+
+  it("asks for a NEW sense when the user requested another meaning", () => {
+    const prompt = buildMetadataPrompt({
+      ...wordRequest,
+      negativeConstraints: { cs: ["promarněný"] },
+    });
+    // Otherwise the anchor rule ("the sense a learner most likely means") fights
+    // the request and the button degrades to another synonym of the same sense.
+    expect(prompt).toContain("Choose a sense NOT represented by the already-shown translations");
+    expect(prompt).not.toContain("Choose the sense a learner most likely means");
+  });
+
+  it("never anchors a field the schema does not carry", () => {
+    const prompt = buildMetadataPrompt({ ...wordRequest, outputConfig: { includeEmoji: false } });
+    const anchoredFields = prompt.split("\n").find((line) => line.includes("must describe THIS sense"));
+    expect(prompt).toContain("primarySense");
+    // includeEmoji: false leaves no "emoji" key in the metadata schema, and a
+    // strict provider rejects a prompt that demands a field the schema forbids.
+    expect(anchoredFields).toBeDefined();
+    expect(anchoredFields).not.toContain("emoji");
+    expect(anchoredFields).toContain("sourceUsage");
+  });
+
+  it("carries the anchor into the per-language prompt", () => {
+    const prompt = buildSingleLanguagePrompt({ ...wordRequest, senseAnchor: "drunk (slang)" }, "cs");
+    expect(prompt).toContain("drunk (slang)");
   });
 });

@@ -21,7 +21,7 @@ import { createServicesStub } from "../test-helpers/services-stub.js";
 import type { BotContext, SessionData } from "../types.js";
 import { handleMentorCommand } from "./mentor.scene.js";
 
-function createMockCtx(overrides?: Partial<SessionData>): BotContext {
+function createMockCtx(overrides?: Partial<SessionData>, services?: Partial<ServiceContainer>): BotContext {
   const session: SessionData = {
     activeMode: "translate",
     mentor: undefined,
@@ -32,12 +32,20 @@ function createMockCtx(overrides?: Partial<SessionData>): BotContext {
     chat: { id: 123456789 },
     session,
     reply: vi.fn().mockResolvedValue({ message_id: 1 }),
-    user: { id: 1, telegramId: 123456789, onboarded: true },
+    user: { id: 1, telegramId: 123456789, onboarded: true, audienceGroup: "product", subscriptionPlan: "plus" },
     services: createServicesStub({
       userRepository: mockUserRepository as unknown as ServiceContainer["userRepository"],
+      ...services,
     }),
   } as unknown as BotContext;
 }
+
+/** Feature access that refuses everything — the free-plan shape of the gate. */
+const denyAll = {
+  listFeatures: vi.fn().mockResolvedValue(new Set()),
+  listPlanFeatures: vi.fn().mockResolvedValue(new Set()),
+  checkFeatureAccess: vi.fn().mockResolvedValue({ hasAccess: false, reason: "plan" }),
+} as unknown as ServiceContainer["featureAccess"];
 
 describe("handleMentorCommand", () => {
   beforeEach(() => {
@@ -56,12 +64,10 @@ describe("handleMentorCommand", () => {
     expect(mockUserRepository.updateActiveMode).toHaveBeenCalledWith(1, "mentor");
   });
 
-  it("clears existing mentor history on entry", async () => {
-    const ctx = createMockCtx({
-      mentor: { history: [{ role: "user", content: "old message" }] },
-    });
+  it("marks a fresh thread on entry (empty object, no thread pinned)", async () => {
+    const ctx = createMockCtx({ mentor: { threadId: "11111111-1111-4111-8111-111111111111" } });
     await handleMentorCommand(ctx);
-    expect(ctx.session.mentor).toBeUndefined();
+    expect(ctx.session.mentor).toEqual({});
   });
 
   it("replies with a confirmation message", async () => {
@@ -71,5 +77,16 @@ describe("handleMentorCommand", () => {
     const replyText = vi.mocked(ctx.reply).mock.calls[0][0];
     expect(replyText).toBeTypeOf("string");
     expect(replyText.length).toBeGreaterThan(0);
+  });
+
+  it("refuses a plan without the mentor feature BEFORE touching the mode", async () => {
+    const ctx = createMockCtx(undefined, { featureAccess: denyAll });
+    await handleMentorCommand(ctx);
+    // The user is not trapped in a gated mode: mode untouched, nothing persisted.
+    expect(ctx.session.activeMode).toBe("translate");
+    expect(mockUserRepository.updateActiveMode).not.toHaveBeenCalled();
+    expect(ctx.session.mentor).toBeUndefined();
+    // The refusal is the upgrade screen, not silence.
+    expect(ctx.reply).toHaveBeenCalled();
   });
 });

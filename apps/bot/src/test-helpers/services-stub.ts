@@ -29,34 +29,42 @@ function autoMockObject<T extends object>(): T {
   });
 }
 
-/** Default free-tier plan limit — matches the DB seed default. Override per test as needed. */
+/** Default free-tier plan limit — mirrors the seeded `free` plan. Override per test as needed. */
 export const DEFAULT_PLAN_LIMIT: NonNullable<Awaited<ReturnType<ServiceContainer["settings"]["getPlanLimit"]>>> = {
   name: "free",
   label: "Free",
-  translationLimit: 50,
+  translationLimit: 10,
   creditCost: 1,
-  videoLimit: 3,
-  videoWindow: "lifetime",
+  videoLimit: 0,
+  videoWindow: "none",
+  mentorDailyLimit: null,
+  priceUsdCents: null,
   isActive: true,
   isDefault: true,
 };
 
-function createSettingsStub(): ServiceContainer["settings"] {
+/**
+ * Settings stub for hand-built `ctx.services` objects: a CONFIGURED system.
+ * Model resolution now reads every model id from the DB, so a context without a
+ * settings port fails with AIModelNotConfiguredError instead of silently using a
+ * hardcoded model — tests must describe the configured state like production does.
+ */
+export function createSettingsStub(): ServiceContainer["settings"] {
   return {
     getPlanLimits: vi.fn().mockResolvedValue([DEFAULT_PLAN_LIMIT]),
     getPlanLimit: vi.fn().mockResolvedValue(DEFAULT_PLAN_LIMIT),
     getAIModels: vi.fn().mockResolvedValue([]),
     getEnabledAIModels: vi.fn().mockResolvedValue([]),
-    getEnabledAIModelsForPlan: vi.fn().mockResolvedValue([]),
-    getDefaultAIModel: vi.fn().mockResolvedValue(null),
-    getDefaultAIModelForPlan: vi.fn().mockResolvedValue(null),
+    getDefaultAIModel: vi.fn().mockResolvedValue("openai/gpt-5-nano"),
+    getDefaultAIModelForPlan: vi.fn().mockResolvedValue("openai/gpt-5-nano"),
+    getFallbackAIModel: vi.fn().mockResolvedValue(null),
     getAIGenerationDefaults: vi
       .fn()
       .mockResolvedValue({ maxTokens: 4096, temperature: 0.3, frequencyPenalty: 0.5, maxRetries: 2 }),
     getSrsConfig: vi.fn().mockResolvedValue({ minEaseFactor: 1.3, defaultEaseFactor: 2.5 }),
     getNotificationDefaults: vi
       .fn()
-      .mockResolvedValue({ defaultTime: "08:00", defaultType: "srs", inactivityDays: 14, notificationTimesLimit: 12 }),
+      .mockResolvedValue({ defaultTime: "19:00", defaultType: "srs", inactivityDays: 14, notificationTimesLimit: 12 }),
     getDictionaryConfig: vi.fn().mockResolvedValue({ flashcardLimit: 10, notificationDictLimit: 1, wordOfDayLimit: 1 }),
     getTranslationPresets: vi.fn().mockResolvedValue([]),
     getVideoVocabularyConfig: vi.fn().mockResolvedValue({
@@ -65,6 +73,49 @@ function createSettingsStub(): ServiceContainer["settings"] {
       maxPhrases: 40,
       extractionModelId: "google/gemini-3.1-flash-lite",
     }),
+    // Mirrors the shipped default (on, with a working model) so hand-built contexts
+    // describe the configured system the way production is configured.
+    getTtsConfig: vi
+      .fn()
+      .mockResolvedValue({ enabled: true, modelId: "x-ai/grok-voice-tts-1.0", voice: "eve", maxChars: 200 }),
+    getSttConfig: vi
+      .fn()
+      .mockResolvedValue({ enabled: true, modelId: "openai/whisper-large-v3-turbo", maxDurationSec: 60 }),
+    // Empty modelId = follow the default chain, so stubbed contexts keep resolving
+    // through getDefaultAIModel like production does without an override.
+    getMentorConfig: vi.fn().mockResolvedValue({ modelId: "", maxTokens: 700 }),
+    // Mirrors the shipped kill switch: recording on, every visible surface off.
+    getMotivationConfig: vi.fn().mockResolvedValue({
+      recordingEnabled: true,
+      enabled: false,
+      praiseEnabled: false,
+      recoveryEnabled: false,
+    }),
+  };
+}
+
+/**
+ * Inert momentum service. Not an `autoMockObject`: every call site treats `record`
+ * as thenable, and a bare `vi.fn()` returning `undefined` would throw at the first
+ * `.then`/`await` instead of doing nothing.
+ */
+function createMomentumServiceStub(): ServiceContainer["momentumService"] {
+  return {
+    record: vi.fn().mockResolvedValue({ inserted: true, weight: 1 }),
+    getSnapshot: vi.fn().mockResolvedValue({
+      score: 0,
+      at: new Date(0),
+      band: "resting",
+      lastSeenAt: null,
+      lastPraiseAt: null,
+      lastRecoveryAt: null,
+    }),
+    decideRecovery: vi.fn().mockResolvedValue({ show: false }),
+    markRecoveryShown: vi.fn().mockResolvedValue(undefined),
+    touchSeen: vi.fn().mockResolvedValue(undefined),
+    decidePraise: vi.fn().mockResolvedValue({ suppressed: "killswitch" }),
+    markPraiseShown: vi.fn().mockResolvedValue(false),
+    countActiveDays: vi.fn().mockResolvedValue(0),
   };
 }
 
@@ -81,7 +132,11 @@ export function createServicesStub(overrides: Partial<ServiceContainer> = {}): S
     vocabularyDictionaryRepository: autoMockObject<ServiceContainer["vocabularyDictionaryRepository"]>(),
     translationTemplateRepository: autoMockObject<ServiceContainer["translationTemplateRepository"]>(),
     wordReviewRepository: autoMockObject<ServiceContainer["wordReviewRepository"]>(),
+    ttsCacheRepository: autoMockObject<ServiceContainer["ttsCacheRepository"]>(),
     notificationRepository: autoMockObject<ServiceContainer["notificationRepository"]>(),
+    mentorMessageRepository: autoMockObject<ServiceContainer["mentorMessageRepository"]>(),
+    momentumService: createMomentumServiceStub(),
+    onboardingDemoCardRepository: autoMockObject<ServiceContainer["onboardingDemoCardRepository"]>(),
     translationRequestRepository: autoMockObject<ServiceContainer["translationRequestRepository"]>(),
     languageDetectionRepository: autoMockObject<ServiceContainer["languageDetectionRepository"]>(),
     requestTimingRepository: autoMockObject<ServiceContainer["requestTimingRepository"]>(),
@@ -92,6 +147,8 @@ export function createServicesStub(overrides: Partial<ServiceContainer> = {}): S
     contextLookup: vi.fn().mockResolvedValue([]),
     wordLanguageSweep: vi.fn().mockResolvedValue([]),
     videoVocabularyRepository: autoMockObject<NonNullable<ServiceContainer["videoVocabularyRepository"]>>(),
+    wordPickerPresetRepository: autoMockObject<ServiceContainer["wordPickerPresetRepository"]>(),
+    wordPickerRunRepository: autoMockObject<ServiceContainer["wordPickerRunRepository"]>(),
   };
 
   return { ...base, ...overrides };

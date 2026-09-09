@@ -130,6 +130,14 @@ export interface TranslationRequest {
   inputType?: InputType;
   /** Previous translations to avoid — for "other meaning" regeneration */
   negativeConstraints?: Record<string, string[]>;
+  /**
+   * The single sense every language block must render, resolved by the metadata
+   * call before the per-language fan-out. Without it each language call picks a
+   * sense independently, so a polysemous word ("wasted" = drunk / squandered)
+   * yields a card whose blocks disagree. Absent for sentences and when the
+   * metadata call did not run.
+   */
+  senseAnchor?: string;
 }
 
 /**

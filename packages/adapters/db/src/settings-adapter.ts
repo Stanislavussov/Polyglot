@@ -2,27 +2,56 @@ import type {
   AIGenerationDefaults,
   AIModel,
   DictionaryConfig,
+  MentorConfig,
+  MotivationConfig,
   NotificationDefaults,
   PlanLimitConfig,
   SettingsPort,
   SrsConfig,
+  SttConfig,
   TranslationPresetConfig,
+  TtsConfig,
   VideoVocabularyConfig,
 } from "@polyglot/core";
-import { parseAIGenerationDefaults } from "@polyglot/core";
+import { parseAIGenerationDefaults, parseMotivationConfig } from "@polyglot/core";
 import { aiModelRepository } from "./repositories/ai-model.repository.js";
 import { rateLimitPlanRepository } from "./repositories/rate-limit-plan.repository.js";
 import { systemSettingsRepository } from "./repositories/system-settings.repository.js";
 import { translationPresetRepository } from "./repositories/translation-preset.repository.js";
 
+/**
+ * TTS is ON by default (the pronunciation button is offered out of the box).
+ *
+ * Unlike the primary completion model — which Task 73 requires to come from
+ * `ai_models` with NO code-level default, because a bad value there takes
+ * translation down — a bad value here costs a toast on one button. So this
+ * follows the `videoVocabulary.extractionModelId` precedent instead: a working
+ * default in code, overridable by a `tts` row in `system_settings` without a
+ * redeploy.
+ *
+ * Why this model and this format, both verified against the live API on
+ * 2026-08-22 rather than taken from the model card:
+ *   - `response_format: "mp3"` is non-negotiable — Telegram `sendVoice` takes mp3
+ *     directly, so no ffmpeg. Gemini 3.1 Flash TTS, the obvious pick on language
+ *     coverage, REJECTS mp3 outright ("only supports response_format=pcm") and
+ *     would have failed on every call.
+ *   - Grok Voice TTS returned valid `audio/mpeg` for all 11 supported learning
+ *     languages (cs de en es fr it kk pl pt ru uk) in ~0.5-1s, Kazakh included,
+ *     and auto-detects the language, so one voice serves every language. Most
+ *     rivals lock voices to a locale (`de-DE-Klaus`, `en_paul_neutral`), which a
+ *     single global default cannot use.
+ */
 const DEFAULTS: {
   srs: SrsConfig;
   notifications: NotificationDefaults;
   dictionary: DictionaryConfig;
   videoVocabulary: VideoVocabularyConfig;
+  tts: TtsConfig;
+  stt: SttConfig;
+  mentor: MentorConfig;
 } = {
   srs: { minEaseFactor: 1.3, defaultEaseFactor: 2.5 },
-  notifications: { defaultTime: "08:00", defaultType: "srs", inactivityDays: 14, notificationTimesLimit: 12 },
+  notifications: { defaultTime: "19:00", defaultType: "srs", inactivityDays: 14, notificationTimesLimit: 12 },
   dictionary: { flashcardLimit: 10, notificationDictLimit: 1, wordOfDayLimit: 1 },
   videoVocabulary: {
     monthlyLimit: 3,
@@ -30,6 +59,23 @@ const DEFAULTS: {
     maxPhrases: 40,
     extractionModelId: "google/gemini-3.1-flash-lite",
   },
+  tts: { enabled: true, modelId: "x-ai/grok-voice-tts-1.0", voice: "eve", maxChars: 200 },
+  // STT is ON by default, same posture as TTS above. Verified against the live API
+  // on 2026-08-23: `POST /api/v1/audio/transcriptions` with a JSON body of
+  // `{ model, input_audio: { data: <base64>, format: "ogg" } }` returns 200
+  // `{ text, usage: { seconds, cost } }` for OGG/Opus — the format Telegram voice
+  // messages arrive in, so no transcoding — and was confirmed for ru/kk/de.
+  // Full large-v3, not -turbo: the distilled turbo drifts into English translation
+  // ("Thank you. Hello, how are you?" for a spoken «Привет, как дела?») on short
+  // noisy clips — hit in production on day one. Non-Whisper models are not an
+  // option: the 2026-08-23 probe showed only Whisper transcribes Kazakh.
+  stt: { enabled: true, modelId: "openai/whisper-large-v3", maxDurationSec: 60 },
+  // Mentor answers with a smarter model than the translate default: a mentor turn
+  // is a free-form grammar explanation where flash-lite reads flat. Empty modelId
+  // means "follow the plan-default-fallback chain", never "disabled" — mentor has
+  // its own entitlement gate. gemini-3.7-flash picked 2026-08-24 ($0.375/$1.875
+  // per 1M, ~1.5x flash-lite) for quality/latency/multilingual balance.
+  mentor: { modelId: "google/gemini-3.7-flash", maxTokens: 700 },
 };
 
 async function getWithFallback<T>(key: string, fallback: T): Promise<T> {
@@ -59,6 +105,8 @@ export const settingsAdapter: SettingsPort = {
       creditCost: p.creditCost,
       videoLimit: p.videoLimit,
       videoWindow: p.videoWindow,
+      mentorDailyLimit: p.mentorDailyLimit,
+      priceUsdCents: p.priceUsdCents,
       isActive: p.isActive,
       isDefault: p.isDefault,
     }));
@@ -74,6 +122,8 @@ export const settingsAdapter: SettingsPort = {
       creditCost: p.creditCost,
       videoLimit: p.videoLimit,
       videoWindow: p.videoWindow,
+      mentorDailyLimit: p.mentorDailyLimit,
+      priceUsdCents: p.priceUsdCents,
       isActive: p.isActive,
       isDefault: p.isDefault,
     };
@@ -103,25 +153,18 @@ export const settingsAdapter: SettingsPort = {
     }));
   },
 
-  async getEnabledAIModelsForPlan(plan: string): Promise<AIModel[]> {
-    const models = await aiModelRepository.findEnabledForPlan(plan);
-    return models.map((m) => ({
-      id: m.id,
-      name: m.name,
-      provider: m.provider,
-      maxTokens: m.maxTokens,
-      costPer1kInput: m.costPer1kInput,
-      costPer1kOutput: m.costPer1kOutput,
-    }));
-  },
-
   async getDefaultAIModel(): Promise<string | null> {
     const model = await aiModelRepository.findDefault();
     return model?.id ?? null;
   },
 
   async getDefaultAIModelForPlan(plan: string): Promise<string | null> {
-    const model = await aiModelRepository.findDefaultForPlan(plan);
+    const model = await aiModelRepository.findForPlan(plan);
+    return model?.id ?? null;
+  },
+
+  async getFallbackAIModel(): Promise<string | null> {
+    const model = await aiModelRepository.findFallback();
     return model?.id ?? null;
   },
 
@@ -155,5 +198,24 @@ export const settingsAdapter: SettingsPort = {
 
   async getVideoVocabularyConfig(): Promise<VideoVocabularyConfig> {
     return getWithFallback<VideoVocabularyConfig>("videoVocabulary", DEFAULTS.videoVocabulary);
+  },
+
+  async getTtsConfig(): Promise<TtsConfig> {
+    return getWithFallback<TtsConfig>("tts", DEFAULTS.tts);
+  },
+
+  async getSttConfig(): Promise<SttConfig> {
+    return getWithFallback<SttConfig>("stt", DEFAULTS.stt);
+  },
+
+  async getMentorConfig(): Promise<MentorConfig> {
+    return getWithFallback<MentorConfig>("mentor", DEFAULTS.mentor);
+  },
+
+  async getMotivationConfig(): Promise<MotivationConfig> {
+    // Parsed, not merged: `getWithFallback` heals a MISSING key but lets a
+    // present-but-invalid one through, and for a kill switch that is the one
+    // failure mode that matters (plan §4.6).
+    return parseMotivationConfig(await systemSettingsRepository.get("motivation"));
   },
 };

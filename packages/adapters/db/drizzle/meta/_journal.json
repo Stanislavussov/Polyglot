@@ -323,6 +323,90 @@
       "when": 1783263308896,
       "tag": "0045_thick_beyonder",
       "breakpoints": true
+    },
+    {
+      "idx": 46,
+      "version": "7",
+      "when": 1785600588177,
+      "tag": "0046_strange_killer_shrike",
+      "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "7",
+      "when": 1785601227038,
+      "tag": "0047_greedy_senator_kelly",
+      "breakpoints": true
+    },
+    {
+      "idx": 48,
+      "version": "7",
+      "when": 1785866923689,
+      "tag": "0048_wealthy_speed",
+      "breakpoints": true
+    },
+    {
+      "idx": 49,
+      "version": "7",
+      "when": 1785870648040,
+      "tag": "0049_unusual_tomorrow_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "7",
+      "when": 1786654275396,
+      "tag": "0050_fancy_leech",
+      "breakpoints": true
+    },
+    {
+      "idx": 51,
+      "version": "7",
+      "when": 1787343089007,
+      "tag": "0051_nasty_mordo",
+      "breakpoints": true
+    },
+    {
+      "idx": 52,
+      "version": "7",
+      "when": 1787407133548,
+      "tag": "0052_cool_onslaught",
+      "breakpoints": true
+    },
+    {
+      "idx": 53,
+      "version": "7",
+      "when": 1787418514112,
+      "tag": "0053_wonderful_chat",
+      "breakpoints": true
+    },
+    {
+      "idx": 54,
+      "version": "7",
+      "when": 1787478878421,
+      "tag": "0054_early_ares",
+      "breakpoints": true
+    },
+    {
+      "idx": 55,
+      "version": "7",
+      "when": 1787518925401,
+      "tag": "0055_huge_gorgon",
+      "breakpoints": true
+    },
+    {
+      "idx": 56,
+      "version": "7",
+      "when": 1787580540155,
+      "tag": "0056_tan_wither",
+      "breakpoints": true
+    },
+    {
+      "idx": 57,
+      "version": "7",
+      "when": 1787682537343,
+      "tag": "0057_flaky_black_cat",
+      "breakpoints": true
     }
   ]
 }

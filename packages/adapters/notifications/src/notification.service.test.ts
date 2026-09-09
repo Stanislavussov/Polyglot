@@ -10,7 +10,8 @@ const { mockLogger, mockChild } = vi.hoisted(() => ({
   mockChild: vi.fn(() => mockLogger),
 }));
 
-vi.mock("@polyglot/core", () => ({
+vi.mock("@polyglot/core", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@polyglot/core")>()),
   getLogger: vi.fn(() => ({
     info: mockLogger.info,
     warn: mockLogger.warn,
@@ -72,6 +73,111 @@ describe("pickDictionaryWord", () => {
       ...overrides,
     };
   }
+
+  describe("de-dup and exhaustion", () => {
+    it("never picks a word the user was recently sent", async () => {
+      const service = createDictionaryWordPicker(buildDeps());
+
+      const result = await service.pickDictionaryWord(1, ["house", "car"]);
+
+      expect(result?.original).toBe("book");
+    });
+
+    it("reports exhaustion instead of repeating, so the caller can fall back to a preset", async () => {
+      // Re-sending a word the user just saw is what makes a reminder read as
+      // spam; the dictionary declines rather than recycling its own history.
+      const service = createDictionaryWordPicker(buildDeps());
+
+      const result = await service.pickDictionaryWord(1, ["house", "car", "book"]);
+
+      expect(result).toBeNull();
+    });
+
+    it("reports exhaustion for a one-word dictionary already sent", async () => {
+      const service = createDictionaryWordPicker(
+        buildDeps({
+          getUserVocabulary: vi.fn().mockResolvedValue([mockVocabEntries[0]]),
+        }),
+      );
+
+      expect(await service.pickDictionaryWord(1, ["house"])).toBeNull();
+    });
+  });
+
+  describe("difficulty weighting", () => {
+    const rated = (original: string, difficulty: VocabEntry["difficulty"], id: number): VocabEntry => ({
+      id,
+      original,
+      emoji: null,
+      createdAt: new Date("2025-01-01"),
+      difficulty,
+      translations: [{ targetLangId: 1, text: `${original}-cs` }],
+    });
+
+    it("weights a hard word 3x over a normal one", async () => {
+      // Pool [hard, normal] → tickets [3, 1], total 4. A roll of 0.5 lands at
+      // 2 (inside hard's 3 tickets); 0.8 lands at 3.2 (normal's ticket).
+      const service = createDictionaryWordPicker(
+        buildDeps({
+          getUserVocabulary: vi.fn().mockResolvedValue([rated("storm", "hard", 1), rated("cloud", "normal", 2)]),
+        }),
+      );
+
+      vi.spyOn(Math, "random").mockReturnValue(0.5);
+      expect((await service.pickDictionaryWord(1))?.original).toBe("storm");
+
+      vi.spyOn(Math, "random").mockReturnValue(0.8);
+      expect((await service.pickDictionaryWord(1))?.original).toBe("cloud");
+    });
+
+    it("treats an unrated word exactly like a normal one", async () => {
+      // [hard, unrated] → tickets [3, 1]: the same 0.8 roll that picked the
+      // normal word above picks the unrated one here.
+      const unrated: VocabEntry = { ...rated("cloud", undefined, 2), difficulty: undefined };
+      const service = createDictionaryWordPicker(
+        buildDeps({
+          getUserVocabulary: vi.fn().mockResolvedValue([rated("storm", "hard", 1), unrated]),
+        }),
+      );
+
+      vi.spyOn(Math, "random").mockReturnValue(0.8);
+      expect((await service.pickDictionaryWord(1))?.original).toBe("cloud");
+    });
+
+    it("never picks an easy word while hard/normal words remain", async () => {
+      const service = createDictionaryWordPicker(
+        buildDeps({
+          getUserVocabulary: vi.fn().mockResolvedValue([rated("known", "easy", 1), rated("cloud", "normal", 2)]),
+        }),
+      );
+
+      for (const roll of [0, 0.5, 0.999]) {
+        vi.spyOn(Math, "random").mockReturnValue(roll);
+        expect((await service.pickDictionaryWord(1))?.original).toBe("cloud");
+      }
+    });
+
+    it("falls back to easy words when every hard/normal word was recently sent", async () => {
+      const service = createDictionaryWordPicker(
+        buildDeps({
+          getUserVocabulary: vi.fn().mockResolvedValue([rated("known", "easy", 1), rated("cloud", "normal", 2)]),
+        }),
+      );
+
+      expect((await service.pickDictionaryWord(1, ["cloud"]))?.original).toBe("known");
+    });
+
+    it("still suggests from an all-easy dictionary instead of going silent", async () => {
+      const service = createDictionaryWordPicker(
+        buildDeps({
+          getUserVocabulary: vi.fn().mockResolvedValue([rated("known", "easy", 1), rated("seen", "easy", 2)]),
+        }),
+      );
+
+      const result = await service.pickDictionaryWord(1);
+      expect(["known", "seen"]).toContain(result?.original);
+    });
+  });
 
   describe("happy path", () => {
     it("returns a random word from candidates", async () => {
@@ -280,6 +386,9 @@ describe("pickContextualWord", () => {
     expect(result).toEqual({
       original: "Один кофе, пожалуйста.",
       emoji: "🎯",
+      // The prompt writes the sentence in the first language it is given, so the
+      // card can flag it like any other headword.
+      sourceLang: "ru",
       translations: { ru: "Один кофе, пожалуйста.", en: "One coffee, please." },
       source: "contextual",
     });

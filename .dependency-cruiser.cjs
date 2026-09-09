@@ -165,7 +165,7 @@ module.exports = {
         path: "^packages/core/src/modules/([^/]+)/",
         // Modules with an explicit allow rule below are exempt from the default.
         pathNot:
-          "^packages/core/src/modules/(validation|translation|context-enrichment|notifications)/",
+          "^packages/core/src/modules/(validation|translation|context-enrichment|notifications|tts)/",
       },
       to: {
         path: "^packages/core/src/modules/",
@@ -210,6 +210,19 @@ module.exports = {
       to: {
         path: "^packages/core/src/modules/",
         pathNot: "^packages/core/src/modules/(notifications|i18n)/",
+      },
+    },
+    {
+      name: "core-tts-allowlist",
+      comment:
+        "tts may import only vocabulary among core modules — the pronunciation buttons " +
+        "must follow the same language ordering as the card blocks above them, and that " +
+        "ordering has exactly one definition (vocabulary/translation-order).",
+      severity: "error",
+      from: { path: "^packages/core/src/modules/tts/" },
+      to: {
+        path: "^packages/core/src/modules/",
+        pathNot: "^packages/core/src/modules/(tts|vocabulary)/",
       },
     },
   ],

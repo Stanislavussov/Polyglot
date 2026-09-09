@@ -16,13 +16,14 @@ import {
   detectLanguageWithConfidenceAsync,
   detectOutOfSetByAlphabet,
   detectOutOfSetLanguage,
+  errorFields,
   getLangFlag,
   getLanguageName,
   getMonthlyWindowStart,
   type InputType,
   isSupported,
   isSupportedLanguage,
-  logger,
+  logEvent,
   needsAiArbitration,
   needsDictionaryVerification,
   resolveDirectionFromSource,
@@ -47,6 +48,9 @@ import {
   unrecognizedWordCounter,
 } from "../../metrics.js";
 import { getRequestSettings } from "../../middlewares/request-settings.js";
+import { recordEffort } from "../../momentum/momentum.wiring.js";
+import { resolvePraiseLine } from "../../momentum/praise.footer.js";
+import { commitRecovery, resolveRecoveryPrefix } from "../../momentum/recovery.helper.js";
 import {
   buildTranslationKeyboard,
   renderSentenceTranslation,
@@ -55,6 +59,7 @@ import {
 import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
 import { classifyInput } from "../../utils/classify-input.js";
+import { resolveLanguageOrder } from "../../utils/language-order.js";
 import {
   isUserFacingTimeout,
   LONG_OP_TIMEOUT_MS,
@@ -63,15 +68,18 @@ import {
   TRANSLATION_BUDGET_MS,
   withTimeout,
 } from "../../utils/long-op.js";
-import { cleanupTechnicalMessages, trackTechnicalMessage } from "../../utils/message-cleanup.js";
 import { parseTranslateInput } from "../../utils/parse-translate-input.js";
+import { encodeTranslateRetryText, replyWithRetry } from "../../utils/retry-action.js";
 import { validateTranslatableText } from "../../utils/validate-text-input.js";
+import { resolveLockedFeatures } from "./paid-feature.helper.js";
+import { answerStaleCallback } from "./stale-callback.helper.js";
 import { buildUpgradeKeyboard } from "./subscription.helper.js";
 import {
   clearPendingClarification,
   getUserLanguageGroup,
   isEtymologyEligible,
   normalizeLearningLangs,
+  resolvePronounceLangs,
   showAddLanguagePrompt,
 } from "./translate-mode.shared.js";
 import { setTranslationEntry } from "./translation-map.helper.js";
@@ -147,7 +155,10 @@ function outOfSetLanguageFromCorrection(
   nativeLang: string,
   learningLangs: string[],
 ): string | undefined {
-  if (ambiguity.reason !== "unrecognized_word") {
+  // Both correction-bearing reasons: the metadata existence guard answers
+  // "unrecognized_word", the spelling preflight "possible_typo", and either can
+  // be the coerced out-of-set language rather than a typo.
+  if (ambiguity.reason !== "unrecognized_word" && ambiguity.reason !== "possible_typo") {
     return undefined;
   }
   const correction = (ambiguity.options ?? []).find((option) => option.kind === "typo_correction")?.correctedText;
@@ -221,6 +232,18 @@ async function showTranslationClarification(
     options: params.ambiguity.options,
   };
   ctx.session.awaitingTranslationClarificationContext = undefined;
+
+  // A clarification prompt is a translation that did NOT complete; without this
+  // record the flow looks like it simply stopped halfway.
+  logEvent("translation.clarification_requested", {
+    word: params.word,
+    sourceLang: params.sourceLang,
+    targetLangs: params.targetLangs,
+    inputType: params.inputType,
+    reason: params.ambiguity.reason,
+    optionKinds: (params.ambiguity.options ?? []).map((option) => option.kind),
+    detectionConfidence: params.detectionConfidence,
+  });
 
   if (params.ambiguity.reason === "possible_typo") {
     inputCorrectionCounter.inc({ outcome: "confirm_shown", input_type: params.inputType });
@@ -330,9 +353,6 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
     return;
   }
 
-  // Clean up previous technical messages before starting a new translation
-  await cleanupTechnicalMessages(ctx);
-
   const textValidation = validateTranslatableText(cleanWord);
   if (!textValidation.valid) {
     const reason = textValidation.reason ?? "empty";
@@ -413,17 +433,18 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
   const detectionMs = Date.now() - detectionStart;
   observeTranslationPhase("detection", detectionMs);
 
-  logger.debug(
-    {
-      word: cleanWord,
-      detectedLang: detection.language,
-      confidence: detection.confidence,
-      ambiguousCandidates: detection.ambiguousCandidates,
-      outOfSetLanguages: detection.outOfSetLanguages,
-      evidenceCount: detection.evidence.length,
-    },
-    "Language detection result",
-  );
+  // Info, not debug: which language we decided the input was in explains almost
+  // every "it translated the wrong thing" report, and there is one per request.
+  logEvent("translation.language_detected", {
+    word: cleanWord,
+    detectedLang: detection.language,
+    confidence: detection.confidence,
+    ambiguousCandidates: detection.ambiguousCandidates,
+    outOfSetLanguages: detection.outOfSetLanguages,
+    evidenceCount: detection.evidence.length,
+    evidenceStrategies: detection.evidence.map((entry) => entry.strategy),
+    detectionMs,
+  });
 
   // Out-of-set guard: input is confidently in a language the user hasn't configured.
   // The closed-set detector would otherwise coerce it to the nearest candidate (e.g. German
@@ -459,7 +480,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
         sourceLang: outOfSetLang,
       })
       .catch((err: unknown) => {
-        logger.warn({ err }, "Failed to record language detection event");
+        logEvent("language_detection.record_failed", errorFields(err), "warn");
       });
     await ctx.reply(t("languageNotSelected", lang, { lang: getLanguageName(outOfSetLang, lang) }));
     return;
@@ -487,8 +508,16 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
       targetLangs = direction.targetLangs;
       detectedLang = detection.language;
     } else if (detection.language === "en") {
+      // English is accepted as a source even when the user does not study it —
+      // it is the language stray input most often arrives in. The targets still
+      // have to lead with the native language: without it the learner gets a
+      // foreign-language gloss and no direct translation. This is the same rule
+      // `resolveDirectionFromSource` applies when the source is a learning
+      // language; it was simply never carried over to this case. The filter
+      // guards the reachability precondition (English is not a learning
+      // language here) rather than trusting it.
       sourceLang = "en";
-      targetLangs = learningLangs;
+      targetLangs = [nativeLang, ...learningLangs.filter((code) => code !== "en")];
       detectedLang = "en";
     } else {
       // Detected a language that is neither native nor a learning language and
@@ -528,7 +557,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
         targetLangs: fallbackDir.targetLangs,
       })
       .catch((err: unknown) => {
-        logger.warn({ err }, "Failed to record language detection event");
+        logEvent("language_detection.record_failed", errorFields(err), "warn");
       });
 
     const promptText = t("langSelectPrompt", lang, {
@@ -581,7 +610,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
         targetLangs: fallbackDir.targetLangs,
       })
       .catch((err: unknown) => {
-        logger.warn({ err }, "Failed to record language detection event");
+        logEvent("language_detection.record_failed", errorFields(err), "warn");
       });
 
     const warningText = t("mistypeWarning", lang, {
@@ -606,7 +635,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
         targetLangs,
       })
       .catch((err: unknown) => {
-        logger.warn({ err }, "Failed to record language detection event");
+        logEvent("language_detection.record_failed", errorFields(err), "warn");
       });
   }
 
@@ -620,18 +649,18 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
   }
   preflightMs = Date.now() - preflightStart;
 
-  logger.debug(
-    {
-      word: cleanWord,
-      contextHint,
-      detectedLang,
-      sourceLang,
-      targetLangs,
-      inputType: classification.type,
-      wordCount: classification.wordCount,
-    },
-    "Resolved translation direction",
-  );
+  logEvent("translation.direction_resolved", {
+    word: cleanWord,
+    contextHint,
+    detectedLang,
+    sourceLang,
+    targetLangs,
+    inputType: classification.type,
+    wordCount: classification.wordCount,
+    plan: subscriptionPlan,
+    creditCost,
+    preflightMs,
+  });
 
   // Show loading message
   const loadingMsg = await ctx.reply(t("translating", lang));
@@ -658,9 +687,10 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
 }
 
 /**
- * Whether the translated headword already exists in the user's default
- * dictionary. Shared by both translation entry points (T22/B2) — identical FK
- * resolution + duplicate lookup that was previously copied per handler.
+ * The default-dictionary entry id the translated headword already occupies, or
+ * undefined when the word is not banked yet. The id — not a bare boolean — is what
+ * the card's session entry carries, so every later redraw of the card knows it is
+ * a saved word.
  *
  * The two SELECTs below are DATA-DEPENDENT and must stay sequential: the row
  * returned by `findByOriginalAndSource` supplies the `existing.id` that
@@ -668,7 +698,11 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
  * query must not run at all). They look like an obvious `Promise.all` candidate
  * — they are not.
  */
-async function resolveIsAlreadySaved(ctx: BotContext, output: TranslateOutput, isSentence: boolean): Promise<boolean> {
+async function resolveSavedWordId(
+  ctx: BotContext,
+  output: TranslateOutput,
+  isSentence: boolean,
+): Promise<number | undefined> {
   const sourceLangEntry = ctx.services.languageCache.getLang(output.sourceLang);
   const existing =
     sourceLangEntry && !isSentence
@@ -678,9 +712,12 @@ async function resolveIsAlreadySaved(ctx: BotContext, output: TranslateOutput, i
           sourceLangEntry.id,
         )
       : null;
-  return existing
-    ? await ctx.services.vocabularyDictionaryRepository.entryBelongsToDefault(ctx.user.id, existing.id)
-    : false;
+  if (!existing) return undefined;
+  const belongsToDefault = await ctx.services.vocabularyDictionaryRepository.entryBelongsToDefault(
+    ctx.user.id,
+    existing.id,
+  );
+  return belongsToDefault ? existing.id : undefined;
 }
 
 /**
@@ -702,7 +739,8 @@ async function sendTranslationCard(
     isSentence: boolean;
     inputType: InputType;
     effectiveTemplate: ReturnType<typeof resolveTemplate>;
-    isAlreadySaved: boolean;
+    /** Dictionary entry id when the word is already banked — drives the ✅ Saved button. */
+    savedWordId?: number;
     contextHint?: string;
     /** Main flow only: prefixes a "detected language" banner when it differs from native. */
     detectedLang?: string;
@@ -712,19 +750,35 @@ async function sendTranslationCard(
     withInlineGrammar: boolean;
   },
 ): Promise<void> {
-  const { output, lang, nativeLang, needsReview, isSentence, inputType, effectiveTemplate, isAlreadySaved } = opts;
+  const { output, lang, nativeLang, needsReview, isSentence, inputType, effectiveTemplate, savedWordId } = opts;
 
   ctx.session.pendingTranslation = output;
 
+  const order = await resolveLanguageOrder(ctx);
   const body = isSentence
-    ? `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(output, lang, nativeLang, needsReview)}`
-    : renderTranslation(output, lang, effectiveTemplate.fields, nativeLang, needsReview);
+    ? `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(output, order, lang, nativeLang, needsReview)}`
+    : renderTranslation(output, order, lang, effectiveTemplate.fields, nativeLang, needsReview);
   const card =
     opts.detectedLang && opts.detectedLang !== nativeLang
       ? `${t("detectedLang", lang, { lang: getLanguageName(opts.detectedLang, lang) })}\n${body}`
       : body;
 
-  const cardMsg = await ctx.reply(card, { parse_mode: "HTML" });
+  // Motivation lines (§2.2 S2/S3) ride only on a card a TEXT message asked for.
+  // `sendTranslationCard` is also reached from the mistype-confirm and clarify-option
+  // callbacks; those carry nothing by design, and the pending recovery line waits for
+  // the first card a text message produces (deferred delivery, §2.2 S3).
+  const now = new Date();
+  const fromTextMessage = ctx.message?.text !== undefined;
+  const recovery = fromTextMessage ? await resolveRecoveryPrefix(ctx, lang, now) : null;
+  // Recovery wins over praise, and praise's cooldown is not spent on the loss.
+  const praise = fromTextMessage && !recovery ? await resolvePraiseLine(ctx, lang, "translation_card", now) : null;
+  let cardText = card;
+  if (recovery) cardText = `${recovery.text}\n\n${card}`;
+  else if (praise) cardText = `${card}\n\n${praise}`;
+
+  const cardMsg = await ctx.reply(cardText, { parse_mode: "HTML" });
+  // Only after the send resolved: a failed delivery must not burn the one-shot.
+  if (recovery) await commitRecovery(ctx, recovery.gapDays, now);
 
   const showGrammarButton =
     inputType !== "word" && (inputType === "sentence" || !effectiveTemplate.fields.grammarBreakdown);
@@ -750,19 +804,23 @@ async function sendTranslationCard(
         sourceLang: output.sourceLang,
       })
       .catch((err: unknown) => {
-        logger.warn({ err }, "Failed to record language detection event");
+        logEvent("language_detection.record_failed", errorFields(err), "warn");
       });
   }
 
-  const keyboard = buildTranslationKeyboard(
-    lang,
-    cardMsg.message_id,
-    isAlreadySaved,
+  const pronounceLangs = await resolvePronounceLangs(ctx, output, inputType, order);
+
+  const keyboard = buildTranslationKeyboard({
+    interfaceLang: lang,
+    msgId: cardMsg.message_id,
+    isAlreadySaved: savedWordId !== undefined,
     showGrammarButton,
-    hasInlineGrammar,
+    showGrammarDetailButton: hasInlineGrammar,
     showEtymologyButton,
     sourceOverrideLangs,
-  );
+    pronounceLangs,
+    locked: await resolveLockedFeatures(ctx),
+  });
   await ctx.api.editMessageReplyMarkup(ctx.chat!.id, cardMsg.message_id, { reply_markup: keyboard });
 
   ctx.session.pendingCardMsgId = cardMsg.message_id;
@@ -773,6 +831,7 @@ async function sendTranslationCard(
     inputType,
     contextHint: opts.contextHint,
     grammarBreakdown: inlineBreakdown,
+    savedWordId,
   });
 }
 
@@ -967,16 +1026,44 @@ async function runTranslationPipeline(
     const needsReview = decision.status === "needs_review";
     const recordedModelId = decision.status === "accepted" ? decision.quality.modelId : model;
     translationCounter.inc({ status: "success" });
+
+    // The single record that answers "what did the user get, from which model,
+    // how long did it take, and did the validator trust it".
+    logEvent("translation.completed", {
+      word,
+      contextHint,
+      sourceLang,
+      targetLangs,
+      inputType: classification.type,
+      status: decision.status,
+      needsReview,
+      modelId: recordedModelId,
+      requestedModelId: model,
+      corrected: output.correction !== undefined,
+      dbLookupMs,
+      aiRequestMs,
+      ...(timing && { totalMs: Date.now() - timing.totalStart, preflightMs: timing.preflightMs }),
+    });
     if (output.correction) {
       inputCorrectionCounter.inc({ outcome: "auto_corrected", input_type: classification.type });
     }
-    await ctx.services.translationRequestRepository.logTranslationRequest(
+    const translationRequestId = await ctx.services.translationRequestRepository.logTranslationRequest(
       ctx.user.id,
       word,
       sourceLang,
       targetLangs,
       creditCost,
     );
+
+    // Awaited, unlike the other credit sites: this same update renders the momentum
+    // surfaces (S2/S3) further down, so the snapshot has to be written before they
+    // are read (§4.2). `recordEffort` never rejects, so a momentum outage still
+    // delivers the card.
+    await recordEffort(ctx, {
+      userId: ctx.user.id,
+      kind: "translate",
+      dedupeKey: `translate:${translationRequestId}`,
+    });
 
     if (timing) {
       ctx.services.requestTimingRepository
@@ -994,14 +1081,14 @@ async function runTranslationPipeline(
           success: true,
         })
         .catch((err: unknown) => {
-          logger.warn({ err }, "Failed to record request timing");
+          logEvent("request_timing.record_failed", errorFields(err), "warn");
         });
     }
 
     // Delete loading message
     await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
 
-    const isAlreadySaved = await resolveIsAlreadySaved(ctx, output, isSentence);
+    const savedWordId = await resolveSavedWordId(ctx, output, isSentence);
 
     await sendTranslationCard(ctx, {
       output,
@@ -1012,7 +1099,7 @@ async function runTranslationPipeline(
       isSentence,
       inputType: classification.type,
       effectiveTemplate,
-      isAlreadySaved,
+      savedWordId,
       contextHint,
       detectedLang,
       sourceLanguageDoubtful,
@@ -1022,7 +1109,24 @@ async function runTranslationPipeline(
     observeTranslationPhase("post_ai", Date.now() - postAiStart);
   } catch (err) {
     translationCounter.inc({ status: "error" });
-    logger.error({ err, word }, "Translation failed");
+    logEvent(
+      "translation.failed",
+      {
+        word,
+        contextHint,
+        sourceLang,
+        targetLangs,
+        inputType: classification.type,
+        modelId: model,
+        // A timeout is the transient case the user is offered a retry for;
+        // separating it here keeps genuine breakage alertable on its own.
+        timedOut: isUserFacingTimeout(err),
+        dbLookupMs,
+        ...(timing && { totalMs: Date.now() - timing.totalStart }),
+        ...errorFields(err),
+      },
+      "error",
+    );
 
     if (timing) {
       ctx.services.requestTimingRepository
@@ -1041,12 +1145,24 @@ async function runTranslationPipeline(
           error: err instanceof Error ? err.message : String(err),
         })
         .catch((timingErr: unknown) => {
-          logger.warn({ err: timingErr }, "Failed to record request timing on error");
+          logEvent("request_timing.record_failed", { ...errorFields(timingErr), afterFailure: true }, "warn");
         });
     }
 
     await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
-    await ctx.reply(isUserFacingTimeout(err) ? t("loadingTimeout", lang) : t("translationError", lang));
+
+    // A timeout is transient — the same input usually succeeds on a second
+    // attempt — so the notice carries a one-tap retry instead of asking the user
+    // to retype the word. A hard failure gets the plain error: re-running it
+    // would just fail the same way.
+    if (isUserFacingTimeout(err)) {
+      await replyWithRetry(ctx, t("loadingTimeout", lang), lang, {
+        kind: "translate",
+        text: encodeTranslateRetryText(word, contextHint),
+      });
+      return;
+    }
+    await ctx.reply(t("translationError", lang));
   }
 }
 
@@ -1067,12 +1183,11 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
     // synchronously in that case (grammy's orThrow), so a `.catch()` cannot save
     // it — the guard must come first.
     if (ctx.callbackQuery) {
-      await ctx
-        .answerCallbackQuery({
-          text: "⚠️ Session expired. Please translate the word again.",
-          show_alert: true,
-        })
-        .catch(() => {});
+      await answerStaleCallback(ctx, {
+        action: "tr:mistype:confirm",
+        ...(pendingWord !== undefined && { word: pendingWord }),
+        ...(pendingContextHint !== undefined && { contextHint: pendingContextHint }),
+      });
     }
     return;
   }
@@ -1110,7 +1225,7 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
       targetLangs,
     })
     .catch((err: unknown) => {
-      logger.warn({ err }, "Failed to record language detection event");
+      logEvent("language_detection.record_failed", errorFields(err), "warn");
     });
 
   // Classify input type
@@ -1164,7 +1279,7 @@ export async function handleMistypeCancelCallback(ctx: BotContext): Promise<void
         word: pendingWord,
       })
       .catch((err: unknown) => {
-        logger.warn({ err }, "Failed to record language detection event");
+        logEvent("language_detection.record_failed", errorFields(err), "warn");
       });
   }
 
@@ -1173,6 +1288,5 @@ export async function handleMistypeCancelCallback(ctx: BotContext): Promise<void
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
 
   await ctx.answerCallbackQuery();
-  const msg = await ctx.reply(t("translateModeHint", lang));
-  trackTechnicalMessage(ctx, msg.message_id);
+  await ctx.reply(t("translateModeHint", lang));
 }

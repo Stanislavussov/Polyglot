@@ -19,13 +19,23 @@ vi.mock("@polyglot/core", async () => {
   };
 });
 
+import { createLanguageOrderContext, type SupportedLang } from "@polyglot/core";
 import {
   buildFlashCardBackKeyboard,
   buildFlashCardDoneKeyboard,
   buildFlashCardFrontKeyboard,
-  renderFlashCardBack,
+  renderFlashCardBack as renderFlashCardBackRaw,
   renderFlashCardFront,
 } from "../renderers/flashcard.renderer.js";
+
+/** These cases assert card content, not language sequence. */
+const NO_ORDER = createLanguageOrderContext({ learningLangs: [] });
+const renderFlashCardBack = (
+  word: WordDisplayData,
+  cardIndex: number,
+  totalCards: number,
+  lang: SupportedLang,
+): string => renderFlashCardBackRaw(word, cardIndex, totalCards, lang, NO_ORDER);
 
 /* ── Test data ─────────────────────────────────────────────────── */
 
@@ -93,20 +103,21 @@ describe("renderFlashCardFront", () => {
     expect(result).toContain("🍎");
   });
 
-  it("contains source language flag", () => {
+  it("contains the source language flag beside the word", () => {
     const result = renderFlashCardFront(sampleWord, 1, 10, "en");
-    expect(result).toContain("🇬🇧");
+    expect(result).toContain("🍎 🇬🇧 <b>apple</b>");
   });
 
-  it("contains input type", () => {
-    const result = renderFlashCardFront(sampleWord, 1, 10, "en");
-    expect(result).toContain("word");
-  });
-
-  it("localizes input type", () => {
+  it("carries no input-type chrome line — the translate card has none", () => {
     const result = renderFlashCardFront(sampleWord, 1, 10, "ru");
-    expect(result).toContain("слово · 🇬🇧");
-    expect(result).not.toContain("word · 🇬🇧");
+    expect(result).not.toContain("слово ·");
+    expect(result).not.toContain("word ·");
+  });
+
+  it("keeps the saved source examples off the front — they carry the answer", () => {
+    const result = renderFlashCardFront(sampleWord, 1, 10, "en");
+    expect(result).not.toContain("This apple is sweet.");
+    expect(result).not.toContain("Это яблоко сладкое.");
   });
 
   it("does NOT contain translation text", () => {
@@ -215,7 +226,7 @@ describe("buildFlashCardBackKeyboard", () => {
 
 describe("buildFlashCardDoneKeyboard", () => {
   it("has fc:restart and fc:close buttons", () => {
-    const kb = buildFlashCardDoneKeyboard("en");
+    const kb = buildFlashCardDoneKeyboard("en", { showProgress: false });
     const data = JSON.stringify(kb);
     expect(data).toContain("fc:restart");
     expect(data).toContain("fc:close");

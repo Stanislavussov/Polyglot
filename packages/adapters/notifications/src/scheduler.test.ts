@@ -33,7 +33,8 @@ const { mockLogger } = vi.hoisted(() => ({
   },
 }));
 
-vi.mock("@polyglot/core", () => ({
+vi.mock("@polyglot/core", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@polyglot/core")>()),
   getLogger: vi.fn(() => mockLogger),
 }));
 
@@ -98,8 +99,10 @@ function buildSchedulerDeps(overrides: Partial<SchedulerDeps> = {}): SchedulerDe
     getInactiveUsers: vi.fn().mockResolvedValue([]),
     disableNotifications: vi.fn().mockResolvedValue(undefined),
     getSentWordsSince: vi.fn().mockResolvedValue([]),
+    getLastSentWord: vi.fn().mockResolvedValue(null),
     recordSentWord: vi.fn().mockResolvedValue(undefined),
     pickDictionaryWord: vi.fn().mockResolvedValue(mockDictWord),
+    pickPresetWord: vi.fn().mockResolvedValue(null),
     pickContextualWord: vi.fn().mockResolvedValue(mockDictWord),
     sendDictionaryEmptyPrompt: vi.fn().mockResolvedValue(undefined),
     t: mockT,
@@ -112,51 +115,136 @@ function buildSchedulerDeps(overrides: Partial<SchedulerDeps> = {}): SchedulerDe
 // ─────────────────────────────────────────────
 
 describe("buildNotificationPayload", () => {
-  it("builds a payload with user's preferred time", () => {
-    const payload = buildNotificationPayload(mockUser, mockDictWord, mockT);
+  it("carries the picked word through unchanged", () => {
+    const payload = buildNotificationPayload(mockUser, mockDictWord);
 
     expect(payload.hour).toBe(8);
-    expect(payload.word).toBe(mockDictWord);
-    expect(payload.message).toContain("🏠");
-    expect(payload.message).toContain("<b>house</b>");
-    expect(payload.message).toContain("From your dictionary");
-    expect(payload.message).toContain("dům");
-    expect(payload.message).toContain("Haus");
+    // Data only. Rendering — and the language order it is rendered in — belongs
+    // to the channel adapter, which derives the order from the user's settings
+    // at send time. See notification.formatter.test.ts for that guarantee.
+    expect(payload.word).toEqual(mockDictWord);
   });
 
   it("derives the hour from the current local time", () => {
     mockTemporalNow.hour = 20;
-    const payload = buildNotificationPayload(mockUser, mockDictWord, mockT);
+    const payload = buildNotificationPayload(mockUser, mockDictWord);
 
     expect(payload.hour).toBe(20);
-    expect(payload.message).toContain("From your dictionary");
     mockTemporalNow.hour = 8;
   });
 
   it("defaults to hour 8 when the timezone is invalid", () => {
     const badUser = { ...mockUser, timezone: "Invalid/TZ" };
-    const payload = buildNotificationPayload(badUser, mockDictWord, mockT);
+    const payload = buildNotificationPayload(badUser, mockDictWord);
 
     expect(payload.hour).toBe(8);
-  });
-
-  it("uses user's interface language for i18n", () => {
-    buildNotificationPayload(mockUser, mockDictWord, mockT);
-
-    expect(mockT).toHaveBeenCalledWith("notifTitle", "en");
-    expect(mockT).toHaveBeenCalledWith("notifWordFromDict", "en");
-  });
-
-  it("uses notifWordFromDict label for srs source", () => {
-    const payload = buildNotificationPayload(mockUser, mockDictWord, mockT);
-
-    expect(payload.message).toContain("From your dictionary");
   });
 });
 
 // ─────────────────────────────────────────────
 // Tests: checkAndSend
 // ─────────────────────────────────────────────
+
+describe("layered word selection", () => {
+  let mockSendFn: SendFn;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockSendFn = vi.fn().mockResolvedValue(undefined);
+  });
+
+  it("prefers the user's own dictionary and never reaches for a preset", async () => {
+    const deps = buildSchedulerDeps();
+
+    await checkAndSend(mockSendFn, deps);
+
+    expect(deps.pickPresetWord).not.toHaveBeenCalled();
+    expect(mockSendFn).toHaveBeenCalledWith(1, expect.objectContaining({ word: mockDictWord }));
+  });
+
+  it("falls back to a curated preset when the dictionary has nothing to offer", async () => {
+    const preset: SuggestedWord = {
+      original: "Backpfeifengesicht",
+      emoji: "🎯",
+      translations: { ru: "лицо, просящее кирпича" },
+      source: "preset",
+    };
+    const deps = buildSchedulerDeps({
+      pickDictionaryWord: vi.fn().mockResolvedValue(null),
+      pickPresetWord: vi.fn().mockResolvedValue(preset),
+    });
+
+    const result = await checkAndSend(mockSendFn, deps);
+
+    expect(mockSendFn).toHaveBeenCalledWith(1, expect.objectContaining({ word: preset }));
+    expect(deps.sendDictionaryEmptyPrompt).not.toHaveBeenCalled();
+    expect(result.sent).toBe(1);
+  });
+
+  it("shows the empty-dictionary prompt only when no layer can supply a word", async () => {
+    const deps = buildSchedulerDeps({
+      pickDictionaryWord: vi.fn().mockResolvedValue(null),
+      pickPresetWord: vi.fn().mockResolvedValue(null),
+    });
+
+    const result = await checkAndSend(mockSendFn, deps);
+
+    expect(deps.sendDictionaryEmptyPrompt).toHaveBeenCalledWith(1, mockUser.interfaceLang);
+    expect(mockSendFn).not.toHaveBeenCalled();
+    expect(result.sent).toBe(0);
+  });
+
+  it("excludes the previous notification's word even after it aged out of the de-dup window", async () => {
+    // A one-word dictionary would otherwise send that word every single time
+    // once the rolling window rolled over.
+    const deps = buildSchedulerDeps({
+      getSentWordsSince: vi.fn().mockResolvedValue([]),
+      getLastSentWord: vi.fn().mockResolvedValue("house"),
+    });
+
+    await checkAndSend(mockSendFn, deps);
+
+    expect(deps.pickDictionaryWord).toHaveBeenCalledWith(1, ["house"]);
+  });
+
+  it("does not duplicate the last word when it is already inside the window", async () => {
+    const deps = buildSchedulerDeps({
+      getSentWordsSince: vi.fn().mockResolvedValue(["house"]),
+      getLastSentWord: vi.fn().mockResolvedValue("house"),
+    });
+
+    await checkAndSend(mockSendFn, deps);
+
+    expect(deps.pickDictionaryWord).toHaveBeenCalledWith(1, ["house"]);
+  });
+
+  it("still sends when the last-sent lookup fails, rather than dropping the notification", async () => {
+    const deps = buildSchedulerDeps({
+      getLastSentWord: vi.fn().mockRejectedValue(new Error("db down")),
+    });
+
+    const result = await checkAndSend(mockSendFn, deps);
+
+    expect(result.sent).toBe(1);
+  });
+
+  it("records a preset send under its own source, so the layers stay distinguishable in history", async () => {
+    const preset: SuggestedWord = {
+      original: "sobremesa",
+      emoji: "🎯",
+      translations: { ru: "застольная беседа" },
+      source: "preset",
+    };
+    const deps = buildSchedulerDeps({
+      pickDictionaryWord: vi.fn().mockResolvedValue(null),
+      pickPresetWord: vi.fn().mockResolvedValue(preset),
+    });
+
+    await checkAndSend(mockSendFn, deps);
+
+    expect(deps.recordSentWord).toHaveBeenCalledWith(1, "sobremesa", "preset");
+  });
+});
 
 describe("checkAndSend", () => {
   let mockSendFn: SendFn;

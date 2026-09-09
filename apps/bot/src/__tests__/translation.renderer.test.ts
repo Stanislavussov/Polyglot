@@ -1,11 +1,11 @@
-import type { TopicWord, TranslateOutput } from "@polyglot/core";
+import type { TemplateFields, TranslateOutput } from "@polyglot/core";
+import { createLanguageOrderContext } from "@polyglot/core";
 import { describe, expect, it, vi } from "vitest";
 import {
   buildTranslationKeyboard,
   renderQualityWarning,
-  renderSentenceTranslation,
-  renderTopicWord,
-  renderTranslation,
+  renderSentenceTranslation as renderSentenceTranslationRaw,
+  renderTranslation as renderTranslationRaw,
 } from "../renderers/translation.renderer.js";
 
 // Mock getLangFlag from @polyglot/core
@@ -28,6 +28,42 @@ vi.mock("@polyglot/core", async () => {
     getLangFlag: vi.fn((code: string) => flagMap[code]),
   };
 });
+
+/**
+ * These cases predate language ordering and assert content, not sequence — most
+ * use a single-language fixture. They render through an empty ordering context so
+ * each call site stays unchanged; ordering itself is covered by the dedicated
+ * suites (core's translation-order tests and the per-surface order tests).
+ */
+const NO_ORDER = createLanguageOrderContext({ learningLangs: [] });
+
+const renderTranslation = (
+  output: TranslateOutput,
+  interfaceLang?: string,
+  templateFields?: TemplateFields,
+  nativeLang?: string,
+  needsReview?: boolean,
+  grammarBreakdown?: Record<string, string[]>,
+  etymology?: string,
+): string =>
+  renderTranslationRaw(
+    output,
+    NO_ORDER,
+    interfaceLang,
+    templateFields,
+    nativeLang,
+    needsReview,
+    grammarBreakdown,
+    etymology,
+  );
+
+const renderSentenceTranslation = (
+  output: TranslateOutput,
+  interfaceLang?: string,
+  nativeLang?: string,
+  needsReview?: boolean,
+  grammarBreakdown?: Record<string, string[]>,
+): string => renderSentenceTranslationRaw(output, NO_ORDER, interfaceLang, nativeLang, needsReview, grammarBreakdown);
 
 const sampleOutput: TranslateOutput = {
   original: "hello",
@@ -377,80 +413,13 @@ describe("renderTranslation", () => {
   });
 });
 
-describe("renderTopicWord", () => {
-  const sampleWord: TopicWord = {
-    original: "apple",
-    translations: {
-      cs: {
-        text: "jablko",
-        synonyms: [],
-        examples: [],
-      },
-      de: {
-        text: "Apfel",
-        synonyms: [],
-        examples: [],
-      },
-    },
-  };
-
-  it("renders original word as bold header", () => {
-    const result = renderTopicWord(sampleWord);
-    expect(result).toContain("<b>apple</b>");
-  });
-
-  it("renders translations with language flags from DB", () => {
-    const result = renderTopicWord(sampleWord);
-    expect(result).toContain("🇨🇿 CS: <b>jablko</b>");
-    expect(result).toContain("🇩🇪 DE:");
-  });
-
-  it("falls back to 🔤 in topic word when getLangFlag returns undefined", () => {
-    const unknownWord: TopicWord = {
-      original: "test",
-      translations: {
-        zz: {
-          text: "test",
-          synonyms: [],
-          examples: [],
-        },
-      },
-    };
-    const result = renderTopicWord(unknownWord);
-    expect(result).toContain("🔤 ZZ:");
-  });
-
-  it("renders translation text without transcription", () => {
-    const result = renderTopicWord(sampleWord);
-    expect(result).toContain("🇨🇿 CS: <b>jablko</b>");
-    expect(result).toContain("🇩🇪 DE: <b>Apfel</b>");
-    expect(result).not.toContain("[");
-  });
-
-  it("escapes HTML in word text", () => {
-    const xssWord: TopicWord = {
-      original: "<b>bad</b>",
-      translations: {
-        cs: {
-          text: "špatný & zlý",
-          synonyms: [],
-          examples: [],
-        },
-      },
-    };
-    const result = renderTopicWord(xssWord);
-    expect(result).toContain("&lt;b&gt;bad&lt;/b&gt;");
-    expect(result).toContain("špatný &amp; zlý");
-  });
-});
-
 describe("buildTranslationKeyboard", () => {
   const cbData = (btn: unknown): string | undefined => (btn as { callback_data?: string }).callback_data;
   const lastRow = (kb: ReturnType<typeof buildTranslationKeyboard>) =>
     kb.inline_keyboard[kb.inline_keyboard.length - 1]!;
 
   it("has clarify and other meaning buttons in the first row", () => {
-    const kb = buildTranslationKeyboard("en", 42);
+    const kb = buildTranslationKeyboard({ interfaceLang: "en", msgId: 42 });
     const actionRow = kb.inline_keyboard[0]!;
     expect(actionRow).toHaveLength(2);
     expect(cbData(actionRow[0])).toBe("tr:clarifypost:42");
@@ -458,38 +427,48 @@ describe("buildTranslationKeyboard", () => {
   });
 
   it("renames the clarify button to 'Clarify meaning'", () => {
-    const kb = buildTranslationKeyboard("en", 42);
+    const kb = buildTranslationKeyboard({ interfaceLang: "en", msgId: 42 });
     const clarifyBtn = kb.inline_keyboard[0]![0]!;
     expect(clarifyBtn.text).toContain("Clarify meaning");
   });
 
   it("uses 'Уточнить значение' for the clarify button in ru locale", () => {
-    const kb = buildTranslationKeyboard("ru", 42);
+    const kb = buildTranslationKeyboard({ interfaceLang: "ru", msgId: 42 });
     const clarifyBtn = kb.inline_keyboard[0]![0]!;
     expect(clarifyBtn.text).toContain("Уточнить значение");
   });
 
   it("pins the save button to the last row", () => {
-    const kb = buildTranslationKeyboard("en", 42);
+    const kb = buildTranslationKeyboard({ interfaceLang: "en", msgId: 42 });
     const saveRow = lastRow(kb);
     expect(saveRow).toHaveLength(1);
     expect(cbData(saveRow[0])).toBe("tr:save:42");
   });
 
   it("keeps save last even with grammar and etymology rows present", () => {
-    const kb = buildTranslationKeyboard("en", 42, false, true, false, true);
+    const kb = buildTranslationKeyboard({
+      interfaceLang: "en",
+      msgId: 42,
+      showGrammarButton: true,
+      showEtymologyButton: true,
+    });
     const saveRow = lastRow(kb);
     expect(saveRow).toHaveLength(1);
     expect(cbData(saveRow[0])).toBe("tr:save:42");
   });
 
   it("has exactly 2 rows when no learning aids are shown", () => {
-    const kb = buildTranslationKeyboard("en", 42);
+    const kb = buildTranslationKeyboard({ interfaceLang: "en", msgId: 42 });
     expect(kb.inline_keyboard).toHaveLength(2);
   });
 
   it("places grammar and etymology together on a shared row", () => {
-    const kb = buildTranslationKeyboard("en", 42, false, true, false, true);
+    const kb = buildTranslationKeyboard({
+      interfaceLang: "en",
+      msgId: 42,
+      showGrammarButton: true,
+      showEtymologyButton: true,
+    });
     const aidRow = kb.inline_keyboard[1]!;
     expect(aidRow).toHaveLength(2);
     expect(cbData(aidRow[0])).toBe("tr:grammar:42");
@@ -497,7 +476,7 @@ describe("buildTranslationKeyboard", () => {
   });
 
   it("shows the etymology button alone when grammar is hidden (single word)", () => {
-    const kb = buildTranslationKeyboard("en", 42, false, false, false, true);
+    const kb = buildTranslationKeyboard({ interfaceLang: "en", msgId: 42, showEtymologyButton: true });
     const aidRow = kb.inline_keyboard[1]!;
     expect(aidRow).toHaveLength(1);
     expect(cbData(aidRow[0])).toBe("tr:etymology:42");
@@ -506,50 +485,50 @@ describe("buildTranslationKeyboard", () => {
   });
 
   it("shows disabled save button when isAlreadySaved is true", () => {
-    const kb = buildTranslationKeyboard("en", 0, true);
+    const kb = buildTranslationKeyboard({ interfaceLang: "en", msgId: 0, isAlreadySaved: true });
     const saveBtn = lastRow(kb)[0]!;
     expect(saveBtn.text).toContain("Saved");
     expect(cbData(saveBtn)).toBe("tr:save:0");
   });
 
   it("shows active save button when isAlreadySaved is false", () => {
-    const kb = buildTranslationKeyboard("en", 0, false);
+    const kb = buildTranslationKeyboard({ interfaceLang: "en", msgId: 0, isAlreadySaved: false });
     const saveBtn = lastRow(kb)[0]!;
     expect(saveBtn.text).toContain("Save");
     expect(cbData(saveBtn)).toBe("tr:save:0");
   });
 
   it("falls back to en for unknown interface language", () => {
-    const kb = buildTranslationKeyboard("xx");
+    const kb = buildTranslationKeyboard({ interfaceLang: "xx" });
     const saveBtn = lastRow(kb)[0]!;
     expect(saveBtn.text).toContain("Save");
   });
 
   it("uses Russian labels for ru locale", () => {
-    const kb = buildTranslationKeyboard("ru", 0);
+    const kb = buildTranslationKeyboard({ interfaceLang: "ru", msgId: 0 });
     const saveBtn = lastRow(kb)[0]!;
     expect(saveBtn.text).toContain("Сохранить");
   });
 
   it("defaults msgId to 0 when not provided", () => {
-    const kb = buildTranslationKeyboard("en");
+    const kb = buildTranslationKeyboard({ interfaceLang: "en" });
     expect(cbData(lastRow(kb)[0])).toBe("tr:save:0");
   });
 
   it("omits the source-override rows when no override languages are given", () => {
-    const kb = buildTranslationKeyboard("en", 42);
+    const kb = buildTranslationKeyboard({ interfaceLang: "en", msgId: 42 });
     const hasOverride = kb.inline_keyboard.some((row) => row.some((b) => cbData(b)?.startsWith("tr:srclang:")));
     expect(hasOverride).toBe(false);
   });
 
   it("omits the source-override rows when the override language list is empty", () => {
-    const kb = buildTranslationKeyboard("en", 42, false, false, false, false, []);
+    const kb = buildTranslationKeyboard({ interfaceLang: "en", msgId: 42, sourceOverrideLangs: [] });
     const hasOverride = kb.inline_keyboard.some((row) => row.some((b) => cbData(b)?.startsWith("tr:srclang:")));
     expect(hasOverride).toBe(false);
   });
 
   it("renders a 'translate from' header and one flag button per override language", () => {
-    const kb = buildTranslationKeyboard("en", 42, false, false, false, false, ["de", "fr"]);
+    const kb = buildTranslationKeyboard({ interfaceLang: "en", msgId: 42, sourceOverrideLangs: ["de", "fr"] });
     const flat = kb.inline_keyboard.flat();
     // The header is a non-actionable NOOP button labelled from the interface locale.
     const header = flat.find((b) => cbData(b) === "noop");
@@ -559,14 +538,53 @@ describe("buildTranslationKeyboard", () => {
   });
 
   it("keeps the save button last even with the source-override rows present", () => {
-    const kb = buildTranslationKeyboard("en", 42, false, false, false, false, ["de", "fr"]);
+    const kb = buildTranslationKeyboard({ interfaceLang: "en", msgId: 42, sourceOverrideLangs: ["de", "fr"] });
     const saveRow = lastRow(kb);
     expect(saveRow).toHaveLength(1);
     expect(cbData(saveRow[0])).toBe("tr:save:42");
   });
 
+  it("badges buttons the plan does not include, leaving their callback data untouched", () => {
+    const free = buildTranslationKeyboard({
+      interfaceLang: "en",
+      msgId: 42,
+      showGrammarButton: true,
+      showEtymologyButton: true,
+      locked: new Set(["clarification", "grammarBreakdown", "etymology"]),
+    });
+    const paid = buildTranslationKeyboard({
+      interfaceLang: "en",
+      msgId: 42,
+      showGrammarButton: true,
+      showEtymologyButton: true,
+    });
+
+    // Same buttons, same data — a badged card keeps working after an upgrade,
+    // and the tap is decided server-side either way.
+    expect(free.inline_keyboard.flat().map(cbData)).toEqual(paid.inline_keyboard.flat().map(cbData));
+    expect(free.inline_keyboard[0]!.map((b) => b.text.endsWith("⭐"))).toEqual([true, true]);
+    expect(free.inline_keyboard[1]!.map((b) => b.text.endsWith("⭐"))).toEqual([true, true]);
+    // Save is free for everyone and must never be badged.
+    expect(lastRow(free)[0]!.text).not.toContain("⭐");
+  });
+
+  it("leaves every button unbadged when nothing is locked", () => {
+    const kb = buildTranslationKeyboard({
+      interfaceLang: "en",
+      msgId: 42,
+      showGrammarButton: true,
+      showEtymologyButton: true,
+      locked: new Set(),
+    });
+    expect(kb.inline_keyboard.flat().some((b) => b.text.includes("⭐"))).toBe(false);
+  });
+
   it("wraps override flag buttons into rows of at most four", () => {
-    const kb = buildTranslationKeyboard("en", 42, false, false, false, false, ["de", "fr", "es", "it", "pl"]);
+    const kb = buildTranslationKeyboard({
+      interfaceLang: "en",
+      msgId: 42,
+      sourceOverrideLangs: ["de", "fr", "es", "it", "pl"],
+    });
     const flagRows = kb.inline_keyboard.filter((row) => row.every((b) => cbData(b)?.startsWith("tr:srclang:")));
     expect(flagRows[0]).toHaveLength(4);
     expect(flagRows[1]).toHaveLength(1);
@@ -776,28 +794,6 @@ describe("renderTranslation — idiomatic equivalents", () => {
     const result = renderTranslation(mixedOutput, "en");
     expect(result).toContain("<b>No pain, no gain</b>");
     expect(result).toContain("<b>sans travail pas de gâteau</b>");
-  });
-});
-
-describe("renderTopicWord — idiomatic equivalents", () => {
-  it("renders topic word with idiomatic fields transparently", () => {
-    const idiomaticWord: TopicWord = {
-      original: "The early bird catches the worm",
-      translations: {
-        cs: {
-          text: "Ranní ptáče dál doskáče",
-          expressionType: "idiomatic_equivalent",
-          equivalentNote: "Czech proverb with same meaning",
-          synonyms: [],
-          examples: [],
-        },
-      },
-    };
-    const result = renderTopicWord(idiomaticWord);
-    expect(result).toContain("<b>The early bird catches the worm</b>");
-    expect(result).toContain("<b>Ranní ptáče dál doskáče</b>");
-    expect(result).not.toContain("idiomatic_equivalent");
-    expect(result).not.toContain("equivalentNote");
   });
 });
 

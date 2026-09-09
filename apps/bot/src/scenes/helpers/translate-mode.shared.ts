@@ -5,9 +5,19 @@
  * they live here and are imported directly — this is a plain helper module, not
  * a barrel (CLAUDE.md Hard Rule #4).
  */
-import { getLanguageName, type InputType, logger, type SupportedLang, t } from "@polyglot/core";
+import {
+  getLanguageName,
+  type InputType,
+  type LanguageOrderContext,
+  logger,
+  type SpeakableCard,
+  type SupportedLang,
+  selectPronounceableLangs,
+  t,
+} from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import type { BotContext } from "../../types.js";
+import { setPendingOutOfSet } from "./pending-out-of-set.helper.js";
 
 /**
  * Whether the Etymology button should be offered for this translation.
@@ -18,6 +28,27 @@ import type { BotContext } from "../../types.js";
  */
 export function isEtymologyEligible(inputType: InputType, sourceLang: string, nativeLang: string): boolean {
   return (inputType === "word" || inputType === "phrase") && sourceLang !== nativeLang;
+}
+
+/**
+ * Languages on this card that get a 🔊 button, or an empty list when there are
+ * none to offer.
+ *
+ * Returns empty — so no row is rendered at all — whenever TTS is off or has no
+ * model configured, and for sentence cards, which are out of scope for v1
+ * (Task 77). Everything else is the "every word that is not native" rule, which
+ * lives in core as {@link selectPronounceableLangs}.
+ */
+export async function resolvePronounceLangs(
+  ctx: BotContext,
+  card: SpeakableCard,
+  inputType: InputType,
+  order: LanguageOrderContext,
+): Promise<readonly string[]> {
+  if (inputType === "sentence") return [];
+  const config = await ctx.services.settings.getTtsConfig();
+  if (!config.enabled || !config.modelId) return [];
+  return selectPronounceableLangs(card, order);
 }
 
 export function normalizeLearningLangs(nativeLang: string, learningLangs: readonly string[]): string[] {
@@ -60,11 +91,12 @@ export async function showAddLanguagePrompt(
     .row()
     .text(t("mistypeCancel", lang), "tr:oos:cancel");
 
-  const promptMsg = await ctx.reply(t("outOfSetPrompt", lang, { lang: langName }), { reply_markup: keyboard });
+  const promptMsg = await ctx.reply(t("outOfSetPrompt", lang, { lang: langName }), {
+    reply_markup: keyboard,
+  });
 
   // Key the pending word by the prompt's message id so a later prompt cannot
-  // overwrite this one's word (single-slot race, T02).
-  const store = ctx.session.pendingOutOfSet ?? {};
-  store[String(promptMsg.message_id)] = { lang: outOfSetLang, word, contextHint };
-  ctx.session.pendingOutOfSet = store;
+  // overwrite this one's word (single-slot race, T02). Capped: entries are only
+  // removed on a button tap, so ignored prompts would otherwise pile up forever.
+  setPendingOutOfSet(ctx.session, promptMsg.message_id, { lang: outOfSetLang, word, contextHint });
 }

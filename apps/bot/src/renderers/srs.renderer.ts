@@ -1,15 +1,25 @@
 import type { SrsDueVocabularyCard, SupportedLang } from "@polyglot/core";
 import { getLangFlag, getLanguageName, isSupported, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
-import { formatInputType } from "./input-type-label.js";
-import { renderCompactSourceExample } from "./source-usage.renderer.js";
-
-function esc(text: string): string {
-  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-}
+import { PROGRESS_SRS_DONE_CALLBACK } from "../momentum/progress.command.js";
+import { esc } from "./card-sections.js";
+import { citationOnly, renderWordCard } from "./word-card.js";
 
 function toLang(lang?: string): SupportedLang {
   return lang && isSupported(lang) ? lang : "en";
+}
+
+/**
+ * Progress plus the recall direction. The direction is not decoration: the same
+ * word is reviewed once per target language, so the card has to say which one is
+ * being asked for.
+ */
+function chromeLines(targetLangCode: string, current: number, total: number, lang: SupportedLang): string[] {
+  const targetFlag = getLangFlag(targetLangCode) ?? "🔤";
+  return [
+    esc(t("srsProgress", lang, { current, total })),
+    `<i>→ ${targetFlag} ${esc(getLanguageName(targetLangCode))}</i>`,
+  ];
 }
 
 export function renderSrsFront(
@@ -20,19 +30,20 @@ export function renderSrsFront(
   total: number,
   lang: SupportedLang,
 ): string {
-  const sourceFlag = getLangFlag(sourceLangCode) ?? "🔤";
-  const targetFlag = getLangFlag(targetLangCode) ?? "🔤";
-  const targetName = getLanguageName(targetLangCode);
-  const lines = [
-    esc(t("srsProgress", lang, { current, total })),
-    "",
-    `${esc(card.emoji ?? "🔤")} <b>${esc(card.original)}</b>`,
-  ];
-  if (card.nativeMeaning) {
-    lines.push(esc(card.nativeMeaning));
-  }
-  lines.push(`<i>${esc(formatInputType(card.inputType, lang))} · ${sourceFlag} → ${targetFlag} ${esc(targetName)}</i>`);
-  return lines.join("\n");
+  // No saved source usage on the front — its examples carry native translations,
+  // which is the answer being asked for.
+  const front = renderWordCard(
+    {
+      original: card.original,
+      emoji: card.emoji,
+      sourceLang: sourceLangCode,
+      nativeMeaning: card.nativeMeaning,
+      sourceUsage: citationOnly(card.sourceUsage),
+      langs: [],
+    },
+    lang,
+  );
+  return [...chromeLines(targetLangCode, current, total, lang), "", front].join("\n");
 }
 
 export function renderSrsBack(
@@ -43,34 +54,31 @@ export function renderSrsBack(
   total: number,
   lang: SupportedLang,
 ): string {
-  const lines = [renderSrsFront(card, sourceLangCode, targetLangCode, current, total, lang), ""];
-
-  const sourceExample = renderCompactSourceExample(sourceLangCode, card.sourceUsage);
-  if (sourceExample) {
-    lines.push(sourceExample, "");
-  }
-
-  lines.push(`${getLangFlag(targetLangCode) ?? "🔤"} ${esc(targetLangCode.toUpperCase())}: <b>${esc(card.text)}</b>`);
-
-  if (card.usageNote) {
-    lines.push(`💡 ${esc(card.usageNote)}`);
-  }
-
-  if (card.connotationWarning) {
-    lines.push(`⚠️ ${esc(card.connotationWarning)}`);
-  }
-
-  if (card.details?.examples && card.details.examples.length > 0) {
-    const example = card.details.examples[0];
-    if (example) {
-      const native = example.native ? ` (${esc(example.native)})` : "";
-      lines.push(`💬 <i>${esc(example.target)}</i>${native}`);
-    }
-  }
-
-  lines.push("");
-  lines.push(esc(t("srsChooseRating", lang)));
-  return lines.join("\n");
+  const back = renderWordCard(
+    {
+      original: card.original,
+      emoji: card.emoji,
+      sourceLang: sourceLangCode,
+      nativeMeaning: card.nativeMeaning,
+      sourceUsage: card.sourceUsage,
+      langs: [
+        {
+          code: targetLangCode,
+          text: card.text,
+          synonyms: card.details?.synonyms,
+          examples: card.details?.examples,
+          usageNote: card.usageNote,
+          connotationWarning: card.connotationWarning,
+        },
+      ],
+      // The reader is recalling the target language, so that block is the answer.
+      answerLang: targetLangCode,
+    },
+    lang,
+  );
+  return [...chromeLines(targetLangCode, current, total, lang), "", back, "", esc(t("srsChooseRating", lang))].join(
+    "\n",
+  );
 }
 
 export function buildSrsFrontKeyboard(lang: SupportedLang): InlineKeyboard {
@@ -90,7 +98,12 @@ export function buildSrsBackKeyboard(lang: SupportedLang): InlineKeyboard {
     .text(t("srsQuitBtn", l), "srs:quit");
 }
 
-export function buildSrsDoneKeyboard(lang: SupportedLang): InlineKeyboard {
+/** The 📈 screen renders nothing while the kill switch is off, so the switch gates the button too — not just the handler. */
+export function buildSrsDoneKeyboard(lang: SupportedLang, options: { showProgress: boolean }): InlineKeyboard {
   const l = toLang(lang);
-  return new InlineKeyboard().text(t("srsNewSessionBtn", l), "srs:restart").text(t("srsClose", l), "srs:close");
+  const kb = new InlineKeyboard().text(t("srsNewSessionBtn", l), "srs:restart").text(t("srsClose", l), "srs:close");
+  // Own row: a third button beside these two makes Telegram squeeze all three
+  // captions to unreadable width (Task 81 §6, Slice 2).
+  if (options.showProgress) kb.row().text(t("progressButton", l), PROGRESS_SRS_DONE_CALLBACK);
+  return kb;
 }

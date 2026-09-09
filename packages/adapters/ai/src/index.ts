@@ -31,5 +31,7 @@ export {
   type AIModelPriceProvider,
   setAIModelPriceProvider,
 } from "./model-price.js";
+export { type GeneratedSpeech, type GenerateSpeechOptions, generateSpeech } from "./speech.js";
 export { type AIRequestTimeoutProvider, setAIRequestTimeoutProvider } from "./timeout.js";
+export { type TranscribeAudioOptions, type TranscribedAudio, transcribeAudio } from "./transcribe.js";
 export type { AIModel, AIRequestLog, AIRequestMetricSink, GenerateOptions } from "./types.js";

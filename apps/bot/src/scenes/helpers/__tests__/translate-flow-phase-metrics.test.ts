@@ -130,6 +130,7 @@ vi.mock("@polyglot/infra", () => ({
 
 import { translateWithContext } from "@polyglot/core";
 import { TRANSLATION_PHASES, translationPhaseDuration } from "../../../metrics.js";
+import { createSettingsStub } from "../../../test-helpers/services-stub.js";
 import type { BotContext, SessionData } from "../../../types.js";
 import { LONG_OP_TIMEOUT_MS, TRANSLATION_BUDGET_MS } from "../../../utils/long-op.js";
 import { handleMistypeConfirmCallback, handleTranslateText } from "../translate-flow.js";
@@ -191,19 +192,9 @@ function createMockCtx(): BotContext {
       requestTimingRepository: { record: vi.fn().mockResolvedValue(undefined) },
       contextLookup: mockLookupContext,
       wordLanguageSweep: vi.fn().mockResolvedValue([]),
-      settings: {
-        getPlanLimit: () =>
-          Promise.resolve({
-            name: "free",
-            label: "Free",
-            translationLimit: 50,
-            creditCost: 1,
-            isActive: true,
-            isDefault: true,
-          }),
-      },
       languageCache: mockLanguageCache,
       ai: mockAi,
+      settings: createSettingsStub(),
     },
   } as unknown as BotContext;
 }

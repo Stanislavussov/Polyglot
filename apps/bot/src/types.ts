@@ -39,10 +39,12 @@ export interface SessionData {
   /** Message ID of the card showing the pending translation */
   pendingCardMsgId?: number;
   /**
-   * Explicit source language for the next translation (Task 17).
-   * When set, skips auto-detection and uses this language as source.
-   * null/undefined = auto-detect (default behavior via Task 16).
-   * Session-only — does not persist across bot restarts.
+   * Explicit source language override for the next translation (Task 17).
+   * Vestigial: the simplified detection of Task 58 stopped consulting it, and
+   * no production path reads it today; both remaining writes set it to null
+   * (the initial session, and onboarding handing over to translate mode). It
+   * stays in the shape for backward compatibility with already-persisted
+   * session rows, where it lives in `bot_sessions.data` like every other field.
    */
   nextSourceLang?: string | null;
   /**
@@ -74,6 +76,23 @@ export interface SessionData {
     }
   >;
   /**
+   * What each translation card was *about*, keyed by the same message id as
+   * {@link SessionData.translationMap}. A card's full state is heavy and capped
+   * at 30 entries, so a button in chat history usually outlives it; this map
+   * holds only the input string, which is small enough to keep for far more
+   * cards. It is what lets an expired card still offer a one-tap re-translate
+   * instead of a dead end (see `answerStaleCallback`).
+   */
+  cardWords?: Record<
+    string,
+    {
+      word: string;
+      contextHint?: string;
+      /** Monotonic insertion stamp used for recency-based eviction. */
+      addedAt?: number;
+    }
+  >;
+  /**
    * Last translation output — stored for regen (both words and sentences).
    * Separate from pendingTranslation which is for Save/Skip only.
    * @deprecated Use translationMap instead for per-message state.
@@ -101,6 +120,12 @@ export interface SessionData {
    * Cleared after the reminder is shown once.
    */
   needsTranslateReminder?: boolean;
+  /**
+   * Version of the persistent main-menu reply keyboard this chat has received.
+   * `undefined` means the keyboard was never sent, so `mainKeyboardMiddleware`
+   * delivers it with a one-time hint. Compared against MAIN_KEYBOARD_VERSION.
+   */
+  mainKeyboardVersion?: number;
   /**
    * Template constructor wizard state (Task 32).
    * Set when user enters the template customization flow.
@@ -180,6 +205,29 @@ export interface SessionData {
       lang: string;
       word: string;
       contextHint?: string;
+      /** Monotonic insertion stamp used for recency-based eviction. */
+      addedAt?: number;
+    }
+  >;
+  /**
+   * Pending "🔄 Try again" actions, keyed by the message id of the timeout
+   * notice that carries the button (mirrors {@link SessionData.translationMap}).
+   * A timeout notice cannot carry its input in `callback_data` (64-byte cap), so
+   * the payload lives here; entries are one-shot and capped by
+   * `setRetryAction`. An entry lost to a restart or eviction resolves to the
+   * usual "session expired" guard.
+   */
+  pendingRetries?: Record<
+    string,
+    {
+      /** Which flow to re-run: the translate text flow or a mentor turn. */
+      kind: "translate" | "mentor";
+      /** The original user input, verbatim as the flow's entry point takes it. */
+      text: string;
+      /** Mentor only: the thread the timed-out turn belonged to, so a retried reply-continuation lands in the same thread. */
+      threadId?: string;
+      /** Monotonic insertion stamp used for recency-based eviction. */
+      addedAt?: number;
     }
   >;
   /** True when the next text message should be used as translation context clarification. */
@@ -214,22 +262,28 @@ export interface SessionData {
     deck: SrsDueVocabularyCard[];
     currentIndex: number;
     cardMsgId?: number;
+    /**
+     * Praise evidence accumulated by this session, for the line on `srsDone`
+     * (momentum §2.2 S2). Primitives only: the session is jsonb, so anything
+     * key-ordered comes back reordered — the word itself is looked up in `deck`
+     * by this id at render time rather than carried alongside it.
+     */
+    maturedTranslationId?: number;
+    /** A card the user had graded "hard" was answered good or easy in this session. */
+    hardRecalled?: boolean;
   };
   /**
-   * Mentor mode conversation history (Task 66).
-   * Stores the chat messages between user and AI mentor.
-   * Session-only — does not persist across bot restarts.
-   * The active mode itself persists in DB; history resets on restart.
-   * Cleared when the user re-enters /mentor.
+   * Mentor mode state (Task 66, reply-threads MVP).
+   * History lives in `mentor_messages` (DB), NOT here — the session only pins
+   * which thread a plain message in mentor mode continues. An empty object is
+   * meaningful: it marks a fresh `/mentor` entry, so a missing `mentor` field
+   * (session loss) is the only state that triggers latest-thread recovery from
+   * the DB. Legacy sessions may still carry a `history` array — ignored and
+   * overwritten on the next mentor turn.
    */
   mentor?: {
-    history: Array<{ role: "user" | "assistant"; content: string }>;
+    threadId?: string;
   };
-  /**
-   * Technical message IDs to delete after scene ends or settings change.
-   * Translation cards and user words are never added here.
-   */
-  technicalMessages?: number[];
 }
 
 /** Custom context properties injected by auth middleware */
@@ -243,6 +297,13 @@ export interface CustomContextProps {
    * never via `ctx.user.settings`, which is always `undefined`.
    */
   settingsMemo?: { userId: number; promise: Promise<UserLanguageSettings | null> };
+  /**
+   * Names of the handlers that consumed this update, in order. Populated by
+   * `withHandlerLog`/`markHandled` (observability/handler-log.ts) and reported
+   * on the closing `update.finished` record; an empty chain means no route
+   * matched, which is logged as `update.unhandled`.
+   */
+  handledBy?: string[];
 }
 
 /** Context type used in the outside middleware tree (has ConversationFlavor + Session) */

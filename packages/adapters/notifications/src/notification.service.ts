@@ -9,7 +9,26 @@ import type {
   DictionaryWordPickerDeps,
   NotificationServiceDeps,
   SuggestedWord,
+  VocabEntry,
 } from "./types.js";
+
+/** How much more often a "hard"-rated word is picked than a normal/unrated one. */
+const HARD_WEIGHT = 3;
+
+/**
+ * Weighted lottery over the candidate pool: "hard" entries carry {@link HARD_WEIGHT}
+ * tickets, everything else one. Uniform when nothing is rated.
+ */
+function pickWeighted(pool: VocabEntry[]): VocabEntry {
+  const weights = pool.map((e) => (e.difficulty === "hard" ? HARD_WEIGHT : 1));
+  const total = weights.reduce((sum, w) => sum + w, 0);
+  let roll = Math.random() * total;
+  for (let i = 0; i < pool.length; i++) {
+    roll -= weights[i]!;
+    if (roll < 0) return pool[i]!;
+  }
+  return pool[pool.length - 1]!;
+}
 
 /**
  * Dictionary word picker — selects a word from the user's saved vocabulary.
@@ -42,13 +61,20 @@ export function createDictionaryWordPicker(deps: DictionaryWordPickerDeps) {
       return null;
     }
 
-    const filtered = verified.filter((e) => !recentWords.includes(e.original));
-    if (filtered.length === 0) {
-      logger.info({ userId }, "pickDictionaryWord: all words recently sent — picking from full set");
+    const candidates = verified.filter((e) => !recentWords.includes(e.original));
+    if (candidates.length === 0) {
+      // Exhausted, not empty. Repeating a word the user just saw is what makes a
+      // reminder feel like spam, so the dictionary declines and the caller falls
+      // through to the curated preset layer instead.
+      logger.info({ userId }, "pickDictionaryWord: every word was recently sent — deferring to the preset layer");
+      return null;
     }
 
-    const candidates = filtered.length > 0 ? filtered : verified;
-    const entry = candidates[Math.floor(Math.random() * candidates.length)]!;
+    // Words the user marked "easy" (I know it) stay out of rotation until every
+    // hard/normal word is exhausted — then they return as a last resort before
+    // the preset layer takes over.
+    const inRotation = candidates.filter((e) => e.difficulty !== "easy");
+    const entry = pickWeighted(inRotation.length > 0 ? inRotation : candidates);
 
     let entryTranslations = entry.translations;
 
@@ -85,9 +111,13 @@ export function createDictionaryWordPicker(deps: DictionaryWordPickerDeps) {
       return null;
     }
 
+    const sourceLang = entry.sourceLangId === undefined ? undefined : deps.getLangCode(entry.sourceLangId);
+
     return {
       original: entry.original,
+      ...(entry.headword?.trim() ? { headword: entry.headword } : {}),
       emoji: entry.emoji ?? "📖",
+      ...(sourceLang ? { sourceLang } : {}),
       nativeMeaning: entry.nativeMeaning ?? undefined,
       translations,
       ...(Object.keys(translationDetails).length > 0 ? { translationDetails } : {}),
@@ -141,6 +171,9 @@ export function createContextualWordPicker(deps: ContextualWordPickerDeps) {
       return {
         original: sentence,
         emoji: "🎯",
+        // `buildContextSentencePrompt` writes the sentence in the first language
+        // it is given, so that is the language of `original`.
+        ...(allLangs[0] ? { sourceLang: allLangs[0] } : {}),
         translations,
         source: "contextual" as const,
       };

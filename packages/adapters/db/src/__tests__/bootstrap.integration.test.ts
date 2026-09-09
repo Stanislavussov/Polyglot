@@ -13,13 +13,16 @@
  *   a matching default plan row, entitlement resolution has no limits to apply.
  * - `plan_feature_access` — paid plans gate premium features through this
  *   junction; missing rows silently disable grammar/etymology for paid users.
+ * - `ai_models` — model ids live only in this table now. With no enabled row
+ *   flagged default, `resolveDefaultAIModel` has nothing to resolve and every AI
+ *   call throws `AIModelNotConfiguredError`.
  *
- * (`ai_models`, `system_settings`, and `translation_presets` are deliberately
- * NOT asserted: code falls back to hardcoded defaults when they are empty.)
+ * (`system_settings` and `translation_presets` are deliberately NOT asserted:
+ * code falls back to hardcoded defaults when they are empty.)
  */
 import { describe, expect, it } from "vitest";
 import { getDb } from "../connection.js";
-import { languages, planFeatureAccess, rateLimitPlans } from "../schema.js";
+import { aiModels, languages, planFeatureAccess, rateLimitPlans } from "../schema.js";
 
 describe("fresh-DB bootstrap (integration)", () => {
   it("migrations seeded the languages reference table", async () => {
@@ -60,5 +63,17 @@ describe("fresh-DB bootstrap (integration)", () => {
       );
     }
     expect(byPlan.has("free")).toBe(false);
+  });
+
+  it("bootstrap seed left a resolvable default AI model", async () => {
+    const models = await getDb().select().from(aiModels);
+    expect(models.length).toBeGreaterThanOrEqual(1);
+
+    // `findDefault` takes the first row flagged default and the bot calls it
+    // directly, so the role must be held by exactly one row — and by an enabled
+    // one, since a disabled model is one the bot is not allowed to call.
+    const defaults = models.filter((model) => model.isDefault);
+    expect(defaults).toHaveLength(1);
+    expect(defaults[0]?.isEnabled).toBe(true);
   });
 });

@@ -1,3 +1,4 @@
+import type { MotivationConfig } from "../modules/momentum/momentum.types.js";
 import type { AIModel } from "./ai.port.js";
 import type { SubscriptionPlan } from "./user.repository.js";
 
@@ -13,6 +14,10 @@ export interface PlanLimitConfig {
   /** Max video analyses within `videoWindow`. null = unlimited */
   videoLimit: number | null;
   videoWindow: VideoWindow;
+  /** Max mentor turns per day (UTC window). null = unlimited */
+  mentorDailyLimit: number | null;
+  /** Display price in US cents for the upgrade screen. null = not for sale. */
+  priceUsdCents: number | null;
   isActive: boolean;
   isDefault: boolean;
 }
@@ -71,18 +76,78 @@ export interface VideoVocabularyConfig {
   extractionModelId: string;
 }
 
+/**
+ * Text-to-speech settings for the pronunciation button on translation cards.
+ *
+ * `modelId` lives here rather than in a constant for the reason Task 73 records:
+ * a hardcoded slug OpenRouter rejects is unfixable without a redeploy. An empty
+ * `modelId` is treated the same as `enabled: false` — there is nothing to call.
+ */
+export interface TtsConfig {
+  /** Master switch. The pronunciation button is not rendered when false. */
+  enabled: boolean;
+  /** OpenRouter speech model id, e.g. "google/gemini-3.1-flash-tts-preview". */
+  modelId: string;
+  /** Voice name for models that expose one; empty string when the model has none. */
+  voice: string;
+  /** Hard cap on characters sent for synthesis. Longer text is refused, not truncated. */
+  maxChars: number;
+}
+
+/**
+ * Speech-to-text settings for voice message translation (Task 80).
+ *
+ * Mirrors `TtsConfig`'s empty-model-means-disabled convention: `modelId` lives
+ * here rather than a constant so a bad slug is fixable without a redeploy, and an
+ * empty `modelId` means the same thing as `enabled: false` (see
+ * `pronunciation.service.ts:74` for the same rule on the TTS side).
+ */
+export interface SttConfig {
+  /** Master switch. Voice message handling is not offered when false. */
+  enabled: boolean;
+  /** OpenRouter speech-to-text model id. Empty string = feature disabled. */
+  modelId: string;
+  /** Hard cap on voice message duration accepted for transcription. */
+  maxDurationSec: number;
+}
+
+/**
+ * Mentor-chat settings (mentor MVP follow-up).
+ *
+ * Unlike TTS/STT, an empty `modelId` does NOT disable the feature — mentor has
+ * its own entitlement gate. Empty means "follow the regular resolution chain"
+ * (plan-routed model → global default → fallback), so wiping the field can
+ * never silently kill mentor; it just makes it answer with the default model.
+ */
+export interface MentorConfig {
+  /** OpenRouter chat model id for mentor turns. Empty string = use the default chain. */
+  modelId: string;
+  /** Max output tokens per mentor answer. */
+  maxTokens: number;
+}
+
 export interface SettingsPort {
   getPlanLimits(): Promise<PlanLimitConfig[]>;
   getPlanLimit(plan: SubscriptionPlan): Promise<PlanLimitConfig | null>;
   getAIModels(): Promise<AIModel[]>;
   getEnabledAIModels(): Promise<AIModel[]>;
-  getEnabledAIModelsForPlan(plan: SubscriptionPlan): Promise<AIModel[]>;
   getDefaultAIModel(): Promise<string | null>;
+  /** The model explicitly routed to this plan (`rate_limit_plans.ai_model_id`), or null to use the global default. */
   getDefaultAIModelForPlan(plan: SubscriptionPlan): Promise<string | null>;
+  /**
+   * Admin-chosen model the AI failover retries on after the primary fails.
+   * `null` when no enabled model carries the flag — the caller then falls back to
+   * its own emergency constant instead of skipping failover.
+   */
+  getFallbackAIModel(): Promise<string | null>;
   getAIGenerationDefaults(): Promise<AIGenerationDefaults>;
   getSrsConfig(): Promise<SrsConfig>;
   getNotificationDefaults(): Promise<NotificationDefaults>;
   getDictionaryConfig(): Promise<DictionaryConfig>;
   getTranslationPresets(): Promise<TranslationPresetConfig[]>;
   getVideoVocabularyConfig(): Promise<VideoVocabularyConfig>;
+  getTtsConfig(): Promise<TtsConfig>;
+  getSttConfig(): Promise<SttConfig>;
+  getMentorConfig(): Promise<MentorConfig>;
+  getMotivationConfig(): Promise<MotivationConfig>;
 }

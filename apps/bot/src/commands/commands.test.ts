@@ -2,39 +2,48 @@ import { describe, expect, it, vi } from "vitest";
 import { getLocalizedCommands, setUserCommands } from "./commands.js";
 
 describe("bot commands", () => {
-  it("does not expose /changes in global commands", () => {
-    const commands = getLocalizedCommands("en");
+  it("lists /menu and the categories it holds, and nothing else", () => {
+    const listed = getLocalizedCommands("en").map((command) => command.command);
 
-    expect(commands.map((command) => command.command)).not.toContain("changes");
+    expect(listed).toEqual(["start", "menu", "dictionary", "learn", "settings", "report"]);
   });
 
-  it("exposes /changes when requested for privileged audience groups", () => {
-    const commands = getLocalizedCommands("en", { includeChanges: true });
+  it("keeps the retired entry points out of the list", () => {
+    const listed = getLocalizedCommands("en").map((command) => command.command);
 
-    expect(commands).toContainEqual({ command: "changes", description: "Show delivered product changes" });
+    // They stay registered in bot-factory so typing them still works; only the
+    // advertisement is gone, which is what keeps the list short.
+    for (const retired of ["translate", "pick", "flashcard", "videos", "template", "review", "mentor", "changes"]) {
+      expect(listed).not.toContain(retired);
+    }
   });
 
-  it("sets /changes for admin chats only", async () => {
-    const api = {
-      setMyCommands: vi.fn().mockResolvedValue(true),
-    };
+  it("prefixes every command description with a unique icon", () => {
+    for (const lang of ["en", "ru", "cs"] as const) {
+      const commands = getLocalizedCommands(lang);
+      const icons = commands.map((command) => command.description.split(" ")[0] ?? "");
 
-    await setUserCommands(api as unknown as Parameters<typeof setUserCommands>[0], 12345, "en", "admin");
-
-    expect(api.setMyCommands).toHaveBeenCalledWith(
-      expect.arrayContaining([{ command: "changes", description: "Show delivered product changes" }]),
-      { scope: { type: "chat", chat_id: 12345 }, language_code: "en" },
-    );
+      // Non-ASCII rather than Extended_Pictographic: ☰ (U+2630) is the clearest glyph
+      // for a menu and Telegram renders it fine, but Unicode does not class it as an emoji.
+      expect(icons.every((icon) => icon.codePointAt(0) !== undefined && icon.codePointAt(0)! > 0x7f)).toBe(true);
+      expect(new Set(icons).size).toBe(commands.length);
+    }
   });
 
-  it("does not set /changes for product chats", async () => {
-    const api = {
-      setMyCommands: vi.fn().mockResolvedValue(true),
-    };
+  it("scopes the same commands to a single chat", async () => {
+    const api = { setMyCommands: vi.fn().mockResolvedValue(true) };
 
-    await setUserCommands(api as unknown as Parameters<typeof setUserCommands>[0], 12345, "en", "product");
+    await setUserCommands(api as unknown as Parameters<typeof setUserCommands>[0], 12345, "en");
 
-    const commands = (api.setMyCommands.mock.calls[0]?.[0] ?? []) as ReturnType<typeof getLocalizedCommands>;
-    expect(commands.map((command) => command.command)).not.toContain("changes");
+    const [commands, options] = api.setMyCommands.mock.calls[0] ?? [];
+    expect((commands as ReturnType<typeof getLocalizedCommands>).map((c) => c.command)).toEqual([
+      "start",
+      "menu",
+      "dictionary",
+      "learn",
+      "settings",
+      "report",
+    ]);
+    expect(options).toEqual({ scope: { type: "chat", chat_id: 12345 }, language_code: "en" });
   });
 });

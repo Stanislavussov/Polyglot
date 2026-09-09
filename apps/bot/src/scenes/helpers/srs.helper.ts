@@ -1,4 +1,14 @@
-import { applySm2Review, isSupported, logger, type SrsRating, type SupportedLang, t } from "@polyglot/core";
+import {
+  applySm2Review,
+  errorFields,
+  isSupported,
+  logEvent,
+  type SrsRating,
+  type SupportedLang,
+  t,
+} from "@polyglot/core";
+import { recordMatureIfCrossed } from "../../momentum/momentum.wiring.js";
+import { resolvePraiseLine } from "../../momentum/praise.footer.js";
 import {
   buildSrsBackKeyboard,
   buildSrsDoneKeyboard,
@@ -7,7 +17,6 @@ import {
   renderSrsFront,
 } from "../../renderers/srs.renderer.js";
 import type { BotContext } from "../../types.js";
-import { cleanupTechnicalMessages } from "../../utils/message-cleanup.js";
 import { SRS_SESSION_LIMIT } from "../srs.scene.js";
 import { editMessageTextOrReply } from "./edit-message.helper.js";
 
@@ -79,20 +88,63 @@ export async function handleSrsRate(ctx: BotContext): Promise<void> {
 
   try {
     await ctx.services.vocabularyRepository.updateSrsState(card.translationId, nextState);
+    if (
+      await recordMatureIfCrossed(ctx.services.momentumService, {
+        userId: ctx.user.id,
+        entryId: card.entryId,
+        translationId: card.translationId,
+        interval: nextState.interval,
+      })
+    ) {
+      srs.maturedTranslationId = card.translationId;
+    }
+    // "You marked this one hard — and today you knew it": only a correct recall counts.
+    if (card.difficulty === "hard" && (rating === "good" || rating === "easy")) {
+      srs.hardRecalled = true;
+    }
     await ctx.services.wordReviewRepository.logReview(ctx.user.id, card.entryId, "srs");
+    // The scheduling decision itself: a card resurfacing too soon or never
+    // again is only explainable from the interval/ease the rating produced.
+    logEvent("srs.card_rated", {
+      rating,
+      entryId: card.entryId,
+      translationId: card.translationId,
+      previousInterval: card.srsInterval,
+      nextInterval: nextState.interval,
+      easeFactor: nextState.easeFactor,
+      reviewCount: nextState.reviewCount,
+      position: srs.currentIndex + 1,
+      deckSize: srs.deck.length,
+    });
   } catch (err) {
-    logger.error({ err, userId: ctx.user.id, translationId: card.translationId }, "Failed to update SRS review");
+    logEvent("srs.rating_persist_failed", { rating, translationId: card.translationId, ...errorFields(err) }, "error");
   }
 
   const lang = await getUserLang(ctx);
   srs.currentIndex++;
 
   if (srs.currentIndex >= srs.deck.length) {
-    const text = t("srsDone", lang, { count: String(srs.deck.length) });
+    logEvent("srs.session_finished", { reviewed: srs.deck.length });
+    const praise = await resolvePraiseLine(ctx, lang, "srs_done", new Date(), {
+      ...(srs.maturedTranslationId !== undefined
+        ? {
+            matureCrossedNow: {
+              translationId: srs.maturedTranslationId,
+              entryWord: srs.deck.find((c) => c.translationId === srs.maturedTranslationId)?.original,
+            },
+          }
+        : {}),
+      hardWordRecalledToday: srs.hardRecalled === true,
+    });
+    const done = t("srsDone", lang, { count: String(srs.deck.length) });
+    const text = praise ? `${done}\n\n${praise}` : done;
+    const { enabled: showProgress } = await ctx.services.settings.getMotivationConfig();
     ctx.session.srs = undefined;
-    await cleanupTechnicalMessages(ctx);
     try {
-      await editMessageTextOrReply(ctx, text, { parse_mode: "HTML", reply_markup: buildSrsDoneKeyboard(lang) });
+      await editMessageTextOrReply(ctx, text, {
+        parse_mode: "HTML",
+        reply_markup: buildSrsDoneKeyboard(lang, { showProgress }),
+      });
     } catch {
       /* ignore */
     }
@@ -155,7 +207,6 @@ export async function handleSrsRestart(ctx: BotContext): Promise<void> {
 export async function handleSrsQuit(ctx: BotContext): Promise<void> {
   const lang = await getUserLang(ctx);
   ctx.session.srs = undefined;
-  await cleanupTechnicalMessages(ctx);
   try {
     await editMessageTextOrReply(ctx, t("srsQuit", lang));
   } catch {
@@ -166,7 +217,6 @@ export async function handleSrsQuit(ctx: BotContext): Promise<void> {
 
 export async function handleSrsClose(ctx: BotContext): Promise<void> {
   ctx.session.srs = undefined;
-  await cleanupTechnicalMessages(ctx);
   try {
     await ctx.deleteMessage();
   } catch {
