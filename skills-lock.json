@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "ansible-automation": {
+      "source": "aj-geddes/useful-ai-prompts",
+      "sourceType": "github",
+      "skillPath": "skills/ansible-automation/SKILL.md",
+      "computedHash": "2f6b7fc42258730ea802f64f80c63ba140e3a601c25b9423babe9ab61b140b21"
+    }
+  }
+}
