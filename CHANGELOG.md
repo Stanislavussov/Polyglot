@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **Until onboarding is finished, the bot does nothing but onboarding.** A user who had not chosen a language could still reach every feature: a tap on a leftover dictionary or card button, a typed `/dictionary`, `/settings` or any other command, a voice note or a photo all ran the feature on an empty profile — no native language, no learning languages — and left the user stranded between "new" and "onboarded" (seen on the dev environment, where a deploy resets the tester's account while old buttons stay on screen; the same happens to anyone whose account was deleted). Only free text and the onboarding buttons themselves were guarded. A single gate now sits ahead of every command and callback route: for a not-yet-onboarded user, anything other than `/start`, plain text and the onboarding buttons is acknowledged and answered with their current onboarding screen. Covered end-to-end through the real dispatcher and Postgres (feature tap, foreign command, voice note, and that the gate lifts once onboarded).
+
 ### Added
 
 - **Pushing `develop` now deploys to the dev VPS.** `deploy.yml` picks the GitHub environment by branch (`master` → `production`, `develop` → `development`); the environment supplies the host-specific secrets and falls back to the repository secrets, so production is untouched. Dev images are tagged `dev-<sha>`, dev deploys use their own concurrency group, and release announcements stay production-only.

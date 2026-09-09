@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-09-09T18:43:46.000Z",
+  "generatedAt": "2026-09-09T18:46:40.000Z",
   "summary": {
-    "total": 3153,
+    "total": 3157,
     "business": 0,
-    "technical": 3153,
+    "technical": 3157,
     "workspaces": [
       "apps",
       "packages"
@@ -4039,10 +4039,10 @@
       "description": "Protects the bot weekly proof line in a scheduled notification (integration) behavior so W6: with recording off the line stays away and writes no journal row."
     },
     {
-      "id": "apps-bot-src-tests-integration-onboarding-integration-test-ts-80-start-onboarding-integration-creates-the-user-and-guesses-the-native-language-from-the-telegram-locale",
+      "id": "apps-bot-src-tests-integration-onboarding-integration-test-ts-85-start-onboarding-integration-creates-the-user-and-guesses-the-native-language-from-the-telegram-locale",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/onboarding.integration.test.ts",
-      "sourceLine": 80,
+      "sourceLine": 85,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4055,10 +4055,10 @@
       "description": "Protects the bot start onboarding (integration) behavior: creates the user and guesses the native language from the Telegram locale."
     },
     {
-      "id": "apps-bot-src-tests-integration-onboarding-integration-test-ts-95-start-onboarding-integration-shows-the-same-language-list-when-the-client-sends-no-locale",
+      "id": "apps-bot-src-tests-integration-onboarding-integration-test-ts-100-start-onboarding-integration-shows-the-same-language-list-when-the-client-sends-no-locale",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/onboarding.integration.test.ts",
-      "sourceLine": 95,
+      "sourceLine": 100,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4071,10 +4071,10 @@
       "description": "Protects the bot start onboarding (integration) behavior: shows the same language list when the client sends no locale."
     },
     {
-      "id": "apps-bot-src-tests-integration-onboarding-integration-test-ts-112-start-onboarding-integration-does-not-create-a-duplicate-user-on-a-second-start",
+      "id": "apps-bot-src-tests-integration-onboarding-integration-test-ts-117-start-onboarding-integration-does-not-create-a-duplicate-user-on-a-second-start",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/onboarding.integration.test.ts",
-      "sourceLine": 112,
+      "sourceLine": 117,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4087,10 +4087,10 @@
       "description": "Protects the bot start onboarding (integration) behavior: does not create a duplicate user on a second start."
     },
     {
-      "id": "apps-bot-src-tests-integration-onboarding-integration-test-ts-126-start-onboarding-integration-reaches-a-real-cached-card-in-five-taps-with-no-ai-call-at-any-point",
+      "id": "apps-bot-src-tests-integration-onboarding-integration-test-ts-131-start-onboarding-integration-reaches-a-real-cached-card-in-five-taps-with-no-ai-call-at-any-point",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/onboarding.integration.test.ts",
-      "sourceLine": 126,
+      "sourceLine": 131,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4103,10 +4103,10 @@
       "description": "Protects the bot start onboarding (integration) behavior so reaches a real cached card in five taps, with no AI call at any point."
     },
     {
-      "id": "apps-bot-src-tests-integration-onboarding-integration-test-ts-168-start-onboarding-integration-never-serves-an-unreviewed-demo-card-and-still-completes-onboarding-when-the-demo-fails",
+      "id": "apps-bot-src-tests-integration-onboarding-integration-test-ts-173-start-onboarding-integration-never-serves-an-unreviewed-demo-card-and-still-completes-onboarding-when-the-demo-fails",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/onboarding.integration.test.ts",
-      "sourceLine": 168,
+      "sourceLine": 173,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4119,10 +4119,10 @@
       "description": "Protects the bot start onboarding (integration) behavior so never serves an unreviewed demo card, and still completes onboarding when the demo fails."
     },
     {
-      "id": "apps-bot-src-tests-integration-onboarding-integration-test-ts-205-start-onboarding-integration-resumes-on-the-furthest-screen-reached-instead-of-restarting-from-the-native-question",
+      "id": "apps-bot-src-tests-integration-onboarding-integration-test-ts-210-start-onboarding-integration-resumes-on-the-furthest-screen-reached-instead-of-restarting-from-the-native-question",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/onboarding.integration.test.ts",
-      "sourceLine": 205,
+      "sourceLine": 210,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4133,6 +4133,70 @@
       "name": "Bot start onboarding (integration) resumes on the furthest screen reached instead of restarting from the native question",
       "value": "Protects the bot start onboarding (integration) behavior so resumes on the furthest screen reached instead of restarting from the native question.",
       "description": "Protects the bot start onboarding (integration) behavior so resumes on the furthest screen reached instead of restarting from the native question."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-onboarding-integration-test-ts-252-onboarding-gate-integration-answers-a-feature-button-tap-with-the-onboarding-screen-not-the-feature",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/onboarding.integration.test.ts",
+      "sourceLine": 252,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "onboarding gate (integration)"
+      ],
+      "title": "answers a feature button tap with the onboarding screen, not the feature",
+      "rawTitle": "answers a feature button tap with the onboarding screen, not the feature",
+      "name": "Bot onboarding gate (integration) answers a feature button tap with the onboarding screen, not the feature",
+      "value": "Protects the bot onboarding gate (integration) behavior so answers a feature button tap with the onboarding screen, not the feature.",
+      "description": "Protects the bot onboarding gate (integration) behavior so answers a feature button tap with the onboarding screen, not the feature."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-onboarding-integration-test-ts-267-onboarding-gate-integration-redirects-a-command-other-than-start-to-the-onboarding-screen",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/onboarding.integration.test.ts",
+      "sourceLine": 267,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "onboarding gate (integration)"
+      ],
+      "title": "redirects a command other than /start to the onboarding screen",
+      "rawTitle": "redirects a command other than /start to the onboarding screen",
+      "name": "Bot onboarding gate (integration) redirects a command other than start to the onboarding screen",
+      "value": "Protects the bot onboarding gate (integration) behavior so redirects a command other than start to the onboarding screen.",
+      "description": "Protects the bot onboarding gate (integration) behavior so redirects a command other than start to the onboarding screen."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-onboarding-integration-test-ts-277-onboarding-gate-integration-redirects-a-voice-note-to-the-onboarding-screen-without-transcribing-it",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/onboarding.integration.test.ts",
+      "sourceLine": 277,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "onboarding gate (integration)"
+      ],
+      "title": "redirects a voice note to the onboarding screen without transcribing it",
+      "rawTitle": "redirects a voice note to the onboarding screen without transcribing it",
+      "name": "Bot onboarding gate (integration) redirects a voice note to the onboarding screen without transcribing it",
+      "value": "Protects the bot onboarding gate (integration) behavior so redirects a voice note to the onboarding screen without transcribing it.",
+      "description": "Protects the bot onboarding gate (integration) behavior so redirects a voice note to the onboarding screen without transcribing it."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-onboarding-integration-test-ts-288-onboarding-gate-integration-stops-gating-once-onboarding-is-complete",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/onboarding.integration.test.ts",
+      "sourceLine": 288,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "onboarding gate (integration)"
+      ],
+      "title": "stops gating once onboarding is complete",
+      "rawTitle": "stops gating once onboarding is complete",
+      "name": "Bot onboarding gate (integration) stops gating once onboarding is complete",
+      "value": "Protects the bot onboarding gate (integration) behavior so stops gating once onboarding is complete.",
+      "description": "Protects the bot onboarding gate (integration) behavior so stops gating once onboarding is complete."
     },
     {
       "id": "apps-bot-src-tests-integration-paid-features-gating-integration-test-ts-97-paid-features-on-a-translation-card-integration-badges-the-paid-buttons-for-a-free-user-and-turns-a-tap-into-the-priced-plan-comparison",
