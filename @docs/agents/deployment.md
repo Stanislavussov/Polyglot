@@ -14,6 +14,23 @@ separate pipelines** — never conflate them.
   `ADMIN_*_DOMAIN`, `DATABASE_URL`, `BOT_TOKEN`, `JWT_SECRET`,
   `OPENROUTER_API_KEY`. Same workflow, same compose file, same container names;
   dev images are tagged `dev-<sha>`; release announcements are prod-only.
+- **Dev database lifecycle.** Every dev deploy cuts a Neon branch `dev/<sha>`
+  from the project's default branch (production) — a copy-on-write snapshot —
+  waits for it to be `ready`, and ships its connection string as the dev
+  `DATABASE_URL`. The develop migrations then run on top of the production
+  schema, which is the same rehearsal a master merge performs for real. After
+  a successful deploy the older `dev/*` branches are deleted, so one dev branch
+  (and one extra compute endpoint) is live at a time; a failed deploy leaves
+  the previous branch and stack untouched. Needs `NEON_API_KEY` and
+  `NEON_PROJECT_ID` (the production project) visible to the `development`
+  environment; `development` needs no `DATABASE_URL` secret of its own.
+- **Tester reset.** Between migrate/seed and `up -d`, dev runs
+  `apps/bot/dist/dev-reset-users.cli.js` with `DEV_RESET_USERS` — a
+  `development` environment **variable** listing `@username`s and/or numeric
+  Telegram ids. Each listed account is deleted (FK cascade) together with its
+  `bot_sessions` row, so the tester walks `/start` → onboarding on real
+  production-shaped data. The CLI refuses to run unless
+  `POLYGLOT_ENV=development`.
 - Builds/pushes the Docker images and runs `docker compose up` on the VPS.
 - Touches **containers only** — it never configures nginx, TLS, or host packages.
 - Image names, ports, `NODE_ENV`, and `*_URL` values are **computed inside the

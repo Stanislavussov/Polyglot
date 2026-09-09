@@ -149,6 +149,46 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # Dev runs on a fresh copy of production data every deploy: a Neon branch
+      # is a copy-on-write snapshot that costs seconds, and migrating it with
+      # the develop migrations is exactly the rehearsal a master merge will
+      # perform for real. The parent is the project's default branch
+      # (production) — deliberately not pinned, so a branch rename in Neon
+      # cannot silently re-parent dev onto stale data. The previous dev/*
+      # branches are pruned at the end of a successful deploy, so at most one
+      # extra compute endpoint is ever live.
+      - name: Cut dev database from production (Neon branch)
+        if: env.DEPLOY_ENV == 'development'
+        env:
+          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+          NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
+        run: |
+          set -euo pipefail
+          api="https://console.neon.tech/api/v2/projects/${NEON_PROJECT_ID}"
+          auth=(-H "Authorization: Bearer ${NEON_API_KEY}" -H "Accept: application/json")
+          name="dev/${GITHUB_SHA:0:12}"
+
+          created="$(curl -fsS "${auth[@]}" -H "Content-Type: application/json" -X POST "${api}/branches" \
+            -d "{\"branch\":{\"name\":\"${name}\"},\"endpoints\":[{\"type\":\"read_write\"}]}")"
+          branch_id="$(jq -r '.branch.id' <<<"$created")"
+          url="$(jq -r '.connection_uris[0].connection_uri // empty' <<<"$created")"
+          if [ -z "$url" ] || [ "$branch_id" = "null" ]; then
+            echo "::error::Neon did not return a branch id + connection string"; jq 'del(.connection_uris)' <<<"$created"; exit 1
+          fi
+          echo "::add-mask::$url"
+
+          # The endpoint is provisioned asynchronously; the migrate step on the
+          # VPS connects a few minutes from now, but do not rely on that.
+          for _ in $(seq 1 30); do
+            state="$(curl -fsS "${auth[@]}" "${api}/branches/${branch_id}" | jq -r '.branch.current_state')"
+            [ "$state" = "ready" ] && break
+            sleep 2
+          done
+          echo "Dev database branch ${name} (${branch_id}) state: ${state}"
+
+          echo "DEV_DATABASE_URL=${url}" >> "$GITHUB_ENV"
+          echo "DEV_DB_BRANCH_ID=${branch_id}" >> "$GITHUB_ENV"
+
       - name: Prepare files
         run: |
           cp deploy/docker-compose.yml ./docker-compose.yml
@@ -203,7 +243,8 @@ jobs:
           echo "LANDING_IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/polyglot-landing:${{ env.IMAGE_TAG }}" >> .env
           echo "BOT_TOKEN=${{ secrets.BOT_TOKEN }}" >> .env
           echo "OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}" >> .env
-          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
+          # Dev: the branch cut above. Prod: the managed production database.
+          echo "DATABASE_URL=${DEV_DATABASE_URL:-${{ secrets.DATABASE_URL }}}" >> .env
           echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
           echo "ADMIN_PANEL_URL=https://${{ secrets.ADMIN_PANEL_DOMAIN }}" >> .env
           echo "PUBLIC_API_URL=https://${{ secrets.ADMIN_API_DOMAIN }}" >> .env
@@ -229,6 +270,9 @@ jobs:
         # Pinned to the commit SHA of v1.0.3 (Fable T30, F8): third-party action
         # holding the prod SSH key — mutable tag pinning is a supply-chain risk.
         uses: appleboy/ssh-action@029f5b4aeeeb58fdfe1410a5d17f967dacf36262 # v1.0.3
+        env:
+          DEPLOY_ENV: ${{ env.DEPLOY_ENV }}
+          DEV_RESET_USERS: ${{ vars.DEV_RESET_USERS }}
         with:
           # The action's default is 10m, but this script's worst case is ~19-21m:
           # `compose pull` of five images over the VPS link (3-5m) + migrate + seed
@@ -241,6 +285,11 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
+          # Forwarded into the remote script's environment (appleboy `envs`).
+          # DEV_RESET_USERS is a `development` environment *variable*, not a
+          # secret: usernames/ids of testers whose accounts are wiped on every
+          # dev deploy so they can walk onboarding again from /start.
+          envs: DEPLOY_ENV,DEV_RESET_USERS
           script: |
             set -e
             cd /opt/polyglot
@@ -269,6 +318,15 @@ jobs:
             docker compose --profile tools run --rm migrate
 
             docker compose run --rm admin-api node apps/admin-api/dist/seed.js
+
+            # Dev only: wipe the configured tester accounts from the freshly
+            # branched production data. The CLI itself refuses to run unless
+            # POLYGLOT_ENV=development, so a stray call on prod is a no-op error.
+            if [ "$DEPLOY_ENV" = "development" ]; then
+              docker compose run --rm --no-deps \
+                -e POLYGLOT_ENV=development -e DEV_RESET_USERS="$DEV_RESET_USERS" \
+                bot node apps/bot/dist/dev-reset-users.cli.js
+            fi
 
             docker compose up -d --remove-orphans
 
@@ -320,3 +378,22 @@ jobs:
             # deleted the previous release and made rollback impossible).
             docker image prune -af --filter "until=168h"
             docker builder prune -af 2>/dev/null || true
+
+      # Only after the deploy succeeded: a failed run keeps the previous branch
+      # (and the stack still running on it) intact for debugging. Leaked
+      # branches from failed runs are swept by the next successful one.
+      - name: Prune previous dev database branches
+        if: env.DEPLOY_ENV == 'development'
+        env:
+          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+          NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
+        run: |
+          set -euo pipefail
+          api="https://console.neon.tech/api/v2/projects/${NEON_PROJECT_ID}"
+          auth=(-H "Authorization: Bearer ${NEON_API_KEY}" -H "Accept: application/json")
+          curl -fsS "${auth[@]}" "${api}/branches" \
+            | jq -r --arg keep "$DEV_DB_BRANCH_ID" '.branches[] | select(.name | startswith("dev/")) | select(.id != $keep) | .id' \
+            | while read -r id; do
+                echo "Deleting stale dev branch ${id}"
+                curl -fsS "${auth[@]}" -X DELETE "${api}/branches/${id}" >/dev/null
+              done

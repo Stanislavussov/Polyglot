@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Added
 
 - **Pushing `develop` now deploys to the dev VPS.** `deploy.yml` picks the GitHub environment by branch (`master` → `production`, `develop` → `development`); the environment supplies the host-specific secrets and falls back to the repository secrets, so production is untouched. Dev images are tagged `dev-<sha>`, dev deploys use their own concurrency group, and release announcements stay production-only.
+- **Dev deploys run on a fresh copy of production data and reset the testers.** Each `develop` deploy cuts a Neon branch from production, migrates it with the develop migrations, deletes the accounts listed in the `DEV_RESET_USERS` environment variable (`@username` or Telegram id; user row cascades, bot session removed explicitly) so onboarding can be walked again from `/start`, and prunes the previous dev branches once the deploy is healthy. The reset CLI refuses to run outside `POLYGLOT_ENV=development`.
 - `pnpm ansible:dev` provisions the dev VPS from `.env.dev` (`POLYGLOT_ENV=dev`); `pnpm ansible` keeps sourcing `.env.prod`. The wrapper now prints the resolved `[env] user@host` before running and rejects unknown environments. `.env.dev` is git-ignored alongside `.env.prod`.
 
 ### Fixed

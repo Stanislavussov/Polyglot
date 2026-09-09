@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-30T12:29:17.000Z",
+  "generatedAt": "2026-09-09T16:55:46.000Z",
   "summary": {
-    "total": 3131,
+    "total": 3138,
     "business": 0,
-    "technical": 3131,
+    "technical": 3138,
     "workspaces": [
       "apps",
       "packages"
@@ -21907,6 +21907,118 @@
       "name": "Database adapter create Context Lookup fire and forget audit logging (error path) still attempts the write, and logs (not throws) when it rejects",
       "value": "Protects the database adapter create Context Lookup fire and forget audit logging (error path) behavior so still attempts the write, and logs (not throws) when it rejects.",
       "description": "Protects the database adapter create Context Lookup fire and forget audit logging (error path) behavior so still attempts the write, and logs (not throws) when it rejects."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-dev-user-reset-integration-test-ts-38-resetusers-integration-deletes-the-user-by-telegram-id-together-with-settings-and-the-bot-session",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/dev-user-reset.integration.test.ts",
+      "sourceLine": 38,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "resetUsers (integration)"
+      ],
+      "title": "deletes the user by telegram id together with settings and the bot session",
+      "rawTitle": "deletes the user by telegram id together with settings and the bot session",
+      "name": "Database adapter reset Users (integration) deletes the user by telegram id together with settings and the bot session",
+      "value": "Protects the database adapter reset Users (integration) behavior so deletes the user by telegram id together with settings and the bot session.",
+      "description": "Protects the database adapter reset Users (integration) behavior so deletes the user by telegram id together with settings and the bot session."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-dev-user-reset-integration-test-ts-54-resetusers-integration-matches-a-username-case-insensitively-and-leaves-other-users-alone",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/dev-user-reset.integration.test.ts",
+      "sourceLine": 54,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "resetUsers (integration)"
+      ],
+      "title": "matches a username case-insensitively and leaves other users alone",
+      "rawTitle": "matches a username case-insensitively and leaves other users alone",
+      "name": "Database adapter reset Users (integration) matches a username case insensitively and leaves other users alone",
+      "value": "Protects the database adapter reset Users (integration) behavior so matches a username case insensitively and leaves other users alone.",
+      "description": "Protects the database adapter reset Users (integration) behavior so matches a username case insensitively and leaves other users alone."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-dev-user-reset-integration-test-ts-67-resetusers-integration-reports-identifiers-that-match-nobody-without-failing-the-run",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/dev-user-reset.integration.test.ts",
+      "sourceLine": 67,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "resetUsers (integration)"
+      ],
+      "title": "reports identifiers that match nobody without failing the run",
+      "rawTitle": "reports identifiers that match nobody without failing the run",
+      "name": "Database adapter reset Users (integration) reports identifiers that match nobody without failing the run",
+      "value": "Protects the database adapter reset Users (integration) behavior: reports identifiers that match nobody without failing the run.",
+      "description": "Protects the database adapter reset Users (integration) behavior: reports identifiers that match nobody without failing the run."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-dev-user-reset-test-ts-5-parseuserresetidentifiers-accepts-usernames-with-or-without-and-numeric-telegram-ids-in-any-separator-mix",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/dev-user-reset.test.ts",
+      "sourceLine": 5,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "parseUserResetIdentifiers"
+      ],
+      "title": "accepts usernames with or without @ and numeric telegram ids, in any separator mix",
+      "rawTitle": "accepts usernames with or without @ and numeric telegram ids, in any separator mix",
+      "name": "Database adapter parse User Reset Identifiers accepts usernames with or without @ and numeric telegram ids, in any separator mix",
+      "value": "Protects the database adapter parse User Reset Identifiers behavior: accepts usernames with or without @ and numeric telegram ids, in any separator mix.",
+      "description": "Protects the database adapter parse User Reset Identifiers behavior: accepts usernames with or without @ and numeric telegram ids, in any separator mix."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-dev-user-reset-test-ts-13-parseuserresetidentifiers-treats-an-unset-or-blank-value-as-nothing-to-reset",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/dev-user-reset.test.ts",
+      "sourceLine": 13,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "parseUserResetIdentifiers"
+      ],
+      "title": "treats an unset or blank value as nothing to reset",
+      "rawTitle": "treats an unset or blank value as nothing to reset",
+      "name": "Database adapter parse User Reset Identifiers treats an unset or blank value as nothing to reset",
+      "value": "Protects the database adapter parse User Reset Identifiers behavior so treats an unset or blank value as nothing to reset.",
+      "description": "Protects the database adapter parse User Reset Identifiers behavior so treats an unset or blank value as nothing to reset."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-dev-user-reset-test-ts-18-parseuserresetidentifiers-rejects-tokens-that-are-neither-a-telegram-username-nor-a-positive-id",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/dev-user-reset.test.ts",
+      "sourceLine": 18,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "parseUserResetIdentifiers"
+      ],
+      "title": "rejects tokens that are neither a Telegram username nor a positive id",
+      "rawTitle": "rejects tokens that are neither a Telegram username nor a positive id",
+      "name": "Database adapter parse User Reset Identifiers rejects tokens that are neither a Telegram username nor a positive id",
+      "value": "Protects the database adapter parse User Reset Identifiers behavior: rejects tokens that are neither a Telegram username nor a positive id.",
+      "description": "Protects the database adapter parse User Reset Identifiers behavior: rejects tokens that are neither a Telegram username nor a positive id."
+    },
+    {
+      "id": "packages-adapters-db-src-tests-dev-user-reset-test-ts-24-parseuserresetidentifiers-formats-identifiers-back-to-the-input-shape-for-logs",
+      "kind": "technical",
+      "filePath": "packages/adapters/db/src/__tests__/dev-user-reset.test.ts",
+      "sourceLine": 24,
+      "workspace": "packages",
+      "packageName": "adapters/db",
+      "suitePath": [
+        "parseUserResetIdentifiers"
+      ],
+      "title": "formats identifiers back to the input shape for logs",
+      "rawTitle": "formats identifiers back to the input shape for logs",
+      "name": "Database adapter parse User Reset Identifiers formats identifiers back to the input shape for logs",
+      "value": "Protects the database adapter parse User Reset Identifiers behavior: formats identifiers back to the input shape for logs.",
+      "description": "Protects the database adapter parse User Reset Identifiers behavior: formats identifiers back to the input shape for logs."
     },
     {
       "id": "packages-adapters-db-src-tests-getdb-test-ts-4-getdb-should-throw-if-database-url-is-not-set",
