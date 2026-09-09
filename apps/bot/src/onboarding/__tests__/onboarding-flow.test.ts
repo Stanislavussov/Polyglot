@@ -7,7 +7,7 @@
  * resumption and "never persisted without a level" guarantees testable at all —
  * they are properties of the stored state, not of a call sequence.
  */
-import type { ServiceContainer } from "@polyglot/core";
+import { type ServiceContainer, t } from "@polyglot/core";
 import { GrammyError } from "grammy";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createServicesStub } from "../../test-helpers/services-stub.js";
@@ -64,6 +64,13 @@ const LANGS = [
   { code: "es", name: "Spanish", nativeName: "Español", flag: "🇪🇸" },
 ];
 
+/**
+ * A learning language with no curated hook set. Hook words exist only for the 11
+ * interface languages, while the DB offers far more languages to learn, so this
+ * is the majority case for the demo screen, not an exotic one.
+ */
+const NO_HOOKS_LANG = { code: "ja", name: "Japanese", nativeName: "日本語", flag: "🇯🇵" };
+
 /** Shaped like real de→ru pipeline output: the headword lives in `sourceUsage`. */
 const DEMO_PAYLOAD = {
   original: "Backpfeifengesicht",
@@ -87,7 +94,8 @@ interface KeyboardButton {
 
 type Keyboard = KeyboardButton[][];
 
-function createHarness(opts: { languageCode?: string } = {}) {
+function createHarness(opts: { languageCode?: string; langs?: typeof LANGS } = {}) {
+  const langs = opts.langs ?? LANGS;
   const store = {
     user: {
       id: 1,
@@ -133,12 +141,12 @@ function createHarness(opts: { languageCode?: string } = {}) {
   };
 
   const languageCache = {
-    getSupportedLangs: () => LANGS,
+    getSupportedLangs: () => langs,
     getLangDisplay: (code: string) => {
-      const entry = LANGS.find((l) => l.code === code);
+      const entry = langs.find((l) => l.code === code);
       return entry ? `${entry.flag} ${entry.nativeName}` : code;
     },
-    getLangFlag: (code: string) => LANGS.find((l) => l.code === code)?.flag,
+    getLangFlag: (code: string) => langs.find((l) => l.code === code)?.flag,
   };
 
   const ai = {
@@ -581,6 +589,21 @@ describe("onboarding — screen 2 (instant demo card)", () => {
 
     const hooks = h.callbackData().filter((data) => data.startsWith("onb:hook:de:"));
     expect(hooks.length).toBeGreaterThan(0);
+  });
+
+  it("gives a self-contained instruction when the learning language has no curated words", async () => {
+    const h = createHarness({ languageCode: "ru", langs: [...LANGS, NO_HOOKS_LANG] });
+
+    await h.start();
+    await h.tap("onb:nat:ru");
+    await h.tap("onb:lang:ja");
+    await h.tap("onb:lvl:ja:B1");
+    await h.tap("onb:done");
+
+    // Nothing to tap, so the screen is the only thing telling the user what to
+    // do — the tap invitation's "or …" continuation would leave them stranded.
+    expect(h.callbackData()).toEqual([]);
+    expect(h.currentText()).toBe(t("onbDemoTypeOnly", "ru"));
   });
 
   it("renders a cached card without ever touching the AI port", async () => {
