@@ -51,6 +51,7 @@ import { getRequestSettings } from "../../middlewares/request-settings.js";
 import { recordEffort } from "../../momentum/momentum.wiring.js";
 import { resolvePraiseLine } from "../../momentum/praise.footer.js";
 import { commitRecovery, resolveRecoveryPrefix } from "../../momentum/recovery.helper.js";
+import { trackProductEvent } from "../../observability/product-events.js";
 import {
   buildTranslationKeyboard,
   renderSentenceTranslation,
@@ -74,7 +75,7 @@ import {
 import { parseTranslateInput } from "../../utils/parse-translate-input.js";
 import { encodeTranslateRetryText, replyWithRetry } from "../../utils/retry-action.js";
 import { validateTranslatableText } from "../../utils/validate-text-input.js";
-import { resolveLockedFeatures } from "./paid-feature.helper.js";
+import { resolveLockedBadges } from "./paid-feature.helper.js";
 import { answerStaleCallback } from "./stale-callback.helper.js";
 import { buildUpgradeKeyboard } from "./subscription.helper.js";
 import {
@@ -118,6 +119,7 @@ async function ensureTranslationQuota(
     getMonthlyWindowStart(),
   );
   if (usedCredits + creditCost > entitlements.translationsPerMonth) {
+    trackProductEvent(ctx, "limit.reached", "translation");
     await ctx.reply(t("rateLimitExceeded", lang), { reply_markup: buildUpgradeKeyboard(lang) });
     return null;
   }
@@ -666,7 +668,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
   });
 
   // Show loading message
-  const loader = await sendLoader(ctx, "translate", lang);
+  const loader = await sendLoader(ctx, "translate", lang, learningLangs);
 
   await runTranslationPipeline(ctx, {
     word: cleanWord,
@@ -813,7 +815,7 @@ async function sendTranslationCard(
     showEtymologyButton,
     sourceOverrideLangs,
     pronounceLangs,
-    locked: await resolveLockedFeatures(ctx),
+    locked: await resolveLockedBadges(ctx),
   });
   await ctx.api.editMessageReplyMarkup(ctx.chat!.id, cardMsg.message_id, { reply_markup: keyboard });
 
@@ -1233,7 +1235,8 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
   }
 
   // Show loading message
-  const loader = await sendLoader(ctx, "translate", lang);
+  const learningLangs = normalizeLearningLangs(nativeLang, settings?.learningLangs ?? []);
+  const loader = await sendLoader(ctx, "translate", lang, learningLangs);
 
   await runTranslationPipeline(ctx, {
     word: pendingWord,
@@ -1246,7 +1249,7 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
     classification,
     isSentence,
     loader,
-    learningLangs: normalizeLearningLangs(nativeLang, settings?.learningLangs ?? []),
+    learningLangs,
     contextHint: pendingContextHint,
     // The user already confirmed the language / chose a correction (or "translate
     // as written") — never re-ask, and never offer inline grammar on this path.

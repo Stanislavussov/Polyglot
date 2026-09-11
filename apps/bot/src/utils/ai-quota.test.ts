@@ -10,6 +10,7 @@ function createCtx(usedCredits: number) {
     user: { id: 1, subscriptionPlan: "free" },
     reply,
     services: {
+      productEventRepository: { record: vi.fn().mockResolvedValue(undefined) },
       translationRequestRepository: { getUserCreditsInWindow, logTranslationRequest },
       settings: {
         getPlanLimit: vi.fn().mockResolvedValue({

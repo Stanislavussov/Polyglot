@@ -569,7 +569,11 @@ describe("buildTranslationKeyboard", () => {
       msgId: 42,
       showGrammarButton: true,
       showEtymologyButton: true,
-      locked: new Set(["clarification", "grammarBreakdown", "etymology"]),
+      locked: new Map([
+        ["clarification", "⭐"],
+        ["grammarBreakdown", "⭐"],
+        ["etymology", "⭐"],
+      ]),
     });
     const paid = buildTranslationKeyboard({
       interfaceLang: "en",
@@ -593,9 +597,28 @@ describe("buildTranslationKeyboard", () => {
       msgId: 42,
       showGrammarButton: true,
       showEtymologyButton: true,
-      locked: new Set(),
+      locked: new Map(),
     });
     expect(kb.inline_keyboard.flat().some((b) => b.text.includes("⭐"))).toBe(false);
+  });
+
+  it("wears the badge of the tier that sells each feature, not one badge for all of them", () => {
+    // Clarify is the Plus rung, audio is Pro-only — a card claiming ⭐ for both
+    // would send the reader to a Plus offer that cannot unlock the speaker.
+    const kb = buildTranslationKeyboard({
+      interfaceLang: "en",
+      msgId: 42,
+      pronounceLangs: ["de"],
+      locked: new Map([
+        ["clarification", "⭐"],
+        ["pronunciation", "💎"],
+      ]),
+    });
+    const labelOf = (data: string) => kb.inline_keyboard.flat().find((b) => cbData(b) === data)?.text ?? "";
+    expect(labelOf("tr:clarifypost:42")).toContain("⭐");
+    expect(labelOf("tr:clarifypost:42")).not.toContain("💎");
+    expect(labelOf("tr:say:de:42")).toContain("💎");
+    expect(labelOf("tr:say:de:42")).not.toContain("⭐");
   });
 
   it("wraps override flag buttons into rows of at most four", () => {

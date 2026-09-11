@@ -41,9 +41,14 @@
     "@polyglot/infra",
     "dotenv",
     "pino",
-    "@types/bcryptjs",
-    "tsx"
+    "@types/bcryptjs"
   ],
+  // drizzle-kit's config connects to a database, so knip's drizzle plugin cannot
+  // load it without DATABASE_URL and logs a loud ERROR on any checkout without a
+  // root .env — every fresh worktree, and CI. The plugin finds nothing here
+  // anyway: drizzle.config.ts sits outside every workspace's `project` globs, so
+  // knip's output is byte-identical with it off.
+  "drizzle": false,
   "ignoreBinaries": ["dot"],
   "rules": {
     "exports": "off",

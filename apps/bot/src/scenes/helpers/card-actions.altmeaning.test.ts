@@ -117,6 +117,7 @@ function createCtx(): BotContext {
     user: { id: 1, subscriptionPlan: "free" },
     session,
     services: {
+      productEventRepository: { record: vi.fn().mockResolvedValue(undefined) },
       userRepository: { getSettings: vi.fn().mockResolvedValue({ interfaceLang: "en", nativeLang: "ru" }) },
       translationTemplateRepository: { getByUserId: vi.fn().mockResolvedValue(null) },
       contextLookup: vi.fn().mockResolvedValue([]),

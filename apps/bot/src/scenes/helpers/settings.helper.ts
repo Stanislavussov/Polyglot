@@ -16,6 +16,7 @@ import { InlineKeyboard } from "grammy";
 import { changesCommand } from "../../commands/changes.js";
 import { setUserCommands } from "../../commands/commands.js";
 import { MAX_LEARNING_LANGS, MAX_NOTIFICATION_TIMES } from "../../constants.js";
+import { trackProductEvent } from "../../observability/product-events.js";
 import type { BotContext } from "../../types.js";
 import {
   buildLangGroupKeyboard,
@@ -576,6 +577,9 @@ export async function handleSetTemplateCallback(ctx: BotContext): Promise<void> 
 
 export async function handleSetPlanCallback(ctx: BotContext): Promise<void> {
   await dismissSettings(ctx);
+  // Distinguished from the `cta` origin: this reader went looking for the prices
+  // rather than being sent here by a refusal, which is a different intent.
+  trackProductEvent(ctx, "paywall.shown", "settings");
   await sendUpgradeScreen(ctx);
 }
 

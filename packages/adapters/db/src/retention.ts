@@ -5,6 +5,8 @@
  * they grew forever. This service deletes rows older than a configurable horizon
  * (default 90 days) from every pure-telemetry table, including the PII-bearing
  * text columns (`translation_requests.original`, `dictionary_lookup_logs.lookup_input`).
+ * `product_events` is the one exception to the shared horizon — see
+ * {@link PRODUCT_EVENT_RETENTION_DAYS}.
  *
  * It runs as a periodic DELETE rather than partitioning because the schema is
  * driven by drizzle-kit, which cannot generate `PARTITION BY`, and hand-editing
@@ -25,6 +27,7 @@ import {
   mentorMessages,
   momentumEvents,
   notificationHistory,
+  productEvents,
   translationRequests,
   translationRequestTimings,
   userDailyRequestCounts,
@@ -33,6 +36,16 @@ import {
 
 /** Default retention horizon in days. Overridable per call / via env at the caller. */
 export const DEFAULT_RETENTION_DAYS = 90;
+
+/**
+ * Product events get a shorter horizon than the rest of the telemetry. They are
+ * the highest-volume table here (one row per command, tap and gate) and the
+ * shortest-lived in value: a month of funnel is a decision, a quarter of it is
+ * storage. Nothing durable is lost — the purchase a funnel ends in lives in
+ * `subscriptions`, which retention never touches. Clamped to the caller's
+ * horizon so a deliberately shorter sweep still wins.
+ */
+export const PRODUCT_EVENT_RETENTION_DAYS = 30;
 
 /** Journal kinds that act as idempotency claims rather than effort; see the momentum delete below. */
 const MOMENTUM_CLAIM_KINDS: MomentumEventKind[] = ["praise", "mature", "weekly_proof"];
@@ -53,6 +66,7 @@ export async function runTelemetryRetention(retentionDays = DEFAULT_RETENTION_DA
   const db = getDb();
   const cutoff = new Date(Date.now() - retentionDays * MS_PER_DAY);
   const cutoffDay = cutoff.toISOString().slice(0, 10);
+  const productCutoff = new Date(Date.now() - Math.min(retentionDays, PRODUCT_EVENT_RETENTION_DAYS) * MS_PER_DAY);
 
   const [
     dictionaryLookupLogsDeleted,
@@ -66,6 +80,7 @@ export async function runTelemetryRetention(retentionDays = DEFAULT_RETENTION_DA
     botSessionsDeleted,
     userDailyRequestCountsDeleted,
     mentorMessagesDeleted,
+    productEventsDeleted,
   ] = await Promise.all([
     db
       .delete(dictionaryLookupLogs)
@@ -109,6 +124,7 @@ export async function runTelemetryRetention(retentionDays = DEFAULT_RETENTION_DA
     // Mentor threads age out with the same horizon as bot_sessions, so a thread
     // never dangles behind a session that can still reference it.
     db.delete(mentorMessages).where(lt(mentorMessages.createdAt, cutoff)).returning({ id: mentorMessages.id }),
+    db.delete(productEvents).where(lt(productEvents.createdAt, productCutoff)).returning({ id: productEvents.id }),
   ]);
 
   return {
@@ -123,5 +139,6 @@ export async function runTelemetryRetention(retentionDays = DEFAULT_RETENTION_DA
     bot_sessions: botSessionsDeleted.length,
     user_daily_request_counts: userDailyRequestCountsDeleted.length,
     mentor_messages: mentorMessagesDeleted.length,
+    product_events: productEventsDeleted.length,
   };
 }
