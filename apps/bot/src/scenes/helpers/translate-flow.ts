@@ -62,8 +62,11 @@ import { resolveDefaultAIModel } from "../../utils/ai-model.js";
 import { classifyInput } from "../../utils/classify-input.js";
 import { resolveLanguageOrder } from "../../utils/language-order.js";
 import {
+  dismissLoader,
   isUserFacingTimeout,
   LONG_OP_TIMEOUT_MS,
+  type Loader,
+  sendLoader,
   sendTypingIndicator,
   startTypingKeepalive,
   TRANSLATION_BUDGET_MS,
@@ -665,7 +668,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
   });
 
   // Show loading message
-  const loadingMsg = await ctx.reply(t("translating", lang));
+  const loader = await sendLoader(ctx, "translate", lang, learningLangs);
 
   await runTranslationPipeline(ctx, {
     word: cleanWord,
@@ -677,7 +680,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
     creditCost,
     classification,
     isSentence,
-    loadingMsg,
+    loader,
     learningLangs,
     contextHint,
     detectionConfidence: detection.confidence,
@@ -700,20 +703,11 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
  * query must not run at all). They look like an obvious `Promise.all` candidate
  * — they are not.
  */
-async function resolveSavedWordId(
-  ctx: BotContext,
-  output: TranslateOutput,
-  isSentence: boolean,
-): Promise<number | undefined> {
+async function resolveSavedWordId(ctx: BotContext, output: TranslateOutput): Promise<number | undefined> {
   const sourceLangEntry = ctx.services.languageCache.getLang(output.sourceLang);
-  const existing =
-    sourceLangEntry && !isSentence
-      ? await ctx.services.vocabularyRepository.findByOriginalAndSource(
-          ctx.user.id,
-          output.original,
-          sourceLangEntry.id,
-        )
-      : null;
+  const existing = sourceLangEntry
+    ? await ctx.services.vocabularyRepository.findByOriginalAndSource(ctx.user.id, output.original, sourceLangEntry.id)
+    : null;
   if (!existing) return undefined;
   const belongsToDefault = await ctx.services.vocabularyDictionaryRepository.entryBelongsToDefault(
     ctx.user.id,
@@ -861,7 +855,7 @@ async function runTranslationPipeline(
     creditCost: number;
     classification: ReturnType<typeof classifyInput>;
     isSentence: boolean;
-    loadingMsg: { message_id: number };
+    loader: Loader;
     learningLangs: string[];
     contextHint?: string;
     /** Main flow passes the detector's confidence; the mistype flow omits it. */
@@ -893,7 +887,7 @@ async function runTranslationPipeline(
     creditCost,
     classification,
     isSentence,
-    loadingMsg,
+    loader,
     learningLangs,
     contextHint,
     detectionConfidence,
@@ -997,7 +991,7 @@ async function runTranslationPipeline(
     const postAiStart = Date.now();
 
     if (decision.status === "needs_clarification") {
-      await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
+      await dismissLoader(ctx, loader);
 
       // A Task 70 "unrecognized word" whose correction is actually in an
       // unstudied supported language (same-script coercion, e.g. "кыздарай" →
@@ -1088,9 +1082,9 @@ async function runTranslationPipeline(
     }
 
     // Delete loading message
-    await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
+    await dismissLoader(ctx, loader);
 
-    const savedWordId = await resolveSavedWordId(ctx, output, isSentence);
+    const savedWordId = await resolveSavedWordId(ctx, output);
 
     await sendTranslationCard(ctx, {
       output,
@@ -1151,7 +1145,7 @@ async function runTranslationPipeline(
         });
     }
 
-    await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
+    await dismissLoader(ctx, loader);
 
     // A timeout is transient — the same input usually succeeds on a second
     // attempt — so the notice carries a one-tap retry instead of asking the user
@@ -1165,6 +1159,8 @@ async function runTranslationPipeline(
       return;
     }
     await ctx.reply(t("translationError", lang));
+  } finally {
+    loader.stop();
   }
 }
 
@@ -1239,7 +1235,8 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
   }
 
   // Show loading message
-  const loadingMsg = await ctx.reply(t("translating", lang));
+  const learningLangs = normalizeLearningLangs(nativeLang, settings?.learningLangs ?? []);
+  const loader = await sendLoader(ctx, "translate", lang, learningLangs);
 
   await runTranslationPipeline(ctx, {
     word: pendingWord,
@@ -1251,8 +1248,8 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
     creditCost,
     classification,
     isSentence,
-    loadingMsg,
-    learningLangs: normalizeLearningLangs(nativeLang, settings?.learningLangs ?? []),
+    loader,
+    learningLangs,
     contextHint: pendingContextHint,
     // The user already confirmed the language / chose a correction (or "translate
     // as written") — never re-ask, and never offer inline grammar on this path.

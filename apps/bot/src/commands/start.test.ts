@@ -1,6 +1,7 @@
 /**
  * Tests for /start command handler.
  */
+import type { ReplyKeyboardMarkup } from "grammy/types";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MAIN_KEYBOARD_VERSION } from "../middlewares/main-keyboard.js";
 import type { BotContext, SessionData } from "../types.js";
@@ -86,7 +87,7 @@ describe("startCommand", () => {
     expect(setUserCommands).toHaveBeenCalledWith(ctx.api, 123456789, "en");
     expect(ctx.reply).toHaveBeenCalledWith(
       "[welcomeBack]",
-      expect.objectContaining({ reply_markup: expect.objectContaining({ one_time_keyboard: true }) }),
+      expect.objectContaining({ reply_markup: expect.objectContaining({ resize_keyboard: true }) }),
     );
   });
 
@@ -97,12 +98,12 @@ describe("startCommand", () => {
 
     expect(ctx.session.mainKeyboardVersion).toBe(MAIN_KEYBOARD_VERSION);
     const [, options] = vi.mocked(ctx.reply).mock.calls[0] ?? [];
-    const labels = (options?.reply_markup as { keyboard: { text: string }[][] }).keyboard.flat();
-    expect(labels.map((button) => button.text)).toEqual([
-      "🎴 [menuBtnFlashcards]",
-      "🧑‍🏫 [menuBtnMentor]",
-      "📖 [menuBtnDictionary]",
-    ]);
+    const markup = options?.reply_markup as ReplyKeyboardMarkup;
+    const labels = markup.keyboard.flat().map((button) => (typeof button === "string" ? button : button.text));
+    expect(labels).toEqual(["🎴 [menuBtnFlashcards]", "🧑‍🏫 [menuBtnMentor]", "📖 [menuBtnDictionary]"]);
+    // /start is the recovery path for a lost keyboard, so it must not hand back one
+    // that collapses itself again on the next tap.
+    expect(markup).not.toHaveProperty("one_time_keyboard");
   });
 
   it("persists activeMode to DB for onboarded users", async () => {

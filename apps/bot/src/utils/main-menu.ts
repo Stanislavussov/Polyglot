@@ -116,12 +116,18 @@ function buttonLabel(item: MenuItem, lang: SupportedLang): string {
 /**
  * Builds the hot-button keyboard for the given interface language.
  *
- * Deliberately NOT `persistent()`: a pinned keyboard eats the bottom of every screen for
- * the entire life of the chat, which is a permanent tax for something a user reaches for a
- * few times a session. `oneTime()` hands it to the client and lets it fold away after use —
- * it is then one tap away behind the keyboard icon next to the input field, which is where
- * Telegram users already look for a bot's menu. The onboarding hand-off names that icon, so
- * the keyboard is never something the user has to discover by accident.
+ * Both of Telegram's visibility booleans are left off, and the combination is the point.
+ *
+ * `one_time_keyboard` is the one that had to go. It "requests clients to hide the keyboard
+ * as soon as it's been used" — the keyboard stays reachable, by the same documentation, but
+ * it collapsed after every single tap. A learner doing two things in a row re-opened it in
+ * between, and a collapsed menu is invisible to anyone who has forgotten where the icon is,
+ * which is the coming and going users reported.
+ *
+ * `is_persistent` stays off, which is the documented state where "the custom keyboard can be
+ * hidden and opened with a keyboard icon": collapsing it is now the user's decision, and the
+ * ⌨️ icon beside the input field takes it back either way. Turning it on pins the keyboard
+ * open for the life of the chat, which is rent for something reached a few times a session.
  */
 export function buildMainKeyboard(lang: SupportedLang): Keyboard {
   const kb = new Keyboard();
@@ -131,7 +137,7 @@ export function buildMainKeyboard(lang: SupportedLang): Keyboard {
       kb.text(buttonLabel(item, lang));
     }
   });
-  return kb.resized().oneTime();
+  return kb.resized();
 }
 
 let labelIndex: Map<string, MenuTap> | undefined;

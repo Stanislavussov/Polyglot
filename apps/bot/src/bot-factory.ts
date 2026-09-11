@@ -37,6 +37,7 @@ import { handlerName, withHandlerLog } from "./observability/handler-log.js";
 import { withCommandTracking } from "./observability/product-events.js";
 import { updateTraceMiddleware } from "./observability/update-trace.middleware.js";
 import { handleNudgeCardCallback, NUDGE_CALLBACK_PATTERN } from "./onboarding/activation-nudge.callbacks.js";
+import { onboardingGateMiddleware } from "./onboarding/onboarding-gate.js";
 import {
   handleLegacyOnboardingCallback,
   handleOnboardingCallback,
@@ -354,6 +355,10 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
     }),
   );
   bot.use(exitActiveConversations);
+
+  // Everything below assumes an onboarded user with language settings. Ahead of
+  // every command and callback route so nothing can be reached around it.
+  bot.use(onboardingGateMiddleware);
 
   // Runs before the handlers so a user who never saw the reply keyboard gets it
   // together with the response to the very message they just sent.

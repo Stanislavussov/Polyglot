@@ -79,7 +79,7 @@ callback is therefore logged with no second edit** — keep using the helpers.
 | Callbacks | `callback.stale` — a button whose backing state was gone, for every guard (`action`); `recovered` says whether a retry could be offered. Supersedes the per-site `vocabulary.save_state_lost` / `card.tts_state_lost` |
 | Vocabulary | `vocabulary.saved`, `.save_skipped`, `.save_failed` |
 | Dictionary | `dictionary.created`, `.renamed`, `.deleted`, `.entry_added`, `.entry_moved`, `.entry_removed`, `.translate_failed` |
-| Onboarding | `onboarding.started`, `.screen_rendered`, `.native_lang_selected`, `.learning_lang_confirmed`, `.languages_done`, `.completed`, `.demo_failed` |
+| Onboarding | `onboarding.started`, `.screen_rendered`, `.native_lang_selected`, `.learning_lang_confirmed`, `.languages_done`, `.completed`, `.demo_failed`, `.gate_redirected` (`kind`: `callback` \| `command` \| `message` — a not-yet-onboarded user reached a feature route and was put back on their onboarding screen) |
 | Settings | `settings.native_lang_changed`, `.interface_lang_changed`, `.learning_lang_added`/`_removed`, `.notifications_toggled`, `.notification_*_changed`, `.timezone_changed` |
 | SRS / flashcards | `srs.card_rated`, `srs.session_finished`, `flashcard.session_started`, `.session_finished` |
 | Notifications / cron | `notification.sent`, `notification.dictionary_exhausted`, `notification.preset.picked`/`.exhausted`/`.no_candidates`/`.unresolvable`, `nudge.*`, `retention.*` |

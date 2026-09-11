@@ -83,17 +83,19 @@ export async function showLanguagesScreen(
 export async function showDemoScreen(ctx: BotContext, state: OnboardingState): Promise<void> {
   const lang = state.interfaceLang;
   const hooks = getHookWordsForLangs(state.learningLangs);
-  const text = `${t("onbDemoPrompt", lang)}\n\n${t("onbDemoOrType", lang)}`;
 
   await enterStep(ctx, state, ONBOARDING_STEPS.demo);
 
   if (hooks.length === 0) {
     // No curated words for this language set — the typed path is still a full
-    // demo, so the screen degrades to an invitation rather than an empty wall.
-    await present(ctx, t("onbDemoOrType", lang), buildDemoKeyboard(ctx, state));
+    // demo, so the screen degrades to a standalone instruction. It cannot reuse
+    // `onbDemoOrType`: that line is a continuation of the tap invitation, and on
+    // its own above an empty keyboard it reads as an "or" with no first branch.
+    await present(ctx, t("onbDemoTypeOnly", lang), buildDemoKeyboard(ctx, state));
     return;
   }
 
+  const text = `${t("onbDemoPrompt", lang)}\n\n${t("onbDemoOrType", lang)}`;
   await present(ctx, text, buildDemoKeyboard(ctx, state));
 }
 
@@ -110,7 +112,7 @@ export async function showFinalScreen(ctx: BotContext, state: OnboardingState): 
   // rather than a second message after it: the inline feature buttons that used to
   // sit here (dictionary, training, video) were the same modes a second time, and
   // the message that delivered the keyboard then explained them a third. The ⌨️
-  // icon is still named — a `oneTime()` keyboard folds away after use, so an
+  // icon is still named: the keyboard arrives open and the user collapses it, so an
   // unnamed icon is a menu the user has to rediscover by accident.
   await installMainKeyboard(
     ctx,

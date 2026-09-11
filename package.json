@@ -41,7 +41,8 @@
     "db:schema:report": "pnpm --filter @polyglot/adapter-db schema:report && pnpm reports:sync-admin",
     "admin:seed": "pnpm --filter @polyglot/admin-api run seed",
     "demo-cards:warm": "pnpm --filter @polyglot/bot run demo-cards:warm",
-    "ansible": "./scripts/run-ansible.sh"
+    "ansible": "./scripts/run-ansible.sh",
+    "ansible:dev": "POLYGLOT_ENV=dev ./scripts/run-ansible.sh"
   },
   "dependencies": {
     "@polyglot/adapter-db": "workspace:*",

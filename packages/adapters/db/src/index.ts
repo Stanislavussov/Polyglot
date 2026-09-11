@@ -5,6 +5,8 @@ export type { CachedLanguage } from "@polyglot/core";
 export type { Db } from "./connection.js";
 export { closeDb, getDb, pingDatabase } from "./connection.js";
 export { createContextLookup } from "./context-lookup.js";
+export type { UserResetIdentifier, UserResetResult } from "./dev-user-reset.js";
+export { formatUserResetIdentifier, parseUserResetIdentifiers, resetUsers } from "./dev-user-reset.js";
 // Language cache — loaded from DB, serves all language metadata
 export {
   getAllLangs,

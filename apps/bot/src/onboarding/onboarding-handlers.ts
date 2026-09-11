@@ -73,6 +73,13 @@ export async function startOnboarding(ctx: BotContext): Promise<void> {
   await renderCurrentScreen(ctx, state);
 }
 
+/** Put the user back on their current screen without counting it as a fresh start. */
+export async function resumeOnboarding(ctx: BotContext): Promise<void> {
+  const state = await loadOnboardingState(ctx);
+  if (!state) return;
+  await renderCurrentScreen(ctx, state);
+}
+
 /** Render whichever screen the persisted state says the user is on. */
 async function renderCurrentScreen(ctx: BotContext, state: OnboardingState): Promise<void> {
   logEvent("onboarding.screen_rendered", { step: state.step, learningLangs: state.learningLangs });

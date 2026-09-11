@@ -3,7 +3,18 @@
  * bound them with a timeout so the user never stares at an endless loader,
  * and show a typing indicator during silent pre-phases.
  */
-import { AICircuitOpenError, AITimeoutError, type SupportedLang, t } from "@polyglot/core";
+import {
+  AICircuitOpenError,
+  AITimeoutError,
+  composeLoaderText,
+  hasWaitPhrases,
+  type LoaderKind,
+  loaderEmoji,
+  loaderPhraseKeys,
+  type SupportedLang,
+  t,
+  waitPhrases,
+} from "@polyglot/core";
 import type { InlineKeyboardMarkup } from "grammy/types";
 import type { BotContext } from "../types.js";
 
@@ -129,4 +140,103 @@ export function startTypingKeepalive(ctx: BotContext): () => void {
   sendTypingIndicator(ctx);
   const interval = setInterval(() => sendTypingIndicator(ctx), TYPING_KEEPALIVE_MS);
   return () => clearInterval(interval);
+}
+
+/** How often the loader message swaps to a fresh phrase. */
+const LOADER_TICK_MS = 5_000;
+
+/**
+ * A loader message together with the ticker that keeps rewriting it.
+ *
+ * `stop()` MUST run before the message is deleted — otherwise the interval
+ * outlives its message and keeps editing an id Telegram no longer knows.
+ * {@link dismissLoader} does both in the right order.
+ */
+export interface Loader {
+  chatId: number;
+  messageId: number;
+  stop: () => void;
+}
+
+function randomOf<T>(options: readonly T[]): T | undefined {
+  return options[Math.floor(Math.random() * options.length)];
+}
+
+/**
+ * Interface-language fallback line, used only for a user with no learning
+ * language the loader can speak (mid-onboarding, or a language with no phrase
+ * set of its own).
+ */
+function fallbackPhrase(kind: LoaderKind, stage: number, lang: SupportedLang, current?: string): string {
+  const options = loaderPhraseKeys(kind, stage)
+    .map((key) => t(key, lang))
+    .filter((text) => text !== current);
+  return randomOf(options) ?? current ?? "";
+}
+
+/**
+ * The next line to show, never the one already on screen: Telegram rejects an
+ * edit that leaves the text unchanged, and a repeat would read as a frozen bot.
+ *
+ * `rotation` is the user's own learning languages, so each tick speaks a
+ * different one of them — a wait that used to be dead air now spends it on the
+ * colloquial filler those languages actually use.
+ */
+function nextLoaderText(
+  kind: LoaderKind,
+  stage: number,
+  lang: SupportedLang,
+  rotation: readonly string[],
+  current?: string,
+): string {
+  const langCode = rotation[stage % rotation.length];
+  if (langCode === undefined) return fallbackPhrase(kind, stage, lang, current);
+
+  const emoji = randomOf(loaderEmoji(kind));
+  const options =
+    emoji === undefined
+      ? []
+      : waitPhrases(langCode, stage)
+          .map((phrase) => composeLoaderText(emoji, langCode, phrase))
+          .filter((text) => text !== current);
+  return randomOf(options) ?? fallbackPhrase(kind, stage, lang, current);
+}
+
+/**
+ * Sends the loader message for a long operation and walks its text forward while
+ * the operation runs: a fresh phrase every {@link LOADER_TICK_MS}, in the next of
+ * the user's learning languages, drawn from the stage that matches how long they
+ * have been waiting. Most translations finish inside the first tick and never
+ * move — which is why the opening language is drawn at random rather than always
+ * being the first one the user picked.
+ */
+export async function sendLoader(
+  ctx: BotContext,
+  kind: LoaderKind,
+  lang: SupportedLang,
+  learningLangs: readonly string[] = [],
+): Promise<Loader> {
+  const covered = learningLangs.filter(hasWaitPhrases);
+  const offset = covered.length > 0 ? Math.floor(Math.random() * covered.length) : 0;
+  const rotation = [...covered.slice(offset), ...covered.slice(0, offset)];
+
+  let current = nextLoaderText(kind, 0, lang, rotation);
+  // Captured now: the ticks fire long after the handler's own frame is gone.
+  const chatId = ctx.chat!.id;
+  const message = await ctx.reply(current);
+
+  let stage = 0;
+  const interval = setInterval(() => {
+    stage += 1;
+    current = nextLoaderText(kind, stage, lang, rotation, current);
+    void ctx.api.editMessageText(chatId, message.message_id, current).catch(() => undefined);
+  }, LOADER_TICK_MS);
+
+  return { chatId, messageId: message.message_id, stop: () => clearInterval(interval) };
+}
+
+/** Stops the ticker, then removes the loader message. Never throws. */
+export async function dismissLoader(ctx: BotContext, loader: Loader): Promise<void> {
+  loader.stop();
+  await ctx.api.deleteMessage(loader.chatId, loader.messageId).catch(() => {});
 }

@@ -21,7 +21,14 @@ import { recordEffort } from "../../momentum/momentum.wiring.js";
 import type { BotContext } from "../../types.js";
 import { buildAiFailover, resolveDefaultAIModel, resolveFallbackAIModel } from "../../utils/ai-model.js";
 import { ensureAiQuota, ensureMentorDailyQuota, recordAiUsage } from "../../utils/ai-quota.js";
-import { isUserFacingTimeout, LONG_OP_TIMEOUT_MS, sendTypingIndicator, withTimeout } from "../../utils/long-op.js";
+import {
+  dismissLoader,
+  isUserFacingTimeout,
+  LONG_OP_TIMEOUT_MS,
+  sendLoader,
+  sendTypingIndicator,
+  withTimeout,
+} from "../../utils/long-op.js";
 import { replyWithRetry } from "../../utils/retry-action.js";
 import { mentorAnswerKeyboard } from "./mentor-exit.helper.js";
 import { ensurePaidFeatureForMessage } from "./paid-feature.helper.js";
@@ -120,7 +127,7 @@ export async function handleMentorText(ctx: BotContext, text: string, opts?: Men
   ];
 
   // Show loading indicator
-  const loadingMsg = await ctx.reply(t("mentorThinking", lang));
+  const loader = await sendLoader(ctx, "mentor", lang, settings?.learningLangs ?? []);
 
   const stopTimer = mentorDuration.startTimer();
   try {
@@ -150,7 +157,7 @@ export async function handleMentorText(ctx: BotContext, text: string, opts?: Men
     });
 
     // Delete loading indicator (ignore errors if already deleted)
-    await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
+    await dismissLoader(ctx, loader);
 
     // Plain ctx.reply on purpose: mentor answers are content, and the technical
     // cleanup sweep must never delete a message a reply-continuation can anchor to.
@@ -198,7 +205,7 @@ export async function handleMentorText(ctx: BotContext, text: string, opts?: Men
     logger.error({ err, userId: ctx.user.id, textLength: text.length }, "Mentor chat failed");
 
     // Delete loading indicator and show error
-    await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
+    await dismissLoader(ctx, loader);
 
     // Transient timeout → offer a one-tap retry of the same turn (the message is
     // not persisted yet, so re-running it cannot duplicate the turn).
@@ -208,5 +215,7 @@ export async function handleMentorText(ctx: BotContext, text: string, opts?: Men
       return;
     }
     await ctx.reply(t("mentorError", lang));
+  } finally {
+    loader.stop();
   }
 }
