@@ -86,12 +86,13 @@ describe("product events (integration)", () => {
 
     // Assert — every step is on record, in order.
     const rows = await waitForEvents(userId, 4);
-    expect(rows.map((row) => row.event)).toEqual([
-      "feature.locked",
-      "paywall.shown",
-      "plan.selected",
-      "plan.confirmed",
-    ]);
+    // The gate writes `feature.locked` and `paywall.shown` for the SAME tap, and
+    // both are fire-and-forget: their inserts race, so the pair has no stable
+    // order between them. Order is only a fact between steps the user separated
+    // with a tap of their own — asserting more than that tests the scheduler.
+    const [refusal, offer, ...rest] = rows.map((row) => row.event);
+    expect([refusal, offer].sort()).toEqual(["feature.locked", "paywall.shown"]);
+    expect(rest).toEqual(["plan.selected", "plan.confirmed"]);
 
     // The refusal names the feature that refused, not a generic "paywall".
     expect(named(rows, "feature.locked")[0]).toMatchObject({ context: "pronunciation", plan: "free" });
