@@ -106,7 +106,7 @@
   "connotationWarning": "ℹ️ {warning}",
   "templateTitle": "⚙️ Übersetzungsvorlage",
   "templateCurrent": "Aktuelle Vorlage: <b>{name}</b>",
-  "templateDefault": "Du verwendest die Standardvorlage (alle Abschnitte sichtbar).",
+  "templateDefault": "Du verwendest die Standardvorlage (Übersetzung, 3 Beispielsätze und Konnotationshinweise). Weitere Abschnitte schaltest du unter Anpassen frei.",
   "templateCustom": "Du hast eine eigene Vorlage. Tippe auf Anpassen, um sie zu bearbeiten.",
   "templateCustomize": "📝 Anpassen",
   "templateReset": "🔄 Auf Standard zurücksetzen",

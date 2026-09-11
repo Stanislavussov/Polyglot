@@ -106,7 +106,7 @@
   "connotationWarning": "ℹ️ {warning}",
   "templateTitle": "⚙️ Modèle de traduction",
   "templateCurrent": "Modèle actuel : <b>{name}</b>",
-  "templateDefault": "Tu utilises le modèle par défaut (toutes les sections visibles).",
+  "templateDefault": "Tu utilises le modèle par défaut (traduction, 3 phrases d'exemple et avertissements de connotation). Active d'autres sections via Personnaliser.",
   "templateCustom": "Tu as un modèle personnalisé. Appuie sur Personnaliser pour le modifier.",
   "templateCustomize": "📝 Personnaliser",
   "templateReset": "🔄 Réinitialiser par défaut",

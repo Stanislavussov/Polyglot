@@ -106,7 +106,7 @@
   "connotationWarning": "ℹ️ {warning}",
   "templateTitle": "⚙️ Modelo de tradução",
   "templateCurrent": "Modelo atual: <b>{name}</b>",
-  "templateDefault": "Estás a usar o modelo predefinido (todas as secções visíveis).",
+  "templateDefault": "Estás a usar o modelo predefinido (tradução, 3 frases de exemplo e avisos de conotação). Ativa mais secções em Personalizar.",
   "templateCustom": "Tens um modelo personalizado. Toca em Personalizar para editar.",
   "templateCustomize": "📝 Personalizar",
   "templateReset": "🔄 Repor predefinição",

@@ -106,7 +106,7 @@
   "connotationWarning": "ℹ️ {warning}",
   "templateTitle": "⚙️ Plantilla de traducción",
   "templateCurrent": "Plantilla actual: <b>{name}</b>",
-  "templateDefault": "Estás usando la plantilla predeterminada (todas las secciones visibles).",
+  "templateDefault": "Estás usando la plantilla predeterminada (traducción, 3 frases de ejemplo y avisos de connotación). Activa más secciones en Personalizar.",
   "templateCustom": "Tienes una plantilla personalizada. Pulsa Personalizar para editarla.",
   "templateCustomize": "📝 Personalizar",
   "templateReset": "🔄 Restablecer a predeterminada",

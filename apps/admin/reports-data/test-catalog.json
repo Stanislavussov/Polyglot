@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-09-09T18:46:40.000Z",
+  "generatedAt": "2026-09-09T18:49:12.000Z",
   "summary": {
-    "total": 3157,
+    "total": 3158,
     "business": 0,
-    "technical": 3157,
+    "technical": 3158,
     "workspaces": [
       "apps",
       "packages"
@@ -15707,7 +15707,7 @@
       "description": "Protects the bot handle Regen Loop behavior: calls translate One on regen and re renders card."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-regen-helper-test-ts-192-handleregenloop-passes-learner-friendly-default-outputconfig-to-translateone",
+      "id": "apps-bot-src-scenes-helpers-regen-helper-test-ts-192-handleregenloop-passes-the-default-template-outputconfig-to-translateone",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/regen.helper.test.ts",
       "sourceLine": 192,
@@ -15716,11 +15716,11 @@
       "suitePath": [
         "handleRegenLoop"
       ],
-      "title": "passes learner-friendly default outputConfig to translateOne",
-      "rawTitle": "passes learner-friendly default outputConfig to translateOne",
-      "name": "Bot handle Regen Loop passes learner friendly default output Config to translate One",
-      "value": "Protects the bot handle Regen Loop behavior so passes learner friendly default output Config to translate One.",
-      "description": "Protects the bot handle Regen Loop behavior so passes learner friendly default output Config to translate One."
+      "title": "passes the default template outputConfig to translateOne",
+      "rawTitle": "passes the default template outputConfig to translateOne",
+      "name": "Bot handle Regen Loop passes the default template output Config to translate One",
+      "value": "Protects the bot handle Regen Loop behavior so passes the default template output Config to translate One.",
+      "description": "Protects the bot handle Regen Loop behavior so passes the default template output Config to translate One."
     },
     {
       "id": "apps-bot-src-scenes-helpers-regen-helper-test-ts-211-handleregenloop-shows-loading-message-during-regeneration",
@@ -16091,7 +16091,7 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: does not call AI when the monthly translation limit is exhausted."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-271-handletranslatetext-context-enrichment-passes-learner-friendly-default-outputconfig",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-271-handletranslatetext-context-enrichment-passes-the-default-template-outputconfig",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
       "sourceLine": 271,
@@ -16100,11 +16100,11 @@
       "suitePath": [
         "handleTranslateText — context enrichment"
       ],
-      "title": "passes learner-friendly default outputConfig",
-      "rawTitle": "passes learner-friendly default outputConfig",
-      "name": "Bot handle Translate Text — context enrichment passes learner friendly default output Config",
-      "value": "Protects the bot handle Translate Text — context enrichment behavior so passes learner friendly default output Config.",
-      "description": "Protects the bot handle Translate Text — context enrichment behavior so passes learner friendly default output Config."
+      "title": "passes the default template outputConfig",
+      "rawTitle": "passes the default template outputConfig",
+      "name": "Bot handle Translate Text — context enrichment passes the default template output Config",
+      "value": "Protects the bot handle Translate Text — context enrichment behavior so passes the default template output Config.",
+      "description": "Protects the bot handle Translate Text — context enrichment behavior so passes the default template output Config."
     },
     {
       "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-288-handletranslatetext-context-enrichment-passes-lookupcontext-from-createcontextlookup-to-deps",
@@ -42372,10 +42372,26 @@
       "description": "Protects the core domain translate() with SENTENCE OUTPUT and input Type=sentence behavior so sentence translation strips disabled fields from AI response."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-473-translate-with-sentence-output-and-inputtype-sentence-omits-emoji-and-nativemeaning-for-sentence-output-and-never-requests-an-emoji",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-472-translate-with-sentence-output-and-inputtype-sentence-drops-source-usage-synonyms-and-examples-the-config-disabled",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 473,
+      "sourceLine": 472,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "translate() with SENTENCE_OUTPUT and inputType=sentence"
+      ],
+      "title": "drops source-usage synonyms and examples the config disabled",
+      "rawTitle": "drops source-usage synonyms and examples the config disabled",
+      "name": "Core domain translate() with SENTENCE OUTPUT and input Type=sentence drops source usage synonyms and examples the config disabled",
+      "value": "Protects the core domain translate() with SENTENCE OUTPUT and input Type=sentence behavior so drops source usage synonyms and examples the config disabled.",
+      "description": "Protects the core domain translate() with SENTENCE OUTPUT and input Type=sentence behavior so drops source usage synonyms and examples the config disabled."
+    },
+    {
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-503-translate-with-sentence-output-and-inputtype-sentence-omits-emoji-and-nativemeaning-for-sentence-output-and-never-requests-an-emoji",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
+      "sourceLine": 503,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -42388,10 +42404,10 @@
       "description": "Protects the core domain translate() with SENTENCE OUTPUT and input Type=sentence behavior: omits emoji and native Meaning for sentence output and never requests an emoji."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-512-translate-with-sentence-output-and-inputtype-sentence-keeps-the-emoji-for-a-word-translation-word-phrase-unchanged",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-542-translate-with-sentence-output-and-inputtype-sentence-keeps-the-emoji-for-a-word-translation-word-phrase-unchanged",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 512,
+      "sourceLine": 542,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -50623,7 +50639,7 @@
       "description": "Protects the core domain is Finite Positive behavior: rejects Na N, Infinity, zero, negatives and non numbers."
     },
     {
-      "id": "packages-core-src-shared-tests-translation-template-test-ts-12-default-template-has-learner-friendly-default-fields-for-words-and-phrases",
+      "id": "packages-core-src-shared-tests-translation-template-test-ts-12-default-template-enables-only-examples-and-connotation-warnings-on-top-of-the-translation",
       "kind": "technical",
       "filePath": "packages/core/src/shared/__tests__/translation-template.test.ts",
       "sourceLine": 12,
@@ -50632,11 +50648,11 @@
       "suitePath": [
         "DEFAULT_TEMPLATE"
       ],
-      "title": "has learner-friendly default fields for words and phrases",
-      "rawTitle": "has learner-friendly default fields for words and phrases",
-      "name": "Core domain DEFAULT TEMPLATE has learner friendly default fields for words and phrases",
-      "value": "Protects the core domain DEFAULT TEMPLATE behavior so has learner friendly default fields for words and phrases.",
-      "description": "Protects the core domain DEFAULT TEMPLATE behavior so has learner friendly default fields for words and phrases."
+      "title": "enables only examples and connotation warnings on top of the translation",
+      "rawTitle": "enables only examples and connotation warnings on top of the translation",
+      "name": "Core domain DEFAULT TEMPLATE enables only examples and connotation warnings on top of the translation",
+      "value": "Protects the core domain DEFAULT TEMPLATE behavior so enables only examples and connotation warnings on top of the translation.",
+      "description": "Protects the core domain DEFAULT TEMPLATE behavior so enables only examples and connotation warnings on top of the translation."
     },
     {
       "id": "packages-core-src-shared-tests-translation-template-test-ts-28-template-field-keys-contains-all-field-keys-in-display-order",
@@ -50655,7 +50671,7 @@
       "description": "Protects the core domain TEMPLATE FIELD KEYS behavior so contains all field keys in display order."
     },
     {
-      "id": "packages-core-src-shared-tests-translation-template-test-ts-41-templatetooutputconfig-converts-default-template-to-learner-friendly-output",
+      "id": "packages-core-src-shared-tests-translation-template-test-ts-41-templatetooutputconfig-converts-the-default-template-to-examples-plus-connotation-warnings",
       "kind": "technical",
       "filePath": "packages/core/src/shared/__tests__/translation-template.test.ts",
       "sourceLine": 41,
@@ -50664,17 +50680,17 @@
       "suitePath": [
         "templateToOutputConfig"
       ],
-      "title": "converts default template to learner-friendly output",
-      "rawTitle": "converts default template to learner-friendly output",
-      "name": "Core domain template To Output Config converts default template to learner friendly output",
-      "value": "Protects the core domain template To Output Config behavior: converts default template to learner friendly output.",
-      "description": "Protects the core domain template To Output Config behavior: converts default template to learner friendly output."
+      "title": "converts the default template to examples plus connotation warnings",
+      "rawTitle": "converts the default template to examples plus connotation warnings",
+      "name": "Core domain template To Output Config converts the default template to examples plus connotation warnings",
+      "value": "Protects the core domain template To Output Config behavior: converts the default template to examples plus connotation warnings.",
+      "description": "Protects the core domain template To Output Config behavior: converts the default template to examples plus connotation warnings."
     },
     {
-      "id": "packages-core-src-shared-tests-translation-template-test-ts-50-templatetooutputconfig-maps-template-fields-to-output-config-flags",
+      "id": "packages-core-src-shared-tests-translation-template-test-ts-49-templatetooutputconfig-maps-template-fields-to-output-config-flags",
       "kind": "technical",
       "filePath": "packages/core/src/shared/__tests__/translation-template.test.ts",
-      "sourceLine": 50,
+      "sourceLine": 49,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -50687,10 +50703,10 @@
       "description": "Protects the core domain template To Output Config behavior: maps template fields to output config flags."
     },
     {
-      "id": "packages-core-src-shared-tests-translation-template-test-ts-77-resolveoutputconfig-returns-sentence-output-for-sentence-input-regardless-of-user-template",
+      "id": "packages-core-src-shared-tests-translation-template-test-ts-76-resolveoutputconfig-returns-sentence-output-for-sentence-input-regardless-of-user-template",
       "kind": "technical",
       "filePath": "packages/core/src/shared/__tests__/translation-template.test.ts",
-      "sourceLine": 77,
+      "sourceLine": 76,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -50703,10 +50719,10 @@
       "description": "Protects the core domain resolve Output Config behavior: returns sentence output for sentence input regardless of user template."
     },
     {
-      "id": "packages-core-src-shared-tests-translation-template-test-ts-93-resolveoutputconfig-returns-default-config-when-user-template-is-null-for-words-and-phrases",
+      "id": "packages-core-src-shared-tests-translation-template-test-ts-92-resolveoutputconfig-returns-default-config-when-user-template-is-null-for-words-and-phrases",
       "kind": "technical",
       "filePath": "packages/core/src/shared/__tests__/translation-template.test.ts",
-      "sourceLine": 93,
+      "sourceLine": 92,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -50719,10 +50735,10 @@
       "description": "Protects the core domain resolve Output Config behavior: returns default config when user template is null for words and phrases."
     },
     {
-      "id": "packages-core-src-shared-tests-translation-template-test-ts-104-resolveoutputconfig-returns-custom-config-for-word-and-phrase-input",
+      "id": "packages-core-src-shared-tests-translation-template-test-ts-102-resolveoutputconfig-returns-custom-config-for-word-and-phrase-input",
       "kind": "technical",
       "filePath": "packages/core/src/shared/__tests__/translation-template.test.ts",
-      "sourceLine": 104,
+      "sourceLine": 102,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -50735,10 +50751,10 @@
       "description": "Protects the core domain resolve Output Config behavior: returns custom config for word and phrase input."
     },
     {
-      "id": "packages-core-src-shared-tests-translation-template-test-ts-125-resolvetemplate-returns-default-template-when-input-is-null",
+      "id": "packages-core-src-shared-tests-translation-template-test-ts-123-resolvetemplate-returns-default-template-when-input-is-null",
       "kind": "technical",
       "filePath": "packages/core/src/shared/__tests__/translation-template.test.ts",
-      "sourceLine": 125,
+      "sourceLine": 123,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -50751,10 +50767,10 @@
       "description": "Protects the core domain resolve Template behavior: returns DEFAULT TEMPLATE when input is null."
     },
     {
-      "id": "packages-core-src-shared-tests-translation-template-test-ts-129-resolvetemplate-returns-the-custom-template-as-is-when-provided",
+      "id": "packages-core-src-shared-tests-translation-template-test-ts-127-resolvetemplate-returns-the-custom-template-as-is-when-provided",
       "kind": "technical",
       "filePath": "packages/core/src/shared/__tests__/translation-template.test.ts",
-      "sourceLine": 129,
+      "sourceLine": 127,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [

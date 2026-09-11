@@ -106,7 +106,7 @@
   "connotationWarning": "ℹ️ {warning}",
   "templateTitle": "⚙️ Translation Template",
   "templateCurrent": "Current template: <b>{name}</b>",
-  "templateDefault": "You're using the default template (all sections visible).",
+  "templateDefault": "You're using the default template (translation, 3 example sentences and connotation warnings). Turn on more sections via Customize.",
   "templateCustom": "You have a custom template. Tap Customize to edit.",
   "templateCustomize": "📝 Customize",
   "templateReset": "🔄 Reset to Default",

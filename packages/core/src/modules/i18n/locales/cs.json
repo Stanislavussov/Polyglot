@@ -106,7 +106,7 @@
   "connotationWarning": "ℹ️ {warning}",
   "templateTitle": "⚙️ Šablona překladu",
   "templateCurrent": "Aktuální šablona: <b>{name}</b>",
-  "templateDefault": "Používáte výchozí šablonu (všechny sekce jsou viditelné).",
+  "templateDefault": "Používáte výchozí šablonu (překlad, 3 příklady vět a upozornění na konotace). Ostatní sekce zapnete v Upravit.",
   "templateCustom": "Máte vlastní šablonu. Klepněte na Upravit pro změny.",
   "templateCustomize": "📝 Upravit",
   "templateReset": "🔄 Obnovit výchozí",

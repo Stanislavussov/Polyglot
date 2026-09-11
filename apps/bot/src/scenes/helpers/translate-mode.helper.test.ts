@@ -268,19 +268,19 @@ describe("handleTranslateText — context enrichment", () => {
     );
   });
 
-  it("passes learner-friendly default outputConfig", async () => {
+  it("passes the default template outputConfig", async () => {
     const ctx = createMockCtx();
     await handleTranslateText(ctx, "hello");
 
     const inputArg = vi.mocked(translateWithContext).mock.calls[0]![0];
     expect(inputArg.outputConfig).toEqual({
-      includeExamples: false,
-      includeSynonyms: true,
-      includeAlternatives: true,
+      includeExamples: true,
+      includeSynonyms: false,
+      includeAlternatives: false,
       includeEquivalentNote: false,
       includeUsageNote: true,
-      includeConnotationWarning: false,
-      includeNativeSynonyms: true,
+      includeConnotationWarning: true,
+      includeNativeSynonyms: false,
       includeGrammarBreakdown: false,
     });
   });

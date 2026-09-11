@@ -106,7 +106,7 @@
   "connotationWarning": "ℹ️ {warning}",
   "templateTitle": "⚙️ Szablon tłumaczenia",
   "templateCurrent": "Bieżący szablon: <b>{name}</b>",
-  "templateDefault": "Używasz domyślnego szablonu (wszystkie sekcje widoczne).",
+  "templateDefault": "Używasz domyślnego szablonu (tłumaczenie, 3 przykładowe zdania i ostrzeżenia o konotacjach). Więcej sekcji włączysz w Dostosuj.",
   "templateCustom": "Masz własny szablon. Dotknij Dostosuj, aby edytować.",
   "templateCustomize": "📝 Dostosuj",
   "templateReset": "🔄 Przywróć domyślny",

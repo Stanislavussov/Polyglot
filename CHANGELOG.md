@@ -6,7 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- **A new user's card now carries the translation, three example sentences and connotation warnings — nothing else.** The untouched default template shipped synonyms and alternative variants but no examples, so the first card a user ever saw listed near-synonyms without a single sentence showing the word in use, while the `/template` screen claimed "all sections visible". The default is now translation + 3 examples + connotation warnings; synonyms, alternative variants, the idiomatic-equivalent note and the grammar breakdown stay off until the user turns them on in `/template`, and the screen says so. Users who already saved a custom template are unaffected — this only changes what "Default" means.
+
 ### Fixed
+
+- **A section you switched off no longer comes back on the saved card.** The source-language block (the one that puts the word's near-synonyms next to the headword) was the only part of a translation the output config never filtered: the per-language blocks were stripped of every disabled section before the card was built and stored, but the model's source block went through whole. So a user with synonyms off saw none on the fresh translate card — which filters again at render time — and then saw them reappear on exactly the same word opened from the dictionary, a flashcard, an SRS review or an expanded notification, all of which render from what was stored. The source block is now stripped like every other, so nothing the template hides is persisted.
 
 - **Until onboarding is finished, the bot does nothing but onboarding.** A user who had not chosen a language could still reach every feature: a tap on a leftover dictionary or card button, a typed `/dictionary`, `/settings` or any other command, a voice note or a photo all ran the feature on an empty profile — no native language, no learning languages — and left the user stranded between "new" and "onboarded" (seen on the dev environment, where a deploy resets the tester's account while old buttons stay on screen; the same happens to anyone whose account was deleted). Only free text and the onboarding buttons themselves were guarded. A single gate now sits ahead of every command and callback route: for a not-yet-onboarded user, anything other than `/start`, plain text and the onboarding buttons is acknowledged and answered with their current onboarding screen. Covered end-to-end through the real dispatcher and Postgres (feature tap, foreign command, voice note, and that the gate lifts once onboarded).
 
