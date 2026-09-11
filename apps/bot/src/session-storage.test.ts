@@ -1,9 +1,14 @@
+import { USER_MODES } from "@polyglot/adapter-db";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { type SessionData, USER_MODES } from "./types.js";
+import type { SessionData } from "./types.js";
 
-const getSessionFn = vi.fn();
-const upsertSessionFn = vi.fn();
-const deleteSessionFn = vi.fn();
+// Hoisted: the top-level `USER_MODES` import triggers the factory below before
+// plain `const`s at this level would have initialised.
+const { getSessionFn, upsertSessionFn, deleteSessionFn } = vi.hoisted(() => ({
+  getSessionFn: vi.fn(),
+  upsertSessionFn: vi.fn(),
+  deleteSessionFn: vi.fn(),
+}));
 
 vi.mock("@polyglot/adapter-db", async () => {
   const actual = await vi.importActual<typeof import("@polyglot/adapter-db")>("@polyglot/adapter-db");

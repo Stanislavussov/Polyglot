@@ -17,6 +17,7 @@ import {
   t,
 } from "@polyglot/core";
 import { mentorCounter, mentorDuration } from "../../metrics.js";
+import { markMentorActivity } from "../../modes/mode-policy.js";
 import { recordEffort } from "../../momentum/momentum.wiring.js";
 import type { BotContext } from "../../types.js";
 import { buildAiFailover, resolveDefaultAIModel, resolveFallbackAIModel } from "../../utils/ai-model.js";
@@ -34,17 +35,19 @@ import { mentorAnswerKeyboard } from "./mentor-exit.helper.js";
 import { ensurePaidFeatureForMessage } from "./paid-feature.helper.js";
 
 /** Maximum input message length in characters. */
-const MENTOR_MAX_INPUT_LENGTH = 1000;
+export const MENTOR_MAX_INPUT_LENGTH = 1000;
 
 export interface MentorTurnOptions {
   /** Thread to continue (reply-continuation or retry); resolved from session/DB when absent. */
   threadId?: string;
+  /** Held user message id, for a turn resumed from a callback where `ctx.message` is absent. */
+  userMessageId?: number;
 }
 
 /**
  * Which thread this turn belongs to.
  *
- * `/mentor` writes `session.mentor = {}` (fresh start, no recovery); a session
+ * `/mentor` writes a stamp without a `threadId` (fresh start, no recovery); a session
  * that lost the field entirely (restart, retention sweep) recovers the chat's
  * latest thread from the DB so an ongoing conversation survives session loss.
  */
@@ -176,12 +179,13 @@ export async function handleMentorText(ctx: BotContext, text: string, opts?: Men
     try {
       const chatId = ctx.chat!.id;
       const base = { userId: ctx.user.id, chatId, threadId, interfaceLang: lang };
-      if (ctx.message?.message_id !== undefined) {
+      const userMessageId = opts?.userMessageId ?? ctx.message?.message_id;
+      if (userMessageId !== undefined) {
         await ctx.services.mentorMessageRepository.record({
           ...base,
           role: "user",
           content: text,
-          telegramMessageId: ctx.message.message_id,
+          telegramMessageId: userMessageId,
         });
       }
       await ctx.services.mentorMessageRepository.record({
@@ -197,7 +201,7 @@ export async function handleMentorText(ctx: BotContext, text: string, opts?: Men
     // Pin the current thread only in mentor mode: a reply-continuation fired
     // from translate mode must not hijack the next plain mentor message.
     if (ctx.session.activeMode === "mentor") {
-      ctx.session.mentor = { threadId };
+      markMentorActivity(ctx.session, threadId);
     }
   } catch (err) {
     stopTimer();

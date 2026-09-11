@@ -174,5 +174,7 @@ export type {
 export * from "./schema.js";
 export { notificationHistory } from "./schema.js";
 export { settingsAdapter } from "./settings-adapter.js";
+export type { UserMode } from "./user-modes.js";
+export { USER_MODES } from "./user-modes.js";
 export { createWordLanguageSweep } from "./word-language-sweep.js";
 export { schema };

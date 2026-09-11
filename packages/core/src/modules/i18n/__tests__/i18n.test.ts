@@ -1100,3 +1100,15 @@ describe("i18n — locale completeness across all interface languages", () => {
     });
   }
 });
+
+describe("i18n — mentor idle prompt keys (Task 83)", () => {
+  const mentorIdleKeys: I18nKey[] = ["mentorIdleQuestion", "mentorIdleStayButton", "mentorIdleSwitchButton"];
+
+  it.each(["ru", "cs", "de"] as const)("%s translates every mentor idle key (differs from English)", (lang) => {
+    for (const key of mentorIdleKeys) {
+      const enResult = t(key, "en");
+      const localeResult = t(key, lang);
+      expect(localeResult).not.toBe(enResult);
+    }
+  });
+});

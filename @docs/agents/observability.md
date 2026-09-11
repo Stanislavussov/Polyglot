@@ -70,6 +70,7 @@ callback is therefore logged with no second edit** — keep using the helpers.
 | Update lifecycle | `update.received`, `update.finished`, `update.failed`, `update.unhandled` |
 | Handlers | `handler.started` (debug), `handler.finished`, `handler.failed` |
 | Text routing | `mode_router.routed`, `mode_router.rejected`, `mode_router.idle_fallback` |
+| Mentor idle prompt (Task 83) | `mentor.idle_prompt_shown` (`idleMs`), `mentor.idle_prompt_choice` (`choice`: `stay` \| `translate` \| `stale`) |
 | Outgoing Telegram | `telegram.api.call`, `telegram.api.body` (debug), `telegram.api.failed` |
 | Session | `session.loaded`/`saved` (debug), `session.miss` (debug), `session.repaired`, `session.reset`, `session.deleted` |
 | Translation | `translation.language_detected`, `.direction_resolved`, `.completed`, `.failed`, `.clarification_requested` |
