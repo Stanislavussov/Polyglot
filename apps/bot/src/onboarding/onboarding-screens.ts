@@ -112,13 +112,16 @@ export async function showFinalScreen(ctx: BotContext, state: OnboardingState): 
   // rather than a second message after it: the inline feature buttons that used to
   // sit here (dictionary, training, video) were the same modes a second time, and
   // the message that delivered the keyboard then explained them a third. The ⌨️
-  // icon is still named: the keyboard arrives open and the user collapses it, so an
-  // unnamed icon is a menu the user has to rediscover by accident.
-  await installMainKeyboard(
-    ctx,
-    `${t("onbDemoMore", lang)}\n\n${t("onboardingComplete", lang)}\n\n${t("mainMenuHint", lang)}`,
-    lang,
-  );
+  // icon is still named inside the copy: the keyboard arrives open and the user
+  // collapses it, so an unnamed icon is a menu the user has to rediscover by
+  // accident.
+  //
+  // One key, not three glued together. The screen used to concatenate a "want
+  // another?" nudge, the instructions, and `mainMenuHint` — three voices that
+  // opened with a question, answered it with "Готово", invited a word twice, and
+  // ended on a hint written for users who onboarded before the menu existed. The
+  // nudge also fired on the path where the demo produced no card at all.
+  await installMainKeyboard(ctx, t("onboardingComplete", lang), lang);
 
   await ctx.services.userRepository.markOnboarded(state.userId);
   recordOnboardingStep(ONBOARDING_STEPS.complete, "completed");

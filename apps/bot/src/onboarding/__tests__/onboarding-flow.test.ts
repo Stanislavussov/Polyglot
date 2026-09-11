@@ -755,8 +755,27 @@ describe("onboarding — screen 3 (instruction + feature entry points)", () => {
     expect(markup?.reply_markup).toMatchObject({ resize_keyboard: true });
     expect(markup?.reply_markup).not.toHaveProperty("one_time_keyboard");
     // The instructions and the hand-off are the same message now.
-    expect(String(closing?.[0])).toContain("Готово");
-    expect(String(closing?.[0])).not.toContain("/translate");
+    const text = String(closing?.[0]);
+    expect(text).toContain("Сохранить");
+    expect(text).not.toContain("/translate");
+    // One voice, not three glued strings: the nudge that used to open this message
+    // asked "want another?" above an answer that said "done", and invited a word a
+    // second time three lines later.
+    expect(text).not.toContain("Хотите ещё");
+    expect(text.match(/Пришлите/g) ?? []).toHaveLength(1);
+  });
+
+  it("explains what saving a word buys the user, not just that the button exists", async () => {
+    const h = createHarness({ languageCode: "ru" });
+    await reachDemoScreen(h);
+    h.onboardingDemoCardRepository.findOne.mockResolvedValue(null);
+
+    await h.tap("onb:hook:de:0");
+
+    // This is the one screen that has to earn a second session: a user who never
+    // learns that saved words come back on their own has no reason to save one.
+    const closing = String(vi.mocked(h.ctx.reply).mock.calls.at(-1)?.[0]);
+    expect(closing).toContain("повторение");
   });
 
   it("names the icon that brings the folded-away menu back", async () => {
