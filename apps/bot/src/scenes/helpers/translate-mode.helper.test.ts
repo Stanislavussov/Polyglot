@@ -193,6 +193,7 @@ function createMockCtx(overrides?: Partial<SessionData>, callbackData?: string, 
     },
     user: { id: 1, telegramId: 123456789 },
     services: {
+      productEventRepository: { record: vi.fn().mockResolvedValue(undefined) },
       userRepository: mockUserRepository,
       vocabularyRepository: mockVocabularyRepository,
       translationTemplateRepository: mockTranslationTemplateRepository,

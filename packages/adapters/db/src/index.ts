@@ -72,6 +72,12 @@ export type {
 } from "./repositories/onboarding-demo-card.repository.js";
 export { onboardingDemoCardRepository } from "./repositories/onboarding-demo-card.repository.js";
 export { planFeatureAccessRepository } from "./repositories/plan-feature-access.repository.js";
+export type {
+  ProductEventBreakdownRow,
+  ProductEventDayRow,
+  ProductFunnelStep,
+} from "./repositories/product-event.repository.js";
+export { productEventRepository } from "./repositories/product-event.repository.js";
 export type { RateLimitPlan } from "./repositories/rate-limit-plan.repository.js";
 export { rateLimitPlanRepository } from "./repositories/rate-limit-plan.repository.js";
 export { reportedIssueRepository } from "./repositories/reported-issue.repository.js";
@@ -155,7 +161,7 @@ export { wordPickerRunRepository } from "./repositories/word-picker-run.reposito
 export type { WordReview } from "./repositories/word-review.repository.js";
 export { wordReviewRepository } from "./repositories/word-review.repository.js";
 export type { RetentionResult } from "./retention.js";
-export { DEFAULT_RETENTION_DAYS, runTelemetryRetention } from "./retention.js";
+export { DEFAULT_RETENTION_DAYS, PRODUCT_EVENT_RETENTION_DAYS, runTelemetryRetention } from "./retention.js";
 export type {
   IssueStatus,
   IssueType,

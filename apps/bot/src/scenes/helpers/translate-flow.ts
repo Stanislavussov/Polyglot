@@ -51,6 +51,7 @@ import { getRequestSettings } from "../../middlewares/request-settings.js";
 import { recordEffort } from "../../momentum/momentum.wiring.js";
 import { resolvePraiseLine } from "../../momentum/praise.footer.js";
 import { commitRecovery, resolveRecoveryPrefix } from "../../momentum/recovery.helper.js";
+import { trackProductEvent } from "../../observability/product-events.js";
 import {
   buildTranslationKeyboard,
   renderSentenceTranslation,
@@ -115,6 +116,7 @@ async function ensureTranslationQuota(
     getMonthlyWindowStart(),
   );
   if (usedCredits + creditCost > entitlements.translationsPerMonth) {
+    trackProductEvent(ctx, "limit.reached", "translation");
     await ctx.reply(t("rateLimitExceeded", lang), { reply_markup: buildUpgradeKeyboard(lang) });
     return null;
   }

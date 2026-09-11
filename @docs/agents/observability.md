@@ -88,6 +88,36 @@ callback is therefore logged with no second edit** — keep using the helpers.
 | Pronunciation (Task 77) | `card.tts_played`, `.tts_failed`, `.tts_state_lost` |
 | Errors | `bot.error`, `bot.error_handler_failed` |
 
+## Product events — a separate stream, a separate question
+
+Everything above answers *what the process did*. A second, much smaller stream
+answers *what the product did* — who reached the price list, who bought, which
+features get used and which get refused. It is written to Postgres
+(`product_events`) and read in the admin panel's **Product Metrics** page, not
+in Grafana, because the questions are aggregates ("how many distinct people
+paid last month") rather than traces.
+
+```ts
+import { trackProductEvent } from "../observability/product-events.js";
+
+trackProductEvent(ctx, "plan.selected", plan.name);
+```
+
+- The vocabulary is **closed**: `PRODUCT_EVENTS` in
+  `packages/core/src/ports/product-event.repository.ts`. Adding a member there
+  is the whole cost of tracking something new.
+- Two columns carry everything — the `event` and a short `context` from an
+  already-bounded set (plan name, feature key, command, mode). No jsonb payload.
+- Calls are **fire-and-forget**: never awaited, never able to fail a user flow.
+- Rows are pruned at **30 days** (`PRODUCT_EVENT_RETENTION_DAYS`), shorter than
+  the 90-day telemetry horizon.
+
+**Do not add a call site for something already covered.** Commands are counted
+in `bot-factory`'s `onCommand` helper, and both paid-feature outcomes
+(`feature.used` / `feature.locked`) inside the entitlement gate in
+`paid-feature.helper.ts` — one place each, so a new command or feature is
+counted with no second edit and the used/blocked split cannot drift.
+
 ## Levels
 
 Production runs at `info`. Set `LOG_LEVEL=debug` on a container to add the

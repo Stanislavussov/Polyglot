@@ -4,6 +4,7 @@
  * Persists mode to DB so it survives bot restarts.
  */
 import { isSupported, type SupportedLang, t } from "@polyglot/core";
+import { trackProductEvent } from "../observability/product-events.js";
 import type { BotContext } from "../types.js";
 
 /**
@@ -17,6 +18,7 @@ export async function activateTranslateMode(
 ): Promise<{ lang: SupportedLang; fromLang: string; toLangs: string }> {
   ctx.session.activeMode = "translate";
   await ctx.services.userRepository.updateActiveMode(ctx.user.id, "translate");
+  trackProductEvent(ctx, "mode.switched", "translate");
 
   const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
   const iLang = settings?.interfaceLang ?? "en";

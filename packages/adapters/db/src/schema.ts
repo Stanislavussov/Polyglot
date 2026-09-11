@@ -1,4 +1,4 @@
-import type { MomentumEventKind, TranslateOutput } from "@polyglot/core";
+import type { MomentumEventKind, ProductEvent, TranslateOutput } from "@polyglot/core";
 import { sql } from "drizzle-orm";
 import {
   bigint,
@@ -1177,3 +1177,40 @@ export const userMomentum = pgTable("user_momentum", {
   lastRecoveryAt: timestamp("last_recovery_at", { withTimezone: true }),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
+
+// ─────────────────────────────────────────────
+// Product events — funnel and feature-usage analytics
+// ─────────────────────────────────────────────
+
+/**
+ * Append-only product-analytics journal, pruned by `runTelemetryRetention` at a
+ * shorter horizon than the rest of the telemetry: a paywall tap is worth reading
+ * for a few weeks, and the durable facts it leads to (the subscription, the
+ * user's plan) live in their own tables and are never pruned.
+ *
+ * Two narrow columns rather than a jsonb payload — see the port for why.
+ */
+export const productEvents = pgTable(
+  "product_events",
+  {
+    id: serial("id").primaryKey(),
+    /** `set null`, matching the other telemetry tables: deleting a user must not rewrite past counts. */
+    userId: integer("user_id").references(() => users.id, { onDelete: "set null" }),
+    event: varchar("event", { length: 64 }).$type<ProductEvent>().notNull(),
+    /** Plan name, feature key, command or mode — whichever the event's vocabulary defines. */
+    context: varchar("context", { length: 64 }),
+    /** The user's plan when the event fired, not their plan today. */
+    plan: varchar("plan", { length: 32 }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    // Every admin aggregate is "this event, over this window", so the window
+    // scan happens inside one event's slice rather than over the whole table.
+    index("product_events_event_created_idx").on(t.event, t.createdAt),
+    // Retention sweeps and per-user drilldowns.
+    index("product_events_created_at_idx").on(t.createdAt),
+    index("product_events_user_id_idx").on(t.userId),
+  ],
+);
+
+export type ProductEventRow = typeof productEvents.$inferSelect;

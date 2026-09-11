@@ -5,6 +5,7 @@
  * usage, and idioms. Persists mode change to DB so it survives bot restarts.
  */
 import { FEATURE_KEYS, isSupported, type SupportedLang, t } from "@polyglot/core";
+import { trackProductEvent } from "../observability/product-events.js";
 import type { BotContext } from "../types.js";
 import { mentorExitKeyboard } from "./helpers/mentor-exit.helper.js";
 import { ensurePaidFeatureForMessage } from "./helpers/paid-feature.helper.js";
@@ -26,6 +27,7 @@ export async function handleMentorCommand(ctx: BotContext): Promise<void> {
   // Set active mode to mentor (session + DB)
   ctx.session.activeMode = "mentor";
   await ctx.services.userRepository.updateActiveMode(ctx.user.id, "mentor");
+  trackProductEvent(ctx, "mode.switched", "mentor");
 
   // Empty object = "fresh thread, do not recover the previous one from DB";
   // the first turn mints a new thread id.

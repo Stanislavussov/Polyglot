@@ -77,6 +77,7 @@ function createMockCtx(overrides?: Partial<SessionData>): BotContext {
     reply: vi.fn().mockResolvedValue({ message_id: 100 }),
     user: { id: 1, telegramId: 123456789, onboarded: true, audienceGroup: "product", subscriptionPlan: "free" },
     services: {
+      productEventRepository: { record: vi.fn().mockResolvedValue(undefined) },
       userRepository: mockUserRepository,
       ai: mockAi,
       settings: mockSettings,

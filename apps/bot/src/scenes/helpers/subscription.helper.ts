@@ -21,6 +21,7 @@ import {
   t,
 } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
+import { trackProductEvent } from "../../observability/product-events.js";
 import type { BotContext } from "../../types.js";
 
 /**
@@ -274,6 +275,9 @@ export async function sendUpgradeScreen(ctx: BotContext, lang?: SupportedLang, f
 /** `plan:upgrade` → show the plan comparison with prices. */
 export async function handleUpgradePromptCallback(ctx: BotContext): Promise<void> {
   await ctx.answerCallbackQuery();
+  // `cta` rather than a feature key: this button is the one on a limit notice
+  // and on the /settings menu, neither of which refused a specific feature.
+  trackProductEvent(ctx, "paywall.shown", "cta");
   await sendUpgradeScreen(ctx);
 }
 
@@ -290,9 +294,11 @@ export async function handleBuyPlanCallback(ctx: BotContext): Promise<void> {
   }
   const keptPlan = await refuseAsDowngrade(ctx, plan);
   if (keptPlan) {
+    trackProductEvent(ctx, "plan.downgrade_blocked", plan.name);
     await ctx.reply(t("purchaseDowngradeBlocked", lang, { plan: keptPlan }), { parse_mode: "HTML" });
     return;
   }
+  trackProductEvent(ctx, "plan.selected", plan.name);
 
   const keyboard = new InlineKeyboard()
     .text(t("purchaseConfirmYes", lang), `plan:confirm:${plan.name}`)
@@ -322,6 +328,7 @@ export async function handleConfirmPlanCallback(ctx: BotContext): Promise<void> 
   // and the plan pointer may have moved since the confirmation was rendered.
   const keptPlan = await refuseAsDowngrade(ctx, plan);
   if (keptPlan) {
+    trackProductEvent(ctx, "plan.downgrade_blocked", plan.name);
     await ctx.reply(t("purchaseDowngradeBlocked", lang, { plan: keptPlan }), { parse_mode: "HTML" });
     return;
   }
@@ -338,6 +345,11 @@ export async function handleConfirmPlanCallback(ctx: BotContext): Promise<void> 
     return;
   }
 
+  // `ctx.user.subscriptionPlan` is still the plan they were ON when they decided
+  // to buy — the row the funnel needs, and the reason this is recorded before the
+  // confirmation rather than after a refreshed read.
+  trackProductEvent(ctx, "plan.confirmed", plan.name);
+
   const date = formatLongDate(result.currentPeriodEnd, lang, timeZone);
   await ctx.reply(t("subscriptionActivated", lang, { plan: plan.label, date }));
 }
@@ -345,6 +357,7 @@ export async function handleConfirmPlanCallback(ctx: BotContext): Promise<void> 
 /** `plan:cancel` → back out of the test payment without touching anything. */
 export async function handleCancelPlanCallback(ctx: BotContext): Promise<void> {
   await ctx.answerCallbackQuery();
+  trackProductEvent(ctx, "plan.canceled");
   const lang = await resolveLang(ctx);
   await ctx.reply(t("purchaseCanceled", lang));
 }

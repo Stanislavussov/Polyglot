@@ -8,6 +8,7 @@
  * why no handler may infer access from the keyboard it was tapped on.
  */
 import { ALL_FEATURES, defaultFeatureAccess, type FeatureKey, type SupportedLang } from "@polyglot/core";
+import { trackProductEvent } from "../../observability/product-events.js";
 import type { BotContext } from "../../types.js";
 import { sendUpgradeScreen } from "./subscription.helper.js";
 
@@ -60,9 +61,15 @@ async function gate(
 ): Promise<boolean> {
   const access = ctx.services.featureAccess ?? defaultFeatureAccess;
   const { hasAccess } = await access.checkFeatureAccess(ctx.user, feature);
+  // Every paid feature is reached through this gate, so counting both outcomes
+  // here is what keeps "which features do people use, and which do they bounce
+  // off" a single fact rather than one instrumented call site per feature.
   if (hasAccess) {
+    trackProductEvent(ctx, "feature.used", feature);
     return true;
   }
+  trackProductEvent(ctx, "feature.locked", feature);
+  trackProductEvent(ctx, "paywall.shown", feature);
   await acknowledge?.();
   // `lang` is passed by callers that already loaded settings, sparing the upgrade
   // screen a second read of the same row. The feature travels with it so the offer

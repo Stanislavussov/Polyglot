@@ -34,6 +34,7 @@ import {
 } from "./notifications/notification.callbacks.js";
 import { createApiLogTransformer } from "./observability/api-log.js";
 import { handlerName, withHandlerLog } from "./observability/handler-log.js";
+import { withCommandTracking } from "./observability/product-events.js";
 import { updateTraceMiddleware } from "./observability/update-trace.middleware.js";
 import { handleNudgeCardCallback, NUDGE_CALLBACK_PATTERN } from "./onboarding/activation-nudge.callbacks.js";
 import {
@@ -296,10 +297,14 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
    * Route registration goes through these helpers rather than `bot.command` /
    * `bot.callbackQuery` / `bot.hears` directly, so every route below is logged
    * — a new command or button becomes observable with no second edit. The
-   * handler's own function name is the label in Grafana.
+   * handler's own function name is the label in Grafana, and every command is
+   * counted in the admin panel's product metrics.
    */
   const onCommand = (command: string, handler: MiddlewareFn<BotContext>): void => {
-    bot.command(command, withHandlerLog(handlerName(handler, `command:${command}`), handler));
+    bot.command(
+      command,
+      withHandlerLog(handlerName(handler, `command:${command}`), withCommandTracking(command, handler)),
+    );
   };
   const onCallback = (trigger: string | RegExp, handler: MiddlewareFn<BotContext>): void => {
     bot.callbackQuery(trigger, withHandlerLog(handlerName(handler, `callback:${String(trigger)}`), handler));
