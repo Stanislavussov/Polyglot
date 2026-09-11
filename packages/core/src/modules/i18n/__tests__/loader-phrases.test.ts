@@ -9,9 +9,8 @@
  * rejects an edit that leaves the message unchanged), and a rendered line names
  * which language is speaking.
  */
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { getSupportedLangs, t } from "../i18n.js";
-import { initLanguageRegistry } from "../language-registry.js";
 import {
   allLoaderPhraseKeys,
   composeLoaderText,
@@ -30,10 +29,6 @@ const LEARNABLE = getSupportedLangs();
 
 /** The wait stages the loader walks through, 0s to 15s. */
 const STAGES = [0, 1, 2, 3, 4, 5];
-
-beforeAll(() => {
-  initLanguageRegistry(LEARNABLE.map((code) => ({ code, name: code, flag: `flag:${code}`, isSupported: true })));
-});
 
 describe("waitPhrases", () => {
   it("covers every language a user can choose to learn", () => {
@@ -72,14 +67,8 @@ describe("waitPhrases", () => {
 });
 
 describe("composeLoaderText", () => {
-  it("names the speaking language with its flag", () => {
-    expect(composeLoaderText("🧠", "de", "Moment mal")).toBe("🧠 flag:de Moment mal...");
-  });
-
-  it("drops the flag for a language the registry has none for", () => {
-    initLanguageRegistry([{ code: "xx", name: "xx", isSupported: true }]);
-    expect(composeLoaderText("🔤", "xx", "Hang on")).toBe("🔤 Hang on...");
-    initLanguageRegistry(LEARNABLE.map((code) => ({ code, name: code, flag: `flag:${code}`, isSupported: true })));
+  it("leads with the glyph and trails the phrase off", () => {
+    expect(composeLoaderText("🧠", "Moment mal")).toBe("🧠 Moment mal...");
   });
 });
 
@@ -88,7 +77,7 @@ describe("loaderTextsFor", () => {
     const lines = loaderTextsFor(kind, "es", 0);
     expect(lines).toHaveLength(loaderEmoji(kind).length * waitPhrases("es", 0).length);
     expect(new Set(lines).size).toBe(lines.length);
-    expect(lines.every((line) => line.includes("flag:es") && line.endsWith("..."))).toBe(true);
+    expect(lines.every((line) => line.endsWith("..."))).toBe(true);
   });
 
   it("keeps the two kinds' glyphs apart, so the mode still reads at a glance", () => {

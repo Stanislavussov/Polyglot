@@ -1,4 +1,3 @@
-import { getLangFlag } from "./language-registry.js";
 import type { I18nKey } from "./types.js";
 
 /** The two long operations that show a rotating loader. */
@@ -178,15 +177,9 @@ export function waitPhrases(langCode: string, stage: number): readonly string[] 
   return stages ? atStage(stages, stage) : [];
 }
 
-/**
- * One rendered loader line: a thematic glyph, the flag of the language being
- * spoken, and the phrase itself. The flag is what tells the learner WHICH of
- * their languages is talking to them — without it a short phrase in a language
- * they half-know is just a puzzle.
- */
-export function composeLoaderText(emoji: string, langCode: string, phrase: string): string {
-  const flag = getLangFlag(langCode);
-  return `${emoji} ${flag ? `${flag} ` : ""}${phrase}...`;
+/** One rendered loader line: a thematic glyph and the phrase itself. */
+export function composeLoaderText(emoji: string, phrase: string): string {
+  return `${emoji} ${phrase}...`;
 }
 
 /**
@@ -197,7 +190,7 @@ export function composeLoaderText(emoji: string, langCode: string, phrase: strin
  */
 export function loaderTextsFor(kind: LoaderKind, langCode: string, stage: number): readonly string[] {
   return LOADER_EMOJI[kind].flatMap((emoji) =>
-    waitPhrases(langCode, stage).map((phrase) => composeLoaderText(emoji, langCode, phrase)),
+    waitPhrases(langCode, stage).map((phrase) => composeLoaderText(emoji, phrase)),
   );
 }
 

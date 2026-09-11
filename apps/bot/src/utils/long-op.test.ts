@@ -2,8 +2,8 @@
  * Tests for long-operation helpers: bounded waits with a user-visible
  * timeout, the fire-and-forget typing indicator, and the rotating loader.
  */
-import { allLoaderPhraseKeys, initLanguageRegistry, loaderTextsFor, t } from "@polyglot/core";
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { allLoaderPhraseKeys, loaderTextsFor, t } from "@polyglot/core";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import type { BotContext } from "../types.js";
 import {
   AI_BUDGET_SAFETY_MARGIN_MS,
@@ -120,14 +120,18 @@ function linesFor(kind: "translate" | "mentor", langCode: string, stage: number)
   return [...loaderTextsFor(kind, langCode, stage)];
 }
 
-describe("sendLoader", () => {
-  beforeAll(() => {
-    initLanguageRegistry([
-      { code: "de", name: "German", flag: "🇩🇪", isSupported: true },
-      { code: "es", name: "Spanish", flag: "🇪🇸", isSupported: true },
-    ]);
-  });
+/**
+ * Which of `codes` a rendered line came from. Nothing on screen names the
+ * language any more, so the only honest answer is which phrase set contains it —
+ * `de` and `es` share no phrase, which is what makes the lookup unambiguous.
+ */
+function languageOf(kind: "translate" | "mentor", text: string, stage: number, codes: string[]): string {
+  const match = codes.filter((code) => linesFor(kind, code, stage).includes(text));
+  expect(match).toHaveLength(1);
+  return match[0] as string;
+}
 
+describe("sendLoader", () => {
   it("opens in one of the languages the user is learning, not the interface one", async () => {
     const { ctx, reply } = loaderCtx();
 
@@ -150,15 +154,12 @@ describe("sendLoader", () => {
     const texts = shownTexts(reply, editMessageText);
     expect(texts).toHaveLength(4);
 
-    const flags = texts.map((text) => (text.includes("🇩🇪") ? "de" : "es"));
-    // Whichever language opened, each line speaks the other one in turn.
-    for (let i = 1; i < flags.length; i++) {
-      expect(flags[i]).not.toBe(flags[i - 1]);
+    // Each line belongs to the stage matching how long the wait has run, and
+    // whichever language opened, each line speaks the other one in turn.
+    const spoken = texts.map((text, stage) => languageOf("mentor", text, stage, ["de", "es"]));
+    for (let i = 1; i < spoken.length; i++) {
+      expect(spoken[i]).not.toBe(spoken[i - 1]);
     }
-    // Each line belongs to the stage matching how long the wait has run.
-    texts.forEach((text, stage) => {
-      expect(linesFor("mentor", flags[stage] as string, stage)).toContain(text);
-    });
   });
 
   it("follows the 0/3/5/7/10/15s schedule, then runs out on its own", async () => {
@@ -193,7 +194,9 @@ describe("sendLoader", () => {
 
     const texts = shownTexts(reply, editMessageText);
     expect(texts).toHaveLength(6);
-    expect(texts.every((text) => text.includes("🇩🇪"))).toBe(true);
+    texts.forEach((text, stage) => {
+      expect(linesFor("translate", "de", stage)).toContain(text);
+    });
     // Consecutive repeats are what Telegram rejects as "message is not modified".
     expect(texts.some((text, i) => i > 0 && text === texts[i - 1])).toBe(false);
   });

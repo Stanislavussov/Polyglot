@@ -210,7 +210,7 @@ function nextLoaderText(
     emoji === undefined
       ? []
       : waitPhrases(langCode, stage)
-          .map((phrase) => composeLoaderText(emoji, langCode, phrase))
+          .map((phrase) => composeLoaderText(emoji, phrase))
           .filter((text) => text !== current);
   return randomOf(options) ?? fallbackPhrase(kind, stage, lang, current);
 }
