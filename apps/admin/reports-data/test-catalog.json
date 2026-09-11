@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-09-11T18:36:03.000Z",
+  "generatedAt": "2026-09-11T18:37:49.000Z",
   "summary": {
-    "total": 3166,
+    "total": 3199,
     "business": 0,
-    "technical": 3166,
+    "technical": 3199,
     "workspaces": [
       "apps",
       "packages"
@@ -3079,6 +3079,86 @@
       "description": "Protects the bot main menu keyboard (integration) behavior so re delivers to a chat left on the previous keyboard version, then goes quiet again."
     },
     {
+      "id": "apps-bot-src-tests-integration-mentor-idle-integration-test-ts-173-mentor-idle-prompt-integration-stamps-the-completed-turn-holds-the-next-message-after-a-16-minute-silence-and-resumes-it-on-stay",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/mentor-idle.integration.test.ts",
+      "sourceLine": 173,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "mentor idle prompt (integration)"
+      ],
+      "title": "stamps the completed turn, holds the next message after a 16-minute silence, and resumes it on Stay",
+      "rawTitle": "stamps the completed turn, holds the next message after a 16-minute silence, and resumes it on Stay",
+      "name": "Bot mentor idle prompt (integration) stamps the completed turn, holds the next message after a 16 minute silence, and resumes it on Stay",
+      "value": "Protects the bot mentor idle prompt (integration) behavior so stamps the completed turn, holds the next message after a 16 minute silence, and resumes it on Stay.",
+      "description": "Protects the bot mentor idle prompt (integration) behavior so stamps the completed turn, holds the next message after a 16 minute silence, and resumes it on Stay."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-mentor-idle-integration-test-ts-232-mentor-idle-prompt-integration-translates-the-held-message-and-leaves-translate-mode-behind-on-switch",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/mentor-idle.integration.test.ts",
+      "sourceLine": 232,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "mentor idle prompt (integration)"
+      ],
+      "title": "translates the held message and leaves translate mode behind on Switch",
+      "rawTitle": "translates the held message and leaves translate mode behind on Switch",
+      "name": "Bot mentor idle prompt (integration) translates the held message and leaves translate mode behind on Switch",
+      "value": "Protects the bot mentor idle prompt (integration) behavior: translates the held message and leaves translate mode behind on Switch.",
+      "description": "Protects the bot mentor idle prompt (integration) behavior: translates the held message and leaves translate mode behind on Switch."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-mentor-idle-integration-test-ts-262-mentor-idle-prompt-integration-answers-a-stay-tap-that-has-no-held-message-with-the-stale-alert-instead-of-a-paid-turn",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/mentor-idle.integration.test.ts",
+      "sourceLine": 262,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "mentor idle prompt (integration)"
+      ],
+      "title": "answers a Stay tap that has no held message with the stale alert instead of a paid turn",
+      "rawTitle": "answers a Stay tap that has no held message with the stale alert instead of a paid turn",
+      "name": "Bot mentor idle prompt (integration) answers a Stay tap that has no held message with the stale alert instead of a paid turn",
+      "value": "Protects the bot mentor idle prompt (integration) behavior so answers a Stay tap that has no held message with the stale alert instead of a paid turn.",
+      "description": "Protects the bot mentor idle prompt (integration) behavior so answers a Stay tap that has no held message with the stale alert instead of a paid turn."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-mentor-idle-integration-test-ts-298-mentor-idle-prompt-integration-still-switches-to-translate-on-a-switch-tap-that-has-no-held-message",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/mentor-idle.integration.test.ts",
+      "sourceLine": 298,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "mentor idle prompt (integration)"
+      ],
+      "title": "still switches to translate on a Switch tap that has no held message",
+      "rawTitle": "still switches to translate on a Switch tap that has no held message",
+      "name": "Bot mentor idle prompt (integration) still switches to translate on a Switch tap that has no held message",
+      "value": "Protects the bot mentor idle prompt (integration) behavior so still switches to translate on a Switch tap that has no held message.",
+      "description": "Protects the bot mentor idle prompt (integration) behavior so still switches to translate on a Switch tap that has no held message."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-mentor-idle-integration-test-ts-330-mentor-idle-prompt-integration-leaves-a-lost-session-lost-on-a-stale-stay-so-db-thread-recovery-still-applies",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/mentor-idle.integration.test.ts",
+      "sourceLine": 330,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "mentor idle prompt (integration)"
+      ],
+      "title": "leaves a lost session lost on a stale Stay, so DB thread recovery still applies",
+      "rawTitle": "leaves a lost session lost on a stale Stay, so DB thread recovery still applies",
+      "name": "Bot mentor idle prompt (integration) leaves a lost session lost on a stale Stay, so DB thread recovery still applies",
+      "value": "Protects the bot mentor idle prompt (integration) behavior so leaves a lost session lost on a stale Stay, so DB thread recovery still applies.",
+      "description": "Protects the bot mentor idle prompt (integration) behavior so leaves a lost session lost on a stale Stay, so DB thread recovery still applies."
+    },
+    {
       "id": "apps-bot-src-tests-integration-mentor-thread-integration-test-ts-47-mentor-mode-with-reply-threads-integration-runs-a-mentor-conversation-persists-the-thread-and-continues-it-via-reply-from-translate-mode",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/mentor-thread.integration.test.ts",
@@ -5863,10 +5943,10 @@
       "description": "Protects the bot handle Back Callback behavior: returns to constructor keyboard from preview."
     },
     {
-      "id": "apps-bot-src-tests-translate-mode-test-ts-93-translate-mode-system-moderoutermiddleware-calls-next-for-commands-text-starting-with",
+      "id": "apps-bot-src-tests-translate-mode-test-ts-101-translate-mode-system-moderoutermiddleware-calls-next-for-commands-text-starting-with",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translate-mode.test.ts",
-      "sourceLine": 93,
+      "sourceLine": 101,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5880,10 +5960,10 @@
       "description": "Protects the bot Translate Mode System mode Router Middleware behavior: calls next() for commands (text starting with )."
     },
     {
-      "id": "apps-bot-src-tests-translate-mode-test-ts-103-translate-mode-system-moderoutermiddleware-calls-next-when-no-message-text",
+      "id": "apps-bot-src-tests-translate-mode-test-ts-111-translate-mode-system-moderoutermiddleware-calls-next-when-no-message-text",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translate-mode.test.ts",
-      "sourceLine": 103,
+      "sourceLine": 111,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5897,10 +5977,44 @@
       "description": "Protects the bot Translate Mode System mode Router Middleware behavior: calls next() when no message text."
     },
     {
-      "id": "apps-bot-src-tests-translate-mode-test-ts-113-translate-mode-system-moderoutermiddleware-routes-plain-text-to-handletranslatetext-when-in-translate-mode",
+      "id": "apps-bot-src-tests-translate-mode-test-ts-121-translate-mode-system-moderoutermiddleware-holds-the-message-for-the-idle-re-confirm-prompt-instead-of-running-a-mentor-turn",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translate-mode.test.ts",
-      "sourceLine": 113,
+      "sourceLine": 121,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "Translate Mode System",
+        "modeRouterMiddleware"
+      ],
+      "title": "holds the message for the idle re-confirm prompt instead of running a mentor turn",
+      "rawTitle": "holds the message for the idle re-confirm prompt instead of running a mentor turn",
+      "name": "Bot Translate Mode System mode Router Middleware holds the message for the idle re confirm prompt instead of running a mentor turn",
+      "value": "Protects the bot Translate Mode System mode Router Middleware behavior so holds the message for the idle re confirm prompt instead of running a mentor turn.",
+      "description": "Protects the bot Translate Mode System mode Router Middleware behavior so holds the message for the idle re confirm prompt instead of running a mentor turn."
+    },
+    {
+      "id": "apps-bot-src-tests-translate-mode-test-ts-133-translate-mode-system-moderoutermiddleware-runs-the-mentor-turn-when-the-idle-prompt-declines",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/translate-mode.test.ts",
+      "sourceLine": 133,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "Translate Mode System",
+        "modeRouterMiddleware"
+      ],
+      "title": "runs the mentor turn when the idle prompt declines",
+      "rawTitle": "runs the mentor turn when the idle prompt declines",
+      "name": "Bot Translate Mode System mode Router Middleware runs the mentor turn when the idle prompt declines",
+      "value": "Protects the bot Translate Mode System mode Router Middleware behavior so runs the mentor turn when the idle prompt declines.",
+      "description": "Protects the bot Translate Mode System mode Router Middleware behavior so runs the mentor turn when the idle prompt declines."
+    },
+    {
+      "id": "apps-bot-src-tests-translate-mode-test-ts-143-translate-mode-system-moderoutermiddleware-routes-plain-text-to-handletranslatetext-when-in-translate-mode",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/translate-mode.test.ts",
+      "sourceLine": 143,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5914,10 +6028,10 @@
       "description": "Protects the bot Translate Mode System mode Router Middleware behavior: routes plain text to handle Translate Text when in translate mode."
     },
     {
-      "id": "apps-bot-src-tests-translate-mode-test-ts-123-translate-mode-system-moderoutermiddleware-falls-back-to-translation-in-idle-mode-for-onboarded-user",
+      "id": "apps-bot-src-tests-translate-mode-test-ts-153-translate-mode-system-moderoutermiddleware-falls-back-to-translation-in-idle-mode-for-onboarded-user",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translate-mode.test.ts",
-      "sourceLine": 123,
+      "sourceLine": 153,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5931,10 +6045,10 @@
       "description": "Protects the bot Translate Mode System mode Router Middleware behavior: falls back to translation in idle mode for onboarded user."
     },
     {
-      "id": "apps-bot-src-tests-translate-mode-test-ts-139-translate-mode-system-moderoutermiddleware-persists-idle-translate-fallback-to-db-for-onboarded-user",
+      "id": "apps-bot-src-tests-translate-mode-test-ts-169-translate-mode-system-moderoutermiddleware-persists-idle-translate-fallback-to-db-for-onboarded-user",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translate-mode.test.ts",
-      "sourceLine": 139,
+      "sourceLine": 169,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5948,10 +6062,10 @@
       "description": "Protects the bot Translate Mode System mode Router Middleware behavior: persists idle→translate fallback to DB for onboarded user."
     },
     {
-      "id": "apps-bot-src-tests-translate-mode-test-ts-152-translate-mode-system-moderoutermiddleware-shows-hint-for-non-onboarded-user-in-idle-mode",
+      "id": "apps-bot-src-tests-translate-mode-test-ts-182-translate-mode-system-moderoutermiddleware-shows-hint-for-non-onboarded-user-in-idle-mode",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translate-mode.test.ts",
-      "sourceLine": 152,
+      "sourceLine": 182,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5965,10 +6079,10 @@
       "description": "Protects the bot Translate Mode System mode Router Middleware behavior: shows hint for non onboarded user in idle mode."
     },
     {
-      "id": "apps-bot-src-tests-translate-mode-test-ts-167-translate-mode-system-moderoutermiddleware-falls-back-to-translation-for-unknown-mode-with-onboarded-user",
+      "id": "apps-bot-src-tests-translate-mode-test-ts-197-translate-mode-system-moderoutermiddleware-falls-back-to-translation-for-unknown-mode-with-onboarded-user",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translate-mode.test.ts",
-      "sourceLine": 167,
+      "sourceLine": 197,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5982,10 +6096,10 @@
       "description": "Protects the bot Translate Mode System mode Router Middleware behavior: falls back to translation for unknown mode with onboarded user."
     },
     {
-      "id": "apps-bot-src-tests-translate-mode-test-ts-184-usermode-type-supports-idle-mode",
+      "id": "apps-bot-src-tests-translate-mode-test-ts-214-usermode-type-supports-idle-mode",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translate-mode.test.ts",
-      "sourceLine": 184,
+      "sourceLine": 214,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5998,10 +6112,10 @@
       "description": "Protects the bot User Mode type behavior so supports idle mode."
     },
     {
-      "id": "apps-bot-src-tests-translate-mode-test-ts-189-usermode-type-supports-translate-mode",
+      "id": "apps-bot-src-tests-translate-mode-test-ts-219-usermode-type-supports-translate-mode",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translate-mode.test.ts",
-      "sourceLine": 189,
+      "sourceLine": 219,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6014,10 +6128,10 @@
       "description": "Protects the bot User Mode type behavior so supports translate mode."
     },
     {
-      "id": "apps-bot-src-tests-translate-mode-test-ts-196-sessiondata-has-translate-as-default-active-mode",
+      "id": "apps-bot-src-tests-translate-mode-test-ts-226-sessiondata-has-translate-as-default-active-mode",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translate-mode.test.ts",
-      "sourceLine": 196,
+      "sourceLine": 226,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -6030,10 +6144,10 @@
       "description": "Protects the bot Session Data behavior so has translate as default active mode."
     },
     {
-      "id": "apps-bot-src-tests-translate-mode-test-ts-209-sessiondata-can-store-pending-translation",
+      "id": "apps-bot-src-tests-translate-mode-test-ts-239-sessiondata-can-store-pending-translation",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translate-mode.test.ts",
-      "sourceLine": 209,
+      "sourceLine": 239,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -8974,6 +9088,182 @@
       "name": "Bot update Metrics Middleware does not warn about fast updates",
       "value": "Protects the bot update Metrics Middleware behavior: does not warn about fast updates.",
       "description": "Protects the bot update Metrics Middleware behavior: does not warn about fast updates."
+    },
+    {
+      "id": "apps-bot-src-modes-tests-mode-policy-test-ts-27-startmentorthread-stamps-now-and-leaves-threadid-absent-as-the-fresh-thread-sentinel",
+      "kind": "technical",
+      "filePath": "apps/bot/src/modes/__tests__/mode-policy.test.ts",
+      "sourceLine": 27,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "startMentorThread"
+      ],
+      "title": "stamps now and leaves threadId absent as the fresh-thread sentinel",
+      "rawTitle": "stamps now and leaves threadId absent as the fresh-thread sentinel",
+      "name": "Bot start Mentor Thread stamps now and leaves thread Id absent as the fresh thread sentinel",
+      "value": "Protects the bot start Mentor Thread behavior so stamps now and leaves thread Id absent as the fresh thread sentinel.",
+      "description": "Protects the bot start Mentor Thread behavior so stamps now and leaves thread Id absent as the fresh thread sentinel."
+    },
+    {
+      "id": "apps-bot-src-modes-tests-mode-policy-test-ts-36-startmentorthread-clears-an-open-idle-hold",
+      "kind": "technical",
+      "filePath": "apps/bot/src/modes/__tests__/mode-policy.test.ts",
+      "sourceLine": 36,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "startMentorThread"
+      ],
+      "title": "clears an open idle hold",
+      "rawTitle": "clears an open idle hold",
+      "name": "Bot start Mentor Thread clears an open idle hold",
+      "value": "Protects the bot start Mentor Thread behavior so clears an open idle hold.",
+      "description": "Protects the bot start Mentor Thread behavior so clears an open idle hold."
+    },
+    {
+      "id": "apps-bot-src-modes-tests-mode-policy-test-ts-46-markmentoractivity-pins-the-given-thread-and-stamps-now",
+      "kind": "technical",
+      "filePath": "apps/bot/src/modes/__tests__/mode-policy.test.ts",
+      "sourceLine": 46,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "markMentorActivity"
+      ],
+      "title": "pins the given thread and stamps now",
+      "rawTitle": "pins the given thread and stamps now",
+      "name": "Bot mark Mentor Activity pins the given thread and stamps now",
+      "value": "Protects the bot mark Mentor Activity behavior so pins the given thread and stamps now.",
+      "description": "Protects the bot mark Mentor Activity behavior so pins the given thread and stamps now."
+    },
+    {
+      "id": "apps-bot-src-modes-tests-mode-policy-test-ts-55-markmentoractivity-keeps-an-existing-pin-and-advances-the-stamp-when-called-without-a-threadid",
+      "kind": "technical",
+      "filePath": "apps/bot/src/modes/__tests__/mode-policy.test.ts",
+      "sourceLine": 55,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "markMentorActivity"
+      ],
+      "title": "keeps an existing pin and advances the stamp when called without a threadId",
+      "rawTitle": "keeps an existing pin and advances the stamp when called without a threadId",
+      "name": "Bot mark Mentor Activity keeps an existing pin and advances the stamp when called without a thread Id",
+      "value": "Protects the bot mark Mentor Activity behavior: keeps an existing pin and advances the stamp when called without a thread Id.",
+      "description": "Protects the bot mark Mentor Activity behavior: keeps an existing pin and advances the stamp when called without a thread Id."
+    },
+    {
+      "id": "apps-bot-src-modes-tests-mode-policy-test-ts-63-markmentoractivity-leaves-a-lost-session-undefined-so-db-thread-recovery-still-runs-but-still-clears-the-hold",
+      "kind": "technical",
+      "filePath": "apps/bot/src/modes/__tests__/mode-policy.test.ts",
+      "sourceLine": 63,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "markMentorActivity"
+      ],
+      "title": "leaves a lost session undefined so DB thread recovery still runs, but still clears the hold",
+      "rawTitle": "leaves a lost session undefined so DB thread recovery still runs, but still clears the hold",
+      "name": "Bot mark Mentor Activity leaves a lost session undefined so DB thread recovery still runs, but still clears the hold",
+      "value": "Protects the bot mark Mentor Activity behavior so leaves a lost session undefined so DB thread recovery still runs, but still clears the hold.",
+      "description": "Protects the bot mark Mentor Activity behavior so leaves a lost session undefined so DB thread recovery still runs, but still clears the hold."
+    },
+    {
+      "id": "apps-bot-src-modes-tests-mode-policy-test-ts-72-markmentoractivity-keeps-threadid-absent-on-a-fresh-sentinel-when-called-without-a-threadid",
+      "kind": "technical",
+      "filePath": "apps/bot/src/modes/__tests__/mode-policy.test.ts",
+      "sourceLine": 72,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "markMentorActivity"
+      ],
+      "title": "keeps threadId absent on a fresh sentinel when called without a threadId",
+      "rawTitle": "keeps threadId absent on a fresh sentinel when called without a threadId",
+      "name": "Bot mark Mentor Activity keeps thread Id absent on a fresh sentinel when called without a thread Id",
+      "value": "Protects the bot mark Mentor Activity behavior: keeps thread Id absent on a fresh sentinel when called without a thread Id.",
+      "description": "Protects the bot mark Mentor Activity behavior: keeps thread Id absent on a fresh sentinel when called without a thread Id."
+    },
+    {
+      "id": "apps-bot-src-modes-tests-mode-policy-test-ts-83-ismentoridle-reports-idle-once-the-mentor-timeout-has-elapsed",
+      "kind": "technical",
+      "filePath": "apps/bot/src/modes/__tests__/mode-policy.test.ts",
+      "sourceLine": 83,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "isMentorIdle"
+      ],
+      "title": "reports idle once the mentor timeout has elapsed",
+      "rawTitle": "reports idle once the mentor timeout has elapsed",
+      "name": "Bot is Mentor Idle reports idle once the mentor timeout has elapsed",
+      "value": "Protects the bot is Mentor Idle behavior: reports idle once the mentor timeout has elapsed.",
+      "description": "Protects the bot is Mentor Idle behavior: reports idle once the mentor timeout has elapsed."
+    },
+    {
+      "id": "apps-bot-src-modes-tests-mode-policy-test-ts-89-ismentoridle-stays-inside-the-window-for-a-recent-turn",
+      "kind": "technical",
+      "filePath": "apps/bot/src/modes/__tests__/mode-policy.test.ts",
+      "sourceLine": 89,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "isMentorIdle"
+      ],
+      "title": "stays inside the window for a recent turn",
+      "rawTitle": "stays inside the window for a recent turn",
+      "name": "Bot is Mentor Idle stays inside the window for a recent turn",
+      "value": "Protects the bot is Mentor Idle behavior so stays inside the window for a recent turn.",
+      "description": "Protects the bot is Mentor Idle behavior so stays inside the window for a recent turn."
+    },
+    {
+      "id": "apps-bot-src-modes-tests-mode-policy-test-ts-95-ismentoridle-never-reports-idle-without-a-stamp",
+      "kind": "technical",
+      "filePath": "apps/bot/src/modes/__tests__/mode-policy.test.ts",
+      "sourceLine": 95,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "isMentorIdle"
+      ],
+      "title": "never reports idle without a stamp",
+      "rawTitle": "never reports idle without a stamp",
+      "name": "Bot is Mentor Idle never reports idle without a stamp",
+      "value": "Protects the bot is Mentor Idle behavior so never reports idle without a stamp.",
+      "description": "Protects the bot is Mentor Idle behavior so never reports idle without a stamp."
+    },
+    {
+      "id": "apps-bot-src-modes-tests-mode-policy-test-ts-100-ismentoridle-never-reports-idle-in-a-mode-with-no-idle-policy",
+      "kind": "technical",
+      "filePath": "apps/bot/src/modes/__tests__/mode-policy.test.ts",
+      "sourceLine": 100,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "isMentorIdle"
+      ],
+      "title": "never reports idle in a mode with no idle policy",
+      "rawTitle": "never reports idle in a mode with no idle policy",
+      "name": "Bot is Mentor Idle never reports idle in a mode with no idle policy",
+      "value": "Protects the bot is Mentor Idle behavior so never reports idle in a mode with no idle policy.",
+      "description": "Protects the bot is Mentor Idle behavior so never reports idle in a mode with no idle policy."
+    },
+    {
+      "id": "apps-bot-src-modes-tests-mode-policy-test-ts-108-takementoridleprompt-returns-the-hold-once-and-nothing-on-a-second-tap",
+      "kind": "technical",
+      "filePath": "apps/bot/src/modes/__tests__/mode-policy.test.ts",
+      "sourceLine": 108,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "takeMentorIdlePrompt"
+      ],
+      "title": "returns the hold once and nothing on a second tap",
+      "rawTitle": "returns the hold once and nothing on a second tap",
+      "name": "Bot take Mentor Idle Prompt returns the hold once and nothing on a second tap",
+      "value": "Protects the bot take Mentor Idle Prompt behavior: returns the hold once and nothing on a second tap.",
+      "description": "Protects the bot take Mentor Idle Prompt behavior: returns the hold once and nothing on a second tap."
     },
     {
       "id": "apps-bot-src-notifications-notification-callbacks-test-ts-73-handlenotifrevealcallback-renders-full-dictionary-entry-and-updates-message",
@@ -14971,10 +15261,10 @@
       "description": "Protects the bot handle Mentor New Topic Callback behavior so starts a fresh thread in mentor mode and confirms."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-exit-helper-test-ts-115-handlementornewtopiccallback-enters-mentor-mode-when-tapped-from-translate-mode-button-on-an-old-answer",
+      "id": "apps-bot-src-scenes-helpers-mentor-exit-helper-test-ts-116-handlementornewtopiccallback-enters-mentor-mode-when-tapped-from-translate-mode-button-on-an-old-answer",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-exit.helper.test.ts",
-      "sourceLine": 115,
+      "sourceLine": 116,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -14987,10 +15277,10 @@
       "description": "Protects the bot handle Mentor New Topic Callback behavior so enters mentor mode when tapped from translate mode (button on an old answer)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-exit-helper-test-ts-123-handlementornewtopiccallback-refuses-a-plan-without-the-mentor-feature-before-touching-the-mode",
+      "id": "apps-bot-src-scenes-helpers-mentor-exit-helper-test-ts-125-handlementornewtopiccallback-refuses-a-plan-without-the-mentor-feature-before-touching-the-mode",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-exit.helper.test.ts",
-      "sourceLine": 123,
+      "sourceLine": 125,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -15001,6 +15291,230 @@
       "name": "Bot handle Mentor New Topic Callback refuses a plan without the mentor feature before touching the mode",
       "value": "Protects the bot handle Mentor New Topic Callback behavior so refuses a plan without the mentor feature before touching the mode.",
       "description": "Protects the bot handle Mentor New Topic Callback behavior so refuses a plan without the mentor feature before touching the mode."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-mentor-idle-helper-test-ts-73-maybepromptmentoridle-asks-which-mode-to-continue-in-after-a-long-silence-without-spending-an-ai-call",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/mentor-idle.helper.test.ts",
+      "sourceLine": 73,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "maybePromptMentorIdle"
+      ],
+      "title": "asks which mode to continue in after a long silence, without spending an AI call",
+      "rawTitle": "asks which mode to continue in after a long silence, without spending an AI call",
+      "name": "Bot maybe Prompt Mentor Idle asks which mode to continue in after a long silence, without spending an AI call",
+      "value": "Protects the bot maybe Prompt Mentor Idle behavior so asks which mode to continue in after a long silence, without spending an AI call.",
+      "description": "Protects the bot maybe Prompt Mentor Idle behavior so asks which mode to continue in after a long silence, without spending an AI call."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-mentor-idle-helper-test-ts-90-maybepromptmentoridle-stays-out-of-the-way-inside-the-idle-window",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/mentor-idle.helper.test.ts",
+      "sourceLine": 90,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "maybePromptMentorIdle"
+      ],
+      "title": "stays out of the way inside the idle window",
+      "rawTitle": "stays out of the way inside the idle window",
+      "name": "Bot maybe Prompt Mentor Idle stays out of the way inside the idle window",
+      "value": "Protects the bot maybe Prompt Mentor Idle behavior so stays out of the way inside the idle window.",
+      "description": "Protects the bot maybe Prompt Mentor Idle behavior so stays out of the way inside the idle window."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-mentor-idle-helper-test-ts-98-maybepromptmentoridle-never-prompts-on-a-session-with-no-recorded-mentor-activity",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/mentor-idle.helper.test.ts",
+      "sourceLine": 98,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "maybePromptMentorIdle"
+      ],
+      "title": "never prompts on a session with no recorded mentor activity",
+      "rawTitle": "never prompts on a session with no recorded mentor activity",
+      "name": "Bot maybe Prompt Mentor Idle never prompts on a session with no recorded mentor activity",
+      "value": "Protects the bot maybe Prompt Mentor Idle behavior so never prompts on a session with no recorded mentor activity.",
+      "description": "Protects the bot maybe Prompt Mentor Idle behavior so never prompts on a session with no recorded mentor activity."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-mentor-idle-helper-test-ts-105-maybepromptmentoridle-declines-over-long-input-so-the-router-falls-through-to-the-length-rejection",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/mentor-idle.helper.test.ts",
+      "sourceLine": 105,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "maybePromptMentorIdle"
+      ],
+      "title": "declines over-long input so the router falls through to the length rejection",
+      "rawTitle": "declines over-long input so the router falls through to the length rejection",
+      "name": "Bot maybe Prompt Mentor Idle declines over long input so the router falls through to the length rejection",
+      "value": "Protects the bot maybe Prompt Mentor Idle behavior so declines over long input so the router falls through to the length rejection.",
+      "description": "Protects the bot maybe Prompt Mentor Idle behavior so declines over long input so the router falls through to the length rejection."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-mentor-idle-helper-test-ts-113-maybepromptmentoridle-leaves-exactly-one-live-prompt-when-a-second-message-arrives",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/mentor-idle.helper.test.ts",
+      "sourceLine": 113,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "maybePromptMentorIdle"
+      ],
+      "title": "leaves exactly one live prompt when a second message arrives",
+      "rawTitle": "leaves exactly one live prompt when a second message arrives",
+      "name": "Bot maybe Prompt Mentor Idle leaves exactly one live prompt when a second message arrives",
+      "value": "Protects the bot maybe Prompt Mentor Idle behavior so leaves exactly one live prompt when a second message arrives.",
+      "description": "Protects the bot maybe Prompt Mentor Idle behavior so leaves exactly one live prompt when a second message arrives."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-mentor-idle-helper-test-ts-128-maybepromptmentoridle-holds-nothing-when-the-prompt-never-reaches-the-chat",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/mentor-idle.helper.test.ts",
+      "sourceLine": 128,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "maybePromptMentorIdle"
+      ],
+      "title": "holds nothing when the prompt never reaches the chat",
+      "rawTitle": "holds nothing when the prompt never reaches the chat",
+      "name": "Bot maybe Prompt Mentor Idle holds nothing when the prompt never reaches the chat",
+      "value": "Protects the bot maybe Prompt Mentor Idle behavior so holds nothing when the prompt never reaches the chat.",
+      "description": "Protects the bot maybe Prompt Mentor Idle behavior so holds nothing when the prompt never reaches the chat."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-mentor-idle-helper-test-ts-140-handlementoridlestaycallback-resumes-the-held-message-in-the-pinned-thread-and-keeps-the-user-in-mentor-mode",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/mentor-idle.helper.test.ts",
+      "sourceLine": 140,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleMentorIdleStayCallback"
+      ],
+      "title": "resumes the held message in the pinned thread and keeps the user in mentor mode",
+      "rawTitle": "resumes the held message in the pinned thread and keeps the user in mentor mode",
+      "name": "Bot handle Mentor Idle Stay Callback resumes the held message in the pinned thread and keeps the user in mentor mode",
+      "value": "Protects the bot handle Mentor Idle Stay Callback behavior so resumes the held message in the pinned thread and keeps the user in mentor mode.",
+      "description": "Protects the bot handle Mentor Idle Stay Callback behavior so resumes the held message in the pinned thread and keeps the user in mentor mode."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-mentor-idle-helper-test-ts-155-handlementoridlestaycallback-does-not-launch-a-second-paid-turn-when-the-button-is-tapped-twice",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/mentor-idle.helper.test.ts",
+      "sourceLine": 155,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleMentorIdleStayCallback"
+      ],
+      "title": "does not launch a second paid turn when the button is tapped twice",
+      "rawTitle": "does not launch a second paid turn when the button is tapped twice",
+      "name": "Bot handle Mentor Idle Stay Callback does not launch a second paid turn when the button is tapped twice",
+      "value": "Protects the bot handle Mentor Idle Stay Callback behavior: does not launch a second paid turn when the button is tapped twice.",
+      "description": "Protects the bot handle Mentor Idle Stay Callback behavior: does not launch a second paid turn when the button is tapped twice."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-mentor-idle-helper-test-ts-166-handlementoridlestaycallback-survives-a-message-too-old-to-edit-48h-limit-and-still-runs-the-turn",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/mentor-idle.helper.test.ts",
+      "sourceLine": 166,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleMentorIdleStayCallback"
+      ],
+      "title": "survives a message too old to edit (48h limit) and still runs the turn",
+      "rawTitle": "survives a message too old to edit (48h limit) and still runs the turn",
+      "name": "Bot handle Mentor Idle Stay Callback survives a message too old to edit (48h limit) and still runs the turn",
+      "value": "Protects the bot handle Mentor Idle Stay Callback behavior so survives a message too old to edit (48h limit) and still runs the turn.",
+      "description": "Protects the bot handle Mentor Idle Stay Callback behavior so survives a message too old to edit (48h limit) and still runs the turn."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-mentor-idle-helper-test-ts-177-handlementoridlestaycallback-reports-an-expired-prompt-and-keeps-the-thread-pin-so-the-next-message-continues-it",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/mentor-idle.helper.test.ts",
+      "sourceLine": 177,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleMentorIdleStayCallback"
+      ],
+      "title": "reports an expired prompt and keeps the thread pin so the next message continues it",
+      "rawTitle": "reports an expired prompt and keeps the thread pin so the next message continues it",
+      "name": "Bot handle Mentor Idle Stay Callback reports an expired prompt and keeps the thread pin so the next message continues it",
+      "value": "Protects the bot handle Mentor Idle Stay Callback behavior: reports an expired prompt and keeps the thread pin so the next message continues it.",
+      "description": "Protects the bot handle Mentor Idle Stay Callback behavior: reports an expired prompt and keeps the thread pin so the next message continues it."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-mentor-idle-helper-test-ts-189-handlementoridlestaycallback-leaves-a-lost-session-lost-on-an-expired-prompt-so-db-thread-recovery-still-works",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/mentor-idle.helper.test.ts",
+      "sourceLine": 189,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleMentorIdleStayCallback"
+      ],
+      "title": "leaves a lost session lost on an expired prompt, so DB thread recovery still works",
+      "rawTitle": "leaves a lost session lost on an expired prompt, so DB thread recovery still works",
+      "name": "Bot handle Mentor Idle Stay Callback leaves a lost session lost on an expired prompt, so DB thread recovery still works",
+      "value": "Protects the bot handle Mentor Idle Stay Callback behavior so leaves a lost session lost on an expired prompt, so DB thread recovery still works.",
+      "description": "Protects the bot handle Mentor Idle Stay Callback behavior so leaves a lost session lost on an expired prompt, so DB thread recovery still works."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-mentor-idle-helper-test-ts-200-handlementoridleexitcallback-switches-to-translate-mode-and-translates-the-held-message",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/mentor-idle.helper.test.ts",
+      "sourceLine": 200,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleMentorIdleExitCallback"
+      ],
+      "title": "switches to translate mode and translates the held message",
+      "rawTitle": "switches to translate mode and translates the held message",
+      "name": "Bot handle Mentor Idle Exit Callback switches to translate mode and translates the held message",
+      "value": "Protects the bot handle Mentor Idle Exit Callback behavior so switches to translate mode and translates the held message.",
+      "description": "Protects the bot handle Mentor Idle Exit Callback behavior so switches to translate mode and translates the held message."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-mentor-idle-helper-test-ts-216-handlementoridleexitcallback-still-switches-when-the-prompt-has-expired-with-nothing-to-translate",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/mentor-idle.helper.test.ts",
+      "sourceLine": 216,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleMentorIdleExitCallback"
+      ],
+      "title": "still switches when the prompt has expired, with nothing to translate",
+      "rawTitle": "still switches when the prompt has expired, with nothing to translate",
+      "name": "Bot handle Mentor Idle Exit Callback still switches when the prompt has expired, with nothing to translate",
+      "value": "Protects the bot handle Mentor Idle Exit Callback behavior so still switches when the prompt has expired, with nothing to translate.",
+      "description": "Protects the bot handle Mentor Idle Exit Callback behavior so still switches when the prompt has expired, with nothing to translate."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-mentor-idle-helper-test-ts-226-handlementoridleexitcallback-switches-even-when-the-tapped-message-is-too-old-to-edit-48h-limit",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/mentor-idle.helper.test.ts",
+      "sourceLine": 226,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleMentorIdleExitCallback"
+      ],
+      "title": "switches even when the tapped message is too old to edit (48h limit)",
+      "rawTitle": "switches even when the tapped message is too old to edit (48h limit)",
+      "name": "Bot handle Mentor Idle Exit Callback switches even when the tapped message is too old to edit (48h limit)",
+      "value": "Protects the bot handle Mentor Idle Exit Callback behavior so switches even when the tapped message is too old to edit (48h limit).",
+      "description": "Protects the bot handle Mentor Idle Exit Callback behavior so switches even when the tapped message is too old to edit (48h limit)."
     },
     {
       "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-99-handlementortext-calls-generatechat-with-system-prompt-thread-history-from-the-db-and-the-user-message",
@@ -15195,7 +15709,7 @@
       "description": "Protects the bot handle Mentor Text behavior so a fresh mentor entry (empty marker) mints a new thread without DB recovery."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-233-handlementortext-does-not-pin-the-thread-on-the-session-when-the-turn-ran-outside-mentor-mode",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-233-handlementortext-advances-the-activity-stamp-instead-of-overwriting-it-when-the-turn-completes",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
       "sourceLine": 233,
@@ -15204,17 +15718,33 @@
       "suitePath": [
         "handleMentorText"
       ],
-      "title": "does not pin the thread on the session when the turn ran outside mentor mode",
-      "rawTitle": "does not pin the thread on the session when the turn ran outside mentor mode",
-      "name": "Bot handle Mentor Text does not pin the thread on the session when the turn ran outside mentor mode",
-      "value": "Protects the bot handle Mentor Text behavior: does not pin the thread on the session when the turn ran outside mentor mode.",
-      "description": "Protects the bot handle Mentor Text behavior: does not pin the thread on the session when the turn ran outside mentor mode."
+      "title": "advances the activity stamp instead of overwriting it when the turn completes",
+      "rawTitle": "advances the activity stamp instead of overwriting it when the turn completes",
+      "name": "Bot handle Mentor Text advances the activity stamp instead of overwriting it when the turn completes",
+      "value": "Protects the bot handle Mentor Text behavior so advances the activity stamp instead of overwriting it when the turn completes.",
+      "description": "Protects the bot handle Mentor Text behavior so advances the activity stamp instead of overwriting it when the turn completes."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-240-handlementortext-answers-with-the-admin-configured-mentor-model-bypassing-the-default-chain",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-241-handlementortext-does-not-pin-the-thread-or-stamp-activity-when-the-turn-ran-outside-mentor-mode",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 240,
+      "sourceLine": 241,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "handleMentorText"
+      ],
+      "title": "does not pin the thread or stamp activity when the turn ran outside mentor mode",
+      "rawTitle": "does not pin the thread or stamp activity when the turn ran outside mentor mode",
+      "name": "Bot handle Mentor Text does not pin the thread or stamp activity when the turn ran outside mentor mode",
+      "value": "Protects the bot handle Mentor Text behavior: does not pin the thread or stamp activity when the turn ran outside mentor mode.",
+      "description": "Protects the bot handle Mentor Text behavior: does not pin the thread or stamp activity when the turn ran outside mentor mode."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-248-handlementortext-answers-with-the-admin-configured-mentor-model-bypassing-the-default-chain",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
+      "sourceLine": 248,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -15227,10 +15757,10 @@
       "description": "Protects the bot handle Mentor Text behavior so answers with the admin configured mentor model, bypassing the default chain."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-251-handlementortext-falls-back-to-the-default-model-chain-when-the-mentor-override-is-empty",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-259-handlementortext-falls-back-to-the-default-model-chain-when-the-mentor-override-is-empty",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 251,
+      "sourceLine": 259,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -15243,10 +15773,10 @@
       "description": "Protects the bot handle Mentor Text behavior: falls back to the default model chain when the mentor override is empty."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-260-handlementortext-refuses-the-turn-when-the-plan-s-mentor-daily-limit-is-exhausted-without-an-ai-call",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-268-handlementortext-refuses-the-turn-when-the-plan-s-mentor-daily-limit-is-exhausted-without-an-ai-call",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 260,
+      "sourceLine": 268,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -15259,10 +15789,10 @@
       "description": "Protects the bot handle Mentor Text behavior so refuses the turn when the plan's mentor daily limit is exhausted, without an AI call."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-288-handlementortext-lets-the-turn-through-while-the-daily-limit-still-has-room",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-296-handlementortext-lets-the-turn-through-while-the-daily-limit-still-has-room",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 288,
+      "sourceLine": 296,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -15275,10 +15805,10 @@
       "description": "Protects the bot handle Mentor Text behavior so lets the turn through while the daily limit still has room."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-306-handlementortext-never-counts-turns-for-an-unlimited-mentor-plan-null-limit",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-314-handlementortext-never-counts-turns-for-an-unlimited-mentor-plan-null-limit",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 306,
+      "sourceLine": 314,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -15291,10 +15821,10 @@
       "description": "Protects the bot handle Mentor Text behavior so never counts turns for an unlimited mentor plan (null limit)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-313-handlementortext-bypasses-the-mentor-daily-limit-for-internal-roles-no-plan-read-no-turn-count",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-321-handlementortext-bypasses-the-mentor-daily-limit-for-internal-roles-no-plan-read-no-turn-count",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 313,
+      "sourceLine": 321,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -15307,10 +15837,10 @@
       "description": "Protects the bot handle Mentor Text behavior so bypasses the mentor daily limit for internal roles (no plan read, no turn count)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-335-handlementortext-increments-mentorcounter-with-success-status-on-success",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-343-handlementortext-increments-mentorcounter-with-success-status-on-success",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 335,
+      "sourceLine": 343,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -15323,10 +15853,10 @@
       "description": "Protects the bot handle Mentor Text behavior so increments mentor Counter with success status on success."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-342-handlementortext-replies-with-an-error-message-when-ai-call-fails",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-350-handlementortext-replies-with-an-error-message-when-ai-call-fails",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 342,
+      "sourceLine": 350,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -15339,10 +15869,10 @@
       "description": "Protects the bot handle Mentor Text behavior so replies with an error message when AI call fails."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-353-handlementortext-increments-mentorcounter-with-error-status-on-failure",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-361-handlementortext-increments-mentorcounter-with-error-status-on-failure",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 353,
+      "sourceLine": 361,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -15355,10 +15885,10 @@
       "description": "Protects the bot handle Mentor Text behavior so increments mentor Counter with error status on failure."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-361-handlementortext-offers-a-retry-button-carrying-the-same-turn-and-thread-when-the-ai-call-times-out",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-369-handlementortext-offers-a-retry-button-carrying-the-same-turn-and-thread-when-the-ai-call-times-out",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 361,
+      "sourceLine": 369,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -15371,10 +15901,10 @@
       "description": "Protects the bot handle Mentor Text behavior so offers a retry button carrying the same turn and thread when the AI call times out."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-377-handlementortext-does-not-offer-a-retry-button-on-a-hard-ai-failure",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-385-handlementortext-does-not-offer-a-retry-button-on-a-hard-ai-failure",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 377,
+      "sourceLine": 385,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -15387,10 +15917,10 @@
       "description": "Protects the bot handle Mentor Text behavior: does not offer a retry button on a hard AI failure."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-388-handlementortext-rejects-input-longer-than-the-max-character-limit",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-396-handlementortext-rejects-input-longer-than-the-max-character-limit",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 388,
+      "sourceLine": 396,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -15403,10 +15933,10 @@
       "description": "Protects the bot handle Mentor Text behavior: rejects input longer than the max character limit."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-401-handlementortext-refuses-the-mentor-call-when-the-daily-credit-quota-is-exhausted-t16",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-409-handlementortext-refuses-the-mentor-call-when-the-daily-credit-quota-is-exhausted-t16",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 401,
+      "sourceLine": 409,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -15419,10 +15949,10 @@
       "description": "Protects the bot handle Mentor Text behavior so refuses the mentor call when the daily credit quota is exhausted (T16)."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-413-handlementortext-bills-a-mentor-turn-against-the-shared-credit-ledger-on-success-t16",
+      "id": "apps-bot-src-scenes-helpers-mentor-mode-helper-test-ts-421-handlementortext-bills-a-mentor-turn-against-the-shared-credit-ledger-on-success-t16",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/mentor-mode.helper.test.ts",
-      "sourceLine": 413,
+      "sourceLine": 421,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -17243,7 +17773,7 @@
       "description": "Protects the bot handle Mentor Command behavior: persists mode to DB via update Active Mode."
     },
     {
-      "id": "apps-bot-src-scenes-mentor-scene-test-ts-67-handlementorcommand-marks-a-fresh-thread-on-entry-empty-object-no-thread-pinned",
+      "id": "apps-bot-src-scenes-mentor-scene-test-ts-67-handlementorcommand-marks-a-fresh-thread-on-entry-activity-stamped-no-thread-pinned",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/mentor.scene.test.ts",
       "sourceLine": 67,
@@ -17252,17 +17782,17 @@
       "suitePath": [
         "handleMentorCommand"
       ],
-      "title": "marks a fresh thread on entry (empty object, no thread pinned)",
-      "rawTitle": "marks a fresh thread on entry (empty object, no thread pinned)",
-      "name": "Bot handle Mentor Command marks a fresh thread on entry (empty object, no thread pinned)",
-      "value": "Protects the bot handle Mentor Command behavior: marks a fresh thread on entry (empty object, no thread pinned).",
-      "description": "Protects the bot handle Mentor Command behavior: marks a fresh thread on entry (empty object, no thread pinned)."
+      "title": "marks a fresh thread on entry (activity stamped, no thread pinned)",
+      "rawTitle": "marks a fresh thread on entry (activity stamped, no thread pinned)",
+      "name": "Bot handle Mentor Command marks a fresh thread on entry (activity stamped, no thread pinned)",
+      "value": "Protects the bot handle Mentor Command behavior: marks a fresh thread on entry (activity stamped, no thread pinned).",
+      "description": "Protects the bot handle Mentor Command behavior: marks a fresh thread on entry (activity stamped, no thread pinned)."
     },
     {
-      "id": "apps-bot-src-scenes-mentor-scene-test-ts-73-handlementorcommand-replies-with-a-confirmation-message",
+      "id": "apps-bot-src-scenes-mentor-scene-test-ts-75-handlementorcommand-replies-with-a-confirmation-message",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/mentor.scene.test.ts",
-      "sourceLine": 73,
+      "sourceLine": 75,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -17275,10 +17805,10 @@
       "description": "Protects the bot handle Mentor Command behavior so replies with a confirmation message."
     },
     {
-      "id": "apps-bot-src-scenes-mentor-scene-test-ts-82-handlementorcommand-refuses-a-plan-without-the-mentor-feature-before-touching-the-mode",
+      "id": "apps-bot-src-scenes-mentor-scene-test-ts-84-handlementorcommand-refuses-a-plan-without-the-mentor-feature-before-touching-the-mode",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/mentor.scene.test.ts",
-      "sourceLine": 82,
+      "sourceLine": 84,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -17419,10 +17949,10 @@
       "description": "Protects the bot handle Translate Command behavior so clears needs Translate Reminder after translate."
     },
     {
-      "id": "apps-bot-src-session-storage-test-ts-73-isvalidsessiondata-accepts-current-session-data",
+      "id": "apps-bot-src-session-storage-test-ts-78-isvalidsessiondata-accepts-current-session-data",
       "kind": "technical",
       "filePath": "apps/bot/src/session-storage.test.ts",
-      "sourceLine": 73,
+      "sourceLine": 78,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -17435,10 +17965,10 @@
       "description": "Protects the bot is Valid Session Data behavior: accepts current session data."
     },
     {
-      "id": "apps-bot-src-session-storage-test-ts-83-isvalidsessiondata-rejects-corrupt-session-payloads",
+      "id": "apps-bot-src-session-storage-test-ts-88-isvalidsessiondata-rejects-corrupt-session-payloads",
       "kind": "technical",
       "filePath": "apps/bot/src/session-storage.test.ts",
-      "sourceLine": 83,
+      "sourceLine": 88,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -17451,10 +17981,10 @@
       "description": "Protects the bot is Valid Session Data behavior: rejects corrupt session payloads."
     },
     {
-      "id": "apps-bot-src-session-storage-test-ts-91-createpostgressessionstorage-reads-valid-session-data",
+      "id": "apps-bot-src-session-storage-test-ts-96-createpostgressessionstorage-reads-valid-session-data",
       "kind": "technical",
       "filePath": "apps/bot/src/session-storage.test.ts",
-      "sourceLine": 91,
+      "sourceLine": 96,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -17467,10 +17997,10 @@
       "description": "Protects the bot create Postgres Session Storage behavior so reads valid session data."
     },
     {
-      "id": "apps-bot-src-session-storage-test-ts-98-createpostgressessionstorage-returns-undefined-and-deletes-unrecoverable-non-object-session-data",
+      "id": "apps-bot-src-session-storage-test-ts-103-createpostgressessionstorage-returns-undefined-and-deletes-unrecoverable-non-object-session-data",
       "kind": "technical",
       "filePath": "apps/bot/src/session-storage.test.ts",
-      "sourceLine": 98,
+      "sourceLine": 103,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -17483,10 +18013,10 @@
       "description": "Protects the bot create Postgres Session Storage behavior: returns undefined and deletes unrecoverable (non object) session data."
     },
     {
-      "id": "apps-bot-src-session-storage-test-ts-108-createpostgressessionstorage-repairs-an-invalid-activemode-without-discarding-other-session-state",
+      "id": "apps-bot-src-session-storage-test-ts-113-createpostgressessionstorage-repairs-an-invalid-activemode-without-discarding-other-session-state",
       "kind": "technical",
       "filePath": "apps/bot/src/session-storage.test.ts",
-      "sourceLine": 108,
+      "sourceLine": 113,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -17499,10 +18029,10 @@
       "description": "Protects the bot create Postgres Session Storage behavior so repairs an invalid active Mode without discarding other session state."
     },
     {
-      "id": "apps-bot-src-session-storage-test-ts-126-createpostgressessionstorage-does-not-wipe-a-mentor-session-on-read",
+      "id": "apps-bot-src-session-storage-test-ts-131-createpostgressessionstorage-does-not-wipe-a-mentor-session-on-read",
       "kind": "technical",
       "filePath": "apps/bot/src/session-storage.test.ts",
-      "sourceLine": 126,
+      "sourceLine": 131,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -17515,10 +18045,10 @@
       "description": "Protects the bot create Postgres Session Storage behavior: does not wipe a mentor session on read."
     },
     {
-      "id": "apps-bot-src-session-storage-test-ts-137-createpostgressessionstorage-upserts-session-data-on-write",
+      "id": "apps-bot-src-session-storage-test-ts-142-createpostgressessionstorage-upserts-session-data-on-write",
       "kind": "technical",
       "filePath": "apps/bot/src/session-storage.test.ts",
-      "sourceLine": 137,
+      "sourceLine": 142,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -17531,10 +18061,10 @@
       "description": "Protects the bot create Postgres Session Storage behavior so upserts session data on write."
     },
     {
-      "id": "apps-bot-src-session-storage-test-ts-145-createpostgressessionstorage-deletes-session-data",
+      "id": "apps-bot-src-session-storage-test-ts-150-createpostgressessionstorage-deletes-session-data",
       "kind": "technical",
       "filePath": "apps/bot/src/session-storage.test.ts",
-      "sourceLine": 145,
+      "sourceLine": 150,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -17547,10 +18077,10 @@
       "description": "Protects the bot create Postgres Session Storage behavior so deletes session data."
     },
     {
-      "id": "apps-bot-src-session-storage-test-ts-151-createpostgressessionstorage-records-the-latency-of-every-storage-round-trip-so-db-slowness-is-visible-in-prometheus",
+      "id": "apps-bot-src-session-storage-test-ts-156-createpostgressessionstorage-records-the-latency-of-every-storage-round-trip-so-db-slowness-is-visible-in-prometheus",
       "kind": "technical",
       "filePath": "apps/bot/src/session-storage.test.ts",
-      "sourceLine": 151,
+      "sourceLine": 156,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [

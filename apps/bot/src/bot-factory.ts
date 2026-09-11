@@ -92,6 +92,12 @@ import {
   MENTOR_NEW_TOPIC_CALLBACK,
 } from "./scenes/helpers/mentor-exit.helper.js";
 import {
+  handleMentorIdleExitCallback,
+  handleMentorIdleStayCallback,
+  MENTOR_IDLE_EXIT_CALLBACK,
+  MENTOR_IDLE_STAY_CALLBACK,
+} from "./scenes/helpers/mentor-idle.helper.js";
+import {
   handleLangSelectCallback,
   handleOutOfSetCallback,
   handleSrcLangOverrideCallback,
@@ -426,6 +432,11 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
 
   // "🆕 New topic" on mentor answers — fresh mentor thread (one topic per session).
   onCallback(MENTOR_NEW_TOPIC_CALLBACK, handleMentorNewTopicCallback);
+
+  // The two answers to the idle re-confirm prompt: resume the held message as a
+  // mentor turn, or switch to translation and translate it instead.
+  onCallback(MENTOR_IDLE_STAY_CALLBACK, handleMentorIdleStayCallback);
+  onCallback(MENTOR_IDLE_EXIT_CALLBACK, handleMentorIdleExitCallback);
 
   // Onboarding (Task 72) is a set of plain stateless handlers, not a
   // conversation: every tap re-derives its screen from the database, so a pause

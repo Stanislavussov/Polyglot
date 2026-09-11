@@ -227,10 +227,18 @@ describe("handleMentorText", () => {
     expect(mockMentorMessageRepository.findLatestThreadId).not.toHaveBeenCalled();
     const threadId = mockMentorMessageRepository.record.mock.calls[0][0].threadId;
     expect(threadId).toMatch(/^[0-9a-f-]{36}$/);
-    expect(ctx.session.mentor).toEqual({ threadId });
+    expect(ctx.session.mentor).toEqual({ threadId, lastTurnAt: expect.any(Number) });
   });
 
-  it("does not pin the thread on the session when the turn ran outside mentor mode", async () => {
+  it("advances the activity stamp instead of overwriting it when the turn completes", async () => {
+    const ctx = createMockCtx({ mentor: { threadId: THREAD_A, lastTurnAt: 1 } });
+    await handleMentorText(ctx, "and in questions?");
+
+    expect(ctx.session.mentor?.threadId).toBe(THREAD_A);
+    expect(ctx.session.mentor?.lastTurnAt).toBeGreaterThan(1);
+  });
+
+  it("does not pin the thread or stamp activity when the turn ran outside mentor mode", async () => {
     const ctx = createMockCtx({ activeMode: "translate", mentor: undefined });
     await handleMentorText(ctx, "reply from translate mode", { threadId: THREAD_B });
 

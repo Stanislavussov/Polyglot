@@ -168,7 +168,7 @@ export const userLanguageSettings = pgTable("user_language_settings", {
   nativeLang: text("native_lang").notNull(),
   learningLangs: text("learning_langs").array().notNull().default([]),
   timezone: text("timezone").default("UTC").notNull(),
-  /** Current bot mode: "translate" | "mentor" | "quiz" (extensible) */
+  /** Current bot mode. Accepted values are `USER_MODES` in `user-modes.ts` — the column is plain text, so that list is the only guard. */
   activeMode: text("active_mode").default("translate").notNull(),
   /** Last explicitly selected source language code (nullable = auto-detect / never selected).
    *  Survives bot restarts; session is the primary source during a session. */

@@ -29,6 +29,9 @@ export async function activateTranslateMode(
 
   // No source lang menu on mode entry (Task 58 — detection happens on first text message)
   ctx.session.needsTranslateReminder = false;
+  // A held mentor message must not outlive the mode it belongs to; /translate and
+  // the mentor-exit buttons all land here.
+  ctx.session.mentorIdlePrompt = undefined;
 
   return { lang, fromLang, toLangs };
 }

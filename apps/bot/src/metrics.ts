@@ -133,6 +133,12 @@ export const mentorDuration = new Histogram({
   buckets: [0.5, 1, 2, 5, 10, 30],
 });
 
+export const mentorIdlePromptCounter = new Counter({
+  name: "bot_mentor_idle_prompts_total",
+  help: "Total mentor idle-timeout prompts and their resolutions",
+  labelNames: ["outcome"] as const,
+});
+
 export const telegramMessagesCounter = new Counter({
   name: "bot_telegram_messages_total",
   help: "Total Telegram messages received",
