@@ -10,6 +10,8 @@
  */
 import { FEATURE_KEYS, isSupported, type SupportedLang, t } from "@polyglot/core";
 import type { InlineKeyboardMarkup } from "grammy/types";
+import { startMentorThread } from "../../modes/mode-policy.js";
+import { trackProductEvent } from "../../observability/product-events.js";
 import type { BotContext } from "../../types.js";
 import { activateTranslateMode } from "../translate.scene.js";
 import { ensurePaidFeatureForMessage } from "./paid-feature.helper.js";
@@ -70,8 +72,9 @@ export async function handleMentorNewTopicCallback(ctx: BotContext): Promise<voi
 
   ctx.session.activeMode = "mentor";
   await ctx.services.userRepository.updateActiveMode(ctx.user.id, "mentor");
-  // Empty object = "fresh thread, no recovery" — the first turn mints a new id.
-  ctx.session.mentor = {};
+  trackProductEvent(ctx, "mode.switched", "mentor");
+  // No threadId = "fresh thread, no recovery" — the first turn mints a new id.
+  startMentorThread(ctx.session);
 
   await ctx.reply(t("mentorNewTopicStarted", lang));
 }

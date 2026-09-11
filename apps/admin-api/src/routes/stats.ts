@@ -2,6 +2,8 @@ import {
   aiRequestLatencyRepository,
   dictionaryLookupLogRepository,
   languageDetectionRepository,
+  PRODUCT_EVENT_RETENTION_DAYS,
+  productEventRepository,
   requestTimingRepository,
   statsRepository,
   userRepository,
@@ -44,6 +46,38 @@ export async function statsRoutes(app: FastifyInstance) {
 
   // Onboarding funnel (Task 72): users by furthest step reached, split by completion.
   app.get("/stats/onboarding-funnel", async () => userRepository.getOnboardingFunnel());
+
+  /**
+   * Product metrics: the purchase funnel and what people do with the product.
+   *
+   * The window is capped at the retention horizon rather than the usual 90 —
+   * asking for 90 days of a table pruned at 30 returns a third of a window and
+   * reads as a collapse in usage.
+   */
+  app.get("/stats/product-metrics", async (request) => {
+    const { days: requested } = daysQuerySchema.parse(request.query);
+    const days = Math.min(requested, PRODUCT_EVENT_RETENTION_DAYS);
+
+    const [totals, breakdown, byDay] = await Promise.all([
+      productEventRepository.getTotals(days),
+      productEventRepository.getBreakdown(
+        [
+          "paywall.shown",
+          "plan.selected",
+          "plan.confirmed",
+          "feature.used",
+          "feature.locked",
+          "limit.reached",
+          "command.used",
+          "mode.switched",
+        ],
+        days,
+      ),
+      productEventRepository.getFunnelByDay(days),
+    ]);
+
+    return { days, retentionDays: PRODUCT_EVENT_RETENTION_DAYS, totals, breakdown, byDay };
+  });
 
   app.get("/stats/dictionary-lookups", async (request) => {
     const querySchema = z.object({

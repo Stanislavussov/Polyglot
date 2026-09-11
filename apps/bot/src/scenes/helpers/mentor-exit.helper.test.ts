@@ -105,8 +105,9 @@ describe("handleMentorNewTopicCallback", () => {
     const ctx = createMockCtx();
     await handleMentorNewTopicCallback(ctx);
 
-    // {} = "fresh, no recovery" — the next turn mints a new thread id.
-    expect(ctx.session.mentor).toEqual({});
+    // A stamp without a threadId = "fresh, no recovery" — the next turn mints a new id.
+    expect(ctx.session.mentor).toEqual({ lastTurnAt: expect.any(Number) });
+    expect(ctx.session.mentor).not.toHaveProperty("threadId");
     expect(ctx.session.activeMode).toBe("mentor");
     expect(mockUserRepository.updateActiveMode).toHaveBeenCalledWith(1, "mentor");
     expect(ctx.reply).toHaveBeenCalled();
@@ -117,7 +118,8 @@ describe("handleMentorNewTopicCallback", () => {
     await handleMentorNewTopicCallback(ctx);
 
     expect(ctx.session.activeMode).toBe("mentor");
-    expect(ctx.session.mentor).toEqual({});
+    expect(ctx.session.mentor).toEqual({ lastTurnAt: expect.any(Number) });
+    expect(ctx.session.mentor).not.toHaveProperty("threadId");
   });
 
   it("refuses a plan without the mentor feature before touching the mode", async () => {

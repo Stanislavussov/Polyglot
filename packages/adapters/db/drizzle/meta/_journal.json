@@ -407,6 +407,13 @@
       "when": 1787682537343,
       "tag": "0057_flaky_black_cat",
       "breakpoints": true
+    },
+    {
+      "idx": 58,
+      "version": "7",
+      "when": 1788979402805,
+      "tag": "0058_aromatic_beast",
+      "breakpoints": true
     }
   ]
 }
