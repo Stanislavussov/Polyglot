@@ -9,15 +9,21 @@
  * with the card — and nothing else. That is an invariant across the dispatcher, the
  * handlers and the Postgres-backed session, so it is proved end-to-end here.
  */
-import { allLoaderPhraseKeys, t } from "@polyglot/core";
+import { allLoaderPhraseKeys, allLoaderTexts, t } from "@polyglot/core";
 import { describe, expect, it } from "vitest";
 import { arrangeOnboardedTranslator } from "../../test-helpers/integration/arrange.js";
 import { type CapturedCall, createBotHarness, messageUpdate } from "../../test-helpers/integration/bot-harness.js";
 import { uniqueTelegramId } from "../../test-helpers/integration/id-factory.js";
 import { deterministicTranslateAi } from "../../test-helpers/integration/translate-ai-mock.js";
 
-/** Every phrase the translate loader may open on or rotate to. */
-const LOADER_TEXTS = new Set(allLoaderPhraseKeys("translate").map((key) => t(key, "en")));
+/**
+ * Every line the translate loader may open on or rotate to: the phrases in the
+ * languages the user is learning, plus the interface-language fallback.
+ */
+const LOADER_TEXTS = new Set([
+  ...allLoaderTexts("translate"),
+  ...allLoaderPhraseKeys("translate").map((key) => t(key, "en")),
+]);
 
 /** Ids of the loading placeholders the flow sent — the only deletable messages. */
 function loadingPlaceholderIds(sent: CapturedCall[]): number[] {

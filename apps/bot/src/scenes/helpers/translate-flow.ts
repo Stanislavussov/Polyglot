@@ -666,7 +666,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
   });
 
   // Show loading message
-  const loader = await sendLoader(ctx, "translate", lang);
+  const loader = await sendLoader(ctx, "translate", lang, learningLangs);
 
   await runTranslationPipeline(ctx, {
     word: cleanWord,
@@ -1233,7 +1233,8 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
   }
 
   // Show loading message
-  const loader = await sendLoader(ctx, "translate", lang);
+  const learningLangs = normalizeLearningLangs(nativeLang, settings?.learningLangs ?? []);
+  const loader = await sendLoader(ctx, "translate", lang, learningLangs);
 
   await runTranslationPipeline(ctx, {
     word: pendingWord,
@@ -1246,7 +1247,7 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
     classification,
     isSentence,
     loader,
-    learningLangs: normalizeLearningLangs(nativeLang, settings?.learningLangs ?? []),
+    learningLangs,
     contextHint: pendingContextHint,
     // The user already confirmed the language / chose a correction (or "translate
     // as written") — never re-ask, and never offer inline grammar on this path.

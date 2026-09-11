@@ -127,7 +127,7 @@ export async function handleMentorText(ctx: BotContext, text: string, opts?: Men
   ];
 
   // Show loading indicator
-  const loader = await sendLoader(ctx, "mentor", lang);
+  const loader = await sendLoader(ctx, "mentor", lang, settings?.learningLangs ?? []);
 
   const stopTimer = mentorDuration.startTimer();
   try {
