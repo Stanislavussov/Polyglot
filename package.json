@@ -18,7 +18,6 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:catalog": "node scripts/test-catalog.mjs",
     "test:integration": "./scripts/integration-test.sh",
     "test:integration:run": "vitest run --config vitest.integration.config.ts",
     "neon:prune": "./scripts/neon-prune.sh",
