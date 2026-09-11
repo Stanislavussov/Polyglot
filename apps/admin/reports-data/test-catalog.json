@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-09-11T18:46:02.000Z",
+  "generatedAt": "2026-09-11T21:27:15.000Z",
   "summary": {
-    "total": 3210,
+    "total": 3212,
     "business": 0,
-    "technical": 3210,
+    "technical": 3212,
     "workspaces": [
       "apps",
       "packages"
@@ -11026,10 +11026,26 @@
       "description": "Protects the bot onboarding — screen 3 (instruction + feature entry points) behavior: closes on one message that carries the mode menu, with no inline copy of it."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-762-onboarding-screen-3-instruction-feature-entry-points-names-the-icon-that-brings-the-folded-away-menu-back",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-768-onboarding-screen-3-instruction-feature-entry-points-explains-what-saving-a-word-buys-the-user-not-just-that-the-button-exists",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 762,
+      "sourceLine": 768,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "onboarding — screen 3 (instruction + feature entry points)"
+      ],
+      "title": "explains what saving a word buys the user, not just that the button exists",
+      "rawTitle": "explains what saving a word buys the user, not just that the button exists",
+      "name": "Bot onboarding — screen 3 (instruction + feature entry points) explains what saving a word buys the user, not just that the button exists",
+      "value": "Protects the bot onboarding — screen 3 (instruction + feature entry points) behavior so explains what saving a word buys the user, not just that the button exists.",
+      "description": "Protects the bot onboarding — screen 3 (instruction + feature entry points) behavior so explains what saving a word buys the user, not just that the button exists."
+    },
+    {
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-781-onboarding-screen-3-instruction-feature-entry-points-names-the-icon-that-brings-the-folded-away-menu-back",
+      "kind": "technical",
+      "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
+      "sourceLine": 781,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11042,10 +11058,10 @@
       "description": "Protects the bot onboarding — screen 3 (instruction + feature entry points) behavior so names the icon that brings the folded away menu back."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-783-onboarding-screen-3-instruction-feature-entry-points-routes-each-feature-button-to-the-existing-scene-handler",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-802-onboarding-screen-3-instruction-feature-entry-points-routes-each-feature-button-to-the-existing-scene-handler",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 783,
+      "sourceLine": 802,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11058,10 +11074,10 @@
       "description": "Protects the bot onboarding — screen 3 (instruction + feature entry points) behavior: routes each feature button to the existing scene handler."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-798-onboarding-screen-3-instruction-feature-entry-points-sends-the-screencast-only-when-an-asset-is-configured-and-never-fails-on-its-absence",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-817-onboarding-screen-3-instruction-feature-entry-points-sends-the-screencast-only-when-an-asset-is-configured-and-never-fails-on-its-absence",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 798,
+      "sourceLine": 817,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11074,10 +11090,10 @@
       "description": "Protects the bot onboarding — screen 3 (instruction + feature entry points) behavior: sends the screencast only when an asset is configured, and never fails on its absence."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-808-onboarding-screen-3-instruction-feature-entry-points-sends-the-screencast-when-a-file-id-is-configured",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-827-onboarding-screen-3-instruction-feature-entry-points-sends-the-screencast-when-a-file-id-is-configured",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 808,
+      "sourceLine": 827,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11090,10 +11106,10 @@
       "description": "Protects the bot onboarding — screen 3 (instruction + feature entry points) behavior: sends the screencast when a file id is configured."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-822-onboarding-screen-3-instruction-feature-entry-points-still-delivers-the-instruction-screen-when-the-screencast-fails-to-send",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-841-onboarding-screen-3-instruction-feature-entry-points-still-delivers-the-instruction-screen-when-the-screencast-fails-to-send",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 822,
+      "sourceLine": 841,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11106,10 +11122,10 @@
       "description": "Protects the bot onboarding — screen 3 (instruction + feature entry points) behavior so still delivers the instruction screen when the screencast fails to send."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-843-onboarding-statelessness-and-instrumentation-resumes-on-the-furthest-screen-reached-however-long-the-gap-between-taps",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-862-onboarding-statelessness-and-instrumentation-resumes-on-the-furthest-screen-reached-however-long-the-gap-between-taps",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 843,
+      "sourceLine": 862,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11122,10 +11138,10 @@
       "description": "Protects the bot onboarding — statelessness and instrumentation behavior so resumes on the furthest screen reached, however long the gap between taps."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-858-onboarding-statelessness-and-instrumentation-resumes-on-the-demo-screen-once-the-language-step-is-done",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-877-onboarding-statelessness-and-instrumentation-resumes-on-the-demo-screen-once-the-language-step-is-done",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 858,
+      "sourceLine": 877,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11138,10 +11154,10 @@
       "description": "Protects the bot onboarding — statelessness and instrumentation behavior so resumes on the demo screen once the language step is done."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-867-onboarding-statelessness-and-instrumentation-keeps-every-button-live-after-an-arbitrary-pause-a-stale-tap-is-still-handled",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-886-onboarding-statelessness-and-instrumentation-keeps-every-button-live-after-an-arbitrary-pause-a-stale-tap-is-still-handled",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 867,
+      "sourceLine": 886,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11154,10 +11170,10 @@
       "description": "Protects the bot onboarding — statelessness and instrumentation behavior: keeps every button live after an arbitrary pause — a stale tap is still handled."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-880-onboarding-statelessness-and-instrumentation-records-a-step-for-every-screen-and-never-rewinds-the-furthest-step-reached",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-899-onboarding-statelessness-and-instrumentation-records-a-step-for-every-screen-and-never-rewinds-the-furthest-step-reached",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 880,
+      "sourceLine": 899,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11170,10 +11186,10 @@
       "description": "Protects the bot onboarding — statelessness and instrumentation behavior: records a step for every screen, and never rewinds the furthest step reached."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-899-onboarding-statelessness-and-instrumentation-reaches-the-first-real-card-in-five-taps-from-start",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-918-onboarding-statelessness-and-instrumentation-reaches-the-first-real-card-in-five-taps-from-start",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 899,
+      "sourceLine": 918,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11186,10 +11202,10 @@
       "description": "Protects the bot onboarding — statelessness and instrumentation behavior so reaches the first real card in five taps from start."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-913-onboarding-statelessness-and-instrumentation-passes-text-through-to-the-rest-of-the-chain-when-another-flow-is-waiting-on-it",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-932-onboarding-statelessness-and-instrumentation-passes-text-through-to-the-rest-of-the-chain-when-another-flow-is-waiting-on-it",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 913,
+      "sourceLine": 932,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11202,10 +11218,10 @@
       "description": "Protects the bot onboarding — statelessness and instrumentation behavior so passes text through to the rest of the chain when another flow is waiting on it."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-929-onboarding-statelessness-and-instrumentation-consumes-demo-screen-text-itself-when-no-other-flow-is-waiting",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-948-onboarding-statelessness-and-instrumentation-consumes-demo-screen-text-itself-when-no-other-flow-is-waiting",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 929,
+      "sourceLine": 948,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11218,10 +11234,10 @@
       "description": "Protects the bot onboarding — statelessness and instrumentation behavior so consumes demo screen text itself when no other flow is waiting."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-941-onboarding-statelessness-and-instrumentation-ignores-an-onboarding-tap-from-a-user-who-has-already-finished",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-960-onboarding-statelessness-and-instrumentation-ignores-an-onboarding-tap-from-a-user-who-has-already-finished",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 941,
+      "sourceLine": 960,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11234,10 +11250,10 @@
       "description": "Protects the bot onboarding — statelessness and instrumentation behavior: ignores an onboarding tap from a user who has already finished."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-956-onboarding-recovery-and-reversibility-puts-a-tap-on-a-pre-task-72-keyboard-back-onto-a-live-screen",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-975-onboarding-recovery-and-reversibility-puts-a-tap-on-a-pre-task-72-keyboard-back-onto-a-live-screen",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 956,
+      "sourceLine": 975,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11250,10 +11266,10 @@
       "description": "Protects the bot onboarding — recovery and reversibility behavior so puts a tap on a pre Task 72 keyboard back onto a live screen."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-973-onboarding-recovery-and-reversibility-acknowledges-a-legacy-tap-from-an-already-onboarded-user-without-re-rendering",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-992-onboarding-recovery-and-reversibility-acknowledges-a-legacy-tap-from-an-already-onboarded-user-without-re-rendering",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 973,
+      "sourceLine": 992,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11266,10 +11282,10 @@
       "description": "Protects the bot onboarding — recovery and reversibility behavior so acknowledges a legacy tap from an already onboarded user without re rendering."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-984-onboarding-recovery-and-reversibility-lets-the-user-take-back-a-wrongly-guessed-native-language",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-1003-onboarding-recovery-and-reversibility-lets-the-user-take-back-a-wrongly-guessed-native-language",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 984,
+      "sourceLine": 1003,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11282,10 +11298,10 @@
       "description": "Protects the bot onboarding — recovery and reversibility behavior so lets the user take back a wrongly guessed native language."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-1000-onboarding-recovery-and-reversibility-drops-a-learning-language-that-becomes-the-native-language-on-a-back-and-change",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-1019-onboarding-recovery-and-reversibility-drops-a-learning-language-that-becomes-the-native-language-on-a-back-and-change",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 1000,
+      "sourceLine": 1019,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -11298,10 +11314,10 @@
       "description": "Protects the bot onboarding — recovery and reversibility behavior so drops a learning language that becomes the native language on a back and change."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-1015-onboarding-recovery-and-reversibility-sends-a-replacement-message-when-a-screen-is-too-old-to-edit",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-1034-onboarding-recovery-and-reversibility-sends-a-replacement-message-when-a-screen-is-too-old-to-edit",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 1015,
+      "sourceLine": 1034,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -16397,7 +16413,7 @@
       "description": "Protects the bot handle Regen Loop behavior: calls translate One on regen and re renders card."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-regen-helper-test-ts-192-handleregenloop-passes-learner-friendly-default-outputconfig-to-translateone",
+      "id": "apps-bot-src-scenes-helpers-regen-helper-test-ts-192-handleregenloop-passes-the-default-template-outputconfig-to-translateone",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/regen.helper.test.ts",
       "sourceLine": 192,
@@ -16406,11 +16422,11 @@
       "suitePath": [
         "handleRegenLoop"
       ],
-      "title": "passes learner-friendly default outputConfig to translateOne",
-      "rawTitle": "passes learner-friendly default outputConfig to translateOne",
-      "name": "Bot handle Regen Loop passes learner friendly default output Config to translate One",
-      "value": "Protects the bot handle Regen Loop behavior so passes learner friendly default output Config to translate One.",
-      "description": "Protects the bot handle Regen Loop behavior so passes learner friendly default output Config to translate One."
+      "title": "passes the default template outputConfig to translateOne",
+      "rawTitle": "passes the default template outputConfig to translateOne",
+      "name": "Bot handle Regen Loop passes the default template output Config to translate One",
+      "value": "Protects the bot handle Regen Loop behavior so passes the default template output Config to translate One.",
+      "description": "Protects the bot handle Regen Loop behavior so passes the default template output Config to translate One."
     },
     {
       "id": "apps-bot-src-scenes-helpers-regen-helper-test-ts-211-handleregenloop-shows-loading-message-during-regeneration",
@@ -16781,7 +16797,7 @@
       "description": "Protects the bot handle Translate Text — context enrichment behavior: does not call AI when the monthly translation limit is exhausted."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-272-handletranslatetext-context-enrichment-passes-learner-friendly-default-outputconfig",
+      "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-272-handletranslatetext-context-enrichment-passes-the-default-template-outputconfig",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/translate-mode.helper.test.ts",
       "sourceLine": 272,
@@ -16790,11 +16806,11 @@
       "suitePath": [
         "handleTranslateText — context enrichment"
       ],
-      "title": "passes learner-friendly default outputConfig",
-      "rawTitle": "passes learner-friendly default outputConfig",
-      "name": "Bot handle Translate Text — context enrichment passes learner friendly default output Config",
-      "value": "Protects the bot handle Translate Text — context enrichment behavior so passes learner friendly default output Config.",
-      "description": "Protects the bot handle Translate Text — context enrichment behavior so passes learner friendly default output Config."
+      "title": "passes the default template outputConfig",
+      "rawTitle": "passes the default template outputConfig",
+      "name": "Bot handle Translate Text — context enrichment passes the default template output Config",
+      "value": "Protects the bot handle Translate Text — context enrichment behavior so passes the default template output Config.",
+      "description": "Protects the bot handle Translate Text — context enrichment behavior so passes the default template output Config."
     },
     {
       "id": "apps-bot-src-scenes-helpers-translate-mode-helper-test-ts-289-handletranslatetext-context-enrichment-passes-lookupcontext-from-createcontextlookup-to-deps",
@@ -18845,10 +18861,10 @@
       "description": "Protects the bot start Typing Keepalive behavior: sends typing immediately and refreshes it on an interval until stopped."
     },
     {
-      "id": "apps-bot-src-utils-long-op-test-ts-131-sendloader-opens-in-one-of-the-languages-the-user-is-learning-not-the-interface-one",
+      "id": "apps-bot-src-utils-long-op-test-ts-135-sendloader-opens-in-one-of-the-languages-the-user-is-learning-not-the-interface-one",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/long-op.test.ts",
-      "sourceLine": 131,
+      "sourceLine": 135,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -18861,26 +18877,42 @@
       "description": "Protects the bot send Loader behavior so opens in one of the languages the user is learning, not the interface one."
     },
     {
-      "id": "apps-bot-src-utils-long-op-test-ts-140-sendloader-moves-to-the-next-learning-language-on-every-tick",
+      "id": "apps-bot-src-utils-long-op-test-ts-144-sendloader-moves-to-the-next-learning-language-one-wait-stage-further-on-every-tick",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/long-op.test.ts",
-      "sourceLine": 140,
+      "sourceLine": 144,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
         "sendLoader"
       ],
-      "title": "moves to the next learning language on every tick",
-      "rawTitle": "moves to the next learning language on every tick",
-      "name": "Bot send Loader moves to the next learning language on every tick",
-      "value": "Protects the bot send Loader behavior so moves to the next learning language on every tick.",
-      "description": "Protects the bot send Loader behavior so moves to the next learning language on every tick."
+      "title": "moves to the next learning language, one wait stage further, on every tick",
+      "rawTitle": "moves to the next learning language, one wait stage further, on every tick",
+      "name": "Bot send Loader moves to the next learning language, one wait stage further, on every tick",
+      "value": "Protects the bot send Loader behavior so moves to the next learning language, one wait stage further, on every tick.",
+      "description": "Protects the bot send Loader behavior so moves to the next learning language, one wait stage further, on every tick."
     },
     {
-      "id": "apps-bot-src-utils-long-op-test-ts-159-sendloader-stays-in-the-single-language-a-one-language-learner-picked-without-repeating-a-line",
+      "id": "apps-bot-src-utils-long-op-test-ts-165-sendloader-follows-the-0-3-5-7-10-15s-schedule-then-runs-out-on-its-own",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/long-op.test.ts",
-      "sourceLine": 159,
+      "sourceLine": 165,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "sendLoader"
+      ],
+      "title": "follows the 0/3/5/7/10/15s schedule, then runs out on its own",
+      "rawTitle": "follows the 0/3/5/7/10/15s schedule, then runs out on its own",
+      "name": "Bot send Loader follows the 0 3 5 7 10 15s schedule, then runs out on its own",
+      "value": "Protects the bot send Loader behavior so follows the 0 3 5 7 10 15s schedule, then runs out on its own.",
+      "description": "Protects the bot send Loader behavior so follows the 0 3 5 7 10 15s schedule, then runs out on its own."
+    },
+    {
+      "id": "apps-bot-src-utils-long-op-test-ts-187-sendloader-stays-in-the-single-language-a-one-language-learner-picked-without-repeating-a-line",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/long-op.test.ts",
+      "sourceLine": 187,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -18893,10 +18925,10 @@
       "description": "Protects the bot send Loader behavior so stays in the single language a one language learner picked, without repeating a line."
     },
     {
-      "id": "apps-bot-src-utils-long-op-test-ts-174-sendloader-falls-back-to-the-interface-language-when-no-learning-language-can-speak",
+      "id": "apps-bot-src-utils-long-op-test-ts-204-sendloader-falls-back-to-the-interface-language-when-no-learning-language-can-speak",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/long-op.test.ts",
-      "sourceLine": 174,
+      "sourceLine": 204,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -18909,10 +18941,10 @@
       "description": "Protects the bot send Loader behavior: falls back to the interface language when no learning language can speak."
     },
     {
-      "id": "apps-bot-src-utils-long-op-test-ts-186-sendloader-stops-rotating-once-stopped",
+      "id": "apps-bot-src-utils-long-op-test-ts-216-sendloader-stops-rotating-once-stopped",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/long-op.test.ts",
-      "sourceLine": 186,
+      "sourceLine": 216,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -18925,10 +18957,10 @@
       "description": "Protects the bot send Loader behavior so stops rotating once stopped."
     },
     {
-      "id": "apps-bot-src-utils-long-op-test-ts-197-sendloader-survives-a-rejected-edit-a-cosmetic-tick-must-never-break-the-flow",
+      "id": "apps-bot-src-utils-long-op-test-ts-227-sendloader-survives-a-rejected-edit-a-cosmetic-tick-must-never-break-the-flow",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/long-op.test.ts",
-      "sourceLine": 197,
+      "sourceLine": 227,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -18941,10 +18973,10 @@
       "description": "Protects the bot send Loader behavior so survives a rejected edit — a cosmetic tick must never break the flow."
     },
     {
-      "id": "apps-bot-src-utils-long-op-test-ts-210-sendloader-edits-only-the-loader-message-in-the-chat-it-was-sent-to",
+      "id": "apps-bot-src-utils-long-op-test-ts-240-sendloader-edits-only-the-loader-message-in-the-chat-it-was-sent-to",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/long-op.test.ts",
-      "sourceLine": 210,
+      "sourceLine": 240,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -18957,10 +18989,10 @@
       "description": "Protects the bot send Loader behavior so edits only the loader message, in the chat it was sent to."
     },
     {
-      "id": "apps-bot-src-utils-long-op-test-ts-225-dismissloader-silences-the-ticker-before-removing-the-message-it-edits",
+      "id": "apps-bot-src-utils-long-op-test-ts-256-dismissloader-silences-the-ticker-before-removing-the-message-it-edits",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/long-op.test.ts",
-      "sourceLine": 225,
+      "sourceLine": 256,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -18973,10 +19005,10 @@
       "description": "Protects the bot dismiss Loader behavior so silences the ticker before removing the message it edits."
     },
     {
-      "id": "apps-bot-src-utils-long-op-test-ts-237-dismissloader-ignores-a-message-telegram-has-already-dropped",
+      "id": "apps-bot-src-utils-long-op-test-ts-268-dismissloader-ignores-a-message-telegram-has-already-dropped",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/long-op.test.ts",
-      "sourceLine": 237,
+      "sourceLine": 268,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -33882,10 +33914,10 @@
       "description": "Protects the core domain is Known Language() behavior: returns false for unknown codes."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-loader-phrases-test-ts-36-waitphrases-covers-every-language-a-user-can-choose-to-learn",
+      "id": "packages-core-src-modules-i18n-tests-loader-phrases-test-ts-34-waitphrases-covers-every-language-a-user-can-choose-to-learn",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/loader-phrases.test.ts",
-      "sourceLine": 36,
+      "sourceLine": 34,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -33898,10 +33930,10 @@
       "description": "Protects the core domain wait Phrases behavior so covers every language a user can choose to learn."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-loader-phrases-test-ts-50-waitphrases-holds-on-the-last-stage-once-the-wait-outruns-the-list",
+      "id": "packages-core-src-modules-i18n-tests-loader-phrases-test-ts-49-waitphrases-holds-on-the-last-stage-once-the-wait-outruns-the-list",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/loader-phrases.test.ts",
-      "sourceLine": 50,
+      "sourceLine": 49,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -33946,7 +33978,7 @@
       "description": "Protects the core domain wait Phrases behavior so phrases each language in that language, never in English."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-loader-phrases-test-ts-70-composeloadertext-names-the-speaking-language-with-its-flag",
+      "id": "packages-core-src-modules-i18n-tests-loader-phrases-test-ts-70-composeloadertext-leads-with-the-glyph-and-trails-the-phrase-off",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/loader-phrases.test.ts",
       "sourceLine": 70,
@@ -33955,33 +33987,17 @@
       "suitePath": [
         "composeLoaderText"
       ],
-      "title": "names the speaking language with its flag",
-      "rawTitle": "names the speaking language with its flag",
-      "name": "Core domain compose Loader Text names the speaking language with its flag",
-      "value": "Protects the core domain compose Loader Text behavior so names the speaking language with its flag.",
-      "description": "Protects the core domain compose Loader Text behavior so names the speaking language with its flag."
+      "title": "leads with the glyph and trails the phrase off",
+      "rawTitle": "leads with the glyph and trails the phrase off",
+      "name": "Core domain compose Loader Text leads with the glyph and trails the phrase off",
+      "value": "Protects the core domain compose Loader Text behavior so leads with the glyph and trails the phrase off.",
+      "description": "Protects the core domain compose Loader Text behavior so leads with the glyph and trails the phrase off."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-loader-phrases-test-ts-74-composeloadertext-drops-the-flag-for-a-language-the-registry-has-none-for",
+      "id": "packages-core-src-modules-i18n-tests-loader-phrases-test-ts-83-loadertextsfor-keeps-the-two-kinds-glyphs-apart-so-the-mode-still-reads-at-a-glance",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/loader-phrases.test.ts",
-      "sourceLine": 74,
-      "workspace": "packages",
-      "packageName": "core",
-      "suitePath": [
-        "composeLoaderText"
-      ],
-      "title": "drops the flag for a language the registry has none for",
-      "rawTitle": "drops the flag for a language the registry has none for",
-      "name": "Core domain compose Loader Text drops the flag for a language the registry has none for",
-      "value": "Protects the core domain compose Loader Text behavior so drops the flag for a language the registry has none for.",
-      "description": "Protects the core domain compose Loader Text behavior so drops the flag for a language the registry has none for."
-    },
-    {
-      "id": "packages-core-src-modules-i18n-tests-loader-phrases-test-ts-89-loadertextsfor-keeps-the-two-kinds-glyphs-apart-so-the-mode-still-reads-at-a-glance",
-      "kind": "technical",
-      "filePath": "packages/core/src/modules/i18n/__tests__/loader-phrases.test.ts",
-      "sourceLine": 89,
+      "sourceLine": 83,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -43222,10 +43238,26 @@
       "description": "Protects the core domain translate() with SENTENCE OUTPUT and input Type=sentence behavior so sentence translation strips disabled fields from AI response."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-473-translate-with-sentence-output-and-inputtype-sentence-omits-emoji-and-nativemeaning-for-sentence-output-and-never-requests-an-emoji",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-472-translate-with-sentence-output-and-inputtype-sentence-drops-source-usage-synonyms-and-examples-the-config-disabled",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 473,
+      "sourceLine": 472,
+      "workspace": "packages",
+      "packageName": "core",
+      "suitePath": [
+        "translate() with SENTENCE_OUTPUT and inputType=sentence"
+      ],
+      "title": "drops source-usage synonyms and examples the config disabled",
+      "rawTitle": "drops source-usage synonyms and examples the config disabled",
+      "name": "Core domain translate() with SENTENCE OUTPUT and input Type=sentence drops source usage synonyms and examples the config disabled",
+      "value": "Protects the core domain translate() with SENTENCE OUTPUT and input Type=sentence behavior so drops source usage synonyms and examples the config disabled.",
+      "description": "Protects the core domain translate() with SENTENCE OUTPUT and input Type=sentence behavior so drops source usage synonyms and examples the config disabled."
+    },
+    {
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-503-translate-with-sentence-output-and-inputtype-sentence-omits-emoji-and-nativemeaning-for-sentence-output-and-never-requests-an-emoji",
+      "kind": "technical",
+      "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
+      "sourceLine": 503,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -43238,10 +43270,10 @@
       "description": "Protects the core domain translate() with SENTENCE OUTPUT and input Type=sentence behavior: omits emoji and native Meaning for sentence output and never requests an emoji."
     },
     {
-      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-512-translate-with-sentence-output-and-inputtype-sentence-keeps-the-emoji-for-a-word-translation-word-phrase-unchanged",
+      "id": "packages-core-src-modules-translation-tests-output-config-test-ts-542-translate-with-sentence-output-and-inputtype-sentence-keeps-the-emoji-for-a-word-translation-word-phrase-unchanged",
       "kind": "technical",
       "filePath": "packages/core/src/modules/translation/__tests__/output-config.test.ts",
-      "sourceLine": 512,
+      "sourceLine": 542,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -51473,7 +51505,7 @@
       "description": "Protects the core domain is Finite Positive behavior: rejects Na N, Infinity, zero, negatives and non numbers."
     },
     {
-      "id": "packages-core-src-shared-tests-translation-template-test-ts-12-default-template-has-learner-friendly-default-fields-for-words-and-phrases",
+      "id": "packages-core-src-shared-tests-translation-template-test-ts-12-default-template-enables-only-examples-and-connotation-warnings-on-top-of-the-translation",
       "kind": "technical",
       "filePath": "packages/core/src/shared/__tests__/translation-template.test.ts",
       "sourceLine": 12,
@@ -51482,11 +51514,11 @@
       "suitePath": [
         "DEFAULT_TEMPLATE"
       ],
-      "title": "has learner-friendly default fields for words and phrases",
-      "rawTitle": "has learner-friendly default fields for words and phrases",
-      "name": "Core domain DEFAULT TEMPLATE has learner friendly default fields for words and phrases",
-      "value": "Protects the core domain DEFAULT TEMPLATE behavior so has learner friendly default fields for words and phrases.",
-      "description": "Protects the core domain DEFAULT TEMPLATE behavior so has learner friendly default fields for words and phrases."
+      "title": "enables only examples and connotation warnings on top of the translation",
+      "rawTitle": "enables only examples and connotation warnings on top of the translation",
+      "name": "Core domain DEFAULT TEMPLATE enables only examples and connotation warnings on top of the translation",
+      "value": "Protects the core domain DEFAULT TEMPLATE behavior so enables only examples and connotation warnings on top of the translation.",
+      "description": "Protects the core domain DEFAULT TEMPLATE behavior so enables only examples and connotation warnings on top of the translation."
     },
     {
       "id": "packages-core-src-shared-tests-translation-template-test-ts-28-template-field-keys-contains-all-field-keys-in-display-order",
@@ -51505,7 +51537,7 @@
       "description": "Protects the core domain TEMPLATE FIELD KEYS behavior so contains all field keys in display order."
     },
     {
-      "id": "packages-core-src-shared-tests-translation-template-test-ts-41-templatetooutputconfig-converts-default-template-to-learner-friendly-output",
+      "id": "packages-core-src-shared-tests-translation-template-test-ts-41-templatetooutputconfig-converts-the-default-template-to-examples-plus-connotation-warnings",
       "kind": "technical",
       "filePath": "packages/core/src/shared/__tests__/translation-template.test.ts",
       "sourceLine": 41,
@@ -51514,17 +51546,17 @@
       "suitePath": [
         "templateToOutputConfig"
       ],
-      "title": "converts default template to learner-friendly output",
-      "rawTitle": "converts default template to learner-friendly output",
-      "name": "Core domain template To Output Config converts default template to learner friendly output",
-      "value": "Protects the core domain template To Output Config behavior: converts default template to learner friendly output.",
-      "description": "Protects the core domain template To Output Config behavior: converts default template to learner friendly output."
+      "title": "converts the default template to examples plus connotation warnings",
+      "rawTitle": "converts the default template to examples plus connotation warnings",
+      "name": "Core domain template To Output Config converts the default template to examples plus connotation warnings",
+      "value": "Protects the core domain template To Output Config behavior: converts the default template to examples plus connotation warnings.",
+      "description": "Protects the core domain template To Output Config behavior: converts the default template to examples plus connotation warnings."
     },
     {
-      "id": "packages-core-src-shared-tests-translation-template-test-ts-50-templatetooutputconfig-maps-template-fields-to-output-config-flags",
+      "id": "packages-core-src-shared-tests-translation-template-test-ts-49-templatetooutputconfig-maps-template-fields-to-output-config-flags",
       "kind": "technical",
       "filePath": "packages/core/src/shared/__tests__/translation-template.test.ts",
-      "sourceLine": 50,
+      "sourceLine": 49,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -51537,10 +51569,10 @@
       "description": "Protects the core domain template To Output Config behavior: maps template fields to output config flags."
     },
     {
-      "id": "packages-core-src-shared-tests-translation-template-test-ts-77-resolveoutputconfig-returns-sentence-output-for-sentence-input-regardless-of-user-template",
+      "id": "packages-core-src-shared-tests-translation-template-test-ts-76-resolveoutputconfig-returns-sentence-output-for-sentence-input-regardless-of-user-template",
       "kind": "technical",
       "filePath": "packages/core/src/shared/__tests__/translation-template.test.ts",
-      "sourceLine": 77,
+      "sourceLine": 76,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -51553,10 +51585,10 @@
       "description": "Protects the core domain resolve Output Config behavior: returns sentence output for sentence input regardless of user template."
     },
     {
-      "id": "packages-core-src-shared-tests-translation-template-test-ts-93-resolveoutputconfig-returns-default-config-when-user-template-is-null-for-words-and-phrases",
+      "id": "packages-core-src-shared-tests-translation-template-test-ts-92-resolveoutputconfig-returns-default-config-when-user-template-is-null-for-words-and-phrases",
       "kind": "technical",
       "filePath": "packages/core/src/shared/__tests__/translation-template.test.ts",
-      "sourceLine": 93,
+      "sourceLine": 92,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -51569,10 +51601,10 @@
       "description": "Protects the core domain resolve Output Config behavior: returns default config when user template is null for words and phrases."
     },
     {
-      "id": "packages-core-src-shared-tests-translation-template-test-ts-104-resolveoutputconfig-returns-custom-config-for-word-and-phrase-input",
+      "id": "packages-core-src-shared-tests-translation-template-test-ts-102-resolveoutputconfig-returns-custom-config-for-word-and-phrase-input",
       "kind": "technical",
       "filePath": "packages/core/src/shared/__tests__/translation-template.test.ts",
-      "sourceLine": 104,
+      "sourceLine": 102,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -51585,10 +51617,10 @@
       "description": "Protects the core domain resolve Output Config behavior: returns custom config for word and phrase input."
     },
     {
-      "id": "packages-core-src-shared-tests-translation-template-test-ts-125-resolvetemplate-returns-default-template-when-input-is-null",
+      "id": "packages-core-src-shared-tests-translation-template-test-ts-123-resolvetemplate-returns-default-template-when-input-is-null",
       "kind": "technical",
       "filePath": "packages/core/src/shared/__tests__/translation-template.test.ts",
-      "sourceLine": 125,
+      "sourceLine": 123,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -51601,10 +51633,10 @@
       "description": "Protects the core domain resolve Template behavior: returns DEFAULT TEMPLATE when input is null."
     },
     {
-      "id": "packages-core-src-shared-tests-translation-template-test-ts-129-resolvetemplate-returns-the-custom-template-as-is-when-provided",
+      "id": "packages-core-src-shared-tests-translation-template-test-ts-127-resolvetemplate-returns-the-custom-template-as-is-when-provided",
       "kind": "technical",
       "filePath": "packages/core/src/shared/__tests__/translation-template.test.ts",
-      "sourceLine": 129,
+      "sourceLine": 127,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [

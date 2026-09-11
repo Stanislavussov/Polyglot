@@ -2,8 +2,8 @@
  * Tests for long-operation helpers: bounded waits with a user-visible
  * timeout, the fire-and-forget typing indicator, and the rotating loader.
  */
-import { allLoaderPhraseKeys, initLanguageRegistry, loaderTextsFor, t } from "@polyglot/core";
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { allLoaderPhraseKeys, loaderTextsFor, t } from "@polyglot/core";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import type { BotContext } from "../types.js";
 import {
   AI_BUDGET_SAFETY_MARGIN_MS,
@@ -120,14 +120,18 @@ function linesFor(kind: "translate" | "mentor", langCode: string, stage: number)
   return [...loaderTextsFor(kind, langCode, stage)];
 }
 
-describe("sendLoader", () => {
-  beforeAll(() => {
-    initLanguageRegistry([
-      { code: "de", name: "German", flag: "🇩🇪", isSupported: true },
-      { code: "es", name: "Spanish", flag: "🇪🇸", isSupported: true },
-    ]);
-  });
+/**
+ * Which of `codes` a rendered line came from. Nothing on screen names the
+ * language any more, so the only honest answer is which phrase set contains it —
+ * `de` and `es` share no phrase, which is what makes the lookup unambiguous.
+ */
+function languageOf(kind: "translate" | "mentor", text: string, stage: number, codes: string[]): string {
+  const match = codes.filter((code) => linesFor(kind, code, stage).includes(text));
+  expect(match).toHaveLength(1);
+  return match[0] as string;
+}
 
+describe("sendLoader", () => {
   it("opens in one of the languages the user is learning, not the interface one", async () => {
     const { ctx, reply } = loaderCtx();
 
@@ -137,23 +141,47 @@ describe("sendLoader", () => {
     expect(opening).toContain(reply.mock.calls[0]?.[0]);
   });
 
-  it("moves to the next learning language on every tick", async () => {
+  it("moves to the next learning language, one wait stage further, on every tick", async () => {
     vi.useFakeTimers();
     const { ctx, reply, editMessageText } = loaderCtx();
 
     const loader = await sendLoader(ctx, "mentor", "ru", ["de", "es"]);
-    await vi.advanceTimersByTimeAsync(11_000);
+    await vi.advanceTimersByTimeAsync(8_000);
     loader.stop();
 
+    // Ticks land at 3s, 5s and 7s — the loader moves three times inside the
+    // window where a user starts wondering whether anything is happening.
     const texts = shownTexts(reply, editMessageText);
-    expect(texts).toHaveLength(3);
-    // Whichever language opened, the next line speaks the other one.
-    const flags = texts.map((text) => (text.includes("🇩🇪") ? "de" : "es"));
-    expect(flags[0]).not.toBe(flags[1]);
-    expect(flags[1]).not.toBe(flags[2]);
-    // Each line belongs to the stage matching how long the wait has run.
-    expect(linesFor("mentor", flags[1] as string, 1)).toContain(texts[1]);
-    expect(linesFor("mentor", flags[2] as string, 2)).toContain(texts[2]);
+    expect(texts).toHaveLength(4);
+
+    // Each line belongs to the stage matching how long the wait has run, and
+    // whichever language opened, each line speaks the other one in turn.
+    const spoken = texts.map((text, stage) => languageOf("mentor", text, stage, ["de", "es"]));
+    for (let i = 1; i < spoken.length; i++) {
+      expect(spoken[i]).not.toBe(spoken[i - 1]);
+    }
+  });
+
+  it("follows the 0/3/5/7/10/15s schedule, then runs out on its own", async () => {
+    vi.useFakeTimers();
+    const { ctx, reply, editMessageText } = loaderCtx();
+
+    const loader = await sendLoader(ctx, "translate", "en", ["de"]);
+    const shownAfter = async (ms: number): Promise<number> => {
+      await vi.advanceTimersByTimeAsync(ms);
+      return shownTexts(reply, editMessageText).length;
+    };
+
+    expect(shownTexts(reply, editMessageText)).toHaveLength(1);
+    expect(await shownAfter(2_900)).toBe(1);
+    expect(await shownAfter(200)).toBe(2);
+    expect(await shownAfter(2_000)).toBe(3);
+    expect(await shownAfter(2_000)).toBe(4);
+    expect(await shownAfter(3_000)).toBe(5);
+    expect(await shownAfter(5_000)).toBe(6);
+    // Past the last offset the chain schedules nothing more, guard or no guard.
+    expect(await shownAfter(10_000)).toBe(6);
+    loader.stop();
   });
 
   it("stays in the single language a one-language learner picked, without repeating a line", async () => {
@@ -165,8 +193,10 @@ describe("sendLoader", () => {
     loader.stop();
 
     const texts = shownTexts(reply, editMessageText);
-    expect(texts.length).toBeGreaterThan(3);
-    expect(texts.every((text) => text.includes("🇩🇪"))).toBe(true);
+    expect(texts).toHaveLength(6);
+    texts.forEach((text, stage) => {
+      expect(linesFor("translate", "de", stage)).toContain(text);
+    });
     // Consecutive repeats are what Telegram rejects as "message is not modified".
     expect(texts.some((text, i) => i > 0 && text === texts[i - 1])).toBe(false);
   });
@@ -203,8 +233,8 @@ describe("sendLoader", () => {
     await vi.advanceTimersByTimeAsync(11_000);
     loader.stop();
 
-    // Both ticks fired and neither rejection escaped as an unhandled failure.
-    expect(editMessageText).toHaveBeenCalledTimes(2);
+    // Every tick up to 10s fired and no rejection escaped as an unhandled failure.
+    expect(editMessageText).toHaveBeenCalledTimes(4);
   });
 
   it("edits only the loader message, in the chat it was sent to", async () => {
@@ -215,6 +245,7 @@ describe("sendLoader", () => {
     await vi.advanceTimersByTimeAsync(11_000);
     loader.stop();
 
+    expect(editMessageText).toHaveBeenCalled();
     for (const call of editMessageText.mock.calls) {
       expect(call.slice(0, 2)).toEqual([7, 42]);
     }

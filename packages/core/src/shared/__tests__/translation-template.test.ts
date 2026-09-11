@@ -9,15 +9,15 @@ import {
 } from "../translation-template.types.js";
 
 describe("DEFAULT_TEMPLATE", () => {
-  it("has learner-friendly default fields for words and phrases", () => {
+  it("enables only examples and connotation warnings on top of the translation", () => {
     expect(DEFAULT_TEMPLATE).toEqual({
       name: "Default",
       fields: {
-        synonyms: true,
-        examples: false,
-        alternatives: true,
+        synonyms: false,
+        examples: true,
+        alternatives: false,
         equivalentNote: false,
-        connotationWarning: false,
+        connotationWarning: true,
         grammarBreakdown: false,
       },
     });
@@ -38,12 +38,11 @@ describe("TEMPLATE_FIELD_KEYS", () => {
 });
 
 describe("templateToOutputConfig", () => {
-  it("converts default template to learner-friendly output", () => {
+  it("converts the default template to examples plus connotation warnings", () => {
     expect(templateToOutputConfig(DEFAULT_TEMPLATE)).toEqual({
       ...RELIABLE_OUTPUT,
-      includeSynonyms: true,
-      includeAlternatives: true,
-      includeNativeSynonyms: true,
+      includeExamples: true,
+      includeConnotationWarning: true,
     });
   });
 
@@ -93,9 +92,8 @@ describe("resolveOutputConfig", () => {
   it("returns default config when user template is null for words and phrases", () => {
     const expected = {
       ...RELIABLE_OUTPUT,
-      includeSynonyms: true,
-      includeAlternatives: true,
-      includeNativeSynonyms: true,
+      includeExamples: true,
+      includeConnotationWarning: true,
     };
     expect(resolveOutputConfig(null, "word")).toEqual(expected);
     expect(resolveOutputConfig(null, "phrase")).toEqual(expected);
