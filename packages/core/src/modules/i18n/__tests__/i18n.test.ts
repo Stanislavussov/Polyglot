@@ -985,6 +985,8 @@ describe("i18n — notification keys (Task 41.6)", () => {
     "notifAiSuggested",
     "notifTranslations",
     "notifReveal",
+    "notifSelfCheck",
+    "notifTapToReveal",
     "notifFbHard",
     "notifFbNormal",
     "notifFbEasy",
@@ -1007,6 +1009,16 @@ describe("i18n — notification keys (Task 41.6)", () => {
     "notifReEngagement",
   ];
 
+  /**
+   * Keys whose translation is legitimately the English string. The suites below
+   * use "differs from English" as a proxy for "actually translated", which a
+   * language-neutral label defeats: the "normal" grade button is "OK" in every
+   * Latin-script locale because the row holds three buttons on one phone-width
+   * line and a longer word is squeezed out of readability.
+   */
+  const LANGUAGE_NEUTRAL = new Set<I18nKey>(["notifFbNormal"]);
+  const translatedKeys = notifKeys.filter((key) => !LANGUAGE_NEUTRAL.has(key));
+
   it("all notification keys exist in en.json", () => {
     for (const key of notifKeys) {
       const result = t(key, "en");
@@ -1015,7 +1027,7 @@ describe("i18n — notification keys (Task 41.6)", () => {
   });
 
   it("all notification keys exist in ru.json (non-English)", () => {
-    for (const key of notifKeys) {
+    for (const key of translatedKeys) {
       const enResult = t(key, "en");
       const ruResult = t(key, "ru");
       expect(ruResult).not.toBe(enResult);
@@ -1023,7 +1035,7 @@ describe("i18n — notification keys (Task 41.6)", () => {
   });
 
   it("all notification keys exist in cs.json (non-English)", () => {
-    for (const key of notifKeys) {
+    for (const key of translatedKeys) {
       const enResult = t(key, "en");
       const csResult = t(key, "cs");
       expect(csResult).not.toBe(enResult);

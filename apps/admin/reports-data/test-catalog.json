@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-26T09:34:29.000Z",
+  "generatedAt": "2026-08-26T10:14:28.000Z",
   "summary": {
-    "total": 3123,
+    "total": 3128,
     "business": 0,
-    "technical": 3123,
+    "technical": 3128,
     "workspaces": [
       "apps",
       "packages"
@@ -3591,10 +3591,10 @@
       "description": "Protects the bot progress (integration) behavior: keeps the button off the done screen while the surface is off, and still answers a stale tap."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-155-scheduled-notification-delivery-integration-c1-notifies-a-subscriber-who-translated-today",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-156-scheduled-notification-delivery-integration-c1-notifies-a-subscriber-who-translated-today",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 155,
+      "sourceLine": 156,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3607,10 +3607,10 @@
       "description": "Protects the bot scheduled notification delivery (integration) behavior so C1: notifies a subscriber who translated today."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-178-scheduled-notification-delivery-integration-c2-delivers-the-scheduled-word-to-a-subscriber-in-their-configured-slot",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-179-scheduled-notification-delivery-integration-c2-delivers-the-scheduled-word-to-a-subscriber-in-their-configured-slot",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 178,
+      "sourceLine": 179,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3623,10 +3623,10 @@
       "description": "Protects the bot scheduled notification delivery (integration) behavior so C2: delivers the scheduled word to a subscriber in their configured slot."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-198-scheduled-notification-delivery-integration-c3-sends-nothing-to-a-user-who-has-not-opted-in",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-199-scheduled-notification-delivery-integration-c3-sends-nothing-to-a-user-who-has-not-opted-in",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 198,
+      "sourceLine": 199,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3639,10 +3639,10 @@
       "description": "Protects the bot scheduled notification delivery (integration) behavior so C3: sends nothing to a user who has not opted in."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-217-scheduled-notification-delivery-integration-c4-sends-nothing-outside-the-user-s-configured-slot",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-218-scheduled-notification-delivery-integration-c4-sends-nothing-outside-the-user-s-configured-slot",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 217,
+      "sourceLine": 218,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3655,10 +3655,10 @@
       "description": "Protects the bot scheduled notification delivery (integration) behavior so C4: sends nothing outside the user's configured slot."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-236-scheduled-notification-delivery-integration-c5-sends-the-empty-dictionary-prompt-when-there-is-no-word-to-send",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-237-scheduled-notification-delivery-integration-c5-sends-the-empty-dictionary-prompt-when-there-is-no-word-to-send",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 236,
+      "sourceLine": 237,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3671,10 +3671,10 @@
       "description": "Protects the bot scheduled notification delivery (integration) behavior so C5: sends the empty dictionary prompt when there is no word to send."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-258-scheduled-notification-delivery-integration-c6-disables-notifications-after-a-403-and-does-not-retry",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-259-scheduled-notification-delivery-integration-c6-disables-notifications-after-a-403-and-does-not-retry",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 258,
+      "sourceLine": 259,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3687,10 +3687,10 @@
       "description": "Protects the bot scheduled notification delivery (integration) behavior so C6: disables notifications after a 403 and does not retry."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-282-scheduled-notification-delivery-integration-c11-a-delivered-notification-is-counted-as-delivery-sent-and-nothing-else",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-283-scheduled-notification-delivery-integration-c11-a-delivered-notification-is-counted-as-delivery-sent-and-nothing-else",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 282,
+      "sourceLine": 283,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3703,10 +3703,10 @@
       "description": "Protects the bot scheduled notification delivery (integration) behavior so C11: a delivered notification is counted as delivery sent, and nothing else."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-300-scheduled-notification-delivery-integration-c12-a-blocked-user-is-counted-as-delivery-blocked-and-never-as-delivery-failed",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-301-scheduled-notification-delivery-integration-c12-a-blocked-user-is-counted-as-delivery-blocked-and-never-as-delivery-failed",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 300,
+      "sourceLine": 301,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3719,10 +3719,10 @@
       "description": "Protects the bot scheduled notification delivery (integration) behavior so C12: a blocked user is counted as delivery blocked and never as delivery failed."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-318-scheduled-notification-delivery-integration-c13-a-surfaced-transient-failure-is-counted-as-delivery-failed-and-still-reaches-the-scheduler-s-retry",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-319-scheduled-notification-delivery-integration-c13-a-surfaced-transient-failure-is-counted-as-delivery-failed-and-still-reaches-the-scheduler-s-retry",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 318,
+      "sourceLine": 319,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3735,26 +3735,42 @@
       "description": "Protects the bot scheduled notification delivery (integration) behavior so C13: a surfaced transient failure is counted as delivery failed and still reaches the scheduler's retry."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-344-scheduled-notification-delivery-integration-c10-delivers-the-card-with-the-reader-s-own-language-directly-under-the-headword",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-345-scheduled-notification-delivery-integration-c10-delivers-the-word-alone-handing-over-nothing-that-answers-it",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 344,
+      "sourceLine": 345,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
         "scheduled notification delivery (integration)"
       ],
-      "title": "C10: delivers the card with the reader's own language directly under the headword",
-      "rawTitle": "C10: delivers the card with the reader's own language directly under the headword",
-      "name": "Bot scheduled notification delivery (integration) C10: delivers the card with the reader's own language directly under the headword",
-      "value": "Protects the bot scheduled notification delivery (integration) behavior so C10: delivers the card with the reader's own language directly under the headword.",
-      "description": "Protects the bot scheduled notification delivery (integration) behavior so C10: delivers the card with the reader's own language directly under the headword."
+      "title": "C10: delivers the word alone, handing over nothing that answers it",
+      "rawTitle": "C10: delivers the word alone, handing over nothing that answers it",
+      "name": "Bot scheduled notification delivery (integration) C10: delivers the word alone, handing over nothing that answers it",
+      "value": "Protects the bot scheduled notification delivery (integration) behavior so C10: delivers the word alone, handing over nothing that answers it.",
+      "description": "Protects the bot scheduled notification delivery (integration) behavior so C10: delivers the word alone, handing over nothing that answers it."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-383-notification-schedule-seeding-and-the-deselect-guard-integration-c7-seeds-the-admin-configured-default-the-first-time-a-user-turns-notifications-on",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-379-scheduled-notification-delivery-integration-c14-tapping-reveal-answers-the-word-with-the-stored-meaning-above-the-reader-s-own-language",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 383,
+      "sourceLine": 379,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "scheduled notification delivery (integration)"
+      ],
+      "title": "C14: tapping Reveal answers the word, with the stored meaning above the reader's own language",
+      "rawTitle": "C14: tapping Reveal answers the word, with the stored meaning above the reader's own language",
+      "name": "Bot scheduled notification delivery (integration) C14: tapping Reveal answers the word, with the stored meaning above the reader's own language",
+      "value": "Protects the bot scheduled notification delivery (integration) behavior so C14: tapping Reveal answers the word, with the stored meaning above the reader's own language.",
+      "description": "Protects the bot scheduled notification delivery (integration) behavior so C14: tapping Reveal answers the word, with the stored meaning above the reader's own language."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-427-notification-schedule-seeding-and-the-deselect-guard-integration-c7-seeds-the-admin-configured-default-the-first-time-a-user-turns-notifications-on",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
+      "sourceLine": 427,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3767,10 +3783,10 @@
       "description": "Protects the bot notification schedule seeding and the deselect guard (integration) behavior so C7: seeds the admin configured default the first time a user turns notifications on."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-429-notification-schedule-seeding-and-the-deselect-guard-integration-c8-never-overwrites-a-schedule-the-user-already-chose",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-473-notification-schedule-seeding-and-the-deselect-guard-integration-c8-never-overwrites-a-schedule-the-user-already-chose",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 429,
+      "sourceLine": 473,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3783,10 +3799,10 @@
       "description": "Protects the bot notification schedule seeding and the deselect guard (integration) behavior so C8: never overwrites a schedule the user already chose."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-453-notification-schedule-seeding-and-the-deselect-guard-integration-c9-refuses-to-deselect-the-last-remaining-slot",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-497-notification-schedule-seeding-and-the-deselect-guard-integration-c9-refuses-to-deselect-the-last-remaining-slot",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 453,
+      "sourceLine": 497,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -3799,10 +3815,10 @@
       "description": "Protects the bot notification schedule seeding and the deselect guard (integration) behavior so C9: refuses to deselect the last remaining slot."
     },
     {
-      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-487-notification-schedule-seeding-and-the-deselect-guard-integration-c9b-the-guard-cannot-be-walked-around-via-toggle-off-and-on",
+      "id": "apps-bot-src-tests-integration-notification-delivery-integration-test-ts-531-notification-schedule-seeding-and-the-deselect-guard-integration-c9b-the-guard-cannot-be-walked-around-via-toggle-off-and-on",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/notification-delivery.integration.test.ts",
-      "sourceLine": 487,
+      "sourceLine": 531,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4535,10 +4551,10 @@
       "description": "Protects the bot word card consistency (integration) behavior so W1: a revealed notification renders in the same grammar as the translate card."
     },
     {
-      "id": "apps-bot-src-tests-integration-word-card-consistency-integration-test-ts-151-word-card-consistency-integration-w2-the-dictionary-entry-renders-in-the-same-grammar-as-the-translate-card",
+      "id": "apps-bot-src-tests-integration-word-card-consistency-integration-test-ts-159-word-card-consistency-integration-w2-the-dictionary-entry-renders-in-the-same-grammar-as-the-translate-card",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/word-card-consistency.integration.test.ts",
-      "sourceLine": 151,
+      "sourceLine": 159,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4551,10 +4567,10 @@
       "description": "Protects the bot word card consistency (integration) behavior so W2: the dictionary entry renders in the same grammar as the translate card."
     },
     {
-      "id": "apps-bot-src-tests-integration-word-card-consistency-integration-test-ts-170-word-card-consistency-integration-w3-a-flashcard-hides-the-answer-on-the-front-and-reveals-it-in-the-shared-grammar",
+      "id": "apps-bot-src-tests-integration-word-card-consistency-integration-test-ts-178-word-card-consistency-integration-w3-a-flashcard-hides-the-answer-on-the-front-and-reveals-it-in-the-shared-grammar",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/word-card-consistency.integration.test.ts",
-      "sourceLine": 170,
+      "sourceLine": 178,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4567,10 +4583,10 @@
       "description": "Protects the bot word card consistency (integration) behavior so W3: a flashcard hides the answer on the front and reveals it in the shared grammar."
     },
     {
-      "id": "apps-bot-src-tests-integration-word-card-consistency-integration-test-ts-192-word-card-consistency-integration-w4-an-srs-review-names-the-recalled-language-and-reveals-it-in-the-shared-grammar",
+      "id": "apps-bot-src-tests-integration-word-card-consistency-integration-test-ts-200-word-card-consistency-integration-w4-an-srs-review-names-the-recalled-language-and-reveals-it-in-the-shared-grammar",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/word-card-consistency.integration.test.ts",
-      "sourceLine": 192,
+      "sourceLine": 200,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4583,10 +4599,10 @@
       "description": "Protects the bot word card consistency (integration) behavior so W4: an SRS review names the recalled language and reveals it in the shared grammar."
     },
     {
-      "id": "apps-bot-src-tests-integration-word-card-consistency-integration-test-ts-229-word-card-consistency-integration-w5-a-reveal-button-that-outlived-its-word-answers-instead-of-rendering-an-empty-card",
+      "id": "apps-bot-src-tests-integration-word-card-consistency-integration-test-ts-237-word-card-consistency-integration-w5-a-reveal-button-that-outlived-its-word-answers-instead-of-rendering-an-empty-card",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/word-card-consistency.integration.test.ts",
-      "sourceLine": 229,
+      "sourceLine": 237,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9054,10 +9070,10 @@
       "description": "Protects the bot handle Notif Learned Callback behavior: handles invalid entry Id gracefully."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-62-formatnotificationmessage-renders-emoji-and-original-word-in-bold",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-67-formatnotificationmessage-renders-emoji-and-original-word-in-bold",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 62,
+      "sourceLine": 67,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9070,23 +9086,7 @@
       "description": "Protects the bot format Notification Message behavior: renders emoji and original word in bold."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-67-formatnotificationmessage-shows-srs-source-label-for-dictionary-words",
-      "kind": "technical",
-      "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 67,
-      "workspace": "apps",
-      "packageName": "bot",
-      "suitePath": [
-        "formatNotificationMessage"
-      ],
-      "title": "shows SRS source label for dictionary words",
-      "rawTitle": "shows SRS source label for dictionary words",
-      "name": "Bot format Notification Message shows SRS source label for dictionary words",
-      "value": "Protects the bot format Notification Message behavior: shows SRS source label for dictionary words.",
-      "description": "Protects the bot format Notification Message behavior: shows SRS source label for dictionary words."
-    },
-    {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-72-formatnotificationmessage-shows-ai-source-label-for-suggested-words",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-72-formatnotificationmessage-hands-over-nothing-that-answers-the-word",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
       "sourceLine": 72,
@@ -9095,62 +9095,62 @@
       "suitePath": [
         "formatNotificationMessage"
       ],
-      "title": "shows AI source label for suggested words",
-      "rawTitle": "shows AI source label for suggested words",
-      "name": "Bot format Notification Message shows AI source label for suggested words",
-      "value": "Protects the bot format Notification Message behavior: shows AI source label for suggested words.",
-      "description": "Protects the bot format Notification Message behavior: shows AI source label for suggested words."
+      "title": "hands over nothing that answers the word",
+      "rawTitle": "hands over nothing that answers the word",
+      "name": "Bot format Notification Message hands over nothing that answers the word",
+      "value": "Protects the bot format Notification Message behavior so hands over nothing that answers the word.",
+      "description": "Protects the bot format Notification Message behavior so hands over nothing that answers the word."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-77-formatnotificationmessage-renders-persisted-native-meaning-when-available",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-81-formatnotificationmessage-asks-the-reader-to-check-themselves-one-line-below-the-word",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 77,
+      "sourceLine": 81,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
         "formatNotificationMessage"
       ],
-      "title": "renders persisted native meaning when available",
-      "rawTitle": "renders persisted native meaning when available",
-      "name": "Bot format Notification Message renders persisted native meaning when available",
-      "value": "Protects the bot format Notification Message behavior: renders persisted native meaning when available.",
-      "description": "Protects the bot format Notification Message behavior: renders persisted native meaning when available."
+      "title": "asks the reader to check themselves, one line below the word",
+      "rawTitle": "asks the reader to check themselves, one line below the word",
+      "name": "Bot format Notification Message asks the reader to check themselves, one line below the word",
+      "value": "Protects the bot format Notification Message behavior so asks the reader to check themselves, one line below the word.",
+      "description": "Protects the bot format Notification Message behavior so asks the reader to check themselves, one line below the word."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-87-formatnotificationmessage-puts-the-native-answer-directly-after-the-headword-above-the-meaning",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-89-formatnotificationmessage-keeps-the-whole-message-to-the-word-the-prompt-and-the-blank-between-them",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 87,
+      "sourceLine": 89,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
         "formatNotificationMessage"
       ],
-      "title": "puts the native answer directly after the headword, above the meaning",
-      "rawTitle": "puts the native answer directly after the headword, above the meaning",
-      "name": "Bot format Notification Message puts the native answer directly after the headword, above the meaning",
-      "value": "Protects the bot format Notification Message behavior so puts the native answer directly after the headword, above the meaning.",
-      "description": "Protects the bot format Notification Message behavior so puts the native answer directly after the headword, above the meaning."
+      "title": "keeps the whole message to the word, the prompt and the blank between them",
+      "rawTitle": "keeps the whole message to the word, the prompt and the blank between them",
+      "name": "Bot format Notification Message keeps the whole message to the word, the prompt and the blank between them",
+      "value": "Protects the bot format Notification Message behavior: keeps the whole message to the word, the prompt and the blank between them.",
+      "description": "Protects the bot format Notification Message behavior: keeps the whole message to the word, the prompt and the blank between them."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-97-formatnotificationmessage-orders-the-whole-card-headword-answer-meaning-other-languages",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-98-formatnotificationmessage-folds-the-answer-of-an-unrevealable-word-into-a-collapsed-quote",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 97,
+      "sourceLine": 98,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
         "formatNotificationMessage"
       ],
-      "title": "orders the whole card headword → answer → meaning → other languages",
-      "rawTitle": "orders the whole card headword → answer → meaning → other languages",
-      "name": "Bot format Notification Message orders the whole card headword → answer → meaning → other languages",
-      "value": "Protects the bot format Notification Message behavior so orders the whole card headword → answer → meaning → other languages.",
-      "description": "Protects the bot format Notification Message behavior so orders the whole card headword → answer → meaning → other languages."
+      "title": "folds the answer of an unrevealable word into a collapsed quote",
+      "rawTitle": "folds the answer of an unrevealable word into a collapsed quote",
+      "name": "Bot format Notification Message folds the answer of an unrevealable word into a collapsed quote",
+      "value": "Protects the bot format Notification Message behavior so folds the answer of an unrevealable word into a collapsed quote.",
+      "description": "Protects the bot format Notification Message behavior so folds the answer of an unrevealable word into a collapsed quote."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-105-formatnotificationmessage-keeps-the-provenance-label-above-the-headword-so-it-does-not-compete-with-the-answer",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-105-formatnotificationmessage-labels-where-an-unrevealable-word-came-from-so-an-unfamiliar-headword-explains-itself",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
       "sourceLine": 105,
@@ -9159,14 +9159,14 @@
       "suitePath": [
         "formatNotificationMessage"
       ],
-      "title": "keeps the provenance label above the headword so it does not compete with the answer",
-      "rawTitle": "keeps the provenance label above the headword so it does not compete with the answer",
-      "name": "Bot format Notification Message keeps the provenance label above the headword so it does not compete with the answer",
-      "value": "Protects the bot format Notification Message behavior: keeps the provenance label above the headword so it does not compete with the answer.",
-      "description": "Protects the bot format Notification Message behavior: keeps the provenance label above the headword so it does not compete with the answer."
+      "title": "labels where an unrevealable word came from, so an unfamiliar headword explains itself",
+      "rawTitle": "labels where an unrevealable word came from, so an unfamiliar headword explains itself",
+      "name": "Bot format Notification Message labels where an unrevealable word came from, so an unfamiliar headword explains itself",
+      "value": "Protects the bot format Notification Message behavior so labels where an unrevealable word came from, so an unfamiliar headword explains itself.",
+      "description": "Protects the bot format Notification Message behavior so labels where an unrevealable word came from, so an unfamiliar headword explains itself."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-113-formatnotificationmessage-orders-by-the-user-s-languages-even-when-the-record-arrives-alphabetized",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-113-formatnotificationmessage-orders-the-hidden-answer-by-the-user-s-languages-not-the-record-s-key-order",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
       "sourceLine": 113,
@@ -9175,81 +9175,49 @@
       "suitePath": [
         "formatNotificationMessage"
       ],
-      "title": "orders by the user's languages even when the record arrives alphabetized",
-      "rawTitle": "orders by the user's languages even when the record arrives alphabetized",
-      "name": "Bot format Notification Message orders by the user's languages even when the record arrives alphabetized",
-      "value": "Protects the bot format Notification Message behavior so orders by the user's languages even when the record arrives alphabetized.",
-      "description": "Protects the bot format Notification Message behavior so orders by the user's languages even when the record arrives alphabetized."
+      "title": "orders the hidden answer by the user's languages, not the record's key order",
+      "rawTitle": "orders the hidden answer by the user's languages, not the record's key order",
+      "name": "Bot format Notification Message orders the hidden answer by the user's languages, not the record's key order",
+      "value": "Protects the bot format Notification Message behavior so orders the hidden answer by the user's languages, not the record's key order.",
+      "description": "Protects the bot format Notification Message behavior so orders the hidden answer by the user's languages, not the record's key order."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-131-formatnotificationmessage-renders-the-card-unchanged-when-no-footer-is-passed",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-126-formatnotificationmessage-bolds-the-hidden-answer-and-leaves-secondary-languages-plain",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 131,
+      "sourceLine": 126,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
         "formatNotificationMessage"
       ],
-      "title": "renders the card unchanged when no footer is passed",
-      "rawTitle": "renders the card unchanged when no footer is passed",
-      "name": "Bot format Notification Message renders the card unchanged when no footer is passed",
-      "value": "Protects the bot format Notification Message behavior: renders the card unchanged when no footer is passed.",
-      "description": "Protects the bot format Notification Message behavior: renders the card unchanged when no footer is passed."
+      "title": "bolds the hidden answer and leaves secondary languages plain",
+      "rawTitle": "bolds the hidden answer and leaves secondary languages plain",
+      "name": "Bot format Notification Message bolds the hidden answer and leaves secondary languages plain",
+      "value": "Protects the bot format Notification Message behavior so bolds the hidden answer and leaves secondary languages plain.",
+      "description": "Protects the bot format Notification Message behavior so bolds the hidden answer and leaves secondary languages plain."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-137-formatnotificationmessage-puts-the-footer-last-separated-from-the-translations",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-138-formatnotificationmessage-renders-synonyms-inline-on-the-hidden-answer",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 137,
+      "sourceLine": 138,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
         "formatNotificationMessage"
       ],
-      "title": "puts the footer last, separated from the translations",
-      "rawTitle": "puts the footer last, separated from the translations",
-      "name": "Bot format Notification Message puts the footer last, separated from the translations",
-      "value": "Protects the bot format Notification Message behavior so puts the footer last, separated from the translations.",
-      "description": "Protects the bot format Notification Message behavior so puts the footer last, separated from the translations."
+      "title": "renders synonyms inline on the hidden answer",
+      "rawTitle": "renders synonyms inline on the hidden answer",
+      "name": "Bot format Notification Message renders synonyms inline on the hidden answer",
+      "value": "Protects the bot format Notification Message behavior: renders synonyms inline on the hidden answer.",
+      "description": "Protects the bot format Notification Message behavior: renders synonyms inline on the hidden answer."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-146-formatnotificationmessage-bolds-the-answer-and-leaves-secondary-languages-plain",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-160-formatnotificationmessage-keeps-the-language-code-when-no-flag-resolves-so-the-language-stays-identifiable",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 146,
-      "workspace": "apps",
-      "packageName": "bot",
-      "suitePath": [
-        "formatNotificationMessage"
-      ],
-      "title": "bolds the answer and leaves secondary languages plain",
-      "rawTitle": "bolds the answer and leaves secondary languages plain",
-      "name": "Bot format Notification Message bolds the answer and leaves secondary languages plain",
-      "value": "Protects the bot format Notification Message behavior so bolds the answer and leaves secondary languages plain.",
-      "description": "Protects the bot format Notification Message behavior so bolds the answer and leaves secondary languages plain."
-    },
-    {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-153-formatnotificationmessage-renders-synonyms-inline-on-the-answer",
-      "kind": "technical",
-      "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 153,
-      "workspace": "apps",
-      "packageName": "bot",
-      "suitePath": [
-        "formatNotificationMessage"
-      ],
-      "title": "renders synonyms inline on the answer",
-      "rawTitle": "renders synonyms inline on the answer",
-      "name": "Bot format Notification Message renders synonyms inline on the answer",
-      "value": "Protects the bot format Notification Message behavior: renders synonyms inline on the answer.",
-      "description": "Protects the bot format Notification Message behavior: renders synonyms inline on the answer."
-    },
-    {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-175-formatnotificationmessage-keeps-the-language-code-when-no-flag-resolves-so-the-language-stays-identifiable",
-      "kind": "technical",
-      "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 175,
+      "sourceLine": 160,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9262,10 +9230,10 @@
       "description": "Protects the bot format Notification Message behavior: keeps the language code when no flag resolves, so the language stays identifiable."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-184-formatnotificationmessage-escapes-html-entities-in-original-word",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-169-formatnotificationmessage-escapes-html-entities-in-original-word",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 184,
+      "sourceLine": 169,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9278,42 +9246,74 @@
       "description": "Protects the bot format Notification Message behavior: escapes HTML entities in original word."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-194-formatnotificationmessage-escapes-html-entities-in-synonyms",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-179-formatnotificationmessage-escapes-html-entities-in-the-hidden-synonyms",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 194,
+      "sourceLine": 179,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
         "formatNotificationMessage"
       ],
-      "title": "escapes HTML entities in synonyms",
-      "rawTitle": "escapes HTML entities in synonyms",
-      "name": "Bot format Notification Message escapes HTML entities in synonyms",
-      "value": "Protects the bot format Notification Message behavior: escapes HTML entities in synonyms.",
-      "description": "Protects the bot format Notification Message behavior: escapes HTML entities in synonyms."
+      "title": "escapes HTML entities in the hidden synonyms",
+      "rawTitle": "escapes HTML entities in the hidden synonyms",
+      "name": "Bot format Notification Message escapes HTML entities in the hidden synonyms",
+      "value": "Protects the bot format Notification Message behavior: escapes HTML entities in the hidden synonyms.",
+      "description": "Protects the bot format Notification Message behavior: escapes HTML entities in the hidden synonyms."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-208-formatnotificationmessage-renders-a-card-with-no-translations-without-throwing",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-193-formatnotificationmessage-offers-no-reveal-prompt-when-there-is-neither-an-entry-nor-a-translation-to-hide",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 208,
+      "sourceLine": 193,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
         "formatNotificationMessage"
       ],
-      "title": "renders a card with no translations without throwing",
-      "rawTitle": "renders a card with no translations without throwing",
-      "name": "Bot format Notification Message renders a card with no translations without throwing",
-      "value": "Protects the bot format Notification Message behavior: renders a card with no translations without throwing.",
-      "description": "Protects the bot format Notification Message behavior: renders a card with no translations without throwing."
+      "title": "offers no reveal prompt when there is neither an entry nor a translation to hide",
+      "rawTitle": "offers no reveal prompt when there is neither an entry nor a translation to hide",
+      "name": "Bot format Notification Message offers no reveal prompt when there is neither an entry nor a translation to hide",
+      "value": "Protects the bot format Notification Message behavior so offers no reveal prompt when there is neither an entry nor a translation to hide.",
+      "description": "Protects the bot format Notification Message behavior so offers no reveal prompt when there is neither an entry nor a translation to hide."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-223-buildnotificationkeyboard-shows-reveal-the-three-feedback-grades-and-remove",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-210-formatnotificationmessage-renders-the-card-unchanged-when-no-footer-is-passed",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 223,
+      "sourceLine": 210,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "formatNotificationMessage"
+      ],
+      "title": "renders the card unchanged when no footer is passed",
+      "rawTitle": "renders the card unchanged when no footer is passed",
+      "name": "Bot format Notification Message renders the card unchanged when no footer is passed",
+      "value": "Protects the bot format Notification Message behavior: renders the card unchanged when no footer is passed.",
+      "description": "Protects the bot format Notification Message behavior: renders the card unchanged when no footer is passed."
+    },
+    {
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-216-formatnotificationmessage-puts-the-footer-last-separated-from-the-prompt",
+      "kind": "technical",
+      "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
+      "sourceLine": 216,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "formatNotificationMessage"
+      ],
+      "title": "puts the footer last, separated from the prompt",
+      "rawTitle": "puts the footer last, separated from the prompt",
+      "name": "Bot format Notification Message puts the footer last, separated from the prompt",
+      "value": "Protects the bot format Notification Message behavior so puts the footer last, separated from the prompt.",
+      "description": "Protects the bot format Notification Message behavior so puts the footer last, separated from the prompt."
+    },
+    {
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-231-buildnotificationkeyboard-shows-reveal-the-three-feedback-grades-and-remove",
+      "kind": "technical",
+      "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
+      "sourceLine": 231,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9326,10 +9326,10 @@
       "description": "Protects the bot build Notification Keyboard behavior: shows Reveal, the three feedback grades, and Remove."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-234-buildnotificationkeyboard-keeps-the-grade-row-together-and-remove-on-its-own-row",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-242-buildnotificationkeyboard-keeps-the-grade-row-together-and-remove-on-its-own-row",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 234,
+      "sourceLine": 242,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9342,10 +9342,10 @@
       "description": "Protects the bot build Notification Keyboard behavior: keeps the grade row together and Remove on its own row."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-240-buildnotificationkeyboard-marks-the-selected-grade-with-a-check-while-keeping-all-buttons-tappable",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-248-buildnotificationkeyboard-marks-the-selected-grade-with-a-check-while-keeping-all-buttons-tappable",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 240,
+      "sourceLine": 248,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9358,10 +9358,10 @@
       "description": "Protects the bot build Notification Keyboard behavior: marks the selected grade with a check while keeping all buttons tappable."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-249-buildnotificationkeyboard-returns-empty-keyboard-when-no-entryid",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-257-buildnotificationkeyboard-returns-empty-keyboard-when-no-entryid",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 249,
+      "sourceLine": 257,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9374,10 +9374,10 @@
       "description": "Protects the bot build Notification Keyboard behavior: returns empty keyboard when no entry Id."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-256-buildnotificationrevealedkeyboard-shows-the-feedback-grades-and-remove-without-reveal",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-264-buildnotificationrevealedkeyboard-shows-the-feedback-grades-and-remove-without-reveal",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 256,
+      "sourceLine": 264,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -9390,10 +9390,10 @@
       "description": "Protects the bot build Notification Revealed Keyboard behavior: shows the feedback grades and Remove, without Reveal."
     },
     {
-      "id": "apps-bot-src-notifications-notification-formatter-test-ts-266-buildnotificationrevealedkeyboard-marks-the-selected-grade",
+      "id": "apps-bot-src-notifications-notification-formatter-test-ts-274-buildnotificationrevealedkeyboard-marks-the-selected-grade",
       "kind": "technical",
       "filePath": "apps/bot/src/notifications/notification.formatter.test.ts",
-      "sourceLine": 266,
+      "sourceLine": 274,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12478,10 +12478,90 @@
       "description": "Protects the bot render Word Card — stored prose behavior: renders visible prose unlabelled when the reader's language is unknown."
     },
     {
-      "id": "apps-bot-src-renderers-tests-word-card-test-ts-198-renderwordcard-language-blocks-keeps-the-first-example-visible-and-collapses-the-rest-with-the-notes",
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-214-renderwordcard-hintfirst-promotes-the-concise-gloss-above-the-answer",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
-      "sourceLine": 198,
+      "sourceLine": 214,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "renderWordCard — hintFirst"
+      ],
+      "title": "promotes the concise gloss above the answer",
+      "rawTitle": "promotes the concise gloss above the answer",
+      "name": "Bot render Word Card — hint First promotes the concise gloss above the answer",
+      "value": "Protects the bot render Word Card — hint First behavior so promotes the concise gloss above the answer.",
+      "description": "Protects the bot render Word Card — hint First behavior so promotes the concise gloss above the answer."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-222-renderwordcard-hintfirst-promotes-the-gloss-once-the-folded-quote-keeps-only-what-is-still-hidden",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
+      "sourceLine": 222,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "renderWordCard — hintFirst"
+      ],
+      "title": "promotes the gloss once — the folded quote keeps only what is still hidden",
+      "rawTitle": "promotes the gloss once — the folded quote keeps only what is still hidden",
+      "name": "Bot render Word Card — hint First promotes the gloss once — the folded quote keeps only what is still hidden",
+      "value": "Protects the bot render Word Card — hint First behavior so promotes the gloss once — the folded quote keeps only what is still hidden.",
+      "description": "Protects the bot render Word Card — hint First behavior so promotes the gloss once — the folded quote keeps only what is still hidden."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-231-renderwordcard-hintfirst-falls-back-to-the-source-usage-explanation-when-no-meaning-was-stored",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
+      "sourceLine": 231,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "renderWordCard — hintFirst"
+      ],
+      "title": "falls back to the source-usage explanation when no meaning was stored",
+      "rawTitle": "falls back to the source-usage explanation when no meaning was stored",
+      "name": "Bot render Word Card — hint First falls back to the source usage explanation when no meaning was stored",
+      "value": "Protects the bot render Word Card — hint First behavior: falls back to the source usage explanation when no meaning was stored.",
+      "description": "Protects the bot render Word Card — hint First behavior: falls back to the source usage explanation when no meaning was stored."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-239-renderwordcard-hintfirst-renders-a-word-with-nothing-stored-exactly-as-it-renders-without-the-flag",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
+      "sourceLine": 239,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "renderWordCard — hintFirst"
+      ],
+      "title": "renders a word with nothing stored exactly as it renders without the flag",
+      "rawTitle": "renders a word with nothing stored exactly as it renders without the flag",
+      "name": "Bot render Word Card — hint First renders a word with nothing stored exactly as it renders without the flag",
+      "value": "Protects the bot render Word Card — hint First behavior: renders a word with nothing stored exactly as it renders without the flag.",
+      "description": "Protects the bot render Word Card — hint First behavior: renders a word with nothing stored exactly as it renders without the flag."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-245-renderwordcard-hintfirst-changes-nothing-for-the-surfaces-that-do-not-ask-for-it",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
+      "sourceLine": 245,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "renderWordCard — hintFirst"
+      ],
+      "title": "changes nothing for the surfaces that do not ask for it",
+      "rawTitle": "changes nothing for the surfaces that do not ask for it",
+      "name": "Bot render Word Card — hint First changes nothing for the surfaces that do not ask for it",
+      "value": "Protects the bot render Word Card — hint First behavior so changes nothing for the surfaces that do not ask for it.",
+      "description": "Protects the bot render Word Card — hint First behavior so changes nothing for the surfaces that do not ask for it."
+    },
+    {
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-254-renderwordcard-language-blocks-keeps-the-first-example-visible-and-collapses-the-rest-with-the-notes",
+      "kind": "technical",
+      "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
+      "sourceLine": 254,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12494,10 +12574,10 @@
       "description": "Protects the bot render Word Card — language blocks behavior: keeps the first example visible and collapses the rest with the notes."
     },
     {
-      "id": "apps-bot-src-renderers-tests-word-card-test-ts-227-renderwordcard-language-blocks-renders-no-blockquote-when-there-is-nothing-to-collapse",
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-283-renderwordcard-language-blocks-renders-no-blockquote-when-there-is-nothing-to-collapse",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
-      "sourceLine": 227,
+      "sourceLine": 283,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12510,10 +12590,10 @@
       "description": "Protects the bot render Word Card — language blocks behavior: renders no blockquote when there is nothing to collapse."
     },
     {
-      "id": "apps-bot-src-renderers-tests-word-card-test-ts-240-renderwordcard-language-blocks-promotes-the-answer-language-directly-under-the-headword",
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-296-renderwordcard-language-blocks-promotes-the-answer-language-directly-under-the-headword",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
-      "sourceLine": 240,
+      "sourceLine": 296,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12526,10 +12606,10 @@
       "description": "Protects the bot render Word Card — language blocks behavior so promotes the answer language directly under the headword."
     },
     {
-      "id": "apps-bot-src-renderers-tests-word-card-test-ts-260-renderwordcard-language-blocks-keeps-the-given-order-when-no-answer-language-is-named",
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-316-renderwordcard-language-blocks-keeps-the-given-order-when-no-answer-language-is-named",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
-      "sourceLine": 260,
+      "sourceLine": 316,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12542,10 +12622,10 @@
       "description": "Protects the bot render Word Card — language blocks behavior: keeps the given order when no answer language is named."
     },
     {
-      "id": "apps-bot-src-renderers-tests-word-card-test-ts-276-renderwordcard-language-blocks-never-promotes-a-block-whose-language-no-longer-resolves",
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-332-renderwordcard-language-blocks-never-promotes-a-block-whose-language-no-longer-resolves",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
-      "sourceLine": 276,
+      "sourceLine": 332,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12558,10 +12638,10 @@
       "description": "Protects the bot render Word Card — language blocks behavior so never promotes a block whose language no longer resolves."
     },
     {
-      "id": "apps-bot-src-renderers-tests-word-card-test-ts-337-renderwordcard-invariants-emits-only-the-tags-telegram-s-html-subset-allows-each-balanced",
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-393-renderwordcard-invariants-emits-only-the-tags-telegram-s-html-subset-allows-each-balanced",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
-      "sourceLine": 337,
+      "sourceLine": 393,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12574,10 +12654,10 @@
       "description": "Protects the bot render Word Card — invariants behavior so emits only the tags Telegram's HTML subset allows, each balanced."
     },
     {
-      "id": "apps-bot-src-renderers-tests-word-card-test-ts-349-renderwordcard-invariants-never-opens-a-blockquote-it-has-nothing-to-put-in",
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-405-renderwordcard-invariants-never-opens-a-blockquote-it-has-nothing-to-put-in",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
-      "sourceLine": 349,
+      "sourceLine": 405,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12590,10 +12670,10 @@
       "description": "Protects the bot render Word Card — invariants behavior so never opens a blockquote it has nothing to put in."
     },
     {
-      "id": "apps-bot-src-renderers-tests-word-card-test-ts-360-renderwordcard-invariants-escapes-a-tag-hidden-in-stored-data-instead-of-emitting-it",
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-416-renderwordcard-invariants-escapes-a-tag-hidden-in-stored-data-instead-of-emitting-it",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
-      "sourceLine": 360,
+      "sourceLine": 416,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12606,10 +12686,10 @@
       "description": "Protects the bot render Word Card — invariants behavior: escapes a tag hidden in stored data instead of emitting it."
     },
     {
-      "id": "apps-bot-src-renderers-tests-word-card-test-ts-372-renderwordcard-invariants-falls-back-to-the-raw-input-when-the-stored-citation-form-is-blank",
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-428-renderwordcard-invariants-falls-back-to-the-raw-input-when-the-stored-citation-form-is-blank",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
-      "sourceLine": 372,
+      "sourceLine": 428,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -12622,10 +12702,10 @@
       "description": "Protects the bot render Word Card — invariants behavior: falls back to the raw input when the stored citation form is blank."
     },
     {
-      "id": "apps-bot-src-renderers-tests-word-card-test-ts-386-renderwordcard-invariants-drops-blank-stored-prose-rather-than-rendering-an-empty-note",
+      "id": "apps-bot-src-renderers-tests-word-card-test-ts-442-renderwordcard-invariants-drops-blank-stored-prose-rather-than-rendering-an-empty-note",
       "kind": "technical",
       "filePath": "apps/bot/src/renderers/__tests__/word-card.test.ts",
-      "sourceLine": 386,
+      "sourceLine": 442,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -32102,10 +32182,10 @@
       "description": "Protects the core domain i18n — locale consistency behavior so cs json covers all keys from en json."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1010-i18n-notification-keys-task-41-6-all-notification-keys-exist-in-en-json",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1022-i18n-notification-keys-task-41-6-all-notification-keys-exist-in-en-json",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1010,
+      "sourceLine": 1022,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -32118,10 +32198,10 @@
       "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so all notification keys exist in en json."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1017-i18n-notification-keys-task-41-6-all-notification-keys-exist-in-ru-json-non-english",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1029-i18n-notification-keys-task-41-6-all-notification-keys-exist-in-ru-json-non-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1017,
+      "sourceLine": 1029,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -32134,10 +32214,10 @@
       "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so all notification keys exist in ru json (non English)."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1025-i18n-notification-keys-task-41-6-all-notification-keys-exist-in-cs-json-non-english",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1037-i18n-notification-keys-task-41-6-all-notification-keys-exist-in-cs-json-non-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1025,
+      "sourceLine": 1037,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -32150,10 +32230,10 @@
       "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so all notification keys exist in cs json (non English)."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1033-i18n-notification-keys-task-41-6-settingsnotiftimes-interpolates-times",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1045-i18n-notification-keys-task-41-6-settingsnotiftimes-interpolates-times",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1033,
+      "sourceLine": 1045,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -32166,10 +32246,10 @@
       "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so settings Notif Times interpolates {times}."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1038-i18n-notification-keys-task-41-6-settingsnotiftype-interpolates-type",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1050-i18n-notification-keys-task-41-6-settingsnotiftype-interpolates-type",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1038,
+      "sourceLine": 1050,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -32182,10 +32262,10 @@
       "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so settings Notif Type interpolates {type}."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1043-i18n-notification-keys-task-41-6-settingsnotiftimezone-interpolates-timezone",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1055-i18n-notification-keys-task-41-6-settingsnotiftimezone-interpolates-timezone",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1043,
+      "sourceLine": 1055,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -32198,10 +32278,10 @@
       "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so settings Notif Timezone interpolates {timezone}."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1048-i18n-notification-keys-task-41-6-settingsnotiftimes-interpolates-times-in-russian",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1060-i18n-notification-keys-task-41-6-settingsnotiftimes-interpolates-times-in-russian",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1048,
+      "sourceLine": 1060,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -32214,10 +32294,10 @@
       "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so settings Notif Times interpolates {times} in Russian."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1053-i18n-notification-keys-task-41-6-settingsnotiftype-interpolates-type-in-czech",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1065-i18n-notification-keys-task-41-6-settingsnotiftype-interpolates-type-in-czech",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1053,
+      "sourceLine": 1065,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -32230,10 +32310,10 @@
       "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so settings Notif Type interpolates {type} in Czech."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1058-i18n-notification-keys-task-41-6-settingsnotiftimezone-interpolates-timezone-in-czech",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1070-i18n-notification-keys-task-41-6-settingsnotiftimezone-interpolates-timezone-in-czech",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1058,
+      "sourceLine": 1070,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -32246,10 +32326,10 @@
       "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so settings Notif Timezone interpolates {timezone} in Czech."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1063-i18n-notification-keys-task-41-6-notification-keys-fall-back-to-en-for-an-unknown-language",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1075-i18n-notification-keys-task-41-6-notification-keys-fall-back-to-en-for-an-unknown-language",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1063,
+      "sourceLine": 1075,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [

@@ -37,9 +37,10 @@ import {
   systemSettingsRepository,
   translationRequestRepository,
   userRepository,
+  vocabularyRepository,
 } from "@polyglot/adapter-db";
 import { checkAndSend, type NotificationPayload, type SchedulerDeps } from "@polyglot/adapter-notifications";
-import type { GenerateObjectFn, NotificationDefaults } from "@polyglot/core";
+import { type GenerateObjectFn, type NotificationDefaults, t } from "@polyglot/core";
 import { afterEach, describe, expect, it } from "vitest";
 import { notificationCounter } from "../../metrics.js";
 import { buildNotificationScheduling } from "../../notifications/notification.wiring.js";
@@ -341,13 +342,13 @@ describe("scheduled notification delivery (integration)", () => {
     expect(messagesTo(harness.sent, telegramId)).toHaveLength(2);
   });
 
-  it("C10: delivers the card with the reader's own language directly under the headword", async () => {
-    // Arrange — a ru-native user studying cs and de, whose entry is seeded
-    // native-LAST. The card must be reordered at render time; a fixture that
-    // already read native-first would prove nothing. This is the assertion the
-    // unit tests cannot make: the ordering context is built inside the real
-    // `sendFn` from the real settings row, so a wiring regression that dropped
-    // it would leave every unit test green.
+  it("C10: delivers the word alone, handing over nothing that answers it", async () => {
+    // Arrange — a ru-native user studying cs and de whose entry carries a native
+    // translation, a stored meaning and a second learning language: everything the
+    // card used to inline. The notification is a recall prompt, so none of it may
+    // reach the chat before the reader taps Reveal. Only the real `sendFn` renders
+    // from the real settings row, so a wiring regression that re-inlined the answer
+    // would leave every unit test green.
     const harness = createBotHarness();
     const telegramId = uniqueTelegramId();
     const { headword, nativeTranslation, nativeMeaning, otherTranslation } = await arrangeTracked(telegramId, {
@@ -359,22 +360,65 @@ describe("scheduled notification delivery (integration)", () => {
     // Act
     await checkAndSend(sendFn, deps);
 
-    // Assert — the delivered text, by line position rather than mere presence.
+    // Assert — the delivered text: the word, the prompt, and nothing else.
     const mine = messagesTo(harness.sent, telegramId);
     expect(mine).toHaveLength(1);
     const lines = textOf(mine[0]!)
       .split("\n")
       .filter((line) => line.trim() !== "");
 
-    const headwordAt = lines.findIndex((line) => line.includes(headword));
-    const answerAt = lines.findIndex((line) => line.includes(nativeTranslation!));
-    const meaningAt = lines.findIndex((line) => line.includes(nativeMeaning!));
-    const otherAt = lines.findIndex((line) => line.includes(otherTranslation!));
+    expect(lines).toHaveLength(2);
+    expect(lines[0]).toContain(headword);
+    expect(lines[1]).toContain(t("notifSelfCheck", "en"));
+    expect(textOf(mine[0]!)).not.toContain(nativeTranslation!);
+    expect(textOf(mine[0]!)).not.toContain(nativeMeaning!);
+    expect(textOf(mine[0]!)).not.toContain(otherTranslation!);
+    expect(ai.wasCalled()).toBe(false);
+  });
 
-    expect(headwordAt).toBeGreaterThanOrEqual(0);
-    expect(answerAt).toBe(headwordAt + 1);
-    expect(answerAt).toBeLessThan(meaningAt);
-    expect(meaningAt).toBeLessThan(otherAt);
+  it("C14: tapping Reveal answers the word, with the stored meaning above the reader's own language", async () => {
+    // Arrange — deliver first, then tap the button the delivery actually carried:
+    // the entry id travels from the picker into the callback data, and a card
+    // revealed by a hand-built id would not prove that leg.
+    const harness = createBotHarness();
+    const telegramId = uniqueTelegramId();
+    const { userId, headword, nativeTranslation, nativeMeaning, otherTranslation } = await arrangeTracked(telegramId, {
+      richCard: true,
+    });
+    const { sendFn, deps, ai } = await buildDelivery(harness);
+    harness.reset();
+    await checkAndSend(sendFn, deps);
+
+    const delivered = messagesTo(harness.sent, telegramId)[0];
+    const markup = delivered?.payload.reply_markup as { inline_keyboard: Array<Array<{ callback_data?: string }>> };
+    const reveal = markup.inline_keyboard.flat().find((b) => b.callback_data?.startsWith("notif:reveal:"));
+    const entries = await vocabularyRepository.findByUser(userId);
+    expect(reveal?.callback_data).toBe(`notif:reveal:${entries[0]?.id}`);
+
+    // Act — through the real dispatcher, as the tap arrives.
+    harness.reset();
+    await harness.dispatch(
+      callbackQueryUpdate({ chatId: telegramId, fromId: telegramId, messageId: 800, data: reveal!.callback_data! }),
+    );
+
+    // Assert — the revealed card: the hint is the checkpoint the reader opened the
+    // card to check their guess against, so it sits above the answer rather than
+    // folded into the collapsed quote.
+    const revealed = harness.sent
+      .filter((call) => call.method === "editMessageText")
+      .map((call) => String((call.payload as { text?: string }).text ?? ""))
+      .at(-1);
+    expect(revealed).toBeDefined();
+    const lines = revealed!.split("\n").filter((line) => line.trim() !== "");
+
+    const headwordAt = lines.findIndex((line) => line.includes(headword));
+    const hintAt = lines.findIndex((line) => line.includes(nativeMeaning!));
+    const answerAt = lines.findIndex((line) => line.includes(nativeTranslation!));
+
+    expect(headwordAt).toBe(0);
+    expect(hintAt).toBe(1);
+    expect(answerAt).toBe(2);
+    expect(revealed).toContain(otherTranslation!);
     expect(ai.wasCalled()).toBe(false);
   });
 });

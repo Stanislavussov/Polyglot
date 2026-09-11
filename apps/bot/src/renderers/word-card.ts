@@ -45,6 +45,17 @@ export interface WordCardData {
   answerLang?: string;
   /** Language the stored prose is written in; labels it while it stays visible. */
   nativeLang?: string;
+  /**
+   * Promote one stored gloss to a visible line above the answer instead of
+   * folding all of it away.
+   *
+   * Set by the surfaces the reader reaches *after* trying to recall the word — a
+   * revealed notification. There the description is the checkpoint they came back
+   * to verify their guess against, so burying it in the collapsed quote costs the
+   * card its only teaching line. Everywhere the reader simply asked what a word
+   * means, the answer stays the first line under the headword and the prose folds.
+   */
+  hintFirst?: boolean;
 }
 
 /**
@@ -122,15 +133,27 @@ export function renderWordCard(card: WordCardData, lang: SupportedLang): string 
   const proseIsSupplementary =
     Boolean(answer) || (card.nativeLang !== undefined && card.nativeLang === card.sourceLang);
 
+  // The concise gloss first — `nativeMeaning` is written as one summarising line,
+  // while the source-usage explanation runs to nuance and register.
+  const hint =
+    card.hintFirst && proseIsSupplementary
+      ? card.nativeMeaning?.trim() || usage?.explanation?.trim() || undefined
+      : undefined;
+
+  // Glued to the answer rather than given a block of its own: it prefaces that
+  // answer, and a blank line between them would read as a section of the card.
+  const hintLines = hint ? [`💡 ${esc(hint)}`] : [];
   if (answer) {
-    sections.push(langBlock(answer, lang));
+    sections.push([...hintLines, ...langBlock(answer, lang)]);
   } else if (prose.length > 0 && !proseIsSupplementary) {
     sections.push(prose.map((text) => proseLine(text, card.nativeLang)));
+  } else {
+    sections.push(hintLines);
   }
 
   const { visible, folded } = splitExamples(usage?.examples);
   if (proseIsSupplementary) {
-    folded.push(...prose.map((text) => `💡 ${esc(text)}`));
+    folded.push(...prose.filter((text) => text.trim() !== hint).map((text) => `💡 ${esc(text)}`));
   }
   sections.push([...visible, ...expandableSection(folded)]);
 

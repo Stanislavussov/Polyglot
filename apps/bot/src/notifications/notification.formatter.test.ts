@@ -15,7 +15,7 @@ vi.mock("@polyglot/core", async () => {
 });
 
 import type { NotificationPayload } from "@polyglot/adapter-notifications";
-import { createLanguageOrderContext, type LanguageOrderContext } from "@polyglot/core";
+import { createLanguageOrderContext, type LanguageOrderContext, t } from "@polyglot/core";
 import {
   buildNotificationKeyboard,
   buildNotificationRevealedKeyboard,
@@ -59,98 +59,83 @@ describe("formatNotificationMessage", () => {
     },
   };
 
+  // ── A saved word: the prompt, and nothing that answers it ──────
+  // The notification is the moment of recall. Everything it used to inline —
+  // the native answer, the stored meaning, the other languages, the provenance
+  // label — is one Reveal tap away, and reading it there is the point.
+
   it("renders emoji and original word in bold", () => {
     const msg = formatNotificationMessage(srsPayload, "en", ruNative);
     expect(msg).toContain("🏠 <b>house</b>");
   });
 
-  it("shows SRS source label for dictionary words", () => {
+  it("hands over nothing that answers the word", () => {
     const msg = formatNotificationMessage(srsPayload, "en", ruNative);
-    expect(msg).toMatch(/dictionary|dict/i);
+
+    expect(msg).not.toContain("дом");
+    expect(msg).not.toContain("dům");
+    expect(msg).not.toContain("A building where people live.");
+    expect(msg).not.toMatch(/dictionary|dict/i);
   });
 
-  it("shows AI source label for suggested words", () => {
+  it("asks the reader to check themselves, one line below the word", () => {
+    const lines = contentLines(formatNotificationMessage(srsPayload, "en", ruNative));
+
+    expect(lines).toHaveLength(2);
+    expect(lines[0]).toContain("<b>house</b>");
+    expect(lines[1]).toBe(`<i>${t("notifSelfCheck", "en")}</i>`);
+  });
+
+  it("keeps the whole message to the word, the prompt and the blank between them", () => {
+    expect(formatNotificationMessage(srsPayload, "en", ruNative).split("\n")).toHaveLength(3);
+  });
+
+  // ── A word with no dictionary entry: no button to tap ──────────
+  // Curated presets, AI suggestions and contextual sentences carry no entryId, so
+  // they get no Reveal button. Their answer goes into a collapsed quote instead of
+  // vanishing — which also keeps them clear of the 48-hour editMessageText limit.
+
+  it("folds the answer of an unrevealable word into a collapsed quote", () => {
     const msg = formatNotificationMessage(suggestedPayload, "en", noPreference);
-    expect(msg).toMatch(/AI|suggestion/i);
+
+    expect(msg).toContain(`<i>${t("notifTapToReveal", "en")}</i>`);
+    expect(msg).toContain("<blockquote expandable>🇬🇧 <b>garden</b></blockquote>");
   });
 
-  it("renders persisted native meaning when available", () => {
-    const msg = formatNotificationMessage(srsPayload, "en", ruNative);
-    expect(msg).toContain("A building where people live.");
+  it("labels where an unrevealable word came from, so an unfamiliar headword explains itself", () => {
+    const msg = formatNotificationMessage(suggestedPayload, "en", noPreference);
+    const lines = contentLines(msg);
+
+    expect(lines[0]).toMatch(/AI|suggestion/i);
+    expect(lines.findIndex((l) => l.includes("garden"))).toBe(1);
   });
 
-  // ── Section order ──────────────────────────────────────────────
-  // The reported defect: the reader's own language landed on line 6, below the
-  // stored meaning and two lines of chrome, so the card read as "my language
-  // last". These assert the sequence, not mere presence.
-
-  it("puts the native answer directly after the headword, above the meaning", () => {
-    const lines = contentLines(formatNotificationMessage(srsPayload, "en", ruNative));
-    const headword = lines.findIndex((l) => l.includes("house"));
-    const answer = lines.findIndex((l) => l.includes("дом"));
-    const meaning = lines.findIndex((l) => l.includes("A building"));
-
-    expect(answer).toBe(headword + 1);
-    expect(answer).toBeLessThan(meaning);
-  });
-
-  it("orders the whole card headword → answer → meaning → other languages", () => {
-    const lines = contentLines(formatNotificationMessage(srsPayload, "en", ruNative));
-
-    expect(lines.findIndex((l) => l.includes("house"))).toBeLessThan(lines.findIndex((l) => l.includes("дом")));
-    expect(lines.findIndex((l) => l.includes("дом"))).toBeLessThan(lines.findIndex((l) => l.includes("A building")));
-    expect(lines.findIndex((l) => l.includes("A building"))).toBeLessThan(lines.findIndex((l) => l.includes("dům")));
-  });
-
-  it("keeps the provenance label above the headword so it does not compete with the answer", () => {
-    const lines = contentLines(formatNotificationMessage(srsPayload, "en", ruNative));
-    expect(lines.findIndex((l) => /dictionary/i.test(l))).toBeLessThan(lines.findIndex((l) => l.includes("house")));
-  });
-
-  // Migrated from scheduler.test.ts, where it guarded the scheduler's re-keying.
-  // That re-keying is gone: the order is now derived here, at render time, so
-  // this is where the regression must be caught.
-  it("orders by the user's languages even when the record arrives alphabetized", () => {
+  it("orders the hidden answer by the user's languages, not the record's key order", () => {
     const payload: NotificationPayload = {
       hour: 8,
       // As a jsonb round-trip returns it — alphabetical, native last.
-      word: { original: "Haus", emoji: "🏠", translations: { cs: "dům", de: "Haus", ru: "дом" }, source: "srs" },
+      word: { original: "Haus", emoji: "🏠", translations: { cs: "dům", de: "Haus", ru: "дом" }, source: "preset" },
     };
-    const lines = contentLines(formatNotificationMessage(payload, "en", ruNative));
+    const msg = formatNotificationMessage(payload, "en", ruNative);
 
-    // ru (native) first, then cs, then de — the user's own order, not the record's.
-    expect(lines.findIndex((l) => l.includes("дом"))).toBeLessThan(lines.findIndex((l) => l.includes("dům")));
-    expect(lines.findIndex((l) => l.includes("dům"))).toBeLessThan(lines.findIndex((l) => l.includes("🇩🇪")));
+    // ru (native) first, then cs, then de — the user's own order.
+    expect(msg.indexOf("дом")).toBeLessThan(msg.indexOf("dům"));
+    expect(msg.indexOf("dům")).toBeLessThan(msg.indexOf("🇩🇪"));
   });
 
-  // ── Footer (Task 81, S4) ───────────────────────────────────────
-  // The motivation layer is off by default and gated behind a kill switch, so
-  // "no footer" is the state almost every card ships in: it must be identical to
-  // the card as it was before the slot existed, byte for byte.
+  it("bolds the hidden answer and leaves secondary languages plain", () => {
+    const payload: NotificationPayload = {
+      hour: 8,
+      word: { original: "house", emoji: "🏠", translations: { cs: "dům", ru: "дом" }, source: "preset" },
+    };
+    const msg = formatNotificationMessage(payload, "en", ruNative);
 
-  it("renders the card unchanged when no footer is passed", () => {
-    expect(formatNotificationMessage(srsPayload, "en", ruNative, {})).toBe(
-      formatNotificationMessage(srsPayload, "en", ruNative),
-    );
-  });
-
-  it("puts the footer last, separated from the translations", () => {
-    const footer = "This week — in long-term memory: 3, reviews: 14.";
-    const msg = formatNotificationMessage(srsPayload, "en", ruNative, { footer });
-
-    expect(msg.endsWith(`\n\n${footer}`)).toBe(true);
-    // Everything the card said without a footer is still there, in order.
-    expect(msg.startsWith(formatNotificationMessage(srsPayload, "en", ruNative))).toBe(true);
-  });
-
-  it("bolds the answer and leaves secondary languages plain", () => {
-    const msg = formatNotificationMessage(srsPayload, "en", ruNative);
     expect(msg).toContain("🇷🇺 <b>дом</b>");
     expect(msg).toContain("🇨🇿 dům");
     expect(msg).not.toContain("<b>dům</b>");
   });
 
-  it("renders synonyms inline on the answer", () => {
+  it("renders synonyms inline on the hidden answer", () => {
     const payload: NotificationPayload = {
       hour: 8,
       word: {
@@ -161,13 +146,13 @@ describe("formatNotificationMessage", () => {
           ru: { synonyms: ["начинающий", "зарождающийся"] },
           cs: { synonyms: ["nastávající"] },
         },
-        source: "srs",
+        source: "preset",
       },
     };
     const msg = formatNotificationMessage(payload, "en", ruNative);
 
     expect(msg).toContain("🇷🇺 <b>незрелый</b> (начинающий, зарождающийся)");
-    // Secondary languages stay to one line — the detail is a "Reveal" tap away.
+    // Secondary languages stay to one line — this card is a nudge, not an entry.
     expect(msg).toContain("🇨🇿 počínající");
     expect(msg).not.toContain("nastávající");
   });
@@ -184,14 +169,14 @@ describe("formatNotificationMessage", () => {
   it("escapes HTML entities in original word", () => {
     const payload: NotificationPayload = {
       hour: 8,
-      word: { original: "a <b> & c", emoji: "📝", translations: { en: "test" } },
+      word: { original: "a <b> & c", emoji: "📝", translations: { en: "test" }, entryId: 7 },
     };
     const msg = formatNotificationMessage(payload, "en", noPreference);
     expect(msg).toContain("a &lt;b&gt; &amp; c");
     expect(msg).not.toContain("<b> &");
   });
 
-  it("escapes HTML entities in synonyms", () => {
+  it("escapes HTML entities in the hidden synonyms", () => {
     const payload: NotificationPayload = {
       hour: 8,
       word: {
@@ -205,13 +190,36 @@ describe("formatNotificationMessage", () => {
     expect(msg).toContain("a &lt;b&gt; &amp; c");
   });
 
-  it("renders a card with no translations without throwing", () => {
+  it("offers no reveal prompt when there is neither an entry nor a translation to hide", () => {
     const payload: NotificationPayload = {
       hour: 8,
       word: { original: "orphan", emoji: "📝", translations: {} },
     };
     const msg = formatNotificationMessage(payload, "en", ruNative);
+
     expect(msg).toContain("orphan");
+    expect(msg).not.toContain("blockquote");
+    expect(msg).not.toContain(t("notifTapToReveal", "en"));
+  });
+
+  // ── Footer (Task 81, S4) ───────────────────────────────────────
+  // The motivation layer is off by default and gated behind a kill switch, so
+  // "no footer" is the state almost every card ships in: it must be identical to
+  // the card as it was before the slot existed, byte for byte.
+
+  it("renders the card unchanged when no footer is passed", () => {
+    expect(formatNotificationMessage(srsPayload, "en", ruNative, {})).toBe(
+      formatNotificationMessage(srsPayload, "en", ruNative),
+    );
+  });
+
+  it("puts the footer last, separated from the prompt", () => {
+    const footer = "This week — in long-term memory: 3, reviews: 14.";
+    const msg = formatNotificationMessage(srsPayload, "en", ruNative, { footer });
+
+    expect(msg.endsWith(`\n\n${footer}`)).toBe(true);
+    // Everything the card said without a footer is still there, in order.
+    expect(msg.startsWith(formatNotificationMessage(srsPayload, "en", ruNative))).toBe(true);
   });
 });
 

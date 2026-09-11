@@ -194,6 +194,62 @@ describe("renderWordCard — stored prose", () => {
   });
 });
 
+/**
+ * The recall surfaces — a notification the reader opens after trying to remember
+ * the word — promote one gloss above the answer. It is the line they came back to
+ * check their guess against, and the whole card is useless to them folded shut.
+ */
+describe("renderWordCard — hintFirst", () => {
+  const withProse = {
+    original: "Haus",
+    emoji: "🏠",
+    sourceLang: "de",
+    nativeMeaning: "Жилое здание.",
+    sourceUsage: SOURCE_USAGE,
+    langs: [{ code: "ru", text: "дом" }],
+    answerLang: "ru",
+    nativeLang: "ru",
+  };
+
+  it("promotes the concise gloss above the answer", () => {
+    const card = renderWordCard({ ...withProse, hintFirst: true }, "ru");
+    const lines = card.split("\n").filter((line) => line.trim() !== "");
+
+    expect(lines[1]).toBe("💡 Жилое здание.");
+    expect(card.indexOf("Жилое здание.")).toBeLessThan(card.indexOf("<b>дом</b>"));
+  });
+
+  it("promotes the gloss once — the folded quote keeps only what is still hidden", () => {
+    const card = renderWordCard({ ...withProse, hintFirst: true }, "ru");
+
+    expect(card.match(/Жилое здание\./g)).toHaveLength(1);
+    expect(card).toContain(
+      "<blockquote expandable>💬 <i>Ich suche Arbeit.</i> (Я ищу работу.)\n💡 Работа, труд.</blockquote>",
+    );
+  });
+
+  it("falls back to the source-usage explanation when no meaning was stored", () => {
+    const card = renderWordCard({ ...withProse, nativeMeaning: null, hintFirst: true }, "ru");
+    const lines = card.split("\n").filter((line) => line.trim() !== "");
+
+    expect(lines[1]).toBe("💡 Работа, труд.");
+    expect(card.match(/Работа, труд\./g)).toHaveLength(1);
+  });
+
+  it("renders a word with nothing stored exactly as it renders without the flag", () => {
+    const bare = { ...withProse, nativeMeaning: null, sourceUsage: null };
+
+    expect(renderWordCard({ ...bare, hintFirst: true }, "ru")).toBe(renderWordCard(bare, "ru"));
+  });
+
+  it("changes nothing for the surfaces that do not ask for it", () => {
+    const card = renderWordCard(withProse, "ru");
+
+    expect(card.indexOf("<b>дом</b>")).toBeLessThan(card.indexOf("Жилое здание."));
+    expect(card).toContain("💡 Работа, труд.\n💡 Жилое здание.</blockquote>");
+  });
+});
+
 describe("renderWordCard — language blocks", () => {
   it("keeps the first example visible and collapses the rest with the notes", () => {
     const card = renderWordCard(
