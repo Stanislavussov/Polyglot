@@ -40,7 +40,7 @@ function pronounceLabels(keyboard: ReturnType<typeof buildTranslationKeyboard>):
     .map((b) => b.text);
 }
 
-const build = (pronounceLangs?: readonly string[], locked?: ReadonlySet<string>) =>
+const build = (pronounceLangs?: readonly string[], locked?: ReadonlyMap<string, string>) =>
   buildTranslationKeyboard({ interfaceLang: "en", msgId: MAX_MSG_ID, pronounceLangs, locked });
 
 describe("buildTranslationKeyboard — pronunciation row", () => {
@@ -61,9 +61,10 @@ describe("buildTranslationKeyboard — pronunciation row", () => {
   });
 
   it("badges the speaker for a plan without audio, in both the single and the compact layout", () => {
-    const locked = new Set(["pronunciation"]);
-    expect(pronounceLabels(build(["de"], locked)).every((label) => label.endsWith("⭐"))).toBe(true);
-    expect(pronounceLabels(build(["de", "es"], locked)).every((label) => label.endsWith("⭐"))).toBe(true);
+    // 💎: audio is the Pro differentiator, so the speaker names Pro, not Plus.
+    const locked = new Map([["pronunciation", "💎"]]);
+    expect(pronounceLabels(build(["de"], locked)).every((label) => label.endsWith("💎"))).toBe(true);
+    expect(pronounceLabels(build(["de", "es"], locked)).every((label) => label.endsWith("💎"))).toBe(true);
     // The buttons stay tappable — the handler, not the keyboard, denies the play.
     expect(pronounceRows(build(["de"], locked))).toEqual([[`tr:say:de:${MAX_MSG_ID}`]]);
   });

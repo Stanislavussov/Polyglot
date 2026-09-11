@@ -54,6 +54,7 @@
 | 63  | [Parameterize Bot by Environment](./63-parameterize-bot-by-environment.md) | 🔲 To Do | 🔴 Critical |
 | 64  | [Application Clustering](./64-application-clustering.md) | 🔲 To Do | 🔴 Critical |
 | 65  | [Dual Database Instance Separation](./65-dual-db-instance-separation.md) | 🔲 To Do | 🔴 Critical |
+| 82  | [TLS Renewal Hardening & Public-Endpoint Monitoring](./82-tls-renewal-hardening.md) | 🔲 To Do | 🔴 Critical |
 
 ## Production Review — from [Weekly Grafana Report 2026-08-04](../reports/weekly-grafana/2026-08-04.md)
 

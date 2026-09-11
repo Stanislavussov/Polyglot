@@ -1,8 +1,8 @@
-import { BOT_SESSION_VERSION, botSessionRepository } from "@polyglot/adapter-db";
+import { BOT_SESSION_VERSION, botSessionRepository, USER_MODES, type UserMode } from "@polyglot/adapter-db";
 import { logEvent } from "@polyglot/core";
 import type { StorageAdapter } from "grammy";
 import { sessionStorageDuration } from "./metrics.js";
-import { type SessionData, USER_MODES, type UserMode } from "./types.js";
+import type { SessionData } from "./types.js";
 
 async function timed<T>(op: "read" | "write" | "delete", fn: () => Promise<T>): Promise<T> {
   const stop = sessionStorageDuration.startTimer({ op });

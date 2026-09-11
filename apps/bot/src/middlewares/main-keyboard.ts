@@ -16,8 +16,8 @@ import type { BotContext } from "../types.js";
 import { buildMainKeyboard } from "../utils/main-menu.js";
 import { getRequestSettings } from "./request-settings.js";
 
-/** Bump when the keyboard layout changes so every user is re-sent the new one once. */
-export const MAIN_KEYBOARD_VERSION = 6;
+/** Bump when the keyboard's layout or markup changes, to re-send it to every user once. */
+export const MAIN_KEYBOARD_VERSION = 7;
 
 /**
  * Sends `text` with the main-menu keyboard attached.

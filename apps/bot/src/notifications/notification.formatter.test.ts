@@ -42,6 +42,7 @@ describe("formatNotificationMessage", () => {
     word: {
       original: "house",
       emoji: "🏠",
+      sourceLang: "en",
       nativeMeaning: "A building where people live.",
       translations: { cs: "dům", ru: "дом" },
       source: "srs",
@@ -64,9 +65,15 @@ describe("formatNotificationMessage", () => {
   // the native answer, the stored meaning, the other languages, the provenance
   // label — is one Reveal tap away, and reading it there is the point.
 
-  it("renders emoji and original word in bold", () => {
+  it("renders emoji, the source flag and the word — the headword the Reveal card shows", () => {
     const msg = formatNotificationMessage(srsPayload, "en", ruNative);
-    expect(msg).toContain("🏠 <b>house</b>");
+    expect(msg).toContain("🏠 🇬🇧 <b>house</b>");
+  });
+
+  it("keeps the flag slot when the word's language cannot be resolved", () => {
+    const { sourceLang: _dropped, ...word } = srsPayload.word;
+    const msg = formatNotificationMessage({ ...srsPayload, word }, "en", ruNative);
+    expect(msg).toContain("🏠 🔤 <b>house</b>");
   });
 
   it("hands over nothing that answers the word", () => {
@@ -99,7 +106,7 @@ describe("formatNotificationMessage", () => {
     const msg = formatNotificationMessage(suggestedPayload, "en", noPreference);
 
     expect(msg).toContain(`<i>${t("notifTapToReveal", "en")}</i>`);
-    expect(msg).toContain("<blockquote expandable>🇬🇧 <b>garden</b></blockquote>");
+    expect(msg).toContain("<blockquote expandable>🇬🇧 EN: <b>garden</b></blockquote>");
   });
 
   it("labels where an unrevealable word came from, so an unfamiliar headword explains itself", () => {
@@ -123,16 +130,18 @@ describe("formatNotificationMessage", () => {
     expect(msg.indexOf("dům")).toBeLessThan(msg.indexOf("🇩🇪"));
   });
 
-  it("bolds the hidden answer and leaves secondary languages plain", () => {
+  it("gives every hidden language the same bold answer line", () => {
     const payload: NotificationPayload = {
       hour: 8,
       word: { original: "house", emoji: "🏠", translations: { cs: "dům", ru: "дом" }, source: "preset" },
     };
     const msg = formatNotificationMessage(payload, "en", ruNative);
 
-    expect(msg).toContain("🇷🇺 <b>дом</b>");
-    expect(msg).toContain("🇨🇿 dům");
-    expect(msg).not.toContain("<b>dům</b>");
+    // A secondary language is still a translation: inside the quote it gets the
+    // same bold answer line as the first, so the card does not read as two kinds
+    // of list — nor differ from the card behind Reveal.
+    expect(msg).toContain("🇷🇺 RU: <b>дом</b>");
+    expect(msg).toContain("🇨🇿 CS: <b>dům</b>");
   });
 
   it("renders synonyms inline on the hidden answer", () => {
@@ -151,9 +160,9 @@ describe("formatNotificationMessage", () => {
     };
     const msg = formatNotificationMessage(payload, "en", ruNative);
 
-    expect(msg).toContain("🇷🇺 <b>незрелый</b> (начинающий, зарождающийся)");
-    // Secondary languages stay to one line — this card is a nudge, not an entry.
-    expect(msg).toContain("🇨🇿 počínající");
+    expect(msg).toContain("🇷🇺 RU: <b>незрелый</b> (начинающий, зарождающийся)");
+    // Secondary languages stay to one line — the detail is a "Reveal" tap away.
+    expect(msg).toContain("🇨🇿 CS: <b>počínající</b>");
     expect(msg).not.toContain("nastávající");
   });
 

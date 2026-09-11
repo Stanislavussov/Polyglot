@@ -67,6 +67,9 @@ vi.mock("@polyglot/adapter-db", () => ({
   languageDetectionRepository: {
     record: vi.fn().mockResolvedValue(undefined),
   },
+  productEventRepository: {
+    record: vi.fn().mockResolvedValue(undefined),
+  },
   requestTimingRepository: {
     record: vi.fn().mockResolvedValue(undefined),
   },
@@ -203,6 +206,7 @@ describe("createContainer", () => {
     expect(container.onboardingDemoCardRepository).toBeDefined();
     expect(container.translationRequestRepository).toBeDefined();
     expect(container.languageDetectionRepository).toBeDefined();
+    expect(container.productEventRepository).toBeDefined();
     expect(container.requestTimingRepository).toBeDefined();
     expect(container.reportedIssueRepository).toBeDefined();
     expect(typeof container.contextLookup).toBe("function");

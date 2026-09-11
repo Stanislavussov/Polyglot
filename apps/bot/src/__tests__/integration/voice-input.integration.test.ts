@@ -87,7 +87,10 @@ describe("voice message → translation (integration)", () => {
 
     const reply = sendMessageCalls(harness).at(-1);
     expect(reply).toBeDefined();
-    expect(String(reply?.payload.text)).toContain("Voice input");
+    // The offer names the feature by the very line it is sold under, bolded inside
+    // the Pro block — voice input is Pro-only, so Plus must not be the answer.
+    expect(String(reply?.payload.text)).toContain("🎙️ Voice message translation is a <b>Pro</b> feature.");
+    expect(String(reply?.payload.text)).toContain("• <b>🎙️ Voice message translation</b>");
     // Upgrade screen keyboard, not a translation card.
     expect(reply?.payload.reply_markup).toBeDefined();
 

@@ -17,7 +17,6 @@ import {
   expandableSection,
   headwordLine,
   meaningLine,
-  otherLangLine,
 } from "../renderers/card-sections.js";
 
 /**
@@ -26,9 +25,9 @@ import {
  * **A notification is a recall prompt, not a card.** It asks the word and hands
  * over nothing that answers it: no translation, no stored meaning, no secondary
  * languages, no provenance label. The reader tries to remember, then taps
- * "Reveal" to check themselves — which is what the notification is for. The full
- * card it used to inline is one tap away, and reading it there is the moment of
- * recall the daily word exists to create.
+ * "Reveal" to check themselves — which is what the notification is for. The card
+ * it used to inline is one tap away, and reading it there is the moment of recall
+ * the daily word exists to create.
  *
  * A pick that carries no dictionary entry (a curated preset, an AI suggestion, a
  * contextual sentence) has no Reveal button to tap, so for those the answer goes
@@ -59,7 +58,9 @@ export function formatNotificationMessage(
     // Only for a word the reader never saved: without it an unfamiliar headword
     // arrives with nothing saying where it came from. Their own words need no label.
     provenance: revealable ? [] : [`<i>${esc(sourceLabel(word.source, lang))}</i>`],
-    headword: [headwordLine(word.original, { emoji: word.emoji })],
+    headword: [
+      headwordLine(word.headword?.trim() || word.original, { emoji: word.emoji, sourceLang: word.sourceLang }),
+    ],
     aids: recallAid(payload, lang, order, revealable),
     // Blank separator first: glued to the prompt the weekly line would read as
     // part of it rather than as the week's own tally.
@@ -101,7 +102,11 @@ function recallAid(
   return ["", `<i>${esc(t("notifTapToReveal", lang))}</i>`, ...expandableSection(hidden)];
 }
 
-/** The card that used to be inline: native answer first, then the other languages. */
+/**
+ * The card that used to be inline: native answer first, then the other languages.
+ * Every language gets the same answer line — a translation looks like a
+ * translation wherever it sits.
+ */
 function hiddenAnswer(payload: NotificationPayload, order: LanguageOrderContext): string[] {
   const { word } = payload;
   // Ordered here, not trusted from the record: the native language ranks first,
@@ -109,7 +114,9 @@ function hiddenAnswer(payload: NotificationPayload, order: LanguageOrderContext)
   const [answer, ...others] = orderRecordEntries(word.translations, order);
   return [
     ...(answer ? [answerLine(answer[0], answer[1], word.translationDetails?.[answer[0]]?.synonyms ?? [])] : []),
-    ...others.map(([code, text]) => otherLangLine(code, text)),
+    // Secondary languages stay to one line each — this is still a nudge, and the
+    // synonyms behind them are the dictionary's job.
+    ...others.map(([code, text]) => answerLine(code, text)),
     ...(word.nativeMeaning ? [meaningLine(word.nativeMeaning)] : []),
   ];
 }

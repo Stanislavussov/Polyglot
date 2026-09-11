@@ -95,7 +95,7 @@ export function buildNativeKeyboard(ctx: BotContext, lang: SupportedLang, guesse
  * Screen 1. When `expandedLang` is set the CEFR row for that language is shown
  * first (one row of six, plus "I don't know", plus remove/back), followed by the
  * remaining languages. Otherwise the plain two-column language list is shown,
- * with confirmed languages rendered as `✅ <lang> · <level>` chips that re-open
+ * with confirmed languages rendered as `✅ <lang> → <level>` chips that re-open
  * their level row when tapped.
  */
 export function buildLearningKeyboard(
@@ -130,7 +130,7 @@ export function buildLearningKeyboard(
       const level = state.levels[entry.code];
       const display = languageCache.getLangDisplay(entry.code);
       return {
-        label: level ? `✅ ${display} · ${level}` : display,
+        label: level ? `✅ ${display} → ${level}` : display,
         data: `${ONB.language}${entry.code}`,
       };
     }),
