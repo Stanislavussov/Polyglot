@@ -49,9 +49,6 @@ const FEATURE_BULLET: Record<FeatureKey, { emoji?: string; label: I18nKey }> = {
   mentor: { emoji: "🧑‍🏫", label: "planLineMentor" },
 };
 
-/** Marks the bullet that answers the tap, inside the plan block that grants it. */
-const INCLUDED_MARK = "✅";
-
 /** All a plan lookup needs — narrow so a conversation context satisfies it too. */
 type PlanReadingContext = Pick<BotContext, "services">;
 
@@ -234,10 +231,13 @@ function offerHeadline(offered: PurchasablePlan[], lang: SupportedLang, feature:
  * diff base: a Plus subscriber sees the Pro block alone, still headed "Everything
  * in Plus" — the tier they know — instead of a restated Plus list.
  *
- * The line that answers the tap is marked ✅ where it appears. Because the blocks
- * are diffs, that is the cheapest plan granting it and nowhere else — so a reader
- * looking at two priced blocks can see which one their button is in, rather than
- * matching a plan name from the headline against two bullet lists.
+ * Every block is headed by its plan's glyph — the same ⭐/💎 the buy button below
+ * wears — so a reader pairs a block with the button that buys it by sight.
+ *
+ * The line that answers the tap is set in bold where it appears. Because the
+ * blocks are diffs, that is the cheapest plan granting it and nowhere else — so a
+ * reader looking at two priced blocks can see which one their button is in,
+ * rather than matching a plan name from the headline against two bullet lists.
  */
 function renderUpgradeScreen(
   ladder: PurchasablePlan[],
@@ -247,7 +247,7 @@ function renderUpgradeScreen(
 ): string {
   const wanted = feature ? t(FEATURE_BULLET[feature].label, lang) : undefined;
   const blocks = ladder.slice(from).map((plan, offset) => {
-    const header = `<b>${plan.label}</b> — ${planPrice(plan, lang)}`;
+    const header = `${planEmoji(plan.name)} <b>${plan.label}</b> — ${planPrice(plan, lang)}`;
     const cheaper = ladder[from + offset - 1];
     const bullets = planBullets(plan, lang);
     const lines = cheaper
@@ -256,7 +256,7 @@ function renderUpgradeScreen(
           ...bullets.filter((line) => !planBullets(cheaper, lang).includes(line)),
         ]
       : bullets;
-    const render = (line: string) => (line === wanted ? `${INCLUDED_MARK} <b>${line}</b>` : `• ${line}`);
+    const render = (line: string) => `• ${line === wanted ? `<b>${line}</b>` : line}`;
     return [header, ...lines.map(render)].join("\n");
   });
 

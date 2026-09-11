@@ -110,9 +110,9 @@ describe("voice message handling", () => {
 
     // A message has no callback query to answer — answering one would throw.
     expect(answerCallbackQuery).not.toHaveBeenCalled();
-    // Named by the very line the plan block sells it under, marked ✅ there.
+    // Named by the very line the plan block sells it under, set in bold there.
     expect(lastReply(reply)).toContain("🎙️ Voice message translation is a <b>Pro</b> feature.");
-    expect(lastReply(reply)).toContain("✅ <b>🎙️ Voice message translation</b>");
+    expect(lastReply(reply)).toContain("• <b>🎙️ Voice message translation</b>");
     expect(getFile).not.toHaveBeenCalled();
     expect(transcribe).not.toHaveBeenCalled();
   });
