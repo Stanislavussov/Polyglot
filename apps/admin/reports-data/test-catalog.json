@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-09-11T18:43:47.000Z",
+  "generatedAt": "2026-09-11T18:49:30.000Z",
   "summary": {
-    "total": 3203,
+    "total": 3204,
     "business": 0,
-    "technical": 3203,
+    "technical": 3204,
     "workspaces": [
       "apps",
       "packages"
@@ -18749,7 +18749,7 @@
       "description": "Protects the bot send Loader behavior so opens in one of the languages the user is learning, not the interface one."
     },
     {
-      "id": "apps-bot-src-utils-long-op-test-ts-140-sendloader-moves-to-the-next-learning-language-on-every-tick",
+      "id": "apps-bot-src-utils-long-op-test-ts-140-sendloader-moves-to-the-next-learning-language-one-wait-stage-further-on-every-tick",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/long-op.test.ts",
       "sourceLine": 140,
@@ -18758,17 +18758,33 @@
       "suitePath": [
         "sendLoader"
       ],
-      "title": "moves to the next learning language on every tick",
-      "rawTitle": "moves to the next learning language on every tick",
-      "name": "Bot send Loader moves to the next learning language on every tick",
-      "value": "Protects the bot send Loader behavior so moves to the next learning language on every tick.",
-      "description": "Protects the bot send Loader behavior so moves to the next learning language on every tick."
+      "title": "moves to the next learning language, one wait stage further, on every tick",
+      "rawTitle": "moves to the next learning language, one wait stage further, on every tick",
+      "name": "Bot send Loader moves to the next learning language, one wait stage further, on every tick",
+      "value": "Protects the bot send Loader behavior so moves to the next learning language, one wait stage further, on every tick.",
+      "description": "Protects the bot send Loader behavior so moves to the next learning language, one wait stage further, on every tick."
     },
     {
-      "id": "apps-bot-src-utils-long-op-test-ts-159-sendloader-stays-in-the-single-language-a-one-language-learner-picked-without-repeating-a-line",
+      "id": "apps-bot-src-utils-long-op-test-ts-164-sendloader-follows-the-0-3-5-7-10-15s-schedule-then-runs-out-on-its-own",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/long-op.test.ts",
-      "sourceLine": 159,
+      "sourceLine": 164,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "sendLoader"
+      ],
+      "title": "follows the 0/3/5/7/10/15s schedule, then runs out on its own",
+      "rawTitle": "follows the 0/3/5/7/10/15s schedule, then runs out on its own",
+      "name": "Bot send Loader follows the 0 3 5 7 10 15s schedule, then runs out on its own",
+      "value": "Protects the bot send Loader behavior so follows the 0 3 5 7 10 15s schedule, then runs out on its own.",
+      "description": "Protects the bot send Loader behavior so follows the 0 3 5 7 10 15s schedule, then runs out on its own."
+    },
+    {
+      "id": "apps-bot-src-utils-long-op-test-ts-186-sendloader-stays-in-the-single-language-a-one-language-learner-picked-without-repeating-a-line",
+      "kind": "technical",
+      "filePath": "apps/bot/src/utils/long-op.test.ts",
+      "sourceLine": 186,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -18781,10 +18797,10 @@
       "description": "Protects the bot send Loader behavior so stays in the single language a one language learner picked, without repeating a line."
     },
     {
-      "id": "apps-bot-src-utils-long-op-test-ts-174-sendloader-falls-back-to-the-interface-language-when-no-learning-language-can-speak",
+      "id": "apps-bot-src-utils-long-op-test-ts-201-sendloader-falls-back-to-the-interface-language-when-no-learning-language-can-speak",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/long-op.test.ts",
-      "sourceLine": 174,
+      "sourceLine": 201,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -18797,10 +18813,10 @@
       "description": "Protects the bot send Loader behavior: falls back to the interface language when no learning language can speak."
     },
     {
-      "id": "apps-bot-src-utils-long-op-test-ts-186-sendloader-stops-rotating-once-stopped",
+      "id": "apps-bot-src-utils-long-op-test-ts-213-sendloader-stops-rotating-once-stopped",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/long-op.test.ts",
-      "sourceLine": 186,
+      "sourceLine": 213,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -18813,10 +18829,10 @@
       "description": "Protects the bot send Loader behavior so stops rotating once stopped."
     },
     {
-      "id": "apps-bot-src-utils-long-op-test-ts-197-sendloader-survives-a-rejected-edit-a-cosmetic-tick-must-never-break-the-flow",
+      "id": "apps-bot-src-utils-long-op-test-ts-224-sendloader-survives-a-rejected-edit-a-cosmetic-tick-must-never-break-the-flow",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/long-op.test.ts",
-      "sourceLine": 197,
+      "sourceLine": 224,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -18829,10 +18845,10 @@
       "description": "Protects the bot send Loader behavior so survives a rejected edit — a cosmetic tick must never break the flow."
     },
     {
-      "id": "apps-bot-src-utils-long-op-test-ts-210-sendloader-edits-only-the-loader-message-in-the-chat-it-was-sent-to",
+      "id": "apps-bot-src-utils-long-op-test-ts-237-sendloader-edits-only-the-loader-message-in-the-chat-it-was-sent-to",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/long-op.test.ts",
-      "sourceLine": 210,
+      "sourceLine": 237,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -18845,10 +18861,10 @@
       "description": "Protects the bot send Loader behavior so edits only the loader message, in the chat it was sent to."
     },
     {
-      "id": "apps-bot-src-utils-long-op-test-ts-225-dismissloader-silences-the-ticker-before-removing-the-message-it-edits",
+      "id": "apps-bot-src-utils-long-op-test-ts-253-dismissloader-silences-the-ticker-before-removing-the-message-it-edits",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/long-op.test.ts",
-      "sourceLine": 225,
+      "sourceLine": 253,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -18861,10 +18877,10 @@
       "description": "Protects the bot dismiss Loader behavior so silences the ticker before removing the message it edits."
     },
     {
-      "id": "apps-bot-src-utils-long-op-test-ts-237-dismissloader-ignores-a-message-telegram-has-already-dropped",
+      "id": "apps-bot-src-utils-long-op-test-ts-265-dismissloader-ignores-a-message-telegram-has-already-dropped",
       "kind": "technical",
       "filePath": "apps/bot/src/utils/long-op.test.ts",
-      "sourceLine": 237,
+      "sourceLine": 265,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -33770,10 +33786,10 @@
       "description": "Protects the core domain is Known Language() behavior: returns false for unknown codes."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-loader-phrases-test-ts-36-waitphrases-covers-every-language-a-user-can-choose-to-learn",
+      "id": "packages-core-src-modules-i18n-tests-loader-phrases-test-ts-39-waitphrases-covers-every-language-a-user-can-choose-to-learn",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/loader-phrases.test.ts",
-      "sourceLine": 36,
+      "sourceLine": 39,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -33786,10 +33802,10 @@
       "description": "Protects the core domain wait Phrases behavior so covers every language a user can choose to learn."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-loader-phrases-test-ts-50-waitphrases-holds-on-the-last-stage-once-the-wait-outruns-the-list",
+      "id": "packages-core-src-modules-i18n-tests-loader-phrases-test-ts-54-waitphrases-holds-on-the-last-stage-once-the-wait-outruns-the-list",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/loader-phrases.test.ts",
-      "sourceLine": 50,
+      "sourceLine": 54,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -33802,10 +33818,10 @@
       "description": "Protects the core domain wait Phrases behavior so holds on the last stage once the wait outruns the list."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-loader-phrases-test-ts-55-waitphrases-returns-nothing-for-a-language-it-does-not-cover-so-the-caller-can-fall-back",
+      "id": "packages-core-src-modules-i18n-tests-loader-phrases-test-ts-60-waitphrases-returns-nothing-for-a-language-it-does-not-cover-so-the-caller-can-fall-back",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/loader-phrases.test.ts",
-      "sourceLine": 55,
+      "sourceLine": 60,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -33818,10 +33834,10 @@
       "description": "Protects the core domain wait Phrases behavior: returns nothing for a language it does not cover, so the caller can fall back."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-loader-phrases-test-ts-60-waitphrases-phrases-each-language-in-that-language-never-in-english",
+      "id": "packages-core-src-modules-i18n-tests-loader-phrases-test-ts-65-waitphrases-phrases-each-language-in-that-language-never-in-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/loader-phrases.test.ts",
-      "sourceLine": 60,
+      "sourceLine": 65,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -33834,10 +33850,10 @@
       "description": "Protects the core domain wait Phrases behavior so phrases each language in that language, never in English."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-loader-phrases-test-ts-70-composeloadertext-names-the-speaking-language-with-its-flag",
+      "id": "packages-core-src-modules-i18n-tests-loader-phrases-test-ts-75-composeloadertext-names-the-speaking-language-with-its-flag",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/loader-phrases.test.ts",
-      "sourceLine": 70,
+      "sourceLine": 75,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -33850,10 +33866,10 @@
       "description": "Protects the core domain compose Loader Text behavior so names the speaking language with its flag."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-loader-phrases-test-ts-74-composeloadertext-drops-the-flag-for-a-language-the-registry-has-none-for",
+      "id": "packages-core-src-modules-i18n-tests-loader-phrases-test-ts-79-composeloadertext-drops-the-flag-for-a-language-the-registry-has-none-for",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/loader-phrases.test.ts",
-      "sourceLine": 74,
+      "sourceLine": 79,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -33866,10 +33882,10 @@
       "description": "Protects the core domain compose Loader Text behavior so drops the flag for a language the registry has none for."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-loader-phrases-test-ts-89-loadertextsfor-keeps-the-two-kinds-glyphs-apart-so-the-mode-still-reads-at-a-glance",
+      "id": "packages-core-src-modules-i18n-tests-loader-phrases-test-ts-94-loadertextsfor-keeps-the-two-kinds-glyphs-apart-so-the-mode-still-reads-at-a-glance",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/loader-phrases.test.ts",
-      "sourceLine": 89,
+      "sourceLine": 94,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [

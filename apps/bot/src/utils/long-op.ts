@@ -142,8 +142,21 @@ export function startTypingKeepalive(ctx: BotContext): () => void {
   return () => clearInterval(interval);
 }
 
-/** How often the loader message swaps to a fresh phrase. */
-const LOADER_TICK_MS = 5_000;
+/**
+ * When the loader moves to its next phrase, in ms from the moment it appeared.
+ *
+ * Deliberately uneven and front-loaded: the first few seconds are where a user
+ * starts wondering whether anything is happening, so the text moves twice before
+ * most translations are even finished, then spaces out as the wait turns into a
+ * long one. The last entry sits below {@link LONG_OP_TIMEOUT_MS}, so the final
+ * phrase is on screen when the guard fires.
+ */
+const LOADER_TICK_OFFSETS_MS = [3_000, 5_000, 7_000, 10_000, 15_000] as const;
+
+/** Gaps between consecutive ticks — what `setTimeout` actually needs. */
+const LOADER_TICK_GAPS_MS = LOADER_TICK_OFFSETS_MS.map(
+  (offset, index) => offset - (LOADER_TICK_OFFSETS_MS[index - 1] ?? 0),
+);
 
 /**
  * A loader message together with the ticker that keeps rewriting it.
@@ -204,9 +217,9 @@ function nextLoaderText(
 
 /**
  * Sends the loader message for a long operation and walks its text forward while
- * the operation runs: a fresh phrase every {@link LOADER_TICK_MS}, in the next of
- * the user's learning languages, drawn from the stage that matches how long they
- * have been waiting. Most translations finish inside the first tick and never
+ * the operation runs: on the {@link LOADER_TICK_OFFSETS_MS} schedule, each step in
+ * the next of the user's learning languages, drawn from the stage that matches how
+ * long they have been waiting. Most translations finish inside the first tick and never
  * move — which is why the opening language is drawn at random rather than always
  * being the first one the user picked.
  */
@@ -225,14 +238,21 @@ export async function sendLoader(
   const chatId = ctx.chat!.id;
   const message = await ctx.reply(current);
 
+  // A chain rather than an interval: the gaps are uneven, and each tick schedules
+  // only the next one, so the ticker runs out on its own at the last offset.
   let stage = 0;
-  const interval = setInterval(() => {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const tick = (): void => {
     stage += 1;
     current = nextLoaderText(kind, stage, lang, rotation, current);
     void ctx.api.editMessageText(chatId, message.message_id, current).catch(() => undefined);
-  }, LOADER_TICK_MS);
+    const gap = LOADER_TICK_GAPS_MS[stage];
+    if (gap !== undefined) timer = setTimeout(tick, gap);
+  };
+  const firstGap = LOADER_TICK_GAPS_MS[0];
+  if (firstGap !== undefined) timer = setTimeout(tick, firstGap);
 
-  return { chatId, messageId: message.message_id, stop: () => clearInterval(interval) };
+  return { chatId, messageId: message.message_id, stop: () => clearTimeout(timer) };
 }
 
 /** Stops the ticker, then removes the loader message. Never throws. */
