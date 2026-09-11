@@ -61,7 +61,7 @@ export async function showLanguagesScreen(
 
   if (state.learningLangs.length > 0) {
     const chips = state.learningLangs
-      .map((code) => `✅ ${ctx.services.languageCache.getLangDisplay(code)} · ${state.levels[code]}`)
+      .map((code) => `✅ ${ctx.services.languageCache.getLangDisplay(code)} → ${state.levels[code]}`)
       .join("\n");
     parts.push(chips);
     // The moment the first language is confirmed, preview the payoff.
@@ -69,10 +69,11 @@ export async function showLanguagesScreen(
   }
 
   if (expandedLang) {
-    parts.push(
-      t("onbLevelPrompt", lang, { lang: ctx.services.languageCache.getLangDisplay(expandedLang) }),
-      t("onbLevelLegend", lang),
-    );
+    // The level asked for is the target, not the current one: it drives how hard
+    // the cards and examples come out, and a user who names where they already
+    // are never gets pushed forward. Hence prompt + hint as one block, legend after.
+    const prompt = t("onbLevelPrompt", lang, { lang: ctx.services.languageCache.getLangDisplay(expandedLang) });
+    parts.push(`${prompt}\n${t("levelTargetHint", lang)}`, t("onbLevelLegend", lang));
   }
 
   await enterStep(ctx, state, ONBOARDING_STEPS.languages);

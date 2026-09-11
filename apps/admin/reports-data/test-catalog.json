@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-09T18:46:40.000Z",
+  "generatedAt": "2026-09-09T18:47:16.000Z",
   "summary": {
     "total": 3157,
     "business": 0,
@@ -10336,10 +10336,10 @@
       "description": "Protects the bot onboarding — screen 1 (languages with inline CEFR) behavior so expands a compact one row level selector in the same message when a language is tapped."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-422-onboarding-screen-1-languages-with-inline-cefr-collapses-back-to-the-language-list-as-a-confirmed-chip-once-a-level-is-picked",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-426-onboarding-screen-1-languages-with-inline-cefr-collapses-back-to-the-language-list-as-a-confirmed-chip-once-a-level-is-picked",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 422,
+      "sourceLine": 426,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10352,10 +10352,10 @@
       "description": "Protects the bot onboarding — screen 1 (languages with inline CEFR) behavior so collapses back to the language list as a confirmed chip once a level is picked."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-442-onboarding-screen-1-languages-with-inline-cefr-persists-the-b1-default-for-i-don-t-know-indistinguishably-from-an-explicit-b1",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-446-onboarding-screen-1-languages-with-inline-cefr-persists-the-b1-default-for-i-don-t-know-indistinguishably-from-an-explicit-b1",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 442,
+      "sourceLine": 446,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10368,10 +10368,10 @@
       "description": "Protects the bot onboarding — screen 1 (languages with inline CEFR) behavior: persists the B1 default for '🤷 I don't know', indistinguishably from an explicit B1."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-460-onboarding-screen-1-languages-with-inline-cefr-never-persists-a-learning-language-without-a-level",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-464-onboarding-screen-1-languages-with-inline-cefr-never-persists-a-learning-language-without-a-level",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 460,
+      "sourceLine": 464,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10384,10 +10384,10 @@
       "description": "Protects the bot onboarding — screen 1 (languages with inline CEFR) behavior so never persists a learning language without a level."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-472-onboarding-screen-1-languages-with-inline-cefr-offers-done-only-once-at-least-one-language-carries-a-level",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-476-onboarding-screen-1-languages-with-inline-cefr-offers-done-only-once-at-least-one-language-carries-a-level",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 472,
+      "sourceLine": 476,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10400,10 +10400,10 @@
       "description": "Protects the bot onboarding — screen 1 (languages with inline CEFR) behavior so offers Done only once at least one language carries a level."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-484-onboarding-screen-1-languages-with-inline-cefr-re-opens-the-level-row-for-a-confirmed-language-offering-a-change-or-a-removal",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-488-onboarding-screen-1-languages-with-inline-cefr-re-opens-the-level-row-for-a-confirmed-language-offering-a-change-or-a-removal",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 484,
+      "sourceLine": 488,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10416,10 +10416,10 @@
       "description": "Protects the bot onboarding — screen 1 (languages with inline CEFR) behavior so re opens the level row for a confirmed language, offering a change or a removal."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-497-onboarding-screen-1-languages-with-inline-cefr-deselects-a-language-on-removal-dropping-it-from-the-persisted-set",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-501-onboarding-screen-1-languages-with-inline-cefr-deselects-a-language-on-removal-dropping-it-from-the-persisted-set",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 497,
+      "sourceLine": 501,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10432,10 +10432,10 @@
       "description": "Protects the bot onboarding — screen 1 (languages with inline CEFR) behavior so deselects a language on removal, dropping it from the persisted set."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-517-onboarding-screen-1-languages-with-inline-cefr-takes-four-languages-on-a-single-screen-and-persists-all-four-levels",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-521-onboarding-screen-1-languages-with-inline-cefr-takes-four-languages-on-a-single-screen-and-persists-all-four-levels",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 517,
+      "sourceLine": 521,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10448,10 +10448,10 @@
       "description": "Protects the bot onboarding — screen 1 (languages with inline CEFR) behavior so takes four languages on a single screen and persists all four levels."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-544-onboarding-screen-1-languages-with-inline-cefr-refuses-a-fifth-language-with-an-alert-instead-of-silently-dropping-it",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-548-onboarding-screen-1-languages-with-inline-cefr-refuses-a-fifth-language-with-an-alert-instead-of-silently-dropping-it",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 544,
+      "sourceLine": 548,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10464,10 +10464,10 @@
       "description": "Protects the bot onboarding — screen 1 (languages with inline CEFR) behavior so refuses a fifth language with an alert instead of silently dropping it."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-559-onboarding-screen-1-languages-with-inline-cefr-rejects-done-while-nothing-has-a-level",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-563-onboarding-screen-1-languages-with-inline-cefr-rejects-done-while-nothing-has-a-level",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 559,
+      "sourceLine": 563,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10480,10 +10480,10 @@
       "description": "Protects the bot onboarding — screen 1 (languages with inline CEFR) behavior: rejects Done while nothing has a level."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-585-onboarding-screen-2-instant-demo-card-offers-a-tappable-hook-word-per-learning-language-and-requires-no-typing",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-589-onboarding-screen-2-instant-demo-card-offers-a-tappable-hook-word-per-learning-language-and-requires-no-typing",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 585,
+      "sourceLine": 589,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10496,10 +10496,10 @@
       "description": "Protects the bot onboarding — screen 2 (instant demo card) behavior so offers a tappable hook word per learning language and requires no typing."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-594-onboarding-screen-2-instant-demo-card-gives-a-self-contained-instruction-when-the-learning-language-has-no-curated-words",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-598-onboarding-screen-2-instant-demo-card-gives-a-self-contained-instruction-when-the-learning-language-has-no-curated-words",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 594,
+      "sourceLine": 598,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10512,10 +10512,10 @@
       "description": "Protects the bot onboarding — screen 2 (instant demo card) behavior so gives a self contained instruction when the learning language has no curated words."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-609-onboarding-screen-2-instant-demo-card-renders-a-cached-card-without-ever-touching-the-ai-port",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-613-onboarding-screen-2-instant-demo-card-renders-a-cached-card-without-ever-touching-the-ai-port",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 609,
+      "sourceLine": 613,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10528,10 +10528,10 @@
       "description": "Protects the bot onboarding — screen 2 (instant demo card) behavior: renders a cached card without ever touching the AI port."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-625-onboarding-screen-2-instant-demo-card-does-not-cache-a-payload-the-pipeline-did-not-actually-produce-for-the-hook-word",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-629-onboarding-screen-2-instant-demo-card-does-not-cache-a-payload-the-pipeline-did-not-actually-produce-for-the-hook-word",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 625,
+      "sourceLine": 629,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10544,10 +10544,10 @@
       "description": "Protects the bot onboarding — screen 2 (instant demo card) behavior: does not cache a payload the pipeline did not actually produce for the hook word."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-645-onboarding-screen-2-instant-demo-card-runs-the-live-pipeline-exactly-once-on-a-cache-miss-and-writes-the-result-back",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-649-onboarding-screen-2-instant-demo-card-runs-the-live-pipeline-exactly-once-on-a-cache-miss-and-writes-the-result-back",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 645,
+      "sourceLine": 649,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10560,10 +10560,10 @@
       "description": "Protects the bot onboarding — screen 2 (instant demo card) behavior so runs the live pipeline exactly once on a cache miss and writes the result back."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-658-onboarding-screen-2-instant-demo-card-never-serves-an-unreviewed-card-an-inactive-row-reads-as-a-miss",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-662-onboarding-screen-2-instant-demo-card-never-serves-an-unreviewed-card-an-inactive-row-reads-as-a-miss",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 658,
+      "sourceLine": 662,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10576,10 +10576,10 @@
       "description": "Protects the bot onboarding — screen 2 (instant demo card) behavior so never serves an unreviewed card — an inactive row reads as a miss."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-673-onboarding-screen-2-instant-demo-card-runs-the-real-translate-path-for-a-typed-word-and-completes-onboarding",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-677-onboarding-screen-2-instant-demo-card-runs-the-real-translate-path-for-a-typed-word-and-completes-onboarding",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 673,
+      "sourceLine": 677,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10592,10 +10592,10 @@
       "description": "Protects the bot onboarding — screen 2 (instant demo card) behavior so runs the real translate path for a typed word and completes onboarding."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-685-onboarding-screen-2-instant-demo-card-apologises-but-still-completes-onboarding-when-the-demo-pipeline-fails",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-689-onboarding-screen-2-instant-demo-card-apologises-but-still-completes-onboarding-when-the-demo-pipeline-fails",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 685,
+      "sourceLine": 689,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10608,10 +10608,10 @@
       "description": "Protects the bot onboarding — screen 2 (instant demo card) behavior so apologises but still completes onboarding when the demo pipeline fails."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-697-onboarding-screen-2-instant-demo-card-does-not-bury-a-clarification-question-under-the-completion-screen",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-701-onboarding-screen-2-instant-demo-card-does-not-bury-a-clarification-question-under-the-completion-screen",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 697,
+      "sourceLine": 701,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10624,10 +10624,10 @@
       "description": "Protects the bot onboarding — screen 2 (instant demo card) behavior: does not bury a clarification question under the completion screen."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-712-onboarding-screen-2-instant-demo-card-still-completes-when-no-card-came-back-so-an-outage-cannot-strand-the-user",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-716-onboarding-screen-2-instant-demo-card-still-completes-when-no-card-came-back-so-an-outage-cannot-strand-the-user",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 712,
+      "sourceLine": 716,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10640,10 +10640,10 @@
       "description": "Protects the bot onboarding — screen 2 (instant demo card) behavior so still completes when no card came back, so an outage cannot strand the user."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-725-onboarding-screen-2-instant-demo-card-re-renders-the-current-screen-instead-of-translating-when-text-arrives-before-the-demo",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-729-onboarding-screen-2-instant-demo-card-re-renders-the-current-screen-instead-of-translating-when-text-arrives-before-the-demo",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 725,
+      "sourceLine": 729,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10656,10 +10656,10 @@
       "description": "Protects the bot onboarding — screen 2 (instant demo card) behavior so re renders the current screen instead of translating when text arrives before the demo."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-741-onboarding-screen-3-instruction-feature-entry-points-closes-on-one-message-that-carries-the-mode-menu-with-no-inline-copy-of-it",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-745-onboarding-screen-3-instruction-feature-entry-points-closes-on-one-message-that-carries-the-mode-menu-with-no-inline-copy-of-it",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 741,
+      "sourceLine": 745,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10672,10 +10672,10 @@
       "description": "Protects the bot onboarding — screen 3 (instruction + feature entry points) behavior: closes on one message that carries the mode menu, with no inline copy of it."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-762-onboarding-screen-3-instruction-feature-entry-points-names-the-icon-that-brings-the-folded-away-menu-back",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-766-onboarding-screen-3-instruction-feature-entry-points-names-the-icon-that-brings-the-folded-away-menu-back",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 762,
+      "sourceLine": 766,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10688,10 +10688,10 @@
       "description": "Protects the bot onboarding — screen 3 (instruction + feature entry points) behavior so names the icon that brings the folded away menu back."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-783-onboarding-screen-3-instruction-feature-entry-points-routes-each-feature-button-to-the-existing-scene-handler",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-787-onboarding-screen-3-instruction-feature-entry-points-routes-each-feature-button-to-the-existing-scene-handler",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 783,
+      "sourceLine": 787,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10704,10 +10704,10 @@
       "description": "Protects the bot onboarding — screen 3 (instruction + feature entry points) behavior: routes each feature button to the existing scene handler."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-798-onboarding-screen-3-instruction-feature-entry-points-sends-the-screencast-only-when-an-asset-is-configured-and-never-fails-on-its-absence",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-802-onboarding-screen-3-instruction-feature-entry-points-sends-the-screencast-only-when-an-asset-is-configured-and-never-fails-on-its-absence",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 798,
+      "sourceLine": 802,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10720,10 +10720,10 @@
       "description": "Protects the bot onboarding — screen 3 (instruction + feature entry points) behavior: sends the screencast only when an asset is configured, and never fails on its absence."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-808-onboarding-screen-3-instruction-feature-entry-points-sends-the-screencast-when-a-file-id-is-configured",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-812-onboarding-screen-3-instruction-feature-entry-points-sends-the-screencast-when-a-file-id-is-configured",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 808,
+      "sourceLine": 812,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10736,10 +10736,10 @@
       "description": "Protects the bot onboarding — screen 3 (instruction + feature entry points) behavior: sends the screencast when a file id is configured."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-822-onboarding-screen-3-instruction-feature-entry-points-still-delivers-the-instruction-screen-when-the-screencast-fails-to-send",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-826-onboarding-screen-3-instruction-feature-entry-points-still-delivers-the-instruction-screen-when-the-screencast-fails-to-send",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 822,
+      "sourceLine": 826,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10752,10 +10752,10 @@
       "description": "Protects the bot onboarding — screen 3 (instruction + feature entry points) behavior so still delivers the instruction screen when the screencast fails to send."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-843-onboarding-statelessness-and-instrumentation-resumes-on-the-furthest-screen-reached-however-long-the-gap-between-taps",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-847-onboarding-statelessness-and-instrumentation-resumes-on-the-furthest-screen-reached-however-long-the-gap-between-taps",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 843,
+      "sourceLine": 847,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10768,10 +10768,10 @@
       "description": "Protects the bot onboarding — statelessness and instrumentation behavior so resumes on the furthest screen reached, however long the gap between taps."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-858-onboarding-statelessness-and-instrumentation-resumes-on-the-demo-screen-once-the-language-step-is-done",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-862-onboarding-statelessness-and-instrumentation-resumes-on-the-demo-screen-once-the-language-step-is-done",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 858,
+      "sourceLine": 862,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10784,10 +10784,10 @@
       "description": "Protects the bot onboarding — statelessness and instrumentation behavior so resumes on the demo screen once the language step is done."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-867-onboarding-statelessness-and-instrumentation-keeps-every-button-live-after-an-arbitrary-pause-a-stale-tap-is-still-handled",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-871-onboarding-statelessness-and-instrumentation-keeps-every-button-live-after-an-arbitrary-pause-a-stale-tap-is-still-handled",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 867,
+      "sourceLine": 871,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10800,10 +10800,10 @@
       "description": "Protects the bot onboarding — statelessness and instrumentation behavior: keeps every button live after an arbitrary pause — a stale tap is still handled."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-880-onboarding-statelessness-and-instrumentation-records-a-step-for-every-screen-and-never-rewinds-the-furthest-step-reached",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-884-onboarding-statelessness-and-instrumentation-records-a-step-for-every-screen-and-never-rewinds-the-furthest-step-reached",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 880,
+      "sourceLine": 884,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10816,10 +10816,10 @@
       "description": "Protects the bot onboarding — statelessness and instrumentation behavior: records a step for every screen, and never rewinds the furthest step reached."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-899-onboarding-statelessness-and-instrumentation-reaches-the-first-real-card-in-five-taps-from-start",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-903-onboarding-statelessness-and-instrumentation-reaches-the-first-real-card-in-five-taps-from-start",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 899,
+      "sourceLine": 903,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10832,10 +10832,10 @@
       "description": "Protects the bot onboarding — statelessness and instrumentation behavior so reaches the first real card in five taps from start."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-913-onboarding-statelessness-and-instrumentation-passes-text-through-to-the-rest-of-the-chain-when-another-flow-is-waiting-on-it",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-917-onboarding-statelessness-and-instrumentation-passes-text-through-to-the-rest-of-the-chain-when-another-flow-is-waiting-on-it",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 913,
+      "sourceLine": 917,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10848,10 +10848,10 @@
       "description": "Protects the bot onboarding — statelessness and instrumentation behavior so passes text through to the rest of the chain when another flow is waiting on it."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-929-onboarding-statelessness-and-instrumentation-consumes-demo-screen-text-itself-when-no-other-flow-is-waiting",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-933-onboarding-statelessness-and-instrumentation-consumes-demo-screen-text-itself-when-no-other-flow-is-waiting",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 929,
+      "sourceLine": 933,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10864,10 +10864,10 @@
       "description": "Protects the bot onboarding — statelessness and instrumentation behavior so consumes demo screen text itself when no other flow is waiting."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-941-onboarding-statelessness-and-instrumentation-ignores-an-onboarding-tap-from-a-user-who-has-already-finished",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-945-onboarding-statelessness-and-instrumentation-ignores-an-onboarding-tap-from-a-user-who-has-already-finished",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 941,
+      "sourceLine": 945,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10880,10 +10880,10 @@
       "description": "Protects the bot onboarding — statelessness and instrumentation behavior: ignores an onboarding tap from a user who has already finished."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-956-onboarding-recovery-and-reversibility-puts-a-tap-on-a-pre-task-72-keyboard-back-onto-a-live-screen",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-960-onboarding-recovery-and-reversibility-puts-a-tap-on-a-pre-task-72-keyboard-back-onto-a-live-screen",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 956,
+      "sourceLine": 960,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10896,10 +10896,10 @@
       "description": "Protects the bot onboarding — recovery and reversibility behavior so puts a tap on a pre Task 72 keyboard back onto a live screen."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-973-onboarding-recovery-and-reversibility-acknowledges-a-legacy-tap-from-an-already-onboarded-user-without-re-rendering",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-977-onboarding-recovery-and-reversibility-acknowledges-a-legacy-tap-from-an-already-onboarded-user-without-re-rendering",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 973,
+      "sourceLine": 977,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10912,10 +10912,10 @@
       "description": "Protects the bot onboarding — recovery and reversibility behavior so acknowledges a legacy tap from an already onboarded user without re rendering."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-984-onboarding-recovery-and-reversibility-lets-the-user-take-back-a-wrongly-guessed-native-language",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-988-onboarding-recovery-and-reversibility-lets-the-user-take-back-a-wrongly-guessed-native-language",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 984,
+      "sourceLine": 988,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10928,10 +10928,10 @@
       "description": "Protects the bot onboarding — recovery and reversibility behavior so lets the user take back a wrongly guessed native language."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-1000-onboarding-recovery-and-reversibility-drops-a-learning-language-that-becomes-the-native-language-on-a-back-and-change",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-1004-onboarding-recovery-and-reversibility-drops-a-learning-language-that-becomes-the-native-language-on-a-back-and-change",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 1000,
+      "sourceLine": 1004,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -10944,10 +10944,10 @@
       "description": "Protects the bot onboarding — recovery and reversibility behavior so drops a learning language that becomes the native language on a back and change."
     },
     {
-      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-1015-onboarding-recovery-and-reversibility-sends-a-replacement-message-when-a-screen-is-too-old-to-edit",
+      "id": "apps-bot-src-onboarding-tests-onboarding-flow-test-ts-1019-onboarding-recovery-and-reversibility-sends-a-replacement-message-when-a-screen-is-too-old-to-edit",
       "kind": "technical",
       "filePath": "apps/bot/src/onboarding/__tests__/onboarding-flow.test.ts",
-      "sourceLine": 1015,
+      "sourceLine": 1019,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [

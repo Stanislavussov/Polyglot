@@ -417,6 +417,10 @@ describe("onboarding — screen 1 (languages with inline CEFR)", () => {
     expect(h.callbackData()).toContain("onb:lvl:de:unknown");
     // The long CEFR wording lives in the prompt, not on the buttons.
     expect(h.currentText()).toContain("A1");
+    // The level asked for is the target, not the current one — the screen has to
+    // say so, or the user names where they already are and never gets pushed on.
+    expect(h.currentText()).toContain(t("onbLevelPrompt", "ru", { lang: "🇩🇪 Deutsch" }));
+    expect(h.currentText()).toContain(t("levelTargetHint", "ru"));
   });
 
   it("collapses back to the language list as a confirmed chip once a level is picked", async () => {
@@ -429,14 +433,14 @@ describe("onboarding — screen 1 (languages with inline CEFR)", () => {
 
     expect(h.userRepository.setLanguageLevel).toHaveBeenCalledWith(1, "de", "B2");
     expect(h.store.settings?.learningLangs).toEqual(["de"]);
-    expect(h.currentText()).toContain("· B2");
+    expect(h.currentText()).toContain("→ B2");
     expect(h.currentKeyboard()[0].map((b) => b.text)).not.toEqual(["A1", "A2", "B1", "B2", "C1", "C2"]);
     expect(
       h
         .currentKeyboard()
         .flat()
         .map((b) => b.text),
-    ).toContainEqual(expect.stringContaining("· B2"));
+    ).toContainEqual(expect.stringContaining("→ B2"));
   });
 
   it("persists the B1 default for '🤷 I don't know', indistinguishably from an explicit B1", async () => {
@@ -511,7 +515,7 @@ describe("onboarding — screen 1 (languages with inline CEFR)", () => {
         .currentKeyboard()
         .flat()
         .map((b) => b.text),
-    ).not.toContainEqual(expect.stringContaining("· B1"));
+    ).not.toContainEqual(expect.stringContaining("→ B1"));
   });
 
   it("takes four languages on a single screen and persists all four levels", async () => {

@@ -187,7 +187,8 @@ export async function handleSetLearnToggleCallback(ctx: BotContext): Promise<voi
   // New language → ask for the proficiency level before saving.
   await ctx.answerCallbackQuery();
   const langName = ctx.services.languageCache.getLangDisplay(code);
-  await editMessageTextOrReply(ctx, t("chooseProficiencyLevel", lang, { lang: langName }), {
+  const levelPrompt = `${t("chooseProficiencyLevel", lang, { lang: langName })}\n${t("levelTargetHint", lang)}`;
+  await editMessageTextOrReply(ctx, levelPrompt, {
     reply_markup: buildLevelKeyboard(code, lang),
     parse_mode: "HTML",
   });
