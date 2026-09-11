@@ -10,7 +10,7 @@
 import { ALL_FEATURES, defaultFeatureAccess, type FeatureKey, type SupportedLang } from "@polyglot/core";
 import { trackProductEvent } from "../../observability/product-events.js";
 import type { BotContext } from "../../types.js";
-import { sendUpgradeScreen } from "./subscription.helper.js";
+import { resolveFeatureBadges, sendUpgradeScreen } from "./subscription.helper.js";
 
 /**
  * What resolving locks needs from a context — narrow on purpose so the
@@ -20,13 +20,17 @@ import { sendUpgradeScreen } from "./subscription.helper.js";
 type EntitledContext = Pick<BotContext, "services" | "user">;
 
 /**
- * Feature keys the viewer's plan does NOT include — the set the card renderer
- * badges with ⭐. One plan lookup per card, not one per button.
+ * Feature keys the viewer's plan does NOT include, each with the badge its button
+ * should wear — the emoji of the tier that sells it (⭐ Plus, 💎 Pro), so the card
+ * points at the same plan the upgrade screen will offer. One plan lookup per card,
+ * not one per button, and none at all for a viewer who has everything.
  */
-export async function resolveLockedFeatures(ctx: EntitledContext): Promise<ReadonlySet<string>> {
+export async function resolveLockedBadges(ctx: EntitledContext): Promise<ReadonlyMap<string, string>> {
   const access = ctx.services.featureAccess ?? defaultFeatureAccess;
   const granted = await access.listFeatures(ctx.user);
-  return new Set(ALL_FEATURES.filter((key) => !granted.has(key)));
+  const locked = ALL_FEATURES.filter((key) => !granted.has(key));
+  if (locked.length === 0) return new Map();
+  return resolveFeatureBadges(ctx, locked);
 }
 
 /**

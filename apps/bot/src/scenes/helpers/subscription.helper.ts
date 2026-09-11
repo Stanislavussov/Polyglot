@@ -25,27 +25,35 @@ import { trackProductEvent } from "../../observability/product-events.js";
 import type { BotContext } from "../../types.js";
 
 /**
- * Plan badge for the buy buttons. Deliberately not repeated in the screen's prose:
- * ⭐ there already means "this button is paid", and a Plus header wearing the same
- * star made the reader parse one symbol two ways.
+ * Plan badge — one glyph per tier, used everywhere a plan is named: the buy
+ * buttons here and the badge a locked card button wears (see
+ * {@link resolveFeatureBadges}). The two must never diverge: a ⭐ on a button the
+ * upgrade screen then sells under 💎 Pro is a promise the screen takes back.
  */
 const PLAN_EMOJI: Record<string, string> = { plus: "⭐", pro: "💎" };
 const DEFAULT_PLAN_EMOJI = "✨";
 
 /**
- * How a locked feature names itself at the top of the offer. The emoji is the one
- * on the button the user just tapped, so the screen visibly answers that tap; the
- * label is the same bullet the plan block lists, so the promise is worded once.
+ * The bullet a feature is sold under — the same line the plan block lists, so the
+ * headline, the marked bullet and the badge all name one promise. `emoji` is the
+ * glyph on the button the user just tapped, omitted where the bullet already
+ * carries its own.
  */
-const FEATURE_HEADLINE: Record<FeatureKey, { emoji: string; label: I18nKey }> = {
+const FEATURE_BULLET: Record<FeatureKey, { emoji?: string; label: I18nKey }> = {
   clarification: { emoji: "🎯", label: "planLineClarification" },
   pronunciation: { emoji: "🔊", label: "planLinePronunciation" },
   grammarBreakdown: { emoji: "📖", label: "planLineGrammar" },
   etymology: { emoji: "📖", label: "planLineGrammar" },
   grammarDetail: { emoji: "📖", label: "planLineGrammar" },
-  voiceInput: { emoji: "🎙️", label: "featureVoiceInput" },
+  voiceInput: { label: "planLineVoiceInput" },
   mentor: { emoji: "🧑‍🏫", label: "planLineMentor" },
 };
+
+/** Marks the bullet that answers the tap, inside the plan block that grants it. */
+const INCLUDED_MARK = "✅";
+
+/** All a plan lookup needs — narrow so a conversation context satisfies it too. */
+type PlanReadingContext = Pick<BotContext, "services">;
 
 interface PurchasablePlan {
   name: string;
@@ -81,7 +89,7 @@ async function resolveLang(ctx: BotContext): Promise<SupportedLang> {
  * no price is not for sale (free, or an internal plan like `unlimited`) — which
  * also keeps a hand-crafted `plan:buy:unlimited` callback from granting anything.
  */
-async function loadPurchasablePlans(ctx: BotContext): Promise<PurchasablePlan[]> {
+async function loadPurchasablePlans(ctx: PlanReadingContext): Promise<PurchasablePlan[]> {
   const access = ctx.services.featureAccess ?? defaultFeatureAccess;
   const priced = (await ctx.services.settings.getPlanLimits())
     .filter((plan): plan is PlanLimitConfig & { priceUsdCents: number } => plan.isActive && plan.priceUsdCents !== null)
@@ -97,6 +105,26 @@ async function loadPurchasablePlans(ctx: BotContext): Promise<PurchasablePlan[]>
       videoWindow: plan.videoWindow,
       features: await access.listPlanFeatures(plan.name),
     })),
+  );
+}
+
+/**
+ * The badge each of `features` wears when locked: the emoji of the cheapest plan
+ * on sale that unlocks it. A Pro-only button badged ⭐ promised Plus and then
+ * opened a screen selling Pro, so the glyph now comes from the same plan the
+ * offer will name. A feature no plan on sale carries falls back to the neutral
+ * badge — it is still locked, it just has no tier to point at.
+ */
+export async function resolveFeatureBadges(
+  ctx: PlanReadingContext,
+  features: readonly string[],
+): Promise<Map<string, string>> {
+  const ladder = await loadPurchasablePlans(ctx);
+  return new Map(
+    features.map((feature) => {
+      const unlocking = ladder.find((plan) => plan.features.has(feature));
+      return [feature, unlocking ? planEmoji(unlocking.name) : DEFAULT_PLAN_EMOJI];
+    }),
   );
 }
 
@@ -182,13 +210,14 @@ function planBullets(plan: PurchasablePlan, lang: SupportedLang): string[] {
  * no offered plan carries — promising it under a plan that lacks it would be a lie.
  */
 function offerHeadline(offered: PurchasablePlan[], lang: SupportedLang, feature: FeatureKey | undefined): string {
-  const headline = feature ? FEATURE_HEADLINE[feature] : undefined;
+  const bullet = feature ? FEATURE_BULLET[feature] : undefined;
   const unlocking = feature ? offered.find((plan) => plan.features.has(feature)) : undefined;
-  if (!headline || !unlocking) {
+  if (!bullet || !unlocking) {
     return t("upgradePrompt", lang);
   }
+  const name = t(bullet.label, lang);
   return t("upgradeFeatureLocked", lang, {
-    feature: `${headline.emoji} ${t(headline.label, lang)}`,
+    feature: bullet.emoji ? `${bullet.emoji} ${name}` : name,
     plan: unlocking.label,
   });
 }
@@ -204,6 +233,11 @@ function offerHeadline(offered: PurchasablePlan[], lang: SupportedLang, feature:
  * `from` hides the rungs the user has already climbed while keeping them as the
  * diff base: a Plus subscriber sees the Pro block alone, still headed "Everything
  * in Plus" — the tier they know — instead of a restated Plus list.
+ *
+ * The line that answers the tap is marked ✅ where it appears. Because the blocks
+ * are diffs, that is the cheapest plan granting it and nowhere else — so a reader
+ * looking at two priced blocks can see which one their button is in, rather than
+ * matching a plan name from the headline against two bullet lists.
  */
 function renderUpgradeScreen(
   ladder: PurchasablePlan[],
@@ -211,6 +245,7 @@ function renderUpgradeScreen(
   lang: SupportedLang,
   feature?: FeatureKey,
 ): string {
+  const wanted = feature ? t(FEATURE_BULLET[feature].label, lang) : undefined;
   const blocks = ladder.slice(from).map((plan, offset) => {
     const header = `<b>${plan.label}</b> — ${planPrice(plan, lang)}`;
     const cheaper = ladder[from + offset - 1];
@@ -221,7 +256,8 @@ function renderUpgradeScreen(
           ...bullets.filter((line) => !planBullets(cheaper, lang).includes(line)),
         ]
       : bullets;
-    return [header, ...lines.map((line) => `• ${line}`)].join("\n");
+    const render = (line: string) => (line === wanted ? `${INCLUDED_MARK} <b>${line}</b>` : `• ${line}`);
+    return [header, ...lines.map(render)].join("\n");
   });
 
   return [
@@ -247,7 +283,7 @@ async function currentPlanPrice(ctx: BotContext): Promise<number> {
 
 /**
  * Send the plan comparison. This is the single upsell surface: limit gates and
- * ⭐-badged buttons all land here, so pricing copy lives in exactly one place.
+ * badged card buttons all land here, so pricing copy lives in exactly one place.
  *
  * Only plans dearer than the current one are offered. `refuseAsDowngrade` turns a
  * tap on the plan the user already has into a refusal, so listing it puts a button

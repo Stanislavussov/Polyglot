@@ -28,7 +28,7 @@ import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
 import { resolveLanguageOrder } from "../../utils/language-order.js";
 import { LONG_OP_TIMEOUT_MS, startTypingKeepalive, withTimeout } from "../../utils/long-op.js";
-import { ensurePaidFeature, resolveLockedFeatures } from "./paid-feature.helper.js";
+import { ensurePaidFeature, resolveLockedBadges } from "./paid-feature.helper.js";
 import { answerStaleCallback } from "./stale-callback.helper.js";
 import { handleMistypeConfirmCallback } from "./translate-flow.js";
 import {
@@ -323,7 +323,7 @@ export async function handleTranslationClarificationContextText(ctx: BotContext,
         showGrammarButton,
         showEtymologyButton,
         pronounceLangs,
-        locked: await resolveLockedFeatures(ctx),
+        locked: await resolveLockedBadges(ctx),
       });
       await ctx.api.editMessageReplyMarkup(ctx.chat!.id, newMsg.message_id, { reply_markup: keyboard });
 
