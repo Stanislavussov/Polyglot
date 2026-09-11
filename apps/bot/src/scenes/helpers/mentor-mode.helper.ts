@@ -32,6 +32,13 @@ const MENTOR_MAX_INPUT_LENGTH = 1000;
 export interface MentorTurnOptions {
   /** Thread to continue (reply-continuation or retry); resolved from session/DB when absent. */
   threadId?: string;
+  /**
+   * Message id to anchor the user's turn to when the turn did not arrive as a
+   * message — a card's "Ask the mentor" button, where the card itself is what
+   * the question is about. Without it the question would be missing from the
+   * thread's history and a follow-up would read the answer with no question.
+   */
+  userMessageId?: number;
 }
 
 /**
@@ -169,12 +176,13 @@ export async function handleMentorText(ctx: BotContext, text: string, opts?: Men
     try {
       const chatId = ctx.chat!.id;
       const base = { userId: ctx.user.id, chatId, threadId, interfaceLang: lang };
-      if (ctx.message?.message_id !== undefined) {
+      const userMessageId = ctx.message?.message_id ?? opts?.userMessageId;
+      if (userMessageId !== undefined) {
         await ctx.services.mentorMessageRepository.record({
           ...base,
           role: "user",
           content: text,
-          telegramMessageId: ctx.message.message_id,
+          telegramMessageId: userMessageId,
         });
       }
       await ctx.services.mentorMessageRepository.record({

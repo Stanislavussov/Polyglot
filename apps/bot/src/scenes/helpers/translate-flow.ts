@@ -51,11 +51,7 @@ import { getRequestSettings } from "../../middlewares/request-settings.js";
 import { recordEffort } from "../../momentum/momentum.wiring.js";
 import { resolvePraiseLine } from "../../momentum/praise.footer.js";
 import { commitRecovery, resolveRecoveryPrefix } from "../../momentum/recovery.helper.js";
-import {
-  buildTranslationKeyboard,
-  renderSentenceTranslation,
-  renderTranslation,
-} from "../../renderers/translation.renderer.js";
+import { renderSentenceTranslation, renderTranslation } from "../../renderers/translation.renderer.js";
 import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
 import { classifyInput } from "../../utils/classify-input.js";
@@ -71,15 +67,13 @@ import {
 import { parseTranslateInput } from "../../utils/parse-translate-input.js";
 import { encodeTranslateRetryText, replyWithRetry } from "../../utils/retry-action.js";
 import { validateTranslatableText } from "../../utils/validate-text-input.js";
-import { resolveLockedFeatures } from "./paid-feature.helper.js";
+import { buildCardKeyboard } from "./card-keyboard.js";
 import { answerStaleCallback } from "./stale-callback.helper.js";
 import { buildUpgradeKeyboard } from "./subscription.helper.js";
 import {
   clearPendingClarification,
   getUserLanguageGroup,
-  isEtymologyEligible,
   normalizeLearningLangs,
-  resolvePronounceLangs,
   showAddLanguagePrompt,
 } from "./translate-mode.shared.js";
 import { setTranslationEntry } from "./translation-map.helper.js";
@@ -771,22 +765,19 @@ async function sendTranslationCard(
   // Only after the send resolved: a failed delivery must not burn the one-shot.
   if (recovery) await commitRecovery(ctx, recovery.gapDays, now);
 
-  const showGrammarButton =
-    inputType !== "word" && (inputType === "sentence" || !effectiveTemplate.fields.grammarBreakdown);
   const hasInlineGrammar =
     opts.withInlineGrammar &&
     inputType === "phrase" &&
     effectiveTemplate.fields.grammarBreakdown &&
     hasGrammarBreakdownData(output);
-  const showEtymologyButton = isEtymologyEligible(inputType, output.sourceLang, nativeLang);
 
   // Doubtful-source override: offer the user's other languages (native + learning,
   // minus the guessed source) as forced-source retranslation choices. Only when the
   // detector fell back to a guess — rare by construction.
   const sourceOverrideLangs = opts.sourceLanguageDoubtful
     ? getUserLanguageGroup(nativeLang, opts.learningLangs).filter((code) => code !== output.sourceLang)
-    : undefined;
-  if (sourceOverrideLangs && sourceOverrideLangs.length > 0) {
+    : [];
+  if (sourceOverrideLangs.length > 0) {
     ctx.services.languageDetectionRepository
       .record({
         userId: ctx.user.id,
@@ -799,30 +790,25 @@ async function sendTranslationCard(
       });
   }
 
-  const pronounceLangs = await resolvePronounceLangs(ctx, output, inputType, order);
-
-  const keyboard = buildTranslationKeyboard({
-    interfaceLang: lang,
-    msgId: cardMsg.message_id,
-    isAlreadySaved,
-    showGrammarButton,
-    showGrammarDetailButton: hasInlineGrammar,
-    showEtymologyButton,
-    sourceOverrideLangs,
-    pronounceLangs,
-    locked: await resolveLockedFeatures(ctx),
-  });
-  await ctx.api.editMessageReplyMarkup(ctx.chat!.id, cardMsg.message_id, { reply_markup: keyboard });
-
   ctx.session.pendingCardMsgId = cardMsg.message_id;
 
+  // The card's state is written before its keyboard is built, and the keyboard is
+  // then derived from that state — the same path every later rebuild takes. A
+  // fresh card and a re-rendered one therefore cannot disagree about which
+  // buttons the card has.
   const inlineBreakdown = hasInlineGrammar ? collectGrammarBreakdown(output) : undefined;
   setTranslationEntry(ctx.session, cardMsg.message_id, {
     output,
     inputType,
     contextHint: opts.contextHint,
     grammarBreakdown: inlineBreakdown,
+    sourceOverrideLangs,
+    isAlreadySaved,
   });
+
+  const entry = ctx.session.translationMap![String(cardMsg.message_id)]!;
+  const keyboard = await buildCardKeyboard(ctx, entry, cardMsg.message_id, lang, nativeLang);
+  await ctx.api.editMessageReplyMarkup(ctx.chat!.id, cardMsg.message_id, { reply_markup: keyboard });
 }
 
 /**

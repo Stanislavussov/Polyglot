@@ -66,6 +66,21 @@ export interface SessionData {
       /** Cached on-demand etymology prose for the original term */
       etymology?: string;
       /**
+       * Candidate source languages offered on a doubtful-detection card. Stored
+       * rather than recomputed: every later keyboard rebuild (expand, collapse,
+       * grammar, etymology) has to reproduce the card's buttons exactly, and
+       * "was detection doubtful?" is knowable only at translation time.
+       */
+      sourceOverrideLangs?: string[];
+      /** Whether the card's Save button reads "saved" — resolved once, against the DB. */
+      isAlreadySaved?: boolean;
+      /**
+       * Whether the action list is currently open on this card. Purely visual,
+       * and deliberately per-card: two cards in the same chat can be open and
+       * closed independently.
+       */
+      actionsExpanded?: boolean;
+      /**
        * Monotonic insertion stamp used for recency-based eviction. Set by
        * {@link setTranslationEntry}; Telegram message ids are not a safe proxy
        * for recency (a chat or a different bot sharing this session key can

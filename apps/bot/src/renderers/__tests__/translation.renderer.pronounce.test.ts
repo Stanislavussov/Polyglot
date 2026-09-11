@@ -40,6 +40,10 @@ function pronounceLabels(keyboard: ReturnType<typeof buildTranslationKeyboard>):
     .map((b) => b.text);
 }
 
+/**
+ * The speakers sit on the card itself, not behind `⋯ More`, so these assertions
+ * are about the keyboard a fresh card wears.
+ */
 const build = (pronounceLangs?: readonly string[], locked?: ReadonlySet<string>) =>
   buildTranslationKeyboard({ interfaceLang: "en", msgId: MAX_MSG_ID, pronounceLangs, locked });
 
@@ -75,10 +79,30 @@ describe("buildTranslationKeyboard — pronunciation row", () => {
     expect(rows[1]).toEqual([`tr:say:pl:${MAX_MSG_ID}`]);
   });
 
-  it("keeps Save as the last row so the card's primary action does not move", () => {
-    const keyboard = build(["de", "es"]);
-    const lastRow = keyboard.inline_keyboard.at(-1)!;
-    expect(lastRow.map((b) => ("callback_data" in b ? b.callback_data : ""))).toEqual([`tr:save:${MAX_MSG_ID}`]);
+  it("closes the collapsed keyboard with Save, below the speakers", () => {
+    const rows = build(["de", "es"]).inline_keyboard.map((row) =>
+      row.map((b) => ("callback_data" in b ? b.callback_data : "")),
+    );
+    expect(rows).toEqual([
+      [`tr:say:de:${MAX_MSG_ID}`, `tr:say:es:${MAX_MSG_ID}`],
+      [`tr:more:${MAX_MSG_ID}`],
+      [`tr:save:${MAX_MSG_ID}`],
+    ]);
+  });
+
+  it("survives opening and closing the action list, unchanged", () => {
+    const collapsed = pronounceRows(build(["de", "es"]));
+    const opened = pronounceRows(
+      buildTranslationKeyboard({
+        interfaceLang: "en",
+        msgId: MAX_MSG_ID,
+        expanded: true,
+        pronounceLangs: ["de", "es"],
+      }),
+    );
+    // Same buttons, same grouping — the speakers do not belong to the menu and
+    // must not shift when it opens.
+    expect(opened).toEqual(collapsed);
   });
 
   it("stays inside Telegram's 64-byte callback limit for the longest realistic payload", () => {

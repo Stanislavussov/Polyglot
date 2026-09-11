@@ -35,17 +35,19 @@ export function isEtymologyEligible(inputType: InputType, sourceLang: string, na
  * none to offer.
  *
  * Returns empty — so no row is rendered at all — whenever TTS is off or has no
- * model configured, and for sentence cards, which are out of scope for v1
- * (Task 77). Everything else is the "every word that is not native" rule, which
- * lives in core as {@link selectPronounceableLangs}.
+ * model configured. Everything else is the "every word that is not native" rule,
+ * which lives in core as {@link selectPronounceableLangs}.
+ *
+ * Sentences are included: hearing a whole sentence is the point of translating
+ * one, and the admin-managed `maxChars` cap is what keeps a long paste from
+ * becoming an expensive synthesis — a card over the cap answers "too long"
+ * rather than silently losing its speaker.
  */
 export async function resolvePronounceLangs(
   ctx: BotContext,
   card: SpeakableCard,
-  inputType: InputType,
   order: LanguageOrderContext,
 ): Promise<readonly string[]> {
-  if (inputType === "sentence") return [];
   const config = await ctx.services.settings.getTtsConfig();
   if (!config.enabled || !config.modelId) return [];
   return selectPronounceableLangs(card, order);

@@ -35,6 +35,23 @@ const METADATA_FAT = {
   sourceWordRecognized: true,
   suggestedCorrection: null,
 };
+/**
+ * The on-demand grammar breakdown, asked for by the `⋯ More → Grammar` button
+ * rather than by `translate()` itself. Kept here with the rest so a card action a
+ * test taps does not need its own AI override — and appended LAST in the match
+ * order below, so it can never shadow a pipeline schema.
+ */
+const GRAMMAR_BREAKDOWN_FAT = {
+  // Every language this lane's fixtures translate into: the service drops any
+  // entry that was not among the requested targets, so a fixture covering only
+  // one of them would hand a differently-configured user an empty breakdown.
+  languages: [
+    { lang: "cs", items: ["Přítomný čas — habitual present", "Word order: verb second"] },
+    { lang: "en", items: ["Present simple — a habitual action"] },
+    { lang: "ru", items: ["Настоящее время — привычное действие"] },
+    { lang: "de", items: ["Präsens — eine gewohnheitsmäßige Handlung"] },
+  ],
+};
 const LANGUAGE_FAT = {
   text: "ahoj",
   synonyms: [{ text: "nazdar" }],
@@ -88,7 +105,7 @@ export function deterministicTranslateAi(options: TranslateAiOptions = {}): Part
             ],
           }
         : PREFLIGHT_PROCEED;
-    for (const fixture of [preflight, JUDGE_CLEAN, metadata, LANGUAGE_FAT]) {
+    for (const fixture of [preflight, JUDGE_CLEAN, metadata, LANGUAGE_FAT, GRAMMAR_BREAKDOWN_FAT]) {
       const parsed = schema.safeParse(fixture);
       if (parsed.success) return parsed.data;
     }
