@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Removed
+
+- **The test-coverage catalog is gone.** The generator (`scripts/test-catalog.mjs`), its `pnpm test:catalog` script, the two multi-megabyte generated artifacts committed under `apps/admin/reports-data/`, the admin panel's "Test Coverage" page and explorer component, and the CI step that regenerated and uploaded the catalog on every run have all been removed. The catalog restated what the test files already say, its artifacts churned in nearly every diff, and nothing consumed it. `pnpm reports:sync-admin` now only copies the HTML reports from `@docs/reports`.
+
 ### Changed
 
 - **A new user's card now carries the translation, three example sentences and connotation warnings — nothing else.** The untouched default template shipped synonyms and alternative variants but no examples, so the first card a user ever saw listed near-synonyms without a single sentence showing the word in use, while the `/template` screen claimed "all sections visible". The default is now translation + 3 examples + connotation warnings; synonyms, alternative variants, the idiomatic-equivalent note and the grammar breakdown stay off until the user turns them on in `/template`, and the screen says so. Users who already saved a custom template are unaffected — this only changes what "Default" means.

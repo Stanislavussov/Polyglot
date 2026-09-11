@@ -95,17 +95,6 @@ jobs:
       - name: Tests
         run: pnpm test
 
-      - name: Generate test coverage catalog
-        run: pnpm test:catalog
-
-      - name: Upload test coverage catalog
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-coverage-catalog
-          path: |
-            apps/admin/reports-data/test-catalog.json
-            apps/admin/reports-data/test-catalog.html
-
   # Real-DB integration lane (Task 71). CI supplies a throwaway Postgres service
   # container via TEST_DATABASE_URL and hands it to `pnpm test:integration`, the
   # single entry point developers use too — it migrates, seeds and runs. A service

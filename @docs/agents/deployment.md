@@ -56,10 +56,9 @@ image — from the restorable set, while caching nothing of value in return
 Note what does **not** cache: `apps/admin/reports-data` is tracked and not in
 `.dockerignore`, so it lands in two build contexts — `COPY apps/ apps/`
 (`deploy/Dockerfile:30`, the bot's build stage) and `COPY apps/admin/ apps/admin/`
-(`Dockerfile.admin:33`, where `astro build` actually pays for it). Its
-`generatedAt` is pinned to the commit date (`scripts/test-catalog.mjs`) so the
-context is stable for a given commit — but across commits the compile stages
-still rebuild, which is correct, since the source changed too.
+(`Dockerfile.admin:33`, where `astro build` actually pays for it). It only changes
+when a report under `@docs/reports` is regenerated, so the context is stable across
+most commits.
 
 ### Concurrency
 

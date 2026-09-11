@@ -89,8 +89,7 @@ the value of the scenario:
 
 When an existing test name is too weak, improve the test scenario itself: rename the
 `it(...)` text and, for business-facing workflows, add an adjacent `@business`
-comment that explains the scenario in domain language. Do not rely on generated
-catalog wording to compensate for unclear source tests.
+comment that explains the scenario in domain language.
 
 Arrange through public setup APIs, act through the same interface production uses, and
 assert on outcomes: returned values, rendered UI, database-visible state through
