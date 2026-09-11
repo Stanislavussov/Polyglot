@@ -75,7 +75,7 @@ import {
 import { parseTranslateInput } from "../../utils/parse-translate-input.js";
 import { encodeTranslateRetryText, replyWithRetry } from "../../utils/retry-action.js";
 import { validateTranslatableText } from "../../utils/validate-text-input.js";
-import { resolveLockedFeatures } from "./paid-feature.helper.js";
+import { resolveLockedBadges } from "./paid-feature.helper.js";
 import { answerStaleCallback } from "./stale-callback.helper.js";
 import { buildUpgradeKeyboard } from "./subscription.helper.js";
 import {
@@ -815,7 +815,7 @@ async function sendTranslationCard(
     showEtymologyButton,
     sourceOverrideLangs,
     pronounceLangs,
-    locked: await resolveLockedFeatures(ctx),
+    locked: await resolveLockedBadges(ctx),
   });
   await ctx.api.editMessageReplyMarkup(ctx.chat!.id, cardMsg.message_id, { reply_markup: keyboard });
 

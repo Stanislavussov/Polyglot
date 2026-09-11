@@ -34,7 +34,7 @@ import { languageOrderFromSettings, resolveLanguageOrder } from "../../utils/lan
 import { isUserFacingTimeout, LONG_OP_TIMEOUT_MS, loadingKeyboard, withTimeout } from "../../utils/long-op.js";
 import { toVocabularyInput } from "../../utils/vocabulary-mapper.js";
 import { editMessageReplyMarkupOrIgnore, editMessageTextOrReply } from "./edit-message.helper.js";
-import { ensurePaidFeature, resolveLockedFeatures } from "./paid-feature.helper.js";
+import { ensurePaidFeature, resolveLockedBadges } from "./paid-feature.helper.js";
 import { answerStaleCallback } from "./stale-callback.helper.js";
 import { isEtymologyEligible, resolvePronounceLangs } from "./translate-mode.shared.js";
 import { setTranslationEntry } from "./translation-map.helper.js";
@@ -307,7 +307,7 @@ export async function handleAltMeaningCallback(ctx: BotContext): Promise<void> {
       showGrammarButton,
       showEtymologyButton,
       pronounceLangs,
-      locked: await resolveLockedFeatures(ctx),
+      locked: await resolveLockedBadges(ctx),
     });
     await ctx.api.editMessageReplyMarkup(ctx.chat!.id, newMsg.message_id, { reply_markup: keyboard });
 
@@ -515,7 +515,7 @@ async function buildCardView(
     showGrammarDetailButton: grammarShown && !isSentence,
     showEtymologyButton: isEtymologyEligible(entry.inputType, entry.output.sourceLang, nativeLang) && !etymologyShown,
     pronounceLangs,
-    locked: await resolveLockedFeatures(ctx),
+    locked: await resolveLockedBadges(ctx),
   });
 
   return { text: isSaved ? `${body}\n\n${t("savedToDict", lang)}` : body, keyboard };
@@ -601,7 +601,7 @@ export async function handleGrammarLangSelectCallback(ctx: BotContext): Promise<
     entry.inputType,
     languageOrderFromSettings(settings),
   );
-  const locked = await resolveLockedFeatures(ctx);
+  const locked = await resolveLockedBadges(ctx);
   /** The card's normal keyboard, with the detail button back — every exit from this flow restores it. */
   const restoreKeyboard = () =>
     buildTranslationKeyboard({

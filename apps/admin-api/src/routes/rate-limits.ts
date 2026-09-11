@@ -33,7 +33,7 @@ export async function rateLimitRoutes(app: FastifyInstance) {
     keyParam: "name",
     // Feature keys ride along with the plan: the panel shows what each tier
     // actually unlocks in the bot, which is otherwise invisible until a user
-    // taps a ⭐ button. Editable since the seed became bootstrap-only — the
+    // taps a badged button. Editable since the seed became bootstrap-only — the
     // junction is admin-owned state, exactly like the AI model catalog.
     list: {
       handler: async () => {

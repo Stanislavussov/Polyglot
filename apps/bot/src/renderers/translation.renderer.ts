@@ -16,13 +16,6 @@ import { InlineKeyboard } from "grammy";
 import { NOOP_CALLBACK } from "../utils/long-op.js";
 import { expandableSection } from "./card-sections.js";
 
-/**
- * Marks a button whose feature the viewer's plan does not include. Deliberately a
- * bare glyph and not a "premium only" label: the card stays uncluttered, the badge
- * reads as an invitation, and the explanation lives in the screen the tap opens.
- */
-const PAID_BADGE = " ⭐";
-
 export interface TranslationKeyboardOptions {
   interfaceLang?: string;
   msgId?: number;
@@ -32,8 +25,14 @@ export interface TranslationKeyboardOptions {
   showEtymologyButton?: boolean;
   sourceOverrideLangs?: string[];
   pronounceLangs?: readonly string[];
-  /** Feature keys this viewer does NOT have — their buttons get the ⭐ badge. */
-  locked?: ReadonlySet<string>;
+  /**
+   * Feature keys this viewer does NOT have, each mapped to the badge its button
+   * wears — the glyph of the tier that sells it (⭐ Plus, 💎 Pro), from
+   * `resolveLockedBadges`. Deliberately a bare glyph and not a "premium only"
+   * label: the card stays uncluttered and the explanation lives in the screen the
+   * tap opens — a screen that then offers exactly the tier the glyph named.
+   */
+  locked?: ReadonlyMap<string, string>;
 }
 
 /** Escape HTML special characters for Telegram */
@@ -375,7 +374,7 @@ function renderSentenceLangBlock(code: string, lt: LanguageTranslation): string 
  * empty on the common confident path, so the extra rows are rare by construction.
  *
  * Buttons for features the viewer's plan does not include are still rendered and
- * still carry their normal callback data — they only gain a ⭐ badge, and the
+ * still carry their normal callback data — they only gain a plan badge, and the
  * handler behind them opens the upgrade screen (Task 79). Keeping the data
  * identical is what makes the badge purely cosmetic: a card sent before an
  * upgrade keeps working, and the server-side gate stays the only authority.
@@ -397,8 +396,11 @@ export function buildTranslationKeyboard(options: TranslationKeyboardOptions = {
   const lang = toLang(interfaceLang);
   const kb = new InlineKeyboard();
   const mid = msgId ?? 0;
-  /** Label + the paid badge when this viewer's plan does not include the feature. */
-  const label = (text: string, feature: FeatureKey): string => (locked?.has(feature) ? `${text}${PAID_BADGE}` : text);
+  /** Label + the badge of the plan that sells it, when this viewer's plan does not. */
+  const label = (text: string, feature: FeatureKey): string => {
+    const badge = locked?.get(feature);
+    return badge ? `${text} ${badge}` : text;
+  };
 
   kb.text(label(t("clarifyTranslation", lang), FEATURE_KEYS.clarification), `tr:clarifypost:${mid}`);
   kb.text(label(t("otherMeaning", lang), FEATURE_KEYS.clarification), `tr:altmeaning:${mid}`);
