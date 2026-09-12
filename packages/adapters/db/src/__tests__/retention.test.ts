@@ -46,8 +46,8 @@ vi.mock("../connection.js", () => ({
   getDb: () => mockDb,
 }));
 
-const { runTelemetryRetention, DEFAULT_RETENTION_DAYS } = await import("../retention.js");
-const { momentumEvents, userMomentum } = await import("../schema.js");
+const { runTelemetryRetention, DEFAULT_RETENTION_DAYS, PRODUCT_EVENT_RETENTION_DAYS } = await import("../retention.js");
+const { momentumEvents, productEvents, userMomentum } = await import("../schema.js");
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
@@ -78,9 +78,9 @@ describe("runTelemetryRetention", () => {
     await runTelemetryRetention(DEFAULT_RETENTION_DAYS);
     const after = Date.now();
 
-    // One delete + one lt predicate per telemetry table (11 tables).
-    expect(mockDb.delete).toHaveBeenCalledTimes(11);
-    expect(ltCalls).toHaveLength(11);
+    // One delete + one lt predicate per telemetry table (12 tables).
+    expect(mockDb.delete).toHaveBeenCalledTimes(12);
+    expect(ltCalls).toHaveLength(12);
 
     // Every timestamp cutoff is exactly `now - 90d`; the compact daily counter
     // uses the same instant rendered as a UTC "YYYY-MM-DD" day string.
@@ -88,8 +88,16 @@ describe("runTelemetryRetention", () => {
     const expectedHi = after - DEFAULT_RETENTION_DAYS * MS_PER_DAY;
     const expectedDay = new Date(expectedLo).toISOString().slice(0, 10);
 
-    for (const { cutoff } of ltCalls) {
-      if (cutoff instanceof Date) {
+    const productLo = before - PRODUCT_EVENT_RETENTION_DAYS * MS_PER_DAY;
+
+    for (const { column, cutoff } of ltCalls) {
+      if (column === productEvents.createdAt) {
+        // Product events run on their own, shorter horizon — see the constant.
+        expect((cutoff as Date).getTime()).toBeGreaterThanOrEqual(productLo - 1000);
+        expect((cutoff as Date).getTime()).toBeLessThanOrEqual(
+          after - PRODUCT_EVENT_RETENTION_DAYS * MS_PER_DAY + 1000,
+        );
+      } else if (cutoff instanceof Date) {
         expect(cutoff.getTime()).toBeGreaterThanOrEqual(expectedLo - 1000);
         expect(cutoff.getTime()).toBeLessThanOrEqual(expectedHi + 1000);
       } else {
@@ -115,6 +123,28 @@ describe("runTelemetryRetention", () => {
     expect(stale.getTime() < cutoff.getTime()).toBe(true);
   });
 
+  it("prunes product_events on its own shorter horizon, and follows a shorter caller horizon down", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2025-06-15T12:00:00.000Z"));
+
+    await runTelemetryRetention(DEFAULT_RETENTION_DAYS);
+
+    const productCutoff = ltCalls.find((call) => call.column === productEvents.createdAt)?.cutoff as Date;
+    expect(productCutoff.getTime()).toBe(Date.now() - PRODUCT_EVENT_RETENTION_DAYS * MS_PER_DAY);
+
+    // A 45-day-old funnel row is past the product horizon but well inside the
+    // shared 90-day one: without its own cutoff it would still be here.
+    const fortyFiveDaysOld = new Date(Date.now() - 45 * MS_PER_DAY);
+    expect(fortyFiveDaysOld.getTime() < productCutoff.getTime()).toBe(true);
+
+    // A caller asking for less than 30 days still wins — the constant is a
+    // ceiling on how long these rows live, not a floor.
+    ltCalls = [];
+    await runTelemetryRetention(7);
+    const shortCutoff = ltCalls.find((call) => call.column === productEvents.createdAt)?.cutoff as Date;
+    expect(shortCutoff.getTime()).toBe(Date.now() - 7 * MS_PER_DAY);
+  });
+
   it("honours a custom shorter horizon", async () => {
     const before = Date.now();
     await runTelemetryRetention(7);
@@ -127,6 +157,7 @@ describe("runTelemetryRetention", () => {
     // [0] dictionary_lookup_logs [1] translation_requests [2] translation_request_timings
     // [3] ai_request_latencies [4] language_detection_events [5] notification_history
     // [6] word_review_log [7] momentum_events [8] bot_sessions [9] user_daily_request_counts [10] mentor_messages
+    // [11] product_events
     rowsPerDelete = [
       [{ id: 1 }, { id: 2 }], // dictionary_lookup_logs → 2
       [{ id: 3 }], // translation_requests → 1
@@ -139,6 +170,7 @@ describe("runTelemetryRetention", () => {
       [{ key: "a" }], // bot_sessions → 1
       [{ userId: 1 }, { userId: 2 }], // user_daily_request_counts → 2
       [{ id: 8 }], // mentor_messages → 1
+      [{ id: 10 }, { id: 11 }, { id: 12 }], // product_events → 3
     ];
 
     const result = await runTelemetryRetention();
@@ -155,6 +187,7 @@ describe("runTelemetryRetention", () => {
       bot_sessions: 1,
       user_daily_request_counts: 2,
       mentor_messages: 1,
+      product_events: 3,
     });
   });
 

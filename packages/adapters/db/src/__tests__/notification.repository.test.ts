@@ -1,3 +1,4 @@
+import { INACTIVITY_DAYS, REENGAGEMENT_INTERVAL_DAYS } from "@polyglot/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ── Mock Temporal API (for Node < 26 environments) ──────────────
@@ -125,7 +126,6 @@ const {
   NOTIFICATION_TYPES,
   DEFAULT_NOTIFICATION_TIME,
   DEFAULT_NOTIFICATION_TYPE,
-  INACTIVITY_DAYS,
   getLocalMinutes,
   parseNotificationMinutes,
   formatNotificationTime,
@@ -179,6 +179,10 @@ describe("domain constants", () => {
 
   it("INACTIVITY_DAYS is 14", () => {
     expect(INACTIVITY_DAYS).toBe(14);
+  });
+
+  it("REENGAGEMENT_INTERVAL_DAYS is 5", () => {
+    expect(REENGAGEMENT_INTERVAL_DAYS).toBe(5);
   });
 });
 
@@ -419,23 +423,42 @@ describe("notificationRepository", () => {
     });
   });
 
-  describe("getInactiveUsers", () => {
-    it("returns inactive users from DB", async () => {
+  describe("getUsersForReEngagement", () => {
+    it("returns the candidates the DB matched", async () => {
       const user = makeNotifUser();
       queryResults = [[user]];
 
-      const result = await notificationRepository.getInactiveUsers();
+      const result = await notificationRepository.getUsersForReEngagement();
 
       expect(result).toEqual([user]);
       expect(mockDb.select).toHaveBeenCalledOnce();
     });
 
-    it("returns empty array when no inactive users exist", async () => {
+    it("returns empty array when nobody is due a ping", async () => {
       queryResults = [[]];
 
-      const result = await notificationRepository.getInactiveUsers();
+      const result = await notificationRepository.getUsersForReEngagement();
 
       expect(result).toEqual([]);
+    });
+  });
+
+  describe("recordReEngagement", () => {
+    it("increments the count in SQL rather than writing a read-then-computed number", async () => {
+      await notificationRepository.recordReEngagement(7);
+
+      const set = lastUpdateSet as Record<string, unknown>;
+      expect(set.lastReengagementAt).toBeInstanceOf(Date);
+      // A plain number here would mean the sweep echoed back the value it read,
+      // silently discarding a ping a concurrent tick had already recorded — and
+      // the cap is the only thing bounding how many nudges a lapsed user gets.
+      expect(typeof set.reengagementCount).not.toBe("number");
+    });
+
+    it("never touches the subscription flag", async () => {
+      await notificationRepository.recordReEngagement(7);
+
+      expect(Object.keys(lastUpdateSet as object)).not.toContain("notificationEnabled");
     });
   });
 

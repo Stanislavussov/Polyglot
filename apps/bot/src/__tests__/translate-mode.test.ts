@@ -20,7 +20,11 @@ vi.mock("@polyglot/adapter-ai", () => ({
   generateObject: vi.fn(),
 }));
 
-vi.mock("@polyglot/core", () => ({
+// Spread the real module — see the note in `scenes/helpers/out-of-set.test.ts`:
+// a hand-listed core mock breaks collection whenever a transitively imported
+// adapter module starts using another core export.
+vi.mock("@polyglot/core", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@polyglot/core")>()),
   translate: vi.fn(),
   t: vi.fn((key: string) => `[${key}]`),
   isSupported: vi.fn(() => true),
@@ -42,8 +46,16 @@ vi.mock("../scenes/helpers/translate-flow.js", () => ({
 vi.mock("../scenes/helpers/clarification.js", () => ({
   handleTranslationClarificationContextText: vi.fn(),
 }));
+vi.mock("../scenes/helpers/mentor-mode.helper.js", () => ({
+  handleMentorText: vi.fn(),
+}));
+vi.mock("../scenes/helpers/mentor-idle.helper.js", () => ({
+  maybePromptMentorIdle: vi.fn().mockResolvedValue(false),
+}));
 
 import type { ServiceContainer } from "@polyglot/core";
+import { maybePromptMentorIdle } from "../scenes/helpers/mentor-idle.helper.js";
+import { handleMentorText } from "../scenes/helpers/mentor-mode.helper.js";
 import { handleTranslateText } from "../scenes/helpers/translate-flow.js";
 import { createServicesStub } from "../test-helpers/services-stub.js";
 
@@ -118,6 +130,28 @@ describe("Translate Mode System", () => {
 
       expect(next).toHaveBeenCalled();
       expect(handleTranslateText).not.toHaveBeenCalled();
+    });
+
+    it("holds the message for the idle re-confirm prompt instead of running a mentor turn", async () => {
+      vi.mocked(maybePromptMentorIdle).mockResolvedValueOnce(true);
+      const ctx = createMockContext({ text: "hello", activeMode: "mentor" });
+      const next = vi.fn().mockResolvedValue(undefined);
+
+      await modeRouterMiddleware(ctx, next);
+
+      expect(maybePromptMentorIdle).toHaveBeenCalledWith(ctx, "hello");
+      expect(handleMentorText).not.toHaveBeenCalled();
+      expect(next).not.toHaveBeenCalled();
+    });
+
+    it("runs the mentor turn when the idle prompt declines", async () => {
+      const ctx = createMockContext({ text: "hello", activeMode: "mentor" });
+      const next = vi.fn().mockResolvedValue(undefined);
+
+      await modeRouterMiddleware(ctx, next);
+
+      expect(handleMentorText).toHaveBeenCalledWith(ctx, "hello");
+      expect(next).not.toHaveBeenCalled();
     });
 
     it("routes plain text to handleTranslateText when in translate mode", async () => {

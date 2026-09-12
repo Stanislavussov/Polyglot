@@ -2,18 +2,31 @@ import { describe, expect, it, vi } from "vitest";
 import { getLocalizedCommands, setUserCommands } from "./commands.js";
 
 describe("bot commands", () => {
-  it("lists /menu and the categories it holds, and nothing else", () => {
+  it("leads with the practice entries and trails with configuration", () => {
     const listed = getLocalizedCommands("en").map((command) => command.command);
 
-    expect(listed).toEqual(["start", "menu", "dictionary", "learn", "settings", "report"]);
+    expect(listed).toEqual(["learn", "dictionary", "settings", "report"]);
   });
 
   it("keeps the retired entry points out of the list", () => {
     const listed = getLocalizedCommands("en").map((command) => command.command);
 
     // They stay registered in bot-factory so typing them still works; only the
-    // advertisement is gone, which is what keeps the list short.
-    for (const retired of ["translate", "pick", "flashcard", "videos", "template", "review", "mentor", "changes"]) {
+    // advertisement is gone, which is what keeps the list short. /start is in this
+    // set too (Telegram shows its own START button on an empty chat), and so is
+    // /menu — its hub holds exactly the four entries this list already carries.
+    for (const retired of [
+      "start",
+      "menu",
+      "translate",
+      "pick",
+      "flashcard",
+      "videos",
+      "template",
+      "review",
+      "mentor",
+      "changes",
+    ]) {
       expect(listed).not.toContain(retired);
     }
   });
@@ -23,8 +36,6 @@ describe("bot commands", () => {
       const commands = getLocalizedCommands(lang);
       const icons = commands.map((command) => command.description.split(" ")[0] ?? "");
 
-      // Non-ASCII rather than Extended_Pictographic: ☰ (U+2630) is the clearest glyph
-      // for a menu and Telegram renders it fine, but Unicode does not class it as an emoji.
       expect(icons.every((icon) => icon.codePointAt(0) !== undefined && icon.codePointAt(0)! > 0x7f)).toBe(true);
       expect(new Set(icons).size).toBe(commands.length);
     }
@@ -37,10 +48,8 @@ describe("bot commands", () => {
 
     const [commands, options] = api.setMyCommands.mock.calls[0] ?? [];
     expect((commands as ReturnType<typeof getLocalizedCommands>).map((c) => c.command)).toEqual([
-      "start",
-      "menu",
-      "dictionary",
       "learn",
+      "dictionary",
       "settings",
       "report",
     ]);

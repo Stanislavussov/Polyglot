@@ -17,27 +17,50 @@ import {
   t,
 } from "@polyglot/core";
 import { mentorCounter, mentorDuration } from "../../metrics.js";
+import { markMentorActivity } from "../../modes/mode-policy.js";
 import { recordEffort } from "../../momentum/momentum.wiring.js";
 import type { BotContext } from "../../types.js";
 import { buildAiFailover, resolveDefaultAIModel, resolveFallbackAIModel } from "../../utils/ai-model.js";
 import { ensureAiQuota, ensureMentorDailyQuota, recordAiUsage } from "../../utils/ai-quota.js";
-import { isUserFacingTimeout, LONG_OP_TIMEOUT_MS, sendTypingIndicator, withTimeout } from "../../utils/long-op.js";
+import {
+  dismissLoader,
+  isUserFacingTimeout,
+  LONG_OP_TIMEOUT_MS,
+  sendLoader,
+  sendTypingIndicator,
+  withTimeout,
+} from "../../utils/long-op.js";
 import { replyWithRetry } from "../../utils/retry-action.js";
 import { mentorAnswerKeyboard } from "./mentor-exit.helper.js";
 import { ensurePaidFeatureForMessage } from "./paid-feature.helper.js";
 
 /** Maximum input message length in characters. */
-const MENTOR_MAX_INPUT_LENGTH = 1000;
+export const MENTOR_MAX_INPUT_LENGTH = 1000;
 
 export interface MentorTurnOptions {
   /** Thread to continue (reply-continuation or retry); resolved from session/DB when absent. */
   threadId?: string;
+  /**
+   * Message id to anchor the user's turn to when the turn did not arrive as a
+   * message: a held message resumed from a callback, or a card's "Ask the mentor"
+   * button, where the card itself is what the question is about. Without it the
+   * question would be missing from the thread's history and a follow-up would
+   * read the answer with no question.
+   */
+  userMessageId?: number;
+  /**
+   * The part of `text` the user actually typed, when the turn's text is composed
+   * rather than typed (a card question carries the whole card with it). The
+   * length guard is about what a user may send, so it measures this — a composed
+   * block is the bot's own doing and is bounded by the card it came from.
+   */
+  userInput?: string;
 }
 
 /**
  * Which thread this turn belongs to.
  *
- * `/mentor` writes `session.mentor = {}` (fresh start, no recovery); a session
+ * `/mentor` writes a stamp without a `threadId` (fresh start, no recovery); a session
  * that lost the field entirely (restart, retention sweep) recovers the chat's
  * latest thread from the DB so an ongoing conversation survives session loss.
  */
@@ -66,7 +89,7 @@ export async function handleMentorText(ctx: BotContext, text: string, opts?: Men
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
 
   // Validate input length
-  if (text.length > MENTOR_MAX_INPUT_LENGTH) {
+  if ((opts?.userInput ?? text).length > MENTOR_MAX_INPUT_LENGTH) {
     await ctx.reply(t("mentorInputTooLong", lang, { max: MENTOR_MAX_INPUT_LENGTH }));
     return;
   }
@@ -120,7 +143,7 @@ export async function handleMentorText(ctx: BotContext, text: string, opts?: Men
   ];
 
   // Show loading indicator
-  const loadingMsg = await ctx.reply(t("mentorThinking", lang));
+  const loader = await sendLoader(ctx, "mentor", lang, settings?.learningLangs ?? []);
 
   const stopTimer = mentorDuration.startTimer();
   try {
@@ -150,7 +173,7 @@ export async function handleMentorText(ctx: BotContext, text: string, opts?: Men
     });
 
     // Delete loading indicator (ignore errors if already deleted)
-    await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
+    await dismissLoader(ctx, loader);
 
     // Plain ctx.reply on purpose: mentor answers are content, and the technical
     // cleanup sweep must never delete a message a reply-continuation can anchor to.
@@ -169,12 +192,13 @@ export async function handleMentorText(ctx: BotContext, text: string, opts?: Men
     try {
       const chatId = ctx.chat!.id;
       const base = { userId: ctx.user.id, chatId, threadId, interfaceLang: lang };
-      if (ctx.message?.message_id !== undefined) {
+      const userMessageId = opts?.userMessageId ?? ctx.message?.message_id;
+      if (userMessageId !== undefined) {
         await ctx.services.mentorMessageRepository.record({
           ...base,
           role: "user",
           content: text,
-          telegramMessageId: ctx.message.message_id,
+          telegramMessageId: userMessageId,
         });
       }
       await ctx.services.mentorMessageRepository.record({
@@ -190,7 +214,7 @@ export async function handleMentorText(ctx: BotContext, text: string, opts?: Men
     // Pin the current thread only in mentor mode: a reply-continuation fired
     // from translate mode must not hijack the next plain mentor message.
     if (ctx.session.activeMode === "mentor") {
-      ctx.session.mentor = { threadId };
+      markMentorActivity(ctx.session, threadId);
     }
   } catch (err) {
     stopTimer();
@@ -198,15 +222,22 @@ export async function handleMentorText(ctx: BotContext, text: string, opts?: Men
     logger.error({ err, userId: ctx.user.id, textLength: text.length }, "Mentor chat failed");
 
     // Delete loading indicator and show error
-    await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
+    await dismissLoader(ctx, loader);
 
     // Transient timeout → offer a one-tap retry of the same turn (the message is
     // not persisted yet, so re-running it cannot duplicate the turn).
     // A hard failure gets the plain error.
     if (isUserFacingTimeout(err)) {
-      await replyWithRetry(ctx, t("loadingTimeout", lang), lang, { kind: "mentor", text, threadId });
+      await replyWithRetry(ctx, t("loadingTimeout", lang), lang, {
+        kind: "mentor",
+        text,
+        threadId,
+        userMessageId: opts?.userMessageId,
+      });
       return;
     }
     await ctx.reply(t("mentorError", lang));
+  } finally {
+    loader.stop();
   }
 }

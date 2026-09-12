@@ -16,18 +16,16 @@ import type { TranslationOutputConfig } from "./types.js";
  * because some TranslationOutputConfig flags are always derived together.
  */
 export interface TemplateFields {
-  /** 2-3 synonyms per language. Default: true */
+  /** 2-3 synonyms per language */
   synonyms: boolean;
-  /** 3 contextual example sentences. Default: true */
+  /** 3 contextual example sentences */
   examples: boolean;
-  /** Up to 2 alternative translation variants. Default: true */
+  /** Up to 2 alternative translation variants */
   alternatives: boolean;
-  /** Idiomatic expression type + equivalent note. Default: true */
+  /** Idiomatic expression type + equivalent note */
   equivalentNote: boolean;
-  /** Connotation warnings for dangerous meanings. Default: true */
+  /** Connotation warnings for dangerous meanings */
   connotationWarning: boolean;
-  /** Constructional grammar breakdown for phrases/sentences. Default: false */
-  grammarBreakdown: boolean;
 }
 
 /**
@@ -44,16 +42,19 @@ export interface UserTranslationTemplate {
   name: string;
 }
 
-/** System default template — learner-friendly but still light for cheap/small models */
+/**
+ * System default template — the translation itself, three example sentences,
+ * and connotation warnings. Everything else stays off until the user turns it
+ * on in /template, so an untouched card is cheap and readable.
+ */
 export const DEFAULT_TEMPLATE: UserTranslationTemplate = {
   name: "Default",
   fields: {
-    synonyms: true,
-    examples: false,
-    alternatives: true,
+    synonyms: false,
+    examples: true,
+    alternatives: false,
     equivalentNote: false,
-    connotationWarning: false,
-    grammarBreakdown: false,
+    connotationWarning: true,
   },
 };
 
@@ -70,7 +71,6 @@ export function templateToOutputConfig(template: UserTranslationTemplate): Trans
     includeUsageNote: true,
     includeConnotationWarning: template.fields.connotationWarning,
     includeNativeSynonyms: template.fields.synonyms,
-    includeGrammarBreakdown: template.fields.grammarBreakdown,
   };
 }
 
@@ -81,5 +81,4 @@ export const TEMPLATE_FIELD_KEYS: Array<keyof TemplateFields> = [
   "alternatives",
   "equivalentNote",
   "connotationWarning",
-  "grammarBreakdown",
 ];

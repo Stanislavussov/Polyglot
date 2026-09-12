@@ -7,7 +7,14 @@
  * resumption and "never persisted without a level" guarantees testable at all —
  * they are properties of the stored state, not of a call sequence.
  */
-import type { ServiceContainer } from "@polyglot/core";
+import {
+  type ServiceContainer,
+  TRIAL_DAYS,
+  TRIAL_EXTENSION_WORDS,
+  TRIAL_PLAN,
+  TRIAL_PROVIDER,
+  t,
+} from "@polyglot/core";
 import { GrammyError } from "grammy";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createServicesStub } from "../../test-helpers/services-stub.js";
@@ -64,6 +71,13 @@ const LANGS = [
   { code: "es", name: "Spanish", nativeName: "Español", flag: "🇪🇸" },
 ];
 
+/**
+ * A learning language with no curated hook set. Hook words exist only for the 11
+ * interface languages, while the DB offers far more languages to learn, so this
+ * is the majority case for the demo screen, not an exotic one.
+ */
+const NO_HOOKS_LANG = { code: "ja", name: "Japanese", nativeName: "日本語", flag: "🇯🇵" };
+
 /** Shaped like real de→ru pipeline output: the headword lives in `sourceUsage`. */
 const DEMO_PAYLOAD = {
   original: "Backpfeifengesicht",
@@ -87,11 +101,12 @@ interface KeyboardButton {
 
 type Keyboard = KeyboardButton[][];
 
-function createHarness(opts: { languageCode?: string } = {}) {
+function createHarness(opts: { languageCode?: string; langs?: typeof LANGS } = {}) {
+  const langs = opts.langs ?? LANGS;
   const store = {
     user: {
       id: 1,
-      audienceGroup: "product" as const,
+      audienceGroup: "product" as "product" | "tester" | "admin",
       subscriptionPlan: "free",
       onboarded: false,
       onboardingStep: 0,
@@ -99,6 +114,7 @@ function createHarness(opts: { languageCode?: string } = {}) {
     },
     settings: null as null | { interfaceLang: string; nativeLang: string; learningLangs: string[] },
     levels: [] as Array<{ languageCode: string; proficiencyLevel: string }>,
+    subscriptions: [] as Array<{ plan: string; provider: string; currentPeriodEnd: Date }>,
   };
 
   const userRepository = {
@@ -123,6 +139,39 @@ function createHarness(opts: { languageCode?: string } = {}) {
       return store.user;
     }),
     updateActiveMode: vi.fn().mockResolvedValue({}),
+    updateSubscriptionPlan: vi.fn(async (_id: number, plan: string) => {
+      store.user.subscriptionPlan = plan;
+      return store.user;
+    }),
+  };
+
+  /**
+   * In-memory subscriptions table, so the once-per-account trial guard is
+   * exercised against stored rows rather than a call count — re-running
+   * onboarding must find the row the first run wrote.
+   */
+  const subscriptionRepository = {
+    create: vi.fn(async (input: { plan: string; provider?: string; currentPeriodEnd: Date }) => {
+      const row = {
+        id: store.subscriptions.length + 1,
+        userId: 1,
+        plan: input.plan,
+        status: "active" as const,
+        provider: input.provider ?? "mock",
+        externalId: null,
+        currentPeriodEnd: input.currentPeriodEnd,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      store.subscriptions.push(row);
+      return row;
+    }),
+    findActiveByUser: vi.fn(async () => store.subscriptions.find((row) => row.provider === "mock") ?? null),
+    findTrialByUser: vi.fn(async () => store.subscriptions.find((row) => row.provider === "trial") ?? null),
+    findTrialsEndingBetween: vi.fn(async () => []),
+    findExpired: vi.fn(async () => []),
+    extend: vi.fn(),
+    updateStatus: vi.fn(),
   };
 
   const onboardingDemoCardRepository = {
@@ -133,12 +182,12 @@ function createHarness(opts: { languageCode?: string } = {}) {
   };
 
   const languageCache = {
-    getSupportedLangs: () => LANGS,
+    getSupportedLangs: () => langs,
     getLangDisplay: (code: string) => {
-      const entry = LANGS.find((l) => l.code === code);
+      const entry = langs.find((l) => l.code === code);
       return entry ? `${entry.flag} ${entry.nativeName}` : code;
     },
-    getLangFlag: (code: string) => LANGS.find((l) => l.code === code)?.flag,
+    getLangFlag: (code: string) => langs.find((l) => l.code === code)?.flag,
   };
 
   const ai = {
@@ -170,6 +219,7 @@ function createHarness(opts: { languageCode?: string } = {}) {
         onboardingDemoCardRepository as unknown as ServiceContainer["onboardingDemoCardRepository"],
       languageCache: languageCache as unknown as ServiceContainer["languageCache"],
       ai: ai as unknown as ServiceContainer["ai"],
+      subscriptionRepository: subscriptionRepository as unknown as ServiceContainer["subscriptionRepository"],
     }),
   } as unknown as BotContext;
 
@@ -266,6 +316,7 @@ function createHarness(opts: { languageCode?: string } = {}) {
     ctx,
     store,
     userRepository,
+    subscriptionRepository,
     onboardingDemoCardRepository,
     ai,
     tap,
@@ -409,6 +460,10 @@ describe("onboarding — screen 1 (languages with inline CEFR)", () => {
     expect(h.callbackData()).toContain("onb:lvl:de:unknown");
     // The long CEFR wording lives in the prompt, not on the buttons.
     expect(h.currentText()).toContain("A1");
+    // The level asked for is the target, not the current one — the screen has to
+    // say so, or the user names where they already are and never gets pushed on.
+    expect(h.currentText()).toContain(t("onbLevelPrompt", "ru", { lang: "🇩🇪 Deutsch" }));
+    expect(h.currentText()).toContain(t("levelTargetHint", "ru"));
   });
 
   it("collapses back to the language list as a confirmed chip once a level is picked", async () => {
@@ -421,14 +476,47 @@ describe("onboarding — screen 1 (languages with inline CEFR)", () => {
 
     expect(h.userRepository.setLanguageLevel).toHaveBeenCalledWith(1, "de", "B2");
     expect(h.store.settings?.learningLangs).toEqual(["de"]);
-    expect(h.currentText()).toContain("· B2");
+    expect(h.currentText()).toContain("→ B2");
     expect(h.currentKeyboard()[0].map((b) => b.text)).not.toEqual(["A1", "A2", "B1", "B2", "C1", "C2"]);
     expect(
       h
         .currentKeyboard()
         .flat()
         .map((b) => b.text),
-    ).toContainEqual(expect.stringContaining("· B2"));
+    ).toContainEqual(expect.stringContaining("→ B2"));
+  });
+
+  it("shows only the level menu while a language is expanded, so the language list cannot be mistaken for a live choice", async () => {
+    const h = createHarness({ languageCode: "ru" });
+    await h.start();
+    await h.tap("onb:nat:ru");
+    await h.tap("onb:lang:de");
+    await h.tap("onb:lvl:de:B1");
+
+    await h.tap("onb:lang:fr");
+
+    const data = h.callbackData();
+    expect(data.filter((entry) => entry.startsWith("onb:lang:"))).toEqual([]);
+    expect(data).not.toContain("onb:done");
+    expect(data).not.toContain("onb:back:native");
+    expect(data).toContain("onb:collapse");
+  });
+
+  it("restores the language list when the level menu is cancelled", async () => {
+    const h = createHarness({ languageCode: "ru" });
+    await h.start();
+    await h.tap("onb:nat:ru");
+    await h.tap("onb:lang:de");
+    await h.tap("onb:lvl:de:B1");
+    await h.tap("onb:lang:fr");
+
+    await h.tap("onb:collapse");
+
+    const data = h.callbackData();
+    expect(data).toContain("onb:lang:fr");
+    expect(data).toContain("onb:lang:es");
+    expect(data).toContain("onb:done");
+    expect(h.store.settings?.learningLangs).toEqual(["de"]);
   });
 
   it("persists the B1 default for '🤷 I don't know', indistinguishably from an explicit B1", async () => {
@@ -503,7 +591,7 @@ describe("onboarding — screen 1 (languages with inline CEFR)", () => {
         .currentKeyboard()
         .flat()
         .map((b) => b.text),
-    ).not.toContainEqual(expect.stringContaining("· B1"));
+    ).not.toContainEqual(expect.stringContaining("→ B1"));
   });
 
   it("takes four languages on a single screen and persists all four levels", async () => {
@@ -581,6 +669,21 @@ describe("onboarding — screen 2 (instant demo card)", () => {
 
     const hooks = h.callbackData().filter((data) => data.startsWith("onb:hook:de:"));
     expect(hooks.length).toBeGreaterThan(0);
+  });
+
+  it("gives a self-contained instruction when the learning language has no curated words", async () => {
+    const h = createHarness({ languageCode: "ru", langs: [...LANGS, NO_HOOKS_LANG] });
+
+    await h.start();
+    await h.tap("onb:nat:ru");
+    await h.tap("onb:lang:ja");
+    await h.tap("onb:lvl:ja:B1");
+    await h.tap("onb:done");
+
+    // Nothing to tap, so the screen is the only thing telling the user what to
+    // do — the tap invitation's "or …" continuation would leave them stranded.
+    expect(h.callbackData()).toEqual([]);
+    expect(h.currentText()).toBe(t("onbDemoTypeOnly", "ru"));
   });
 
   it("renders a cached card without ever touching the AI port", async () => {
@@ -726,13 +829,33 @@ describe("onboarding — screen 3 (instruction + feature entry points)", () => {
     // second message repeating the same modes in prose to deliver the keyboard.
     const closing = vi.mocked(h.ctx.reply).mock.calls.at(-1);
     const markup = closing?.[1] as {
-      reply_markup?: { inline_keyboard?: Keyboard; one_time_keyboard?: boolean };
+      reply_markup?: { inline_keyboard?: Keyboard; resize_keyboard?: boolean };
     };
     expect(markup?.reply_markup?.inline_keyboard).toBeUndefined();
-    expect(markup?.reply_markup).toMatchObject({ one_time_keyboard: true });
+    expect(markup?.reply_markup).toMatchObject({ resize_keyboard: true });
+    expect(markup?.reply_markup).not.toHaveProperty("one_time_keyboard");
     // The instructions and the hand-off are the same message now.
-    expect(String(closing?.[0])).toContain("Готово");
-    expect(String(closing?.[0])).not.toContain("/translate");
+    const text = String(closing?.[0]);
+    expect(text).toContain("Сохранить");
+    expect(text).not.toContain("/translate");
+    // One voice, not three glued strings: the nudge that used to open this message
+    // asked "want another?" above an answer that said "done", and invited a word a
+    // second time three lines later.
+    expect(text).not.toContain("Хотите ещё");
+    expect(text.match(/Пришлите/g) ?? []).toHaveLength(1);
+  });
+
+  it("explains what saving a word buys the user, not just that the button exists", async () => {
+    const h = createHarness({ languageCode: "ru" });
+    await reachDemoScreen(h);
+    h.onboardingDemoCardRepository.findOne.mockResolvedValue(null);
+
+    await h.tap("onb:hook:de:0");
+
+    // This is the one screen that has to earn a second session: a user who never
+    // learns that saved words come back on their own has no reason to save one.
+    const closing = String(vi.mocked(h.ctx.reply).mock.calls.at(-1)?.[0]);
+    expect(closing).toContain("повторение");
   });
 
   it("names the icon that brings the folded-away menu back", async () => {
@@ -746,12 +869,14 @@ describe("onboarding — screen 3 (instruction + feature entry points)", () => {
     // user is shown it — a hand-off that never happens leaves it undiscoverable.
     const handover = vi.mocked(h.ctx.reply).mock.calls.at(-1);
     // Names the icon, not just the menu: the whole point of the hand-off is that a
-    // folded-away keyboard is invisible until the user knows where to tap.
+    // collapsed keyboard is invisible until the user knows where to tap.
     expect(String(handover?.[0])).toContain("⌨️");
     expect(String(handover?.[0])).toContain("Карточки");
-    expect((handover?.[1] as { reply_markup?: { one_time_keyboard?: boolean } })?.reply_markup).toMatchObject({
-      one_time_keyboard: true,
-    });
+    const handoverMarkup = (handover?.[1] as { reply_markup?: { resize_keyboard?: boolean } })?.reply_markup;
+    expect(handoverMarkup).toMatchObject({ resize_keyboard: true });
+    // The named icon is the way back, so the hand-off must not send a keyboard that
+    // collapses itself again on the user's first tap.
+    expect(handoverMarkup).not.toHaveProperty("one_time_keyboard");
   });
 
   it("routes each feature button to the existing scene handler", async () => {
@@ -1005,5 +1130,86 @@ describe("onboarding — recovery and reversibility", () => {
     await h.tap("onb:nat:ru");
 
     expect(h.ctx.reply).toHaveBeenCalled();
+  });
+});
+
+describe("onboarding — the reverse trial (Task 84)", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  /** A pre-rendered hook card, so completing onboarding needs no AI call. */
+  const CACHED_CARD = {
+    id: 7,
+    sourceLang: "de",
+    nativeLang: "ru",
+    headword: "Backpfeifengesicht",
+    sortOrder: 0,
+    isActive: true,
+    createdAt: new Date(0),
+    payload: DEMO_PAYLOAD,
+  };
+
+  it("hands the finished account a week of Plus and says so once", async () => {
+    const h = createHarness({ languageCode: "ru" });
+    await reachDemoScreen(h);
+    h.onboardingDemoCardRepository.findOne.mockResolvedValue(CACHED_CARD);
+
+    await h.tap("onb:hook:de:0");
+
+    expect(h.store.subscriptions).toEqual([
+      expect.objectContaining({ plan: TRIAL_PLAN, provider: TRIAL_PROVIDER, status: "active" }),
+    ]);
+    expect(h.store.user.subscriptionPlan).toBe(TRIAL_PLAN);
+    // The closing screen is the one place the gift is announced, and it names
+    // both the length and the rule for earning more.
+    const closing = vi
+      .mocked(h.ctx.reply)
+      .mock.calls.map(([text]) => String(text))
+      .find((text) => text.includes(String(TRIAL_DAYS)) && text.includes(String(TRIAL_EXTENSION_WORDS)));
+    expect(closing).toBeDefined();
+  });
+
+  it("says nothing about a trial to an account that already spent one", async () => {
+    const h = createHarness({ languageCode: "ru" });
+    h.store.subscriptions.push({
+      plan: TRIAL_PLAN,
+      provider: TRIAL_PROVIDER,
+      currentPeriodEnd: new Date("2026-08-01T00:00:00Z"),
+    });
+    await reachDemoScreen(h);
+    h.onboardingDemoCardRepository.findOne.mockResolvedValue(CACHED_CARD);
+
+    await h.tap("onb:hook:de:0");
+
+    expect(h.store.subscriptions).toHaveLength(1);
+    expect(h.userRepository.updateSubscriptionPlan).not.toHaveBeenCalled();
+    expect(h.userRepository.markOnboarded).toHaveBeenCalledWith(1);
+    const announced = vi
+      .mocked(h.ctx.reply)
+      .mock.calls.map(([text]) => String(text))
+      .some((text) => text.includes(String(TRIAL_EXTENSION_WORDS)));
+    expect(announced).toBe(false);
+  });
+
+  it("hands no trial to an internal role, which already bypasses every plan", async () => {
+    const h = createHarness({ languageCode: "ru" });
+    h.store.user.audienceGroup = "tester";
+    await reachDemoScreen(h);
+    h.onboardingDemoCardRepository.findOne.mockResolvedValue(CACHED_CARD);
+
+    await h.tap("onb:hook:de:0");
+
+    expect(h.store.subscriptions).toHaveLength(0);
+    expect(h.userRepository.markOnboarded).toHaveBeenCalledWith(1);
+  });
+
+  it("completes onboarding even when the trial cannot be granted", async () => {
+    const h = createHarness({ languageCode: "ru" });
+    h.subscriptionRepository.create.mockRejectedValue(new Error("subscriptions table is on fire"));
+    await reachDemoScreen(h);
+    h.onboardingDemoCardRepository.findOne.mockResolvedValue(CACHED_CARD);
+
+    await h.tap("onb:hook:de:0");
+
+    expect(h.userRepository.markOnboarded).toHaveBeenCalledWith(1);
   });
 });

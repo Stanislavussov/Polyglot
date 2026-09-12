@@ -19,10 +19,8 @@ export interface BotCommand {
  * matches the emoji the feature already uses in-bot (📖 dictionary, ⚙️ settings, 🐛 report…).
  */
 const COMMAND_ICONS = {
-  start: "🚀",
-  menu: "☰",
-  dictionary: "📖",
   learn: "🎓",
+  dictionary: "📖",
   settings: "⚙️",
   report: "🐛",
 } as const;
@@ -31,20 +29,29 @@ const COMMAND_ICONS = {
  * Returns the bot commands with descriptions localized to the given language,
  * each prefixed with its icon from {@link COMMAND_ICONS}.
  *
- * `/menu` plus the categories it holds. The reply keyboard (`utils/main-menu.ts`) carries
- * only the three hot buttons, so this list is where the rest stays reachable by name.
+ * Ordered by how often a learner needs the entry: the two things they came for, then the
+ * configuration tail. Descriptions are one label, not a sentence — Telegram renders the
+ * whole list at once, so a line that enumerates what sits behind the command turns the
+ * menu into a wall of text.
  *
- * The commands that used to be listed here — `/translate`, `/pick`, `/flashcard`,
- * `/videos`, `/template`, `/review`, `/mentor`, `/changes` — are still registered in
- * `bot-factory.ts`. Only their advertisement is gone: typing one still works, and so
- * does tapping one in old chat history, which is why they were not deleted outright.
+ * `/menu` is deliberately absent, and this list is why: the hub behind it holds the
+ * dictionary, the learning modes, the settings and the bug report, which are the four
+ * entries already here. A menu command inside the menu is one tap to reach the list the
+ * user is already looking at.
+ *
+ * `/start` is absent for a different reason: Telegram offers its own START button on an
+ * empty chat, and for everyone past onboarding the entry is only a way to lose their
+ * setup by accident.
+ *
+ * All of them — plus `/translate`, `/pick`, `/flashcard`, `/videos`, `/template`,
+ * `/review`, `/mentor`, `/changes` — stay registered in `bot-factory.ts`: only their
+ * advertisement is gone, so typing one still works, and so does tapping one in old
+ * chat history.
  */
 export function getLocalizedCommands(lang: SupportedLang): BotCommand[] {
   return [
-    { command: "start", description: `${COMMAND_ICONS.start} ${t("cmdDescStart", lang)}` },
-    { command: "menu", description: `${COMMAND_ICONS.menu} ${t("cmdDescMenu", lang)}` },
-    { command: "dictionary", description: `${COMMAND_ICONS.dictionary} ${t("cmdDescDictionary", lang)}` },
     { command: "learn", description: `${COMMAND_ICONS.learn} ${t("cmdDescLearn", lang)}` },
+    { command: "dictionary", description: `${COMMAND_ICONS.dictionary} ${t("cmdDescDictionary", lang)}` },
     { command: "settings", description: `${COMMAND_ICONS.settings} ${t("cmdDescSettings", lang)}` },
     { command: "report", description: `${COMMAND_ICONS.report} ${t("cmdDescReport", lang)}` },
   ];

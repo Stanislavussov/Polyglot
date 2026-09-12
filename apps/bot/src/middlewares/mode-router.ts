@@ -11,6 +11,7 @@ import { isSupported, logEvent, type SupportedLang, t } from "@polyglot/core";
 import type { NextFunction } from "grammy";
 import { markHandled } from "../observability/handler-log.js";
 import { dispatchByActiveMode } from "../scenes/helpers/active-mode-dispatch.js";
+import { tryHandleCardMentorQuestion } from "../scenes/helpers/card-mentor.js";
 import { handleTranslationClarificationContextText } from "../scenes/helpers/clarification.js";
 import { handleDictionaryNameInput } from "../scenes/helpers/dictionary.helper.js";
 import { tryHandleMentorReply } from "../scenes/helpers/mentor-thread.helper.js";
@@ -112,6 +113,13 @@ export async function modeRouterMiddleware(ctx: BotContext, next: NextFunction):
     return;
   }
 
+  // The card's "what would you like to clarify?" prompt claims the next message
+  // as its question, and answering it is what moves the user into mentor mode.
+  if (await tryHandleCardMentorQuestion(ctx, text)) {
+    markHandled(ctx, "modeRouter:cardMentorQuestion");
+    return;
+  }
+
   // Reply to a mentor answer → continue that thread, regardless of active mode.
   // After the wizard interceptors (one-shot prompts sent moments earlier win),
   // before URL detection (an explicit reply names its target).
@@ -154,6 +162,5 @@ export async function modeRouterMiddleware(ctx: BotContext, next: NextFunction):
     return;
   }
 
-  markHandled(ctx, isKnownMode ? `modeRouter:${mode}` : "modeRouter:idleFallback");
   await dispatchByActiveMode(ctx, text);
 }

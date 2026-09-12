@@ -72,7 +72,31 @@
         key: "{{ lookup('env', 'DEPLOY_USER_SSH_KEY') }}"
       when: lookup('env', 'DEPLOY_USER_SSH_KEY') | length > 0
 
-    - name: SSH hardening
+    # sshd takes the FIRST value it sees, and /etc/ssh/sshd_config.d/*.conf is
+    # Include'd before the main file's own directives — so the provider's
+    # 50-cloud-init.conf (PasswordAuthentication yes) silently overrode the
+    # lineinfile edits below for months (discovered restoring the reinstalled
+    # prod host, Task 82). Win the ordering race with a 00- drop-in instead.
+    # PermitRootLogin is deliberately NOT forced to "no": this playbook and
+    # local tooling connect as root; locking root out must wait until
+    # provisioning connects as the deploy user (tracked in Task 82).
+    - name: SSH hardening drop-in (must sort before 50-cloud-init.conf)
+      ansible.builtin.copy:
+        dest: /etc/ssh/sshd_config.d/00-polyglot-hardening.conf
+        mode: '0644'
+        content: |
+          PasswordAuthentication no
+          KbdInteractiveAuthentication no
+          PermitEmptyPasswords no
+          MaxAuthTries 3
+      notify: Restart ssh
+
+    - name: Remove superseded ad-hoc hardening drop-in
+      ansible.builtin.file:
+        path: /etc/ssh/sshd_config.d/99-polyglot-hardening.conf
+        state: absent
+
+    - name: SSH hardening (main config, kept for defense in depth)
       ansible.builtin.lineinfile:
         path: /etc/ssh/sshd_config
         regexp: "{{ item.key }}"
@@ -80,7 +104,6 @@
         create: true
         mode: '0644'
       loop:
-        - { key: 'PermitRootLogin', value: 'no' }
         - { key: 'PasswordAuthentication', value: 'no' }
         - { key: 'PermitEmptyPasswords', value: 'no' }
         - { key: 'MaxAuthTries', value: '3' }
@@ -112,14 +135,24 @@
         enabled: true
         state: started
 
+    # apt-key is gone from Ubuntu >= 26.04, so use the keyring + signed-by
+    # layout instead of ansible.builtin.apt_key (discovered restoring the
+    # reinstalled prod host, Task 82).
+    - name: Ensure apt keyring directory exists
+      ansible.builtin.file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+
     - name: Add Docker GPG key
-      ansible.builtin.apt_key:
+      ansible.builtin.get_url:
         url: https://download.docker.com/linux/ubuntu/gpg
-        state: present
+        dest: /etc/apt/keyrings/docker.asc
+        mode: '0644'
 
     - name: Add Docker repository
       ansible.builtin.apt_repository:
-        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+        repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
 
     - name: Install Docker
       ansible.builtin.apt:

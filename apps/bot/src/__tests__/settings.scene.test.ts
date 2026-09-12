@@ -28,7 +28,9 @@ const { mockLogger, mockUserRepository, mockLanguageCache, mockTranslationReques
     mockLogger: { debug: vi.fn(), error: vi.fn(), info: vi.fn(), warn: vi.fn() },
     mockUserRepository: mockUR,
     mockLanguageCache: mockLC,
-    mockTranslationRequestRepository: { getUserCreditsInWindow: vi.fn().mockResolvedValue(10) },
+    mockTranslationRequestRepository: {
+      getUserCreditsInWindow: vi.fn().mockResolvedValue(10),
+    },
   };
 });
 
@@ -66,7 +68,7 @@ import {
   handleSetNativeSelectCallback,
   handleSetRootCallback,
 } from "../scenes/helpers/settings.helper.js";
-import { handleSettingsCommand } from "../scenes/settings.scene.js";
+import { formatNotificationTimes, handleSettingsCommand } from "../scenes/settings.scene.js";
 
 /** Default settings for tests */
 const DEFAULT_SETTINGS = {
@@ -207,7 +209,7 @@ describe("handleSetNativeSelectCallback", () => {
         text: expect.stringContaining("🇩🇪 Deutsch"),
       }),
     );
-    expect(ctx.editMessageText.mock.calls[0][0]).toContain("🌐 Languages");
+    expect(ctx.editMessageText.mock.calls[0][0]).toContain("Languages");
   });
 });
 
@@ -376,7 +378,7 @@ describe("language sub-menu", () => {
     await handleSetBackCallback(ctx);
 
     const text = ctx.editMessageText.mock.calls[0][0] as string;
-    expect(text).toContain("🌐 Languages");
+    expect(text).toContain("Languages");
     expect(text).not.toContain("⚙️ Settings");
     expect(ctx.answerCallbackQuery).toHaveBeenCalled();
   });
@@ -412,5 +414,20 @@ describe("handleSetCloseCallback", () => {
       reply_markup: { inline_keyboard: [] },
     });
     expect(ctx.answerCallbackQuery).toHaveBeenCalled();
+  });
+});
+
+describe("formatNotificationTimes", () => {
+  it("renders the product default for a user who has never picked a time", async () => {
+    // Notifications ship switched on and an empty schedule resolves to the
+    // product default at send time. A dash here would tell the user nothing is
+    // scheduled while the cards keep arriving — both sides must resolve alike.
+    const { DEFAULT_NOTIFICATION_TIME } = await import("@polyglot/core");
+
+    expect(formatNotificationTimes([])).toBe(DEFAULT_NOTIFICATION_TIME);
+  });
+
+  it("lists the user's own slots in chronological order once they pick", () => {
+    expect(formatNotificationTimes(["20:00", "08:30"])).toBe("08:30, 20:00");
   });
 });

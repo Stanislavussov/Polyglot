@@ -18,12 +18,18 @@ export interface PlanCatalogEntry {
   features: FeatureKey[];
 }
 
-// Task 79 tier matrix — the shape a fresh database starts with. Free is
-// translation-only; Plus adds the clarify/other-meaning pair, unmetered
-// translation and monthly video; Pro is the only plan with word audio (TTS),
-// the most expensive thing on a card. Plus is unmetered on purpose: the tier is
-// priced on the assumption that a typical subscriber never approaches a cap, so
-// the heavy user is covered by the many who are not.
+// Task 79 tier matrix — the shape a fresh database starts with. Plus adds the
+// clarify/other-meaning pair, unmetered translation and monthly video; Pro is
+// the only plan with word audio (TTS), the most expensive thing on a card. Plus
+// is unmetered on purpose: the tier is priced on the assumption that a typical
+// subscriber never approaches a cap, so the heavy user is covered by the many
+// who are not.
+//
+// Free's allowance is what the reverse trial expires onto (Task 84), so it is
+// sized to be a smaller version of the product rather than a wall: 30
+// translations a month, not 10. It holds no card feature — for one week it held
+// the grammar breakdown, and then that button left the card altogether (the
+// mentor answers grammar now), so the tier is back to translation alone.
 const GRAMMAR_FEATURES: FeatureKey[] = ["grammarBreakdown", "etymology", "grammarDetail"];
 const PLUS_FEATURES: FeatureKey[] = [...GRAMMAR_FEATURES, "clarification", "mentor"];
 const PRO_FEATURES: FeatureKey[] = [...PLUS_FEATURES, "pronunciation", "voiceInput"];
@@ -32,7 +38,7 @@ export const DEFAULT_PLAN_CATALOG: PlanCatalogEntry[] = [
   {
     name: "free",
     label: "Free",
-    translationLimit: 10,
+    translationLimit: 30,
     creditCost: 1,
     videoLimit: 0,
     videoWindow: "none",

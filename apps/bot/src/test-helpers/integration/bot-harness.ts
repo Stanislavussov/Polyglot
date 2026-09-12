@@ -465,6 +465,23 @@ export function lastRenderedCard(sent: CapturedCall[]): { messageId: number; but
   return { messageId, buttons };
 }
 
+/**
+ * Tap `⋯ More` on a rendered card and return the action list it reveals.
+ *
+ * A fresh card carries only `⋯ More` and Save, so any assertion about a card's
+ * actions has to open the list first — exactly as a user does. Resets the capture
+ * buffer, so what comes back is only this tap's markup.
+ */
+export async function openCardActions(
+  harness: BotHarness,
+  opts: { chatId: number; messageId: number },
+): Promise<string[]> {
+  const { chatId, messageId } = opts;
+  harness.reset();
+  await harness.dispatch(callbackQueryUpdate({ chatId, fromId: chatId, messageId, data: `tr:more:${messageId}` }));
+  return lastRenderedCard(harness.sent).buttons;
+}
+
 /** Build a callback-query update on an inline button of a prior bot message. */
 export function callbackQueryUpdate(opts: {
   chatId: number;

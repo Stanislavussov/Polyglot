@@ -510,10 +510,8 @@ export async function handleDictTranslate(ctx: BotContext): Promise<void> {
   try {
     const modelId = await resolveDefaultAIModel(ctx.services.settings, ctx.user.subscriptionPlan);
 
-    // Load user's translation template for output config
-    // Use "phrase" context to ensure grammar breakdown is included (if enabled in template)
     const userTpl = await ctx.services.translationTemplateRepository.getByUserId(userId);
-    const outputConfig = resolveOutputConfig(userTpl, "phrase");
+    const outputConfig = resolveOutputConfig(userTpl, "word");
 
     const decision = await withTimeout(
       translate(

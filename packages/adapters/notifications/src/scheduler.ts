@@ -294,18 +294,80 @@ async function runNotificationBatch(sendFn: SendFn, deps: SchedulerDeps): Promis
 }
 
 /**
- * Process inactive users: send re-engagement message and disable notifications.
+ * How far back the lapse de-dup looks.
+ *
+ * The daily lane's 24-hour window is meaningless at a five-day cadence — every
+ * previous card has aged out of it by the time the next one is due, so the
+ * preset picker (which takes the FIRST unseen candidate, not a random one) would
+ * hand the same headword to the same user forever. A year spans at least two
+ * full passes through the thirty curated words of a single learning language,
+ * while still bounding the query.
  */
-export async function processInactiveUsers(
+const LAPSE_DEDUP_WINDOW_MS = 365 * 24 * 60 * 60 * 1000;
+
+/**
+ * Pick the word a lapsed subscriber gets: their own vocabulary first, the
+ * curated presets when it has nothing left.
+ *
+ * Deliberately NOT `pickWordForUser`: that one honours `notificationType`, and
+ * the `contextual` branch bills an AI generation per card. Spending that every
+ * five days, indefinitely, on someone who may never return is not worth it —
+ * the preset layer is served from the reviewed demo-card cache and costs
+ * nothing. What a lapsed user needs is an interesting word, not their configured
+ * flavour of one.
+ *
+ * The second attempt is the cycle restart. Once a year's worth of history covers
+ * every curated candidate the picker returns null, and a user who has been away
+ * that long would go silent at exactly the wrong moment; retrying with only the
+ * previous card excluded starts the set over without ever repeating twice
+ * running.
+ */
+async function pickLapsedWord(
+  user: NotificationUser,
+  deps: SchedulerDeps,
+  seenWords: string[],
+  lastSent: string | null,
+): Promise<SuggestedWord | null> {
+  const presetUser = { userId: user.userId, nativeLang: user.nativeLang, learningLangs: user.learningLangs };
+
+  const fromDictionary = await deps.pickDictionaryWord(user.userId, seenWords);
+  if (fromDictionary) return fromDictionary;
+
+  const fromPresets = await deps.pickPresetWord(presetUser, seenWords);
+  if (fromPresets) return fromPresets;
+
+  logEvent("notification.lapse.cycle_restart", { seenWordCount: seenWords.length });
+  return deps.pickPresetWord(presetUser, lastSent ? [lastSent] : []);
+}
+
+/**
+ * Re-engagement sweep for lapsed users.
+ *
+ * A lapse changes what the bot sends, not whether it sends. Past the inactivity
+ * threshold the per-slot cards stop and the user drops to one word per
+ * re-engagement interval — a real card, not a text nudge, because a
+ * curated word is the thing they subscribed to and the thing most likely to be
+ * worth opening. It continues for as long as they stay away.
+ *
+ * Two designs were tried and discarded here, both worth not re-inventing. The
+ * sweep first answered inactivity by switching `notification_enabled` off — but
+ * that flag is a predicate of its own candidate query, so re-engagement fired
+ * once per account and then selected nobody, forever. It then sent four plain-text
+ * nudges and went quiet, which reached the people with an empty dictionary with
+ * nothing but nagging, when the curated preset set exists precisely for them.
+ */
+export async function processLapsedUsers(
+  sendFn: SendFn,
   reEngagementSendFn: ReEngagementSendFn,
   deps: SchedulerDeps,
 ): Promise<{ processed: number; errors: number }> {
   return runWithTrace({ traceId: newTraceId(), source: "cron", jobName: "re_engagement" }, () =>
-    runInactiveUserSweep(reEngagementSendFn, deps),
+    runLapsedUserSweep(sendFn, reEngagementSendFn, deps),
   );
 }
 
-async function runInactiveUserSweep(
+async function runLapsedUserSweep(
+  sendFn: SendFn,
   reEngagementSendFn: ReEngagementSendFn,
   deps: SchedulerDeps,
 ): Promise<{ processed: number; errors: number }> {
@@ -314,21 +376,21 @@ async function runInactiveUserSweep(
   let processed = 0;
   let errors = 0;
 
-  let inactiveUsers: NotificationUser[];
+  let lapsedUsers: NotificationUser[];
   try {
-    inactiveUsers = await deps.getInactiveUsers();
+    lapsedUsers = await deps.getUsersForReEngagement();
   } catch (err) {
-    logger.error({ err }, "Failed to query inactive users");
+    logger.error({ err }, "Failed to query lapsed users for re-engagement");
     return { processed: 0, errors: 1 };
   }
 
-  if (inactiveUsers.length === 0) {
+  if (lapsedUsers.length === 0) {
     return { processed: 0, errors: 0 };
   }
 
-  logger.info({ count: inactiveUsers.length }, "Processing inactive users for re-engagement");
+  logger.info({ count: lapsedUsers.length }, "Processing lapsed users for re-engagement");
 
-  for (const user of inactiveUsers) {
+  for (const user of lapsedUsers) {
     const ok = await runWithTrace(
       {
         traceId: newTraceId(),
@@ -338,14 +400,52 @@ async function runInactiveUserSweep(
         ...(batchTraceId !== undefined && { parentTraceId: batchTraceId }),
       },
       async (): Promise<boolean> => {
+        const cardNumber = user.reengagementCount + 1;
         try {
-          const message = deps.t("notifPaused", user.interfaceLang);
-          await reEngagementSendFn(user.userId, message);
-          await deps.disableNotifications(user.userId);
-          logger.info({ userId: user.userId }, "Sent re-engagement message and disabled notifications");
+          const since = new Date(Date.now() - LAPSE_DEDUP_WINDOW_MS);
+          const seenWords = await deps.getSentWordsSince(user.userId, since).catch(() => []);
+          const lastSent = await deps.getLastSentWord(user.userId).catch(() => null);
+          const word = await pickLapsedWord(user, deps, seenWords, lastSent);
+
+          if (word) {
+            await sendWithRetry(sendFn, user.userId, buildNotificationPayload(user, word), deps.isUserBlocked);
+            await deps
+              .recordSentWord(user.userId, word.original, word.source ?? "preset")
+              .catch((err: unknown) =>
+                logger.warn({ err, userId: user.userId }, "Failed to record re-engagement word"),
+              );
+            logNotificationSent({ userId: user.userId, type: word.source ?? "preset" });
+          } else {
+            // Every source came up empty — the user studies only languages with
+            // no curated set. A plain invitation still beats silence.
+            logEvent("notification.lapse.no_word", {}, "warn");
+            await reEngagementSendFn(user.userId, deps.t("notifReEngagement", user.interfaceLang));
+          }
+
+          await deps.recordReEngagement(user.userId);
+          logger.info(
+            { userId: user.userId, cardNumber, word: word?.original ?? null, source: word?.source ?? null },
+            "Sent re-engagement card",
+          );
           return true;
         } catch (err) {
-          logger.error({ err, userId: user.userId }, "Failed to process inactive user — continuing");
+          // A blocked bot is permanent, and a lapsed user is exactly who is most
+          // likely to have blocked it. Without this the cadence has no end
+          // condition at all, so a blocked chat would be retried every five days
+          // for as long as the row exists.
+          if (deps.isUserBlocked?.(err)) {
+            logger.warn({ userId: user.userId }, "Lapsed user blocked the bot — disabling notifications");
+            try {
+              await deps.disableNotifications(user.userId);
+            } catch (disableErr) {
+              logger.error(
+                { err: disableErr, userId: user.userId },
+                "Failed to disable notifications for blocked user",
+              );
+            }
+          } else {
+            logger.error({ err, userId: user.userId, cardNumber }, "Failed to send re-engagement card — continuing");
+          }
           return false;
         }
       },
@@ -365,7 +465,8 @@ async function runInactiveUserSweep(
  * 2. Picks a word (SRS/suggested) based on user preference
  * 3. Sends the notification via sendFn
  *
- * Also checks for inactive users once daily at midnight UTC.
+ * Also sends lapsed subscribers their re-engagement card, checked once daily at
+ * midnight UTC and paced by the lapse policy.
  *
  * @param sendFn — injected send function (from bot)
  * @param reEngagementSendFn — send function for plain text re-engagement messages
@@ -386,9 +487,9 @@ export function startScheduler(sendFn: SendFn, reEngagementSendFn: ReEngagementS
     try {
       await checkAndSend(sendFn, deps);
 
-      // Process inactive users once daily at midnight UTC
+      // Re-engage lapsed users once daily at midnight UTC
       if (now.hour === 0 && now.minute === 0) {
-        await processInactiveUsers(reEngagementSendFn, deps);
+        await processLapsedUsers(sendFn, reEngagementSendFn, deps);
 
         // Sweep expired subscriptions (renew or downgrade) in the same daily tick.
         if (deps.processSubscriptionRenewals) {

@@ -32,7 +32,22 @@ export type WordSource = NotificationType | "preset";
 /** A word suggested in a notification, with translations per language. */
 export interface SuggestedWord {
   original: string;
+  /**
+   * Citation form to display when the stored card has one (German "die Arbeit"
+   * for the input "arbeit"). `original` stays the raw word the entry is keyed by;
+   * without this the nudge said "arbeit" and the card behind its Reveal button
+   * said "die Arbeit" — one message, two names for the same word.
+   */
+  headword?: string;
   emoji: string;
+  /**
+   * ISO 639-1 code of the language the word itself is in — the flag beside the
+   * headword. Absent only when the source language cannot be resolved, which the
+   * card renders as `🔤` rather than by dropping the flag: the compact card and
+   * the card behind its Reveal button are the same message, so their headwords
+   * must not differ.
+   */
+  sourceLang?: string;
   nativeMeaning?: string;
   translations: Record<string, string>; // lang code -> translation text
   /** Per-translation context (synonyms) for richer notification rendering. */
@@ -59,6 +74,10 @@ export interface VocabEntry {
   id: number;
   original: string;
   emoji: string | null;
+  /** Language of `original`, resolved to a code by the caller's `getLangCode`. */
+  sourceLangId?: number;
+  /** Stored citation form of `original`, when the card saved one. */
+  headword?: string | null;
   nativeMeaning?: string | null;
   createdAt: Date;
   /**
@@ -187,10 +206,17 @@ export interface SchedulerDeps {
   /** Get users eligible for notification at the given UTC hour/minute. */
   getUsersForWindow: (hour: number, minute?: number) => Promise<NotificationUser[]>;
 
-  /** Get users with notifications enabled but inactive for > INACTIVITY_DAYS. */
-  getInactiveUsers: () => Promise<NotificationUser[]>;
+  /** Lapsed subscribers whose next re-engagement ping is due. */
+  getUsersForReEngagement: () => Promise<NotificationUser[]>;
 
-  /** Disable notifications for a user (e.g., due to inactivity). */
+  /** Stamp a re-engagement ping so the cap and the spacing interval both advance. */
+  recordReEngagement: (userId: number) => Promise<void>;
+
+  /**
+   * Unsubscribe a user. Reserved for a permanent delivery failure — the user
+   * blocked the bot — and deliberately NOT used for inactivity: going quiet is a
+   * lapse episode, not an unsubscribe.
+   */
   disableNotifications: (userId: number) => Promise<void>;
 
   /** Get words sent to a user since the given instant (rolling de-dup window). */

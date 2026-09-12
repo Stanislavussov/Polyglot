@@ -69,6 +69,9 @@ its layer: no cross-boundary changes.
 - Sole source of truth for persisted domain constants (e.g. `MAX_LEARNING_LANGS`,
   `DEFAULT_DICTIONARY_NAME`, `DEFAULT_NOTIFICATION_TYPE`, `AUDIENCE_GROUPS`). Never hardcode
   languages, modes, or persisted enums elsewhere — import the constant or read the cache.
+- Telemetry tables are pruned by `runTelemetryRetention`; a new append-only log table joins
+  that sweep in the same change that creates it. `product_events` runs on its own shorter
+  horizon (`PRODUCT_EVENT_RETENTION_DAYS`), and `user_momentum` is deliberately never pruned.
 
 ### Notifications adapter — `packages/adapters/notifications`
 

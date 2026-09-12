@@ -151,6 +151,8 @@ function createCallbackContext(data: string) {
     notificationType: "srs",
     notificationContext: null,
     lastInteractionAt: null,
+    lastReengagementAt: null,
+    reengagementCount: 0,
     isActive: true,
     updatedAt: new Date(),
   });

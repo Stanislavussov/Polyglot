@@ -2,18 +2,21 @@ import {
   DEFAULT_NOTIFICATION_TIME,
   formatNotificationTime,
   getLogger,
+  INACTIVITY_DAYS,
   NOTIFICATION_TYPES,
   type NotificationType,
   type NotificationUser,
   parseNotificationMinutes,
+  REENGAGEMENT_INTERVAL_DAYS,
 } from "@polyglot/core";
-import { and, desc, eq, gte, isNotNull, isNull, lt, or } from "drizzle-orm";
+import { and, desc, eq, gte, isNotNull, isNull, lt, or, sql } from "drizzle-orm";
 import { getDb } from "../connection.js";
 import { notificationHistory, userLanguageSettings } from "../schema.js";
 
 // Re-exported so existing adapter-db consumers (e.g. admin) are unaffected —
 // these are pure notification-time helpers, now defined once in @polyglot/core
 // alongside their NotificationType twin (Fable T22/B7).
+// The lapse-policy numbers are not re-exported: import them from `@polyglot/core`.
 export { DEFAULT_NOTIFICATION_TIME, formatNotificationTime, NOTIFICATION_TYPES, parseNotificationMinutes };
 
 /* ------------------------------------------------------------------ */
@@ -22,8 +25,18 @@ export { DEFAULT_NOTIFICATION_TIME, formatNotificationTime, NOTIFICATION_TYPES, 
 
 /** Default notification type (schema default) */
 export const DEFAULT_NOTIFICATION_TYPE = "srs" as const;
-/** Days of inactivity before pausing notifications */
-export const INACTIVITY_DAYS = 14;
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * How stale the last ping must be before the next one is due.
+ *
+ * Pings are spaced {@link REENGAGEMENT_INTERVAL_DAYS} apart, but the sweep only
+ * runs once daily at 00:00 UTC. A strict compare against a stamp written moments
+ * after the previous tick therefore misses by seconds and pushes every ping a
+ * whole day late; the hour of slack absorbs that drift and is far too small to
+ * let two pings land in one day.
+ */
+const REENGAGEMENT_INTERVAL_MS = REENGAGEMENT_INTERVAL_DAYS * DAY_MS - 60 * 60 * 1000;
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
@@ -68,6 +81,7 @@ const notificationUserSelect = {
   notificationTimes: userLanguageSettings.notificationTimes,
   notificationType: userLanguageSettings.notificationType,
   notificationContext: userLanguageSettings.notificationContext,
+  reengagementCount: userLanguageSettings.reengagementCount,
 } as const;
 
 /* ------------------------------------------------------------------ */
@@ -77,8 +91,7 @@ const notificationUserSelect = {
 export const notificationRepository = {
   async getUsersForWindow(utcHour: number, utcMinute = 0): Promise<NotificationUser[]> {
     const db = getDb();
-    const cutoff = new Date();
-    cutoff.setDate(cutoff.getDate() - INACTIVITY_DAYS);
+    const cutoff = new Date(Date.now() - INACTIVITY_DAYS * DAY_MS);
 
     const rows = await db
       .select(notificationUserSelect)
@@ -98,10 +111,13 @@ export const notificationRepository = {
         droppedByTimezone++;
         return false;
       }
-      // Eligible if ANY configured slot falls in the current window. Empty list = not configured.
-      return user.notificationTimes.some((time) =>
-        isWithinCurrentNotificationSlot(localMinutes, parseNotificationMinutes(time)),
-      );
+      // Eligible if ANY slot falls in the current window. An empty list means the
+      // user has never picked a time, not that they want silence — since
+      // notifications ship switched on, treating empty as "never send" would make
+      // the default inert for everyone who has not opened Settings, which is
+      // almost everyone.
+      const slots = user.notificationTimes.length > 0 ? user.notificationTimes : [DEFAULT_NOTIFICATION_TIME];
+      return slots.some((time) => isWithinCurrentNotificationSlot(localMinutes, parseNotificationMinutes(time)));
     });
 
     // An unparseable timezone excludes a subscriber from every window forever,
@@ -118,14 +134,23 @@ export const notificationRepository = {
   },
 
   /**
-   * Get users with notifications enabled but inactive for more than INACTIVITY_DAYS.
-   * Used for re-engagement flow (Task 41.7).
-   * Users with NULL last_interaction_at are NOT considered inactive.
+   * Lapsed subscribers whose next re-engagement card is due.
+   *
+   * Lapsing deliberately does NOT unsubscribe anyone: the sweep used to flip
+   * `notification_enabled` off, which also dropped the user out of this very
+   * query, so re-engagement fired exactly once per account and a returning user
+   * stayed silent forever. Users with a NULL `last_interaction_at` have never
+   * been seen and are not lapsed — they keep receiving ordinary cards.
+   *
+   * There is no ping cap: a lapsed subscriber keeps getting one curated word
+   * every {@link REENGAGEMENT_INTERVAL_DAYS} until they come back, switch
+   * notifications off, or block the bot.
    */
-  async getInactiveUsers(): Promise<NotificationUser[]> {
+  async getUsersForReEngagement(): Promise<NotificationUser[]> {
     const db = getDb();
-    const cutoff = new Date();
-    cutoff.setDate(cutoff.getDate() - INACTIVITY_DAYS);
+    const now = Date.now();
+    const lapsedBefore = new Date(now - INACTIVITY_DAYS * DAY_MS);
+    const pingedBefore = new Date(now - REENGAGEMENT_INTERVAL_MS);
 
     return db
       .select(notificationUserSelect)
@@ -135,9 +160,34 @@ export const notificationRepository = {
           eq(userLanguageSettings.notificationEnabled, true),
           eq(userLanguageSettings.isActive, true),
           isNotNull(userLanguageSettings.lastInteractionAt),
-          lt(userLanguageSettings.lastInteractionAt, cutoff),
+          lt(userLanguageSettings.lastInteractionAt, lapsedBefore),
+          or(
+            isNull(userLanguageSettings.lastReengagementAt),
+            lt(userLanguageSettings.lastReengagementAt, pingedBefore),
+          ),
         ),
       );
+  },
+
+  /**
+   * Stamp a re-engagement card: the timestamp paces the next one, and the counter
+   * is how anyone can later answer "how many nudges does it take" — it is read
+   * back into every sweep's log line, and it is the only record of how deep into
+   * an episode a user is, since nothing else survives their return.
+   *
+   * Incremented in SQL rather than from the value the sweep read, so a card
+   * recorded by a concurrent tick is never silently overwritten back down.
+   */
+  async recordReEngagement(userId: number): Promise<void> {
+    const db = getDb();
+    await db
+      .update(userLanguageSettings)
+      .set({
+        lastReengagementAt: new Date(),
+        reengagementCount: sql`${userLanguageSettings.reengagementCount} + 1`,
+        updatedAt: new Date(),
+      })
+      .where(eq(userLanguageSettings.userId, userId));
   },
 
   /**
@@ -201,5 +251,15 @@ export const notificationRepository = {
       .from(notificationHistory)
       .where(and(eq(notificationHistory.userId, userId), gte(notificationHistory.sentAt, since)));
     return rows.map((r) => r.original);
+  },
+
+  async hasSentFromSource(userId: number, source: string): Promise<boolean> {
+    const db = getDb();
+    const rows = await db
+      .select({ id: notificationHistory.id })
+      .from(notificationHistory)
+      .where(and(eq(notificationHistory.userId, userId), eq(notificationHistory.source, source)))
+      .limit(1);
+    return rows.length > 0;
   },
 };
