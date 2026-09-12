@@ -136,22 +136,6 @@ async function resolveQuotaWindowStart(ctx: BotContext): Promise<Date> {
   return resolveMeteredWindowStart(getMonthlyWindowStart(), trial?.currentPeriodEnd);
 }
 
-/** Check if any LanguageTranslation has grammarBreakdown data */
-function hasGrammarBreakdownData(output: TranslateOutput): boolean {
-  return Object.values(output.translations).some((tr) => tr.grammarBreakdown && tr.grammarBreakdown.length > 0);
-}
-
-/** Collect grammarBreakdown from LanguageTranslation blocks into a flat record */
-function collectGrammarBreakdown(output: TranslateOutput): Record<string, string[]> {
-  const result: Record<string, string[]> = {};
-  for (const [code, tr] of Object.entries(output.translations)) {
-    if (tr.grammarBreakdown && tr.grammarBreakdown.length > 0) {
-      result[code] = tr.grammarBreakdown;
-    }
-  }
-  return result;
-}
-
 /**
  * Task 70 cross-language guard. A `needs_clarification` of reason
  * `unrecognized_word` carries the AI's spelling correction; when that correction
@@ -695,7 +679,6 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
     detectionConfidence: detection.confidence,
     detectedLang,
     sourceLanguageDoubtful,
-    withInlineGrammar: true,
     timing: { preflightMs, totalStart, detectionMs },
   });
 }
@@ -729,8 +712,7 @@ async function resolveSavedWordId(ctx: BotContext, output: TranslateOutput): Pro
  * Renders a completed translation into a card, attaches the inline keyboard, and
  * stores the per-message translation entry. Shared by the main translate flow
  * and the mistype-confirm flow (T22/B2) — the two differ only in the optional
- * detected-language banner and whether inline grammar is offered, both passed in
- * so behavior is unchanged for each caller.
+ * detected-language banner, passed in so behavior is unchanged for each caller.
  */
 async function sendTranslationCard(
   ctx: BotContext,
@@ -751,8 +733,6 @@ async function sendTranslationCard(
     detectedLang?: string;
     /** Main flow only: when true, append the doubtful-source "translate from" override menu. */
     sourceLanguageDoubtful?: boolean;
-    /** Main flow offers inline grammar for phrases; the mistype flow never does. */
-    withInlineGrammar: boolean;
   },
 ): Promise<void> {
   const { output, lang, nativeLang, needsReview, isSentence, inputType, effectiveTemplate, savedWordId } = opts;
@@ -785,12 +765,6 @@ async function sendTranslationCard(
   // Only after the send resolved: a failed delivery must not burn the one-shot.
   if (recovery) await commitRecovery(ctx, recovery.gapDays, now);
 
-  const hasInlineGrammar =
-    opts.withInlineGrammar &&
-    inputType === "phrase" &&
-    effectiveTemplate.fields.grammarBreakdown &&
-    hasGrammarBreakdownData(output);
-
   // Doubtful-source override: offer the user's other languages (native + learning,
   // minus the guessed source) as forced-source retranslation choices. Only when the
   // detector fell back to a guess — rare by construction.
@@ -816,12 +790,10 @@ async function sendTranslationCard(
   // then derived from that state — the same path every later rebuild takes. A
   // fresh card and a re-rendered one therefore cannot disagree about which
   // buttons the card has.
-  const inlineBreakdown = hasInlineGrammar ? collectGrammarBreakdown(output) : undefined;
   setTranslationEntry(ctx.session, cardMsg.message_id, {
     output,
     inputType,
     contextHint: opts.contextHint,
-    grammarBreakdown: inlineBreakdown,
     sourceOverrideLangs,
     savedWordId,
   });
@@ -871,8 +843,6 @@ async function runTranslationPipeline(
      * also prevents the override menu from looping.
      */
     sourceLanguageDoubtful?: boolean;
-    /** Main flow offers inline grammar for phrases; the mistype flow never does. */
-    withInlineGrammar: boolean;
     /** Main flow records request-timing telemetry; the mistype flow does not. */
     timing?: { preflightMs: number; totalStart: number; detectionMs: number };
   },
@@ -894,7 +864,6 @@ async function runTranslationPipeline(
     skipInputCorrection,
     detectedLang,
     sourceLanguageDoubtful,
-    withInlineGrammar,
     timing,
   } = params;
 
@@ -1099,7 +1068,6 @@ async function runTranslationPipeline(
       contextHint,
       detectedLang,
       sourceLanguageDoubtful,
-      withInlineGrammar,
     });
 
     observeTranslationPhase("post_ai", Date.now() - postAiStart);
@@ -1252,9 +1220,8 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
     learningLangs,
     contextHint: pendingContextHint,
     // The user already confirmed the language / chose a correction (or "translate
-    // as written") — never re-ask, and never offer inline grammar on this path.
+    // as written"), so this path must never re-ask.
     skipInputCorrection: true,
-    withInlineGrammar: false,
   });
 }
 

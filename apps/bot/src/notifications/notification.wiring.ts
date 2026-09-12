@@ -403,7 +403,8 @@ Return translations as JSON array.`;
     getUsersForWindow: (hour: number, minute = 0) => notificationRepository.getUsersForWindow(hour, minute),
     getLastSentWord: (userId: number) => notificationRepository.getLastSentWord(userId),
     pickPresetWord: (user, recentWords) => presetPicker(user, recentWords),
-    getInactiveUsers: () => notificationRepository.getInactiveUsers(),
+    getUsersForReEngagement: () => notificationRepository.getUsersForReEngagement(),
+    recordReEngagement: (userId: number) => notificationRepository.recordReEngagement(userId),
     disableNotifications: (userId: number) => notificationRepository.disableNotifications(userId),
     // Telegram 403 = the user blocked the bot: a permanent failure, so the
     // scheduler stops retrying and disables their notifications (T14). Shared

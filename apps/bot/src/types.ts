@@ -60,8 +60,6 @@ export interface SessionData {
       savedWordId?: number;
       /** Accumulated negative constraints for "Other meaning" button */
       previousTranslations?: Record<string, string[]>;
-      /** Cached on-demand grammar breakdown (langCode → items) */
-      grammarBreakdown?: Record<string, string[]>;
       /** Cached on-demand etymology prose for the original term */
       etymology?: string;
       /**

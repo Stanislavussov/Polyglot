@@ -911,7 +911,6 @@ describe("i18n — locale consistency", () => {
       "settingsNotifChooseTimes",
       "settingsNotifChooseType",
       "settingsNotifChooseTimezone",
-      "notifPaused",
       "notifReEngagement",
     ];
 
@@ -985,7 +984,6 @@ describe("i18n — notification keys (Task 41.6)", () => {
     "settingsNotifChooseTimes",
     "settingsNotifChooseType",
     "settingsNotifChooseTimezone",
-    "notifPaused",
     "notifReEngagement",
   ];
 

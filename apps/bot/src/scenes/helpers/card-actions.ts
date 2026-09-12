@@ -403,17 +403,8 @@ async function buildCardView(
 
   const order = await resolveLanguageOrder(ctx);
   const body = isSentence
-    ? `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(entry.output, order, lang, nativeLang, false, entry.grammarBreakdown)}`
-    : renderTranslation(
-        entry.output,
-        order,
-        lang,
-        effectiveTemplate.fields,
-        nativeLang,
-        false,
-        entry.grammarBreakdown,
-        entry.etymology,
-      );
+    ? `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(entry.output, order, lang, nativeLang, false)}`
+    : renderTranslation(entry.output, order, lang, effectiveTemplate.fields, nativeLang, false, entry.etymology);
 
   const keyboard = await buildCardKeyboard(ctx, entry, msgId, lang, nativeLang);
   const isSaved = entry.savedWordId !== undefined;

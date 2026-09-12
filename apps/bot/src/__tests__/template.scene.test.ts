@@ -123,7 +123,7 @@ describe("handleCustomizeCallback", () => {
     expect(ctx.session.templateWizard!.fields).toEqual(DEFAULT_TEMPLATE.fields);
   });
 
-  it("shows toggle keyboard with all 6 fields", async () => {
+  it("shows toggle keyboard with all 5 fields", async () => {
     vi.mocked(translationTemplateRepository.getByUserId).mockResolvedValue(null);
     const ctx = createMockCtx("tpl:customize");
 
@@ -132,8 +132,8 @@ describe("handleCustomizeCallback", () => {
     expect(ctx.editMessageText).toHaveBeenCalledTimes(1);
     const opts = ctx.editMessageText.mock.calls[0][1];
     const buttons = opts.reply_markup.inline_keyboard.flat();
-    // 6 field toggle buttons + 3 action buttons
-    expect(buttons.length).toBe(9);
+    // 5 field toggle buttons + 3 action buttons
+    expect(buttons.length).toBe(8);
   });
 });
 

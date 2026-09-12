@@ -61,7 +61,6 @@ export {
   DEFAULT_NOTIFICATION_TYPE,
   formatNotificationTime,
   getLocalMinutes,
-  INACTIVITY_DAYS,
   NOTIFICATION_TYPES,
   notificationRepository,
   parseNotificationMinutes,

@@ -25,7 +25,6 @@ const FIELD_I18N_MAP: Record<keyof TemplateFields, I18nKey> = {
   alternatives: "templateFieldAlternatives",
   equivalentNote: "templateFieldEquivalentNote",
   connotationWarning: "templateFieldConnotationWarning",
-  grammarBreakdown: "templateFieldGrammarBreakdown",
 };
 
 /** Resolve interface language from user settings */

@@ -173,16 +173,25 @@ export const userLanguageSettings = pgTable("user_language_settings", {
   /** Last explicitly selected source language code (nullable = auto-detect / never selected).
    *  Survives bot restarts; session is the primary source during a session. */
   lastSourceLang: text("last_source_lang"),
-  /** Whether daily word notifications are enabled */
-  notificationEnabled: boolean("notification_enabled").default(false).notNull(),
+  /**
+   * Whether daily word notifications are enabled.
+   *
+   * Defaults to **on**: the toggle lives three taps deep in Settings and
+   * onboarding never offers it, so an opt-in default meant almost nobody ever
+   * had notifications at all — six of the nine users on the production database
+   * had never received a single one. Leaving is one tap; discovering a feature
+   * you were never shown is not.
+   */
+  notificationEnabled: boolean("notification_enabled").default(true).notNull(),
   /**
    * Preferred notification times in user's local time ("HH:MM" each). Up to 12.
    *
-   * **Empty = not configured**, and the default is empty precisely so that state
-   * is representable. A non-empty default would make "never opened settings"
-   * indistinguishable from "deliberately picked this hour", which is what forces
-   * a guess later. The schedule is filled in when the user turns notifications
-   * on, from the admin-managed `notifications.defaultTime`.
+   * **Empty = the user has never picked a time**, not "do not send". The default
+   * is empty precisely so that state stays representable — a non-empty default
+   * would make "never opened settings" indistinguishable from "deliberately
+   * picked this hour". What empty resolves to at send time is the product
+   * default (`getUsersForWindow`), and the moment the user does pick, the list
+   * becomes their own.
    */
   notificationTimes: text("notification_times").array().notNull().default([]),
   /** Notification word source: 'suggested' (AI) | 'srs' (dictionary review) | 'contextual' (AI + user context) */
@@ -191,6 +200,14 @@ export const userLanguageSettings = pgTable("user_language_settings", {
   notificationContext: text("notification_context"),
   /** Last bot interaction timestamp — used for 14-day inactivity pause */
   lastInteractionAt: timestamp("last_interaction_at", { withTimezone: true }),
+  /**
+   * When the last re-engagement ping went out, or NULL when the current lapse
+   * episode has produced none. Cleared on any interaction, so the pair below
+   * always describes the *current* episode rather than the user's whole history.
+   */
+  lastReengagementAt: timestamp("last_reengagement_at", { withTimezone: true }),
+  /** Re-engagement pings sent in the current lapse episode; reset to 0 on return. */
+  reengagementCount: integer("reengagement_count").default(0).notNull(),
   isActive: boolean("is_active").default(true).notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
@@ -472,7 +489,13 @@ export const userTranslationTemplates = pgTable(
     equivalentNote: boolean("equivalent_note").notNull().default(true),
     /** Connotation warnings for dangerous meanings toggle */
     connotationWarning: boolean("connotation_warning").notNull().default(true),
-    /** Constructional grammar breakdown for phrases/sentences toggle */
+    /**
+     * Dead since the card lost its grammar breakdown: nothing reads or writes this.
+     * Still declared on purpose — `deploy.yml` migrates BEFORE it replaces the
+     * containers, and `getByUserId` selects unprojected, so dropping it now would
+     * make every translation fail with 42703 until the old image is gone. Drop it in
+     * a later release: delete this field, `pnpm db:generate`, commit the migration.
+     */
     grammarBreakdown: boolean("grammar_breakdown").notNull().default(false),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
@@ -817,7 +840,7 @@ export const planFeatureAccess = pgTable(
     planName: varchar("plan_name", { length: 50 })
       .notNull()
       .references(() => rateLimitPlans.name, { onDelete: "cascade" }),
-    /** Feature key, e.g. "grammarBreakdown", "etymology", "grammarDetail" */
+    /** Feature key, e.g. "etymology", "pronunciation", "mentor" */
     featureKey: varchar("feature_key", { length: 100 }).notNull(),
   },
   (t) => [

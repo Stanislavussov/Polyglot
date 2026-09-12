@@ -206,10 +206,17 @@ export interface SchedulerDeps {
   /** Get users eligible for notification at the given UTC hour/minute. */
   getUsersForWindow: (hour: number, minute?: number) => Promise<NotificationUser[]>;
 
-  /** Get users with notifications enabled but inactive for > INACTIVITY_DAYS. */
-  getInactiveUsers: () => Promise<NotificationUser[]>;
+  /** Lapsed subscribers whose next re-engagement ping is due. */
+  getUsersForReEngagement: () => Promise<NotificationUser[]>;
 
-  /** Disable notifications for a user (e.g., due to inactivity). */
+  /** Stamp a re-engagement ping so the cap and the spacing interval both advance. */
+  recordReEngagement: (userId: number) => Promise<void>;
+
+  /**
+   * Unsubscribe a user. Reserved for a permanent delivery failure — the user
+   * blocked the bot — and deliberately NOT used for inactivity: going quiet is a
+   * lapse episode, not an unsubscribe.
+   */
   disableNotifications: (userId: number) => Promise<void>;
 
   /** Get words sent to a user since the given instant (rolling de-dup window). */
