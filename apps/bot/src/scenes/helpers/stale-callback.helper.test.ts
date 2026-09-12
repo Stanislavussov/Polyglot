@@ -36,6 +36,8 @@ function settingsWithInterfaceLang(interfaceLang: string): UserLanguageSettings 
     notificationType: "word",
     notificationContext: null,
     lastInteractionAt: null,
+    lastReengagementAt: null,
+    reengagementCount: 0,
     isActive: true,
     updatedAt: new Date(0),
   };

@@ -1,0 +1,2 @@
+ALTER TABLE "user_language_settings" ADD COLUMN "last_reengagement_at" timestamp with time zone;--> statement-breakpoint
+ALTER TABLE "user_language_settings" ADD COLUMN "reengagement_count" integer DEFAULT 0 NOT NULL;

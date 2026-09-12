@@ -707,13 +707,22 @@ describe("userRepository", () => {
       expect(result).toBeUndefined();
     });
 
-    it("only sets lastInteractionAt and updatedAt", async () => {
+    it("closes any open lapse episode, so a returning user gets a fresh ping budget", async () => {
+      // Coming back is the only signal the re-engagement sweep ever gets. Without
+      // this reset a user who lapsed once has a spent budget forever and is never
+      // invited back the next time they drift away.
+      await userRepository.updateLastInteraction(1);
+
+      expect(lastUpdateSet).toMatchObject({ reengagementCount: 0, lastReengagementAt: null });
+    });
+
+    it("writes nothing beyond the interaction stamp and the lapse reset", async () => {
       await userRepository.updateLastInteraction(1);
 
       const setKeys = Object.keys(lastUpdateSet as object);
-      expect(setKeys).toContain("lastInteractionAt");
-      expect(setKeys).toContain("updatedAt");
-      expect(setKeys).toHaveLength(2);
+      expect(setKeys.sort()).toEqual(
+        ["lastInteractionAt", "lastReengagementAt", "reengagementCount", "updatedAt"].sort(),
+      );
     });
   });
 
