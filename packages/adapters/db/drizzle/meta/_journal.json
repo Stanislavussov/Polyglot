@@ -414,6 +414,13 @@
       "when": 1789194902190,
       "tag": "0058_pale_reptil",
       "breakpoints": true
+    },
+    {
+      "idx": 59,
+      "version": "7",
+      "when": 1789202390811,
+      "tag": "0059_boring_legion",
+      "breakpoints": true
     }
   ]
 }
