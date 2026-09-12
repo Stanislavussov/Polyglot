@@ -26,8 +26,6 @@ export interface TemplateFields {
   equivalentNote: boolean;
   /** Connotation warnings for dangerous meanings */
   connotationWarning: boolean;
-  /** Constructional grammar breakdown for phrases/sentences */
-  grammarBreakdown: boolean;
 }
 
 /**
@@ -57,7 +55,6 @@ export const DEFAULT_TEMPLATE: UserTranslationTemplate = {
     alternatives: false,
     equivalentNote: false,
     connotationWarning: true,
-    grammarBreakdown: false,
   },
 };
 
@@ -74,7 +71,6 @@ export function templateToOutputConfig(template: UserTranslationTemplate): Trans
     includeUsageNote: true,
     includeConnotationWarning: template.fields.connotationWarning,
     includeNativeSynonyms: template.fields.synonyms,
-    includeGrammarBreakdown: template.fields.grammarBreakdown,
   };
 }
 
@@ -85,5 +81,4 @@ export const TEMPLATE_FIELD_KEYS: Array<keyof TemplateFields> = [
   "alternatives",
   "equivalentNote",
   "connotationWarning",
-  "grammarBreakdown",
 ];

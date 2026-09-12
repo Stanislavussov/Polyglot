@@ -43,27 +43,15 @@ const renderTranslation = (
   templateFields?: TemplateFields,
   nativeLang?: string,
   needsReview?: boolean,
-  grammarBreakdown?: Record<string, string[]>,
   etymology?: string,
-): string =>
-  renderTranslationRaw(
-    output,
-    NO_ORDER,
-    interfaceLang,
-    templateFields,
-    nativeLang,
-    needsReview,
-    grammarBreakdown,
-    etymology,
-  );
+): string => renderTranslationRaw(output, NO_ORDER, interfaceLang, templateFields, nativeLang, needsReview, etymology);
 
 const renderSentenceTranslation = (
   output: TranslateOutput,
   interfaceLang?: string,
   nativeLang?: string,
   needsReview?: boolean,
-  grammarBreakdown?: Record<string, string[]>,
-): string => renderSentenceTranslationRaw(output, NO_ORDER, interfaceLang, nativeLang, needsReview, grammarBreakdown);
+): string => renderSentenceTranslationRaw(output, NO_ORDER, interfaceLang, nativeLang, needsReview);
 
 const sampleOutput: TranslateOutput = {
   original: "hello",
@@ -402,7 +390,6 @@ describe("renderTranslation", () => {
         alternatives: true,
         equivalentNote: true,
         connotationWarning: true,
-        grammarBreakdown: false,
       },
       "ru",
     );
@@ -706,15 +693,7 @@ describe("buildTranslationKeyboard", () => {
 
 describe("renderTranslation — etymology section", () => {
   it("renders the etymology section when provided", () => {
-    const result = renderTranslation(
-      sampleOutput,
-      "ru",
-      undefined,
-      "ru",
-      false,
-      undefined,
-      "Из латинского corpus — тело.",
-    );
+    const result = renderTranslation(sampleOutput, "ru", undefined, "ru", false, "Из латинского corpus — тело.");
     expect(result).toContain("🔍 Этимология");
     expect(result).toContain("Из латинского corpus — тело.");
   });
@@ -725,25 +704,9 @@ describe("renderTranslation — etymology section", () => {
   });
 
   it("escapes HTML in etymology prose", () => {
-    const result = renderTranslation(sampleOutput, "en", undefined, "ru", false, undefined, "from <i>x</i> & y");
+    const result = renderTranslation(sampleOutput, "en", undefined, "ru", false, "from <i>x</i> & y");
     expect(result).toContain("from &lt;i&gt;x&lt;/i&gt; &amp; y");
     expect(result).not.toContain("<i>x</i>");
-  });
-
-  it("renders etymology after the grammar breakdown section", () => {
-    const result = renderTranslation(
-      sampleOutput,
-      "ru",
-      undefined,
-      "ru",
-      false,
-      { cs: ["nějaká konstrukce — пояснение"] },
-      "Происхождение слова.",
-    );
-    const grammarIdx = result.indexOf("nějaká konstrukce");
-    const etymologyIdx = result.indexOf("Происхождение слова.");
-    expect(grammarIdx).toBeGreaterThan(-1);
-    expect(etymologyIdx).toBeGreaterThan(grammarIdx);
   });
 });
 

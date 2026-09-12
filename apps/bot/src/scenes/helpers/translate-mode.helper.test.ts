@@ -282,7 +282,6 @@ describe("handleTranslateText — context enrichment", () => {
       includeUsageNote: true,
       includeConnotationWarning: true,
       includeNativeSynonyms: false,
-      includeGrammarBreakdown: false,
     });
   });
 

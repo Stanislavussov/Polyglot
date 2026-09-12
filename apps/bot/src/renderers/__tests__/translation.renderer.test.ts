@@ -133,7 +133,6 @@ describe("renderTranslation — collapsible details (expandable blockquote)", ()
       alternatives: true,
       equivalentNote: true,
       connotationWarning: false,
-      grammarBreakdown: false,
     };
     expect(renderTranslation(output, "ru", fields)).not.toContain("blockquote");
   });

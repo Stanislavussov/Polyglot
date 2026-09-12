@@ -137,7 +137,6 @@ export function renderTranslation(
   templateFields?: TemplateFields,
   nativeLang?: string,
   needsReview?: boolean,
-  grammarBreakdown?: Record<string, string[]>,
   etymology?: string,
 ): string {
   const lang = toLang(interfaceLang);
@@ -184,14 +183,7 @@ export function renderTranslation(
     lines.push("");
   }
 
-  // Grammar breakdown section — inline from AI response or cached on-demand
-  const gbData = grammarBreakdown ?? collectInlineGrammarBreakdown(output);
-  if (gbData && Object.keys(gbData).length > 0 && templateFields?.grammarBreakdown !== false) {
-    lines.push(renderGrammarBreakdownSection(gbData, lang, order));
-    lines.push("");
-  }
-
-  // Etymology section — cached on-demand, rendered next to grammar
+  // Etymology section — cached on-demand
   if (etymology) {
     lines.push(renderEtymologySection(etymology, lang));
     lines.push("");
@@ -202,44 +194,6 @@ export function renderTranslation(
   }
 
   return lines.join("\n").trim();
-}
-
-/** Collect inline grammarBreakdown from LanguageTranslation blocks (when included in AI response) */
-function collectInlineGrammarBreakdown(output: TranslateOutput): Record<string, string[]> | null {
-  const result: Record<string, string[]> = {};
-  let hasAny = false;
-  for (const [code, translation] of Object.entries(output.translations)) {
-    if (translation.grammarBreakdown && translation.grammarBreakdown.length > 0) {
-      result[code] = translation.grammarBreakdown;
-      hasAny = true;
-    }
-  }
-  return hasAny ? result : null;
-}
-
-/** Render grammar breakdown section */
-function renderGrammarBreakdownSection(
-  breakdown: Record<string, string[]>,
-  lang: SupportedLang,
-  order: LanguageOrderContext,
-): string {
-  const lines: string[] = [];
-  lines.push(`<b>${esc(t("grammarBreakdown", lang))}</b>`);
-  // Ordered entries are derived from `breakdown` itself, so the count driving the
-  // per-language header below is unchanged — a breakdown covers only the languages
-  // that have one, which is a strict subset of the translated languages.
-  const orderedEntries = orderRecordEntries(breakdown, order);
-  for (const [code, items] of orderedEntries) {
-    if (!items || items.length === 0) continue;
-    if (orderedEntries.length > 1) {
-      const flag = getLangFlag(code) ?? "🔤";
-      lines.push(`${flag} ${esc(code.toUpperCase())}:`);
-    }
-    for (const item of items) {
-      lines.push(`  • ${esc(item)}`);
-    }
-  }
-  return lines.join("\n");
 }
 
 /** Render etymology section — concise prose about the original term's origin */
@@ -303,7 +257,6 @@ export function renderSentenceTranslation(
   interfaceLang?: string,
   nativeLang?: string,
   needsReview?: boolean,
-  grammarBreakdown?: Record<string, string[]>,
 ): string {
   const lang = toLang(interfaceLang);
   const lines: string[] = [];
@@ -336,11 +289,6 @@ export function renderSentenceTranslation(
   for (const [code, translation] of orderRecordEntries(output.translations, order)) {
     if (hideSourceText && code === output.sourceLang) continue;
     lines.push(renderSentenceLangBlock(code, translation));
-    lines.push("");
-  }
-
-  if (grammarBreakdown && Object.keys(grammarBreakdown).length > 0) {
-    lines.push(renderGrammarBreakdownSection(grammarBreakdown, lang, order));
     lines.push("");
   }
 

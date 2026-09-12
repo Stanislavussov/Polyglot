@@ -32,7 +32,6 @@ function toSavedTemplate(row: typeof userTranslationTemplates.$inferSelect): Sav
       alternatives: row.alternatives,
       equivalentNote: row.equivalentNote,
       connotationWarning: row.connotationWarning,
-      grammarBreakdown: row.grammarBreakdown,
     },
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
@@ -74,7 +73,6 @@ export const translationTemplateRepository = {
         alternatives: fields.alternatives,
         equivalentNote: fields.equivalentNote,
         connotationWarning: fields.connotationWarning,
-        grammarBreakdown: fields.grammarBreakdown,
       })
       .onConflictDoUpdate({
         target: userTranslationTemplates.userId,
@@ -85,7 +83,6 @@ export const translationTemplateRepository = {
           alternatives: fields.alternatives,
           equivalentNote: fields.equivalentNote,
           connotationWarning: fields.connotationWarning,
-          grammarBreakdown: fields.grammarBreakdown,
           updatedAt: new Date(),
         },
       })
