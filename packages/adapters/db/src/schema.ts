@@ -472,12 +472,14 @@ export const userTranslationTemplates = pgTable(
     equivalentNote: boolean("equivalent_note").notNull().default(true),
     /** Connotation warnings for dangerous meanings toggle */
     connotationWarning: boolean("connotation_warning").notNull().default(true),
-    // `grammar_breakdown` is deliberately absent here while still present in every
-    // deployed database. `deploy.yml` migrates BEFORE it replaces the containers,
-    // and `getByUserId` selects unprojected — so dropping a column the still-running
-    // image names would make every translation fail with 42703 for the length of the
-    // deploy. This release stops naming it; `pnpm db:generate` emits the DROP for the
-    // next one, once no shipped image can ask for it.
+    /**
+     * Dead since the card lost its grammar breakdown: nothing reads or writes this.
+     * Still declared on purpose — `deploy.yml` migrates BEFORE it replaces the
+     * containers, and `getByUserId` selects unprojected, so dropping it now would
+     * make every translation fail with 42703 until the old image is gone. Drop it in
+     * a later release: delete this field, `pnpm db:generate`, commit the migration.
+     */
+    grammarBreakdown: boolean("grammar_breakdown").notNull().default(false),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },
