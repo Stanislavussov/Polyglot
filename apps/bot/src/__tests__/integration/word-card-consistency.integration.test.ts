@@ -145,7 +145,15 @@ describe("word card consistency (integration)", () => {
       callbackQueryUpdate({ chatId: id, fromId: id, messageId: lastMessageId + 1, data: `notif:reveal:${entryId}` }),
     );
 
-    expectSameGrammarAs(translateCard, lastCardText(harness.sent));
+    const revealed = lastCardText(harness.sent);
+    expectSameGrammarAs(translateCard, revealed);
+    // The one deliberate difference: this reader was asked to recall the word, so
+    // the stored gloss rides above the answer instead of folding into the quote.
+    // Everything the grammar governs — the headword line, every answer line — is
+    // still the translate card's, which is what the assertion above pins.
+    const hint = revealed.split("\n").filter((line) => line.trim() !== "")[1] ?? "";
+    expect(hint.startsWith("💡 ")).toBe(true);
+    expect(revealed.indexOf(hint)).toBeLessThan(revealed.indexOf(answerLines(revealed)[0]!));
   });
 
   it("W2: the dictionary entry renders in the same grammar as the translate card", async () => {

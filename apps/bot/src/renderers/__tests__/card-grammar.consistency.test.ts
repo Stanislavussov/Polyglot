@@ -233,21 +233,30 @@ describe("card grammar — a reveal-style front hands over nothing", () => {
  * flag, `→ перевод` instead of an answer, an example in «guillemets» or "quotes".
  */
 describe("card grammar — compact and list surfaces use the same lines", () => {
+  const notifiedWord = {
+    original: WORD.original,
+    headword: WORD.sourceUsage.headword,
+    emoji: WORD.emoji,
+    sourceLang: WORD.sourceLang,
+    nativeMeaning: WORD.nativeMeaning,
+    translations: { ru: "работа", en: WORD.targetText },
+    translationDetails: { ru: { synonyms: ["труд"] } },
+  };
+
+  /** The daily nudge: a saved word, a Reveal button, and nothing that answers it. */
   const notification = formatNotificationMessage(
-    {
-      hour: 8,
-      word: {
-        original: WORD.original,
-        headword: WORD.sourceUsage.headword,
-        emoji: WORD.emoji,
-        sourceLang: WORD.sourceLang,
-        nativeMeaning: WORD.nativeMeaning,
-        translations: { ru: "работа", en: WORD.targetText },
-        translationDetails: { ru: { synonyms: ["труд"] } },
-        source: "srs",
-        entryId: 1,
-      },
-    },
+    { hour: 8, word: { ...notifiedWord, source: "srs", entryId: 1 } },
+    "ru",
+    ORDER,
+  );
+
+  /**
+   * The same nudge for a word that was never saved. It has no Reveal button to
+   * tap, so its answer rides along in a collapsed quote — and that is where this
+   * surface has an answer line to hold to the shared grammar at all.
+   */
+  const unrevealableNotification = formatNotificationMessage(
+    { hour: 8, word: { ...notifiedWord, source: "preset" } },
     "ru",
     ORDER,
   );
@@ -309,7 +318,7 @@ describe("card grammar — compact and list surfaces use the same lines", () => 
   );
 
   const COMPACT: Array<[string, string]> = [
-    ["notification", notification],
+    ["notification", unrevealableNotification],
     ["picked set", pickedSet],
     ["video phrase list", videoList],
   ];
@@ -332,6 +341,14 @@ describe("card grammar — compact and list surfaces use the same lines", () => 
     expect(card).toContain("💬 <i>Die Arbeit macht Spaß.</i>");
     expect(card).not.toContain("«");
     expect(card).not.toContain('"Die Arbeit');
+  });
+
+  it("a notification for a saved word hands over nothing that answers it", () => {
+    // The whole point of the nudge: the reader recalls the word, then taps Reveal
+    // to check. An answer line here would be the card answering its own question.
+    expect(notification).not.toContain("работа");
+    expect(notification).not.toContain("🇷🇺 RU:");
+    expect(notification).not.toContain(WORD.nativeMeaning);
   });
 
   it("a notification's headword is the one its Reveal card shows, minus what a nudge omits", () => {

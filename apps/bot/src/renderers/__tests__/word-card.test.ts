@@ -252,6 +252,68 @@ describe("renderWordCard — a card with no answer in the reader's language", ()
   });
 });
 
+/**
+ * The recall surfaces — a notification the reader opens after trying to remember
+ * the word — promote one gloss above the answer. It is the line they came back to
+ * check their guess against, and the whole card is useless to them folded shut.
+ */
+describe("renderWordCard — hintFirst", () => {
+  const withProse = {
+    original: "Haus",
+    emoji: "🏠",
+    sourceLang: "de",
+    nativeMeaning: "Жилое здание.",
+    sourceUsage: SOURCE_USAGE,
+    langs: [{ code: "ru", text: "дом" }],
+    answerLang: "ru",
+    nativeLang: "ru",
+  };
+
+  it("promotes the stored note above the answer", () => {
+    const card = renderWordCard({ ...withProse, hintFirst: true }, "ru");
+    const lines = card.split("\n").filter((line) => line.trim() !== "");
+
+    expect(lines[1]).toBe("💡 Работа, труд.");
+    expect(card.indexOf("Работа, труд.")).toBeLessThan(card.indexOf("<b>дом</b>"));
+  });
+
+  it("promotes the note once — the folded quote keeps only what is still hidden", () => {
+    const card = renderWordCard({ ...withProse, hintFirst: true }, "ru");
+
+    expect(card.match(/Работа, труд\./g)).toHaveLength(1);
+    expect(card).toContain("<blockquote expandable>💬 <i>Ich suche Arbeit.</i> (Я ищу работу.)</blockquote>");
+  });
+
+  it("promotes the same one paragraph the card would have folded, never both", () => {
+    // The card shows the explanation or the gloss, not the two of them; promoting
+    // must not become the one place a reader is handed two walls of description.
+    const card = renderWordCard({ ...withProse, hintFirst: true }, "ru");
+
+    expect(card).not.toContain("Жилое здание.");
+  });
+
+  it("falls back to the stored gloss when no explanation was saved", () => {
+    const card = renderWordCard({ ...withProse, sourceUsage: null, hintFirst: true }, "ru");
+    const lines = card.split("\n").filter((line) => line.trim() !== "");
+
+    expect(lines[1]).toBe("💡 Жилое здание.");
+    expect(card.match(/Жилое здание\./g)).toHaveLength(1);
+  });
+
+  it("renders a word with nothing stored exactly as it renders without the flag", () => {
+    const bare = { ...withProse, nativeMeaning: null, sourceUsage: null };
+
+    expect(renderWordCard({ ...bare, hintFirst: true }, "ru")).toBe(renderWordCard(bare, "ru"));
+  });
+
+  it("changes nothing for the surfaces that do not ask for it", () => {
+    const card = renderWordCard(withProse, "ru");
+
+    expect(card.indexOf("<b>дом</b>")).toBeLessThan(card.indexOf("Работа, труд."));
+    expect(card).toContain("💡 Работа, труд.</blockquote>");
+  });
+});
+
 describe("renderWordCard — language blocks", () => {
   it("keeps the first example visible and collapses the rest with the notes", () => {
     const card = renderWordCard(
