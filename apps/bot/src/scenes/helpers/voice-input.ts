@@ -1,20 +1,22 @@
 /**
- * Voice message → translation (Task 80).
+ * Voice message → the active mode (Task 80).
  *
- * A voice message is just another way of typing a word, so once the audio is
- * transcribed it re-enters the ordinary text pipeline via `handleTranslateText`
- * — there is no separate "voice card". Everything before that is refusal
- * policy, ordered cheapest-first: a disabled feature falls through untouched,
- * a plan without the feature never reaches Telegram's file API, and an
- * over-long recording is refused before a byte is downloaded.
+ * A voice message is just another way of typing, so once the audio is
+ * transcribed it re-enters the ordinary text pipeline — reply-continuation
+ * first, then the active mode — instead of always translating. There is no
+ * separate "voice card". Everything before that is refusal policy, ordered
+ * cheapest-first: a disabled feature falls through untouched, a plan without
+ * the feature never reaches Telegram's file API, and an over-long recording is
+ * refused before a byte is downloaded.
  */
 import { errorFields, FEATURE_KEYS, isSupported, logEvent, type SupportedLang, t } from "@polyglot/core";
 import { getRequestSettings } from "../../middlewares/request-settings.js";
 import type { BotContext } from "../../types.js";
 import { sendTypingIndicator } from "../../utils/long-op.js";
 import { downloadTelegramFile } from "../../utils/telegram-file.js";
+import { dispatchByActiveMode } from "./active-mode-dispatch.js";
+import { tryHandleMentorReply } from "./mentor-thread.helper.js";
 import { ensurePaidFeatureForMessage } from "./paid-feature.helper.js";
-import { handleTranslateText } from "./translate-flow.js";
 
 /**
  * Returns `true` when the update was consumed. `false` means "not a voice
@@ -71,6 +73,12 @@ export async function handleVoiceMessage(ctx: BotContext): Promise<boolean> {
   }
 
   logEvent("voice.transcribed", { durationSec: voice.duration, chars: text.length, generationId });
-  await handleTranslateText(ctx, text);
+
+  // A voice reply to a mentor answer continues that thread, exactly as a typed
+  // reply does; otherwise the active mode decides who answers.
+  if (ctx.message?.reply_to_message && (await tryHandleMentorReply(ctx, text))) {
+    return true;
+  }
+  await dispatchByActiveMode(ctx, text);
   return true;
 }

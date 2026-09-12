@@ -312,6 +312,7 @@
   "videoProcessingDone": "Phrases extracted!",
   "videoProcessingFailed": "Video processing failed. Your limit has been refunded.",
   "videoOnlyYouTube": "Only YouTube is supported for now.",
+  "videoNotSupported": "🎥 I can't process video — please send a word, phrase, or sentence as text.",
   "videoNoSubtitles": "No subtitles available for your languages.",
   "videoLimitReached": "Monthly video limit reached. Resets on the 1st.",
   "videoAlreadyProcessing": "This video is still being processed.",

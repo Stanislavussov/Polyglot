@@ -312,6 +312,7 @@
   "videoProcessingDone": "Фрази витягнуто!",
   "videoProcessingFailed": "Не вдалося обробити відео. Твій ліміт повернено.",
   "videoOnlyYouTube": "Наразі підтримується лише YouTube.",
+  "videoNotSupported": "🎥 Я не працюю з відео — надішли слово, фразу чи речення текстом.",
   "videoNoSubtitles": "Субтитри для твоїх мов недоступні.",
   "videoLimitReached": "Місячний ліміт відео вичерпано. Оновлюється 1-го числа.",
   "videoAlreadyProcessing": "Це відео ще обробляється.",

@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-26T09:34:29.000Z",
+  "generatedAt": "2026-08-26T10:14:28.000Z",
   "summary": {
-    "total": 3123,
+    "total": 3131,
     "business": 0,
-    "technical": 3123,
+    "technical": 3131,
     "workspaces": [
       "apps",
       "packages"
@@ -4439,10 +4439,10 @@
       "description": "Protects the bot video vocabulary flow (integration) behavior so fails the process once, without retries, when no transcript exists at all."
     },
     {
-      "id": "apps-bot-src-tests-integration-voice-input-integration-test-ts-43-voice-message-translation-integration-transcribes-a-pro-user-s-voice-message-and-renders-a-translation-card",
+      "id": "apps-bot-src-tests-integration-voice-input-integration-test-ts-47-voice-message-translation-integration-transcribes-a-pro-user-s-voice-message-and-renders-a-translation-card",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/voice-input.integration.test.ts",
-      "sourceLine": 43,
+      "sourceLine": 47,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4455,10 +4455,10 @@
       "description": "Protects the bot voice message → translation (integration) behavior so transcribes a Pro user's voice message and renders a translation card."
     },
     {
-      "id": "apps-bot-src-tests-integration-voice-input-integration-test-ts-77-voice-message-translation-integration-denies-a-free-user-with-the-upgrade-screen-calling-neither-the-file-api-nor-transcribe",
+      "id": "apps-bot-src-tests-integration-voice-input-integration-test-ts-81-voice-message-translation-integration-denies-a-free-user-with-the-upgrade-screen-calling-neither-the-file-api-nor-transcribe",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/voice-input.integration.test.ts",
-      "sourceLine": 77,
+      "sourceLine": 81,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4471,10 +4471,10 @@
       "description": "Protects the bot voice message → translation (integration) behavior so denies a Free user with the upgrade screen, calling neither the file API nor transcribe."
     },
     {
-      "id": "apps-bot-src-tests-integration-voice-input-integration-test-ts-99-voice-message-translation-integration-falls-through-to-the-text-only-rejection-while-stt-is-disabled-with-no-ai-calls",
+      "id": "apps-bot-src-tests-integration-voice-input-integration-test-ts-103-voice-message-translation-integration-falls-through-to-the-text-only-rejection-while-stt-is-disabled-with-no-ai-calls",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/voice-input.integration.test.ts",
-      "sourceLine": 99,
+      "sourceLine": 103,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4487,10 +4487,10 @@
       "description": "Protects the bot voice message → translation (integration) behavior: falls through to the text only rejection while STT is disabled, with no AI calls."
     },
     {
-      "id": "apps-bot-src-tests-integration-voice-input-integration-test-ts-118-voice-message-translation-integration-refuses-an-over-duration-recording-before-downloading-anything",
+      "id": "apps-bot-src-tests-integration-voice-input-integration-test-ts-122-voice-message-translation-integration-refuses-an-over-duration-recording-before-downloading-anything",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/voice-input.integration.test.ts",
-      "sourceLine": 118,
+      "sourceLine": 122,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4503,10 +4503,10 @@
       "description": "Protects the bot voice message → translation (integration) behavior so refuses an over duration recording before downloading anything."
     },
     {
-      "id": "apps-bot-src-tests-integration-voice-input-integration-test-ts-138-voice-message-translation-integration-replies-with-the-transcription-failed-message-when-transcribe-rejects-and-persists-nothing",
+      "id": "apps-bot-src-tests-integration-voice-input-integration-test-ts-142-voice-message-translation-integration-replies-with-the-transcription-failed-message-when-transcribe-rejects-and-persists-nothing",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/integration/voice-input.integration.test.ts",
-      "sourceLine": 138,
+      "sourceLine": 142,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4517,6 +4517,38 @@
       "name": "Bot voice message → translation (integration) replies with the transcription failed message when transcribe rejects, and persists nothing",
       "value": "Protects the bot voice message → translation (integration) behavior so replies with the transcription failed message when transcribe rejects, and persists nothing.",
       "description": "Protects the bot voice message → translation (integration) behavior so replies with the transcription failed message when transcribe rejects, and persists nothing."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-voice-input-integration-test-ts-169-voice-message-translation-integration-answers-a-voice-message-from-the-mentor-while-mentor-mode-is-active-with-no-translation-card",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/voice-input.integration.test.ts",
+      "sourceLine": 169,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "voice message → translation (integration)"
+      ],
+      "title": "answers a voice message from the mentor while mentor mode is active, with no translation card",
+      "rawTitle": "answers a voice message from the mentor while mentor mode is active, with no translation card",
+      "name": "Bot voice message → translation (integration) answers a voice message from the mentor while mentor mode is active, with no translation card",
+      "value": "Protects the bot voice message → translation (integration) behavior so answers a voice message from the mentor while mentor mode is active, with no translation card.",
+      "description": "Protects the bot voice message → translation (integration) behavior so answers a voice message from the mentor while mentor mode is active, with no translation card."
+    },
+    {
+      "id": "apps-bot-src-tests-integration-voice-input-integration-test-ts-194-voice-message-translation-integration-continues-the-mentor-thread-when-a-voice-message-replies-to-a-mentor-answer-from-translate-mode",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/integration/voice-input.integration.test.ts",
+      "sourceLine": 194,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "voice message → translation (integration)"
+      ],
+      "title": "continues the mentor thread when a voice message replies to a mentor answer from translate mode",
+      "rawTitle": "continues the mentor thread when a voice message replies to a mentor answer from translate mode",
+      "name": "Bot voice message → translation (integration) continues the mentor thread when a voice message replies to a mentor answer from translate mode",
+      "value": "Protects the bot voice message → translation (integration) behavior so continues the mentor thread when a voice message replies to a mentor answer from translate mode.",
+      "description": "Protects the bot voice message → translation (integration) behavior so continues the mentor thread when a voice message replies to a mentor answer from translate mode."
     },
     {
       "id": "apps-bot-src-tests-integration-word-card-consistency-integration-test-ts-137-word-card-consistency-integration-w1-a-revealed-notification-renders-in-the-same-grammar-as-the-translate-card",
@@ -5671,10 +5703,10 @@
       "description": "Protects the bot handle Back Callback behavior: returns to constructor keyboard from preview."
     },
     {
-      "id": "apps-bot-src-tests-translate-mode-test-ts-93-translate-mode-system-moderoutermiddleware-calls-next-for-commands-text-starting-with",
+      "id": "apps-bot-src-tests-translate-mode-test-ts-103-translate-mode-system-moderoutermiddleware-calls-next-for-commands-text-starting-with",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translate-mode.test.ts",
-      "sourceLine": 93,
+      "sourceLine": 103,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5688,10 +5720,10 @@
       "description": "Protects the bot Translate Mode System mode Router Middleware behavior: calls next() for commands (text starting with )."
     },
     {
-      "id": "apps-bot-src-tests-translate-mode-test-ts-103-translate-mode-system-moderoutermiddleware-calls-next-when-no-message-text",
+      "id": "apps-bot-src-tests-translate-mode-test-ts-113-translate-mode-system-moderoutermiddleware-calls-next-when-no-message-text",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translate-mode.test.ts",
-      "sourceLine": 103,
+      "sourceLine": 113,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5705,10 +5737,10 @@
       "description": "Protects the bot Translate Mode System mode Router Middleware behavior: calls next() when no message text."
     },
     {
-      "id": "apps-bot-src-tests-translate-mode-test-ts-113-translate-mode-system-moderoutermiddleware-routes-plain-text-to-handletranslatetext-when-in-translate-mode",
+      "id": "apps-bot-src-tests-translate-mode-test-ts-123-translate-mode-system-moderoutermiddleware-routes-plain-text-to-handletranslatetext-when-in-translate-mode",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translate-mode.test.ts",
-      "sourceLine": 113,
+      "sourceLine": 123,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5722,10 +5754,10 @@
       "description": "Protects the bot Translate Mode System mode Router Middleware behavior: routes plain text to handle Translate Text when in translate mode."
     },
     {
-      "id": "apps-bot-src-tests-translate-mode-test-ts-123-translate-mode-system-moderoutermiddleware-falls-back-to-translation-in-idle-mode-for-onboarded-user",
+      "id": "apps-bot-src-tests-translate-mode-test-ts-133-translate-mode-system-moderoutermiddleware-falls-back-to-translation-in-idle-mode-for-onboarded-user",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translate-mode.test.ts",
-      "sourceLine": 123,
+      "sourceLine": 133,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5739,10 +5771,10 @@
       "description": "Protects the bot Translate Mode System mode Router Middleware behavior: falls back to translation in idle mode for onboarded user."
     },
     {
-      "id": "apps-bot-src-tests-translate-mode-test-ts-139-translate-mode-system-moderoutermiddleware-persists-idle-translate-fallback-to-db-for-onboarded-user",
+      "id": "apps-bot-src-tests-translate-mode-test-ts-149-translate-mode-system-moderoutermiddleware-persists-idle-translate-fallback-to-db-for-onboarded-user",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translate-mode.test.ts",
-      "sourceLine": 139,
+      "sourceLine": 149,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5756,10 +5788,10 @@
       "description": "Protects the bot Translate Mode System mode Router Middleware behavior: persists idle→translate fallback to DB for onboarded user."
     },
     {
-      "id": "apps-bot-src-tests-translate-mode-test-ts-152-translate-mode-system-moderoutermiddleware-shows-hint-for-non-onboarded-user-in-idle-mode",
+      "id": "apps-bot-src-tests-translate-mode-test-ts-162-translate-mode-system-moderoutermiddleware-shows-hint-for-non-onboarded-user-in-idle-mode",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translate-mode.test.ts",
-      "sourceLine": 152,
+      "sourceLine": 162,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5773,10 +5805,61 @@
       "description": "Protects the bot Translate Mode System mode Router Middleware behavior: shows hint for non onboarded user in idle mode."
     },
     {
-      "id": "apps-bot-src-tests-translate-mode-test-ts-167-translate-mode-system-moderoutermiddleware-falls-back-to-translation-for-unknown-mode-with-onboarded-user",
+      "id": "apps-bot-src-tests-translate-mode-test-ts-177-translate-mode-system-moderoutermiddleware-names-video-specifically-instead-of-the-generic-text-only-refusal",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translate-mode.test.ts",
-      "sourceLine": 167,
+      "sourceLine": 177,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "Translate Mode System",
+        "modeRouterMiddleware"
+      ],
+      "title": "names video specifically instead of the generic text-only refusal",
+      "rawTitle": "names video specifically instead of the generic text-only refusal",
+      "name": "Bot Translate Mode System mode Router Middleware names video specifically instead of the generic text only refusal",
+      "value": "Protects the bot Translate Mode System mode Router Middleware behavior so names video specifically instead of the generic text only refusal.",
+      "description": "Protects the bot Translate Mode System mode Router Middleware behavior so names video specifically instead of the generic text only refusal."
+    },
+    {
+      "id": "apps-bot-src-tests-translate-mode-test-ts-188-translate-mode-system-moderoutermiddleware-refuses-a-round-video-note-as-video-too",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/translate-mode.test.ts",
+      "sourceLine": 188,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "Translate Mode System",
+        "modeRouterMiddleware"
+      ],
+      "title": "refuses a round video note as video too",
+      "rawTitle": "refuses a round video note as video too",
+      "name": "Bot Translate Mode System mode Router Middleware refuses a round video note as video too",
+      "value": "Protects the bot Translate Mode System mode Router Middleware behavior so refuses a round video note as video too.",
+      "description": "Protects the bot Translate Mode System mode Router Middleware behavior so refuses a round video note as video too."
+    },
+    {
+      "id": "apps-bot-src-tests-translate-mode-test-ts-197-translate-mode-system-moderoutermiddleware-keeps-the-text-only-refusal-for-other-non-text-content",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/translate-mode.test.ts",
+      "sourceLine": 197,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "Translate Mode System",
+        "modeRouterMiddleware"
+      ],
+      "title": "keeps the text-only refusal for other non-text content",
+      "rawTitle": "keeps the text-only refusal for other non-text content",
+      "name": "Bot Translate Mode System mode Router Middleware keeps the text only refusal for other non text content",
+      "value": "Protects the bot Translate Mode System mode Router Middleware behavior: keeps the text only refusal for other non text content.",
+      "description": "Protects the bot Translate Mode System mode Router Middleware behavior: keeps the text only refusal for other non text content."
+    },
+    {
+      "id": "apps-bot-src-tests-translate-mode-test-ts-206-translate-mode-system-moderoutermiddleware-falls-back-to-translation-for-unknown-mode-with-onboarded-user",
+      "kind": "technical",
+      "filePath": "apps/bot/src/__tests__/translate-mode.test.ts",
+      "sourceLine": 206,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5790,10 +5873,10 @@
       "description": "Protects the bot Translate Mode System mode Router Middleware behavior: falls back to translation for unknown mode with onboarded user."
     },
     {
-      "id": "apps-bot-src-tests-translate-mode-test-ts-184-usermode-type-supports-idle-mode",
+      "id": "apps-bot-src-tests-translate-mode-test-ts-223-usermode-type-supports-idle-mode",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translate-mode.test.ts",
-      "sourceLine": 184,
+      "sourceLine": 223,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5806,10 +5889,10 @@
       "description": "Protects the bot User Mode type behavior so supports idle mode."
     },
     {
-      "id": "apps-bot-src-tests-translate-mode-test-ts-189-usermode-type-supports-translate-mode",
+      "id": "apps-bot-src-tests-translate-mode-test-ts-228-usermode-type-supports-translate-mode",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translate-mode.test.ts",
-      "sourceLine": 189,
+      "sourceLine": 228,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5822,10 +5905,10 @@
       "description": "Protects the bot User Mode type behavior so supports translate mode."
     },
     {
-      "id": "apps-bot-src-tests-translate-mode-test-ts-196-sessiondata-has-translate-as-default-active-mode",
+      "id": "apps-bot-src-tests-translate-mode-test-ts-235-sessiondata-has-translate-as-default-active-mode",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translate-mode.test.ts",
-      "sourceLine": 196,
+      "sourceLine": 235,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5838,10 +5921,10 @@
       "description": "Protects the bot Session Data behavior so has translate as default active mode."
     },
     {
-      "id": "apps-bot-src-tests-translate-mode-test-ts-209-sessiondata-can-store-pending-translation",
+      "id": "apps-bot-src-tests-translate-mode-test-ts-248-sessiondata-can-store-pending-translation",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/translate-mode.test.ts",
-      "sourceLine": 209,
+      "sourceLine": 248,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -14249,10 +14332,10 @@
       "description": "Protects the bot onboarding starter video — allowance exemption behavior so leaves a pasted link on the normal allowance path."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-voice-input-test-ts-88-voice-message-handling-declines-the-update-when-speech-to-text-is-switched-off-leaving-the-old-non-text-rejection-to-the-caller",
+      "id": "apps-bot-src-scenes-helpers-tests-voice-input-test-ts-110-voice-message-handling-declines-the-update-when-speech-to-text-is-switched-off-leaving-the-old-non-text-rejection-to-the-caller",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/voice-input.test.ts",
-      "sourceLine": 88,
+      "sourceLine": 110,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -14265,10 +14348,10 @@
       "description": "Protects the bot voice message handling behavior so declines the update when speech to text is switched off, leaving the old non text rejection to the caller."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-voice-input-test-ts-98-voice-message-handling-treats-a-blank-model-id-as-switched-off-there-is-nothing-to-call",
+      "id": "apps-bot-src-scenes-helpers-tests-voice-input-test-ts-120-voice-message-handling-treats-a-blank-model-id-as-switched-off-there-is-nothing-to-call",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/voice-input.test.ts",
-      "sourceLine": 98,
+      "sourceLine": 120,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -14281,10 +14364,10 @@
       "description": "Protects the bot voice message handling behavior so treats a blank model id as switched off — there is nothing to call."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-voice-input-test-ts-106-voice-message-handling-offers-the-upgrade-screen-to-a-plan-without-the-feature-without-touching-telegram-or-the-model",
+      "id": "apps-bot-src-scenes-helpers-tests-voice-input-test-ts-128-voice-message-handling-offers-the-upgrade-screen-to-a-plan-without-the-feature-without-touching-telegram-or-the-model",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/voice-input.test.ts",
-      "sourceLine": 106,
+      "sourceLine": 128,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -14297,10 +14380,10 @@
       "description": "Protects the bot voice message handling behavior so offers the upgrade screen to a plan without the feature, without touching Telegram or the model."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-voice-input-test-ts-118-voice-message-handling-refuses-a-recording-longer-than-the-cap-before-downloading-a-byte",
+      "id": "apps-bot-src-scenes-helpers-tests-voice-input-test-ts-140-voice-message-handling-refuses-a-recording-longer-than-the-cap-before-downloading-a-byte",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/voice-input.test.ts",
-      "sourceLine": 118,
+      "sourceLine": 140,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -14313,10 +14396,10 @@
       "description": "Protects the bot voice message handling behavior so refuses a recording longer than the cap before downloading a byte."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-voice-input-test-ts-128-voice-message-handling-reports-a-failed-transcription-instead-of-translating-nothing",
+      "id": "apps-bot-src-scenes-helpers-tests-voice-input-test-ts-150-voice-message-handling-reports-a-failed-transcription-instead-of-translating-nothing",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/voice-input.test.ts",
-      "sourceLine": 128,
+      "sourceLine": 150,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -14329,10 +14412,10 @@
       "description": "Protects the bot voice message handling behavior: reports a failed transcription instead of translating nothing."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-voice-input-test-ts-137-voice-message-handling-reports-silence-the-same-way-an-empty-transcript-is-nothing-to-translate",
+      "id": "apps-bot-src-scenes-helpers-tests-voice-input-test-ts-159-voice-message-handling-reports-silence-the-same-way-an-empty-transcript-is-nothing-to-translate",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/voice-input.test.ts",
-      "sourceLine": 137,
+      "sourceLine": 159,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -14345,10 +14428,10 @@
       "description": "Protects the bot voice message handling behavior: reports silence the same way — an empty transcript is nothing to translate."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-voice-input-test-ts-148-voice-message-handling-feeds-the-transcript-into-the-ordinary-text-translation-flow",
+      "id": "apps-bot-src-scenes-helpers-tests-voice-input-test-ts-170-voice-message-handling-feeds-the-transcript-into-the-ordinary-text-translation-flow",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/voice-input.test.ts",
-      "sourceLine": 148,
+      "sourceLine": 170,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -14361,10 +14444,58 @@
       "description": "Protects the bot voice message handling behavior so feeds the transcript into the ordinary text translation flow."
     },
     {
-      "id": "apps-bot-src-scenes-helpers-tests-voice-input-test-ts-160-voice-message-handling-downloads-the-audio-through-the-bot-s-own-fetch-so-the-transport-stays-injectable",
+      "id": "apps-bot-src-scenes-helpers-tests-voice-input-test-ts-182-voice-message-handling-sends-the-transcript-to-the-mentor-while-mentor-mode-is-active-not-to-translation",
       "kind": "technical",
       "filePath": "apps/bot/src/scenes/helpers/__tests__/voice-input.test.ts",
-      "sourceLine": 160,
+      "sourceLine": 182,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "voice message handling"
+      ],
+      "title": "sends the transcript to the mentor while mentor mode is active, not to translation",
+      "rawTitle": "sends the transcript to the mentor while mentor mode is active, not to translation",
+      "name": "Bot voice message handling sends the transcript to the mentor while mentor mode is active, not to translation",
+      "value": "Protects the bot voice message handling behavior: sends the transcript to the mentor while mentor mode is active, not to translation.",
+      "description": "Protects the bot voice message handling behavior: sends the transcript to the mentor while mentor mode is active, not to translation."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-tests-voice-input-test-ts-191-voice-message-handling-continues-a-mentor-thread-when-the-voice-message-replies-to-a-mentor-answer-whatever-the-mode",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/__tests__/voice-input.test.ts",
+      "sourceLine": 191,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "voice message handling"
+      ],
+      "title": "continues a mentor thread when the voice message replies to a mentor answer, whatever the mode",
+      "rawTitle": "continues a mentor thread when the voice message replies to a mentor answer, whatever the mode",
+      "name": "Bot voice message handling continues a mentor thread when the voice message replies to a mentor answer, whatever the mode",
+      "value": "Protects the bot voice message handling behavior so continues a mentor thread when the voice message replies to a mentor answer, whatever the mode.",
+      "description": "Protects the bot voice message handling behavior so continues a mentor thread when the voice message replies to a mentor answer, whatever the mode."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-tests-voice-input-test-ts-205-voice-message-handling-translates-a-voice-reply-that-anchors-to-no-mentor-thread",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/__tests__/voice-input.test.ts",
+      "sourceLine": 205,
+      "workspace": "apps",
+      "packageName": "bot",
+      "suitePath": [
+        "voice message handling"
+      ],
+      "title": "translates a voice reply that anchors to no mentor thread",
+      "rawTitle": "translates a voice reply that anchors to no mentor thread",
+      "name": "Bot voice message handling translates a voice reply that anchors to no mentor thread",
+      "value": "Protects the bot voice message handling behavior: translates a voice reply that anchors to no mentor thread.",
+      "description": "Protects the bot voice message handling behavior: translates a voice reply that anchors to no mentor thread."
+    },
+    {
+      "id": "apps-bot-src-scenes-helpers-tests-voice-input-test-ts-214-voice-message-handling-downloads-the-audio-through-the-bot-s-own-fetch-so-the-transport-stays-injectable",
+      "kind": "technical",
+      "filePath": "apps/bot/src/scenes/helpers/__tests__/voice-input.test.ts",
+      "sourceLine": 214,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [

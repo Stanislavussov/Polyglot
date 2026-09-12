@@ -55,7 +55,14 @@ const mockUserRepository = {
 };
 
 function createMockContext(
-  overrides: { text?: string; activeMode?: UserMode; onboarded?: boolean; userId?: number } = {},
+  overrides: {
+    text?: string;
+    activeMode?: UserMode;
+    onboarded?: boolean;
+    userId?: number;
+    /** Extra message fields — e.g. `{ video: {...} }` for a non-text update. */
+    message?: Record<string, unknown>;
+  } = {},
 ): BotContext {
   const session: SessionData = {
     activeMode: overrides.activeMode ?? "translate",
@@ -67,7 +74,10 @@ function createMockContext(
   return {
     from: { id: overrides.userId ?? 123456789 },
     chat: { id: 123456789 },
-    message: overrides.text !== undefined ? { text: overrides.text } : undefined,
+    message:
+      overrides.text !== undefined || overrides.message
+        ? { ...(overrides.text !== undefined ? { text: overrides.text } : {}), ...overrides.message }
+        : undefined,
     session,
     reply: vi.fn().mockResolvedValue({ message_id: 1 }),
     api: {
@@ -162,6 +172,35 @@ describe("Translate Mode System", () => {
       expect(handleTranslateText).not.toHaveBeenCalled();
       expect(next).not.toHaveBeenCalled();
       expect(ctx.reply).toHaveBeenCalledWith("[welcome]");
+    });
+
+    it("names video specifically instead of the generic text-only refusal", async () => {
+      const ctx = createMockContext({ message: { video: { file_id: "vid-1", duration: 4 } } });
+      const next = vi.fn().mockResolvedValue(undefined);
+
+      await modeRouterMiddleware(ctx, next);
+
+      expect(ctx.reply).toHaveBeenCalledWith("[videoNotSupported]");
+      expect(next).not.toHaveBeenCalled();
+      expect(handleTranslateText).not.toHaveBeenCalled();
+    });
+
+    it("refuses a round video note as video too", async () => {
+      const ctx = createMockContext({ message: { video_note: { file_id: "note-1", duration: 4 } } });
+      const next = vi.fn().mockResolvedValue(undefined);
+
+      await modeRouterMiddleware(ctx, next);
+
+      expect(ctx.reply).toHaveBeenCalledWith("[videoNotSupported]");
+    });
+
+    it("keeps the text-only refusal for other non-text content", async () => {
+      const ctx = createMockContext({ message: { photo: [{ file_id: "photo-1" }] } });
+      const next = vi.fn().mockResolvedValue(undefined);
+
+      await modeRouterMiddleware(ctx, next);
+
+      expect(ctx.reply).toHaveBeenCalledWith("[textOnly]");
     });
 
     it("falls back to translation for unknown mode with onboarded user", async () => {

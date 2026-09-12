@@ -312,6 +312,7 @@
   "videoProcessingDone": "Expressions extraites !",
   "videoProcessingFailed": "Le traitement de la vidéo a échoué. Ta limite a été remboursée.",
   "videoOnlyYouTube": "Seul YouTube est pris en charge pour l'instant.",
+  "videoNotSupported": "🎥 Je ne peux pas traiter les vidéos — envoie-moi un mot, une expression ou une phrase sous forme de texte.",
   "videoNoSubtitles": "Aucun sous-titre disponible pour tes langues.",
   "videoLimitReached": "Limite mensuelle de vidéos atteinte. Réinitialisation le 1er.",
   "videoAlreadyProcessing": "Cette vidéo est encore en cours de traitement.",

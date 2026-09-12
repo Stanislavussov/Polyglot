@@ -308,6 +308,7 @@
   "videoProcessingDone": "Фразы извлечены!",
   "videoProcessingFailed": "Обработка видео не удалась. Лимит возвращён.",
   "videoOnlyYouTube": "Пока поддерживается только YouTube.",
+  "videoNotSupported": "🎥 Я не умею работать с видео — отправьте слово, фразу или предложение текстом.",
   "videoNoSubtitles": "Субтитры на ваших языках недоступны.",
   "videoLimitReached": "Месячный лимит видео исчерпан. Обновление 1-го числа.",
   "videoAlreadyProcessing": "Это видео ещё обрабатывается.",

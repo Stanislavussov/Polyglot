@@ -151,6 +151,10 @@ its layer: no cross-boundary changes.
 - No business logic — it composes and calls core services; no direct DB access (go through repositories).
 - All user-facing text through i18n; modes/languages from DB constants and the cache.
 - One scene per file; keep scenes small and focused.
+- The active mode owns every user turn, whatever shape it arrived in: typed text and a
+  transcribed voice message both go through `dispatchByActiveMode`, so a new input channel
+  must reuse it rather than call a mode handler directly (a reply to a mentor answer is the
+  one documented override, and it applies to both).
 
 ### Onboarding — `apps/bot/src/onboarding`
 

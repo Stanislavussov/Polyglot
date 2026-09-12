@@ -312,6 +312,7 @@
   "videoProcessingDone": "Wyrażenia wyodrębnione!",
   "videoProcessingFailed": "Przetwarzanie filmu nie powiodło się. Twój limit został zwrócony.",
   "videoOnlyYouTube": "Na razie obsługiwany jest tylko YouTube.",
+  "videoNotSupported": "🎥 Nie obsługuję wideo — wyślij mi słowo, wyrażenie lub zdanie jako tekst.",
   "videoNoSubtitles": "Brak napisów dostępnych dla Twoich języków.",
   "videoLimitReached": "Osiągnięto miesięczny limit filmów. Resetuje się 1. dnia.",
   "videoAlreadyProcessing": "Ten film jest wciąż przetwarzany.",

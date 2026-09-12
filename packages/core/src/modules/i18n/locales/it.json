@@ -312,6 +312,7 @@
   "videoProcessingDone": "Frasi estratte!",
   "videoProcessingFailed": "Elaborazione del video fallita. Il tuo limite è stato rimborsato.",
   "videoOnlyYouTube": "Per ora è supportato solo YouTube.",
+  "videoNotSupported": "🎥 Non posso elaborare i video — inviami una parola, frase o periodo come testo.",
   "videoNoSubtitles": "Nessun sottotitolo disponibile per le tue lingue.",
   "videoLimitReached": "Limite mensile di video raggiunto. Si azzera il giorno 1.",
   "videoAlreadyProcessing": "Questo video è ancora in elaborazione.",

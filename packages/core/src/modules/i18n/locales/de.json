@@ -312,6 +312,7 @@
   "videoProcessingDone": "Phrasen extrahiert!",
   "videoProcessingFailed": "Videoverarbeitung fehlgeschlagen. Dein Limit wurde gutgeschrieben.",
   "videoOnlyYouTube": "Vorerst wird nur YouTube unterstützt.",
+  "videoNotSupported": "🎥 Mit Videos kann ich nicht arbeiten — sende mir ein Wort, eine Phrase oder einen Satz als Text.",
   "videoNoSubtitles": "Keine Untertitel für deine Sprachen verfügbar.",
   "videoLimitReached": "Monatliches Videolimit erreicht. Wird am 1. zurückgesetzt.",
   "videoAlreadyProcessing": "Dieses Video wird noch verarbeitet.",
