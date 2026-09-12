@@ -3,7 +3,7 @@
  *
  * The mentor answers a question about a card it never saw, so everything the
  * card shows — the headword, what it means, the per-language blocks and their
- * notes, plus the sections the user unfolded — travels with the question.
+ * notes, plus the etymology when the user unfolded it — travels with the question.
  * Without it the model re-derives the translation from the bare word and
  * answers about a different sense than the one on screen.
  *
@@ -19,8 +19,6 @@ export interface CardMentorContext {
   output: TranslateOutput;
   /** Context the user typed alongside the word when asking for the translation. */
   contextHint?: string;
-  /** Grammar breakdown unfolded on this card (language code → items). */
-  grammarBreakdown?: Record<string, string[]>;
   /** Etymology prose unfolded on this card. */
   etymology?: string;
 }
@@ -74,9 +72,6 @@ export function renderCardForMentor(card: CardMentorContext): string {
     lines.push(...describeTranslation(code, translation));
   }
 
-  for (const [code, items] of Object.entries(card.grammarBreakdown ?? {})) {
-    if (items.length > 0) lines.push(`Grammar breakdown (${code}): ${items.join("; ")}`);
-  }
   if (card.etymology) lines.push(`Etymology: ${card.etymology}`);
   if (card.contextHint) lines.push(`Context the user gave when asking for this translation: ${card.contextHint}`);
   if (output.unverified) {

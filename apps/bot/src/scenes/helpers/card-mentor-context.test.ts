@@ -24,12 +24,10 @@ const FULL_CARD: CardMentorContext = {
         usageNote: "Neutral — usable for both the activity and the workplace.",
         connotationWarning: "dřina implies drudgery.",
         alternatives: [{ text: "zaměstnání", synonyms: [{ text: "místo" }] }],
-        grammarBreakdown: null,
       },
     },
   },
   contextHint: "as in a paid job",
-  grammarBreakdown: { cs: ["feminine noun", "accusative: práci"] },
   etymology: "From Old High German arabeit.",
 };
 
@@ -62,7 +60,6 @@ describe("renderCardForMentor", () => {
     expect(rendered).toContain("usage note: Neutral — usable for both");
     expect(rendered).toContain("caution: dřina implies drudgery.");
     expect(rendered).toContain('examples: "Práce začíná v osm." — Work starts at eight.');
-    expect(rendered).toContain("Grammar breakdown (cs): feminine noun; accusative: práci");
     expect(rendered).toContain("Etymology: From Old High German arabeit.");
     expect(rendered).toContain("Context the user gave when asking for this translation: as in a paid job");
   });
@@ -76,7 +73,6 @@ describe("renderCardForMentor", () => {
     expect(rendered).not.toContain("synonyms:");
     expect(rendered).not.toContain("usage note:");
     expect(rendered).not.toContain("Etymology");
-    expect(rendered).not.toContain("Grammar breakdown");
     expect(rendered).not.toContain("Context the user gave");
     // The citation form is the card's own headword; repeating the input as one
     // would tell the model a normalization happened when none did.

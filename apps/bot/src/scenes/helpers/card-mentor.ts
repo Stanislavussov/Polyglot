@@ -89,7 +89,6 @@ function readCard(session: SessionData, cardMsgId: number): CardMentorContext | 
   return {
     output: entry.output,
     contextHint: entry.contextHint,
-    grammarBreakdown: entry.grammarBreakdown,
     etymology: entry.etymology,
   };
 }
