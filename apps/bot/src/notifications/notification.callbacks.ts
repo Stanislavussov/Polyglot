@@ -8,11 +8,10 @@
  * - notif:learned:{entryId} → soft-delete entry from vocabulary
  */
 import { isSupported, logger, resolveTemplate, type SupportedLang, t } from "@polyglot/core";
-import { buildTranslationKeyboard, renderTranslation } from "../renderers/translation.renderer.js";
+import { renderTranslation } from "../renderers/translation.renderer.js";
+import { buildCardKeyboard } from "../scenes/helpers/card-keyboard.js";
 import { editMessageReplyMarkupOrIgnore, editMessageTextOrReply } from "../scenes/helpers/edit-message.helper.js";
-import { resolveLockedBadges } from "../scenes/helpers/paid-feature.helper.js";
 import { handleTranslateText } from "../scenes/helpers/translate-flow.js";
-import { isEtymologyEligible, resolvePronounceLangs } from "../scenes/helpers/translate-mode.shared.js";
 import { setTranslationEntry } from "../scenes/helpers/translation-map.helper.js";
 import type { BotContext } from "../types.js";
 import { makeLangCodeResolver, resolveLanguageOrder } from "../utils/language-order.js";
@@ -119,26 +118,17 @@ export async function handleNotifRevealCallback(ctx: BotContext): Promise<void> 
       return;
     }
 
-    const keyboard = buildTranslationKeyboard({
-      interfaceLang: lang,
-      msgId: cardMsgId,
-      isAlreadySaved: true,
-      showGrammarButton:
-        entry.inputType !== "word" && (entry.inputType === "sentence" || !template.fields.grammarBreakdown),
-      // No native language on file means nothing to compare the source against,
-      // and `isEtymologyEligible` asks exactly that question — so it answers "no".
-      showEtymologyButton: isEtymologyEligible(
-        entry.inputType,
-        output.sourceLang,
-        order.nativeLang ?? output.sourceLang,
-      ),
-      pronounceLangs: await resolvePronounceLangs(ctx, output, entry.inputType, order),
-      locked: await resolveLockedBadges(ctx),
-    });
-    await ctx.api.editMessageReplyMarkup(ctx.chat!.id, cardMsgId, { reply_markup: keyboard });
-
-    setTranslationEntry(ctx.session, cardMsgId, { output, inputType: entry.inputType, savedWordId: entry.id });
+    // The session entry first: the keyboard is derived from the card's own state,
+    // which is what keeps this card's buttons identical to every other rebuild of
+    // one (`card-keyboard.ts`) instead of a second hand-assembled guess at them.
+    const cardEntry = { output, inputType: entry.inputType, savedWordId: entry.id };
+    setTranslationEntry(ctx.session, cardMsgId, cardEntry);
     ctx.session.pendingCardMsgId = cardMsgId;
+
+    // No native language on file leaves nothing to compare the source against,
+    // which is the question the etymology and pronunciation rules ask.
+    const keyboard = await buildCardKeyboard(ctx, cardEntry, cardMsgId, lang, order.nativeLang ?? output.sourceLang);
+    await ctx.api.editMessageReplyMarkup(ctx.chat!.id, cardMsgId, { reply_markup: keyboard });
   } catch (err) {
     logger.error({ err, entryId }, "Failed to reveal notification card");
     try {

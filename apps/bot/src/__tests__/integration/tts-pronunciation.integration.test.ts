@@ -55,7 +55,7 @@ function arrangeHarness(overrides: { enabled?: boolean; detectAs?: string } = {}
   return { harness, generateSpeech, modelId };
 }
 
-/** Send a word and return the rendered card's message id and buttons. */
+/** Send a word and return the rendered card — the speakers are on it, unfolded. */
 async function renderCard(harness: BotHarness, chatId: number, word: string) {
   await harness.dispatch(messageUpdate({ chatId, fromId: chatId, text: word }));
   return lastRenderedCard(harness.sent);

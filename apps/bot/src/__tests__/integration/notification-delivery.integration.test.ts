@@ -429,9 +429,13 @@ describe("scheduled notification delivery (integration)", () => {
       ?.reply_markup?.inline_keyboard?.flat()
       .map((button) => button.callback_data);
 
-    expect(buttons).toContain(`tr:clarifypost:${nudgeMsgId}`);
-    expect(buttons).toContain(`tr:altmeaning:${nudgeMsgId}`);
+    // A fresh card ships collapsed, so what proves this is the card's keyboard is
+    // the pair a collapsed card always carries — ⋯ More and Save — both addressed
+    // to this message. Expanding it is `tr:more`'s job and is covered where that
+    // behaviour lives.
+    expect(buttons).toContain(`tr:more:${nudgeMsgId}`);
     expect(buttons).toContain(`tr:save:${nudgeMsgId}`);
+    expect(buttons?.every((data) => data?.endsWith(`:${nudgeMsgId}`))).toBe(true);
     // None of the nudge's own buttons survive the reveal — the card owns the message now.
     expect(buttons?.some((data) => data?.startsWith("notif:"))).toBe(false);
     expect(ai.wasCalled()).toBe(false);
