@@ -22,6 +22,7 @@ import {
 } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import { videoEnrichmentCounter, videoProcessingCounter, videoProcessingDuration } from "../../metrics.js";
+import { trackProductEvent } from "../../observability/product-events.js";
 import {
   buildConfirmationKeyboard,
   buildPhraseListKeyboard,
@@ -213,14 +214,22 @@ export async function handleVideoVocabularyUrl(
     planFeatures: [],
   });
 
-  // Resolved before the allowance check so the giveaway can bypass it entirely.
-  const isTrial = options.fromOnboarding
-    ? !(await ctx.services.videoVocabularyRepository.hasCompletedTrial(userId))
-    : false;
+  // Resolved before the allowance check so the giveaway can bypass it entirely —
+  // but only when the plan cannot pay for this video itself. Since Task 84 a
+  // brand-new user spends their first week on the Plus trial, whose monthly
+  // allowance covers a starter video; spending the once-per-account giveaway
+  // there would leave them with nothing the first time they open Videos after
+  // the trial expires, which is exactly the screen this giveaway exists for.
+  const planCoversVideo = videoEntitlement.window !== "none";
+  const isTrial =
+    options.fromOnboarding && !planCoversVideo
+      ? !(await ctx.services.videoVocabularyRepository.hasCompletedTrial(userId))
+      : false;
 
   let usageCount = 0;
   if (!isTrial && videoEntitlement.window === "none") {
     // Video not available on this plan → US-6 attaches the upgrade CTA keyboard here.
+    trackProductEvent(ctx, "limit.reached", "video");
     await ctx.reply(t("videoLimitReached", lang), { reply_markup: buildUpgradeKeyboard(lang) });
     return;
   }
@@ -232,6 +241,7 @@ export async function handleVideoVocabularyUrl(
     if (usageCount >= videoEntitlement.limit) {
       // Free trial exhausted (3 lifetime) or Plus monthly cap hit — the prime
       // conversion moment, so surface the upgrade CTA here too.
+      trackProductEvent(ctx, "limit.reached", "video");
       await ctx.reply(t("videoLimitReached", lang), { reply_markup: buildUpgradeKeyboard(lang) });
       return;
     }
@@ -631,8 +641,8 @@ export const VIDEO_TRY_PATTERN = /^vid:try:/;
 
 /**
  * A curated starter video was tapped. Runs the normal pipeline, flagged as coming
- * from onboarding so the user's one free trial can absorb it instead of a third
- * of their lifetime free allowance.
+ * from onboarding so the user's one free trial can absorb it — but only when
+ * their plan has no video allowance of its own to pay for it (Task 84).
  */
 export async function handleVideoTryCallback(ctx: BotContext): Promise<void> {
   await ctx.answerCallbackQuery();
@@ -677,7 +687,18 @@ async function showPhraseBrowser(ctx: BotContext, processId: number, page: numbe
   const totalPhrases = await ctx.services.videoVocabularyRepository.countPhrasesByProcess(processId);
   const totalPages = Math.max(1, Math.ceil(totalPhrases / PHRASES_PER_PAGE));
 
-  const text = renderPhraseList(phrases, page, totalPages, process.videoUrl, lang);
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
+  const text = renderPhraseList(
+    phrases,
+    page,
+    totalPages,
+    process.videoUrl,
+    {
+      source: process.language,
+      native: settings?.nativeLang ?? undefined,
+    },
+    lang,
+  );
   const keyboard = buildPhraseListKeyboard(phrases, page, totalPages, processId, lang);
 
   await ctx.reply(text, {
@@ -705,7 +726,18 @@ async function showPhraseBrowserEdit(
   const totalPhrases = await ctx.services.videoVocabularyRepository.countPhrasesByProcess(processId);
   const totalPages = Math.max(1, Math.ceil(totalPhrases / PHRASES_PER_PAGE));
 
-  const text = renderPhraseList(phrases, page, totalPages, process.videoUrl, lang);
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
+  const text = renderPhraseList(
+    phrases,
+    page,
+    totalPages,
+    process.videoUrl,
+    {
+      source: process.language,
+      native: settings?.nativeLang ?? undefined,
+    },
+    lang,
+  );
   const keyboard = buildPhraseListKeyboard(phrases, page, totalPages, processId, lang);
 
   await editMessageTextOrReply(ctx, text, {

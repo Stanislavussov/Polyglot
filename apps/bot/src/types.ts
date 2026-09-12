@@ -1,4 +1,5 @@
 import { type ConversationFlavor } from "@grammyjs/conversations";
+import type { UserMode } from "@polyglot/adapter-db";
 import type {
   DictionaryWordConfig,
   InputType,
@@ -12,20 +13,18 @@ import type {
 } from "@polyglot/core";
 import { Context, SessionFlavor } from "grammy";
 
-/**
- * Canonical list of bot modes — the single source of truth.
- * Both the {@link UserMode} union and every runtime `VALID_MODES` set are
- * derived from this array, so a newly added mode cannot be silently omitted
- * from session validation (adding one here updates the type and all guards).
- */
-export const USER_MODES = ["idle", "translate", "mentor"] as const;
+// The mode enum is owned by adapter-db (it persists the `active_mode` column);
+// re-exported here so bot-layer importers keep a single, stable path.
+export type { UserMode } from "@polyglot/adapter-db";
 
-/**
- * Active mode for the bot — determines how plain text messages are routed.
- * Persisted in DB (userLanguageSettings.activeMode) to survive bot restarts.
- * Derived from {@link USER_MODES}; add new modes there.
- */
-export type UserMode = (typeof USER_MODES)[number];
+/** Text held while the mentor idle re-confirm prompt is on screen. */
+export interface MentorIdleHold {
+  text: string;
+  /** Telegram id of the held user message, so the resumed turn persists its user row. */
+  userMsgId?: number;
+  /** Telegram id of the prompt message carrying the buttons. */
+  promptMsgId: number;
+}
 
 /**
  * Session data stored per-user.
@@ -65,6 +64,19 @@ export interface SessionData {
       grammarBreakdown?: Record<string, string[]>;
       /** Cached on-demand etymology prose for the original term */
       etymology?: string;
+      /**
+       * Candidate source languages offered on a doubtful-detection card. Stored
+       * rather than recomputed: every later keyboard rebuild (expand, collapse,
+       * grammar, etymology) has to reproduce the card's buttons exactly, and
+       * "was detection doubtful?" is knowable only at translation time.
+       */
+      sourceOverrideLangs?: string[];
+      /**
+       * Whether the action list is currently open on this card. Purely visual,
+       * and deliberately per-card: two cards in the same chat can be open and
+       * closed independently.
+       */
+      actionsExpanded?: boolean;
       /**
        * Monotonic insertion stamp used for recency-based eviction. Set by
        * {@link setTranslationEntry}; Telegram message ids are not a safe proxy
@@ -226,6 +238,13 @@ export interface SessionData {
       text: string;
       /** Mentor only: the thread the timed-out turn belonged to, so a retried reply-continuation lands in the same thread. */
       threadId?: string;
+      /**
+       * Mentor only: the anchor the timed-out turn used. A retry runs on a
+       * callback, so `ctx.message` is gone — without carrying it, a retried
+       * card question is answered but never recorded, and the follow-up reads
+       * the answer with no question.
+       */
+      userMessageId?: number;
       /** Monotonic insertion stamp used for recency-based eviction. */
       addedAt?: number;
     }
@@ -275,15 +294,19 @@ export interface SessionData {
   /**
    * Mentor mode state (Task 66, reply-threads MVP).
    * History lives in `mentor_messages` (DB), NOT here — the session only pins
-   * which thread a plain message in mentor mode continues. An empty object is
-   * meaningful: it marks a fresh `/mentor` entry, so a missing `mentor` field
-   * (session loss) is the only state that triggers latest-thread recovery from
-   * the DB. Legacy sessions may still carry a `history` array — ignored and
-   * overwritten on the next mentor turn.
+   * which thread a plain message in mentor mode continues. An object without a
+   * `threadId` is meaningful: it marks a fresh `/mentor` entry, so a missing
+   * `mentor` field (session loss) is the only state that triggers latest-thread
+   * recovery from the DB. Legacy sessions may still carry a `history` array —
+   * ignored and overwritten on the next mentor turn.
    */
   mentor?: {
     threadId?: string;
+    /** Epoch ms of the last mentor activity — mode entry or a completed turn. */
+    lastTurnAt?: number;
   };
+  /** Message held while the idle prompt is on screen. Single slot: the newest supersedes. */
+  mentorIdlePrompt?: MentorIdleHold;
 }
 
 /** Custom context properties injected by auth middleware */

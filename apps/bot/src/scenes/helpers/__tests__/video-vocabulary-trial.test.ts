@@ -1,13 +1,18 @@
 /**
- * The one free onboarding video (Task 72).
+ * The one free onboarding video (Task 72, narrowed in Task 84).
  *
- * A run started from the onboarding suggestions bypasses the plan's video
- * allowance entirely and is recorded as a trial; trial rows are excluded from
- * both usage counts, and each user gets exactly one. Since Task 79 the free plan
- * has **no** video allowance at all (`videoWindow: "none"`), which makes this
- * giveaway the only video a free user ever sees — so the exemption below is what
- * the whole onboarding payoff screen rests on. The allowance-path cases therefore
- * describe a plan that HAS an allowance, which free no longer does.
+ * A run started from the starter-video suggestions can bypass the plan's video
+ * allowance and be recorded as a trial; trial rows are excluded from both usage
+ * counts, and each user gets exactly one. Since Task 79 the free plan has **no**
+ * video allowance at all (`videoWindow: "none"`), which makes this giveaway the
+ * only video a free user ever sees — so the exemption is what the whole
+ * suggestions screen rests on. The allowance-path cases therefore describe a plan
+ * that HAS an allowance, which free no longer does.
+ *
+ * Task 84 added the one condition: the giveaway is spent only when the plan
+ * cannot pay for the video itself. A user inside their reverse trial is on Plus,
+ * and burning their single lifetime video there would empty the suggestions
+ * screen they meet the week after it expires.
  */
 import type { PlanLimitConfig, ServiceContainer } from "@polyglot/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -78,6 +83,21 @@ describe("onboarding starter video — allowance exemption", () => {
     expect(videoVocabularyRepository.getLifetimeUsageCount).not.toHaveBeenCalled();
   });
 
+  it("keeps the giveaway unspent while the plan has an allowance of its own", async () => {
+    // A user inside the reverse trial: Plus pays for the starter video, so the
+    // single lifetime giveaway must survive the downgrade that follows.
+    const { ctx, videoVocabularyRepository } = createCtx({
+      plan: "plus",
+      planLimit: { name: "plus", videoLimit: 20, videoWindow: "monthly" },
+    });
+
+    await handleVideoVocabularyUrl(ctx, URL, { fromOnboarding: true });
+
+    expect(videoVocabularyRepository.hasCompletedTrial).not.toHaveBeenCalled();
+    expect(videoVocabularyRepository.getMonthlyUsageCount).toHaveBeenCalled();
+    expect(videoVocabularyRepository.createProcess).toHaveBeenCalledWith(expect.objectContaining({ isTrial: false }));
+  });
+
   it("runs the starter video even when the lifetime allowance is already exhausted", async () => {
     // The whole point: a brand-new user must be able to try it, and an exhausted
     // allowance must not be what greets them on the onboarding screen.
@@ -98,6 +118,16 @@ describe("onboarding starter video — allowance exemption", () => {
 
     expect(videoVocabularyRepository.getLifetimeUsageCount).toHaveBeenCalled();
     expect(videoVocabularyRepository.createProcess).toHaveBeenCalledWith(expect.objectContaining({ isTrial: false }));
+  });
+
+  it("refuses a starter video on free once the giveaway is spent", async () => {
+    // The state a user is in after their reverse trial if the trial had burned
+    // the giveaway — which is why it no longer does.
+    const { ctx, videoVocabularyRepository } = createCtx({ trialUsed: true });
+
+    await handleVideoVocabularyUrl(ctx, URL, { fromOnboarding: true });
+
+    expect(videoVocabularyRepository.createProcess).not.toHaveBeenCalled();
   });
 
   it("blocks a second suggestion once the allowance is also gone", async () => {

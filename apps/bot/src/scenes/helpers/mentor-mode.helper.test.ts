@@ -77,6 +77,7 @@ function createMockCtx(overrides?: Partial<SessionData>): BotContext {
     reply: vi.fn().mockResolvedValue({ message_id: 100 }),
     user: { id: 1, telegramId: 123456789, onboarded: true, audienceGroup: "product", subscriptionPlan: "free" },
     services: {
+      productEventRepository: { record: vi.fn().mockResolvedValue(undefined) },
       userRepository: mockUserRepository,
       ai: mockAi,
       settings: mockSettings,
@@ -227,10 +228,18 @@ describe("handleMentorText", () => {
     expect(mockMentorMessageRepository.findLatestThreadId).not.toHaveBeenCalled();
     const threadId = mockMentorMessageRepository.record.mock.calls[0][0].threadId;
     expect(threadId).toMatch(/^[0-9a-f-]{36}$/);
-    expect(ctx.session.mentor).toEqual({ threadId });
+    expect(ctx.session.mentor).toEqual({ threadId, lastTurnAt: expect.any(Number) });
   });
 
-  it("does not pin the thread on the session when the turn ran outside mentor mode", async () => {
+  it("advances the activity stamp instead of overwriting it when the turn completes", async () => {
+    const ctx = createMockCtx({ mentor: { threadId: THREAD_A, lastTurnAt: 1 } });
+    await handleMentorText(ctx, "and in questions?");
+
+    expect(ctx.session.mentor?.threadId).toBe(THREAD_A);
+    expect(ctx.session.mentor?.lastTurnAt).toBeGreaterThan(1);
+  });
+
+  it("does not pin the thread or stamp activity when the turn ran outside mentor mode", async () => {
     const ctx = createMockCtx({ activeMode: "translate", mentor: undefined });
     await handleMentorText(ctx, "reply from translate mode", { threadId: THREAD_B });
 
@@ -311,23 +320,16 @@ describe("handleMentorText", () => {
   });
 
   it("bypasses the mentor daily limit for internal roles (no plan read, no turn count)", async () => {
-    // A free-plan admin with mentorDailyLimit 0 must still get through: the role
-    // short-circuits before the count. (The queued plan is consumed by the credit
-    // meter later in the same turn.)
-    mockSettings.getPlanLimit.mockResolvedValueOnce({
-      name: "free",
-      label: "Free",
-      translationLimit: 50,
-      creditCost: 1,
-      mentorDailyLimit: 0,
-      isActive: true,
-      isDefault: true,
-    });
+    // An internal role short-circuits BOTH meters — the mentor's daily cap and
+    // the shared credit budget — and neither reads a plan row on the way past.
+    // (Before Task 84 the credit meter still read one, which is why this test
+    // used to have to queue a plan for it.)
     const ctx = createMockCtx();
     (ctx.user as { audienceGroup: string }).audienceGroup = "admin";
 
     await handleMentorText(ctx, "hello");
 
+    expect(mockSettings.getPlanLimit).not.toHaveBeenCalled();
     expect(mockTranslationRequestRepository.countRequestsInWindow).not.toHaveBeenCalled();
     expect(mockAi.generateChat).toHaveBeenCalledTimes(1);
   });

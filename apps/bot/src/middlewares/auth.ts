@@ -1,6 +1,10 @@
+// Direct adapter import from a middleware (precedent: session-storage.ts:1): the persisted
+// mode enum is owned by adapter-db, and deriving VALID_MODES from anything else lets it
+// drift from the `active_mode` column this middleware hydrates from.
+import { USER_MODES, type UserMode } from "@polyglot/adapter-db";
 import { enrichTrace, errorFields, logEvent } from "@polyglot/core";
 import type { NextFunction } from "grammy";
-import { type BotContext, USER_MODES, type UserMode } from "../types.js";
+import type { BotContext } from "../types.js";
 import { getRequestSettings } from "./request-settings.js";
 
 /** Derived from the single source of truth so it can never drift from UserMode. */

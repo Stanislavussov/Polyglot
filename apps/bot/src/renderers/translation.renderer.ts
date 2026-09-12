@@ -7,10 +7,8 @@ import type {
   FeatureKey,
   LanguageOrderContext,
   LanguageTranslation,
-  LanguageTranslationEntry,
   SupportedLang,
   TemplateFields,
-  TopicWord,
   TranslateOutput,
 } from "@polyglot/core";
 import { FEATURE_KEYS, getLangFlag, isSupported, orderRecordEntries, t } from "@polyglot/core";
@@ -18,24 +16,24 @@ import { InlineKeyboard } from "grammy";
 import { NOOP_CALLBACK } from "../utils/long-op.js";
 import { expandableSection } from "./card-sections.js";
 
-/**
- * Marks a button whose feature the viewer's plan does not include. Deliberately a
- * bare glyph and not a "premium only" label: the card stays uncluttered, the badge
- * reads as an invitation, and the explanation lives in the screen the tap opens.
- */
-const PAID_BADGE = " ⭐";
-
 export interface TranslationKeyboardOptions {
   interfaceLang?: string;
   msgId?: number;
   isAlreadySaved?: boolean;
-  showGrammarButton?: boolean;
-  showGrammarDetailButton?: boolean;
+  /** Show the action list rather than the `⋯ More` button that opens it. */
+  expanded?: boolean;
   showEtymologyButton?: boolean;
-  sourceOverrideLangs?: string[];
+  showMentorButton?: boolean;
+  sourceOverrideLangs?: readonly string[];
   pronounceLangs?: readonly string[];
-  /** Feature keys this viewer does NOT have — their buttons get the ⭐ badge. */
-  locked?: ReadonlySet<string>;
+  /**
+   * Feature keys this viewer does NOT have, each mapped to the badge its button
+   * wears — the glyph of the tier that sells it (⭐ Plus, 💎 Pro), from
+   * `resolveLockedBadges`. Deliberately a bare glyph and not a "premium only"
+   * label: the card stays uncluttered and the explanation lives in the screen the
+   * tap opens — a screen that then offers exactly the tier the glyph named.
+   */
+  locked?: ReadonlyMap<string, string>;
 }
 
 /** Escape HTML special characters for Telegram */
@@ -166,7 +164,10 @@ export function renderTranslation(
   const sourceFlag = getLangFlag(output.sourceLang) ?? "🔤";
   if (sourceUsageLines.length > 0) {
     lines.push(...sourceUsageLines);
-  } else if (!hideSourceText) {
+  } else {
+    // Reverse direction without a sourceUsage block (the model may omit it) still
+    // needs the headword: dropping it left the user with translations of a word
+    // the card never named.
     lines.push(`${emojiPrefix(output.emoji)}${sourceFlag} <b>${esc(output.original)}</b>${nativeSyns}`);
   }
   const nativeMeaningLine = renderNativeMeaningLine(nativeLang, output.nativeMeaning);
@@ -291,26 +292,6 @@ function renderLangBlock(code: string, lt: LanguageTranslation, lang: SupportedL
 }
 
 /**
- * Render a single topic word card for Telegram (HTML).
- *
- * Compact format showing the word and its translations per language.
- */
-export function renderTopicWord(word: TopicWord): string {
-  const lines: string[] = [];
-  lines.push(`<b>${esc(word.original)}</b>`);
-  lines.push("");
-
-  for (const [code, entry] of Object.entries(word.translations)) {
-    const e = entry as LanguageTranslationEntry;
-    const header = `<b>${esc(e.text)}</b>`;
-    const flag = getLangFlag(code) ?? "🔤";
-    lines.push(`${flag} ${esc(code.toUpperCase())}: ${header}`);
-  }
-
-  return lines.join("\n").trim();
-}
-
-/**
  * Render a compact sentence translation card for Telegram (HTML).
  *
  * Shows only: emoji, original sentence, and per-language translations.
@@ -342,9 +323,9 @@ export function renderSentenceTranslation(
   const hideSourceText = isReverseLearningTranslation(output, nativeLang);
 
   const sourceFlag = getLangFlag(output.sourceLang) ?? "🔤";
-  if (!hideSourceText) {
-    lines.push(`${emojiPrefix(output.emoji)}${sourceFlag} <b>${esc(output.original)}</b>`);
-  }
+  // Always shown, in both directions: a sentence has no sourceUsage block to carry
+  // the original the way a word card does, so hiding it left an unanchored card.
+  lines.push(`${emojiPrefix(output.emoji)}${sourceFlag} <b>${esc(output.original)}</b>`);
   const nativeMeaningLine = renderNativeMeaningLine(nativeLang, output.nativeMeaning);
   const hasNativeTranslation = nativeLang !== undefined && output.translations[nativeLang] !== undefined;
   if (nativeMeaningLine && nativeLang !== output.sourceLang && !hasNativeTranslation) {
@@ -377,24 +358,82 @@ function renderSentenceLangBlock(code: string, lt: LanguageTranslation): string 
   return `${flag} ${esc(code.toUpperCase())}: ${header}`;
 }
 
+/** One inline button, before it is placed into a row. */
+type CardButton = { text: string; data: string };
+
 /**
- * Build unified inline keyboard for translation results.
+ * How many actions share a row in the expanded list.
  *
- * Layout:
- * Row 1: Clarify meaning + Other meaning
- * Row 2: Grammar + Etymology (learning aids, each shown when enabled — share a row)
- * Row 3: Grammar detail (when expanded)
- * Row 4: Source-language override (only on doubtful-detection cards — a "translate
- *        from" header + one flag button per candidate language, `tr:srclang:*`)
- * Row 5: Pronunciation — one 🔊 button per learning language on the card
- * Row 6: Save button (always last)
+ * Two, not one: the list runs to six actions on a rich card, and a column of
+ * six full-width buttons is taller than the card it belongs to — the user
+ * scrolls past the translation to reach them. Two per row halves that without
+ * making any label unreadable, since every one of them is a short noun phrase.
+ */
+const ACTIONS_PER_ROW = 2;
+
+/** Compact flag buttons (two glyphs) fit four across even on a narrow screen. */
+const FLAGS_PER_ROW = 4;
+
+/**
+ * Lay `buttons` out `perRow` to a row, continuing the keyboard where it stands.
+ *
+ * The row break is taken BEFORE each chunk and only when the current row has
+ * something in it — a break taken after would leave a trailing empty row, which
+ * Telegram renders as a gap and which makes "Save is the last row" quietly false.
+ */
+function appendInRows(kb: InlineKeyboard, buttons: readonly CardButton[], perRow: number): void {
+  for (let i = 0; i < buttons.length; i += perRow) {
+    if (kb.inline_keyboard.at(-1)?.length) kb.row();
+    for (const button of buttons.slice(i, i + perRow)) {
+      kb.text(button.text, button.data);
+    }
+  }
+}
+
+/**
+ * Build the inline keyboard for a translation card, in one of its two states.
+ *
+ * **Collapsed** (the default, what a fresh card wears):
+ * ```
+ * 🔊 🇩🇪  🔊 🇨🇿
+ * ⋯ More
+ * 💾 Save
+ * ```
+ * **Expanded** (after `⋯ More`) — the actions two to a row, then the
+ * source-language override, then the same speakers, then the way back:
+ * ```
+ * 🎯 Clarify meaning  🔄 Other meaning
+ * 🧑‍🏫 Ask the mentor   🔍 Etymology
+ * 🌐 Wrong language? Translate from:
+ * 🇩🇪 DE  🇫🇷 FR
+ * 🔊 🇩🇪  🔊 🇨🇿
+ * ← Back
+ * ```
+ *
+ * The learning aids hide behind one button because the flat layout grew past what
+ * a card should carry: clarify, other meaning, the mentor and etymology all
+ * competed with the translation itself. The toggle is pure presentation —
+ * `tr:more`/`tr:less` only swap the markup, so neither state costs a call or
+ * changes the card's text.
+ *
+ * The speakers stay OUT of the fold, in the same place in both states: hearing the
+ * word is the one thing a learner does without deciding to, so it must not cost a
+ * tap to reach, and a control that moves when a menu opens is a control you have
+ * to look for.
+ *
+ * Save belongs to the card, not to the menu, so it appears only on the collapsed
+ * keyboard — full width, on a row of its own. It is the one button here that
+ * writes anything, and an open menu is a list of things to *read* about the word;
+ * a Save sitting at the end of it is a mis-tap that files a word nobody asked to
+ * keep. `← Back` is how the menu is left, and the card underneath it still has
+ * Save exactly where it was.
  *
  * `sourceOverrideLangs` is populated only when source-language detection was
  * doubtful (a heuristic fallback rather than a confident resolution); it stays
  * empty on the common confident path, so the extra rows are rare by construction.
  *
  * Buttons for features the viewer's plan does not include are still rendered and
- * still carry their normal callback data — they only gain a ⭐ badge, and the
+ * still carry their normal callback data — they only gain a plan badge, and the
  * handler behind them opens the upgrade screen (Task 79). Keeping the data
  * identical is what makes the badge purely cosmetic: a card sent before an
  * upgrade keeps working, and the server-side gate stays the only authority.
@@ -406,9 +445,9 @@ export function buildTranslationKeyboard(options: TranslationKeyboardOptions = {
     interfaceLang,
     msgId,
     isAlreadySaved,
-    showGrammarButton,
-    showGrammarDetailButton,
+    expanded,
     showEtymologyButton,
+    showMentorButton,
     sourceOverrideLangs,
     pronounceLangs,
     locked,
@@ -416,101 +455,85 @@ export function buildTranslationKeyboard(options: TranslationKeyboardOptions = {
   const lang = toLang(interfaceLang);
   const kb = new InlineKeyboard();
   const mid = msgId ?? 0;
-  /** Label + the paid badge when this viewer's plan does not include the feature. */
-  const label = (text: string, feature: FeatureKey): string => (locked?.has(feature) ? `${text}${PAID_BADGE}` : text);
-
-  kb.text(label(t("clarifyTranslation", lang), FEATURE_KEYS.clarification), `tr:clarifypost:${mid}`);
-  kb.text(label(t("otherMeaning", lang), FEATURE_KEYS.clarification), `tr:altmeaning:${mid}`);
-
-  // Learning aids share a row, next to each other
-  if (showGrammarButton || showEtymologyButton) {
-    kb.row();
-    if (showGrammarButton) {
-      kb.text(label(t("grammarBreakdownButton", lang), FEATURE_KEYS.grammarBreakdown), `tr:grammar:${mid}`);
-    }
-    if (showEtymologyButton) {
-      kb.text(label(t("etymology", lang), FEATURE_KEYS.etymology), `tr:etymology:${mid}`);
-    }
-  }
-
-  if (showGrammarDetailButton) {
-    kb.row();
-    kb.text(label(t("grammarDetailButton", lang), FEATURE_KEYS.grammarDetail), `tr:gramdetail:${mid}`);
-  }
-
-  // Source-language override — only on doubtful cards. A non-actionable header
-  // (NOOP) labels the intent, then one flag button per candidate language in
-  // rows of up to four. Tapping a flag re-translates the same original with that
-  // source forced as an AI hint (handled by `tr:srclang:<code>:<mid>`), sent as a
-  // new card so the doubtful card stays as a snapshot.
-  if (sourceOverrideLangs && sourceOverrideLangs.length > 0) {
-    kb.row();
-    kb.text(t("translationSourceFromLabel", lang), NOOP_CALLBACK);
-    for (let i = 0; i < sourceOverrideLangs.length; i += 4) {
-      kb.row();
-      for (const code of sourceOverrideLangs.slice(i, i + 4)) {
-        kb.text(`${getLangFlag(code) ?? "🔤"} ${code.toUpperCase()}`, `tr:srclang:${code}:${mid}`);
-      }
-    }
-  }
-
-  // Pronunciation — Telegram has no per-word hit target inside message text, so
-  // the speaker for each non-native word lives here rather than beside the word.
-  // Callers pass every language the card shows but the native one (see
-  // `selectPronounceableLangs`); a single one gets a labelled wide button, several
-  // get compact flag buttons so a card with four languages does not grow four
-  // full-width rows.
-  if (pronounceLangs && pronounceLangs.length > 0) {
-    kb.row();
+  /** Label + the badge of the plan that sells it, when this viewer's plan does not. */
+  const label = (text: string, feature: FeatureKey): string => {
+    const badge = locked?.get(feature);
+    return badge ? `${text} ${badge}` : text;
+  };
+  /**
+   * Pronunciation — Telegram has no per-word hit target inside message text, so
+   * the speaker for each non-native word lives on the keyboard rather than beside
+   * the word. Callers pass every language the card shows but the native one (see
+   * `selectPronounceableLangs`); one gets a labelled wide button, several become
+   * compact flags — speaker then flag, no language code, since the flag alone
+   * identifies the language and dropping the code keeps four readable on a narrow
+   * screen.
+   */
+  const appendSpeakers = (): void => {
+    if (!pronounceLangs || pronounceLangs.length === 0) return;
     if (pronounceLangs.length === 1) {
       const code = pronounceLangs[0]!;
-      kb.text(label(t("pronounce", lang), FEATURE_KEYS.pronunciation), `tr:say:${code}:${mid}`);
-    } else {
-      for (let i = 0; i < pronounceLangs.length; i += 4) {
-        if (i > 0) kb.row();
-        for (const code of pronounceLangs.slice(i, i + 4)) {
-          // Speaker then flag, no language code: the flag alone identifies the
-          // language (every supported language has a distinct one), and dropping
-          // the code keeps four buttons readable on a narrow screen.
-          kb.text(
-            label(`🔊 ${getLangFlag(code) ?? code.toUpperCase()}`, FEATURE_KEYS.pronunciation),
-            `tr:say:${code}:${mid}`,
-          );
-        }
-      }
+      appendInRows(
+        kb,
+        [{ text: label(t("pronounce", lang), FEATURE_KEYS.pronunciation), data: `tr:say:${code}:${mid}` }],
+        1,
+      );
+      return;
     }
+    const speakers = pronounceLangs.map((code) => ({
+      text: label(`🔊 ${getLangFlag(code) ?? code.toUpperCase()}`, FEATURE_KEYS.pronunciation),
+      data: `tr:say:${code}:${mid}`,
+    }));
+    appendInRows(kb, speakers, FLAGS_PER_ROW);
+  };
+
+  if (!expanded) {
+    appendSpeakers();
+    appendInRows(
+      kb,
+      [
+        { text: t("cardMoreActions", lang), data: `tr:more:${mid}` },
+        {
+          text: isAlreadySaved ? t("alreadySavedButton", lang) : t("save", lang),
+          data: `tr:save:${mid}`,
+        },
+      ],
+      1,
+    );
+    return kb;
   }
 
-  // Save is always the last row
-  kb.row();
-  if (isAlreadySaved) {
-    kb.text(t("alreadySavedButton", lang), `tr:save:${mid}`);
-  } else {
-    kb.text(t("save", lang), `tr:save:${mid}`);
+  const actions: CardButton[] = [];
+  actions.push({
+    text: label(t("clarifyTranslation", lang), FEATURE_KEYS.clarification),
+    data: `tr:clarifypost:${mid}`,
+  });
+  actions.push({ text: label(t("otherMeaning", lang), FEATURE_KEYS.clarification), data: `tr:altmeaning:${mid}` });
+  if (showMentorButton) {
+    actions.push({ text: label(t("cardAskMentor", lang), FEATURE_KEYS.mentor), data: `tr:mentor:${mid}` });
+  }
+  if (showEtymologyButton) {
+    actions.push({ text: label(t("etymology", lang), FEATURE_KEYS.etymology), data: `tr:etymology:${mid}` });
+  }
+  appendInRows(kb, actions, ACTIONS_PER_ROW);
+
+  // Source-language override — only on doubtful cards. A non-actionable header
+  // (NOOP) labels the intent, then one flag button per candidate language.
+  // Tapping a flag re-translates the same original with that source forced as an
+  // AI hint (handled by `tr:srclang:<code>:<mid>`), sent as a new card so the
+  // doubtful card stays as a snapshot. The header keeps a row of its own: it is a
+  // caption for the flags under it, not a button to pair with one.
+  if (sourceOverrideLangs && sourceOverrideLangs.length > 0) {
+    appendInRows(kb, [{ text: t("translationSourceFromLabel", lang), data: NOOP_CALLBACK }], 1);
+    const flags = sourceOverrideLangs.map((code) => ({
+      text: `${getLangFlag(code) ?? "🔤"} ${code.toUpperCase()}`,
+      data: `tr:srclang:${code}:${mid}`,
+    }));
+    appendInRows(kb, flags, FLAGS_PER_ROW);
   }
 
-  return kb;
-}
-
-/**
- * Build language selection keyboard for grammar detail.
- * Shows one button per language + cancel.
- */
-export function buildGrammarLangKeyboard(
-  langCodes: readonly string[],
-  interfaceLang?: string,
-  msgId?: number,
-): InlineKeyboard {
-  const lang = toLang(interfaceLang);
-  const kb = new InlineKeyboard();
-  const mid = msgId ?? 0;
-
-  for (const code of langCodes) {
-    const flag = getLangFlag(code) ?? "🔤";
-    kb.text(`${flag} ${code.toUpperCase()}`, `tr:gramlang:${code}:${mid}`).row();
-  }
-
-  kb.text(t("grammarDetailCancel", lang), `tr:gramlang:cancel:${mid}`);
+  appendSpeakers();
+  appendInRows(kb, [{ text: t("cardBack", lang), data: `tr:less:${mid}` }], 1);
 
   return kb;
 }

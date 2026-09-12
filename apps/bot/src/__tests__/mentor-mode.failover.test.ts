@@ -87,6 +87,7 @@ function createMockCtx(ai: ReturnType<typeof buildFailoverAi>): BotContext {
     reply: vi.fn().mockResolvedValue({ message_id: 100 }),
     user: { id: 1, telegramId: 123456789, onboarded: true, subscriptionPlan: "free" },
     services: {
+      productEventRepository: { record: vi.fn().mockResolvedValue(undefined) },
       userRepository: mockUserRepository,
       ai,
       settings: mockSettings,

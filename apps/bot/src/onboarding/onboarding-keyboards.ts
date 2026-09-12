@@ -99,7 +99,7 @@ export function buildNativeKeyboard(ctx: BotContext, lang: SupportedLang, guesse
  * the screen was asking; every exit from the level menu re-renders the list.
  *
  * Otherwise the plain two-column language list is shown, with confirmed
- * languages rendered as `✅ <lang> · <level>` chips that re-open their level
+ * languages rendered as `✅ <lang> → <level>` chips that re-open their level
  * menu when tapped.
  */
 export function buildLearningKeyboard(
@@ -133,7 +133,7 @@ export function buildLearningKeyboard(
       const level = state.levels[entry.code];
       const display = languageCache.getLangDisplay(entry.code);
       return {
-        label: level ? `✅ ${display} · ${level}` : display,
+        label: level ? `✅ ${display} → ${level}` : display,
         data: `${ONB.language}${entry.code}`,
       };
     }),

@@ -469,6 +469,36 @@ describe("translate() with SENTENCE_OUTPUT and inputType=sentence", () => {
     // Transcription is still included (not disabled)
   });
 
+  it("drops source-usage synonyms and examples the config disabled", async () => {
+    const mockResult = {
+      emoji: "👋",
+      nativeMeaning: "greeting",
+      // The model volunteers the source block in full even when the prompt
+      // stopped asking for these two sections.
+      sourceUsage: {
+        explanation: "a greeting",
+        synonyms: [{ text: "hi" }],
+        examples: [{ context: "greeting", target: "Hello there!", native: "Привет!" }],
+      },
+      translations: { cs: validLangEntry() },
+    };
+
+    const input: TranslateInput = {
+      word: "hello",
+      sourceLang: "en",
+      targetLangs: ["cs"],
+      nativeLang: "ru",
+      model: "openai/gpt-4o",
+      outputConfig: RELIABLE_OUTPUT,
+    };
+
+    const output = unwrap(await translate(input, createTranslateMock(mockResult)));
+
+    expect(output.sourceUsage?.explanation).toBe("a greeting");
+    expect(output.sourceUsage?.synonyms).toEqual([]);
+    expect(output.sourceUsage?.examples).toEqual([]);
+  });
+
   // ─── WI-B: sentences omit emoji and nativeMeaning ───
   it("omits emoji and nativeMeaning for sentence output and never requests an emoji", async () => {
     // Mirror a schema-constrained AI: with includeEmoji/includeNativeMeaning false

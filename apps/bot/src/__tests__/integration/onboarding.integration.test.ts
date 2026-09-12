@@ -15,7 +15,12 @@ import { identityRepository, onboardingDemoCardRepository, userRepository } from
 import { getHookWords } from "@polyglot/core";
 import { describe, expect, it } from "vitest";
 import type { BotHarness, CapturedCall } from "../../test-helpers/integration/bot-harness.js";
-import { callbackQueryUpdate, createBotHarness, messageUpdate } from "../../test-helpers/integration/bot-harness.js";
+import {
+  callbackQueryUpdate,
+  createBotHarness,
+  messageUpdate,
+  voiceMessageUpdate,
+} from "../../test-helpers/integration/bot-harness.js";
 import { uniqueTelegramId } from "../../test-helpers/integration/id-factory.js";
 
 /** Extract the inline-keyboard callback data strings from a captured call. */
@@ -255,5 +260,83 @@ describe("/start onboarding (integration)", () => {
     const buttons = visibleCallbacks(harness);
     expect(buttons).not.toContain("onb:nat:ru");
     expect(buttons).toContain("onb:done");
+  });
+});
+
+/**
+ * The gate: until onboarding is complete, the bot does one thing — onboarding.
+ * A tap on a leftover feature button, a typed command or a voice note from a
+ * user who never chose a language used to run the feature without any language
+ * settings. Every such update must land on the current onboarding screen instead.
+ */
+describe("onboarding gate (integration)", () => {
+  /** A user who exists (identity linked) but never answered the native-language screen. */
+  async function freshUser(harness: BotHarness): Promise<number> {
+    const id = uniqueTelegramId();
+    await harness.dispatch(messageUpdate({ chatId: id, fromId: id, text: "/start", languageCode: "ru" }));
+    harness.reset();
+    return id;
+  }
+
+  function methods(harness: BotHarness): string[] {
+    return harness.sent.map((call) => call.method);
+  }
+
+  it("answers a feature button tap with the onboarding screen, not the feature", async () => {
+    const harness = createBotHarness();
+    const id = await freshUser(harness);
+
+    // A dictionary button left on screen by an earlier session (the deploy reset case).
+    await harness.dispatch(
+      callbackQueryUpdate({ chatId: id, fromId: id, messageId: 1539, data: "dict:list", languageCode: "ru" }),
+    );
+
+    expect(methods(harness)).toContain("answerCallbackQuery");
+    expect(visibleCallbacks(harness)[0]).toBe("onb:nat:ru");
+    const userId = await identityRepository.resolveUserId("telegram", String(id));
+    expect((await userRepository.findById(userId!))?.onboarded).toBe(false);
+  });
+
+  it("redirects a command other than /start to the onboarding screen", async () => {
+    const harness = createBotHarness();
+    const id = await freshUser(harness);
+
+    await harness.dispatch(messageUpdate({ chatId: id, fromId: id, text: "/dictionary" }));
+
+    expect(visibleCallbacks(harness).every((data) => data.startsWith("onb:nat:"))).toBe(true);
+    expect(allText(harness).join("\n")).not.toMatch(/dictionar/i);
+  });
+
+  it("redirects a voice note to the onboarding screen without transcribing it", async () => {
+    const harness = createBotHarness();
+    const id = await freshUser(harness);
+
+    // The AI mock rejects by default: a transcription attempt would surface as an error reply.
+    await harness.dispatch(voiceMessageUpdate({ chatId: id, fromId: id }));
+
+    expect(visibleCallbacks(harness).every((data) => data.startsWith("onb:nat:"))).toBe(true);
+    expect(methods(harness).filter((m) => m === "sendMessage" || m === "editMessageText")).toHaveLength(1);
+  });
+
+  it("stops gating once onboarding is complete", async () => {
+    const harness = createBotHarness();
+    const id = uniqueTelegramId();
+    const tap = async (data: string) =>
+      harness.dispatch(
+        callbackQueryUpdate({ chatId: id, fromId: id, messageId: firstScreenId(harness), data, languageCode: "ru" }),
+      );
+    await harness.dispatch(messageUpdate({ chatId: id, fromId: id, text: "/start", languageCode: "ru" }));
+    await tap("onb:nat:ru");
+    await tap("onb:lang:de");
+    await tap("onb:lvl:de:B1");
+    // Settings are in place; skip the demo screen and complete onboarding directly.
+    const userId = await identityRepository.resolveUserId("telegram", String(id));
+    await userRepository.markOnboarded(userId!);
+    harness.reset();
+
+    await harness.dispatch(messageUpdate({ chatId: id, fromId: id, text: "/dictionary" }));
+
+    expect(visibleCallbacks(harness).some((data) => data.startsWith("onb:"))).toBe(false);
+    expect(allText(harness).join("\n")).toMatch(/dictionar|словар/i);
   });
 });

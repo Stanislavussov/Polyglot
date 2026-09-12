@@ -202,4 +202,14 @@ export const notificationRepository = {
       .where(and(eq(notificationHistory.userId, userId), gte(notificationHistory.sentAt, since)));
     return rows.map((r) => r.original);
   },
+
+  async hasSentFromSource(userId: number, source: string): Promise<boolean> {
+    const db = getDb();
+    const rows = await db
+      .select({ id: notificationHistory.id })
+      .from(notificationHistory)
+      .where(and(eq(notificationHistory.userId, userId), eq(notificationHistory.source, source)))
+      .limit(1);
+    return rows.length > 0;
+  },
 };
