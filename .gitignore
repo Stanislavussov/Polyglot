@@ -8,6 +8,7 @@ coverage
 .sisyphus/*
 .omo/*
 .env.prod
+.env.dev
 .pnpm-store/*
 .claude/
 .astro/

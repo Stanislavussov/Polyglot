@@ -1,11 +1,10 @@
-import type { TemplateFields, TopicWord, TranslateOutput } from "@polyglot/core";
+import type { TemplateFields, TranslateOutput } from "@polyglot/core";
 import { createLanguageOrderContext } from "@polyglot/core";
 import { describe, expect, it, vi } from "vitest";
 import {
   buildTranslationKeyboard,
   renderQualityWarning,
   renderSentenceTranslation as renderSentenceTranslationRaw,
-  renderTopicWord,
   renderTranslation as renderTranslationRaw,
 } from "../renderers/translation.renderer.js";
 
@@ -412,72 +411,24 @@ describe("renderTranslation", () => {
     expect(result).not.toContain("nábožná kudlanka");
     expect(result).not.toContain("Na zahradě seděla kudlanka");
   });
-});
 
-describe("renderTopicWord", () => {
-  const sampleWord: TopicWord = {
-    original: "apple",
-    translations: {
-      cs: {
-        text: "jablko",
-        synonyms: [],
-        examples: [],
-      },
-      de: {
-        text: "Apfel",
-        synonyms: [],
-        examples: [],
-      },
-    },
-  };
-
-  it("renders original word as bold header", () => {
-    const result = renderTopicWord(sampleWord);
-    expect(result).toContain("<b>apple</b>");
-  });
-
-  it("renders translations with language flags from DB", () => {
-    const result = renderTopicWord(sampleWord);
-    expect(result).toContain("🇨🇿 CS: <b>jablko</b>");
-    expect(result).toContain("🇩🇪 DE:");
-  });
-
-  it("falls back to 🔤 in topic word when getLangFlag returns undefined", () => {
-    const unknownWord: TopicWord = {
-      original: "test",
+  // sourceUsage is nullish in the schema — when the model omits it the headword
+  // has nowhere else to come from, and the card used to drop the word entirely.
+  it("falls back to the plain headword when the model returned no sourceUsage", () => {
+    const output: TranslateOutput = {
+      original: "kudlanka",
+      sourceLang: "cs",
+      emoji: "🪲",
+      nativeSynonyms: [],
       translations: {
-        zz: {
-          text: "test",
-          synonyms: [],
-          examples: [],
-        },
+        ru: { text: "богомол", synonyms: [], examples: [] },
       },
     };
-    const result = renderTopicWord(unknownWord);
-    expect(result).toContain("🔤 ZZ:");
-  });
 
-  it("renders translation text without transcription", () => {
-    const result = renderTopicWord(sampleWord);
-    expect(result).toContain("🇨🇿 CS: <b>jablko</b>");
-    expect(result).toContain("🇩🇪 DE: <b>Apfel</b>");
-    expect(result).not.toContain("[");
-  });
+    const result = renderTranslation(output, "ru", undefined, "ru");
 
-  it("escapes HTML in word text", () => {
-    const xssWord: TopicWord = {
-      original: "<b>bad</b>",
-      translations: {
-        cs: {
-          text: "špatný & zlý",
-          synonyms: [],
-          examples: [],
-        },
-      },
-    };
-    const result = renderTopicWord(xssWord);
-    expect(result).toContain("&lt;b&gt;bad&lt;/b&gt;");
-    expect(result).toContain("špatný &amp; zlý");
+    expect(result).toContain("🪲 🇨🇿 <b>kudlanka</b>");
+    expect(result).toContain("богомол");
   });
 });
 
@@ -618,7 +569,11 @@ describe("buildTranslationKeyboard", () => {
       msgId: 42,
       showGrammarButton: true,
       showEtymologyButton: true,
-      locked: new Set(["clarification", "grammarBreakdown", "etymology"]),
+      locked: new Map([
+        ["clarification", "⭐"],
+        ["grammarBreakdown", "⭐"],
+        ["etymology", "⭐"],
+      ]),
     });
     const paid = buildTranslationKeyboard({
       interfaceLang: "en",
@@ -642,9 +597,28 @@ describe("buildTranslationKeyboard", () => {
       msgId: 42,
       showGrammarButton: true,
       showEtymologyButton: true,
-      locked: new Set(),
+      locked: new Map(),
     });
     expect(kb.inline_keyboard.flat().some((b) => b.text.includes("⭐"))).toBe(false);
+  });
+
+  it("wears the badge of the tier that sells each feature, not one badge for all of them", () => {
+    // Clarify is the Plus rung, audio is Pro-only — a card claiming ⭐ for both
+    // would send the reader to a Plus offer that cannot unlock the speaker.
+    const kb = buildTranslationKeyboard({
+      interfaceLang: "en",
+      msgId: 42,
+      pronounceLangs: ["de"],
+      locked: new Map([
+        ["clarification", "⭐"],
+        ["pronunciation", "💎"],
+      ]),
+    });
+    const labelOf = (data: string) => kb.inline_keyboard.flat().find((b) => cbData(b) === data)?.text ?? "";
+    expect(labelOf("tr:clarifypost:42")).toContain("⭐");
+    expect(labelOf("tr:clarifypost:42")).not.toContain("💎");
+    expect(labelOf("tr:say:de:42")).toContain("💎");
+    expect(labelOf("tr:say:de:42")).not.toContain("⭐");
   });
 
   it("wraps override flag buttons into rows of at most four", () => {
@@ -862,28 +836,6 @@ describe("renderTranslation — idiomatic equivalents", () => {
     const result = renderTranslation(mixedOutput, "en");
     expect(result).toContain("<b>No pain, no gain</b>");
     expect(result).toContain("<b>sans travail pas de gâteau</b>");
-  });
-});
-
-describe("renderTopicWord — idiomatic equivalents", () => {
-  it("renders topic word with idiomatic fields transparently", () => {
-    const idiomaticWord: TopicWord = {
-      original: "The early bird catches the worm",
-      translations: {
-        cs: {
-          text: "Ranní ptáče dál doskáče",
-          expressionType: "idiomatic_equivalent",
-          equivalentNote: "Czech proverb with same meaning",
-          synonyms: [],
-          examples: [],
-        },
-      },
-    };
-    const result = renderTopicWord(idiomaticWord);
-    expect(result).toContain("<b>The early bird catches the worm</b>");
-    expect(result).toContain("<b>Ranní ptáče dál doskáče</b>");
-    expect(result).not.toContain("idiomatic_equivalent");
-    expect(result).not.toContain("equivalentNote");
   });
 });
 
@@ -1182,6 +1134,38 @@ describe("renderSentenceTranslation", () => {
     };
     const result = renderSentenceTranslation(unknownLang, "en");
     expect(result).toContain("🔤 XX:");
+  });
+
+  // A sentence typed in a learning language used to render with no trace of what
+  // was typed: the header was suppressed as "reverse learning" and the source
+  // language block skipped, leaving translations of an invisible original.
+  describe("sentence written in a learning language", () => {
+    const learningSourceSentence: TranslateOutput = {
+      original: "Ich habe gestern ein Buch über Geschichte gelesen.",
+      sourceLang: "de",
+      emoji: "📚",
+      nativeSynonyms: [],
+      translations: {
+        ru: { text: "Вчера я прочитал книгу по истории.", synonyms: [], examples: [] },
+        en: { text: "Yesterday I read a book about history.", synonyms: [], examples: [] },
+      },
+    };
+
+    it("still shows the original sentence as the header", () => {
+      const result = renderSentenceTranslation(learningSourceSentence, "ru", "ru");
+      expect(result).toContain("📚 🇩🇪 <b>Ich habe gestern ein Buch über Geschichte gelesen.</b>");
+    });
+
+    it("does not repeat the original as a source-language translation block", () => {
+      const withSourceEcho: TranslateOutput = {
+        ...learningSourceSentence,
+        translations: {
+          ...learningSourceSentence.translations,
+          de: { text: "Ich habe gestern ein Buch über Geschichte gelesen.", synonyms: [], examples: [] },
+        },
+      };
+      expect(renderSentenceTranslation(withSourceEcho, "ru", "ru")).not.toContain("🇩🇪 DE: <b>");
+    });
   });
 });
 

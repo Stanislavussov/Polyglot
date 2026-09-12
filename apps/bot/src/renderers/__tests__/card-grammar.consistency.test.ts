@@ -27,9 +27,12 @@ vi.mock("@polyglot/core", async () => {
 
 import type { SrsDueVocabularyCard, WordDisplayData } from "@polyglot/core";
 import { createLanguageOrderContext } from "@polyglot/core";
+import { formatNotificationMessage } from "../../notifications/notification.formatter.js";
 import { renderDictionaryEntry } from "../dictionary.renderer.js";
 import { renderFlashCardBack, renderFlashCardFront } from "../flashcard.renderer.js";
 import { renderSrsBack, renderSrsFront } from "../srs.renderer.js";
+import { renderPhraseList } from "../video-vocabulary.renderer.js";
+import { renderPickedSet } from "../word-picker.renderer.js";
 
 /** The word every fixture below is a projection of. */
 const WORD = {
@@ -187,12 +190,22 @@ describe("card grammar — every surface renders a saved word the same way", () 
     expect(card).not.toMatch(/<i>[^<]*·/);
   });
 
-  it.each(SURFACES)("%s folds the stored prose below the promoted answer", (_name, card, promoted) => {
-    expect(card).toContain("💡 Занятие за плату.");
-    // Never a bare visible line of its own — that layout is what put the reader's
-    // own language below two lines of description in the first place.
-    expect(card).not.toMatch(/^Занятие за плату\.$/m);
-    expect(card.indexOf(`<b>${promoted}</b>`)).toBeLessThan(card.indexOf("Занятие за плату."));
+  it.each(SURFACES)("%s folds one paragraph of prose below the promoted answer", (_name, card, promoted) => {
+    // The stored explanation, as a note — and the shorter gloss saying the same
+    // thing again is not rendered at all. Two paragraphs of description above the
+    // answer is the layout the reported card was showing.
+    expect(card).toContain("💡 Работа, труд.");
+    expect(card).not.toContain(WORD.nativeMeaning);
+    expect(card.indexOf(`<b>${promoted}</b>`)).toBeLessThan(card.indexOf("Работа, труд."));
+  });
+
+  it.each(SURFACES)("%s never prefixes prose with a language label", (_name, card) => {
+    // `🇷🇺 RU:` introduces a translation everywhere else on the card; prose wearing
+    // it read as the answer the reader was hunting for.
+    const answerLines = card.split("\n").filter((line) => /^\S+ [A-Z]{2}: /u.test(line));
+    for (const line of answerLines) {
+      expect(line).toMatch(/^\S+ [A-Z]{2}: <b>/u);
+    }
   });
 });
 
@@ -209,5 +222,126 @@ describe("card grammar — a reveal-style front hands over nothing", () => {
 
   it("srs front names the language being recalled — the one line it cannot lose", () => {
     expect(renderSrsFront(SRS_CARD, "de", "en", 1, 3, "ru")).toContain("<i>→ 🇬🇧 English</i>");
+  });
+});
+
+/**
+ * The compact surfaces — a notification nudge, a picked set, a page of video
+ * phrases. They show fewer sections than a full card (a set holds a dozen words;
+ * nobody wants twelve expandable blockquotes), but fewer sections is not licence
+ * for different lines. Each of these used to invent its own: a headword with no
+ * flag, `→ перевод` instead of an answer, an example in «guillemets» or "quotes".
+ */
+describe("card grammar — compact and list surfaces use the same lines", () => {
+  const notification = formatNotificationMessage(
+    {
+      hour: 8,
+      word: {
+        original: WORD.original,
+        headword: WORD.sourceUsage.headword,
+        emoji: WORD.emoji,
+        sourceLang: WORD.sourceLang,
+        nativeMeaning: WORD.nativeMeaning,
+        translations: { ru: "работа", en: WORD.targetText },
+        translationDetails: { ru: { synonyms: ["труд"] } },
+        source: "srs",
+        entryId: 1,
+      },
+    },
+    "ru",
+    ORDER,
+  );
+
+  const pickedSet = renderPickedSet(
+    {
+      id: 1,
+      userId: 1,
+      presetId: 1,
+      presetTitle: "Работа",
+      presetEmoji: "💼",
+      langCode: WORD.sourceLang,
+      nativeLang: "ru",
+      createdAt: new Date("2025-01-01"),
+    },
+    [
+      {
+        id: 1,
+        runId: 1,
+        word: WORD.original,
+        nativeTranslation: "работа",
+        emoji: WORD.emoji,
+        itemType: "word",
+        level: "B1",
+        exampleTarget: WORD.sourceUsage.examples[0]?.target ?? "",
+        exampleNative: WORD.sourceUsage.examples[0]?.native ?? "",
+        note: "Заметка.",
+        sortOrder: 0,
+        savedEntryId: null,
+        createdAt: new Date("2025-01-01"),
+      },
+    ],
+    "Немецкий",
+    "ru",
+  );
+
+  const videoList = renderPhraseList(
+    [
+      {
+        id: 1,
+        videoProcessId: 1,
+        phrase: WORD.original,
+        nativeTranslation: "работа",
+        emoji: WORD.emoji,
+        phraseType: "word",
+        level: "B1",
+        context: WORD.sourceUsage.examples[0]?.target ?? null,
+        timestampSeconds: null,
+        sortOrder: 0,
+        savedEntryId: null,
+        createdAt: new Date("2025-01-01"),
+      },
+    ],
+    1,
+    1,
+    "https://youtu.be/x",
+    { source: WORD.sourceLang, native: "ru" },
+    "ru",
+  );
+
+  const COMPACT: Array<[string, string]> = [
+    ["notification", notification],
+    ["picked set", pickedSet],
+    ["video phrase list", videoList],
+  ];
+
+  it.each(COMPACT.slice(1))("%s introduces the word with emoji and the source flag", (_name, card) => {
+    expect(card).toContain(`${WORD.emoji} 🇩🇪 <b>${WORD.original}</b>`);
+  });
+
+  it("a notification introduces the word with emoji and the source flag", () => {
+    expect(notification).toContain(`${WORD.emoji} 🇩🇪 <b>die Arbeit</b>`);
+  });
+
+  it.each(COMPACT)("%s renders the translation as a bold, flagged, coded answer line", (_name, card) => {
+    expect(card).toContain("🇷🇺 RU: <b>работа</b>");
+    // The arrow form these surfaces used before.
+    expect(card).not.toContain("→ работа");
+  });
+
+  it.each(COMPACT.slice(1))("%s renders an example with the shared 💬 line", (_name, card) => {
+    expect(card).toContain("💬 <i>Die Arbeit macht Spaß.</i>");
+    expect(card).not.toContain("«");
+    expect(card).not.toContain('"Die Arbeit');
+  });
+
+  it("a notification's headword is the one its Reveal card shows, minus what a nudge omits", () => {
+    // Same message in two states: tapping Reveal may add to the line (the stored
+    // source synonyms) but must not restyle it — same emoji, same flag, same word,
+    // same order. A prefix check states exactly that.
+    const nudge = headwordLine(notification);
+    const revealed = headwordLine(SURFACES[0]?.[1] ?? "");
+
+    expect(nudge).toBe("💼 🇩🇪 <b>die Arbeit</b>");
+    expect(revealed.startsWith(nudge)).toBe(true);
   });
 });
