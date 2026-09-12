@@ -79,7 +79,12 @@ export async function handleNotifRevealCallback(ctx: BotContext): Promise<void> 
       return;
     }
 
-    const text = renderDictionaryEntry(entry, makeLangCodeResolver(ctx), lang, await resolveLanguageOrder(ctx));
+    // The notification asked the reader to recall the word, so the stored gloss
+    // rides above the answer here — it is what they open the card to check
+    // themselves against, not a line pushing their own language down.
+    const text = renderDictionaryEntry(entry, makeLangCodeResolver(ctx), lang, await resolveLanguageOrder(ctx), {
+      hintFirst: true,
+    });
     // Carry the stored grade so a rating given before Reveal keeps its ✓ mark.
     const kb = buildNotificationRevealedKeyboard(lang, entryId, entry.difficulty ?? undefined);
 

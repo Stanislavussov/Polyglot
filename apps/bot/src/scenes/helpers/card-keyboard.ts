@@ -14,7 +14,7 @@ import type { InlineKeyboard } from "grammy";
 import { buildTranslationKeyboard, type TranslationKeyboardOptions } from "../../renderers/translation.renderer.js";
 import type { BotContext, SessionData } from "../../types.js";
 import { resolveLanguageOrder } from "../../utils/language-order.js";
-import { resolveLockedFeatures } from "./paid-feature.helper.js";
+import { resolveLockedBadges } from "./paid-feature.helper.js";
 import { isEtymologyEligible, resolvePronounceLangs } from "./translate-mode.shared.js";
 
 type CardEntry = NonNullable<SessionData["translationMap"]>[string];
@@ -49,7 +49,7 @@ async function resolveCardKeyboardOptions(
   return {
     interfaceLang: lang,
     msgId,
-    isAlreadySaved: entry.isAlreadySaved === true || entry.savedWordId !== undefined,
+    isAlreadySaved: entry.savedWordId !== undefined,
     // Each aid retires once its section is on the card — there is nothing left to
     // generate, and the section is what the button promised.
     showGrammarButton: isGrammarEligible(entry.inputType, effectiveTemplate.fields.grammarBreakdown) && !grammarShown,
@@ -61,7 +61,7 @@ async function resolveCardKeyboardOptions(
     showMentorButton: true,
     sourceOverrideLangs: entry.sourceOverrideLangs ?? [],
     pronounceLangs: await resolvePronounceLangs(ctx, entry.output, order),
-    locked: await resolveLockedFeatures(ctx),
+    locked: await resolveLockedBadges(ctx),
   };
 }
 

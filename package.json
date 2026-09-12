@@ -18,7 +18,6 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:catalog": "node scripts/test-catalog.mjs",
     "test:integration": "./scripts/integration-test.sh",
     "test:integration:run": "vitest run --config vitest.integration.config.ts",
     "neon:prune": "./scripts/neon-prune.sh",
@@ -41,7 +40,8 @@
     "db:schema:report": "pnpm --filter @polyglot/adapter-db schema:report && pnpm reports:sync-admin",
     "admin:seed": "pnpm --filter @polyglot/admin-api run seed",
     "demo-cards:warm": "pnpm --filter @polyglot/bot run demo-cards:warm",
-    "ansible": "./scripts/run-ansible.sh"
+    "ansible": "./scripts/run-ansible.sh",
+    "ansible:dev": "POLYGLOT_ENV=dev ./scripts/run-ansible.sh"
   },
   "dependencies": {
     "@polyglot/adapter-db": "workspace:*",

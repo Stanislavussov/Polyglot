@@ -17,10 +17,10 @@ import {
   resolveOutputConfig,
   resolveTemplate,
   type SupportedLang,
-  type TranslateOutput,
   t,
   translateWithContext,
 } from "@polyglot/core";
+import type { InlineKeyboard } from "grammy";
 import { recordEffort } from "../../momentum/momentum.wiring.js";
 import {
   buildGrammarLangKeyboard,
@@ -37,6 +37,9 @@ import { editMessageReplyMarkupOrIgnore, editMessageTextOrReply } from "./edit-m
 import { ensurePaidFeature } from "./paid-feature.helper.js";
 import { answerStaleCallback } from "./stale-callback.helper.js";
 import { setTranslationEntry } from "./translation-map.helper.js";
+
+/** Per-message translation state kept in the session, keyed by the card's message id. */
+type TranslationEntry = NonNullable<BotContext["session"]["translationMap"]>[string];
 
 /**
  * Handles Save callback in translate mode — full FEAT-30 flow.
@@ -85,6 +88,11 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
       existing.id,
     );
     if (belongsToDefault) {
+      // The word can be in the dictionary while THIS card still offers Save (it was
+      // banked from another card or from the dictionary itself). Bring the card to
+      // the saved state so the button stops lying, then say so.
+      entry.savedWordId = existing.id;
+      await showSavedCard(ctx, entry, msgId, lang, nativeLang);
       await ctx.answerCallbackQuery({
         text: t("alreadySaved", lang),
         show_alert: true,
@@ -109,7 +117,7 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
       kind: "save",
       dedupeKey: `save:${existing.id}`,
     });
-    await showSavedCard(ctx, output, lang, nativeLang, inputType);
+    await showSavedCard(ctx, entry, msgId, lang, nativeLang);
     await ctx.answerCallbackQuery();
     return;
   }
@@ -142,30 +150,25 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
   // Step 6 — Update this entry in the map
   entry.savedWordId = newEntry.id;
 
-  await showSavedCard(ctx, output, lang, nativeLang, inputType);
+  await showSavedCard(ctx, entry, msgId, lang, nativeLang);
   await ctx.answerCallbackQuery();
 }
 
+/**
+ * Re-render the card after a save. The keyboard is rebuilt and passed along:
+ * `editMessageText` with no `reply_markup` STRIPS the inline keyboard, which is
+ * what used to leave a saved card with no buttons and force the user into the
+ * dictionary to keep working on the word.
+ */
 async function showSavedCard(
   ctx: BotContext,
-  output: TranslateOutput,
+  entry: TranslationEntry,
+  msgId: number,
   lang: SupportedLang,
   nativeLang: string,
-  inputType?: string,
 ): Promise<void> {
-  const savedTemplate = await ctx.services.translationTemplateRepository.getByUserId(ctx.user.id);
-  const userTpl = savedTemplate ? { name: savedTemplate.name, fields: savedTemplate.fields } : null;
-  const effectiveTemplate = resolveTemplate(userTpl);
-
-  const order = await resolveLanguageOrder(ctx);
-  const isSentence = inputType === "sentence";
-  const cardText = isSentence
-    ? `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(output, order, lang, nativeLang)}`
-    : renderTranslation(output, order, lang, effectiveTemplate.fields, nativeLang);
-  const savedCard = `${cardText}\n\n${t("savedToDict", lang)}`;
-  await editMessageTextOrReply(ctx, savedCard, {
-    parse_mode: "HTML",
-  });
+  const { text, keyboard } = await buildCardView(ctx, entry, msgId, lang, nativeLang);
+  await editMessageTextOrReply(ctx, text, { reply_markup: keyboard, parse_mode: "HTML" });
 }
 
 /** @deprecated Kept for old messages with skip buttons. */
@@ -457,29 +460,29 @@ export async function handleEtymologyCallback(ctx: BotContext): Promise<void> {
 }
 
 /**
- * Re-render a translation card with whichever on-demand sections have been
- * generated (grammar breakdown and/or etymology).
+ * Card text + keyboard for an entry's CURRENT state: whichever on-demand sections
+ * have been generated, and the saved state once the word is in the dictionary.
  *
  * The keyboard comes from {@link buildCardKeyboard}, which is what a fresh card
- * and the `⋯ More` toggle use too — each learning aid retires once its section
- * is on the card, and nothing else about the card's buttons changes just because
- * one of them was tapped. The action list stays open, since a section appearing
- * under a still-open menu is the result the tap promised.
+ * and the `⋯ More` toggle use too — each learning aid retires once its section is
+ * on the card, and nothing else about the card's buttons changes just because one
+ * of them was tapped. The action list stays open, since a section appearing under
+ * a still-open menu is the result the tap promised.
  */
-async function reRenderCard(
+async function buildCardView(
   ctx: BotContext,
-  entry: NonNullable<BotContext["session"]["translationMap"]>[string],
+  entry: TranslationEntry,
   msgId: number,
   lang: SupportedLang,
   nativeLang: string,
-): Promise<void> {
+): Promise<{ text: string; keyboard: InlineKeyboard }> {
   const isSentence = entry.inputType === "sentence";
   const savedTpl = await ctx.services.translationTemplateRepository.getByUserId(ctx.user.id);
   const userTpl = savedTpl ? { name: savedTpl.name, fields: savedTpl.fields } : null;
   const effectiveTemplate = resolveTemplate(userTpl);
 
   const order = await resolveLanguageOrder(ctx);
-  const cardText = isSentence
+  const body = isSentence
     ? `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(entry.output, order, lang, nativeLang, false, entry.grammarBreakdown)}`
     : renderTranslation(
         entry.output,
@@ -493,7 +496,21 @@ async function reRenderCard(
       );
 
   const keyboard = await buildCardKeyboard(ctx, entry, msgId, lang, nativeLang);
-  await ctx.api.editMessageText(ctx.chat!.id, msgId, cardText, {
+  const isSaved = entry.savedWordId !== undefined;
+
+  return { text: isSaved ? `${body}\n\n${t("savedToDict", lang)}` : body, keyboard };
+}
+
+/** Redraw a card in place after an on-demand section was generated. */
+async function reRenderCard(
+  ctx: BotContext,
+  entry: TranslationEntry,
+  msgId: number,
+  lang: SupportedLang,
+  nativeLang: string,
+): Promise<void> {
+  const { text, keyboard } = await buildCardView(ctx, entry, msgId, lang, nativeLang);
+  await ctx.api.editMessageText(ctx.chat!.id, msgId, text, {
     reply_markup: keyboard,
     parse_mode: "HTML",
   });
@@ -558,7 +575,8 @@ export async function handleGrammarLangSelectCallback(ctx: BotContext): Promise<
   /**
    * The card's normal keyboard — every exit from this flow restores it. Derived
    * from the card rather than hand-listed: a hand-listed restore is how the
-   * speaker used to vanish once a user opened the grammar-detail flow.
+   * speaker used to vanish once a user opened the grammar-detail flow, and how
+   * the source-language override never came back at all.
    */
   const restoreKeyboard = () => buildCardKeyboard(ctx, entry, msgId, lang, nativeLang);
 

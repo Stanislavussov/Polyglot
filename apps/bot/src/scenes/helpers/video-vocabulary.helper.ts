@@ -22,6 +22,7 @@ import {
 } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import { videoEnrichmentCounter, videoProcessingCounter, videoProcessingDuration } from "../../metrics.js";
+import { trackProductEvent } from "../../observability/product-events.js";
 import {
   buildConfirmationKeyboard,
   buildPhraseListKeyboard,
@@ -221,6 +222,7 @@ export async function handleVideoVocabularyUrl(
   let usageCount = 0;
   if (!isTrial && videoEntitlement.window === "none") {
     // Video not available on this plan → US-6 attaches the upgrade CTA keyboard here.
+    trackProductEvent(ctx, "limit.reached", "video");
     await ctx.reply(t("videoLimitReached", lang), { reply_markup: buildUpgradeKeyboard(lang) });
     return;
   }
@@ -232,6 +234,7 @@ export async function handleVideoVocabularyUrl(
     if (usageCount >= videoEntitlement.limit) {
       // Free trial exhausted (3 lifetime) or Plus monthly cap hit — the prime
       // conversion moment, so surface the upgrade CTA here too.
+      trackProductEvent(ctx, "limit.reached", "video");
       await ctx.reply(t("videoLimitReached", lang), { reply_markup: buildUpgradeKeyboard(lang) });
       return;
     }
@@ -677,7 +680,18 @@ async function showPhraseBrowser(ctx: BotContext, processId: number, page: numbe
   const totalPhrases = await ctx.services.videoVocabularyRepository.countPhrasesByProcess(processId);
   const totalPages = Math.max(1, Math.ceil(totalPhrases / PHRASES_PER_PAGE));
 
-  const text = renderPhraseList(phrases, page, totalPages, process.videoUrl, lang);
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
+  const text = renderPhraseList(
+    phrases,
+    page,
+    totalPages,
+    process.videoUrl,
+    {
+      source: process.language,
+      native: settings?.nativeLang ?? undefined,
+    },
+    lang,
+  );
   const keyboard = buildPhraseListKeyboard(phrases, page, totalPages, processId, lang);
 
   await ctx.reply(text, {
@@ -705,7 +719,18 @@ async function showPhraseBrowserEdit(
   const totalPhrases = await ctx.services.videoVocabularyRepository.countPhrasesByProcess(processId);
   const totalPages = Math.max(1, Math.ceil(totalPhrases / PHRASES_PER_PAGE));
 
-  const text = renderPhraseList(phrases, page, totalPages, process.videoUrl, lang);
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
+  const text = renderPhraseList(
+    phrases,
+    page,
+    totalPages,
+    process.videoUrl,
+    {
+      source: process.language,
+      native: settings?.nativeLang ?? undefined,
+    },
+    lang,
+  );
   const keyboard = buildPhraseListKeyboard(phrases, page, totalPages, processId, lang);
 
   await editMessageTextOrReply(ctx, text, {

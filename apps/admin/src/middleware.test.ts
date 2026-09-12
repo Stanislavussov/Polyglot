@@ -43,7 +43,7 @@ describe("reports auth middleware (T09)", () => {
   it("blocks a report request whose token the admin API rejects", async () => {
     vi.mocked(fetch).mockResolvedValue(new Response(null, { status: 401 }));
 
-    const res = await onRequest(makeContext("/reports/test-catalog.json", "bad-token"), next);
+    const res = await onRequest(makeContext("/reports/architecture-overview.html", "bad-token"), next);
 
     expect(res.status).toBe(401);
     expect(next).not.toHaveBeenCalled();

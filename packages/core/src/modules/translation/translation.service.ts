@@ -48,6 +48,7 @@ import type {
   QualityIssue,
   QualityIssueSeverity,
   RiskLevel,
+  SourceUsage,
   TranslateInput,
   TranslateOutput,
   TranslationAmbiguity,
@@ -1754,7 +1755,9 @@ function toOutput(
     sourceLang: input.sourceLang,
     ...(emoji !== undefined ? { emoji } : {}),
     ...(input.nativeLang && result.nativeMeaning ? { nativeMeaning: result.nativeMeaning } : {}),
-    ...(input.nativeLang && result.sourceUsage ? { sourceUsage: result.sourceUsage } : {}),
+    ...(input.nativeLang && result.sourceUsage
+      ? { sourceUsage: stripDisabledSourceUsage(result.sourceUsage, input.outputConfig) }
+      : {}),
     nativeSynonyms: input.outputConfig?.includeNativeSynonyms === false ? [] : (result.nativeSynonyms ?? []),
     translations,
   };
@@ -1772,6 +1775,20 @@ function toOutput(
   }
 
   return output;
+}
+
+/**
+ * Strip the source-usage sections the caller disabled — the same enforcement
+ * `stripDisabledFields` does for the per-language blocks. The source block is
+ * what the card's headword line is built from, so a synonym kept here after the
+ * user switched synonyms off resurfaces on every stored card for that word.
+ */
+function stripDisabledSourceUsage(sourceUsage: SourceUsage, config?: TranslationOutputConfig): SourceUsage {
+  return {
+    ...sourceUsage,
+    synonyms: config?.includeSynonyms === false ? [] : (sourceUsage.synonyms ?? []),
+    examples: config?.includeExamples === false ? [] : (sourceUsage.examples ?? []),
+  };
 }
 
 /**

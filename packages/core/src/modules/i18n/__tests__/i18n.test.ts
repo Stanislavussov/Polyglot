@@ -46,20 +46,20 @@ describe("i18n — t()", () => {
 
   // Translation pipeline keys
   it("returns translation-pipeline keys", () => {
-    expect(t("translating", "en")).toBe("⏳ Translating...");
+    expect(t("loaderTranslateStart1", "en")).toBe("🔤 Translating...");
     expect(t("translationError", "en")).toContain("Translation failed");
     expect(t("translationUnavailable", "en")).toContain("unavailable");
     expect(t("translationNeedsReview", "en")).toContain("inaccuracies");
   });
 
   it("returns translation-pipeline keys in Russian", () => {
-    expect(t("translating", "ru")).toBe("⏳ Перевожу...");
+    expect(t("loaderTranslateStart1", "ru")).toBe("🔤 Перевожу...");
     expect(t("translationError", "ru")).toContain("Ошибка");
     expect(t("translationUnavailable", "ru")).toContain("недоступен");
   });
 
   it("returns translation-pipeline keys in Czech", () => {
-    expect(t("translating", "cs")).toBe("⏳ Překládám...");
+    expect(t("loaderTranslateStart1", "cs")).toBe("🔤 Překládám...");
     expect(t("translationError", "cs")).toContain("selhal");
   });
 
@@ -366,7 +366,7 @@ describe("i18n — t()", () => {
   });
 
   it("returns cmdDescDictionary in English", () => {
-    expect(t("cmdDescDictionary", "en")).toBe("Open your personal dictionary");
+    expect(t("cmdDescDictionary", "en")).toBe("My dictionary");
   });
 
   it("returns cmdDescTemplate in English", () => {
@@ -374,23 +374,23 @@ describe("i18n — t()", () => {
   });
 
   it("returns cmdDescSettings in English", () => {
-    expect(t("cmdDescSettings", "en")).toBe("Language & notification settings");
+    expect(t("cmdDescSettings", "en")).toBe("Settings");
   });
 
   it("returns command description keys in Russian", () => {
     expect(t("cmdDescStart", "ru")).toBe("Запустить бота / перезапустить онбординг");
     expect(t("cmdDescTranslate", "ru")).toBe("Перевести слово или фразу");
-    expect(t("cmdDescDictionary", "ru")).toBe("Открыть личный словарь");
+    expect(t("cmdDescDictionary", "ru")).toBe("Мой словарь");
     expect(t("cmdDescTemplate", "ru")).toBe("Настроить шаблон перевода");
-    expect(t("cmdDescSettings", "ru")).toBe("Настройки языков и уведомлений");
+    expect(t("cmdDescSettings", "ru")).toBe("Настройки");
   });
 
   it("returns command description keys in Czech", () => {
     expect(t("cmdDescStart", "cs")).toBe("Spustit bota / restartovat onboarding");
     expect(t("cmdDescTranslate", "cs")).toBe("Přeložit slovo nebo frázi");
-    expect(t("cmdDescDictionary", "cs")).toBe("Otevřít osobní slovník");
+    expect(t("cmdDescDictionary", "cs")).toBe("Můj slovník");
     expect(t("cmdDescTemplate", "cs")).toBe("Přizpůsobit šablonu překladu");
-    expect(t("cmdDescSettings", "cs")).toBe("Nastavení jazyků a notifikací");
+    expect(t("cmdDescSettings", "cs")).toBe("Nastavení");
   });
 
   // Quality uncertain key (task 37)
@@ -782,7 +782,7 @@ describe("i18n — locale consistency", () => {
       "langAdded",
       "langRemoved",
       "enterWordToTranslate",
-      "translating",
+      "loaderTranslateStart1",
       "translationError",
       "translationUnavailable",
       "contextMarkerNeedsText",
@@ -942,7 +942,7 @@ describe("i18n — locale consistency", () => {
   it("ru.json covers all keys from en.json", () => {
     const keysToCheck: I18nKey[] = [
       "welcome",
-      "translating",
+      "loaderTranslateStart1",
       "translationError",
       "translationUnavailable",
       "translationNeedsReview",
@@ -961,7 +961,7 @@ describe("i18n — locale consistency", () => {
   it("cs.json covers all keys from en.json", () => {
     const keysToCheck: I18nKey[] = [
       "welcome",
-      "translating",
+      "loaderTranslateStart1",
       "translationError",
       "translationUnavailable",
       "translationNeedsReview",
@@ -985,6 +985,8 @@ describe("i18n — notification keys (Task 41.6)", () => {
     "notifAiSuggested",
     "notifTranslations",
     "notifReveal",
+    "notifSelfCheck",
+    "notifTapToReveal",
     "notifFbHard",
     "notifFbNormal",
     "notifFbEasy",
@@ -1007,6 +1009,16 @@ describe("i18n — notification keys (Task 41.6)", () => {
     "notifReEngagement",
   ];
 
+  /**
+   * Keys whose translation is legitimately the English string. The suites below
+   * use "differs from English" as a proxy for "actually translated", which a
+   * language-neutral label defeats: the "normal" grade button is "OK" in every
+   * Latin-script locale because the row holds three buttons on one phone-width
+   * line and a longer word is squeezed out of readability.
+   */
+  const LANGUAGE_NEUTRAL = new Set<I18nKey>(["notifFbNormal"]);
+  const translatedKeys = notifKeys.filter((key) => !LANGUAGE_NEUTRAL.has(key));
+
   it("all notification keys exist in en.json", () => {
     for (const key of notifKeys) {
       const result = t(key, "en");
@@ -1015,7 +1027,7 @@ describe("i18n — notification keys (Task 41.6)", () => {
   });
 
   it("all notification keys exist in ru.json (non-English)", () => {
-    for (const key of notifKeys) {
+    for (const key of translatedKeys) {
       const enResult = t(key, "en");
       const ruResult = t(key, "ru");
       expect(ruResult).not.toBe(enResult);
@@ -1023,7 +1035,7 @@ describe("i18n — notification keys (Task 41.6)", () => {
   });
 
   it("all notification keys exist in cs.json (non-English)", () => {
-    for (const key of notifKeys) {
+    for (const key of translatedKeys) {
       const enResult = t(key, "en");
       const csResult = t(key, "cs");
       expect(csResult).not.toBe(enResult);
@@ -1099,4 +1111,16 @@ describe("i18n — locale completeness across all interface languages", () => {
       }
     });
   }
+});
+
+describe("i18n — mentor idle prompt keys (Task 83)", () => {
+  const mentorIdleKeys: I18nKey[] = ["mentorIdleQuestion", "mentorIdleStayButton", "mentorIdleSwitchButton"];
+
+  it.each(["ru", "cs", "de"] as const)("%s translates every mentor idle key (differs from English)", (lang) => {
+    for (const key of mentorIdleKeys) {
+      const enResult = t(key, "en");
+      const localeResult = t(key, lang);
+      expect(localeResult).not.toBe(enResult);
+    }
+  });
 });

@@ -23,9 +23,9 @@ import {
   exampleLine,
   expandableSection,
   headwordLine,
+  langFlag,
   langLabel,
   meaningLine,
-  otherLangLine,
 } from "../card-sections.js";
 
 describe("assembleCard", () => {
@@ -50,11 +50,11 @@ describe("assembleCard", () => {
       headword: [headwordLine("Haus", { emoji: "🏠", sourceLang: "de" })],
       answer: [answerLine("ru", "дом", ["жилище"])],
       meaning: [meaningLine("Жилое здание.")],
-      others: [otherLangLine("cs", "dům")],
+      others: [answerLine("cs", "dům")],
     });
     const lines = card.split("\n");
 
-    expect(lines.indexOf("🇷🇺 <b>дом</b> (жилище)")).toBe(lines.findIndex((l) => l.includes("Haus")) + 1);
+    expect(lines.indexOf("🇷🇺 RU: <b>дом</b> (жилище)")).toBe(lines.findIndex((l) => l.includes("Haus")) + 1);
     expect(lines.findIndex((l) => l.startsWith("🇷🇺"))).toBeLessThan(lines.findIndex((l) => l.startsWith("💡")));
   });
 
@@ -74,26 +74,41 @@ describe("assembleCard", () => {
 });
 
 describe("langLabel", () => {
-  it("renders the flag alone when one resolves — the code would say it twice", () => {
-    expect(langLabel("ru")).toBe("🇷🇺");
+  // Flag AND code: two flags are easy to confuse at a glance, and a reader
+  // scanning a multi-language card is hunting for one specific language.
+  it("pairs the flag with the ISO code", () => {
+    expect(langLabel("ru")).toBe("🇷🇺 RU:");
   });
 
   it("keeps the code when no flag resolves, so the language stays identifiable", () => {
     expect(langLabel("xx")).toBe("🔤 XX:");
   });
+
+  it("falls back to 🔤 alone when there is no code at all", () => {
+    expect(langLabel(undefined)).toBe("🔤");
+    expect(langFlag(undefined)).toBe("🔤");
+  });
 });
 
 describe("line builders", () => {
-  it("renders the headword with a single source flag", () => {
-    expect(headwordLine("Haus", { emoji: "🏠", sourceLang: "de" })).toBe("🏠 <b>Haus</b> 🇩🇪");
+  it("puts the source flag before the word, where it says what you are reading", () => {
+    expect(headwordLine("Haus", { emoji: "🏠", sourceLang: "de" })).toBe("🏠 🇩🇪 <b>Haus</b>");
   });
 
-  it("omits the flag when the surface has no source language", () => {
-    expect(headwordLine("house", { emoji: "🏠" })).toBe("🏠 <b>house</b>");
+  it("keeps the flag slot when the source language does not resolve", () => {
+    expect(headwordLine("house", { emoji: "🏠" })).toBe("🏠 🔤 <b>house</b>");
   });
 
-  it("renders secondary languages unbolded and without synonyms", () => {
-    expect(otherLangLine("cs", "dům")).toBe("🇨🇿 dům");
+  it("carries source synonyms on the headword's own line", () => {
+    expect(headwordLine("Haus", { sourceLang: "de", synonyms: ["Gebäude"] })).toBe("🇩🇪 <b>Haus</b> (Gebäude)");
+  });
+
+  it("appends a per-surface badge after the word, never inside it", () => {
+    expect(headwordLine("Haus", { sourceLang: "de", badge: " ✅" })).toBe("🇩🇪 <b>Haus</b> ✅");
+  });
+
+  it("renders every language with the same bold answer line", () => {
+    expect(answerLine("cs", "dům")).toBe("🇨🇿 CS: <b>dům</b>");
   });
 
   it("glosses an example with its native translation", () => {
@@ -101,8 +116,8 @@ describe("line builders", () => {
   });
 
   it("escapes HTML in every builder", () => {
-    expect(headwordLine("a<b>&c")).toBe("<b>a&lt;b&gt;&amp;c</b>");
-    expect(answerLine("ru", "x<y")).toBe("🇷🇺 <b>x&lt;y</b>");
+    expect(headwordLine("a<b>&c")).toBe("🔤 <b>a&lt;b&gt;&amp;c</b>");
+    expect(answerLine("ru", "x<y")).toBe("🇷🇺 RU: <b>x&lt;y</b>");
     expect(meaningLine("a & b")).toBe("💡 a &amp; b");
   });
 });
