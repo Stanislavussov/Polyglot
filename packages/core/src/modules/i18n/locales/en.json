@@ -426,5 +426,11 @@
   "praiseHardWordRecalled": "💪 A word you marked as hard — and today you knew it.",
   "recoveryLine": "Welcome back. Everything is right where you left it.",
   "recoveryDue": "To review: {count}.",
-  "weeklyProofLine": "This week — in long-term memory: {mature}, reviews: {reviews}."
+  "weeklyProofLine": "This week — in long-term memory: {mature}, reviews: {reviews}.",
+  "onbTrialGranted": "⭐ Plus is on for your first {days} days — every button under the card is open: other meanings, clarify, grammar, mentor, video.\n\nAfter that translations and grammar stay free. Save {words} words this week and Plus stays {extraDays} days longer.",
+  "trialEndingSoon": "⏳ Your Plus week ends on {date}.\n\nSave {words} words this week and Plus stays {extraDays} days longer. Otherwise clarify, mentor and video switch off — translations and grammar stay free.",
+  "trialEndingFinal": "⏳ Your Plus days end on {date}.\n\nAfter that translations and grammar stay free; clarify, mentor and video switch off.",
+  "trialExtended": "🎁 You saved enough words this week — Plus stays with you {extraDays} days longer.\n\nKeep going, nothing switches off yet.",
+  "trialEnded": "Your Plus week is over. Saved this week: {saved} — they stay yours, and reviews keep coming.\n\nStill free: translations and grammar. Switched off: other meanings, clarify, mentor, video.",
+  "trialEndedEmpty": "Your Plus week is over.\n\nStill free: translations and grammar. Switched off: other meanings, clarify, mentor, video."
 }

@@ -16,6 +16,7 @@ import {
   formatLongDate,
   type I18nKey,
   isSupported,
+  isTrial,
   type PlanLimitConfig,
   type SupportedLang,
   t,
@@ -109,8 +110,11 @@ async function loadPurchasablePlans(ctx: BotContext): Promise<PurchasablePlan[]>
  * counts as 0: nothing is lost by leaving it.
  */
 async function refuseAsDowngrade(ctx: BotContext, target: PurchasablePlan): Promise<string | null> {
+  if ((await currentPlanPrice(ctx)) < target.priceUsdCents) {
+    return null;
+  }
   const current = (await ctx.services.settings.getPlanLimits()).find((plan) => plan.name === ctx.user.subscriptionPlan);
-  return (current?.priceUsdCents ?? 0) >= target.priceUsdCents ? (current?.label ?? ctx.user.subscriptionPlan) : null;
+  return current?.label ?? ctx.user.subscriptionPlan;
 }
 
 /** `500` → `$5`, `1050` → `$10.50`. */
@@ -238,8 +242,21 @@ function buildPlanChoiceKeyboard(plans: PurchasablePlan[], lang: SupportedLang):
   return kb;
 }
 
-/** What the user's current plan costs; a plan that is not for sale counts as 0, as in `refuseAsDowngrade`. */
+/**
+ * What the user's current plan costs *them* — the rung of the ladder they have
+ * actually climbed.
+ *
+ * A plan that is not for sale counts as 0, and so does a plan held by the
+ * onboarding trial (Task 84). The trial is a gift, not a purchase: priced at its
+ * face value it would put the trialling user above the tier they are trialling,
+ * and the plan comparison would then hide Plus and refuse a tap on it as a
+ * downgrade — refusing the single conversion the reverse trial exists to produce.
+ */
 async function currentPlanPrice(ctx: BotContext): Promise<number> {
+  const active = await ctx.services.subscriptionRepository?.findActiveByUser(ctx.user.id);
+  if (active && isTrial(active)) {
+    return 0;
+  }
   const current = (await ctx.services.settings.getPlanLimits()).find((plan) => plan.name === ctx.user.subscriptionPlan);
   return current?.priceUsdCents ?? 0;
 }

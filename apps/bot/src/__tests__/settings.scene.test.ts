@@ -28,7 +28,10 @@ const { mockLogger, mockUserRepository, mockLanguageCache, mockTranslationReques
     mockLogger: { debug: vi.fn(), error: vi.fn(), info: vi.fn(), warn: vi.fn() },
     mockUserRepository: mockUR,
     mockLanguageCache: mockLC,
-    mockTranslationRequestRepository: { getUserCreditsInWindow: vi.fn().mockResolvedValue(10) },
+    mockTranslationRequestRepository: {
+      getUserCreditsInWindow: vi.fn().mockResolvedValue(10),
+      getTranslationCreditsInWindow: vi.fn().mockResolvedValue(10),
+    },
   };
 });
 

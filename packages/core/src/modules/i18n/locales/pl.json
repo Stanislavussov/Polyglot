@@ -426,5 +426,11 @@
   "praiseHardWordRecalled": "💪 Słowo oznaczone jako trudne — a dziś je znasz.",
   "recoveryLine": "Witaj z powrotem. Wszystko jest na swoim miejscu.",
   "recoveryDue": "Do powtórzenia: {count}.",
-  "weeklyProofLine": "W tym tygodniu — w pamięci długotrwałej: {mature}, powtórzeń: {reviews}."
+  "weeklyProofLine": "W tym tygodniu — w pamięci długotrwałej: {mature}, powtórzeń: {reviews}.",
+  "onbTrialGranted": "⭐ Pierwsze {days} dni masz Plus za darmo — wszystkie przyciski pod kartą są odblokowane: inne znaczenia, doprecyzowanie, gramatyka, mentor, filmy.\n\nPotem tłumaczenia i gramatyka zostają darmowe. Zapisz {words} słów w tym tygodniu, a Plus potrwa o {extraDays} dni dłużej.",
+  "trialEndingSoon": "⏳ Twój tydzień z Plus kończy się {date}.\n\nZapisz {words} słów w tym tygodniu, a Plus potrwa o {extraDays} dni dłużej. W przeciwnym razie doprecyzowanie, mentor i filmy się wyłączą — tłumaczenia i gramatyka zostają darmowe.",
+  "trialEndingFinal": "⏳ Twoje dni z Plus kończą się {date}.\n\nPotem tłumaczenia i gramatyka zostają darmowe; doprecyzowanie, mentor i filmy się wyłączą.",
+  "trialExtended": "🎁 W tym tygodniu zapisano wystarczająco dużo słów — Plus zostaje z tobą o {extraDays} dni dłużej.\n\nTak trzymaj, nic jeszcze się nie wyłącza.",
+  "trialEnded": "Twój tydzień z Plus się skończył. Zapisano w tym tygodniu: {saved} — zostają twoje, powtórki trwają dalej.\n\nWciąż za darmo: tłumaczenia i gramatyka. Wyłączone: inne znaczenia, doprecyzowanie, mentor, filmy.",
+  "trialEndedEmpty": "Twój tydzień z Plus się skończył.\n\nWciąż za darmo: tłumaczenia i gramatyka. Wyłączone: inne znaczenia, doprecyzowanie, mentor, filmy."
 }

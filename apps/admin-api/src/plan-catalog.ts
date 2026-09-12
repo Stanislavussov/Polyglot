@@ -18,13 +18,21 @@ export interface PlanCatalogEntry {
   features: FeatureKey[];
 }
 
-// Task 79 tier matrix — the shape a fresh database starts with. Free is
-// translation-only; Plus adds the clarify/other-meaning pair, unmetered
-// translation and monthly video; Pro is the only plan with word audio (TTS),
-// the most expensive thing on a card. Plus is unmetered on purpose: the tier is
-// priced on the assumption that a typical subscriber never approaches a cap, so
-// the heavy user is covered by the many who are not.
+// Task 79 tier matrix — the shape a fresh database starts with. Plus adds the
+// clarify/other-meaning pair, unmetered translation and monthly video; Pro is
+// the only plan with word audio (TTS), the most expensive thing on a card. Plus
+// is unmetered on purpose: the tier is priced on the assumption that a typical
+// subscriber never approaches a cap, so the heavy user is covered by the many
+// who are not.
+//
+// Free keeps the grammar breakdown (Task 84). It is the tier a reverse-trial
+// user lands on after their first week, and a tier that can only translate makes
+// that landing feel like a punishment rather than a smaller version of the
+// product — which is the failure mode that turns an expiring trial into churn
+// instead of a purchase. The call it can trigger is metered against the free
+// daily credit budget, so the giveaway is bounded.
 const GRAMMAR_FEATURES: FeatureKey[] = ["grammarBreakdown", "etymology", "grammarDetail"];
+const FREE_FEATURES: FeatureKey[] = ["grammarBreakdown"];
 const PLUS_FEATURES: FeatureKey[] = [...GRAMMAR_FEATURES, "clarification", "mentor"];
 const PRO_FEATURES: FeatureKey[] = [...PLUS_FEATURES, "pronunciation", "voiceInput"];
 
@@ -32,7 +40,7 @@ export const DEFAULT_PLAN_CATALOG: PlanCatalogEntry[] = [
   {
     name: "free",
     label: "Free",
-    translationLimit: 10,
+    translationLimit: 30,
     creditCost: 1,
     videoLimit: 0,
     videoWindow: "none",
@@ -40,7 +48,7 @@ export const DEFAULT_PLAN_CATALOG: PlanCatalogEntry[] = [
     priceUsdCents: null,
     isActive: true,
     isDefault: true,
-    features: [],
+    features: FREE_FEATURES,
   },
   {
     name: "plus",

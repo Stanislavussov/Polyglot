@@ -1,5 +1,5 @@
-import type { TranslationRequest } from "@polyglot/core";
-import { and, count, desc, eq, gte, inArray, sql, sum } from "drizzle-orm";
+import { NON_TRANSLATION_LEDGER_TAGS, type TranslationRequest } from "@polyglot/core";
+import { and, count, desc, eq, gte, inArray, notInArray, sql, sum } from "drizzle-orm";
 import { getDb } from "../connection.js";
 import { languages, translationRequests, translationRequestTargetLangs, userDailyRequestCounts } from "../schema.js";
 
@@ -87,6 +87,23 @@ export const translationRequestRepository = {
       .select({ value: sum(translationRequests.creditCost) })
       .from(translationRequests)
       .where(and(eq(translationRequests.userId, userId), gte(translationRequests.createdAt, windowStart)));
+    const value = rows[0]?.value;
+    return value ? Number(value) : 0;
+  },
+
+  /** Same sum, minus the tagged rows that are not translations (see the port). */
+  async getTranslationCreditsInWindow(userId: number, windowStart: Date): Promise<number> {
+    const db = getDb();
+    const rows = await db
+      .select({ value: sum(translationRequests.creditCost) })
+      .from(translationRequests)
+      .where(
+        and(
+          eq(translationRequests.userId, userId),
+          gte(translationRequests.createdAt, windowStart),
+          notInArray(translationRequests.original, [...NON_TRANSLATION_LEDGER_TAGS]),
+        ),
+      );
     const value = rows[0]?.value;
     return value ? Number(value) : 0;
   },

@@ -213,10 +213,17 @@ export async function handleVideoVocabularyUrl(
     planFeatures: [],
   });
 
-  // Resolved before the allowance check so the giveaway can bypass it entirely.
-  const isTrial = options.fromOnboarding
-    ? !(await ctx.services.videoVocabularyRepository.hasCompletedTrial(userId))
-    : false;
+  // Resolved before the allowance check so the giveaway can bypass it entirely —
+  // but only when the plan cannot pay for this video itself. Since Task 84 a
+  // brand-new user spends their first week on the Plus trial, whose monthly
+  // allowance covers a starter video; spending the once-per-account giveaway
+  // there would leave them with nothing the first time they open Videos after
+  // the trial expires, which is exactly the screen this giveaway exists for.
+  const planCoversVideo = videoEntitlement.window !== "none";
+  const isTrial =
+    options.fromOnboarding && !planCoversVideo
+      ? !(await ctx.services.videoVocabularyRepository.hasCompletedTrial(userId))
+      : false;
 
   let usageCount = 0;
   if (!isTrial && videoEntitlement.window === "none") {
@@ -631,8 +638,8 @@ export const VIDEO_TRY_PATTERN = /^vid:try:/;
 
 /**
  * A curated starter video was tapped. Runs the normal pipeline, flagged as coming
- * from onboarding so the user's one free trial can absorb it instead of a third
- * of their lifetime free allowance.
+ * from onboarding so the user's one free trial can absorb it — but only when
+ * their plan has no video allowance of its own to pay for it (Task 84).
  */
 export async function handleVideoTryCallback(ctx: BotContext): Promise<void> {
   await ctx.answerCallbackQuery();

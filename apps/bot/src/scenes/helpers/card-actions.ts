@@ -30,6 +30,7 @@ import {
 } from "../../renderers/translation.renderer.js";
 import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
+import { ensureAiQuota, recordAiUsage } from "../../utils/ai-quota.js";
 import { languageOrderFromSettings, resolveLanguageOrder } from "../../utils/language-order.js";
 import { isUserFacingTimeout, LONG_OP_TIMEOUT_MS, loadingKeyboard, withTimeout } from "../../utils/long-op.js";
 import { toVocabularyInput } from "../../utils/vocabulary-mapper.js";
@@ -358,6 +359,17 @@ export async function handleGrammarBreakdownCallback(ctx: BotContext): Promise<v
     return;
   }
 
+  // Metered from Task 84 on, because free plans now hold this feature: the
+  // generation below is a real AI call, and the feature flag alone would let a
+  // free account make unlimited ones. Paid tiers carry a null limit, so nothing
+  // changes for them. Only the uncached path bills — a re-render of a breakdown
+  // the card already has costs nothing.
+  const creditCost = await ensureAiQuota(ctx, ctx.user.subscriptionPlan, lang, "grammar");
+  if (creditCost === null) {
+    await ctx.answerCallbackQuery();
+    return;
+  }
+
   await showCardLoading(ctx, lang);
 
   try {
@@ -385,6 +397,7 @@ export async function handleGrammarBreakdownCallback(ctx: BotContext): Promise<v
     );
 
     entry.grammarBreakdown = result;
+    await recordAiUsage(ctx, "grammar", creditCost, entry.output.sourceLang);
     await reRenderCard(ctx, entry, msgId, lang, nativeLang);
   } catch (err) {
     logEvent("card.grammar_breakdown_failed", { word: entry.output.original, ...errorFields(err) }, "error");

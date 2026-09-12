@@ -14,6 +14,7 @@
  */
 import {
   botSessionRepository,
+  rateLimitPlanRepository,
   subscriptionRepository,
   translationRequestRepository,
   userRepository,
@@ -269,13 +270,19 @@ describe("paid features on a translation card (integration)", () => {
     expect(lastMessageButtons(harness)).toEqual([]);
   });
 
-  it("stops the 11th translation of the month on Free and offers the upgrade", async () => {
-    // Arrange — the free plan allows 10 translations/month; spend them through the
-    // real ledger rather than by dispatching ten pipeline runs.
+  it("stops the translation after the free monthly allowance and offers the upgrade", async () => {
+    // Arrange — spend the free plan's whole monthly allowance through the real
+    // ledger rather than by dispatching that many pipeline runs. The size of the
+    // allowance is read from the plan row instead of hardcoded: it is a pricing
+    // knob that has already moved once (10 → 30, Task 84) and will move again,
+    // and what this test is about is the refusal at the boundary, not the number.
     const { harness } = arrangeHarness();
     const id = uniqueTelegramId();
     const userId = await arrangeOnboardedTranslator(id);
-    for (let spent = 0; spent < 10; spent += 1) {
+    const free = (await rateLimitPlanRepository.findAll()).find((plan) => plan.name === "free");
+    const allowance = free?.translationLimit ?? 0;
+    expect(allowance).toBeGreaterThan(0);
+    for (let spent = 0; spent < allowance; spent += 1) {
       await translationRequestRepository.logTranslationRequest(userId, `spent-${spent}`, "en", ["cs"], 1);
     }
 

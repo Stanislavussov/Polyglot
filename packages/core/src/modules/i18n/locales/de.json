@@ -426,5 +426,11 @@
   "praiseHardWordRecalled": "💪 Ein Wort, das du als schwer markiert hast — und heute kanntest du es.",
   "recoveryLine": "Willkommen zurück. Alles ist noch da.",
   "recoveryDue": "Zu wiederholen: {count}.",
-  "weeklyProofLine": "Diese Woche — im Langzeitgedächtnis: {mature}, Wiederholungen: {reviews}."
+  "weeklyProofLine": "Diese Woche — im Langzeitgedächtnis: {mature}, Wiederholungen: {reviews}.",
+  "onbTrialGranted": "⭐ Die ersten {days} Tage hast du Plus — alle Buttons unter der Karte sind offen: weitere Bedeutungen, Präzisieren, Grammatik, Mentor, Video.\n\nDanach bleiben Übersetzungen und Grammatik kostenlos. Speichere diese Woche {words} Wörter, und Plus bleibt {extraDays} Tage länger.",
+  "trialEndingSoon": "⏳ Deine Plus-Woche endet am {date}.\n\nSpeichere diese Woche {words} Wörter, und Plus bleibt {extraDays} Tage länger. Sonst schalten sich Präzisieren, Mentor und Video ab — Übersetzungen und Grammatik bleiben kostenlos.",
+  "trialEndingFinal": "⏳ Deine Plus-Tage enden am {date}.\n\nDanach bleiben Übersetzungen und Grammatik kostenlos; Präzisieren, Mentor und Video schalten sich ab.",
+  "trialExtended": "🎁 Du hast diese Woche genug Wörter gespeichert — Plus bleibt dir {extraDays} Tage länger erhalten.\n\nMach weiter, noch schaltet sich nichts ab.",
+  "trialEnded": "Deine Plus-Woche ist vorbei. Diese Woche gespeichert: {saved} — sie bleiben dir erhalten, Wiederholungen laufen weiter.\n\nWeiterhin kostenlos: Übersetzungen und Grammatik. Abgeschaltet: weitere Bedeutungen, Präzisieren, Mentor, Video.",
+  "trialEndedEmpty": "Deine Plus-Woche ist vorbei.\n\nWeiterhin kostenlos: Übersetzungen und Grammatik. Abgeschaltet: weitere Bedeutungen, Präzisieren, Mentor, Video."
 }

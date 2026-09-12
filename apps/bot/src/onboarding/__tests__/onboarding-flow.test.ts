@@ -7,7 +7,7 @@
  * resumption and "never persisted without a level" guarantees testable at all —
  * they are properties of the stored state, not of a call sequence.
  */
-import type { ServiceContainer } from "@polyglot/core";
+import { type ServiceContainer, TRIAL_DAYS, TRIAL_EXTENSION_WORDS, TRIAL_PLAN, TRIAL_PROVIDER } from "@polyglot/core";
 import { GrammyError } from "grammy";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createServicesStub } from "../../test-helpers/services-stub.js";
@@ -91,7 +91,7 @@ function createHarness(opts: { languageCode?: string } = {}) {
   const store = {
     user: {
       id: 1,
-      audienceGroup: "product" as const,
+      audienceGroup: "product" as "product" | "tester" | "admin",
       subscriptionPlan: "free",
       onboarded: false,
       onboardingStep: 0,
@@ -99,6 +99,7 @@ function createHarness(opts: { languageCode?: string } = {}) {
     },
     settings: null as null | { interfaceLang: string; nativeLang: string; learningLangs: string[] },
     levels: [] as Array<{ languageCode: string; proficiencyLevel: string }>,
+    subscriptions: [] as Array<{ plan: string; provider: string; currentPeriodEnd: Date }>,
   };
 
   const userRepository = {
@@ -123,6 +124,39 @@ function createHarness(opts: { languageCode?: string } = {}) {
       return store.user;
     }),
     updateActiveMode: vi.fn().mockResolvedValue({}),
+    updateSubscriptionPlan: vi.fn(async (_id: number, plan: string) => {
+      store.user.subscriptionPlan = plan;
+      return store.user;
+    }),
+  };
+
+  /**
+   * In-memory subscriptions table, so the once-per-account trial guard is
+   * exercised against stored rows rather than a call count — re-running
+   * onboarding must find the row the first run wrote.
+   */
+  const subscriptionRepository = {
+    create: vi.fn(async (input: { plan: string; provider?: string; currentPeriodEnd: Date }) => {
+      const row = {
+        id: store.subscriptions.length + 1,
+        userId: 1,
+        plan: input.plan,
+        status: "active" as const,
+        provider: input.provider ?? "mock",
+        externalId: null,
+        currentPeriodEnd: input.currentPeriodEnd,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      store.subscriptions.push(row);
+      return row;
+    }),
+    findActiveByUser: vi.fn(async () => store.subscriptions.find((row) => row.provider === "mock") ?? null),
+    findTrialByUser: vi.fn(async () => store.subscriptions.find((row) => row.provider === "trial") ?? null),
+    findTrialsEndingBetween: vi.fn(async () => []),
+    findExpired: vi.fn(async () => []),
+    extend: vi.fn(),
+    updateStatus: vi.fn(),
   };
 
   const onboardingDemoCardRepository = {
@@ -170,6 +204,7 @@ function createHarness(opts: { languageCode?: string } = {}) {
         onboardingDemoCardRepository as unknown as ServiceContainer["onboardingDemoCardRepository"],
       languageCache: languageCache as unknown as ServiceContainer["languageCache"],
       ai: ai as unknown as ServiceContainer["ai"],
+      subscriptionRepository: subscriptionRepository as unknown as ServiceContainer["subscriptionRepository"],
     }),
   } as unknown as BotContext;
 
@@ -266,6 +301,7 @@ function createHarness(opts: { languageCode?: string } = {}) {
     ctx,
     store,
     userRepository,
+    subscriptionRepository,
     onboardingDemoCardRepository,
     ai,
     tap,
@@ -1005,5 +1041,86 @@ describe("onboarding — recovery and reversibility", () => {
     await h.tap("onb:nat:ru");
 
     expect(h.ctx.reply).toHaveBeenCalled();
+  });
+});
+
+describe("onboarding — the reverse trial (Task 84)", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  /** A pre-rendered hook card, so completing onboarding needs no AI call. */
+  const CACHED_CARD = {
+    id: 7,
+    sourceLang: "de",
+    nativeLang: "ru",
+    headword: "Backpfeifengesicht",
+    sortOrder: 0,
+    isActive: true,
+    createdAt: new Date(0),
+    payload: DEMO_PAYLOAD,
+  };
+
+  it("hands the finished account a week of Plus and says so once", async () => {
+    const h = createHarness({ languageCode: "ru" });
+    await reachDemoScreen(h);
+    h.onboardingDemoCardRepository.findOne.mockResolvedValue(CACHED_CARD);
+
+    await h.tap("onb:hook:de:0");
+
+    expect(h.store.subscriptions).toEqual([
+      expect.objectContaining({ plan: TRIAL_PLAN, provider: TRIAL_PROVIDER, status: "active" }),
+    ]);
+    expect(h.store.user.subscriptionPlan).toBe(TRIAL_PLAN);
+    // The closing screen is the one place the gift is announced, and it names
+    // both the length and the rule for earning more.
+    const closing = vi
+      .mocked(h.ctx.reply)
+      .mock.calls.map(([text]) => String(text))
+      .find((text) => text.includes(String(TRIAL_DAYS)) && text.includes(String(TRIAL_EXTENSION_WORDS)));
+    expect(closing).toBeDefined();
+  });
+
+  it("says nothing about a trial to an account that already spent one", async () => {
+    const h = createHarness({ languageCode: "ru" });
+    h.store.subscriptions.push({
+      plan: TRIAL_PLAN,
+      provider: TRIAL_PROVIDER,
+      currentPeriodEnd: new Date("2026-08-01T00:00:00Z"),
+    });
+    await reachDemoScreen(h);
+    h.onboardingDemoCardRepository.findOne.mockResolvedValue(CACHED_CARD);
+
+    await h.tap("onb:hook:de:0");
+
+    expect(h.store.subscriptions).toHaveLength(1);
+    expect(h.userRepository.updateSubscriptionPlan).not.toHaveBeenCalled();
+    expect(h.userRepository.markOnboarded).toHaveBeenCalledWith(1);
+    const announced = vi
+      .mocked(h.ctx.reply)
+      .mock.calls.map(([text]) => String(text))
+      .some((text) => text.includes(String(TRIAL_EXTENSION_WORDS)));
+    expect(announced).toBe(false);
+  });
+
+  it("hands no trial to an internal role, which already bypasses every plan", async () => {
+    const h = createHarness({ languageCode: "ru" });
+    h.store.user.audienceGroup = "tester";
+    await reachDemoScreen(h);
+    h.onboardingDemoCardRepository.findOne.mockResolvedValue(CACHED_CARD);
+
+    await h.tap("onb:hook:de:0");
+
+    expect(h.store.subscriptions).toHaveLength(0);
+    expect(h.userRepository.markOnboarded).toHaveBeenCalledWith(1);
+  });
+
+  it("completes onboarding even when the trial cannot be granted", async () => {
+    const h = createHarness({ languageCode: "ru" });
+    h.subscriptionRepository.create.mockRejectedValue(new Error("subscriptions table is on fire"));
+    await reachDemoScreen(h);
+    h.onboardingDemoCardRepository.findOne.mockResolvedValue(CACHED_CARD);
+
+    await h.tap("onb:hook:de:0");
+
+    expect(h.userRepository.markOnboarded).toHaveBeenCalledWith(1);
   });
 });

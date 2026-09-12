@@ -65,6 +65,7 @@ const {
   },
   mockTranslationRequestRepository: {
     getUserCreditsInWindow: vi.fn().mockResolvedValue(0),
+    getTranslationCreditsInWindow: vi.fn().mockResolvedValue(0),
     logTranslationRequest: vi.fn().mockResolvedValue(1),
   },
   mockRequestTimingRepository: {

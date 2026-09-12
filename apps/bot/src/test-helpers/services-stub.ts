@@ -29,11 +29,11 @@ function autoMockObject<T extends object>(): T {
   });
 }
 
-/** Default free-tier plan limit — mirrors the seeded `free` plan. Override per test as needed. */
+/** Default free-tier plan limit — mirrors the seeded `free` plan (Task 84 limits). Override per test as needed. */
 export const DEFAULT_PLAN_LIMIT: NonNullable<Awaited<ReturnType<ServiceContainer["settings"]["getPlanLimit"]>>> = {
   name: "free",
   label: "Free",
-  translationLimit: 10,
+  translationLimit: 30,
   creditCost: 1,
   videoLimit: 0,
   videoWindow: "none",

@@ -14,7 +14,15 @@
  * steps 1 and 2, which made a CEFR-screen abandon indistinguishable from a demo
  * abandon.
  */
-import { errorFields, logEvent, t } from "@polyglot/core";
+import {
+  errorFields,
+  grantOnboardingTrial,
+  isUnlimitedRole,
+  logEvent,
+  TRIAL_EXTENSION_DAYS,
+  TRIAL_EXTENSION_WORDS,
+  t,
+} from "@polyglot/core";
 import type { InlineKeyboard } from "grammy";
 import { setUserCommands } from "../commands/commands.js";
 import { ONBOARDING_SCREENCAST_FILE_ID } from "../constants.js";
@@ -106,17 +114,28 @@ export async function showFinalScreen(ctx: BotContext, state: OnboardingState): 
 
   await sendScreencast(ctx);
 
+  // Granted before the closing text is composed, so the screen can only promise a
+  // trial the user actually holds.
+  const trial = await grantTrialQuietly(ctx, state.userId);
+
   // One closing message carrying one menu. The mode keyboard rides on this screen
   // rather than a second message after it: the inline feature buttons that used to
   // sit here (dictionary, training, video) were the same modes a second time, and
   // the message that delivered the keyboard then explained them a third. The ⌨️
   // icon is still named — a `oneTime()` keyboard folds away after use, so an
   // unnamed icon is a menu the user has to rediscover by accident.
-  await installMainKeyboard(
-    ctx,
-    `${t("onbDemoMore", lang)}\n\n${t("onboardingComplete", lang)}\n\n${t("mainMenuHint", lang)}`,
-    lang,
-  );
+  const closing = [t("onbDemoMore", lang), t("onboardingComplete", lang)];
+  if (trial) {
+    closing.push(
+      t("onbTrialGranted", lang, {
+        days: String(trial.days),
+        words: String(TRIAL_EXTENSION_WORDS),
+        extraDays: String(TRIAL_EXTENSION_DAYS),
+      }),
+    );
+  }
+  closing.push(t("mainMenuHint", lang));
+  await installMainKeyboard(ctx, closing.join("\n\n"), lang);
 
   await ctx.services.userRepository.markOnboarded(state.userId);
   recordOnboardingStep(ONBOARDING_STEPS.complete, "completed");
@@ -136,6 +155,41 @@ export async function showFinalScreen(ctx: BotContext, state: OnboardingState): 
   }
 
   logEvent("onboarding.completed", { nativeLang: state.nativeLang, learningLangs: state.learningLangs });
+}
+
+/**
+ * Hand the new account its first week of Plus, and report what the closing
+ * screen may say about it.
+ *
+ * Everything is swallowed: the trial is a gift, not a step, so neither a missing
+ * repository (a container assembled without payments) nor a failed write may cost
+ * the user their onboarding completion. Null means "say nothing about a trial" —
+ * which is also the honest answer for a user who already spent theirs.
+ */
+async function grantTrialQuietly(
+  ctx: BotContext,
+  userId: number,
+): Promise<{ days: number; currentPeriodEnd: Date } | null> {
+  const subscriptions = ctx.services.subscriptionRepository;
+  if (!subscriptions) return null;
+
+  // An internal role already bypasses every plan, so a trial row would buy them
+  // nothing and would earn them a "your Plus week is over" message a week later
+  // for a week they never had.
+  if (ctx.user && isUnlimitedRole(ctx.user.audienceGroup)) return null;
+
+  try {
+    const grant = await grantOnboardingTrial({ subscriptions, users: ctx.services.userRepository }, userId);
+    if (!grant.granted) {
+      logEvent("onboarding.trial_not_granted", { reason: grant.reason });
+      return null;
+    }
+    logEvent("onboarding.trial_granted", { plan: grant.plan, days: grant.days });
+    return { days: grant.days, currentPeriodEnd: grant.currentPeriodEnd };
+  } catch (err) {
+    logEvent("onboarding.trial_grant_failed", errorFields(err), "error");
+    return null;
+  }
 }
 
 /**

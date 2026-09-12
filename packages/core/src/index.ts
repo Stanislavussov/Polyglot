@@ -70,6 +70,7 @@ export type {
   TranslationRequest,
   TranslationRequestRepository,
 } from "./ports/translation-request.repository.js";
+export { NON_TRANSLATION_LEDGER_TAGS } from "./ports/translation-request.repository.js";
 export type {
   TtsCacheHit,
   TtsCacheKey,
@@ -206,6 +207,7 @@ export { AI_GENERATION_DEFAULTS, parseAIGenerationDefaults } from "./modules/set
 export * from "./modules/settings/settings.service.js";
 export * from "./modules/srs/index.js";
 export * from "./modules/subscriptions/index.js";
+export * from "./modules/subscriptions/trial.js";
 export * from "./modules/topics/index.js";
 export * from "./modules/translation/index.js";
 export type { SpeakableCard } from "./modules/tts/pronounceable-langs.js";

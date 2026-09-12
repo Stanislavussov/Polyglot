@@ -30,6 +30,7 @@ const { mockUserRepository, mockAi, mockSettings, mockTranslationRequestReposito
     },
     mockTranslationRequestRepository: {
       getUserCreditsInWindow: vi.fn().mockResolvedValue(0),
+      getTranslationCreditsInWindow: vi.fn().mockResolvedValue(0),
       countRequestsInWindow: vi.fn().mockResolvedValue(0),
       logTranslationRequest: vi.fn().mockResolvedValue(1),
     },
@@ -311,23 +312,16 @@ describe("handleMentorText", () => {
   });
 
   it("bypasses the mentor daily limit for internal roles (no plan read, no turn count)", async () => {
-    // A free-plan admin with mentorDailyLimit 0 must still get through: the role
-    // short-circuits before the count. (The queued plan is consumed by the credit
-    // meter later in the same turn.)
-    mockSettings.getPlanLimit.mockResolvedValueOnce({
-      name: "free",
-      label: "Free",
-      translationLimit: 50,
-      creditCost: 1,
-      mentorDailyLimit: 0,
-      isActive: true,
-      isDefault: true,
-    });
+    // An internal role short-circuits BOTH meters — the mentor's daily cap and
+    // the shared credit budget — and neither reads a plan row on the way past.
+    // (Before Task 84 the credit meter still read one, which is why this test
+    // used to have to queue a plan for it.)
     const ctx = createMockCtx();
     (ctx.user as { audienceGroup: string }).audienceGroup = "admin";
 
     await handleMentorText(ctx, "hello");
 
+    expect(mockSettings.getPlanLimit).not.toHaveBeenCalled();
     expect(mockTranslationRequestRepository.countRequestsInWindow).not.toHaveBeenCalled();
     expect(mockAi.generateChat).toHaveBeenCalledTimes(1);
   });

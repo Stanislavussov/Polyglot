@@ -28,6 +28,7 @@ import {
   needsDictionaryVerification,
   resolveDirectionFromSource,
   resolveEntitlements,
+  resolveMeteredWindowStart,
   resolveOutputConfig,
   resolveTemplate,
   resolveTranslationDirection,
@@ -88,7 +89,9 @@ import { setTranslationEntry } from "./translation-map.helper.js";
  * Translation quota — a monthly (calendar-UTC) window, distinct from the daily
  * credit meter (`ensureAiQuota`) that governs the other paid AI calls. Free plans
  * allow N translations per calendar month; unlimited plans and admin/tester roles
- * skip the ledger entirely. Returns the credit cost to log on success, or null
+ * skip the ledger entirely. It counts translations only: the other AI calls share
+ * the ledger but are the daily budget's business, so billing them here too would
+ * let a free user's grammar taps eat the translations they were promised. Returns the credit cost to log on success, or null
  * when the quota is exhausted (after replying with the limit notice + upgrade
  * CTA — the caller must then abort).
  */
@@ -110,9 +113,9 @@ async function ensureTranslationQuota(
     return creditCost;
   }
 
-  const usedCredits = await ctx.services.translationRequestRepository.getUserCreditsInWindow(
+  const usedCredits = await ctx.services.translationRequestRepository.getTranslationCreditsInWindow(
     ctx.user.id,
-    getMonthlyWindowStart(),
+    await resolveQuotaWindowStart(ctx),
   );
   if (usedCredits + creditCost > entitlements.translationsPerMonth) {
     await ctx.reply(t("rateLimitExceeded", lang), { reply_markup: buildUpgradeKeyboard(lang) });
@@ -120,6 +123,20 @@ async function ensureTranslationQuota(
   }
 
   return creditCost;
+}
+
+/**
+ * The billing window for a metered plan, rebased on a trial that ended inside
+ * this month (see `resolveMeteredWindowStart` for why). Only the monthly
+ * translation window is rebased; the daily credit meter is left alone, where the
+ * same overlap can cost at most the remainder of one day.
+ *
+ * Reached only by a metered plan — an unlimited one returns above this call, so
+ * the extra lookup never touches a paying user's hot path.
+ */
+async function resolveQuotaWindowStart(ctx: BotContext): Promise<Date> {
+  const trial = await ctx.services.subscriptionRepository?.findTrialByUser(ctx.user.id);
+  return resolveMeteredWindowStart(getMonthlyWindowStart(), trial?.currentPeriodEnd);
 }
 
 /** Check if any LanguageTranslation has grammarBreakdown data */

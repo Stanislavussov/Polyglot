@@ -40,7 +40,10 @@ const {
     mockUserRepository: mockUR,
     mockLanguageCache: mockLC,
     mockNotificationRepository: mockNR,
-    mockTranslationRequestRepository: { getUserCreditsInWindow: vi.fn().mockResolvedValue(10) },
+    mockTranslationRequestRepository: {
+      getUserCreditsInWindow: vi.fn().mockResolvedValue(10),
+      getTranslationCreditsInWindow: vi.fn().mockResolvedValue(10),
+    },
   };
 });
 
