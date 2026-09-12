@@ -305,6 +305,22 @@ export interface SessionData {
   };
   /** Message held while the idle prompt is on screen. Single slot: the newest supersedes. */
   mentorIdlePrompt?: MentorIdleHold;
+  /**
+   * The card whose "Ask the mentor" prompt is waiting for a question. Single
+   * slot, like {@link SessionData.mentorIdlePrompt}: the newest prompt
+   * supersedes the previous one, which is deleted from the chat.
+   *
+   * Only the card's message id is kept — the card itself already lives in
+   * {@link SessionData.translationMap}, and a second copy would go stale the
+   * moment the user unfolds another section on it.
+   */
+  pendingCardMentorAsk?: {
+    cardMsgId: number;
+    /** Telegram id of the prompt message carrying the buttons. */
+    promptMsgId: number;
+    /** Epoch ms the prompt was sent; a prompt older than the mentor idle window is ignored. */
+    askedAt: number;
+  };
 }
 
 /** Custom context properties injected by auth middleware */
