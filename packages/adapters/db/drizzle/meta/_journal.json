@@ -421,6 +421,13 @@
       "when": 1789202390811,
       "tag": "0059_boring_legion",
       "breakpoints": true
+    },
+    {
+      "idx": 60,
+      "version": "7",
+      "when": 1789202849722,
+      "tag": "0060_enable_notifications_for_never_subscribed",
+      "breakpoints": true
     }
   ]
 }
