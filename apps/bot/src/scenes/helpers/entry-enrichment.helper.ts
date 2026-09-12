@@ -16,6 +16,7 @@ import { logger, resolveOutputConfig, translateWithContext } from "@polyglot/cor
 import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
 import { toVocabularyInput } from "../../utils/vocabulary-mapper.js";
+import { getUserLanguageGroup } from "./translate-mode.shared.js";
 
 export interface EnrichEntryInput {
   entryId: number;
@@ -39,8 +40,15 @@ export async function enrichEntryInBackground(ctx: BotContext, input: EnrichEntr
     const nativeLang = userSettings?.nativeLang ?? "en";
     const learningLangs = userSettings?.learningLangs ?? [];
 
-    const targetLangs = learningLangs.filter((l) => l !== sourceLangCode);
-    if (targetLangs.length === 0) targetLangs.push(nativeLang);
+    // The native language leads, exactly as it does on the translate card. It is
+    // not optional decoration here: `updateAllTranslations` deletes rows for
+    // languages absent from this set, so leaving the native language out erased
+    // the native translation the optimistic save had just written, and the card
+    // was left showing its stored description where the answer belongs.
+    const targetLangs = getUserLanguageGroup(nativeLang, learningLangs).filter((code) => code !== sourceLangCode);
+    // Nothing to ask for — a lone native-language word with no learning language
+    // beside it. Translating it into itself is what the old fallback did.
+    if (targetLangs.length === 0) return void input.onOutcome?.("success");
 
     const model = await resolveDefaultAIModel(ctx.services.settings, ctx.user?.subscriptionPlan);
 
