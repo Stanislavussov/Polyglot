@@ -38,8 +38,31 @@ export function formatNotificationTimes(times: string[]): string {
 }
 
 /**
+ * Localized label for a notification type.
+ *
+ * The stored value is the enum (`srs`), which used to reach the screen verbatim —
+ * both here and in the sub-menu — so the type line read "Type — srs" in every language.
+ */
+export function notifTypeLabel(type: string, lang: SupportedLang): string {
+  switch (type) {
+    case "srs":
+      return t("notifTypeSrs", lang);
+    case "suggested":
+      return t("notifTypeSuggested", lang);
+    case "contextual":
+      return t("notifTypeContextual", lang);
+    default:
+      return type;
+  }
+}
+
+/**
  * Build the settings main menu text.
- * Notifications shown as a single status line.
+ *
+ * Every line is `Label — value`, with no per-line icon: the screen is a list of five
+ * answers to the same question, and an icon on each one made them read as five unrelated
+ * features. Icons live on the buttons below instead, where they mark a tap target. Flags
+ * stay — they identify a language, they do not decorate it.
  */
 export function buildSettingsText(
   nativeLang: string,
@@ -52,8 +75,8 @@ export function buildSettingsText(
   planUsage?: string,
 ): string {
   const notifStatus = notifEnabled
-    ? `🔔 ${t("settingsNotifEnabled", lang)} · ${formatNotificationTimes(notifTimes ?? [])} · ${notifType ?? "srs"}`
-    : `🔕 ${t("settingsNotifDisabled", lang)}`;
+    ? `${t("settingsNotifEnabled", lang)} · ${formatNotificationTimes(notifTimes ?? [])} · ${notifTypeLabel(notifType ?? "srs", lang)}`
+    : t("settingsNotifDisabled", lang);
 
   return [
     t("settingsTitle", lang),
@@ -124,7 +147,7 @@ export function buildNotifSubText(
     "",
     statusLine,
     t("settingsNotifTimes", lang, { times: formatNotificationTimes(notifTimes) }),
-    t("settingsNotifType", lang, { type: notifType }),
+    t("settingsNotifType", lang, { type: notifTypeLabel(notifType, lang) }),
     t("settingsNotifTimezone", lang, { timezone }),
   ];
 

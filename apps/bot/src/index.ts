@@ -13,6 +13,7 @@ import { stopActivationNudge, wireActivationNudge } from "./onboarding/activatio
 import { stopTelemetryRetention, wireTelemetryRetention } from "./retention.wiring.js";
 import { createPostgresSessionStorage } from "./session-storage.js";
 import { createGracefulShutdown } from "./shutdown.js";
+import { stopTrialLifecycle, wireTrialLifecycle } from "./subscriptions/trial-lifecycle.wiring.js";
 
 function loadBotConfig(): ReturnType<typeof loadConfig<typeof botEnvSchema>> {
   try {
@@ -50,6 +51,7 @@ function setupGracefulShutdown(): void {
       { name: "scheduler", run: () => stopScheduler() },
       { name: "telemetryRetention", run: () => stopTelemetryRetention() },
       { name: "activationNudge", run: () => stopActivationNudge() },
+      { name: "trialLifecycle", run: () => stopTrialLifecycle() },
       { name: "aiCreditPoll", run: () => stopAiCreditPoll() },
       {
         name: "runner",
@@ -86,6 +88,7 @@ async function main(): Promise<void> {
   await wireNotificationScheduler(bot.api);
   wireTelemetryRetention();
   wireActivationNudge(bot.api);
+  wireTrialLifecycle(bot.api);
   wireAiCreditPoll();
   metricsServer = startMetricsServer();
 

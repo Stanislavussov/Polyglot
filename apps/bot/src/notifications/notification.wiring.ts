@@ -38,7 +38,6 @@ import { z } from "zod";
 import { notificationCounter } from "../metrics.js";
 import { mockPaymentAdapter } from "../payment.js";
 import { buildAiFailover, resolveDefaultAIModel, resolveFallbackAIModel } from "../utils/ai-model.js";
-import { languageOrderFromSettings } from "../utils/language-order.js";
 import { clampAiBudgetToOpGuard } from "../utils/long-op.js";
 import { isUserBlocked } from "../utils/telegram-errors.js";
 import { buildNotificationKeyboard, formatNotificationMessage } from "./notification.formatter.js";
@@ -230,6 +229,8 @@ export async function buildNotificationScheduling(
         id: e.id,
         original: e.original,
         emoji: e.emoji,
+        sourceLangId: e.sourceLangId,
+        headword: e.sourceUsage?.headword,
         nativeMeaning: e.nativeMeaning,
         createdAt: e.createdAt,
         unverified: e.unverified,
@@ -342,15 +343,7 @@ Return translations as JSON array.`;
 
     const kb = buildNotificationKeyboard(lang, payload.word.entryId);
     const weeklyProof = await prepareWeeklyProof(userId, lang, settings?.timezone ?? "UTC");
-    // Derived here, at render time, from the settings row already loaded above —
-    // so the card's language order never depends on the payload's key order,
-    // which would not survive a queue or worker boundary.
-    const message = formatNotificationMessage(
-      payload,
-      lang,
-      languageOrderFromSettings(settings),
-      weeklyProof ? { footer: weeklyProof.line } : {},
-    );
+    const message = formatNotificationMessage(payload, lang, weeklyProof ? { footer: weeklyProof.line } : {});
     await withDeliveryMetrics(() =>
       api.sendMessage(telegramId, message, {
         parse_mode: "HTML",

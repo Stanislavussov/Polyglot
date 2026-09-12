@@ -64,10 +64,12 @@ describe("handleMentorCommand", () => {
     expect(mockUserRepository.updateActiveMode).toHaveBeenCalledWith(1, "mentor");
   });
 
-  it("marks a fresh thread on entry (empty object, no thread pinned)", async () => {
+  it("marks a fresh thread on entry (activity stamped, no thread pinned)", async () => {
     const ctx = createMockCtx({ mentor: { threadId: "11111111-1111-4111-8111-111111111111" } });
     await handleMentorCommand(ctx);
-    expect(ctx.session.mentor).toEqual({});
+    expect(ctx.session.mentor).toEqual({ lastTurnAt: expect.any(Number) });
+    // Absence of `threadId` IS the fresh-thread sentinel — a literal undefined key would not do.
+    expect(ctx.session.mentor).not.toHaveProperty("threadId");
   });
 
   it("replies with a confirmation message", async () => {

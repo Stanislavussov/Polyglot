@@ -32,23 +32,10 @@ export function resolveOutputConfig(
   _inputLength?: number,
 ): TranslationOutputConfig {
   // Sentences always use the compact preset — user template doesn't apply
-  let config: TranslationOutputConfig;
   if (inputContext === "sentence") {
-    config = { ...SENTENCE_OUTPUT };
-  } else {
-    const template = userTemplate ?? DEFAULT_TEMPLATE;
-    config = templateToOutputConfig(template);
+    return { ...SENTENCE_OUTPUT };
   }
-
-  // Grammar breakdown is only inline for phrases — words skip it entirely,
-  // sentences use on-demand only (button callback).
-  // Note: grammar breakdown analyzes the TARGET translations, not the source,
-  // so it is useful even when sourceLang === nativeLang.
-  if (inputContext !== "phrase") {
-    config.includeGrammarBreakdown = false;
-  }
-
-  return config;
+  return templateToOutputConfig(userTemplate ?? DEFAULT_TEMPLATE);
 }
 
 /**

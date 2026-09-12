@@ -1,1 +1,0 @@
-ALTER TABLE "user_language_settings" ALTER COLUMN "notification_enabled" SET DEFAULT true;

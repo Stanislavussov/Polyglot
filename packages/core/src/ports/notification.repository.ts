@@ -30,6 +30,12 @@ export interface NotificationRepository {
   recordSentWord(userId: number, original: string, source: string): Promise<void>;
   /** Original words sent to the user since the given instant (rolling de-dup window). */
   getSentWordsSince(userId: number, since: Date): Promise<string[]>;
+  /**
+   * Whether this user has ever been sent a message filed under `source` — the
+   * idempotence guard for one-off deliveries (the trial lifecycle messages),
+   * which is why it has no time window.
+   */
+  hasSentFromSource(userId: number, source: string): Promise<boolean>;
   updatePrefs(
     userId: number,
     prefs: {

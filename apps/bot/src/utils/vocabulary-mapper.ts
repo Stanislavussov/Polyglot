@@ -8,7 +8,13 @@
  * Replaces the old sanitizeForStorage() which produced a monolithic JSONB blob.
  * Now produces a normalized parent + per-language children structure.
  */
-import type { CreateVocabularyInput, TranslateOutput, VocabTranslationDetails } from "@polyglot/core";
+import type {
+  CreateVocabularyInput,
+  LanguageTranslation,
+  TranslateOutput,
+  VocabTranslationDetails,
+  VocabularyEntryWithTranslations,
+} from "@polyglot/core";
 import { logger } from "@polyglot/core";
 
 /**
@@ -73,5 +79,61 @@ export function toVocabularyInput(
     sourceUsage: output.sourceUsage,
     unverified: output.unverified === true,
     translations,
+  };
+}
+
+/**
+ * Convert a saved entry back into the {@link TranslateOutput} the translation
+ * card renders from — the inverse of {@link toVocabularyInput}, minus what the
+ * schema never stored.
+ *
+ * This is what lets a surface that holds a saved word (a revealed notification)
+ * show the card the user got when they translated it, with its own keyboard,
+ * instead of a second rendering of the same data: the card is `renderTranslation`
+ * of this output, and there is no way for the two to drift.
+ *
+ * `nativeSynonyms` comes back empty because `toVocabularyInput` never persisted
+ * it — a saved word has not carried one since the normalized schema landed.
+ * Translations whose language row no longer resolves are dropped: a card cannot
+ * label a block it has no code for.
+ */
+export function toTranslateOutput(
+  entry: VocabularyEntryWithTranslations,
+  codeResolver: (langId: number) => string | undefined,
+): TranslateOutput | null {
+  const sourceLang = codeResolver(entry.sourceLangId);
+  if (!sourceLang) {
+    logger.warn(
+      { entryId: entry.id, sourceLangId: entry.sourceLangId },
+      "Unknown source language — cannot render card",
+    );
+    return null;
+  }
+
+  const translations: Record<string, LanguageTranslation> = {};
+  for (const translation of entry.translations) {
+    const code = codeResolver(translation.targetLangId);
+    if (!code) continue;
+    translations[code] = {
+      text: translation.text,
+      synonyms: translation.details?.synonyms ?? [],
+      examples: translation.details?.examples ?? [],
+      expressionType: translation.expressionType as LanguageTranslation["expressionType"],
+      equivalentNote: translation.equivalentNote,
+      usageNote: translation.usageNote,
+      connotationWarning: translation.connotationWarning,
+      alternatives: translation.details?.alternatives ?? null,
+    };
+  }
+
+  return {
+    original: entry.original,
+    sourceLang,
+    ...(entry.emoji ? { emoji: entry.emoji } : {}),
+    ...(entry.nativeMeaning ? { nativeMeaning: entry.nativeMeaning } : {}),
+    ...(entry.sourceUsage ? { sourceUsage: entry.sourceUsage } : {}),
+    nativeSynonyms: [],
+    translations,
+    ...(entry.unverified ? { unverified: true } : {}),
   };
 }

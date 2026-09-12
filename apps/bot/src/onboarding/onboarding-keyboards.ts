@@ -92,11 +92,15 @@ export function buildNativeKeyboard(ctx: BotContext, lang: SupportedLang, guesse
 }
 
 /**
- * Screen 1. When `expandedLang` is set the CEFR row for that language is shown
- * first (one row of six, plus "I don't know", plus remove/back), followed by the
- * remaining languages. Otherwise the plain two-column language list is shown,
- * with confirmed languages rendered as `✅ <lang> · <level>` chips that re-open
- * their level row when tapped.
+ * Screen 1. When `expandedLang` is set the keyboard is *only* that language's
+ * level menu — one row of six CEFR codes, "I don't know", remove (if it already
+ * carries a level) and cancel. The language list used to stay on screen beneath
+ * it, which read as a second live choice and left users unsure which question
+ * the screen was asking; every exit from the level menu re-renders the list.
+ *
+ * Otherwise the plain two-column language list is shown, with confirmed
+ * languages rendered as `✅ <lang> → <level>` chips that re-open their level
+ * menu when tapped.
  */
 export function buildLearningKeyboard(
   ctx: BotContext,
@@ -118,11 +122,10 @@ export function buildLearningKeyboard(
       keyboard.row();
     }
     keyboard.text(t("onbLevelCancel", state.interfaceLang), ONB.collapse).row();
+    return keyboard;
   }
 
-  const offered = languageCache
-    .getSupportedLangs()
-    .filter((entry) => entry.code !== state.nativeLang && entry.code !== expandedLang);
+  const offered = languageCache.getSupportedLangs().filter((entry) => entry.code !== state.nativeLang);
 
   twoColumns(
     keyboard,
@@ -130,7 +133,7 @@ export function buildLearningKeyboard(
       const level = state.levels[entry.code];
       const display = languageCache.getLangDisplay(entry.code);
       return {
-        label: level ? `✅ ${display} · ${level}` : display,
+        label: level ? `✅ ${display} → ${level}` : display,
         data: `${ONB.language}${entry.code}`,
       };
     }),
@@ -146,9 +149,7 @@ export function buildLearningKeyboard(
   // decides the interface language for everything after it. Someone on an en-US
   // phone who actually speaks Russian must be able to take it back — without this
   // they would have to finish onboarding in a language they may not read.
-  if (!expandedLang) {
-    keyboard.text(`⬅️ ${t("back", state.interfaceLang)}`, ONB.backToNative).row();
-  }
+  keyboard.text(`⬅️ ${t("back", state.interfaceLang)}`, ONB.backToNative).row();
 
   return keyboard;
 }

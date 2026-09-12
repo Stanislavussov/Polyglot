@@ -19,13 +19,14 @@ describe("hot-button keyboard", () => {
     expect(rows).toEqual([["🎴 Карточки", "🧑‍🏫 Ментор", "📖 Словарь"]]);
   });
 
-  it("folds away after use instead of pinning itself to the bottom of the chat", () => {
+  it("leaves the keyboard collapsible but never asks the client to retire it", () => {
     const kb = buildMainKeyboard("en");
 
-    // Not persistent: a pinned keyboard costs the user screen space forever. It
-    // lives behind the keyboard icon next to the input field instead.
+    // `one_time_keyboard` collapses the menu after every tap, which is what made it
+    // come and go for anyone doing two things in a row.
+    expect(kb.one_time_keyboard).toBeUndefined();
+    // Still not persistent: that pins the keyboard open and costs screen space forever.
     expect(kb.is_persistent).toBeUndefined();
-    expect(kb.one_time_keyboard).toBe(true);
     expect(kb.resize_keyboard).toBe(true);
   });
 
@@ -98,6 +99,6 @@ describe("hot-button keyboard", () => {
     // Every other test reads the constant, so a layout change shipped without bumping it
     // would leave every existing user on the old keyboard and fail nothing. Update this
     // number deliberately, in the same commit as the layout.
-    expect(MAIN_KEYBOARD_VERSION).toBe(6);
+    expect(MAIN_KEYBOARD_VERSION).toBe(7);
   });
 });

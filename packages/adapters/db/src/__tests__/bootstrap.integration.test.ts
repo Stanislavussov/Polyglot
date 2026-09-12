@@ -51,7 +51,7 @@ describe("fresh-DB bootstrap (integration)", () => {
     expect(defaults.map((plan) => plan.name)).toEqual(["free"]);
   });
 
-  it("bootstrap seed granted premium features to paid plans only", async () => {
+  it("bootstrap seed kept the paid-only features off the free plan", async () => {
     const rows = await getDb().select().from(planFeatureAccess);
     const byPlan = new Map<string, string[]>();
     for (const row of rows) {
@@ -62,7 +62,9 @@ describe("fresh-DB bootstrap (integration)", () => {
         expect.arrayContaining(["grammarBreakdown", "etymology", "grammarDetail"]),
       );
     }
-    expect(byPlan.has("free")).toBe(false);
+    // The exact free set, not merely "not empty": every premium key is paid, and
+    // free holds none of them.
+    expect(byPlan.get("free") ?? []).toEqual([]);
   });
 
   it("bootstrap seed left a resolvable default AI model", async () => {
