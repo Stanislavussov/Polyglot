@@ -431,6 +431,39 @@ describe("onboarding — screen 1 (languages with inline CEFR)", () => {
     ).toContainEqual(expect.stringContaining("· B2"));
   });
 
+  it("shows only the level menu while a language is expanded, so the language list cannot be mistaken for a live choice", async () => {
+    const h = createHarness({ languageCode: "ru" });
+    await h.start();
+    await h.tap("onb:nat:ru");
+    await h.tap("onb:lang:de");
+    await h.tap("onb:lvl:de:B1");
+
+    await h.tap("onb:lang:fr");
+
+    const data = h.callbackData();
+    expect(data.filter((entry) => entry.startsWith("onb:lang:"))).toEqual([]);
+    expect(data).not.toContain("onb:done");
+    expect(data).not.toContain("onb:back:native");
+    expect(data).toContain("onb:collapse");
+  });
+
+  it("restores the language list when the level menu is cancelled", async () => {
+    const h = createHarness({ languageCode: "ru" });
+    await h.start();
+    await h.tap("onb:nat:ru");
+    await h.tap("onb:lang:de");
+    await h.tap("onb:lvl:de:B1");
+    await h.tap("onb:lang:fr");
+
+    await h.tap("onb:collapse");
+
+    const data = h.callbackData();
+    expect(data).toContain("onb:lang:fr");
+    expect(data).toContain("onb:lang:es");
+    expect(data).toContain("onb:done");
+    expect(h.store.settings?.learningLangs).toEqual(["de"]);
+  });
+
   it("persists the B1 default for '🤷 I don't know', indistinguishably from an explicit B1", async () => {
     const shrug = createHarness({ languageCode: "ru" });
     await shrug.start();
