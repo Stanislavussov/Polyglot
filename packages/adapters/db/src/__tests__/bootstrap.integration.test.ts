@@ -58,15 +58,13 @@ describe("fresh-DB bootstrap (integration)", () => {
       byPlan.set(row.planName, [...(byPlan.get(row.planName) ?? []), row.featureKey]);
     }
     for (const paid of ["plus", "pro", "unlimited"]) {
-      expect(byPlan.get(paid) ?? []).toEqual(
-        expect.arrayContaining(["grammarBreakdown", "etymology", "grammarDetail"]),
-      );
+      expect(byPlan.get(paid) ?? []).toEqual(expect.arrayContaining(["etymology", "clarification", "mentor"]));
     }
-    // Free holds the grammar breakdown since Task 84 — it is the tier a trial
-    // expires onto, and a tier that can only translate makes that landing a
-    // punishment. Everything that costs a second AI pass stays paid, which is
-    // what this asserts: the exact free set, not merely "not empty".
-    expect(byPlan.get("free") ?? []).toEqual(["grammarBreakdown"]);
+    // Free's one card feature was the grammar breakdown (Task 84) and it no
+    // longer exists, so a fresh database grants free nothing until a replacement
+    // is chosen. Asserted as the exact set, not merely "not paid": seeding a key
+    // that gates nothing would read as a softer landing than free really offers.
+    expect(byPlan.get("free") ?? []).toEqual([]);
   });
 
   it("bootstrap seed left a resolvable default AI model", async () => {

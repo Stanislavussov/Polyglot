@@ -77,7 +77,8 @@ Both were live before this task and would have silently broken the feature:
 `bootstrapPlanCatalog` is bootstrap-only, so the new free tier reaches **fresh databases only**. Existing environments (prod, dev) need the same two edits on the admin **Rate Limits** page:
 
 - free `translationLimit`: 10 → 30
-- free "Unlocks": tick **grammarBreakdown**
+- ~~free "Unlocks": tick **grammarBreakdown**~~ — void: the grammar breakdown was removed from
+  the card, so the key unlocks nothing. Free has no card feature until one is chosen to replace it.
 
 Until then a production free user keeps the old floor and the trial still expires onto it.
 

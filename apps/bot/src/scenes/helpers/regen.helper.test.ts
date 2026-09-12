@@ -204,7 +204,6 @@ describe("handleRegenLoop", () => {
       includeUsageNote: true,
       includeConnotationWarning: true,
       includeNativeSynonyms: false,
-      includeGrammarBreakdown: false,
     });
   });
 

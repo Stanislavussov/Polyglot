@@ -17,9 +17,12 @@ export interface TranslationRequest {
  * Every paid AI call shares `translation_requests` and writes a `[callType]`
  * original (`recordAiUsage`), but only some of them are translations of the
  * user's own text. The monthly translation allowance must not bill the ones that
- * are not: a free plan holds the grammar breakdown from Task 84 on, and billing
- * a grammar tap to the translation cap would mean a free user's card taps
- * silently eat the translations the tier promises.
+ * are not, or a free user's card taps would silently eat the translations the
+ * tier promises.
+ *
+ * `[grammar]` outlived the feature that wrote it: the breakdown is gone, but its
+ * rows are still in the ledger, and dropping the tag would start billing them to
+ * the monthly translation window of every user who ever tapped it.
  *
  * Deliberately a short deny-list rather than "everything in brackets": a
  * dictionary translation and a word pick ARE billed to the monthly window, as

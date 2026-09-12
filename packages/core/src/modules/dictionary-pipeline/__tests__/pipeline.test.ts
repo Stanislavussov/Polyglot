@@ -60,7 +60,6 @@ function makeConfig(overrides?: Partial<DictionaryWordConfig>): DictionaryWordCo
         alternatives: true,
         equivalentNote: true,
         connotationWarning: true,
-        grammarBreakdown: false,
       },
       ...overrides?.presentation,
     },
@@ -470,7 +469,6 @@ describe("createDictionaryPipeline", () => {
             alternatives: true,
             equivalentNote: true,
             connotationWarning: true,
-            grammarBreakdown: false,
           },
           targetLangs: ["cs", "de"],
         },
@@ -508,7 +506,6 @@ describe("createDictionaryPipeline", () => {
             alternatives: true,
             equivalentNote: true,
             connotationWarning: true,
-            grammarBreakdown: false,
           },
           targetLangs: ["de"], // entry only has "cs"
         },
@@ -534,7 +531,6 @@ describe("createDictionaryPipeline", () => {
             alternatives: true,
             equivalentNote: true,
             connotationWarning: true,
-            grammarBreakdown: false,
           },
         },
       });
@@ -558,7 +554,6 @@ describe("createDictionaryPipeline", () => {
             alternatives: true,
             equivalentNote: true,
             connotationWarning: true,
-            grammarBreakdown: false,
           },
         },
       });
@@ -600,7 +595,6 @@ describe("createDictionaryPipeline", () => {
             alternatives: false,
             equivalentNote: true,
             connotationWarning: true,
-            grammarBreakdown: false,
           },
         },
       });

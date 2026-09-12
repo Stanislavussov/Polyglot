@@ -34,7 +34,10 @@ describe("plan catalog drift guards", () => {
     // catalog and the fallback agree — a typo in both would pass it.
     const free = DEFAULT_PLAN_CATALOG.find((plan) => plan.name === "free");
     expect(free?.translationLimit).toBe(30);
-    expect(free?.features).toEqual(["grammarBreakdown"]);
+    // The grammar breakdown was free's one card feature and it no longer exists.
+    // Pinned empty on purpose: granting a key that gates nothing would read as a
+    // softer landing than the tier actually offers.
+    expect(free?.features).toEqual([]);
   });
 
   it("every catalog entry passes the same contract the admin panel submits with", () => {

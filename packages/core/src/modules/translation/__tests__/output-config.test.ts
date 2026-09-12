@@ -76,7 +76,6 @@ describe("presets", () => {
       includeUsageNote: true,
       includeConnotationWarning: true,
       includeNativeSynonyms: true,
-      includeGrammarBreakdown: true,
     });
 
     expect(MINIMAL_OUTPUT).toEqual({
@@ -87,7 +86,6 @@ describe("presets", () => {
       includeUsageNote: false,
       includeConnotationWarning: false,
       includeNativeSynonyms: false,
-      includeGrammarBreakdown: false,
     });
 
     expect(RELIABLE_OUTPUT).toEqual({
@@ -98,7 +96,6 @@ describe("presets", () => {
       includeUsageNote: true,
       includeConnotationWarning: false,
       includeNativeSynonyms: false,
-      includeGrammarBreakdown: false,
     });
 
     expect(NOTIFICATION_OUTPUT).toEqual({
@@ -109,7 +106,6 @@ describe("presets", () => {
       includeUsageNote: true,
       includeConnotationWarning: false,
       includeNativeSynonyms: false,
-      includeGrammarBreakdown: false,
     });
 
     expect(SENTENCE_OUTPUT).toEqual({
@@ -120,7 +116,6 @@ describe("presets", () => {
       includeUsageNote: false,
       includeConnotationWarning: false,
       includeNativeSynonyms: false,
-      includeGrammarBreakdown: false,
       includeEmoji: false,
       includeNativeMeaning: false,
     });

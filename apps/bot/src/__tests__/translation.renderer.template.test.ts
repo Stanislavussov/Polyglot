@@ -15,19 +15,8 @@ const renderTranslation = (
   templateFields?: TemplateFields,
   nativeLang?: string,
   needsReview?: boolean,
-  grammarBreakdown?: Record<string, string[]>,
   etymology?: string,
-): string =>
-  renderTranslationRaw(
-    output,
-    NO_ORDER,
-    interfaceLang,
-    templateFields,
-    nativeLang,
-    needsReview,
-    grammarBreakdown,
-    etymology,
-  );
+): string => renderTranslationRaw(output, NO_ORDER, interfaceLang, templateFields, nativeLang, needsReview, etymology);
 
 // Mock getLangFlag from @polyglot/core
 vi.mock("@polyglot/core", async () => {
@@ -75,7 +64,6 @@ const allTrue: TemplateFields = {
   alternatives: true,
   equivalentNote: true,
   connotationWarning: true,
-  grammarBreakdown: false,
 };
 
 /** All fields disabled */
@@ -85,7 +73,6 @@ const allFalse: TemplateFields = {
   alternatives: false,
   equivalentNote: false,
   connotationWarning: false,
-  grammarBreakdown: false,
 };
 
 describe("renderTranslation — template-aware (Task 32)", () => {
@@ -162,7 +149,6 @@ describe("renderTranslation — template-aware (Task 32)", () => {
       alternatives: false,
       equivalentNote: true,
       connotationWarning: false,
-      grammarBreakdown: false,
     };
     const result = renderTranslation(sampleOutput, "en", fields);
     expect(result).not.toContain("(dobrý den");

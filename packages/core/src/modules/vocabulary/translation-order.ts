@@ -18,9 +18,9 @@
  * So order is not stored; it is **derived at the point of iteration**, from the
  * collection actually being rendered. That is why {@link orderRecordEntries}
  * takes the record itself rather than a precomputed list of codes: a caller
- * cannot pass an order that disagrees with the data it orders. Several callers
- * render strict subsets (a grammar breakdown covers only the languages that have
- * one), and a shared code list would silently drop or invent entries.
+ * cannot pass an order that disagrees with the data it orders. A caller may
+ * render a strict subset of the translated languages, and a shared code list
+ * would then silently drop or invent entries.
  *
  * {@link LanguageOrderContext} is opaque so that a bare `{ learningLangs: [] }`
  * cannot be conjured at a call site to satisfy the compiler — that value ranks

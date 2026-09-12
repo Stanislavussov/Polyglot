@@ -472,8 +472,12 @@ export const userTranslationTemplates = pgTable(
     equivalentNote: boolean("equivalent_note").notNull().default(true),
     /** Connotation warnings for dangerous meanings toggle */
     connotationWarning: boolean("connotation_warning").notNull().default(true),
-    /** Constructional grammar breakdown for phrases/sentences toggle */
-    grammarBreakdown: boolean("grammar_breakdown").notNull().default(false),
+    // `grammar_breakdown` is deliberately absent here while still present in every
+    // deployed database. `deploy.yml` migrates BEFORE it replaces the containers,
+    // and `getByUserId` selects unprojected — so dropping a column the still-running
+    // image names would make every translation fail with 42703 for the length of the
+    // deploy. This release stops naming it; `pnpm db:generate` emits the DROP for the
+    // next one, once no shipped image can ask for it.
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },
@@ -817,7 +821,7 @@ export const planFeatureAccess = pgTable(
     planName: varchar("plan_name", { length: 50 })
       .notNull()
       .references(() => rateLimitPlans.name, { onDelete: "cascade" }),
-    /** Feature key, e.g. "grammarBreakdown", "etymology", "grammarDetail" */
+    /** Feature key, e.g. "etymology", "pronunciation", "mentor" */
     featureKey: varchar("feature_key", { length: 100 }).notNull(),
   },
   (t) => [
