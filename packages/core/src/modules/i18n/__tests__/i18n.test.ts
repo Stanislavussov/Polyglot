@@ -30,7 +30,7 @@ describe("i18n — t()", () => {
 
   it("interpolates {param} placeholders", () => {
     const result = t("maxLangsReached", "en", { max: 4 });
-    expect(result).toBe("⚠️ You can select up to 4 languages.");
+    expect(result).toBe("You can select up to 4 languages.");
   });
 
   it("interpolates multiple params", () => {
@@ -622,39 +622,39 @@ describe("i18n — t()", () => {
   });
 
   it("returns settingsNativeLang with {lang} interpolation in all locales", () => {
-    expect(t("settingsNativeLang", "en", { lang: "English" })).toBe("🗣 Native language: English");
-    expect(t("settingsNativeLang", "ru", { lang: "English" })).toBe("🗣 Родной язык: English");
-    expect(t("settingsNativeLang", "cs", { lang: "English" })).toBe("🗣 Mateřský jazyk: English");
+    expect(t("settingsNativeLang", "en", { lang: "English" })).toBe("Native language — English");
+    expect(t("settingsNativeLang", "ru", { lang: "English" })).toBe("Родной язык — English");
+    expect(t("settingsNativeLang", "cs", { lang: "English" })).toBe("Mateřský jazyk — English");
   });
 
   it("returns settingsLearningLangs with {langs} interpolation in all locales", () => {
-    expect(t("settingsLearningLangs", "en", { langs: "Czech, Russian" })).toBe("📚 Learning: Czech, Russian");
-    expect(t("settingsLearningLangs", "ru", { langs: "Czech, Russian" })).toBe("📚 Изучаю: Czech, Russian");
-    expect(t("settingsLearningLangs", "cs", { langs: "Czech, Russian" })).toBe("📚 Učím se: Czech, Russian");
+    expect(t("settingsLearningLangs", "en", { langs: "Czech, Russian" })).toBe("Learning — Czech, Russian");
+    expect(t("settingsLearningLangs", "ru", { langs: "Czech, Russian" })).toBe("Изучаю — Czech, Russian");
+    expect(t("settingsLearningLangs", "cs", { langs: "Czech, Russian" })).toBe("Učím se — Czech, Russian");
   });
 
   it("returns settingsInterfaceLang with {lang} interpolation in all locales", () => {
-    expect(t("settingsInterfaceLang", "en", { lang: "English" })).toBe("🌐 Interface: English");
-    expect(t("settingsInterfaceLang", "ru", { lang: "English" })).toBe("🌐 Интерфейс: English");
-    expect(t("settingsInterfaceLang", "cs", { lang: "English" })).toBe("🌐 Rozhraní: English");
+    expect(t("settingsInterfaceLang", "en", { lang: "English" })).toBe("Interface — English");
+    expect(t("settingsInterfaceLang", "ru", { lang: "English" })).toBe("Интерфейс — English");
+    expect(t("settingsInterfaceLang", "cs", { lang: "English" })).toBe("Rozhraní — English");
   });
 
   it("returns settingsChangeNative in all locales", () => {
-    expect(t("settingsChangeNative", "en")).toBe("🗣 Change native");
-    expect(t("settingsChangeNative", "ru")).toBe("🗣 Сменить родной");
-    expect(t("settingsChangeNative", "cs")).toBe("🗣 Změnit mateřský");
+    expect(t("settingsChangeNative", "en")).toBe("🗣 Native language");
+    expect(t("settingsChangeNative", "ru")).toBe("🗣 Родной язык");
+    expect(t("settingsChangeNative", "cs")).toBe("🗣 Mateřský jazyk");
   });
 
   it("returns settingsChangeLearning in all locales", () => {
-    expect(t("settingsChangeLearning", "en")).toBe("📚 Change learning");
-    expect(t("settingsChangeLearning", "ru")).toBe("📚 Сменить изучаемые");
-    expect(t("settingsChangeLearning", "cs")).toBe("📚 Změnit učení");
+    expect(t("settingsChangeLearning", "en")).toBe("📚 Learning");
+    expect(t("settingsChangeLearning", "ru")).toBe("📚 Изучаемые языки");
+    expect(t("settingsChangeLearning", "cs")).toBe("📚 Učím se");
   });
 
   it("returns settingsChangeInterface in all locales", () => {
-    expect(t("settingsChangeInterface", "en")).toBe("🌐 Change interface");
-    expect(t("settingsChangeInterface", "ru")).toBe("🌐 Сменить интерфейс");
-    expect(t("settingsChangeInterface", "cs")).toBe("🌐 Změnit rozhraní");
+    expect(t("settingsChangeInterface", "en")).toBe("🌐 Interface");
+    expect(t("settingsChangeInterface", "ru")).toBe("🌐 Интерфейс");
+    expect(t("settingsChangeInterface", "cs")).toBe("🌐 Rozhraní");
   });
 
   it("returns settingsClose in all locales", () => {
@@ -672,7 +672,7 @@ describe("i18n — t()", () => {
   it("returns settingsChooseLearning in all locales", () => {
     expect(t("settingsChooseLearning", "en")).toContain("learning");
     expect(t("settingsChooseLearning", "ru")).toContain("изучаемые");
-    expect(t("settingsChooseLearning", "cs")).toContain("studiu");
+    expect(t("settingsChooseLearning", "cs")).toContain("učíte");
   });
 
   it("returns settingsChooseInterface in all locales", () => {
@@ -682,27 +682,15 @@ describe("i18n — t()", () => {
   });
 
   it("returns settingsNativeUpdated with {lang} interpolation in all locales", () => {
-    expect(t("settingsNativeUpdated", "en", { lang: "French" })).toBe("✅ Native language set to French");
-    expect(t("settingsNativeUpdated", "ru", { lang: "French" })).toBe("✅ Родной язык установлен: French");
-    expect(t("settingsNativeUpdated", "cs", { lang: "French" })).toBe("✅ Mateřský jazyk nastaven na French");
-  });
-
-  it("returns settingsLearningUpdated in all locales", () => {
-    expect(t("settingsLearningUpdated", "en")).toBe("✅ Learning languages updated");
-    expect(t("settingsLearningUpdated", "ru")).toBe("✅ Изучаемые языки обновлены");
-    expect(t("settingsLearningUpdated", "cs")).toBe("✅ Jazyky ke studiu aktualizovány");
+    expect(t("settingsNativeUpdated", "en", { lang: "French" })).toBe("Native language set to French");
+    expect(t("settingsNativeUpdated", "ru", { lang: "French" })).toBe("Родной язык установлен: French");
+    expect(t("settingsNativeUpdated", "cs", { lang: "French" })).toBe("Mateřský jazyk nastaven na French");
   });
 
   it("returns settingsInterfaceUpdated with {lang} interpolation in all locales", () => {
-    expect(t("settingsInterfaceUpdated", "en", { lang: "Czech" })).toBe("✅ Interface language set to Czech");
-    expect(t("settingsInterfaceUpdated", "ru", { lang: "Czech" })).toBe("✅ Язык интерфейса установлен: Czech");
-    expect(t("settingsInterfaceUpdated", "cs", { lang: "Czech" })).toBe("✅ Jazyk rozhraní nastaven na Czech");
-  });
-
-  it("returns settingsSessionExpired in all locales", () => {
-    expect(t("settingsSessionExpired", "en")).toContain("Session expired");
-    expect(t("settingsSessionExpired", "ru")).toContain("Сессия истекла");
-    expect(t("settingsSessionExpired", "cs")).toContain("Relace vypršela");
+    expect(t("settingsInterfaceUpdated", "en", { lang: "Czech" })).toBe("Interface language set to Czech");
+    expect(t("settingsInterfaceUpdated", "ru", { lang: "Czech" })).toBe("Язык интерфейса установлен: Czech");
+    expect(t("settingsInterfaceUpdated", "cs", { lang: "Czech" })).toBe("Jazyk rozhraní nastaven na Czech");
   });
 });
 
@@ -793,7 +781,6 @@ describe("i18n — locale consistency", () => {
       "wordDeleted",
       "emptyDictionary",
       "noResults",
-      "settingsUpdated",
       "notificationTimeSet",
       "flipCard",
       "nextTranslation",
@@ -899,9 +886,7 @@ describe("i18n — locale consistency", () => {
       "settingsChooseLearning",
       "settingsChooseInterface",
       "settingsNativeUpdated",
-      "settingsLearningUpdated",
       "settingsInterfaceUpdated",
-      "settingsSessionExpired",
       "notifTitle",
       "notifWordFromDict",
       "notifAiSuggested",
@@ -915,7 +900,6 @@ describe("i18n — locale consistency", () => {
       "notifFbNormalDone",
       "notifFbEasyDone",
       "notifRemoved",
-      "settingsNotifSection",
       "settingsNotifEnabled",
       "settingsNotifDisabled",
       "settingsNotifTimes",
@@ -924,7 +908,6 @@ describe("i18n — locale consistency", () => {
       "settingsNotifTimesMax",
       "settingsNotifType",
       "settingsNotifTimezone",
-      "settingsNotifToggle",
       "settingsNotifChooseTimes",
       "settingsNotifChooseType",
       "settingsNotifChooseTimezone",
@@ -990,7 +973,6 @@ describe("i18n — notification keys (Task 41.6)", () => {
     "notifFbEasy",
     "notifFbDelete",
     "notifRemoved",
-    "settingsNotifSection",
     "settingsNotifEnabled",
     "settingsNotifDisabled",
     "settingsNotifTimes",
@@ -999,7 +981,6 @@ describe("i18n — notification keys (Task 41.6)", () => {
     "settingsNotifTimesMax",
     "settingsNotifType",
     "settingsNotifTimezone",
-    "settingsNotifToggle",
     "settingsNotifChooseTimes",
     "settingsNotifChooseType",
     "settingsNotifChooseTimezone",
@@ -1032,32 +1013,32 @@ describe("i18n — notification keys (Task 41.6)", () => {
 
   it("settingsNotifTimes interpolates {times}", () => {
     const result = t("settingsNotifTimes", "en", { times: "08:00, 20:00" });
-    expect(result).toBe("⏰ Times: 08:00, 20:00");
+    expect(result).toBe("Times — 08:00, 20:00");
   });
 
   it("settingsNotifType interpolates {type}", () => {
     const result = t("settingsNotifType", "en", { type: "Both" });
-    expect(result).toBe("📋 Type: Both");
+    expect(result).toBe("Type — Both");
   });
 
   it("settingsNotifTimezone interpolates {timezone}", () => {
     const result = t("settingsNotifTimezone", "en", { timezone: "Europe/Prague" });
-    expect(result).toBe("🌍 Timezone: Europe/Prague");
+    expect(result).toBe("Timezone — Europe/Prague");
   });
 
   it("settingsNotifTimes interpolates {times} in Russian", () => {
     const result = t("settingsNotifTimes", "ru", { times: "08:00, 20:00" });
-    expect(result).toBe("⏰ Время: 08:00, 20:00");
+    expect(result).toBe("Время — 08:00, 20:00");
   });
 
   it("settingsNotifType interpolates {type} in Czech", () => {
     const result = t("settingsNotifType", "cs", { type: "Oba" });
-    expect(result).toBe("📋 Typ: Oba");
+    expect(result).toBe("Typ — Oba");
   });
 
   it("settingsNotifTimezone interpolates {timezone} in Czech", () => {
     const result = t("settingsNotifTimezone", "cs", { timezone: "Europe/Prague" });
-    expect(result).toBe("🌍 Časová zóna: Europe/Prague");
+    expect(result).toBe("Časová zóna — Europe/Prague");
   });
 
   it("notification keys fall back to en for an unknown language", () => {

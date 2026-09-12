@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-26T09:34:29.000Z",
+  "generatedAt": "2026-08-26T10:14:28.000Z",
   "summary": {
-    "total": 3123,
+    "total": 3121,
     "business": 0,
-    "technical": 3123,
+    "technical": 3121,
     "workspaces": [
       "apps",
       "packages"
@@ -4679,10 +4679,10 @@
       "description": "Protects the bot build Settings Text behavior: shows enabled status with time and type."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-188-buildsettingskeyboard-includes-manage-notifications-button",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-189-buildsettingskeyboard-includes-manage-notifications-button",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 188,
+      "sourceLine": 189,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4695,10 +4695,10 @@
       "description": "Protects the bot build Settings Keyboard behavior: includes Manage notifications button."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-195-buildsettingskeyboard-does-not-show-individual-notif-buttons-in-main-menu",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-196-buildsettingskeyboard-does-not-show-individual-notif-buttons-in-main-menu",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 195,
+      "sourceLine": 196,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4711,10 +4711,10 @@
       "description": "Protects the bot build Settings Keyboard behavior: does not show individual notif buttons in main menu."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-206-buildnotifsubtext-shows-all-notification-details",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-207-buildnotifsubtext-shows-all-notification-details",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 206,
+      "sourceLine": 207,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4727,10 +4727,10 @@
       "description": "Protects the bot build Notif Sub Text behavior: shows all notification details."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-213-buildnotifsubtext-shows-multiple-times-as-a-sorted-list",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-214-buildnotifsubtext-shows-multiple-times-as-a-sorted-list",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 213,
+      "sourceLine": 214,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4743,10 +4743,10 @@
       "description": "Protects the bot build Notif Sub Text behavior: shows multiple times as a sorted list."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-218-buildnotifsubtext-shows-context-when-type-is-contextual",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-219-buildnotifsubtext-shows-context-when-type-is-contextual",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 218,
+      "sourceLine": 219,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4759,10 +4759,10 @@
       "description": "Protects the bot build Notif Sub Text behavior: shows context when type is contextual."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-225-buildnotifsubkeyboard-shows-toggle-and-all-settings-when-enabled",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-226-buildnotifsubkeyboard-shows-toggle-and-all-settings-when-enabled",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 225,
+      "sourceLine": 226,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4775,10 +4775,10 @@
       "description": "Protects the bot build Notif Sub Keyboard behavior: shows toggle and all settings when enabled."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-236-buildnotifsubkeyboard-shows-context-button-only-when-type-is-contextual",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-237-buildnotifsubkeyboard-shows-context-button-only-when-type-is-contextual",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 236,
+      "sourceLine": 237,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4791,10 +4791,10 @@
       "description": "Protects the bot build Notif Sub Keyboard behavior: shows context button only when type is contextual."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-246-buildnotifsubkeyboard-hides-settings-buttons-when-disabled",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-247-buildnotifsubkeyboard-hides-settings-buttons-when-disabled",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 246,
+      "sourceLine": 247,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4807,10 +4807,10 @@
       "description": "Protects the bot build Notif Sub Keyboard behavior: hides settings buttons when disabled."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-257-handlesettingscommand-shows-settings-with-notification-status",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-258-handlesettingscommand-shows-settings-with-notification-status",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 257,
+      "sourceLine": 258,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4823,10 +4823,10 @@
       "description": "Protects the bot handle Settings Command behavior: shows settings with notification status."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-266-handlesetnotiftogglecallback-enables-notifications-when-currently-disabled",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-267-handlesetnotiftogglecallback-enables-notifications-when-currently-disabled",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 266,
+      "sourceLine": 267,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4839,10 +4839,10 @@
       "description": "Protects the bot handle Set Notif Toggle Callback behavior so enables notifications when currently disabled."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-272-handlesetnotiftogglecallback-disables-notifications-when-currently-enabled",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-273-handlesetnotiftogglecallback-disables-notifications-when-currently-enabled",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 272,
+      "sourceLine": 273,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4855,10 +4855,10 @@
       "description": "Protects the bot handle Set Notif Toggle Callback behavior so disables notifications when currently enabled."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-279-handlesetnotiftogglecallback-seeds-the-admin-default-when-enabling-with-no-schedule",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-280-handlesetnotiftogglecallback-seeds-the-admin-default-when-enabling-with-no-schedule",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 279,
+      "sourceLine": 280,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4871,10 +4871,10 @@
       "description": "Protects the bot handle Set Notif Toggle Callback behavior so seeds the admin default when enabling with no schedule."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-291-handlesetnotiftogglecallback-canonicalizes-a-malformed-admin-default-rather-than-storing-it-verbatim",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-292-handlesetnotiftogglecallback-canonicalizes-a-malformed-admin-default-rather-than-storing-it-verbatim",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 291,
+      "sourceLine": 292,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4887,10 +4887,10 @@
       "description": "Protects the bot handle Set Notif Toggle Callback behavior so canonicalizes a malformed admin default rather than storing it verbatim."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-311-handlesetnotiftogglecallback-never-overwrites-a-schedule-the-user-already-chose",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-312-handlesetnotiftogglecallback-never-overwrites-a-schedule-the-user-already-chose",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 311,
+      "sourceLine": 312,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4903,10 +4903,10 @@
       "description": "Protects the bot handle Set Notif Toggle Callback behavior so never overwrites a schedule the user already chose."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-321-handlesetnotiftogglecallback-does-not-touch-the-schedule-when-turning-notifications-off",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-322-handlesetnotiftogglecallback-does-not-touch-the-schedule-when-turning-notifications-off",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 321,
+      "sourceLine": 322,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4919,10 +4919,10 @@
       "description": "Protects the bot handle Set Notif Toggle Callback behavior: does not touch the schedule when turning notifications off."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-337-handlesetnotiftimecallback-shows-a-multi-select-grid-with-the-current-time-checked-and-a-done-button",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-338-handlesetnotiftimecallback-shows-a-multi-select-grid-with-the-current-time-checked-and-a-done-button",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 337,
+      "sourceLine": 338,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4935,10 +4935,10 @@
       "description": "Protects the bot handle Set Notif Time Callback behavior: shows a multi select grid with the current time checked and a Done button."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-355-handlesetnotiftimeselectcallback-adds-a-new-time-to-the-list-toggle-on",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-356-handlesetnotiftimeselectcallback-adds-a-new-time-to-the-list-toggle-on",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 355,
+      "sourceLine": 356,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4951,10 +4951,10 @@
       "description": "Protects the bot handle Set Notif Time Select Callback behavior: adds a new time to the list (toggle on)."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-363-handlesetnotiftimeselectcallback-removes-an-already-selected-time-toggle-off",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-364-handlesetnotiftimeselectcallback-removes-an-already-selected-time-toggle-off",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 363,
+      "sourceLine": 364,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4967,10 +4967,10 @@
       "description": "Protects the bot handle Set Notif Time Select Callback behavior so removes an already selected time (toggle off)."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-376-handlesetnotiftimeselectcallback-refuses-to-remove-the-last-remaining-time-and-does-not-persist",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-377-handlesetnotiftimeselectcallback-refuses-to-remove-the-last-remaining-time-and-does-not-persist",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 376,
+      "sourceLine": 377,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4983,10 +4983,10 @@
       "description": "Protects the bot handle Set Notif Time Select Callback behavior so refuses to remove the last remaining time and does not persist."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-393-handlesetnotiftimeselectcallback-rejects-adding-a-13th-time-and-does-not-persist",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-394-handlesetnotiftimeselectcallback-rejects-adding-a-13th-time-and-does-not-persist",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 393,
+      "sourceLine": 394,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -4999,10 +4999,10 @@
       "description": "Protects the bot handle Set Notif Time Select Callback behavior: rejects adding a 13th time and does not persist."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-405-handlesetnotiftimeselectcallback-rejects-invalid-minute-values",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-406-handlesetnotiftimeselectcallback-rejects-invalid-minute-values",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 405,
+      "sourceLine": 406,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5015,10 +5015,10 @@
       "description": "Protects the bot handle Set Notif Time Select Callback behavior: rejects invalid minute values."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-414-handlesetnotiftypecallback-shows-type-picker-with-all-options",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-415-handlesetnotiftypecallback-shows-type-picker-with-all-options",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 414,
+      "sourceLine": 415,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5031,10 +5031,10 @@
       "description": "Protects the bot handle Set Notif Type Callback behavior: shows type picker with all options."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-428-handlesetnotiftypeselectcallback-updates-notification-type",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-429-handlesetnotiftypeselectcallback-updates-notification-type",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 428,
+      "sourceLine": 429,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5047,10 +5047,10 @@
       "description": "Protects the bot handle Set Notif Type Select Callback behavior: updates notification type."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-436-handlesetnotiftzcallback-shows-timezone-picker",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-437-handlesetnotiftzcallback-shows-timezone-picker",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 436,
+      "sourceLine": 437,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5063,10 +5063,10 @@
       "description": "Protects the bot handle Set Notif Tz Callback behavior: shows timezone picker."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-449-handlesetnotiftzselectcallback-updates-timezone-for-a-valid-timezone",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-450-handlesetnotiftzselectcallback-updates-timezone-for-a-valid-timezone",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 449,
+      "sourceLine": 450,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -5079,10 +5079,10 @@
       "description": "Protects the bot handle Set Notif Tz Select Callback behavior: updates timezone for a valid timezone."
     },
     {
-      "id": "apps-bot-src-tests-notification-settings-test-ts-458-handlesetnotiftzselectcallback-rejects-invalid-timezone",
+      "id": "apps-bot-src-tests-notification-settings-test-ts-459-handlesetnotiftzselectcallback-rejects-invalid-timezone",
       "kind": "technical",
       "filePath": "apps/bot/src/__tests__/notification-settings.test.ts",
-      "sourceLine": 458,
+      "sourceLine": 459,
       "workspace": "apps",
       "packageName": "bot",
       "suitePath": [
@@ -31926,26 +31926,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns settings Native Updated with {lang} interpolation in all locales."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-690-i18n-t-returns-settingslearningupdated-in-all-locales",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-690-i18n-t-returns-settingsinterfaceupdated-with-lang-interpolation-in-all-locales",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
       "sourceLine": 690,
-      "workspace": "packages",
-      "packageName": "core",
-      "suitePath": [
-        "i18n — t()"
-      ],
-      "title": "returns settingsLearningUpdated in all locales",
-      "rawTitle": "returns settingsLearningUpdated in all locales",
-      "name": "Core domain i18n — t() returns settings Learning Updated in all locales",
-      "value": "Protects the core domain i18n — t() behavior: returns settings Learning Updated in all locales.",
-      "description": "Protects the core domain i18n — t() behavior: returns settings Learning Updated in all locales."
-    },
-    {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-696-i18n-t-returns-settingsinterfaceupdated-with-lang-interpolation-in-all-locales",
-      "kind": "technical",
-      "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 696,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -31958,26 +31942,10 @@
       "description": "Protects the core domain i18n — t() behavior: returns settings Interface Updated with {lang} interpolation in all locales."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-702-i18n-t-returns-settingssessionexpired-in-all-locales",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-698-i18n-getsupportedlangs-returns-all-11-supported-languages",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 702,
-      "workspace": "packages",
-      "packageName": "core",
-      "suitePath": [
-        "i18n — t()"
-      ],
-      "title": "returns settingsSessionExpired in all locales",
-      "rawTitle": "returns settingsSessionExpired in all locales",
-      "name": "Core domain i18n — t() returns settings Session Expired in all locales",
-      "value": "Protects the core domain i18n — t() behavior: returns settings Session Expired in all locales.",
-      "description": "Protects the core domain i18n — t() behavior: returns settings Session Expired in all locales."
-    },
-    {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-710-i18n-getsupportedlangs-returns-all-11-supported-languages",
-      "kind": "technical",
-      "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 710,
+      "sourceLine": 698,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -31990,10 +31958,10 @@
       "description": "Protects the core domain i18n — get Supported Langs() behavior: returns all 11 supported languages."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-726-i18n-getsupportedlangs-returns-a-new-array-each-time-no-mutation-risk",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-714-i18n-getsupportedlangs-returns-a-new-array-each-time-no-mutation-risk",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 726,
+      "sourceLine": 714,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -32006,10 +31974,10 @@
       "description": "Protects the core domain i18n — get Supported Langs() behavior: returns a new array each time (no mutation risk)."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-735-i18n-issupported-returns-true-for-supported-languages",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-723-i18n-issupported-returns-true-for-supported-languages",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 735,
+      "sourceLine": 723,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -32022,10 +31990,10 @@
       "description": "Protects the core domain i18n — is Supported() behavior: returns true for supported languages."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-744-i18n-issupported-returns-false-for-unsupported-languages",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-732-i18n-issupported-returns-false-for-unsupported-languages",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 744,
+      "sourceLine": 732,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -32038,10 +32006,10 @@
       "description": "Protects the core domain i18n — is Supported() behavior: returns false for unsupported languages."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-751-i18n-issupported-narrows-the-type-type-guard",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-739-i18n-issupported-narrows-the-type-type-guard",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 751,
+      "sourceLine": 739,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -32054,10 +32022,10 @@
       "description": "Protects the core domain i18n — is Supported() behavior so narrows the type (type guard)."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-762-i18n-locale-consistency-en-json-has-all-i18nkey-entries",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-750-i18n-locale-consistency-en-json-has-all-i18nkey-entries",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 762,
+      "sourceLine": 750,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -32070,10 +32038,10 @@
       "description": "Protects the core domain i18n — locale consistency behavior so en json has all I18n Key entries."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-942-i18n-locale-consistency-ru-json-covers-all-keys-from-en-json",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-925-i18n-locale-consistency-ru-json-covers-all-keys-from-en-json",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 942,
+      "sourceLine": 925,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -32086,10 +32054,10 @@
       "description": "Protects the core domain i18n — locale consistency behavior so ru json covers all keys from en json."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-961-i18n-locale-consistency-cs-json-covers-all-keys-from-en-json",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-944-i18n-locale-consistency-cs-json-covers-all-keys-from-en-json",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 961,
+      "sourceLine": 944,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -32102,10 +32070,10 @@
       "description": "Protects the core domain i18n — locale consistency behavior so cs json covers all keys from en json."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1010-i18n-notification-keys-task-41-6-all-notification-keys-exist-in-en-json",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-991-i18n-notification-keys-task-41-6-all-notification-keys-exist-in-en-json",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1010,
+      "sourceLine": 991,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -32118,10 +32086,10 @@
       "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so all notification keys exist in en json."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1017-i18n-notification-keys-task-41-6-all-notification-keys-exist-in-ru-json-non-english",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-998-i18n-notification-keys-task-41-6-all-notification-keys-exist-in-ru-json-non-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1017,
+      "sourceLine": 998,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -32134,10 +32102,10 @@
       "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so all notification keys exist in ru json (non English)."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1025-i18n-notification-keys-task-41-6-all-notification-keys-exist-in-cs-json-non-english",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1006-i18n-notification-keys-task-41-6-all-notification-keys-exist-in-cs-json-non-english",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1025,
+      "sourceLine": 1006,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -32150,10 +32118,10 @@
       "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so all notification keys exist in cs json (non English)."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1033-i18n-notification-keys-task-41-6-settingsnotiftimes-interpolates-times",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1014-i18n-notification-keys-task-41-6-settingsnotiftimes-interpolates-times",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1033,
+      "sourceLine": 1014,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -32166,10 +32134,10 @@
       "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so settings Notif Times interpolates {times}."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1038-i18n-notification-keys-task-41-6-settingsnotiftype-interpolates-type",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1019-i18n-notification-keys-task-41-6-settingsnotiftype-interpolates-type",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1038,
+      "sourceLine": 1019,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -32182,10 +32150,10 @@
       "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so settings Notif Type interpolates {type}."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1043-i18n-notification-keys-task-41-6-settingsnotiftimezone-interpolates-timezone",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1024-i18n-notification-keys-task-41-6-settingsnotiftimezone-interpolates-timezone",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1043,
+      "sourceLine": 1024,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -32198,10 +32166,10 @@
       "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so settings Notif Timezone interpolates {timezone}."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1048-i18n-notification-keys-task-41-6-settingsnotiftimes-interpolates-times-in-russian",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1029-i18n-notification-keys-task-41-6-settingsnotiftimes-interpolates-times-in-russian",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1048,
+      "sourceLine": 1029,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -32214,10 +32182,10 @@
       "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so settings Notif Times interpolates {times} in Russian."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1053-i18n-notification-keys-task-41-6-settingsnotiftype-interpolates-type-in-czech",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1034-i18n-notification-keys-task-41-6-settingsnotiftype-interpolates-type-in-czech",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1053,
+      "sourceLine": 1034,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -32230,10 +32198,10 @@
       "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so settings Notif Type interpolates {type} in Czech."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1058-i18n-notification-keys-task-41-6-settingsnotiftimezone-interpolates-timezone-in-czech",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1039-i18n-notification-keys-task-41-6-settingsnotiftimezone-interpolates-timezone-in-czech",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1058,
+      "sourceLine": 1039,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [
@@ -32246,10 +32214,10 @@
       "description": "Protects the core domain i18n — notification keys (Task 41 6) behavior so settings Notif Timezone interpolates {timezone} in Czech."
     },
     {
-      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1063-i18n-notification-keys-task-41-6-notification-keys-fall-back-to-en-for-an-unknown-language",
+      "id": "packages-core-src-modules-i18n-tests-i18n-test-ts-1044-i18n-notification-keys-task-41-6-notification-keys-fall-back-to-en-for-an-unknown-language",
       "kind": "technical",
       "filePath": "packages/core/src/modules/i18n/__tests__/i18n.test.ts",
-      "sourceLine": 1063,
+      "sourceLine": 1044,
       "workspace": "packages",
       "packageName": "core",
       "suitePath": [

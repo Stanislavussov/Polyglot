@@ -21,6 +21,7 @@ import {
   buildLangGroupKeyboard,
   buildNotifSubKeyboard,
   buildNotifSubText,
+  notifTypeLabel,
   renderSettingsInPlace,
 } from "../settings.scene.js";
 import { handleTemplateCommand } from "../template.scene.js";
@@ -308,23 +309,15 @@ export async function handleSetNotifToggleCallback(ctx: BotContext): Promise<voi
   await showNotifSubMenu(ctx);
 }
 
-/** Build emoji icon for a given hour */
-function hourIcon(hour: number): string {
-  if (hour >= 6 && hour < 12) return "🌅";
-  if (hour >= 12 && hour < 18) return "☀️";
-  if (hour >= 18 && hour < 22) return "🌙";
-  return "🌑";
-}
-
 /** Build the multi-select 30-min grid, marking currently-selected slots with ✅ */
 function buildNotifTimesKeyboard(selected: Set<number>, lang: SupportedLang): InlineKeyboard {
   const kb = new InlineKeyboard();
   for (let slot = 0; slot < 48; slot++) {
     const totalMinutes = slot * 30;
-    // Replace the time-of-day icon with ✅ when selected, so the label width
-    // stays the same (one glyph + time) and the time isn't truncated.
-    const icon = selected.has(totalMinutes) ? "✅" : hourIcon(Math.floor(totalMinutes / 60));
-    const label = `${icon} ${formatNotificationTime(totalMinutes)}`;
+    // Unselected slots carry no marker: they used to show a time-of-day emoji, which put
+    // 48 icons on one screen to say something the time already said.
+    const prefix = selected.has(totalMinutes) ? "✅ " : "";
+    const label = `${prefix}${formatNotificationTime(totalMinutes)}`;
     kb.text(label, `set:notif:time:${totalMinutes}`);
     if ((slot + 1) % 4 === 0) kb.row();
   }
@@ -398,13 +391,8 @@ export async function handleSetNotifTimeSelectCallback(ctx: BotContext): Promise
 export async function handleSetNotifTypeCallback(ctx: BotContext): Promise<void> {
   const lang = await getLang(ctx);
   const kb = new InlineKeyboard();
-  const typeLabels: Record<string, string> = {
-    srs: t("notifTypeSrs", lang),
-    suggested: t("notifTypeSuggested", lang),
-    contextual: t("notifTypeContextual", lang),
-  };
   for (const type of NOTIFICATION_TYPES) {
-    kb.text(typeLabels[type] ?? type, `set:notif:type:${type}`).row();
+    kb.text(notifTypeLabel(type, lang), `set:notif:type:${type}`).row();
   }
   kb.text(`⬅️ ${t("back", lang)}`, "set:notif:back").row();
 
@@ -427,7 +415,7 @@ export async function handleSetNotifTypeSelectCallback(ctx: BotContext): Promise
 
   const lang = await getLang(ctx);
   await ctx.answerCallbackQuery({
-    text: t("settingsNotifType", lang, { type }),
+    text: t("settingsNotifType", lang, { type: notifTypeLabel(type, lang) }),
   });
   await showNotifSubMenu(ctx);
 }
