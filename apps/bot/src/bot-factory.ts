@@ -51,9 +51,6 @@ import { handleFlashcardCommand } from "./scenes/flashcard.scene.js";
 import {
   handleAltMeaningCallback,
   handleEtymologyCallback,
-  handleGrammarBreakdownCallback,
-  handleGrammarDetailCallback,
-  handleGrammarLangSelectCallback,
   handleRegenCallback,
   handleSaveCallback,
   handleSkipCallback,
@@ -498,9 +495,6 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   onCallback(/^tr:regen:/, handleRegenCallback);
   onCallback(/^tr:clarifypost:/, handleClarifyPostCallback);
   onCallback(/^tr:altmeaning:/, handleAltMeaningCallback);
-  onCallback(/^tr:gramdetail:/, handleGrammarDetailCallback);
-  onCallback(/^tr:gramlang:/, handleGrammarLangSelectCallback);
-  onCallback(/^tr:grammar:/, handleGrammarBreakdownCallback);
   onCallback(/^tr:etymology:/, handleEtymologyCallback);
   onCallback(/^tr:say:/, handlePronounceCallback);
   onCallback(/^tr:more:/, handleCardMoreCallback);

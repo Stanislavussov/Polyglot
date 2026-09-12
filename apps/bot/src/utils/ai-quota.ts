@@ -23,7 +23,6 @@ export const AI_CALL_WEIGHTS = {
   dictionaryTranslate: 1,
   video: 5,
   wordPick: 3,
-  grammar: 1,
   etymology: 1,
 } as const;
 

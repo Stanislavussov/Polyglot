@@ -22,8 +22,6 @@ export interface TranslationKeyboardOptions {
   isAlreadySaved?: boolean;
   /** Show the action list rather than the `⋯ More` button that opens it. */
   expanded?: boolean;
-  showGrammarButton?: boolean;
-  showGrammarDetailButton?: boolean;
   showEtymologyButton?: boolean;
   showMentorButton?: boolean;
   sourceOverrideLangs?: readonly string[];
@@ -404,7 +402,6 @@ function appendInRows(kb: InlineKeyboard, buttons: readonly CardButton[], perRow
  * **Expanded** (after `⋯ More`) — the actions two to a row, then the
  * source-language override, then the same speakers, then the way back:
  * ```
- * 📖 Grammar          🔬 Details
  * 🎯 Clarify meaning  🔄 Other meaning
  * 🧑‍🏫 Ask the mentor   🔍 Etymology
  * 🌐 Wrong language? Translate from:
@@ -414,7 +411,7 @@ function appendInRows(kb: InlineKeyboard, buttons: readonly CardButton[], perRow
  * ```
  *
  * The learning aids hide behind one button because the flat layout grew past what
- * a card should carry: clarify, other meaning, grammar, details and etymology all
+ * a card should carry: clarify, other meaning, the mentor and etymology all
  * competed with the translation itself. The toggle is pure presentation —
  * `tr:more`/`tr:less` only swap the markup, so neither state costs a call or
  * changes the card's text.
@@ -449,8 +446,6 @@ export function buildTranslationKeyboard(options: TranslationKeyboardOptions = {
     msgId,
     isAlreadySaved,
     expanded,
-    showGrammarButton,
-    showGrammarDetailButton,
     showEtymologyButton,
     showMentorButton,
     sourceOverrideLangs,
@@ -509,18 +504,6 @@ export function buildTranslationKeyboard(options: TranslationKeyboardOptions = {
   }
 
   const actions: CardButton[] = [];
-  if (showGrammarButton) {
-    actions.push({
-      text: label(t("grammarBreakdownButton", lang), FEATURE_KEYS.grammarBreakdown),
-      data: `tr:grammar:${mid}`,
-    });
-  }
-  if (showGrammarDetailButton) {
-    actions.push({
-      text: label(t("grammarDetailButton", lang), FEATURE_KEYS.grammarDetail),
-      data: `tr:gramdetail:${mid}`,
-    });
-  }
   actions.push({
     text: label(t("clarifyTranslation", lang), FEATURE_KEYS.clarification),
     data: `tr:clarifypost:${mid}`,
@@ -551,29 +534,6 @@ export function buildTranslationKeyboard(options: TranslationKeyboardOptions = {
 
   appendSpeakers();
   appendInRows(kb, [{ text: t("cardBack", lang), data: `tr:less:${mid}` }], 1);
-
-  return kb;
-}
-
-/**
- * Build language selection keyboard for grammar detail.
- * Shows one button per language + cancel.
- */
-export function buildGrammarLangKeyboard(
-  langCodes: readonly string[],
-  interfaceLang?: string,
-  msgId?: number,
-): InlineKeyboard {
-  const lang = toLang(interfaceLang);
-  const kb = new InlineKeyboard();
-  const mid = msgId ?? 0;
-
-  for (const code of langCodes) {
-    const flag = getLangFlag(code) ?? "🔤";
-    kb.text(`${flag} ${code.toUpperCase()}`, `tr:gramlang:${code}:${mid}`).row();
-  }
-
-  kb.text(t("grammarDetailCancel", lang), `tr:gramlang:cancel:${mid}`);
 
   return kb;
 }

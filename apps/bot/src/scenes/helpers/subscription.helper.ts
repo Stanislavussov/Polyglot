@@ -39,13 +39,16 @@ const DEFAULT_PLAN_EMOJI = "✨";
  * headline, the marked bullet and the badge all name one promise. `emoji` is the
  * glyph on the button the user just tapped, omitted where the bullet already
  * carries its own.
+ *
+ * Partial on purpose: `grammarBreakdown` and `grammarDetail` outlived the buttons
+ * they gated (they stay in the enum because production plan rows list them), and
+ * a bullet for a feature nothing can lock would sell what no plan delivers. A key
+ * with no entry falls through to the generic prompt.
  */
-const FEATURE_BULLET: Record<FeatureKey, { emoji?: string; label: I18nKey }> = {
+const FEATURE_BULLET: Partial<Record<FeatureKey, { emoji?: string; label: I18nKey }>> = {
   clarification: { emoji: "🎯", label: "planLineClarification" },
   pronunciation: { emoji: "🔊", label: "planLinePronunciation" },
-  grammarBreakdown: { emoji: "📖", label: "planLineGrammar" },
-  etymology: { emoji: "📖", label: "planLineGrammar" },
-  grammarDetail: { emoji: "📖", label: "planLineGrammar" },
+  etymology: { emoji: "🔍", label: "planLineEtymology" },
   voiceInput: { label: "planLineVoiceInput" },
   mentor: { emoji: "🧑‍🏫", label: "planLineMentor" },
 };
@@ -191,13 +194,8 @@ function planBullets(plan: PurchasablePlan, lang: SupportedLang): string[] {
   if (plan.features.has(FEATURE_KEYS.mentor)) {
     bullets.push(t("planLineMentor", lang));
   }
-  // The three grammar keys are one user-visible promise, so they collapse to one line.
-  if (
-    plan.features.has(FEATURE_KEYS.grammarBreakdown) ||
-    plan.features.has(FEATURE_KEYS.etymology) ||
-    plan.features.has(FEATURE_KEYS.grammarDetail)
-  ) {
-    bullets.push(t("planLineGrammar", lang));
+  if (plan.features.has(FEATURE_KEYS.etymology)) {
+    bullets.push(t("planLineEtymology", lang));
   }
 
   return bullets;
@@ -249,7 +247,8 @@ function renderUpgradeScreen(
   lang: SupportedLang,
   feature?: FeatureKey,
 ): string {
-  const wanted = feature ? t(FEATURE_BULLET[feature].label, lang) : undefined;
+  const wantedBullet = feature ? FEATURE_BULLET[feature] : undefined;
+  const wanted = wantedBullet ? t(wantedBullet.label, lang) : undefined;
   const blocks = ladder.slice(from).map((plan, offset) => {
     const header = `${planEmoji(plan.name)} <b>${plan.label}</b> — ${planPrice(plan, lang)}`;
     const cheaper = ladder[from + offset - 1];

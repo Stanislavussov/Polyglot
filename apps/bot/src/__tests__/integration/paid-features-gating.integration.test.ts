@@ -152,7 +152,7 @@ describe("paid features on a translation card (integration)", () => {
     // And the line that refused the tap is bolded inside that block, so the reader
     // sees which of the two priced tiers their button lives in.
     expect(upsell).toContain("• <b>Word audio</b>");
-    expect(upsell.match(/Grammar and etymology/g)).toHaveLength(1);
+    expect(upsell.match(/Word origins \(etymology\)/g)).toHaveLength(1);
     // Video is sold by what it produces, and no paid tier advertises a quota.
     expect(upsell).toContain("Vocabulary from YouTube videos");
     expect(upsell).not.toMatch(/\d+ videos/);

@@ -221,7 +221,12 @@ export async function handleMentorText(ctx: BotContext, text: string, opts?: Men
     // not persisted yet, so re-running it cannot duplicate the turn).
     // A hard failure gets the plain error.
     if (isUserFacingTimeout(err)) {
-      await replyWithRetry(ctx, t("loadingTimeout", lang), lang, { kind: "mentor", text, threadId });
+      await replyWithRetry(ctx, t("loadingTimeout", lang), lang, {
+        kind: "mentor",
+        text,
+        threadId,
+        userMessageId: opts?.userMessageId,
+      });
       return;
     }
     await ctx.reply(t("mentorError", lang));

@@ -24,8 +24,6 @@ vi.mock("@polyglot/core", async () => {
       listPlanFeatures: vi.fn().mockResolvedValue(new Set(actual.ALL_FEATURES)),
     },
     generateEtymology: vi.fn(),
-    generateGrammarBreakdown: vi.fn(),
-    generateGrammarDetail: vi.fn(),
     getLangFlag: vi.fn(() => "🏳️"),
     isSupported: vi.fn(() => true),
     logger: mockLogger,
@@ -37,7 +35,6 @@ vi.mock("@polyglot/core", async () => {
 });
 
 vi.mock("../../renderers/translation.renderer.js", () => ({
-  buildGrammarLangKeyboard: vi.fn(() => ({ inline_keyboard: [] })),
   buildTranslationKeyboard: vi.fn(() => ({ inline_keyboard: [] })),
   renderSentenceTranslation: vi.fn(() => "SENTENCE"),
   renderTranslation: vi.fn(() => "CARD_BODY"),

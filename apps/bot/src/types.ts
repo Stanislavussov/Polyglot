@@ -238,6 +238,13 @@ export interface SessionData {
       text: string;
       /** Mentor only: the thread the timed-out turn belonged to, so a retried reply-continuation lands in the same thread. */
       threadId?: string;
+      /**
+       * Mentor only: the anchor the timed-out turn used. A retry runs on a
+       * callback, so `ctx.message` is gone — without carrying it, a retried
+       * card question is answered but never recorded, and the follow-up reads
+       * the answer with no question.
+       */
+      userMessageId?: number;
       /** Monotonic insertion stamp used for recency-based eviction. */
       addedAt?: number;
     }

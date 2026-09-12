@@ -1,19 +1,14 @@
 /**
  * Translation card actions (Fable T22/B2 slice (e)) — the callback handlers for
  * the buttons on a rendered translation card: Save, the deprecated Skip/Regen,
- * "Other meaning", grammar breakdown / detail / language-select, and etymology.
- * Each re-renders or extends the card in place.
+ * "Other meaning" and etymology. Each re-renders or extends the card in place.
  */
 import {
   errorFields,
   FEATURE_KEYS,
   generateEtymology,
-  generateGrammarBreakdown,
-  generateGrammarDetail,
-  getLangFlag,
   isSupported,
   logEvent,
-  orderLangCodes,
   resolveOutputConfig,
   resolveTemplate,
   type SupportedLang,
@@ -22,15 +17,10 @@ import {
 } from "@polyglot/core";
 import type { InlineKeyboard } from "grammy";
 import { recordEffort } from "../../momentum/momentum.wiring.js";
-import {
-  buildGrammarLangKeyboard,
-  renderSentenceTranslation,
-  renderTranslation,
-} from "../../renderers/translation.renderer.js";
+import { renderSentenceTranslation, renderTranslation } from "../../renderers/translation.renderer.js";
 import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
-import { ensureAiQuota, recordAiUsage } from "../../utils/ai-quota.js";
-import { languageOrderFromSettings, resolveLanguageOrder } from "../../utils/language-order.js";
+import { resolveLanguageOrder } from "../../utils/language-order.js";
 import { isUserFacingTimeout, LONG_OP_TIMEOUT_MS, loadingKeyboard, withTimeout } from "../../utils/long-op.js";
 import { toVocabularyInput } from "../../utils/vocabulary-mapper.js";
 import { buildCardKeyboard } from "./card-keyboard.js";
@@ -325,89 +315,6 @@ export async function handleAltMeaningCallback(ctx: BotContext): Promise<void> {
 }
 
 /**
- * Handles grammar breakdown callback (tr:grammar:{msgId}).
- * Generates on-demand grammar analysis for translations.
- */
-export async function handleGrammarBreakdownCallback(ctx: BotContext): Promise<void> {
-  const data = ctx.callbackQuery?.data ?? "";
-  const msgId = parseInt(data.split(":")[2] ?? "0", 10);
-  const entry = ctx.session.translationMap?.[String(msgId)];
-
-  if (!entry) {
-    await answerStaleCallback(ctx, { action: "tr:grammar", msgId });
-    return;
-  }
-
-  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
-  const iLang = settings?.interfaceLang ?? "en";
-  const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
-  const nativeLang = settings?.nativeLang ?? "en";
-
-  if (!(await ensurePaidFeature(ctx, FEATURE_KEYS.grammarBreakdown, lang))) {
-    return;
-  }
-
-  // Use cached if available
-  if (entry.grammarBreakdown) {
-    await reRenderCard(ctx, entry, msgId, lang, nativeLang);
-    await ctx.answerCallbackQuery();
-    return;
-  }
-
-  // Metered from Task 84 on, because free plans now hold this feature: the
-  // generation below is a real AI call, and the feature flag alone would let a
-  // free account make unlimited ones. Paid tiers carry a null limit, so nothing
-  // changes for them. Only the uncached path bills — a re-render of a breakdown
-  // the card already has costs nothing.
-  const creditCost = await ensureAiQuota(ctx, ctx.user.subscriptionPlan, lang, "grammar");
-  if (creditCost === null) {
-    await ctx.answerCallbackQuery();
-    return;
-  }
-
-  await showCardLoading(ctx, lang);
-
-  try {
-    const model = await resolveDefaultAIModel(ctx.services?.settings, ctx.user.subscriptionPlan);
-    const translations: Record<string, string> = {};
-    for (const [code, tr] of Object.entries(entry.output.translations)) {
-      translations[code] = tr.text;
-    }
-
-    const result = await withTimeout(
-      generateGrammarBreakdown(
-        {
-          originalText: entry.output.original,
-          translations,
-          sourceLang: entry.output.sourceLang,
-          targetLangs: Object.keys(entry.output.translations),
-          nativeLang,
-          inputType: entry.inputType === "sentence" ? "sentence" : "phrase",
-        },
-        ctx.services.ai.generateObject,
-        model,
-        ctx.user.id,
-      ),
-      LONG_OP_TIMEOUT_MS,
-    );
-
-    entry.grammarBreakdown = result;
-    await recordAiUsage(ctx, "grammar", creditCost, entry.output.sourceLang);
-    await reRenderCard(ctx, entry, msgId, lang, nativeLang);
-  } catch (err) {
-    logEvent("card.grammar_breakdown_failed", { word: entry.output.original, ...errorFields(err) }, "error");
-    try {
-      await reRenderCard(ctx, entry, msgId, lang, nativeLang);
-    } catch {
-      // Card restore is best-effort; the alert below explains the failure.
-    }
-    await ctx.answerCallbackQuery({ text: longOpFailureText(err, lang), show_alert: true });
-    return;
-  }
-  await ctx.answerCallbackQuery();
-}
-
-/**
  * Handles etymology callback (tr:etymology:{msgId}).
  * Generates on-demand etymology for the original term, in the native language.
  */
@@ -527,141 +434,4 @@ async function reRenderCard(
     reply_markup: keyboard,
     parse_mode: "HTML",
   });
-}
-
-/**
- * Handles grammar detail callback (tr:gramdetail:{msgId}).
- * Shows language selection keyboard for detailed grammar explanation.
- */
-export async function handleGrammarDetailCallback(ctx: BotContext): Promise<void> {
-  const data = ctx.callbackQuery?.data ?? "";
-  const msgId = parseInt(data.split(":")[2] ?? "0", 10);
-  const entry = ctx.session.translationMap?.[String(msgId)];
-
-  if (!entry?.grammarBreakdown) {
-    await answerStaleCallback(ctx, { action: "tr:gramdetail", msgId });
-    return;
-  }
-
-  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
-  const iLang = settings?.interfaceLang ?? "en";
-  const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
-
-  if (!(await ensurePaidFeature(ctx, FEATURE_KEYS.grammarDetail, lang))) {
-    return;
-  }
-
-  // Show language selection keyboard
-  // Keep the empty-breakdown filter: a button for a language with no grammar data
-  // would be dead. Order what survives, so the buttons do not reshuffle between
-  // taps — the breakdown record comes back from the session alphabetized.
-  const langCodes = orderLangCodes(
-    Object.keys(entry.grammarBreakdown).filter((code) => entry.grammarBreakdown![code]!.length > 0),
-    languageOrderFromSettings(settings),
-  );
-
-  const langKeyboard = buildGrammarLangKeyboard(langCodes, lang, msgId);
-  await ctx.api.editMessageReplyMarkup(ctx.chat!.id, msgId, { reply_markup: langKeyboard });
-  await ctx.answerCallbackQuery();
-}
-
-/**
- * Handles grammar language selection callback (tr:gramlang:{langCode}:{msgId}).
- * Generates detailed grammar explanation for the selected language.
- */
-export async function handleGrammarLangSelectCallback(ctx: BotContext): Promise<void> {
-  const data = ctx.callbackQuery?.data ?? "";
-  const parts = data.split(":");
-  const langCodeOrCancel = parts[2] ?? "";
-  const msgId = parseInt(parts[3] ?? "0", 10);
-
-  const entry = ctx.session.translationMap?.[String(msgId)];
-  if (!entry) {
-    await answerStaleCallback(ctx, { action: "tr:gramlang", msgId });
-    return;
-  }
-
-  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
-  const iLang = settings?.interfaceLang ?? "en";
-  const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
-  const nativeLang = settings?.nativeLang ?? "en";
-  /**
-   * The card's normal keyboard — every exit from this flow restores it. Derived
-   * from the card rather than hand-listed: a hand-listed restore is how the
-   * speaker used to vanish once a user opened the grammar-detail flow, and how
-   * the source-language override never came back at all.
-   */
-  const restoreKeyboard = () => buildCardKeyboard(ctx, entry, msgId, lang, nativeLang);
-
-  // Cancel — restore normal keyboard with detail button
-  if (langCodeOrCancel === "cancel") {
-    const keyboard = await restoreKeyboard();
-    await ctx.api.editMessageReplyMarkup(ctx.chat!.id, msgId, { reply_markup: keyboard });
-    await ctx.answerCallbackQuery();
-    return;
-  }
-
-  // Language selected — this is where grammar detail actually spends an AI call,
-  // so it carries its own gate rather than trusting the one on `tr:gramdetail`:
-  // the language keyboard survives on the card after the flow is abandoned, and a
-  // subscription can lapse between opening it and tapping a language. Cancel stays
-  // ungated above so a stale keyboard can always be dismissed.
-  if (!(await ensurePaidFeature(ctx, FEATURE_KEYS.grammarDetail, lang))) {
-    return;
-  }
-
-  const langCode = langCodeOrCancel;
-  const translation = entry.output.translations[langCode];
-  const breakdown = entry.grammarBreakdown?.[langCode];
-
-  if (!translation || !breakdown || breakdown.length === 0) {
-    await ctx.answerCallbackQuery({
-      text: "⚠️ Grammar data not available for this language.",
-      show_alert: true,
-    });
-    return;
-  }
-
-  await showCardLoading(ctx, lang);
-
-  try {
-    const model = await resolveDefaultAIModel(ctx.services?.settings, ctx.user.subscriptionPlan);
-
-    const detailText = await withTimeout(
-      generateGrammarDetail(
-        {
-          originalText: entry.output.original,
-          translation: translation.text,
-          langCode,
-          nativeLang,
-          grammarBreakdown: breakdown,
-        },
-        ctx.services.ai.generateText,
-        model,
-        ctx.user.id,
-      ),
-      LONG_OP_TIMEOUT_MS,
-    );
-
-    // Send as separate message
-    const flag = getLangFlag(langCode) ?? "🔤";
-    const header = `🔬 <b>${flag} ${langCode.toUpperCase()}: "${escapeHtml(translation.text)}"</b>\n\n`;
-    await ctx.reply(header + escapeHtml(detailText), { parse_mode: "HTML" });
-
-    // Restore keyboard with detail button
-    const keyboard = await restoreKeyboard();
-    await ctx.api.editMessageReplyMarkup(ctx.chat!.id, msgId, { reply_markup: keyboard });
-  } catch (err) {
-    logEvent("card.grammar_detail_failed", { word: entry.output.original, langCode, ...errorFields(err) }, "error");
-    const keyboard = await restoreKeyboard();
-    await ctx.api.editMessageReplyMarkup(ctx.chat!.id, msgId, { reply_markup: keyboard }).catch(() => {});
-    await ctx.answerCallbackQuery({ text: longOpFailureText(err, lang), show_alert: true });
-    return;
-  }
-  await ctx.answerCallbackQuery();
-}
-
-/** Escape HTML for safe Telegram rendering */
-function escapeHtml(text: string): string {
-  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }

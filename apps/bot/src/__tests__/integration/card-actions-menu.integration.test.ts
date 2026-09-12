@@ -1,16 +1,15 @@
 /**
  * The card's hidden action list — grammY e2e integration test.
  *
- * Drives `tr:more` / `tr:less` / `tr:grammar` / `tr:say` / `tr:mentor` through the
+ * Drives `tr:more` / `tr:less` / `tr:say` / `tr:mentor` / `tr:etymology` through the
  * real dispatcher, the real DI container and real Postgres. Only the AI boundary
  * is swapped (deterministic fixtures, as everywhere in this lane) plus the TTS
  * settings blob, which is overridden per-harness rather than written to
  * `system_settings` — that row is global and this lane runs two workers.
  *
  * What a mock-only test cannot pin down and this does:
- *  - a LONG translation (a sentence) now carries a speaker (on the card itself,
- *    not behind the fold) and a working Grammar button, both of which it used to
- *    be denied;
+ *  - a LONG translation (a sentence) now carries a speaker, on the card itself
+ *    rather than behind the fold, which it used to be denied;
  *  - opening the list costs nothing — no AI call, no message rewrite;
  *  - a section generated from the list leaves the list open and retires only its
  *    own button, because every rebuild goes through the one keyboard resolver;
@@ -57,12 +56,6 @@ function arrangeHarness(overrides: { ttsEnabled?: boolean } = {}) {
 
 const tap = (harness: BotHarness, chatId: number, messageId: number, data: string) =>
   harness.dispatch(callbackQueryUpdate({ chatId, fromId: chatId, messageId, data }));
-
-/** Text of the last card rewrite, i.e. what the user is looking at. */
-function lastCardText(harness: BotHarness): string {
-  const edit = harness.sent.filter((call) => call.method === "editMessageText").at(-1);
-  return String(edit?.payload.text ?? "");
-}
 
 function lastMessageText(harness: BotHarness): string {
   const send = harness.sent.filter((call) => call.method === "sendMessage").at(-1);
@@ -140,7 +133,7 @@ describe("the card's hidden action list (integration)", () => {
     expect(currentButtons(harness)).toEqual([`tr:say:cs:${cardId}`, `tr:more:${cardId}`, `tr:save:${cardId}`]);
   });
 
-  it("gives a long translation the speaker and the grammar breakdown it used to be denied", async () => {
+  it("gives a long translation the speaker it used to be denied", async () => {
     // Arrange — a Russian speaker learning English, so the ENGLISH sentence is the
     // card's headword: that is the case where the text handed to TTS is a whole
     // sentence rather than a single translated word.
@@ -156,9 +149,9 @@ describe("the card's hidden action list (integration)", () => {
 
     const opened = await openCardActions(harness, { chatId: id, messageId: cardId });
 
-    // Assert — grammar is behind the fold and offered. Etymology stays out: it is
-    // a word-and-phrase aid and a sentence has no origin to trace.
-    expect(opened).toContain(`tr:grammar:${cardId}`);
+    // Assert — the mentor is behind the fold. Etymology stays out: it is a
+    // word-and-phrase aid and a sentence has no origin to trace.
+    expect(opened).toContain(`tr:mentor:${cardId}`);
     expect(opened).not.toContain(`tr:etymology:${cardId}`);
 
     // Act — hear it.
@@ -171,21 +164,6 @@ describe("the card's hidden action list (integration)", () => {
     expect(String(generateSpeech.mock.calls[0]![0].text)).toBe(SENTENCE);
     expect(harness.sent.filter((call) => call.method === "sendVoice")).toHaveLength(1);
     expect(callbackAlert(harness)).toBeUndefined();
-
-    // Act — ask for the grammar.
-    harness.reset();
-    await tap(harness, id, cardId, `tr:grammar:${cardId}`);
-
-    // Assert — the breakdown really lands on the card (it could not before: the
-    // dynamic-key schema was refused by the provider), and the button that
-    // produced it retires while the rest of the list stays open.
-    expect(lastCardText(harness)).toContain("Настоящее время — привычное действие");
-    expect(callbackAlert(harness)).toBeUndefined();
-    const after = currentButtons(harness);
-    expect(after).not.toContain(`tr:grammar:${cardId}`);
-    expect(after).toContain(`tr:clarifypost:${cardId}`);
-    expect(after).toContain(`tr:say:en:${cardId}`);
-    expect(after).toContain(`tr:less:${cardId}`);
   });
 
   it("asks the mentor about the card and persists both turns of the new thread", async () => {
@@ -263,7 +241,7 @@ describe("the card's hidden action list (integration)", () => {
     expect(fresh).toEqual([`tr:more:${cardId}`, `tr:save:${cardId}`]);
     expect(opened).toContain(`tr:less:${cardId}`);
     expect(opened.some((data) => data.startsWith("tr:say:"))).toBe(false);
-    expect(opened).toContain(`tr:grammar:${cardId}`);
+    expect(opened).toContain(`tr:mentor:${cardId}`);
     expect(generateSpeech).not.toHaveBeenCalled();
   });
 

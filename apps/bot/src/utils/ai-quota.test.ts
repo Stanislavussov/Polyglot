@@ -91,9 +91,6 @@ describe("which paid AI calls the monthly translation allowance bills", () => {
     mentor: true,
     video: true,
     etymology: true,
-    // The one exception, and the reason the list exists: free holds the grammar
-    // breakdown from Task 84 on, metered by the daily budget instead.
-    grammar: false,
   };
 
   it("has a decision recorded for every call type", () => {

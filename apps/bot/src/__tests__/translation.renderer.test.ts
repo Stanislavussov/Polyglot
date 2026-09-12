@@ -469,7 +469,6 @@ describe("buildTranslationKeyboard", () => {
       const kb = buildTranslationKeyboard({
         interfaceLang: "en",
         msgId: 42,
-        showGrammarButton: true,
         showEtymologyButton: true,
         showMentorButton: true,
         sourceOverrideLangs: ["de", "fr"],
@@ -494,16 +493,12 @@ describe("buildTranslationKeyboard", () => {
       const kb = expanded({
         interfaceLang: "en",
         msgId: 42,
-        showGrammarButton: true,
         showEtymologyButton: true,
         showMentorButton: true,
       });
       expect(rows(kb)).toEqual([
-        ["tr:grammar:42", "tr:clarifypost:42"],
-        ["tr:altmeaning:42", "tr:mentor:42"],
-        // An odd action count leaves the fifth alone; Back keeps the closing row
-        // to itself so the exit is always in the same place.
-        ["tr:etymology:42"],
+        ["tr:clarifypost:42", "tr:altmeaning:42"],
+        ["tr:mentor:42", "tr:etymology:42"],
         ["tr:less:42"],
       ]);
     });
@@ -512,7 +507,7 @@ describe("buildTranslationKeyboard", () => {
       const kb = expanded({
         interfaceLang: "en",
         msgId: 42,
-        showGrammarButton: true,
+        showMentorButton: true,
         pronounceLangs: ["de", "cs"],
       });
       expect(rows(kb).at(-2)).toEqual(["tr:say:de:42", "tr:say:cs:42"]);
@@ -522,19 +517,15 @@ describe("buildTranslationKeyboard", () => {
     it("repacks the pairs when an aid the card cannot offer drops out", () => {
       // Etymology gone: the remaining actions close up into full rows rather than
       // leaving the hole it used to occupy.
-      const kb = expanded({ interfaceLang: "en", msgId: 42, showGrammarButton: true, showMentorButton: true });
-      expect(rows(kb)).toEqual([
-        ["tr:grammar:42", "tr:clarifypost:42"],
-        ["tr:altmeaning:42", "tr:mentor:42"],
-        ["tr:less:42"],
-      ]);
+      const kb = expanded({ interfaceLang: "en", msgId: 42, showMentorButton: true });
+      expect(rows(kb)).toEqual([["tr:clarifypost:42", "tr:altmeaning:42"], ["tr:mentor:42"], ["tr:less:42"]]);
     });
 
     it("never leaves a trailing empty row for Telegram to render as a gap", () => {
       for (const kb of [
         buildTranslationKeyboard({ interfaceLang: "en", msgId: 42 }),
         expanded({ interfaceLang: "en", msgId: 42 }),
-        expanded({ interfaceLang: "en", msgId: 42, showGrammarButton: true, pronounceLangs: ["de", "es"] }),
+        expanded({ interfaceLang: "en", msgId: 42, showMentorButton: true, pronounceLangs: ["de", "es"] }),
         expanded({ interfaceLang: "en", msgId: 42, sourceOverrideLangs: ["de", "fr"] }),
       ]) {
         expect(kb.inline_keyboard.every((row) => row.length > 0)).toBe(true);
@@ -568,13 +559,7 @@ describe("buildTranslationKeyboard", () => {
     it("omits an aid the card is not eligible for", () => {
       const kb = expanded({ interfaceLang: "en", msgId: 42, showEtymologyButton: true });
       expect(allData(kb)).toContain("tr:etymology:42");
-      expect(allData(kb)).not.toContain("tr:grammar:42");
-      expect(allData(kb)).not.toContain("tr:gramdetail:42");
-    });
-
-    it("offers the grammar-detail button when the card has a breakdown to drill into", () => {
-      const kb = expanded({ interfaceLang: "en", msgId: 42, showGrammarDetailButton: true });
-      expect(allData(kb)).toContain("tr:gramdetail:42");
+      expect(allData(kb)).not.toContain("tr:mentor:42");
     });
 
     it("closes with Back, and carries no Save at all", () => {
@@ -584,7 +569,7 @@ describe("buildTranslationKeyboard", () => {
       const kb = expanded({
         interfaceLang: "en",
         msgId: 42,
-        showGrammarButton: true,
+        showMentorButton: true,
         pronounceLangs: ["de", "es"],
         sourceOverrideLangs: ["de", "fr"],
       });
@@ -624,7 +609,6 @@ describe("buildTranslationKeyboard", () => {
       const options = {
         interfaceLang: "en",
         msgId: 42,
-        showGrammarButton: true,
         showEtymologyButton: true,
         showMentorButton: true,
         pronounceLangs: ["de"],
@@ -638,14 +622,7 @@ describe("buildTranslationKeyboard", () => {
       /** Whether a button carries a tier glyph — which glyph is the next test's job. */
       const badged = (kb: ReturnType<typeof buildTranslationKeyboard>, data: string) =>
         /[⭐💎]$/u.test(kb.inline_keyboard.flat().find((b) => cbData(b) === data)!.text);
-      for (const data of [
-        "tr:grammar:42",
-        "tr:clarifypost:42",
-        "tr:altmeaning:42",
-        "tr:mentor:42",
-        "tr:etymology:42",
-        "tr:say:de:42",
-      ]) {
+      for (const data of ["tr:clarifypost:42", "tr:altmeaning:42", "tr:mentor:42", "tr:etymology:42", "tr:say:de:42"]) {
         expect(badged(free, data)).toBe(true);
       }
       // Back is free for everyone and must never be badged.
@@ -675,7 +652,6 @@ describe("buildTranslationKeyboard", () => {
       const kb = expanded({
         interfaceLang: "en",
         msgId: 42,
-        showGrammarButton: true,
         showEtymologyButton: true,
         showMentorButton: true,
         locked: new Map(),
@@ -690,7 +666,7 @@ describe("buildTranslationKeyboard", () => {
       expect(rows(collapsed).at(-1)).toEqual(["tr:save:42"]);
 
       for (const kb of [
-        expanded({ interfaceLang: "en", msgId: 42, showGrammarButton: true }),
+        expanded({ interfaceLang: "en", msgId: 42, showMentorButton: true }),
         expanded({ interfaceLang: "en", msgId: 42, sourceOverrideLangs: ["de", "fr", "es", "it", "pl"] }),
       ]) {
         expect(saveButton(kb)).toBeUndefined();
