@@ -986,7 +986,6 @@ describe("i18n — notification keys (Task 41.6)", () => {
     "notifTranslations",
     "notifReveal",
     "notifSelfCheck",
-    "notifTapToReveal",
     "notifFbHard",
     "notifFbNormal",
     "notifFbEasy",

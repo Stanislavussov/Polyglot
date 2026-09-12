@@ -45,17 +45,6 @@ export interface WordCardData {
   answerLang?: string;
   /** Language the stored prose is written in; labels it while it stays visible. */
   nativeLang?: string;
-  /**
-   * Keep the stored note visible, above the answer, instead of folding it into
-   * the collapsed quote.
-   *
-   * Set by the surfaces the reader reaches *after* trying to recall the word — a
-   * revealed notification. There the description is the checkpoint they came back
-   * to verify their guess against, so burying it costs the card its only teaching
-   * line. Everywhere the reader simply asked what a word means, the answer stays
-   * the first line under the headword and the note folds.
-   */
-  hintFirst?: boolean;
 }
 
 /**
@@ -124,21 +113,14 @@ export function renderWordCard(card: WordCardData, lang: SupportedLang): string 
   // read as the answer the reader was looking for.
   const proseNote = prose ? meaningLine(prose) : undefined;
 
-  // On a recall surface the note is promoted: it stays visible, glued to the top
-  // of the answer block rather than folded into the quote. A blank line between
-  // the two would read as a section of its own.
-  const promotedNote = card.hintFirst && proseIsSupplementary ? proseNote : undefined;
-
   if (answer) {
-    sections.push([...(promotedNote ? [promotedNote] : []), ...langBlock(answer, lang)]);
+    sections.push(langBlock(answer, lang));
   } else if (proseNote && !proseIsSupplementary) {
     sections.push([proseNote]);
-  } else if (promotedNote) {
-    sections.push([promotedNote]);
   }
 
   const { visible, folded } = splitExamples(usage?.examples);
-  if (proseNote && proseIsSupplementary && !promotedNote) {
+  if (proseNote && proseIsSupplementary) {
     folded.push(proseNote);
   }
   sections.push([...visible, ...expandableSection(folded)]);

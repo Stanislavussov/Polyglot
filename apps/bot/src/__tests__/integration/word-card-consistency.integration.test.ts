@@ -145,15 +145,10 @@ describe("word card consistency (integration)", () => {
       callbackQueryUpdate({ chatId: id, fromId: id, messageId: lastMessageId + 1, data: `notif:reveal:${entryId}` }),
     );
 
-    const revealed = lastCardText(harness.sent);
-    expectSameGrammarAs(translateCard, revealed);
-    // The one deliberate difference: this reader was asked to recall the word, so
-    // the stored gloss rides above the answer instead of folding into the quote.
-    // Everything the grammar governs — the headword line, every answer line — is
-    // still the translate card's, which is what the assertion above pins.
-    const hint = revealed.split("\n").filter((line) => line.trim() !== "")[1] ?? "";
-    expect(hint.startsWith("💡 ")).toBe(true);
-    expect(revealed.indexOf(hint)).toBeLessThan(revealed.indexOf(answerLines(revealed)[0]!));
+    // Same renderer as the translate card now, fed the saved entry mapped back to
+    // a translation output — so this is parity by construction rather than two
+    // renderers kept in step. The assertion stays: the mapping is what can drift.
+    expectSameGrammarAs(translateCard, lastCardText(harness.sent));
   });
 
   it("W2: the dictionary entry renders in the same grammar as the translate card", async () => {

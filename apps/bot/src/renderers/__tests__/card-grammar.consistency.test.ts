@@ -243,22 +243,15 @@ describe("card grammar — compact and list surfaces use the same lines", () => 
     translationDetails: { ru: { synonyms: ["труд"] } },
   };
 
-  /** The daily nudge: a saved word, a Reveal button, and nothing that answers it. */
+  /**
+   * The daily nudge. It is no longer a compact card but a recall prompt — the
+   * headword and a question — so the only line it owes the shared grammar is the
+   * headword's. Its answer lines are on the card Reveal opens, which is the
+   * translation card itself (`notification.callbacks.ts`).
+   */
   const notification = formatNotificationMessage(
     { hour: 8, word: { ...notifiedWord, source: "srs", entryId: 1 } },
     "ru",
-    ORDER,
-  );
-
-  /**
-   * The same nudge for a word that was never saved. It has no Reveal button to
-   * tap, so its answer rides along in a collapsed quote — and that is where this
-   * surface has an answer line to hold to the shared grammar at all.
-   */
-  const unrevealableNotification = formatNotificationMessage(
-    { hour: 8, word: { ...notifiedWord, source: "preset" } },
-    "ru",
-    ORDER,
   );
 
   const pickedSet = renderPickedSet(
@@ -318,12 +311,11 @@ describe("card grammar — compact and list surfaces use the same lines", () => 
   );
 
   const COMPACT: Array<[string, string]> = [
-    ["notification", unrevealableNotification],
     ["picked set", pickedSet],
     ["video phrase list", videoList],
   ];
 
-  it.each(COMPACT.slice(1))("%s introduces the word with emoji and the source flag", (_name, card) => {
+  it.each(COMPACT)("%s introduces the word with emoji and the source flag", (_name, card) => {
     expect(card).toContain(`${WORD.emoji} 🇩🇪 <b>${WORD.original}</b>`);
   });
 
@@ -337,7 +329,7 @@ describe("card grammar — compact and list surfaces use the same lines", () => 
     expect(card).not.toContain("→ работа");
   });
 
-  it.each(COMPACT.slice(1))("%s renders an example with the shared 💬 line", (_name, card) => {
+  it.each(COMPACT)("%s renders an example with the shared 💬 line", (_name, card) => {
     expect(card).toContain("💬 <i>Die Arbeit macht Spaß.</i>");
     expect(card).not.toContain("«");
     expect(card).not.toContain('"Die Arbeit');

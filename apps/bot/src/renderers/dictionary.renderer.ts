@@ -123,11 +123,9 @@ export function renderDictionaryEntry(
   langResolver: (id: number) => string | undefined,
   lang: SupportedLang,
   order: LanguageOrderContext,
-  options: { hintFirst?: boolean } = {},
 ): string {
   return renderWordCard(
     {
-      ...(options.hintFirst ? { hintFirst: true } : {}),
       original: entry.original,
       emoji: entry.emoji,
       sourceLang: langResolver(entry.sourceLangId),

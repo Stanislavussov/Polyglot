@@ -31,6 +31,7 @@ import {
   handleNotifFeedbackCallback,
   handleNotifLearnedCallback,
   handleNotifRevealCallback,
+  handleNotifTranslateCallback,
 } from "./notifications/notification.callbacks.js";
 import { createApiLogTransformer } from "./observability/api-log.js";
 import { handlerName, withHandlerLog } from "./observability/handler-log.js";
@@ -486,6 +487,7 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   onCallback("set:close", handleSetCloseCallback);
 
   onCallback(/^notif:reveal:/, handleNotifRevealCallback);
+  onCallback(/^notif:tr$/, handleNotifTranslateCallback);
   onCallback(/^notif:fb:/, handleNotifFeedbackCallback);
   onCallback(/^notif:learned:/, handleNotifLearnedCallback);
 

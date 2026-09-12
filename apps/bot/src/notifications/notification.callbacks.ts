@@ -2,21 +2,23 @@
  * Notification callback handlers — notif:* callbacks.
  *
  * Handles:
- * - notif:reveal:{entryId} → show full dictionary card inline
+ * - notif:reveal:{entryId} → replace the nudge with the saved word's translation card
+ * - notif:tr → translate the nudged word that has no saved entry to open
  * - notif:fb:{grade}:{entryId} → persist difficulty feedback (hard/normal/easy)
  * - notif:learned:{entryId} → soft-delete entry from vocabulary
  */
-import { isSupported, logger, type SupportedLang, t } from "@polyglot/core";
-import { renderDictionaryEntry } from "../renderers/dictionary.renderer.js";
+import { isSupported, logger, resolveTemplate, type SupportedLang, t } from "@polyglot/core";
+import { buildTranslationKeyboard, renderTranslation } from "../renderers/translation.renderer.js";
 import { editMessageReplyMarkupOrIgnore, editMessageTextOrReply } from "../scenes/helpers/edit-message.helper.js";
+import { resolveLockedBadges } from "../scenes/helpers/paid-feature.helper.js";
+import { handleTranslateText } from "../scenes/helpers/translate-flow.js";
+import { isEtymologyEligible, resolvePronounceLangs } from "../scenes/helpers/translate-mode.shared.js";
+import { setTranslationEntry } from "../scenes/helpers/translation-map.helper.js";
 import type { BotContext } from "../types.js";
 import { makeLangCodeResolver, resolveLanguageOrder } from "../utils/language-order.js";
 import { isUserFacingTimeout, LONG_OP_TIMEOUT_MS, loadingKeyboard, withTimeout } from "../utils/long-op.js";
-import {
-  buildNotificationKeyboard,
-  buildNotificationRevealedKeyboard,
-  type NotifFeedbackGrade,
-} from "./notification.formatter.js";
+import { toTranslateOutput } from "../utils/vocabulary-mapper.js";
+import { buildNotificationKeyboard, type NotifFeedbackGrade } from "./notification.formatter.js";
 
 function parseEntryId(data: string | undefined): number | null {
   if (!data) return null;
@@ -50,8 +52,33 @@ function failureAlertText(err: unknown, lang: SupportedLang): string {
 }
 
 /**
- * notif:reveal:{entryId} — show full dictionary card.
- * Replaces the notification message with the full entry and a "Learned — remove" button.
+ * The headword the nudge showed, read off the message its button is attached to.
+ *
+ * Not off the callback data: a contextual pick is a whole sentence and Telegram
+ * caps callback data at 64 bytes. The nudge renders exactly one bold span — the
+ * headword — so the entity is an exact handle on it, offsets and all (Telegram
+ * counts UTF-16 code units, which is what `String.slice` indexes by).
+ */
+function nudgedWord(ctx: BotContext): string | null {
+  const message = ctx.callbackQuery?.message;
+  const text = message && "text" in message ? message.text : undefined;
+  const bold = message?.entities?.find((entity) => entity.type === "bold");
+  if (!text || !bold) return null;
+  return text.slice(bold.offset, bold.offset + bold.length).trim() || null;
+}
+
+/**
+ * notif:reveal:{entryId} — hand over the answer.
+ *
+ * The nudge becomes the very card the word was translated on: the same renderer
+ * and the same keyboard, so clarification, another meaning, grammar, etymology,
+ * pronunciation and save all work here exactly as they do after a translation.
+ * Rendering the stored entry a second way is what made this surface drift before.
+ *
+ * Those buttons address their card by message id, so the session entry is written
+ * under the id the card actually landed on — past Telegram's 48-hour edit limit
+ * the in-place edit is impossible and `editMessageTextOrReply` sends a fresh
+ * message instead, which then owns the card.
  */
 export async function handleNotifRevealCallback(ctx: BotContext): Promise<void> {
   const entryId = parseEntryId(ctx.callbackQuery?.data);
@@ -69,7 +96,8 @@ export async function handleNotifRevealCallback(ctx: BotContext): Promise<void> 
     );
     lang = userLang;
 
-    if (!entry) {
+    const output = entry ? toTranslateOutput(entry, makeLangCodeResolver(ctx)) : null;
+    if (!entry || !output) {
       await ctx.answerCallbackQuery({ text: t("noResults", lang) });
       try {
         await editMessageReplyMarkupOrIgnore(ctx, { reply_markup: { inline_keyboard: [] } });
@@ -79,16 +107,38 @@ export async function handleNotifRevealCallback(ctx: BotContext): Promise<void> 
       return;
     }
 
-    // The notification asked the reader to recall the word, so the stored gloss
-    // rides above the answer here — it is what they open the card to check
-    // themselves against, not a line pushing their own language down.
-    const text = renderDictionaryEntry(entry, makeLangCodeResolver(ctx), lang, await resolveLanguageOrder(ctx), {
-      hintFirst: true,
-    });
-    // Carry the stored grade so a rating given before Reveal keeps its ✓ mark.
-    const kb = buildNotificationRevealedKeyboard(lang, entryId, entry.difficulty ?? undefined);
+    const order = await resolveLanguageOrder(ctx);
+    const savedTemplate = await ctx.services.translationTemplateRepository.getByUserId(ctx.user.id);
+    const template = resolveTemplate(savedTemplate ? { name: savedTemplate.name, fields: savedTemplate.fields } : null);
+    const text = renderTranslation(output, order, lang, template.fields, order.nativeLang);
 
-    await editMessageTextOrReply(ctx, text, { parse_mode: "HTML", reply_markup: kb });
+    const resent = await editMessageTextOrReply(ctx, text, { parse_mode: "HTML" });
+    const cardMsgId = resent?.message_id ?? ctx.callbackQuery?.message?.message_id;
+    if (cardMsgId === undefined) {
+      await ctx.answerCallbackQuery();
+      return;
+    }
+
+    const keyboard = buildTranslationKeyboard({
+      interfaceLang: lang,
+      msgId: cardMsgId,
+      isAlreadySaved: true,
+      showGrammarButton:
+        entry.inputType !== "word" && (entry.inputType === "sentence" || !template.fields.grammarBreakdown),
+      // No native language on file means nothing to compare the source against,
+      // and `isEtymologyEligible` asks exactly that question — so it answers "no".
+      showEtymologyButton: isEtymologyEligible(
+        entry.inputType,
+        output.sourceLang,
+        order.nativeLang ?? output.sourceLang,
+      ),
+      pronounceLangs: await resolvePronounceLangs(ctx, output, entry.inputType, order),
+      locked: await resolveLockedBadges(ctx),
+    });
+    await ctx.api.editMessageReplyMarkup(ctx.chat!.id, cardMsgId, { reply_markup: keyboard });
+
+    setTranslationEntry(ctx.session, cardMsgId, { output, inputType: entry.inputType, savedWordId: entry.id });
+    ctx.session.pendingCardMsgId = cardMsgId;
   } catch (err) {
     logger.error({ err, entryId }, "Failed to reveal notification card");
     try {
@@ -101,6 +151,28 @@ export async function handleNotifRevealCallback(ctx: BotContext): Promise<void> 
   }
 
   await ctx.answerCallbackQuery();
+}
+
+/**
+ * notif:tr — reveal a nudged word that was never saved (a curated pick, an AI
+ * suggestion, a contextual sentence): there is no entry to open, so the word is
+ * translated, which lands the reader on the same card with the same buttons —
+ * save included, which is how the word gets into the dictionary at all.
+ *
+ * The button is dropped first: translating bills a model call, and a nudge left
+ * tappable would bill one per tap.
+ */
+export async function handleNotifTranslateCallback(ctx: BotContext): Promise<void> {
+  const word = nudgedWord(ctx);
+  await ctx.answerCallbackQuery();
+  if (!word) return;
+
+  try {
+    await editMessageReplyMarkupOrIgnore(ctx, { reply_markup: { inline_keyboard: [] } });
+  } catch {
+    // Too old to edit — the translation below is what the tap was for.
+  }
+  await handleTranslateText(ctx, word);
 }
 
 const FEEDBACK_TOASTS: Record<NotifFeedbackGrade, "notifFbHardDone" | "notifFbNormalDone" | "notifFbEasyDone"> = {
@@ -118,16 +190,6 @@ function parseFeedback(data: string | undefined): { grade: NotifFeedbackGrade; e
 }
 
 /**
- * The message this callback landed on may be in either state — freshly sent
- * (with the Reveal button) or already revealed. The button set is what tells
- * them apart, so re-render the same variant when marking the chosen grade.
- */
-function messageHasRevealButton(ctx: BotContext): boolean {
-  const rows = ctx.callbackQuery?.message?.reply_markup?.inline_keyboard ?? [];
-  return rows.some((row) => row.some((btn) => "callback_data" in btn && btn.callback_data.startsWith("notif:reveal:")));
-}
-
-/**
  * notif:fb:{grade}:{entryId} — persist the user's difficulty feedback.
  * The grade drives how often the word returns in notifications (hard → often,
  * easy → almost never). Answers with a toast and marks the chosen button.
@@ -142,7 +204,6 @@ export async function handleNotifFeedbackCallback(ctx: BotContext): Promise<void
 
   let lang: SupportedLang = "en";
   try {
-    const hadReveal = messageHasRevealButton(ctx);
     const [userLang, saved] = await withTimeout(
       Promise.all([getUserLang(ctx), ctx.services.vocabularyRepository.setDifficulty(entryId, ctx.user.id, grade)]),
       LONG_OP_TIMEOUT_MS,
@@ -155,9 +216,9 @@ export async function handleNotifFeedbackCallback(ctx: BotContext): Promise<void
       return;
     }
 
-    const kb = hadReveal
-      ? buildNotificationKeyboard(lang, entryId, grade)
-      : buildNotificationRevealedKeyboard(lang, entryId, grade);
+    // The grades ride the nudge only — a revealed card carries the translation
+    // keyboard — so there is one keyboard to re-render, with the choice marked.
+    const kb = buildNotificationKeyboard(lang, entryId, grade);
     try {
       await editMessageReplyMarkupOrIgnore(ctx, { reply_markup: kb });
     } catch {
@@ -197,7 +258,7 @@ export async function handleNotifLearnedCallback(ctx: BotContext): Promise<void>
   } catch (err) {
     logger.error({ err, entryId }, "Failed to delete vocabulary entry from notification");
     try {
-      await editMessageReplyMarkupOrIgnore(ctx, { reply_markup: buildNotificationRevealedKeyboard(lang, entryId) });
+      await editMessageReplyMarkupOrIgnore(ctx, { reply_markup: buildNotificationKeyboard(lang, entryId) });
     } catch {
       // Restore is best-effort; the alert below explains the failure.
     }

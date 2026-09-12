@@ -376,13 +376,13 @@ describe("scheduled notification delivery (integration)", () => {
     expect(ai.wasCalled()).toBe(false);
   });
 
-  it("C14: tapping Reveal answers the word, with the stored meaning above the reader's own language", async () => {
+  it("C14: tapping Reveal opens the translation card, with the buttons a translation card has", async () => {
     // Arrange — deliver first, then tap the button the delivery actually carried:
     // the entry id travels from the picker into the callback data, and a card
     // revealed by a hand-built id would not prove that leg.
     const harness = createBotHarness();
     const telegramId = uniqueTelegramId();
-    const { userId, headword, nativeTranslation, nativeMeaning, otherTranslation } = await arrangeTracked(telegramId, {
+    const { userId, headword, nativeTranslation, otherTranslation } = await arrangeTracked(telegramId, {
       richCard: true,
     });
     const { sendFn, deps, ai } = await buildDelivery(harness);
@@ -396,14 +396,19 @@ describe("scheduled notification delivery (integration)", () => {
     expect(reveal?.callback_data).toBe(`notif:reveal:${entries[0]?.id}`);
 
     // Act — through the real dispatcher, as the tap arrives.
+    const nudgeMsgId = 800;
     harness.reset();
     await harness.dispatch(
-      callbackQueryUpdate({ chatId: telegramId, fromId: telegramId, messageId: 800, data: reveal!.callback_data! }),
+      callbackQueryUpdate({
+        chatId: telegramId,
+        fromId: telegramId,
+        messageId: nudgeMsgId,
+        data: reveal!.callback_data!,
+      }),
     );
 
-    // Assert — the revealed card: the hint is the checkpoint the reader opened the
-    // card to check their guess against, so it sits above the answer rather than
-    // folded into the collapsed quote.
+    // Assert — the card: the reader's own language, the second learning language,
+    // and the answer directly under the headword, as every other card renders it.
     const revealed = harness.sent
       .filter((call) => call.method === "editMessageText")
       .map((call) => String((call.payload as { text?: string }).text ?? ""))
@@ -411,15 +416,68 @@ describe("scheduled notification delivery (integration)", () => {
     expect(revealed).toBeDefined();
     const lines = revealed!.split("\n").filter((line) => line.trim() !== "");
 
-    const headwordAt = lines.findIndex((line) => line.includes(headword));
-    const hintAt = lines.findIndex((line) => line.includes(nativeMeaning!));
-    const answerAt = lines.findIndex((line) => line.includes(nativeTranslation!));
-
-    expect(headwordAt).toBe(0);
-    expect(hintAt).toBe(1);
-    expect(answerAt).toBe(2);
+    expect(lines[0]).toContain(headword);
+    expect(lines[1]).toContain(nativeTranslation!);
     expect(revealed).toContain(otherTranslation!);
+
+    // Assert — the keyboard is the translation card's, addressed to this message,
+    // and it says the word is already saved rather than offering to save it twice.
+    const buttons = harness.sent
+      .filter((call) => call.method === "editMessageReplyMarkup")
+      .map((call) => call.payload as { reply_markup?: { inline_keyboard?: Array<Array<{ callback_data?: string }>> } })
+      .at(-1)
+      ?.reply_markup?.inline_keyboard?.flat()
+      .map((button) => button.callback_data);
+
+    expect(buttons).toContain(`tr:clarifypost:${nudgeMsgId}`);
+    expect(buttons).toContain(`tr:altmeaning:${nudgeMsgId}`);
+    expect(buttons).toContain(`tr:save:${nudgeMsgId}`);
+    // None of the nudge's own buttons survive the reveal — the card owns the message now.
+    expect(buttons?.some((data) => data?.startsWith("notif:"))).toBe(false);
     expect(ai.wasCalled()).toBe(false);
+  });
+
+  it("C15: the revealed card's buttons still work — the session entry travels with it", async () => {
+    // The card addresses its own state by message id. Without that entry every
+    // button on the freshly revealed card answers "this card has expired", which
+    // is invisible to any assertion about the card's text.
+    const harness = createBotHarness();
+    const telegramId = uniqueTelegramId();
+    const { headword } = await arrangeTracked(telegramId, { richCard: true });
+    const { sendFn, deps } = await buildDelivery(harness);
+    await checkAndSend(sendFn, deps);
+
+    const delivered = messagesTo(harness.sent, telegramId)[0];
+    const markup = delivered?.payload.reply_markup as { inline_keyboard: Array<Array<{ callback_data?: string }>> };
+    const reveal = markup.inline_keyboard.flat().find((b) => b.callback_data?.startsWith("notif:reveal:"));
+    const nudgeMsgId = 810;
+    await harness.dispatch(
+      callbackQueryUpdate({
+        chatId: telegramId,
+        fromId: telegramId,
+        messageId: nudgeMsgId,
+        data: reveal!.callback_data!,
+      }),
+    );
+
+    // Act — tap Pronounce's neighbour: "save" is the one button that needs no AI
+    // and reports what it found through the toast.
+    harness.reset();
+    await harness.dispatch(
+      callbackQueryUpdate({
+        chatId: telegramId,
+        fromId: telegramId,
+        messageId: nudgeMsgId,
+        data: `tr:save:${nudgeMsgId}`,
+      }),
+    );
+
+    // Assert — the word was recognised as this card's, not answered as expired.
+    const answers = harness.sent
+      .filter((call) => call.method === "answerCallbackQuery")
+      .map((call) => String((call.payload as { text?: string }).text ?? ""));
+    expect(answers.join(" ")).not.toMatch(/expired|устарел/i);
+    expect(headword.length).toBeGreaterThan(0);
   });
 });
 
