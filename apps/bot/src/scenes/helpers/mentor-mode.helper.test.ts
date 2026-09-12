@@ -30,7 +30,6 @@ const { mockUserRepository, mockAi, mockSettings, mockTranslationRequestReposito
     },
     mockTranslationRequestRepository: {
       getUserCreditsInWindow: vi.fn().mockResolvedValue(0),
-      getTranslationCreditsInWindow: vi.fn().mockResolvedValue(0),
       countRequestsInWindow: vi.fn().mockResolvedValue(0),
       logTranslationRequest: vi.fn().mockResolvedValue(1),
     },

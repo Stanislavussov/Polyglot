@@ -139,8 +139,8 @@ interface TrialMessage {
  * column is `NOT NULL` and holds a word on the scheduled-notification path, so a
  * message that is not about a word carries its own source in brackets — the same
  * `[tag]` shape `recordAiUsage` writes into the request ledger, and the shape
- * `getTranslationCreditsInWindow` now discriminates on. Spelled once so the two
- * writers here cannot drift from it.
+ * `recordAiUsage` writes into the request ledger. Spelled once so the two writers
+ * here cannot drift from it.
  */
 function historyOriginal(source: string): string {
   return `[${source}]`;

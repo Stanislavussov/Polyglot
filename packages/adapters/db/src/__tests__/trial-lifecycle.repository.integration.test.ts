@@ -11,9 +11,6 @@
  *   trial as readily as a live one, and must never see another user's.
  * - `hasSentFromSource` is what makes each trial message one-off.
  * - `countEventsSince` is the saved-word count the extension is earned with.
- * - `getTranslationCreditsInWindow` must exclude exactly the tagged rows that are
- *   not translations, or a free user's grammar taps eat the translations the free
- *   tier promises — while a dictionary translation still counts, as it always did.
  * - the grant writes both of a trial's timestamps from one clock, which is what
  *   makes `hasBeenExtended` an exact comparison rather than a race between two
  *   hosts' clocks.
@@ -29,7 +26,6 @@ import { getDb } from "../connection.js";
 import { momentumRepository } from "../repositories/momentum.repository.js";
 import { notificationRepository } from "../repositories/notification.repository.js";
 import { subscriptionRepository } from "../repositories/subscription.repository.js";
-import { translationRequestRepository } from "../repositories/translation-request.repository.js";
 import { userRepository } from "../repositories/user.repository.js";
 import { subscriptions } from "../schema.js";
 
@@ -185,25 +181,5 @@ describe("trial lifecycle queries (integration)", () => {
     });
 
     expect(await momentumRepository.countEventsSince(userId, "save", trialStart)).toBe(3);
-  });
-
-  it("keeps the grammar breakdown out of the monthly allowance, and nothing else", async () => {
-    const userId = await createUser();
-    const windowStart = new Date(Date.now() - DAY_MS);
-
-    await translationRequestRepository.logTranslationRequest(userId, "hello", "en", ["cs"], 1);
-    await translationRequestRepository.logTranslationRequest(userId, "world", "en", ["cs"], 1);
-    // A dictionary translation is a translation: it was billed to the monthly
-    // window before Task 84 and still is. Excluding every `[tagged]` row would
-    // have silently lifted its ceiling from 30/month to 30/day.
-    await translationRequestRepository.logTranslationRequest(userId, "[dictionaryTranslate]", "en", ["cs"], 1);
-    // The grammar breakdown is the one exception — free holds it, and it is
-    // metered by the daily budget instead.
-    await translationRequestRepository.logTranslationRequest(userId, "[grammar]", "en", [], 1);
-
-    // The daily credit budget sees every call…
-    expect(await translationRequestRepository.getUserCreditsInWindow(userId, windowStart)).toBe(4);
-    // …the monthly translation allowance sees all of them but the breakdown.
-    expect(await translationRequestRepository.getTranslationCreditsInWindow(userId, windowStart)).toBe(3);
   });
 });

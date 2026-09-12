@@ -11,7 +11,7 @@ The original proposal was "give a new user every feature free for their first da
 
 **Tier.** "Every feature" hands out the two most expensive calls on the platform (TTS, mentor) to a cohort that has not yet shown it will return, and leaves nothing above the tier the user was just given — there is no upsell left after Pro. Worse, it teaches the user that pronunciation and voice input are part of the product, then takes them away.
 
-**The ending.** This is where resentment actually comes from, and the research is blunt about it: confusing endowment with lock-in earns resentment rather than loyalty. The felt injury is not "the trial ended", it is "the product stopped being usable". Before this task the free tier was 10 translations a month and *no* card features at all — not a smaller product, a landing page. Any trial expiring onto that floor converts into churn no matter how the message is worded.
+**The ending.** This is where resentment actually comes from, and the research is blunt about it: confusing endowment with lock-in earns resentment rather than loyalty. The felt injury is not "the trial ended", it is "the product stopped being usable". Before this task the free tier was 10 translations a month — a landing page rather than a smaller product. Any trial expiring onto that floor converts into churn no matter how the message is worded.
 
 So: a **seven-day Plus** reverse trial, announced honestly at the start, warned about before it ends, earnable by use, landing on a free tier that still works.
 
@@ -23,8 +23,7 @@ Sources consulted: [RevenueCat on trial length](https://www.revenuecat.com/blog/
 |---|---|---|
 | Plan pointer | `plus` | `free` |
 | Length | 7 days from onboarding completion, +3 days once if ≥ 10 words saved | — |
-| Translations | unlimited | 30 / month |
-| Grammar breakdown | ✅ | ✅ (new — was locked) |
+| Translations | unlimited | 30 / month (was 10) |
 | Other meanings / clarify | ✅ | 🔒 |
 | Mentor | ✅ (Plus daily cap) | 🔒 |
 | YouTube video | ✅ | 🔒 (the one onboarding video stays) |
@@ -54,7 +53,7 @@ Nothing new was invented: the trial is a row in the existing `subscriptions` led
 - `apps/bot/src/onboarding/onboarding-screens.ts` — grants at completion, swallowing every failure: the gift may never cost a user their onboarding.
 - `apps/bot/src/subscriptions/trial-lifecycle.wiring.ts` — the daily 10:20 UTC sweep that warns, extends and closes.
 - `apps/admin-api/src/plan-catalog.ts` + `packages/core/src/modules/entitlements/index.ts` — the new free tier, in lockstep (a drift test holds them together).
-- `apps/bot/src/scenes/helpers/card-actions.ts` — the grammar breakdown is now metered against the daily credit budget, because free plans hold it from here on. `ensureAiQuota` gained the internal-role bypass it was missing, which that new call site made visible.
+- `apps/bot/src/utils/ai-quota.ts` — `ensureAiQuota` gained the internal-role bypass it was missing (`ensureMentorDailyQuota` already had one), found while metering a call this task briefly added to the free tier.
 
 ### 3.1 Two cliffs the trial itself would have created
 
@@ -62,7 +61,6 @@ Both are consequences of granting an unmetered week, and both were found by walk
 
 1. **The monthly translation window.** Trial translations land in the same ledger the free plan is billed against, so a heavy trial week would have exhausted the free month before it began. `resolveMeteredWindowStart` rebases the metered month on the trial's end; the daily credit meter is left alone, where the same overlap costs at most the remainder of one day.
 
-   The same ledger produced a second, subtler one: giving free the grammar breakdown put `[grammar]` rows into the sum the monthly *translation* allowance is billed from, so thirty card taps would have eaten thirty translations. `NON_TRANSLATION_LEDGER_TAGS` excludes exactly those rows — a deny-list, not "everything in brackets", because a dictionary translation and a word pick are still billed monthly as they always were, and widening it would have quietly lifted their ceiling from 30/month to 30/day. A drift test in `apps/bot/src/utils/ai-quota.test.ts` forces the next `AiCallType` to make that decision explicitly.
 2. **The one free lifetime video.** The curated starter videos are the empty state of Videos mode, reachable long after onboarding, and their run was charged to the once-per-account giveaway. During a Plus trial the plan already covers the video, so the giveaway is now spent only when the plan has no video allowance at all — otherwise the trial would quietly empty the screen the user meets the week it expires.
 
 ### 3.2 Two bugs this would have shipped on top of
@@ -74,17 +72,11 @@ Both were live before this task and would have silently broken the feature:
 
 ## 4. Rollout
 
-`bootstrapPlanCatalog` is bootstrap-only, so the new free tier reaches **fresh databases only**. Existing environments (prod, dev) need the same two edits on the admin **Rate Limits** page:
-
-- free `translationLimit`: 10 → 30
-- ~~free "Unlocks": tick **grammarBreakdown**~~ — void: the grammar breakdown was removed from
-  the card, so the key unlocks nothing. Free has no card feature until one is chosen to replace it.
-
-Until then a production free user keeps the old floor and the trial still expires onto it.
+`bootstrapPlanCatalog` is bootstrap-only, so the new free tier reaches **fresh databases only**. Existing environments (prod, dev) need one edit on the admin **Rate Limits** page: free `translationLimit` **10 → 30**. Until then a production free user keeps the old floor and the trial still expires onto it.
 
 ## 5. Deliberately not done
 
-- **Per-feature weekly allowances on free** (e.g. 3 clarifications and 1 mentor thread a week). This is the softest possible landing and it was in the original plan, but the plan schema meters exactly two things — a monthly translation count and a daily credit budget — so a weekly per-feature allowance needs a new usage counter (table, repository, gate and admin fields). That is its own task; the free tier shipped here is survivable without it.
+- **Per-feature weekly allowances on free** (e.g. 3 clarifications and 1 mentor thread a week). This is the softest possible landing and it was in the original plan, but the plan schema meters exactly two things — a monthly translation count and a daily credit budget — so a weekly per-feature allowance needs a new usage counter (table, repository, gate and admin fields). That is its own task, and it is now the *only* qualitative thing free could keep: the grammar breakdown was that thing for one week, and then the button left the card (the mentor answers grammar), so free is back to a larger translation allowance and nothing else.
 - **A discount at expiry.** Deliberate: it trains users to wait for the offer, and there is no conversion baseline yet to measure it against.
 - **Transactional paired writes.** `grantOnboardingTrial` (row, then plan pointer) and `expireAndDowngrade` (status, then pointer) each write through two repositories, and the port layer has no cross-repository transaction. The row-first order is the safe one — the reverse could leave a user holding Plus with nothing to expire it — and a failed pointer write now retires its own row (`canceled`), which keeps the gift spent while making both sweeps skip it forever.
 

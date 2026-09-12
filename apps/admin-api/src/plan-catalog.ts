@@ -25,14 +25,13 @@ export interface PlanCatalogEntry {
 // subscriber never approaches a cap, so the heavy user is covered by the many
 // who are not.
 //
-// Free has no card feature left. Task 84 gave it the grammar breakdown so a
-// reverse-trial user did not land on a translate-only tier — the failure mode that
-// turns an expiring trial into churn instead of a purchase — and that feature is
-// gone. What replaces it is an open product decision, not something this seed can
-// invent; `grammarBreakdown` and `grammarDetail` stay in the enum only because
-// deployed plan rows list them, so granting one here would grant nothing.
-const FREE_FEATURES: FeatureKey[] = [];
-const PLUS_FEATURES: FeatureKey[] = ["etymology", "clarification", "mentor"];
+// Free's allowance is what the reverse trial expires onto (Task 84), so it is
+// sized to be a smaller version of the product rather than a wall: 30
+// translations a month, not 10. It holds no card feature — for one week it held
+// the grammar breakdown, and then that button left the card altogether (the
+// mentor answers grammar now), so the tier is back to translation alone.
+const GRAMMAR_FEATURES: FeatureKey[] = ["grammarBreakdown", "etymology", "grammarDetail"];
+const PLUS_FEATURES: FeatureKey[] = [...GRAMMAR_FEATURES, "clarification", "mentor"];
 const PRO_FEATURES: FeatureKey[] = [...PLUS_FEATURES, "pronunciation", "voiceInput"];
 
 export const DEFAULT_PLAN_CATALOG: PlanCatalogEntry[] = [
@@ -47,7 +46,7 @@ export const DEFAULT_PLAN_CATALOG: PlanCatalogEntry[] = [
     priceUsdCents: null,
     isActive: true,
     isDefault: true,
-    features: FREE_FEATURES,
+    features: [],
   },
   {
     name: "plus",

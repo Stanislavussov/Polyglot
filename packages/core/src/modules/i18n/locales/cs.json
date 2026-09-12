@@ -441,10 +441,10 @@
   "recoveryLine": "Vítejte zpět. Všechno je na svém místě.",
   "recoveryDue": "K opakování: {count}.",
   "weeklyProofLine": "Za týden — v dlouhodobé paměti: {mature}, opakování: {reviews}.",
-  "onbTrialGranted": "⭐ Prvních {days} dní máte Plus — pod kartou jsou otevřená všechna tlačítka: další významy, upřesnění, gramatika, mentor, video.\n\nPotom zůstanou překlady a gramatika zdarma. Uložte {words} slov za tento týden a Plus vám vydrží o {extraDays} dny déle.",
-  "trialEndingSoon": "⏳ Váš týden s Plus končí {date}.\n\nUložte {words} slov za tento týden a Plus vám vydrží o {extraDays} dny déle. Jinak se vypnou upřesnění, mentor a video — překlady a gramatika zůstanou zdarma.",
-  "trialEndingFinal": "⏳ Vaše dny s Plus končí {date}.\n\nPotom zůstanou překlady a gramatika zdarma; upřesnění, mentor a video se vypnou.",
+  "onbTrialGranted": "⭐ Prvních {days} dní máte Plus — pod kartou jsou otevřená všechna tlačítka: další významy, upřesnění, mentor, video.\n\nPotom zůstanou překlady zdarma. Uložte {words} slov za tento týden a Plus vám vydrží o {extraDays} dny déle.",
+  "trialEndingSoon": "⏳ Váš týden s Plus končí {date}.\n\nUložte {words} slov za tento týden a Plus vám vydrží o {extraDays} dny déle. Jinak se vypnou upřesnění, mentor a video — překlady zůstanou zdarma.",
+  "trialEndingFinal": "⏳ Vaše dny s Plus končí {date}.\n\nPotom zůstanou překlady zdarma; upřesnění, mentor a video se vypnou.",
   "trialExtended": "🎁 Tento týden bylo uloženo dost slov — Plus vám zůstává o {extraDays} dny déle.\n\nPokračujte, zatím se nic nevypíná.",
-  "trialEnded": "Váš týden s Plus skončil. Uloženo tento týden: {saved} — zůstávají vaše a opakování pokračují.\n\nStále zdarma: překlady a gramatika. Vypnuto: další významy, upřesnění, mentor, video.",
-  "trialEndedEmpty": "Váš týden s Plus skončil.\n\nStále zdarma: překlady a gramatika. Vypnuto: další významy, upřesnění, mentor, video."
+  "trialEnded": "Váš týden s Plus skončil. Uloženo tento týden: {saved} — zůstávají vaše a opakování pokračují.\n\nStále zdarma: překlady. Vypnuto: další významy, upřesnění, mentor, video.",
+  "trialEndedEmpty": "Váš týden s Plus skončil.\n\nStále zdarma: překlady. Vypnuto: další významy, upřesnění, mentor, video."
 }

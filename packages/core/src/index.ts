@@ -76,7 +76,6 @@ export type {
   TranslationRequest,
   TranslationRequestRepository,
 } from "./ports/translation-request.repository.js";
-export { NON_TRANSLATION_LEDGER_TAGS } from "./ports/translation-request.repository.js";
 export type {
   TtsCacheHit,
   TtsCacheKey,

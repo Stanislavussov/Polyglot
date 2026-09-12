@@ -58,12 +58,12 @@ describe("fresh-DB bootstrap (integration)", () => {
       byPlan.set(row.planName, [...(byPlan.get(row.planName) ?? []), row.featureKey]);
     }
     for (const paid of ["plus", "pro", "unlimited"]) {
-      expect(byPlan.get(paid) ?? []).toEqual(expect.arrayContaining(["etymology", "clarification", "mentor"]));
+      expect(byPlan.get(paid) ?? []).toEqual(
+        expect.arrayContaining(["grammarBreakdown", "etymology", "grammarDetail"]),
+      );
     }
-    // Free's one card feature was the grammar breakdown (Task 84) and it no
-    // longer exists, so a fresh database grants free nothing until a replacement
-    // is chosen. Asserted as the exact set, not merely "not paid": seeding a key
-    // that gates nothing would read as a softer landing than free really offers.
+    // The exact free set, not merely "not empty": every premium key is paid, and
+    // free holds none of them.
     expect(byPlan.get("free") ?? []).toEqual([]);
   });
 

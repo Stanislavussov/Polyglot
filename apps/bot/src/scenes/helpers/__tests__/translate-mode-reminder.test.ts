@@ -34,7 +34,6 @@ const {
   },
   mockTranslationRequestRepository: {
     getUserCreditsInWindow: vi.fn().mockResolvedValue(0),
-    getTranslationCreditsInWindow: vi.fn().mockResolvedValue(0),
     logTranslationRequest: vi.fn().mockResolvedValue(1),
   },
   mockLanguageCache: {
@@ -156,7 +155,6 @@ describe("needsTranslateReminder — non-blocking reminder (Task 36)", () => {
       lastSourceLang: null,
     });
     mockTranslationRequestRepository.getUserCreditsInWindow.mockResolvedValue(0);
-    mockTranslationRequestRepository.getTranslationCreditsInWindow.mockResolvedValue(0);
   });
 
   it("clears reminder flag without showing source lang menu (Task 58)", async () => {
