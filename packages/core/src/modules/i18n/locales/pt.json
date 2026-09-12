@@ -443,10 +443,10 @@
   "recoveryLine": "Bem-vindo de volta. Está tudo no sítio.",
   "recoveryDue": "Para rever: {count}.",
   "weeklyProofLine": "Esta semana — na memória de longo prazo: {mature}, revisões: {reviews}.",
-  "onbTrialGranted": "⭐ Tens o Plus nos teus primeiros {days} dias — todos os botões por baixo do cartão estão desbloqueados: outros significados, esclarecer, gramática, mentor, vídeo.\n\nDepois, as traduções e a gramática continuam grátis. Guarda {words} palavras esta semana e o Plus dura mais {extraDays} dias.",
-  "trialEndingSoon": "⏳ A tua semana de Plus termina em {date}.\n\nGuarda {words} palavras esta semana e o Plus dura mais {extraDays} dias. Caso contrário, esclarecer, mentor e vídeo desligam-se — as traduções e a gramática continuam grátis.",
-  "trialEndingFinal": "⏳ Os teus dias de Plus terminam em {date}.\n\nDepois, as traduções e a gramática continuam grátis; esclarecer, mentor e vídeo desligam-se.",
+  "onbTrialGranted": "⭐ Tens o Plus nos teus primeiros {days} dias — todos os botões por baixo do cartão estão desbloqueados: outros significados, esclarecer, mentor, vídeo.\n\nDepois, as traduções continuam grátis. Guarda {words} palavras esta semana e o Plus dura mais {extraDays} dias.",
+  "trialEndingSoon": "⏳ A tua semana de Plus termina em {date}.\n\nGuarda {words} palavras esta semana e o Plus dura mais {extraDays} dias. Caso contrário, esclarecer, mentor e vídeo desligam-se — as traduções continuam grátis.",
+  "trialEndingFinal": "⏳ Os teus dias de Plus terminam em {date}.\n\nDepois, as traduções continuam grátis; esclarecer, mentor e vídeo desligam-se.",
   "trialExtended": "🎁 Guardaste palavras suficientes esta semana — o Plus fica contigo mais {extraDays} dias.\n\nContinua assim, ainda não se desliga nada.",
-  "trialEnded": "A tua semana de Plus terminou. Guardadas esta semana: {saved} — ficam tuas e as revisões continuam.\n\nAinda grátis: traduções e gramática. Desligado: outros significados, esclarecer, mentor, vídeo.",
-  "trialEndedEmpty": "A tua semana de Plus terminou.\n\nAinda grátis: traduções e gramática. Desligado: outros significados, esclarecer, mentor, vídeo."
+  "trialEnded": "A tua semana de Plus terminou. Guardadas esta semana: {saved} — ficam tuas e as revisões continuam.\n\nAinda grátis: traduções. Desligado: outros significados, esclarecer, mentor, vídeo.",
+  "trialEndedEmpty": "A tua semana de Plus terminou.\n\nAinda grátis: traduções. Desligado: outros significados, esclarecer, mentor, vídeo."
 }

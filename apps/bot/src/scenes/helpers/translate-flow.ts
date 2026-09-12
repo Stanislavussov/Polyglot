@@ -87,9 +87,7 @@ import { setTranslationEntry } from "./translation-map.helper.js";
  * Translation quota — a monthly (calendar-UTC) window, distinct from the daily
  * credit meter (`ensureAiQuota`) that governs the other paid AI calls. Free plans
  * allow N translations per calendar month; unlimited plans and admin/tester roles
- * skip the ledger entirely. It counts translations only: the other AI calls share
- * the ledger but are the daily budget's business, so billing them here too would
- * let a free user's grammar taps eat the translations they were promised. Returns the credit cost to log on success, or null
+ * skip the ledger entirely. Returns the credit cost to log on success, or null
  * when the quota is exhausted (after replying with the limit notice + upgrade
  * CTA — the caller must then abort).
  */
@@ -111,7 +109,7 @@ async function ensureTranslationQuota(
     return creditCost;
   }
 
-  const usedCredits = await ctx.services.translationRequestRepository.getTranslationCreditsInWindow(
+  const usedCredits = await ctx.services.translationRequestRepository.getUserCreditsInWindow(
     ctx.user.id,
     await resolveQuotaWindowStart(ctx),
   );

@@ -38,7 +38,6 @@ const {
   },
   mockTranslationRequestRepository: {
     getUserCreditsInWindow: vi.fn().mockResolvedValue(0),
-    getTranslationCreditsInWindow: vi.fn().mockResolvedValue(0),
     logTranslationRequest: vi.fn().mockResolvedValue(1),
   },
   mockRequestTimingRepository: {
@@ -220,7 +219,6 @@ describe("handleTranslateText — context enrichment", () => {
       learningLangs: ["cs", "de"],
     });
     mockTranslationRequestRepository.getUserCreditsInWindow.mockResolvedValue(0);
-    mockTranslationRequestRepository.getTranslationCreditsInWindow.mockResolvedValue(0);
   });
 
   it("calls translateWithContext with correct input and deps", async () => {
@@ -259,9 +257,7 @@ describe("handleTranslateText — context enrichment", () => {
   });
 
   it("does not call AI when the monthly translation limit is exhausted", async () => {
-    // The monthly gate reads the translations-only sum; the all-inclusive one is
-    // the daily credit meter's.
-    mockTranslationRequestRepository.getTranslationCreditsInWindow.mockResolvedValue(50);
+    mockTranslationRequestRepository.getUserCreditsInWindow.mockResolvedValue(50);
     const ctx = createMockCtx();
 
     await handleTranslateText(ctx, "hello");

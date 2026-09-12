@@ -443,10 +443,10 @@
   "recoveryLine": "Bon retour. Tout est là où tu l'as laissé.",
   "recoveryDue": "À réviser : {count}.",
   "weeklyProofLine": "Cette semaine — en mémoire à long terme : {mature}, révisions : {reviews}.",
-  "onbTrialGranted": "⭐ Plus est activé pour tes {days} premiers jours — tous les boutons sous la carte sont ouverts : autres sens, préciser, grammaire, mentor, vidéo.\n\nAprès ça, les traductions et la grammaire restent gratuites. Enregistre {words} mots cette semaine et Plus dure {extraDays} jours de plus.",
-  "trialEndingSoon": "⏳ Ta semaine Plus se termine le {date}.\n\nEnregistre {words} mots cette semaine et Plus dure {extraDays} jours de plus. Sinon, préciser, mentor et vidéo se désactivent — les traductions et la grammaire restent gratuites.",
-  "trialEndingFinal": "⏳ Tes jours Plus se terminent le {date}.\n\nAprès ça, les traductions et la grammaire restent gratuites ; préciser, mentor et vidéo se désactivent.",
+  "onbTrialGranted": "⭐ Plus est activé pour tes {days} premiers jours — tous les boutons sous la carte sont ouverts : autres sens, préciser, mentor, vidéo.\n\nAprès ça, les traductions restent gratuites. Enregistre {words} mots cette semaine et Plus dure {extraDays} jours de plus.",
+  "trialEndingSoon": "⏳ Ta semaine Plus se termine le {date}.\n\nEnregistre {words} mots cette semaine et Plus dure {extraDays} jours de plus. Sinon, préciser, mentor et vidéo se désactivent — les traductions restent gratuites.",
+  "trialEndingFinal": "⏳ Tes jours Plus se terminent le {date}.\n\nAprès ça, les traductions restent gratuites ; préciser, mentor et vidéo se désactivent.",
   "trialExtended": "🎁 Tu as enregistré assez de mots cette semaine — Plus reste avec toi {extraDays} jours de plus.\n\nContinue, rien ne se désactive encore.",
-  "trialEnded": "Ta semaine Plus est terminée. Enregistrés cette semaine : {saved} — ils restent à toi, et les révisions continuent.\n\nToujours gratuit : traductions et grammaire. Désactivé : autres sens, préciser, mentor, vidéo.",
-  "trialEndedEmpty": "Ta semaine Plus est terminée.\n\nToujours gratuit : traductions et grammaire. Désactivé : autres sens, préciser, mentor, vidéo."
+  "trialEnded": "Ta semaine Plus est terminée. Enregistrés cette semaine : {saved} — ils restent à toi, et les révisions continuent.\n\nToujours gratuit : traductions. Désactivé : autres sens, préciser, mentor, vidéo.",
+  "trialEndedEmpty": "Ta semaine Plus est terminée.\n\nToujours gratuit : traductions. Désactivé : autres sens, préciser, mentor, vidéo."
 }

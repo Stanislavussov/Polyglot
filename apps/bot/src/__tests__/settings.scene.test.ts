@@ -30,7 +30,6 @@ const { mockLogger, mockUserRepository, mockLanguageCache, mockTranslationReques
     mockLanguageCache: mockLC,
     mockTranslationRequestRepository: {
       getUserCreditsInWindow: vi.fn().mockResolvedValue(10),
-      getTranslationCreditsInWindow: vi.fn().mockResolvedValue(10),
     },
   };
 });

@@ -1,4 +1,3 @@
-import { NON_TRANSLATION_LEDGER_TAGS } from "@polyglot/core";
 import { describe, expect, it, vi } from "vitest";
 import type { BotContext } from "../types.js";
 import { AI_CALL_WEIGHTS, type AiCallType, ensureAiQuota, recordAiUsage } from "./ai-quota.js";
@@ -70,36 +69,5 @@ describe("recordAiUsage (T16)", () => {
     await recordAiUsage(ctx, "mentor" as AiCallType, 2, "cs", ["en"]);
 
     expect(logTranslationRequest).toHaveBeenCalledWith(1, "[mentor]", "cs", ["en"], 2);
-  });
-});
-
-describe("which paid AI calls the monthly translation allowance bills", () => {
-  /**
-   * Every paid AI call writes a `[callType]` row into the shared ledger, and the
-   * monthly translation allowance bills all of them except the ones listed in
-   * `NON_TRANSLATION_LEDGER_TAGS`. That list is a deny-list on purpose: widening
-   * it to "everything bracketed" would quietly lift the monthly ceiling off the
-   * dictionary translation and the word picker, which free users reach.
-   *
-   * The map below is the decision, one entry per call type — a new `AiCallType`
-   * fails the last assertion until its author makes that decision explicitly.
-   */
-  const billedToTheMonthlyAllowance: Record<AiCallType, boolean> = {
-    translate: true,
-    dictionaryTranslate: true,
-    wordPick: true,
-    mentor: true,
-    video: true,
-    etymology: true,
-  };
-
-  it("has a decision recorded for every call type", () => {
-    expect(Object.keys(billedToTheMonthlyAllowance).sort()).toEqual(Object.keys(AI_CALL_WEIGHTS).sort());
-  });
-
-  it("excludes exactly the call types that are not translations", () => {
-    for (const [callType, billed] of Object.entries(billedToTheMonthlyAllowance)) {
-      expect(NON_TRANSLATION_LEDGER_TAGS.includes(`[${callType}]`)).toBe(!billed);
-    }
   });
 });

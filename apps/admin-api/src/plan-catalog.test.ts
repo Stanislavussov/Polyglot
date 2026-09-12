@@ -29,12 +29,12 @@ describe("plan catalog drift guards", () => {
   });
 
   it("ships the free tier a reverse trial can expire onto", () => {
-    // Pinned deliberately, unlike the other plans' knobs: these two numbers are
-    // what an expiring trial lands on, and the drift guard above only proves the
-    // catalog and the fallback agree — a typo in both would pass it.
+    // Pinned deliberately, unlike the other plans' knobs: this is what an
+    // expiring trial lands on, and the drift guard above only proves the catalog
+    // and the fallback agree — a typo in both would pass it.
     const free = DEFAULT_PLAN_CATALOG.find((plan) => plan.name === "free");
     expect(free?.translationLimit).toBe(30);
-    expect(free?.features).toEqual(["grammarBreakdown"]);
+    expect(free?.features).toEqual([]);
   });
 
   it("every catalog entry passes the same contract the admin panel submits with", () => {

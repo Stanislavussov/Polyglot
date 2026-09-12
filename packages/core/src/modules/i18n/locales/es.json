@@ -443,10 +443,10 @@
   "recoveryLine": "Bienvenido de nuevo. Todo sigue en su sitio.",
   "recoveryDue": "Para repasar: {count}.",
   "weeklyProofLine": "Esta semana — en memoria a largo plazo: {mature}, repasos: {reviews}.",
-  "onbTrialGranted": "⭐ Tienes Plus tus primeros {days} días: todos los botones de la tarjeta están desbloqueados — otros significados, precisar, gramática, mentor, vídeo.\n\nDespués las traducciones y la gramática siguen siendo gratis. Guarda {words} palabras esta semana y Plus dura {extraDays} días más.",
-  "trialEndingSoon": "⏳ Tu semana de Plus termina el {date}.\n\nGuarda {words} palabras esta semana y Plus dura {extraDays} días más. Si no, precisar, mentor y vídeo se desactivan — las traducciones y la gramática siguen siendo gratis.",
-  "trialEndingFinal": "⏳ Tus días de Plus terminan el {date}.\n\nDespués las traducciones y la gramática siguen siendo gratis; precisar, mentor y vídeo se desactivan.",
+  "onbTrialGranted": "⭐ Tienes Plus tus primeros {days} días: todos los botones de la tarjeta están desbloqueados — otros significados, precisar, mentor, vídeo.\n\nDespués las traducciones siguen siendo gratis. Guarda {words} palabras esta semana y Plus dura {extraDays} días más.",
+  "trialEndingSoon": "⏳ Tu semana de Plus termina el {date}.\n\nGuarda {words} palabras esta semana y Plus dura {extraDays} días más. Si no, precisar, mentor y vídeo se desactivan — las traducciones siguen siendo gratis.",
+  "trialEndingFinal": "⏳ Tus días de Plus terminan el {date}.\n\nDespués las traducciones siguen siendo gratis; precisar, mentor y vídeo se desactivan.",
   "trialExtended": "🎁 Has guardado suficientes palabras esta semana — Plus se queda contigo {extraDays} días más.\n\nSigue así, todavía no se desactiva nada.",
-  "trialEnded": "Tu semana de Plus terminó. Guardadas esta semana: {saved} — siguen siendo tuyas y los repasos continúan.\n\nSigue gratis: traducciones y gramática. Desactivado: otros significados, precisar, mentor, vídeo.",
-  "trialEndedEmpty": "Tu semana de Plus terminó.\n\nSigue gratis: traducciones y gramática. Desactivado: otros significados, precisar, mentor, vídeo."
+  "trialEnded": "Tu semana de Plus terminó. Guardadas esta semana: {saved} — siguen siendo tuyas y los repasos continúan.\n\nSigue gratis: traducciones. Desactivado: otros significados, precisar, mentor, vídeo.",
+  "trialEndedEmpty": "Tu semana de Plus terminó.\n\nSigue gratis: traducciones. Desactivado: otros significados, precisar, mentor, vídeo."
 }

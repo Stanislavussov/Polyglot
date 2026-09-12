@@ -62,11 +62,9 @@ describe("fresh-DB bootstrap (integration)", () => {
         expect.arrayContaining(["grammarBreakdown", "etymology", "grammarDetail"]),
       );
     }
-    // Free holds the grammar breakdown since Task 84 — it is the tier a trial
-    // expires onto, and a tier that can only translate makes that landing a
-    // punishment. Everything that costs a second AI pass stays paid, which is
-    // what this asserts: the exact free set, not merely "not empty".
-    expect(byPlan.get("free") ?? []).toEqual(["grammarBreakdown"]);
+    // The exact free set, not merely "not empty": every premium key is paid, and
+    // free holds none of them.
+    expect(byPlan.get("free") ?? []).toEqual([]);
   });
 
   it("bootstrap seed left a resolvable default AI model", async () => {

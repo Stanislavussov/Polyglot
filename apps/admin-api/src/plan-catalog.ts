@@ -25,14 +25,12 @@ export interface PlanCatalogEntry {
 // subscriber never approaches a cap, so the heavy user is covered by the many
 // who are not.
 //
-// Free keeps the grammar breakdown (Task 84). It is the tier a reverse-trial
-// user lands on after their first week, and a tier that can only translate makes
-// that landing feel like a punishment rather than a smaller version of the
-// product — which is the failure mode that turns an expiring trial into churn
-// instead of a purchase. The call it can trigger is metered against the free
-// daily credit budget, so the giveaway is bounded.
+// Free's allowance is what the reverse trial expires onto (Task 84), so it is
+// sized to be a smaller version of the product rather than a wall: 30
+// translations a month, not 10. It holds no card feature — for one week it held
+// the grammar breakdown, and then that button left the card altogether (the
+// mentor answers grammar now), so the tier is back to translation alone.
 const GRAMMAR_FEATURES: FeatureKey[] = ["grammarBreakdown", "etymology", "grammarDetail"];
-const FREE_FEATURES: FeatureKey[] = ["grammarBreakdown"];
 const PLUS_FEATURES: FeatureKey[] = [...GRAMMAR_FEATURES, "clarification", "mentor"];
 const PRO_FEATURES: FeatureKey[] = [...PLUS_FEATURES, "pronunciation", "voiceInput"];
 
@@ -48,7 +46,7 @@ export const DEFAULT_PLAN_CATALOG: PlanCatalogEntry[] = [
     priceUsdCents: null,
     isActive: true,
     isDefault: true,
-    features: FREE_FEATURES,
+    features: [],
   },
   {
     name: "plus",
