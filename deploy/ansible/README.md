@@ -42,13 +42,14 @@ export ACME_EMAIL=ops@example.com
 ansible-playbook site.yml
 ```
 
-Or load the same values from the repository `.env` file:
+Or load the same values from a repository env file:
 
 ```bash
-./scripts/run-ansible.sh
+pnpm ansible        # sources .env.prod
+pnpm ansible:dev    # sources .env.dev (POLYGLOT_ENV=dev)
 ```
 
-The script exports values from `.env`, expands `~` in `VPS_SSH_KEY`, validates the private key path, and uses `${VPS_SSH_KEY}.pub` as `DEPLOY_USER_SSH_KEY` when that variable is empty.
+The script exports values from `.env.prod` / `.env.dev`, expands `~` in `VPS_SSH_KEY`, validates the private key path, and uses `${VPS_SSH_KEY}.pub` as `DEPLOY_USER_SSH_KEY` when that variable is empty.
 
 If the SSH user needs a sudo password, pass Ansible flags through the script:
 

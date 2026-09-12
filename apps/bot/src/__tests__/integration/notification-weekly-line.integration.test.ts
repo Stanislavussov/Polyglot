@@ -30,12 +30,7 @@
  * which tests the picker, not the rule. The first leg goes through the real batch
  * so the wiring from `checkAndSend` to the footer is proven end to end.
  */
-import {
-  momentumRepository,
-  notificationRepository,
-  systemSettingsRepository,
-  userRepository,
-} from "@polyglot/adapter-db";
+import { momentumRepository, notificationRepository, systemSettingsRepository } from "@polyglot/adapter-db";
 import { checkAndSend, type NotificationPayload, type SchedulerDeps } from "@polyglot/adapter-notifications";
 import { type GenerateObjectFn, type MotivationConfig, t } from "@polyglot/core";
 import { afterEach, describe, expect, it } from "vitest";
@@ -45,7 +40,6 @@ import { arrangeNotifiableUser, type NotifiableUser } from "../../test-helpers/i
 import type { BotHarness, CapturedCall } from "../../test-helpers/integration/bot-harness.js";
 import { createBotHarness } from "../../test-helpers/integration/bot-harness.js";
 import { uniqueTelegramId } from "../../test-helpers/integration/id-factory.js";
-import { languageOrderFromSettings } from "../../utils/language-order.js";
 
 /** This file's own slot — see the header. Nothing else in the repo configures 15:00. */
 const WEEKLY_SLOT_UTC = { hour: 15, minute: 0 } as const;
@@ -175,10 +169,9 @@ describe("weekly proof line in a scheduled notification (integration)", () => {
     const telegramId = uniqueTelegramId();
     const { userId, headword } = await arrangeSubscriber(telegramId);
 
-    const settings = await userRepository.getSettings(userId);
     const payload = payloadFor(headword);
     /** The exact card this payload renders with no footer — the comparison a suppressed line must match. */
-    const bare = formatNotificationMessage(payload, "en", languageOrderFromSettings(settings));
+    const bare = formatNotificationMessage(payload, "en");
 
     const base = new Date();
     let clock = base;
@@ -231,7 +224,6 @@ describe("weekly proof line in a scheduled notification (integration)", () => {
     const telegramId = uniqueTelegramId();
     const { userId, headword } = await arrangeSubscriber(telegramId);
 
-    const settings = await userRepository.getSettings(userId);
     const payload = payloadFor(headword);
 
     await withMotivation(MOTIVATION_ON, async () => {
@@ -239,9 +231,7 @@ describe("weekly proof line in a scheduled notification (integration)", () => {
       harness.reset();
       await sendFn(userId, payload);
 
-      expect(textOf(messagesTo(harness.sent, telegramId)[0]!)).toBe(
-        formatNotificationMessage(payload, "en", languageOrderFromSettings(settings)),
-      );
+      expect(textOf(messagesTo(harness.sent, telegramId)[0]!)).toBe(formatNotificationMessage(payload, "en"));
     });
 
     expect(await momentumRepository.countEventsSince(userId, "weekly_proof", new Date(0))).toBe(0);
@@ -256,7 +246,6 @@ describe("weekly proof line in a scheduled notification (integration)", () => {
     await seedMomentum(userId, "mature", 2, new Date(), "w3");
     await seedMomentum(userId, "review", 5, new Date(), "w3");
 
-    const settings = await userRepository.getSettings(userId);
     const payload = payloadFor(headword);
 
     await withMotivation(MOTIVATION_OFF, async () => {
@@ -266,7 +255,7 @@ describe("weekly proof line in a scheduled notification (integration)", () => {
 
       const mine = messagesTo(harness.sent, telegramId);
       expect(mine).toHaveLength(1);
-      expect(textOf(mine[0]!)).toBe(formatNotificationMessage(payload, "en", languageOrderFromSettings(settings)));
+      expect(textOf(mine[0]!)).toBe(formatNotificationMessage(payload, "en"));
     });
 
     // And the switch being off must not quietly consume the week either.
@@ -333,7 +322,6 @@ describe("weekly proof line in a scheduled notification (integration)", () => {
     await seedMomentum(userId, "mature", 2, new Date(), "w6");
     await seedMomentum(userId, "review", 5, new Date(), "w6");
 
-    const settings = await userRepository.getSettings(userId);
     const payload = payloadFor(headword);
 
     await withMotivation(MOTIVATION_NOT_RECORDING, async () => {
@@ -343,7 +331,7 @@ describe("weekly proof line in a scheduled notification (integration)", () => {
 
       const mine = messagesTo(harness.sent, telegramId);
       expect(mine).toHaveLength(1);
-      expect(textOf(mine[0]!)).toBe(formatNotificationMessage(payload, "en", languageOrderFromSettings(settings)));
+      expect(textOf(mine[0]!)).toBe(formatNotificationMessage(payload, "en"));
     });
 
     expect(await momentumRepository.countEventsSince(userId, "weekly_proof", new Date(0))).toBe(0);

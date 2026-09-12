@@ -183,7 +183,8 @@ describe("buildSettingsText", () => {
   it("shows enabled status with time and type", () => {
     const text = buildSettingsText("en", ["cs"], "en", "en", true, ["08:00"], "srs");
     expect(text).toContain("08:00");
-    expect(text).toContain("srs");
+    expect(text).toContain("Dictionary (SRS)");
+    expect(text).not.toContain("srs,");
   });
 });
 
@@ -209,7 +210,7 @@ describe("buildNotifSubText", () => {
   it("shows all notification details", () => {
     const text = buildNotifSubText("en", true, ["08:00"], "srs", "Europe/Prague", null);
     expect(text).toContain("08:00");
-    expect(text).toContain("srs");
+    expect(text).toContain("Dictionary (SRS)");
     expect(text).toContain("Europe/Prague");
   });
 

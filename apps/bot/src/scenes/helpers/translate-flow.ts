@@ -52,18 +52,18 @@ import { getRequestSettings } from "../../middlewares/request-settings.js";
 import { recordEffort } from "../../momentum/momentum.wiring.js";
 import { resolvePraiseLine } from "../../momentum/praise.footer.js";
 import { commitRecovery, resolveRecoveryPrefix } from "../../momentum/recovery.helper.js";
-import {
-  buildTranslationKeyboard,
-  renderSentenceTranslation,
-  renderTranslation,
-} from "../../renderers/translation.renderer.js";
+import { trackProductEvent } from "../../observability/product-events.js";
+import { renderSentenceTranslation, renderTranslation } from "../../renderers/translation.renderer.js";
 import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
 import { classifyInput } from "../../utils/classify-input.js";
 import { resolveLanguageOrder } from "../../utils/language-order.js";
 import {
+  dismissLoader,
   isUserFacingTimeout,
   LONG_OP_TIMEOUT_MS,
+  type Loader,
+  sendLoader,
   sendTypingIndicator,
   startTypingKeepalive,
   TRANSLATION_BUDGET_MS,
@@ -72,15 +72,13 @@ import {
 import { parseTranslateInput } from "../../utils/parse-translate-input.js";
 import { encodeTranslateRetryText, replyWithRetry } from "../../utils/retry-action.js";
 import { validateTranslatableText } from "../../utils/validate-text-input.js";
-import { resolveLockedFeatures } from "./paid-feature.helper.js";
+import { buildCardKeyboard } from "./card-keyboard.js";
 import { answerStaleCallback } from "./stale-callback.helper.js";
 import { buildUpgradeKeyboard } from "./subscription.helper.js";
 import {
   clearPendingClarification,
   getUserLanguageGroup,
-  isEtymologyEligible,
   normalizeLearningLangs,
-  resolvePronounceLangs,
   showAddLanguagePrompt,
 } from "./translate-mode.shared.js";
 import { setTranslationEntry } from "./translation-map.helper.js";
@@ -118,6 +116,7 @@ async function ensureTranslationQuota(
     await resolveQuotaWindowStart(ctx),
   );
   if (usedCredits + creditCost > entitlements.translationsPerMonth) {
+    trackProductEvent(ctx, "limit.reached", "translation");
     await ctx.reply(t("rateLimitExceeded", lang), { reply_markup: buildUpgradeKeyboard(lang) });
     return null;
   }
@@ -680,7 +679,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
   });
 
   // Show loading message
-  const loadingMsg = await ctx.reply(t("translating", lang));
+  const loader = await sendLoader(ctx, "translate", lang, learningLangs);
 
   await runTranslationPipeline(ctx, {
     word: cleanWord,
@@ -692,7 +691,7 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
     creditCost,
     classification,
     isSentence,
-    loadingMsg,
+    loader,
     learningLangs,
     contextHint,
     detectionConfidence: detection.confidence,
@@ -704,9 +703,10 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
 }
 
 /**
- * Whether the translated headword already exists in the user's default
- * dictionary. Shared by both translation entry points (T22/B2) — identical FK
- * resolution + duplicate lookup that was previously copied per handler.
+ * The default-dictionary entry id the translated headword already occupies, or
+ * undefined when the word is not banked yet. The id — not a bare boolean — is what
+ * the card's session entry carries, so every later redraw of the card knows it is
+ * a saved word.
  *
  * The two SELECTs below are DATA-DEPENDENT and must stay sequential: the row
  * returned by `findByOriginalAndSource` supplies the `existing.id` that
@@ -714,19 +714,17 @@ export async function handleTranslateText(ctx: BotContext, word: string): Promis
  * query must not run at all). They look like an obvious `Promise.all` candidate
  * — they are not.
  */
-async function resolveIsAlreadySaved(ctx: BotContext, output: TranslateOutput, isSentence: boolean): Promise<boolean> {
+async function resolveSavedWordId(ctx: BotContext, output: TranslateOutput): Promise<number | undefined> {
   const sourceLangEntry = ctx.services.languageCache.getLang(output.sourceLang);
-  const existing =
-    sourceLangEntry && !isSentence
-      ? await ctx.services.vocabularyRepository.findByOriginalAndSource(
-          ctx.user.id,
-          output.original,
-          sourceLangEntry.id,
-        )
-      : null;
-  return existing
-    ? await ctx.services.vocabularyDictionaryRepository.entryBelongsToDefault(ctx.user.id, existing.id)
-    : false;
+  const existing = sourceLangEntry
+    ? await ctx.services.vocabularyRepository.findByOriginalAndSource(ctx.user.id, output.original, sourceLangEntry.id)
+    : null;
+  if (!existing) return undefined;
+  const belongsToDefault = await ctx.services.vocabularyDictionaryRepository.entryBelongsToDefault(
+    ctx.user.id,
+    existing.id,
+  );
+  return belongsToDefault ? existing.id : undefined;
 }
 
 /**
@@ -748,7 +746,8 @@ async function sendTranslationCard(
     isSentence: boolean;
     inputType: InputType;
     effectiveTemplate: ReturnType<typeof resolveTemplate>;
-    isAlreadySaved: boolean;
+    /** Dictionary entry id when the word is already banked — drives the ✅ Saved button. */
+    savedWordId?: number;
     contextHint?: string;
     /** Main flow only: prefixes a "detected language" banner when it differs from native. */
     detectedLang?: string;
@@ -758,7 +757,7 @@ async function sendTranslationCard(
     withInlineGrammar: boolean;
   },
 ): Promise<void> {
-  const { output, lang, nativeLang, needsReview, isSentence, inputType, effectiveTemplate, isAlreadySaved } = opts;
+  const { output, lang, nativeLang, needsReview, isSentence, inputType, effectiveTemplate, savedWordId } = opts;
 
   ctx.session.pendingTranslation = output;
 
@@ -788,22 +787,19 @@ async function sendTranslationCard(
   // Only after the send resolved: a failed delivery must not burn the one-shot.
   if (recovery) await commitRecovery(ctx, recovery.gapDays, now);
 
-  const showGrammarButton =
-    inputType !== "word" && (inputType === "sentence" || !effectiveTemplate.fields.grammarBreakdown);
   const hasInlineGrammar =
     opts.withInlineGrammar &&
     inputType === "phrase" &&
     effectiveTemplate.fields.grammarBreakdown &&
     hasGrammarBreakdownData(output);
-  const showEtymologyButton = isEtymologyEligible(inputType, output.sourceLang, nativeLang);
 
   // Doubtful-source override: offer the user's other languages (native + learning,
   // minus the guessed source) as forced-source retranslation choices. Only when the
   // detector fell back to a guess — rare by construction.
   const sourceOverrideLangs = opts.sourceLanguageDoubtful
     ? getUserLanguageGroup(nativeLang, opts.learningLangs).filter((code) => code !== output.sourceLang)
-    : undefined;
-  if (sourceOverrideLangs && sourceOverrideLangs.length > 0) {
+    : [];
+  if (sourceOverrideLangs.length > 0) {
     ctx.services.languageDetectionRepository
       .record({
         userId: ctx.user.id,
@@ -816,30 +812,25 @@ async function sendTranslationCard(
       });
   }
 
-  const pronounceLangs = await resolvePronounceLangs(ctx, output, inputType, order);
-
-  const keyboard = buildTranslationKeyboard({
-    interfaceLang: lang,
-    msgId: cardMsg.message_id,
-    isAlreadySaved,
-    showGrammarButton,
-    showGrammarDetailButton: hasInlineGrammar,
-    showEtymologyButton,
-    sourceOverrideLangs,
-    pronounceLangs,
-    locked: await resolveLockedFeatures(ctx),
-  });
-  await ctx.api.editMessageReplyMarkup(ctx.chat!.id, cardMsg.message_id, { reply_markup: keyboard });
-
   ctx.session.pendingCardMsgId = cardMsg.message_id;
 
+  // The card's state is written before its keyboard is built, and the keyboard is
+  // then derived from that state — the same path every later rebuild takes. A
+  // fresh card and a re-rendered one therefore cannot disagree about which
+  // buttons the card has.
   const inlineBreakdown = hasInlineGrammar ? collectGrammarBreakdown(output) : undefined;
   setTranslationEntry(ctx.session, cardMsg.message_id, {
     output,
     inputType,
     contextHint: opts.contextHint,
     grammarBreakdown: inlineBreakdown,
+    sourceOverrideLangs,
+    savedWordId,
   });
+
+  const entry = ctx.session.translationMap![String(cardMsg.message_id)]!;
+  const keyboard = await buildCardKeyboard(ctx, entry, cardMsg.message_id, lang, nativeLang);
+  await ctx.api.editMessageReplyMarkup(ctx.chat!.id, cardMsg.message_id, { reply_markup: keyboard });
 }
 
 /**
@@ -866,7 +857,7 @@ async function runTranslationPipeline(
     creditCost: number;
     classification: ReturnType<typeof classifyInput>;
     isSentence: boolean;
-    loadingMsg: { message_id: number };
+    loader: Loader;
     learningLangs: string[];
     contextHint?: string;
     /** Main flow passes the detector's confidence; the mistype flow omits it. */
@@ -898,7 +889,7 @@ async function runTranslationPipeline(
     creditCost,
     classification,
     isSentence,
-    loadingMsg,
+    loader,
     learningLangs,
     contextHint,
     detectionConfidence,
@@ -1002,7 +993,7 @@ async function runTranslationPipeline(
     const postAiStart = Date.now();
 
     if (decision.status === "needs_clarification") {
-      await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
+      await dismissLoader(ctx, loader);
 
       // A Task 70 "unrecognized word" whose correction is actually in an
       // unstudied supported language (same-script coercion, e.g. "кыздарай" →
@@ -1093,9 +1084,9 @@ async function runTranslationPipeline(
     }
 
     // Delete loading message
-    await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
+    await dismissLoader(ctx, loader);
 
-    const isAlreadySaved = await resolveIsAlreadySaved(ctx, output, isSentence);
+    const savedWordId = await resolveSavedWordId(ctx, output);
 
     await sendTranslationCard(ctx, {
       output,
@@ -1106,7 +1097,7 @@ async function runTranslationPipeline(
       isSentence,
       inputType: classification.type,
       effectiveTemplate,
-      isAlreadySaved,
+      savedWordId,
       contextHint,
       detectedLang,
       sourceLanguageDoubtful,
@@ -1156,7 +1147,7 @@ async function runTranslationPipeline(
         });
     }
 
-    await ctx.api.deleteMessage(ctx.chat!.id, loadingMsg.message_id).catch(() => {});
+    await dismissLoader(ctx, loader);
 
     // A timeout is transient — the same input usually succeeds on a second
     // attempt — so the notice carries a one-tap retry instead of asking the user
@@ -1170,6 +1161,8 @@ async function runTranslationPipeline(
       return;
     }
     await ctx.reply(t("translationError", lang));
+  } finally {
+    loader.stop();
   }
 }
 
@@ -1244,7 +1237,8 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
   }
 
   // Show loading message
-  const loadingMsg = await ctx.reply(t("translating", lang));
+  const learningLangs = normalizeLearningLangs(nativeLang, settings?.learningLangs ?? []);
+  const loader = await sendLoader(ctx, "translate", lang, learningLangs);
 
   await runTranslationPipeline(ctx, {
     word: pendingWord,
@@ -1256,8 +1250,8 @@ export async function handleMistypeConfirmCallback(ctx: BotContext): Promise<voi
     creditCost,
     classification,
     isSentence,
-    loadingMsg,
-    learningLangs: normalizeLearningLangs(nativeLang, settings?.learningLangs ?? []),
+    loader,
+    learningLangs,
     contextHint: pendingContextHint,
     // The user already confirmed the language / chose a correction (or "translate
     // as written") — never re-ask, and never offer inline grammar on this path.

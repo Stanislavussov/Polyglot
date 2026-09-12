@@ -139,6 +139,9 @@ export function createServicesStub(overrides: Partial<ServiceContainer> = {}): S
     onboardingDemoCardRepository: autoMockObject<ServiceContainer["onboardingDemoCardRepository"]>(),
     translationRequestRepository: autoMockObject<ServiceContainer["translationRequestRepository"]>(),
     languageDetectionRepository: autoMockObject<ServiceContainer["languageDetectionRepository"]>(),
+    // Not an `autoMockObject`: `trackProductEvent` chains `.catch` on the returned
+    // promise, and a bare `vi.fn()` returning `undefined` would throw there.
+    productEventRepository: { record: vi.fn().mockResolvedValue(undefined) },
     requestTimingRepository: autoMockObject<ServiceContainer["requestTimingRepository"]>(),
     reportedIssueRepository: autoMockObject<ServiceContainer["reportedIssueRepository"]>(),
     languageCache: autoMockObject<ServiceContainer["languageCache"]>(),

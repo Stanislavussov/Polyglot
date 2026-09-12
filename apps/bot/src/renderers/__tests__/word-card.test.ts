@@ -11,7 +11,7 @@ import { describe, expect, it, vi } from "vitest";
 // runtime; both renderers read it through the same helper.
 vi.mock("@polyglot/core", async () => {
   const actual = await vi.importActual<typeof import("@polyglot/core")>("@polyglot/core");
-  const flags: Record<string, string> = { de: "🇩🇪", en: "🇬🇧", ru: "🇷🇺" };
+  const flags: Record<string, string> = { cs: "🇨🇿", de: "🇩🇪", en: "🇬🇧", ru: "🇷🇺" };
   return { ...actual, getLangFlag: (code: string) => flags[code] };
 });
 
@@ -158,18 +158,17 @@ describe("renderWordCard — stored prose", () => {
     );
 
     expect(card).toContain(
-      "<blockquote expandable>💬 <i>Ich suche Arbeit.</i> (Я ищу работу.)\n💡 Работа, труд.\n💡 Жилое здание.</blockquote>",
+      "<blockquote expandable>💬 <i>Ich suche Arbeit.</i> (Я ищу работу.)\n💡 Работа, труд.</blockquote>",
     );
     // The answer comes before the prose, never after it.
-    expect(card.indexOf("<b>дом</b>")).toBeLessThan(card.indexOf("Жилое здание."));
+    expect(card.indexOf("<b>дом</b>")).toBeLessThan(card.indexOf("Работа, труд."));
   });
 
   it("keeps the prose visible when the card carries no answer — there it IS the answer", () => {
     const card = renderWordCard({ ...withProse, langs: [], nativeLang: "ru" }, "ru");
 
-    expect(card).toContain("🇷🇺 RU: Работа, труд.");
-    expect(card).toContain("🇷🇺 RU: Жилое здание.");
-    expect(card).not.toContain("💡 Жилое здание.");
+    expect(card).toContain("💡 Работа, труд.");
+    expect(card).not.toContain("<blockquote expandable>💡 Работа, труд.");
   });
 
   it("folds the prose for a word already in the reader's own language", () => {
@@ -181,16 +180,75 @@ describe("renderWordCard — stored prose", () => {
     );
 
     expect(card).toContain(
-      "<blockquote expandable>💬 <i>Ich suche Arbeit.</i> (Я ищу работу.)\n💡 Работа, труд.\n💡 Жилое здание.</blockquote>",
+      "<blockquote expandable>💬 <i>Ich suche Arbeit.</i> (Я ищу работу.)\n💡 Работа, труд.</blockquote>",
     );
-    expect(card).not.toContain("🇷🇺 RU: Жилое здание.");
   });
 
-  it("renders visible prose unlabelled when the reader's language is unknown", () => {
+  it("falls back to the stored gloss when no explanation was saved", () => {
     const card = renderWordCard({ ...withProse, sourceUsage: null, langs: [] }, "ru");
     const lines = card.split("\n").filter((line) => line.trim() !== "");
 
-    expect(lines[1]).toBe("Жилое здание.");
+    expect(lines[1]).toBe("💡 Жилое здание.");
+  });
+});
+
+/**
+ * The reported card: an entry whose translations no longer include the reader's
+ * own language — the row was never saved, or the native language changed after
+ * the save. The answer block is absent, so the stored prose is all the meaning
+ * the card has, and everything about how it is presented matters.
+ *
+ * What the chat showed: two near-duplicate paragraphs, each prefixed `🇷🇺 RU:` —
+ * the label that everywhere else on the card introduces a translation. A reader
+ * scanning for their word found a wall of description wearing the answer's badge,
+ * with the actual Czech answer pushed below it.
+ */
+describe("renderWordCard — a card with no answer in the reader's language", () => {
+  const wasted = {
+    original: "wasted",
+    emoji: "🥴",
+    sourceLang: "en",
+    nativeMeaning: "Состояние сильного опьянения, либо потраченное впустую.",
+    sourceUsage: {
+      headword: null,
+      explanation: "Слово имеет два основных значения: опьянение (сленг) и потраченное зря.",
+      synonyms: [{ text: "intoxicated" }, { text: "squandered" }],
+      examples: [{ context: "slang", target: "He got completely wasted.", native: "Он напился в стельку." }],
+    },
+    langs: [{ code: "cs", text: "promarněný", synonyms: [{ text: "zmařený" }] }],
+    answerLang: "ru",
+    nativeLang: "ru",
+  };
+
+  it("never labels prose with a language, so nothing but a translation wears that badge", () => {
+    const card = renderWordCard(wasted, "ru");
+
+    expect(card).not.toMatch(/^\S+ RU: /mu);
+    expect(card).toContain("💡 Слово имеет два основных значения");
+  });
+
+  it("shows one paragraph, not the explanation and the gloss both", () => {
+    const card = renderWordCard(wasted, "ru");
+
+    // The translate card renders one or the other and never both; two paragraphs
+    // of near-identical description is what pushed the answer off the screen.
+    expect(card).toContain("Слово имеет два основных значения");
+    expect(card).not.toContain("Состояние сильного опьянения");
+  });
+
+  it("still shows the answer it does have, in the shared grammar", () => {
+    const card = renderWordCard(wasted, "ru");
+
+    expect(card).toContain("🇨🇿 CS: <b>promarněný</b> (zmařený)");
+  });
+
+  it("keeps the meaning visible — with no answer it is the only meaning there is", () => {
+    const card = renderWordCard(wasted, "ru");
+    const proseIndex = card.indexOf("💡 Слово имеет");
+    const foldIndex = card.indexOf("<blockquote");
+
+    expect(proseIndex).toBeGreaterThan(-1);
+    expect(foldIndex === -1 || proseIndex < foldIndex).toBe(true);
   });
 });
 

@@ -12,6 +12,7 @@ import type { NextFunction } from "grammy";
 import { markHandled } from "../observability/handler-log.js";
 import { handleTranslationClarificationContextText } from "../scenes/helpers/clarification.js";
 import { handleDictionaryNameInput } from "../scenes/helpers/dictionary.helper.js";
+import { maybePromptMentorIdle } from "../scenes/helpers/mentor-idle.helper.js";
 import { handleMentorText } from "../scenes/helpers/mentor-mode.helper.js";
 import { tryHandleMentorReply } from "../scenes/helpers/mentor-thread.helper.js";
 import { handleNotifContextTextInput } from "../scenes/helpers/settings.helper.js";
@@ -138,6 +139,12 @@ export async function modeRouterMiddleware(ctx: BotContext, next: NextFunction):
       await handleTranslateText(ctx, text);
       return; // Don't call next() — we handled it
     case "mentor":
+      // Back after a long silence: ask which mode this message belongs to instead
+      // of spending a paid mentor turn on what is usually a word to translate.
+      if (await maybePromptMentorIdle(ctx, text)) {
+        markHandled(ctx, "modeRouter:mentorIdle");
+        return;
+      }
       markHandled(ctx, "modeRouter:mentor");
       await handleMentorText(ctx, text);
       return;

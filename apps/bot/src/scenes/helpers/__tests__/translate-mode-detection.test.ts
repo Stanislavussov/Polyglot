@@ -254,20 +254,16 @@ describe("handleTranslateText — auto-detect language direction", () => {
   });
 
   // Feature 2 — doubtful-source override menu. Only the rare heuristic-fallback
-  // cases attach the "translate from" flag buttons; the common confident path
-  // must not.
-  const overrideCallbacks = (ctx: BotContext): string[] =>
-    vi
-      .mocked(ctx.api.editMessageReplyMarkup)
-      .mock.calls.flatMap((call) => {
-        const markup = (call[2] as { reply_markup?: { inline_keyboard?: { callback_data?: string }[][] } } | undefined)
-          ?.reply_markup;
-        return (markup?.inline_keyboard ?? []).flat();
-      })
-      .map((btn) => btn.callback_data ?? "")
-      .filter((data) => data.startsWith("tr:srclang:"));
+  // cases offer the "translate from" flag buttons; the common confident path
+  // must not. The buttons themselves live behind `⋯ More`, so what a fresh card
+  // has to carry is the candidate list the expanded keyboard is built from —
+  // recomputing "was detection doubtful?" on a later tap is impossible.
+  const storedOverrides = (ctx: BotContext): string[] | undefined => {
+    const entries = Object.values(ctx.session.translationMap ?? {});
+    return entries.at(-1)?.sourceOverrideLangs;
+  };
 
-  it("attaches the source-override menu when detection is a weak-ambiguity guess", async () => {
+  it("records the source-override candidates when detection is a weak-ambiguity guess", async () => {
     const ambiguous = {
       language: undefined,
       confidence: 0,
@@ -280,20 +276,19 @@ describe("handleTranslateText — auto-detect language direction", () => {
     const ctx = createMockCtx();
     await handleTranslateText(ctx, "pero");
 
-    const overrides = overrideCallbacks(ctx);
-    expect(overrides.length).toBeGreaterThan(0);
     // Offers the user's other languages (native ru + learning cs/en) as forced
     // sources, and records the "shown" telemetry event.
+    expect(storedOverrides(ctx)?.length).toBeGreaterThan(0);
     expect(vi.mocked(ctx.services.languageDetectionRepository.record)).toHaveBeenCalledWith(
       expect.objectContaining({ eventType: "override_shown" }),
     );
   });
 
-  it("does NOT attach the source-override menu on a confident detection", async () => {
+  it("records no source-override candidates on a confident detection", async () => {
     const ctx = createMockCtx();
     await handleTranslateText(ctx, "привет");
 
-    expect(overrideCallbacks(ctx)).toHaveLength(0);
+    expect(storedOverrides(ctx)).toEqual([]);
     expect(vi.mocked(ctx.services.languageDetectionRepository.record)).not.toHaveBeenCalledWith(
       expect.objectContaining({ eventType: "override_shown" }),
     );

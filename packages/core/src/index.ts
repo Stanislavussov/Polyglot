@@ -39,6 +39,12 @@ export type {
 } from "./ports/notification.repository.js";
 export type { CheckoutResult, PaymentPort, RenewableSubscription, RenewalResult } from "./ports/payment.port.js";
 export type {
+  ProductEvent,
+  ProductEventRepository,
+  RecordProductEventInput,
+} from "./ports/product-event.repository.js";
+export { PRODUCT_EVENTS } from "./ports/product-event.repository.js";
+export type {
   IssueType,
   ReportedIssue,
   ReportedIssueRepository,

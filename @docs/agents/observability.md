@@ -70,6 +70,7 @@ callback is therefore logged with no second edit** — keep using the helpers.
 | Update lifecycle | `update.received`, `update.finished`, `update.failed`, `update.unhandled` |
 | Handlers | `handler.started` (debug), `handler.finished`, `handler.failed` |
 | Text routing | `mode_router.routed`, `mode_router.rejected`, `mode_router.idle_fallback` |
+| Mentor idle prompt (Task 83) | `mentor.idle_prompt_shown` (`idleMs`), `mentor.idle_prompt_choice` (`choice`: `stay` \| `translate` \| `stale`) |
 | Outgoing Telegram | `telegram.api.call`, `telegram.api.body` (debug), `telegram.api.failed` |
 | Session | `session.loaded`/`saved` (debug), `session.miss` (debug), `session.repaired`, `session.reset`, `session.deleted` |
 | Translation | `translation.language_detected`, `.direction_resolved`, `.completed`, `.failed`, `.clarification_requested` |
@@ -79,7 +80,7 @@ callback is therefore logged with no second edit** — keep using the helpers.
 | Callbacks | `callback.stale` — a button whose backing state was gone, for every guard (`action`); `recovered` says whether a retry could be offered. Supersedes the per-site `vocabulary.save_state_lost` / `card.tts_state_lost` |
 | Vocabulary | `vocabulary.saved`, `.save_skipped`, `.save_failed` |
 | Dictionary | `dictionary.created`, `.renamed`, `.deleted`, `.entry_added`, `.entry_moved`, `.entry_removed`, `.translate_failed` |
-| Onboarding | `onboarding.started`, `.screen_rendered`, `.native_lang_selected`, `.learning_lang_confirmed`, `.languages_done`, `.completed`, `.demo_failed` |
+| Onboarding | `onboarding.started`, `.screen_rendered`, `.native_lang_selected`, `.learning_lang_confirmed`, `.languages_done`, `.completed`, `.demo_failed`, `.gate_redirected` (`kind`: `callback` \| `command` \| `message` — a not-yet-onboarded user reached a feature route and was put back on their onboarding screen) |
 | Settings | `settings.native_lang_changed`, `.interface_lang_changed`, `.learning_lang_added`/`_removed`, `.notifications_toggled`, `.notification_*_changed`, `.timezone_changed` |
 | SRS / flashcards | `srs.card_rated`, `srs.session_finished`, `flashcard.session_started`, `.session_finished` |
 | Notifications / cron | `notification.sent`, `notification.dictionary_exhausted`, `notification.preset.picked`/`.exhausted`/`.no_candidates`/`.unresolvable`, `nudge.*`, `retention.*` |
@@ -87,6 +88,36 @@ callback is therefore logged with no second edit** — keep using the helpers.
 | Voice input (Task 80) | `voice.transcribed`, `.transcribe_failed`, `.transcribe_empty`, `.too_long` |
 | Pronunciation (Task 77) | `card.tts_played`, `.tts_failed`, `.tts_state_lost` |
 | Errors | `bot.error`, `bot.error_handler_failed` |
+
+## Product events — a separate stream, a separate question
+
+Everything above answers *what the process did*. A second, much smaller stream
+answers *what the product did* — who reached the price list, who bought, which
+features get used and which get refused. It is written to Postgres
+(`product_events`) and read in the admin panel's **Product Metrics** page, not
+in Grafana, because the questions are aggregates ("how many distinct people
+paid last month") rather than traces.
+
+```ts
+import { trackProductEvent } from "../observability/product-events.js";
+
+trackProductEvent(ctx, "plan.selected", plan.name);
+```
+
+- The vocabulary is **closed**: `PRODUCT_EVENTS` in
+  `packages/core/src/ports/product-event.repository.ts`. Adding a member there
+  is the whole cost of tracking something new.
+- Two columns carry everything — the `event` and a short `context` from an
+  already-bounded set (plan name, feature key, command, mode). No jsonb payload.
+- Calls are **fire-and-forget**: never awaited, never able to fail a user flow.
+- Rows are pruned at **30 days** (`PRODUCT_EVENT_RETENTION_DAYS`), shorter than
+  the 90-day telemetry horizon.
+
+**Do not add a call site for something already covered.** Commands are counted
+in `bot-factory`'s `onCommand` helper, and both paid-feature outcomes
+(`feature.used` / `feature.locked`) inside the entitlement gate in
+`paid-feature.helper.ts` — one place each, so a new command or feature is
+counted with no second edit and the used/blocked split cannot drift.
 
 ## Levels
 

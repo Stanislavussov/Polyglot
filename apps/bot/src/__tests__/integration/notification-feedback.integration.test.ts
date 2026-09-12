@@ -1,7 +1,7 @@
 /**
  * Notification feedback — e2e (real dispatcher, real Postgres, fake `fetch`).
  *
- * The 4-button feedback menu (Hard / Normal / I know it / Remove) is the user's
+ * The 4-button feedback menu (Hard / OK / Easy / Remove) is the user's
  * lever over what the scheduler sends: `hard` weights the word up, `easy` parks
  * it until everything else is exhausted, Remove soft-deletes the entry. The
  * unit lane proves each half in isolation; only this file proves the chain —

@@ -13,6 +13,7 @@ import type { MentorMessageRepository } from "./mentor-message.repository.js";
 import type { NotificationRepository } from "./notification.repository.js";
 import type { OnboardingDemoCardRepository } from "./onboarding-demo-card.repository.js";
 import type { PaymentPort } from "./payment.port.js";
+import type { ProductEventRepository } from "./product-event.repository.js";
 import type { ReportedIssueRepository } from "./reported-issue.repository.js";
 import type { RequestTimingRepository } from "./request-timing.repository.js";
 import type { SettingsPort } from "./settings.port.js";
@@ -46,6 +47,8 @@ export interface ServiceContainer {
   momentumService: MomentumService;
   translationRequestRepository: TranslationRequestRepository;
   languageDetectionRepository: LanguageDetectionRepository;
+  /** Product-analytics journal — purchase funnel, feature usage, mode switches. */
+  productEventRepository: ProductEventRepository;
   requestTimingRepository: RequestTimingRepository;
   reportedIssueRepository: ReportedIssueRepository;
   /** Pre-rendered onboarding hook cards (Task 72). */

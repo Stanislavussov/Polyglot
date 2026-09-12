@@ -210,7 +210,7 @@ describe("handleSetNativeSelectCallback", () => {
         text: expect.stringContaining("🇩🇪 Deutsch"),
       }),
     );
-    expect(ctx.editMessageText.mock.calls[0][0]).toContain("🌐 Languages");
+    expect(ctx.editMessageText.mock.calls[0][0]).toContain("Languages");
   });
 });
 
@@ -379,7 +379,7 @@ describe("language sub-menu", () => {
     await handleSetBackCallback(ctx);
 
     const text = ctx.editMessageText.mock.calls[0][0] as string;
-    expect(text).toContain("🌐 Languages");
+    expect(text).toContain("Languages");
     expect(text).not.toContain("⚙️ Settings");
     expect(ctx.answerCallbackQuery).toHaveBeenCalled();
   });

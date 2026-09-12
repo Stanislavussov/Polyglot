@@ -7,6 +7,7 @@ import {
   type SupportedLang,
   t,
 } from "@polyglot/core";
+import { trackProductEvent } from "../observability/product-events.js";
 import { buildUpgradeKeyboard } from "../scenes/helpers/subscription.helper.js";
 import type { BotContext } from "../types.js";
 import { resolvePlanLimit } from "./plan-limit.js";
@@ -68,6 +69,7 @@ export async function ensureAiQuota(
     // Same message and same way out as the translate-flow quota gate: an exhausted
     // quota is the moment the upgrade offer is worth something, and a bare notice
     // here would be the one dead end left in the funnel.
+    trackProductEvent(ctx, "limit.reached", "translation");
     await ctx.reply(t("rateLimitExceeded", lang), { reply_markup: buildUpgradeKeyboard(lang) });
     return null;
   }
@@ -108,6 +110,7 @@ export async function ensureMentorDailyQuota(
   if (used < limit) {
     return true;
   }
+  trackProductEvent(ctx, "limit.reached", "mentor");
   await ctx.reply(t("mentorDailyLimitReached", lang, { limit: String(limit) }), {
     reply_markup: buildUpgradeKeyboard(lang),
   });

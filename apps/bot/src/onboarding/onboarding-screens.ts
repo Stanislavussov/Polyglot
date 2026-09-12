@@ -69,7 +69,7 @@ export async function showLanguagesScreen(
 
   if (state.learningLangs.length > 0) {
     const chips = state.learningLangs
-      .map((code) => `✅ ${ctx.services.languageCache.getLangDisplay(code)} · ${state.levels[code]}`)
+      .map((code) => `✅ ${ctx.services.languageCache.getLangDisplay(code)} → ${state.levels[code]}`)
       .join("\n");
     parts.push(chips);
     // The moment the first language is confirmed, preview the payoff.
@@ -77,10 +77,11 @@ export async function showLanguagesScreen(
   }
 
   if (expandedLang) {
-    parts.push(
-      t("onbLevelPrompt", lang, { lang: ctx.services.languageCache.getLangDisplay(expandedLang) }),
-      t("onbLevelLegend", lang),
-    );
+    // The level asked for is the target, not the current one: it drives how hard
+    // the cards and examples come out, and a user who names where they already
+    // are never gets pushed forward. Hence prompt + hint as one block, legend after.
+    const prompt = t("onbLevelPrompt", lang, { lang: ctx.services.languageCache.getLangDisplay(expandedLang) });
+    parts.push(`${prompt}\n${t("levelTargetHint", lang)}`, t("onbLevelLegend", lang));
   }
 
   await enterStep(ctx, state, ONBOARDING_STEPS.languages);
@@ -91,17 +92,19 @@ export async function showLanguagesScreen(
 export async function showDemoScreen(ctx: BotContext, state: OnboardingState): Promise<void> {
   const lang = state.interfaceLang;
   const hooks = getHookWordsForLangs(state.learningLangs);
-  const text = `${t("onbDemoPrompt", lang)}\n\n${t("onbDemoOrType", lang)}`;
 
   await enterStep(ctx, state, ONBOARDING_STEPS.demo);
 
   if (hooks.length === 0) {
     // No curated words for this language set — the typed path is still a full
-    // demo, so the screen degrades to an invitation rather than an empty wall.
-    await present(ctx, t("onbDemoOrType", lang), buildDemoKeyboard(ctx, state));
+    // demo, so the screen degrades to a standalone instruction. It cannot reuse
+    // `onbDemoOrType`: that line is a continuation of the tap invitation, and on
+    // its own above an empty keyboard it reads as an "or" with no first branch.
+    await present(ctx, t("onbDemoTypeOnly", lang), buildDemoKeyboard(ctx, state));
     return;
   }
 
+  const text = `${t("onbDemoPrompt", lang)}\n\n${t("onbDemoOrType", lang)}`;
   await present(ctx, text, buildDemoKeyboard(ctx, state));
 }
 
@@ -122,20 +125,27 @@ export async function showFinalScreen(ctx: BotContext, state: OnboardingState): 
   // rather than a second message after it: the inline feature buttons that used to
   // sit here (dictionary, training, video) were the same modes a second time, and
   // the message that delivered the keyboard then explained them a third. The ⌨️
-  // icon is still named — a `oneTime()` keyboard folds away after use, so an
-  // unnamed icon is a menu the user has to rediscover by accident.
-  const closing = [t("onbDemoMore", lang), t("onboardingComplete", lang)];
-  if (trial) {
-    closing.push(
-      t("onbTrialGranted", lang, {
+  // icon is still named inside the copy: the keyboard arrives open and the user
+  // collapses it, so an unnamed icon is a menu the user has to rediscover by
+  // accident.
+  //
+  // One key, not three glued together. The screen used to concatenate a "want
+  // another?" nudge, the instructions, and `mainMenuHint` — three voices that
+  // opened with a question, answered it with "Готово", invited a word twice, and
+  // ended on a hint written for users who onboarded before the menu existed. The
+  // nudge also fired on the path where the demo produced no card at all.
+  //
+  // The trial line is the one thing appended to it, and only when a trial was
+  // actually granted — this screen is the single place the gift is announced.
+  const complete = t("onboardingComplete", lang);
+  const closing = trial
+    ? `${complete}\n\n${t("onbTrialGranted", lang, {
         days: String(trial.days),
         words: String(TRIAL_EXTENSION_WORDS),
         extraDays: String(TRIAL_EXTENSION_DAYS),
-      }),
-    );
-  }
-  closing.push(t("mainMenuHint", lang));
-  await installMainKeyboard(ctx, closing.join("\n\n"), lang);
+      })}`
+    : complete;
+  await installMainKeyboard(ctx, closing, lang);
 
   await ctx.services.userRepository.markOnboarded(state.userId);
   recordOnboardingStep(ONBOARDING_STEPS.complete, "completed");

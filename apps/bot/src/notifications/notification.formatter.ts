@@ -7,31 +7,23 @@
  * 3. No DB access — uses pre-built payload
  */
 import type { NotificationPayload } from "@polyglot/adapter-notifications";
-import { type LanguageOrderContext, orderRecordEntries, type SupportedLang, t } from "@polyglot/core";
+import { type SupportedLang, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
-import {
-  answerLine,
-  assembleCard,
-  emptySections,
-  headwordLine,
-  meaningLine,
-  otherLangLine,
-} from "../renderers/card-sections.js";
+import { assembleCard, emptySections, esc, headwordLine } from "../renderers/card-sections.js";
 
 /**
  * Format a notification payload as a Telegram HTML message.
  *
- * Sections, per the shared card grammar (`card-sections.ts`):
- * provenance → headword → answer → meaning → other languages.
+ * **A notification is a recall prompt, not a card.** It is the headword and one
+ * line asking whether the reader still knows it — no translation, no stored
+ * meaning, no secondary languages, no label saying where the word came from. The
+ * reader tries to remember, then taps Reveal, and what opens is the card the word
+ * was translated on, buttons and all (`notification.callbacks.ts`). Everything
+ * this message used to inline is there, and reading it there is the moment of
+ * recall the daily word exists to create.
  *
- * The answer is the line the reader came for, so it sits directly under the
- * headword. It previously landed on line 6, below the stored meaning and two
- * lines of chrome, which read as "my own language is last".
- *
- * `order` is required rather than derived here: the record arrives from the
- * scheduler through `jsonb`-shaped data, so its key order carries no meaning and
- * a caller that has the user's settings must say what the order is. See
- * `@polyglot/core`'s translation-order module.
+ * The headword is the citation form when one was stored, with its source flag, so
+ * the nudge and the card behind it introduce the same word the same way.
  *
  * `footer` arrives already rendered so this stays pure: the motivation layer's
  * weekly line (Task 81, S4) needs a database read and a kill-switch check, and
@@ -41,37 +33,20 @@ import {
 export function formatNotificationMessage(
   payload: NotificationPayload,
   lang: SupportedLang,
-  order: LanguageOrderContext,
   options: { footer?: string } = {},
 ): string {
   const { word } = payload;
-  const sourceLabel =
-    word.source === "srs"
-      ? t("notifWordFromDict", lang)
-      : word.source === "preset"
-        ? t("notifPresetWord", lang)
-        : word.source === "contextual"
-          ? t("notifTypeContextual", lang)
-          : t("notifAiSuggested", lang);
-
-  // Ordered here, not trusted from the record: the native language ranks first,
-  // and everything after it follows the user's own choice of learning languages.
-  const ordered = orderRecordEntries(word.translations, order);
-  const [answer, ...others] = ordered;
 
   return assembleCard({
     ...emptySections(),
-    // Above the headword: it labels the whole card ("from your dictionary")
-    // rather than competing with the answer for the reader's attention.
-    provenance: [`<i>${sourceLabel}</i>`],
-    headword: [headwordLine(word.original, { emoji: word.emoji })],
-    answer: answer ? [answerLine(answer[0], answer[1], word.translationDetails?.[answer[0]]?.synonyms ?? [])] : [],
-    meaning: word.nativeMeaning ? [meaningLine(word.nativeMeaning)] : [],
-    // Secondary languages stay to one line each — the card is a nudge, not a
-    // dictionary entry, and the full detail is one "Reveal" tap away.
-    others: others.map(([code, text]) => otherLangLine(code, text)),
-    // Blank separator first: glued to the last translation the weekly line would
-    // read as one more language on the card.
+    headword: [
+      headwordLine(word.headword?.trim() || word.original, { emoji: word.emoji, sourceLang: word.sourceLang }),
+    ],
+    // Blank separator first: glued to the word the prompt would read as a second
+    // line of it rather than as an instruction about it.
+    aids: ["", `<i>${esc(t("notifSelfCheck", lang))}</i>`],
+    // Blank separator first: glued to the prompt the weekly line would read as
+    // part of it rather than as the week's own tally.
     footer: options.footer ? ["", options.footer] : [],
   });
 }
@@ -107,12 +82,21 @@ function appendFeedbackMenu(
 }
 
 /**
- * Build the inline keyboard for a notification message (initial state).
+ * Build the inline keyboard for a notification message.
  *
  * Buttons:
- * - "🔍 Reveal" → notif:reveal:{entryId}
- * - grade row "Hard | Normal | I know it" → notif:fb:{grade}:{entryId}
+ * - "🔍 Reveal" → notif:reveal:{entryId}, or `notif:tr` for a word with no entry
+ * - grade row "Hard | OK | Easy" → notif:fb:{grade}:{entryId}
  * - "🗑 Remove from dictionary" → notif:learned:{entryId}
+ *
+ * The grades stay on this message rather than moving to the revealed card: a
+ * grade given before the answer is the honest one, and the card that opens is the
+ * translation card, which owns its own keyboard.
+ *
+ * A pick with no dictionary entry (a curated preset, an AI suggestion, a
+ * contextual sentence) has nothing to grade or remove, so it gets the Reveal
+ * button alone — pointed at `notif:tr`, which translates the word instead of
+ * opening a row that does not exist.
  */
 export function buildNotificationKeyboard(
   lang: SupportedLang,
@@ -120,21 +104,8 @@ export function buildNotificationKeyboard(
   selected?: NotifFeedbackGrade,
 ): InlineKeyboard {
   if (entryId == null) {
-    // Contextual/AI notifications without a dictionary entry — no actions
-    return new InlineKeyboard();
+    return new InlineKeyboard().text(t("notifReveal", lang), "notif:tr");
   }
   const kb = new InlineKeyboard().text(t("notifReveal", lang), `notif:reveal:${entryId}`).row();
   return appendFeedbackMenu(kb, lang, entryId, selected);
-}
-
-/**
- * Build the inline keyboard for a revealed notification (after "Reveal" tap).
- * Same feedback menu as the initial keyboard, without the Reveal button.
- */
-export function buildNotificationRevealedKeyboard(
-  lang: SupportedLang,
-  entryId: number,
-  selected?: NotifFeedbackGrade,
-): InlineKeyboard {
-  return appendFeedbackMenu(new InlineKeyboard(), lang, entryId, selected);
 }
