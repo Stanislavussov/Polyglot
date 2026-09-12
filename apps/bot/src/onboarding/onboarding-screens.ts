@@ -56,8 +56,10 @@ export async function showNativeScreen(ctx: BotContext, state: OnboardingState):
 }
 
 /**
- * Screen 1 — learning languages. `expandedLang` opens that language's compact
- * CEFR row inside the same message; null shows the plain two-column list.
+ * Screen 1 — learning languages. `expandedLang` replaces the list with that
+ * language's compact CEFR row inside the same message; null shows the plain
+ * two-column list. The two states ask different questions, so the text switches
+ * with the keyboard rather than stacking both prompts.
  */
 export async function showLanguagesScreen(
   ctx: BotContext,
@@ -65,6 +67,19 @@ export async function showLanguagesScreen(
   expandedLang: string | null,
 ): Promise<void> {
   const lang = state.interfaceLang;
+
+  if (expandedLang) {
+    // The level asked for is the target, not the current one: it drives how hard
+    // the cards and examples come out, and a user who names where they already
+    // are never gets pushed forward. Hence prompt + hint as one block, legend after.
+    const prompt = t("onbLevelPrompt", lang, { lang: ctx.services.languageCache.getLangDisplay(expandedLang) });
+    const text = [`${prompt}\n${t("levelTargetHint", lang)}`, t("onbLevelLegend", lang)].join("\n\n");
+
+    await enterStep(ctx, state, ONBOARDING_STEPS.languages);
+    await present(ctx, text, buildLearningKeyboard(ctx, state, expandedLang));
+    return;
+  }
+
   const parts = [t("chooseLearningLangs", lang)];
 
   if (state.learningLangs.length > 0) {
@@ -74,14 +89,6 @@ export async function showLanguagesScreen(
     parts.push(chips);
     // The moment the first language is confirmed, preview the payoff.
     parts.push(t("onbPayoffPreview", lang));
-  }
-
-  if (expandedLang) {
-    // The level asked for is the target, not the current one: it drives how hard
-    // the cards and examples come out, and a user who names where they already
-    // are never gets pushed forward. Hence prompt + hint as one block, legend after.
-    const prompt = t("onbLevelPrompt", lang, { lang: ctx.services.languageCache.getLangDisplay(expandedLang) });
-    parts.push(`${prompt}\n${t("levelTargetHint", lang)}`, t("onbLevelLegend", lang));
   }
 
   await enterStep(ctx, state, ONBOARDING_STEPS.languages);

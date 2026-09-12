@@ -68,7 +68,7 @@ import {
   handleSetNativeSelectCallback,
   handleSetRootCallback,
 } from "../scenes/helpers/settings.helper.js";
-import { handleSettingsCommand } from "../scenes/settings.scene.js";
+import { formatNotificationTimes, handleSettingsCommand } from "../scenes/settings.scene.js";
 
 /** Default settings for tests */
 const DEFAULT_SETTINGS = {
@@ -414,5 +414,20 @@ describe("handleSetCloseCallback", () => {
       reply_markup: { inline_keyboard: [] },
     });
     expect(ctx.answerCallbackQuery).toHaveBeenCalled();
+  });
+});
+
+describe("formatNotificationTimes", () => {
+  it("renders the product default for a user who has never picked a time", async () => {
+    // Notifications ship switched on and an empty schedule resolves to the
+    // product default at send time. A dash here would tell the user nothing is
+    // scheduled while the cards keep arriving — both sides must resolve alike.
+    const { DEFAULT_NOTIFICATION_TIME } = await import("@polyglot/core");
+
+    expect(formatNotificationTimes([])).toBe(DEFAULT_NOTIFICATION_TIME);
+  });
+
+  it("lists the user's own slots in chronological order once they pick", () => {
+    expect(formatNotificationTimes(["20:00", "08:30"])).toBe("08:30, 20:00");
   });
 });

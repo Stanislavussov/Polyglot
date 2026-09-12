@@ -49,7 +49,7 @@ async function showNotifSubMenu(ctx: BotContext): Promise<void> {
   const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
   const iLang = settings?.interfaceLang ?? "en";
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
-  const notifEnabled = settings?.notificationEnabled ?? false;
+  const notifEnabled = settings?.notificationEnabled ?? true;
   const notifTimes = settings?.notificationTimes ?? [];
   const notifType = settings?.notificationType ?? "srs";
   const timezone = settings?.timezone ?? "UTC";
@@ -281,7 +281,9 @@ export async function handleSetNotifCallback(ctx: BotContext): Promise<void> {
 /** set:notif:toggle — enable/disable notifications */
 export async function handleSetNotifToggleCallback(ctx: BotContext): Promise<void> {
   const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
-  const currentEnabled = settings?.notificationEnabled ?? false;
+  // Mirrors the schema default, so the first tap on a row that somehow has no
+  // settings yet turns notifications OFF rather than re-enabling what is on.
+  const currentEnabled = settings?.notificationEnabled ?? true;
   const newEnabled = !currentEnabled;
 
   const prefs: { notificationEnabled: boolean; notificationTimes?: string[] } = {

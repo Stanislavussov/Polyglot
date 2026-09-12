@@ -53,7 +53,7 @@ vi.mock("node-cron", () => ({
 import {
   buildNotificationPayload,
   checkAndSend,
-  processInactiveUsers,
+  processLapsedUsers,
   startScheduler,
   stopScheduler,
 } from "./scheduler.js";
@@ -72,6 +72,7 @@ const mockUser: NotificationUser = {
   notificationTimes: ["08:00"],
   notificationType: "srs",
   notificationContext: null,
+  reengagementCount: 0,
 };
 
 const mockDictWord: SuggestedWord = {
@@ -88,7 +89,7 @@ const mockT = vi.fn((key: string, _lang: string, _params?: Record<string, string
     notifAiSuggested: "AI suggestion",
     notifTypeContextual: "AI + Context",
     notifContextualSentence: "Contextual sentence:",
-    notifPaused: "We paused your notifications. Use /settings to re-enable.",
+    notifReEngagement: "It's been a while! Come back and the cards resume.",
   };
   return keys[key] ?? key;
 });
@@ -96,7 +97,8 @@ const mockT = vi.fn((key: string, _lang: string, _params?: Record<string, string
 function buildSchedulerDeps(overrides: Partial<SchedulerDeps> = {}): SchedulerDeps {
   return {
     getUsersForWindow: vi.fn().mockResolvedValue([mockUser]),
-    getInactiveUsers: vi.fn().mockResolvedValue([]),
+    getUsersForReEngagement: vi.fn().mockResolvedValue([]),
+    recordReEngagement: vi.fn().mockResolvedValue(undefined),
     disableNotifications: vi.fn().mockResolvedValue(undefined),
     getSentWordsSince: vi.fn().mockResolvedValue([]),
     getLastSentWord: vi.fn().mockResolvedValue(null),
@@ -440,94 +442,149 @@ describe("checkAndSend", () => {
 });
 
 // ─────────────────────────────────────────────
-// Tests: processInactiveUsers
+// Tests: processLapsedUsers
 // ─────────────────────────────────────────────
 
-describe("processInactiveUsers", () => {
+describe("processLapsedUsers", () => {
   let mockReEngagementSend: ReEngagementSendFn;
+  let mockSend: SendFn;
+
+  const lapsedDeps = (overrides: Partial<SchedulerDeps> = {}) =>
+    buildSchedulerDeps({
+      getUsersForReEngagement: vi.fn().mockResolvedValue([mockUser]),
+      ...overrides,
+    });
 
   beforeEach(() => {
     vi.clearAllMocks();
     mockReEngagementSend = vi.fn().mockResolvedValue(undefined);
+    mockSend = vi.fn().mockResolvedValue(undefined);
   });
 
-  it("sends re-engagement message and disables notifications", async () => {
-    const deps = buildSchedulerDeps({
-      getInactiveUsers: vi.fn().mockResolvedValue([mockUser]),
-    });
+  it("sends a word card, not a text nudge, and never unsubscribes the user", async () => {
+    const deps = lapsedDeps();
 
-    const result = await processInactiveUsers(mockReEngagementSend, deps);
+    const result = await processLapsedUsers(mockSend, mockReEngagementSend, deps);
 
-    expect(mockReEngagementSend).toHaveBeenCalledWith(1, "We paused your notifications. Use /settings to re-enable.");
-    expect(deps.disableNotifications).toHaveBeenCalledWith(1);
-    expect(result.processed).toBe(1);
-    expect(result.errors).toBe(0);
-  });
-
-  it("processes multiple inactive users", async () => {
-    const user2: NotificationUser = {
-      ...mockUser,
-      userId: 2,
-      interfaceLang: "ru",
-      notificationContext: null,
-    };
-    const deps = buildSchedulerDeps({
-      getInactiveUsers: vi.fn().mockResolvedValue([mockUser, user2]),
-    });
-
-    const result = await processInactiveUsers(mockReEngagementSend, deps);
-
-    expect(mockReEngagementSend).toHaveBeenCalledTimes(2);
-    expect(deps.disableNotifications).toHaveBeenCalledTimes(2);
-    expect(result.processed).toBe(2);
-  });
-
-  it("returns zero when no inactive users", async () => {
-    const deps = buildSchedulerDeps();
-    const result = await processInactiveUsers(mockReEngagementSend, deps);
-
+    expect(mockSend).toHaveBeenCalledWith(1, expect.objectContaining({ word: mockDictWord }));
     expect(mockReEngagementSend).not.toHaveBeenCalled();
+    expect(deps.recordSentWord).toHaveBeenCalledWith(1, mockDictWord.original, "srs");
+    expect(deps.recordReEngagement).toHaveBeenCalledWith(1);
+    // The regression the whole feature exists for: going quiet must not switch
+    // the subscription off, or the user drops out of the candidate query.
+    expect(deps.disableNotifications).not.toHaveBeenCalled();
+    expect(result).toEqual({ processed: 1, errors: 0 });
+  });
+
+  it("de-dups against a year of history, not the daily lane's 24-hour window", async () => {
+    // At a five-day cadence a 24-hour window is always empty, and the preset
+    // picker takes the FIRST unseen candidate — so a short window would mail the
+    // same headword forever.
+    const deps = lapsedDeps();
+
+    await processLapsedUsers(mockSend, mockReEngagementSend, deps);
+
+    const since = vi.mocked(deps.getSentWordsSince).mock.calls[0]?.[1] as Date;
+    const daysBack = (Date.now() - since.getTime()) / (24 * 60 * 60 * 1000);
+    expect(daysBack).toBeGreaterThan(300);
+  });
+
+  it("falls back to the curated presets when the dictionary has nothing", async () => {
+    const preset: SuggestedWord = { ...mockDictWord, original: "serendipity", source: "preset" };
+    const deps = lapsedDeps({
+      pickDictionaryWord: vi.fn().mockResolvedValue(null),
+      pickPresetWord: vi.fn().mockResolvedValue(preset),
+    });
+
+    await processLapsedUsers(mockSend, mockReEngagementSend, deps);
+
+    expect(mockSend).toHaveBeenCalledWith(1, expect.objectContaining({ word: preset }));
+    expect(deps.recordSentWord).toHaveBeenCalledWith(1, "serendipity", "preset");
+  });
+
+  it("restarts the preset cycle instead of going silent once every word has been seen", async () => {
+    const preset: SuggestedWord = { ...mockDictWord, original: "serendipity", source: "preset" };
+    const pickPresetWord = vi
+      .fn()
+      // First attempt sees the full year of history and finds nothing unseen.
+      .mockResolvedValueOnce(null)
+      // Second attempt excludes only the previous card, so the set starts over.
+      .mockResolvedValueOnce(preset);
+    const deps = lapsedDeps({
+      pickDictionaryWord: vi.fn().mockResolvedValue(null),
+      pickPresetWord,
+      getLastSentWord: vi.fn().mockResolvedValue("cozy"),
+    });
+
+    await processLapsedUsers(mockSend, mockReEngagementSend, deps);
+
+    expect(pickPresetWord).toHaveBeenCalledTimes(2);
+    expect(pickPresetWord.mock.calls[1]?.[1]).toEqual(["cozy"]);
+    expect(mockSend).toHaveBeenCalledWith(1, expect.objectContaining({ word: preset }));
+  });
+
+  it("keeps going with no cap, however deep into the episode the user is", async () => {
+    const longGone: NotificationUser = { ...mockUser, reengagementCount: 40 };
+    const deps = lapsedDeps({ getUsersForReEngagement: vi.fn().mockResolvedValue([longGone]) });
+
+    const result = await processLapsedUsers(mockSend, mockReEngagementSend, deps);
+
+    expect(mockSend).toHaveBeenCalledOnce();
+    expect(result.processed).toBe(1);
+  });
+
+  it("sends a plain invitation when no source can supply a word at all", async () => {
+    const deps = lapsedDeps({
+      pickDictionaryWord: vi.fn().mockResolvedValue(null),
+      pickPresetWord: vi.fn().mockResolvedValue(null),
+    });
+
+    await processLapsedUsers(mockSend, mockReEngagementSend, deps);
+
+    expect(mockSend).not.toHaveBeenCalled();
+    expect(mockReEngagementSend).toHaveBeenCalledWith(1, "It's been a while! Come back and the cards resume.");
+    expect(deps.recordReEngagement).toHaveBeenCalledWith(1);
+  });
+
+  it("returns zero when nobody is due a card", async () => {
+    const deps = buildSchedulerDeps();
+
+    const result = await processLapsedUsers(mockSend, mockReEngagementSend, deps);
+
+    expect(mockSend).not.toHaveBeenCalled();
     expect(result.processed).toBe(0);
   });
 
-  it("logs and continues on send error", async () => {
+  it("leaves the card unrecorded on a transient send failure, so it retries", async () => {
+    const deps = lapsedDeps();
     const failSend = vi.fn().mockRejectedValue(new Error("Telegram error"));
-    const deps = buildSchedulerDeps({
-      getInactiveUsers: vi.fn().mockResolvedValue([mockUser]),
-    });
 
-    const result = await processInactiveUsers(failSend, deps);
+    const result = await processLapsedUsers(failSend, mockReEngagementSend, deps);
 
-    expect(result.errors).toBe(1);
-    expect(result.processed).toBe(0);
-    expect(mockLogger.error).toHaveBeenCalled();
+    expect(deps.recordReEngagement).not.toHaveBeenCalled();
+    expect(deps.disableNotifications).not.toHaveBeenCalled();
+    expect(result).toEqual({ processed: 0, errors: 1 });
   });
 
-  it("returns error when getInactiveUsers throws", async () => {
-    const deps = buildSchedulerDeps({
-      getInactiveUsers: vi.fn().mockRejectedValue(new Error("DB error")),
-    });
+  it("unsubscribes a lapsed user who has blocked the bot", async () => {
+    // Without this the cadence has no end condition: a blocked chat would be
+    // retried every five days forever.
+    const blocked = new Error("Forbidden: bot was blocked by the user");
+    const deps = lapsedDeps({ isUserBlocked: (err: unknown) => err === blocked });
 
-    const result = await processInactiveUsers(mockReEngagementSend, deps);
+    const result = await processLapsedUsers(vi.fn().mockRejectedValue(blocked), mockReEngagementSend, deps);
 
+    expect(deps.disableNotifications).toHaveBeenCalledWith(1);
+    expect(deps.recordReEngagement).not.toHaveBeenCalled();
     expect(result.errors).toBe(1);
-    expect(result.processed).toBe(0);
   });
 
-  it("uses user interface language for re-engagement message", async () => {
-    const ruUser: NotificationUser = {
-      ...mockUser,
-      userId: 2,
-      interfaceLang: "ru",
-      notificationContext: null,
-    };
-    const deps = buildSchedulerDeps({
-      getInactiveUsers: vi.fn().mockResolvedValue([ruUser]),
-    });
+  it("returns error when the candidate query throws", async () => {
+    const deps = lapsedDeps({ getUsersForReEngagement: vi.fn().mockRejectedValue(new Error("DB error")) });
 
-    await processInactiveUsers(mockReEngagementSend, deps);
+    const result = await processLapsedUsers(mockSend, mockReEngagementSend, deps);
 
-    expect(mockT).toHaveBeenCalledWith("notifPaused", "ru");
+    expect(result).toEqual({ processed: 0, errors: 1 });
   });
 });
 

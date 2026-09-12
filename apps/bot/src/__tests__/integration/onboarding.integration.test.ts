@@ -170,6 +170,39 @@ describe("/start onboarding (integration)", () => {
     expect(allText(harness).some((text) => text.includes("перевод из кэша"))).toBe(true);
   });
 
+  it("shows the level menu alone, then brings the language list back once the level is picked", async () => {
+    const harness = createBotHarness();
+    const id = uniqueTelegramId();
+    const tap = async (data: string) =>
+      harness.dispatch(
+        callbackQueryUpdate({ chatId: id, fromId: id, messageId: firstScreenId(harness), data, languageCode: "ru" }),
+      );
+
+    await harness.dispatch(messageUpdate({ chatId: id, fromId: id, text: "/start", languageCode: "ru" }));
+    await tap("onb:nat:ru");
+    await tap("onb:lang:de");
+
+    // Nothing but the level menu is tappable while a level is being asked for.
+    const expanded = visibleCallbacks(harness);
+    expect(expanded.filter((data) => data.startsWith("onb:lang:"))).toEqual([]);
+    expect(expanded).not.toContain("onb:done");
+    expect(expanded).toContain("onb:lvl:de:B2");
+    expect(expanded).toContain("onb:collapse");
+
+    await tap("onb:lvl:de:B2");
+
+    const collapsed = visibleCallbacks(harness);
+    expect(collapsed).toContain("onb:lang:cs");
+    expect(collapsed).toContain("onb:done");
+    expect(collapsed.filter((data) => data.startsWith("onb:lvl:"))).toEqual([]);
+
+    const userId = await identityRepository.resolveUserId("telegram", String(id));
+    expect(await userRepository.getLanguageLevels(userId!)).toContainEqual({
+      languageCode: "de",
+      proficiencyLevel: "B2",
+    });
+  });
+
   it("never serves an unreviewed demo card, and still completes onboarding when the demo fails", async () => {
     const headword = getHookWords("cs")[0].headword;
     await seedDemoCard({

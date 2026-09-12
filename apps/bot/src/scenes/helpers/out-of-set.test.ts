@@ -12,7 +12,12 @@ const { mockLogger } = vi.hoisted(() => ({
   mockLogger: { error: vi.fn(), info: vi.fn(), debug: vi.fn(), warn: vi.fn() },
 }));
 
-vi.mock("@polyglot/core", () => ({
+// Spread the real module: this file mocks only the handful of helpers it asserts
+// on, but it pulls in `@polyglot/adapter-db`, whose modules legitimately import
+// other core exports. A hand-listed mock makes any new core export fail this
+// file's *collection*, with an error naming a module unrelated to what it tests.
+vi.mock("@polyglot/core", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@polyglot/core")>()),
   t: vi.fn((key: string) => `[${key}]`),
   isSupported: vi.fn(() => true),
   isSupportedLanguage: vi.fn(() => true),

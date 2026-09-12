@@ -5,6 +5,7 @@
  * Callback handlers are in helpers/settings.helper.ts.
  */
 import {
+  DEFAULT_NOTIFICATION_TIME,
   evaluatePlanRateLimit,
   formatNotificationTime,
   getLangDisplay,
@@ -24,7 +25,11 @@ import { editMessageTextOrReply } from "./helpers/edit-message.helper.js";
 
 /** Format a list of "HH:MM" times as a sorted, normalized, comma-separated string ("—" when empty). */
 export function formatNotificationTimes(times: string[]): string {
-  if (times.length === 0) return "—";
+  // An empty list means "never picked a time", and since notifications ship
+  // switched on the scheduler sends at the product default anyway. Rendering a
+  // dash here would tell the user nothing is scheduled while cards keep
+  // arriving — the same resolution has to happen on both sides.
+  if (times.length === 0) return DEFAULT_NOTIFICATION_TIME;
   return [...times]
     .map(parseNotificationMinutes)
     .sort((a, b) => a - b)
@@ -201,7 +206,7 @@ async function loadSettingsView(ctx: BotContext): Promise<{ text: string; keyboa
       settings?.learningLangs ?? [],
       settings?.interfaceLang ?? "en",
       lang,
-      settings?.notificationEnabled ?? false,
+      settings?.notificationEnabled ?? true,
       settings?.notificationTimes ?? [],
       settings?.notificationType ?? "srs",
       formatPlanUsageFromConfig(planLimit, usedCredits, lang),

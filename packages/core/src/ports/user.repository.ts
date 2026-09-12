@@ -41,6 +41,10 @@ export interface UserLanguageSettings {
   notificationType: string;
   notificationContext: string | null;
   lastInteractionAt: Date | null;
+  /** Last re-engagement ping of the current lapse episode; NULL once the user returns. */
+  lastReengagementAt: Date | null;
+  /** Re-engagement pings spent in the current lapse episode; 0 while the user is active. */
+  reengagementCount: number;
   isActive: boolean;
   updatedAt: Date;
 }
