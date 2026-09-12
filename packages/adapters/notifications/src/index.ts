@@ -15,7 +15,7 @@ export { createPresetWordPicker, presetCandidates } from "./preset-picker.js";
 export {
   buildNotificationPayload,
   checkAndSend,
-  processInactiveUsers,
+  processLapsedUsers,
   startScheduler,
   stopScheduler,
 } from "./scheduler.js";

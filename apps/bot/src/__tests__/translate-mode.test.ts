@@ -20,7 +20,11 @@ vi.mock("@polyglot/adapter-ai", () => ({
   generateObject: vi.fn(),
 }));
 
-vi.mock("@polyglot/core", () => ({
+// Spread the real module — see the note in `scenes/helpers/out-of-set.test.ts`:
+// a hand-listed core mock breaks collection whenever a transitively imported
+// adapter module starts using another core export.
+vi.mock("@polyglot/core", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@polyglot/core")>()),
   translate: vi.fn(),
   t: vi.fn((key: string) => `[${key}]`),
   isSupported: vi.fn(() => true),

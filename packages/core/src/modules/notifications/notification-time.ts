@@ -7,14 +7,22 @@
 /** Valid notification type strategies */
 export const NOTIFICATION_TYPES = ["suggested", "srs", "contextual"] as const;
 /**
- * Last-resort notification time (19:00 local), stored as an "HH:MM" string.
+ * The notification time a user gets when they have not chosen one (19:00 local),
+ * stored as an "HH:MM" string.
  *
- * This is a **parse fallback**, not the product default. The value a new user's
- * schedule is actually seeded with comes from the admin-managed
- * `notifications.defaultTime` setting, read at the moment they turn notifications
- * on; this constant only answers "what does an unparseable stored string mean".
- * The two are kept at the same value so a malformed row does not silently move
- * someone to a different hour than the product intends.
+ * Two things resolve to it: an unparseable stored string, and — since
+ * notifications began shipping switched **on** — an empty schedule, which is
+ * the state of every user who has never opened Settings. Both the scheduler
+ * (`getUsersForWindow`) and the Settings screen (`formatNotificationTimes`)
+ * resolve through this one constant, so the hour shown and the hour sent cannot
+ * disagree.
+ *
+ * It is still not the same thing as the admin-managed `notifications.defaultTime`,
+ * which is what a schedule is *seeded* with when a user turns notifications on
+ * by hand. The two are kept at the same value deliberately — and that now matters
+ * far more than it used to: this constant governs the send hour of nearly the
+ * whole user base rather than the handful of malformed rows it was written for,
+ * so changing the panel value without changing this one moves nobody, silently.
  *
  * Note the one case where changing this constant *does* move a user without any
  * write: a row holding an unparseable `notification_times` entry previously

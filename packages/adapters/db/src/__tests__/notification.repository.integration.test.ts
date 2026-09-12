@@ -27,9 +27,12 @@
  * assertions filter the (globally-scoped) result down to those ids, so parallel
  * workers cannot invalidate each other and no cleanup is needed between tests.
  */
+import { DEFAULT_NOTIFICATION_TIME, parseNotificationMinutes, REENGAGEMENT_INTERVAL_DAYS } from "@polyglot/core";
+import { eq } from "drizzle-orm";
 import { describe, expect, it } from "vitest";
 import { getDb } from "../connection.js";
 import { notificationRepository } from "../repositories/notification.repository.js";
+import { userRepository } from "../repositories/user.repository.js";
 import { translationRequests, userLanguageSettings, users } from "../schema.js";
 import { uniqueTelegramId } from "../test-helpers/integration/id-factory.js";
 
@@ -42,6 +45,9 @@ interface SeedOptions {
   isActive?: boolean;
   /** `null` seeds a NULL column — a user who has never interacted. */
   lastInteractionAt?: Date | null;
+  /** `null` seeds a NULL column — no ping yet in the current lapse episode. */
+  lastReengagementAt?: Date | null;
+  reengagementCount?: number;
 }
 
 /** A notification-enabled user whose only configured slot is 08:00 local. */
@@ -55,6 +61,8 @@ async function seedNotifiableUser(options: SeedOptions = {}): Promise<number> {
     // tests isolate the property under test rather than accidentally exercising
     // abandonment.
     lastInteractionAt = new Date(Date.now() - DAY_MS),
+    lastReengagementAt = null,
+    reengagementCount = 0,
   } = options;
 
   const db = getDb();
@@ -73,6 +81,8 @@ async function seedNotifiableUser(options: SeedOptions = {}): Promise<number> {
     notificationTimes,
     isActive,
     lastInteractionAt,
+    lastReengagementAt,
+    reengagementCount,
   });
 
   return user!.id;
@@ -157,12 +167,42 @@ describe("notificationRepository.getUsersForWindow (integration)", () => {
     expect(await eligibleAmong([userId], 15, 0)).toEqual([]);
   });
 
-  it("does not notify a user whose schedule is empty", async () => {
-    // An empty list is the representation of "not configured", so it can never
-    // match a window — the state must not silently become a default time.
+  it("notifies a user who has never picked a time, in the product-default window", async () => {
+    // An empty list means "never opened Settings", not "wants silence". Since
+    // notifications ship switched ON, treating empty as "never send" would make
+    // that default inert for everyone who has not gone looking for the toggle —
+    // which was almost the entire user base.
     const userId = await seedNotifiableUser({ notificationTimes: [] });
+    const defaultMinutes = parseNotificationMinutes(DEFAULT_NOTIFICATION_TIME);
 
-    expect(await eligibleAmong([userId])).toEqual([]);
+    expect(await eligibleAmong([userId], Math.floor(defaultMinutes / 60), defaultMinutes % 60)).toEqual([userId]);
+  });
+
+  it("does not notify a user who has never picked a time outside that window", async () => {
+    // The resolution is a default hour, not "always eligible".
+    const userId = await seedNotifiableUser({ notificationTimes: [] });
+    const defaultHour = Math.floor(parseNotificationMinutes(DEFAULT_NOTIFICATION_TIME) / 60);
+
+    expect(await eligibleAmong([userId], (defaultHour + 5) % 24, 0)).toEqual([]);
+  });
+
+  it("ships a brand-new subscriber switched on, without anyone touching Settings", async () => {
+    // Pins the schema default itself: the row is inserted with no notification
+    // columns at all, exactly as onboarding's `updateSettings` upsert leaves it.
+    const db = getDb();
+    const [user] = await db
+      .insert(users)
+      .values({ telegramId: uniqueTelegramId(), onboarded: true, onboardingStep: 4, isActive: true })
+      .returning();
+    await db.insert(userLanguageSettings).values({
+      userId: user!.id,
+      interfaceLang: "ru",
+      nativeLang: "ru",
+      learningLangs: ["de"],
+    });
+    const defaultMinutes = parseNotificationMinutes(DEFAULT_NOTIFICATION_TIME);
+
+    expect(await eligibleAmong([user!.id], Math.floor(defaultMinutes / 60), defaultMinutes % 60)).toEqual([user!.id]);
   });
 
   it("screens each user independently", async () => {
@@ -198,5 +238,135 @@ describe("notificationRepository.getUsersForWindow (integration)", () => {
 
     expect(await eligibleAmong([userId])).toEqual([]);
     expect(await eligibleAmong([userId], 2, 15)).toEqual([]);
+  });
+});
+
+/**
+ * Re-engagement — the lapse episode, end to end in SQL.
+ *
+ * The bug this suite pins shut: the daily sweep used to answer inactivity by
+ * switching `notification_enabled` off. That flag is also a predicate of the
+ * sweep's own candidate query, so re-engagement fired exactly once per account
+ * and every later attempt selected nobody — a user who came back stayed silent
+ * until they re-armed the toggle by hand, which nothing in the product ever asks
+ * them to do. Two of the cases below ("does not unsubscribe" and "pings a second
+ * episode") fail against that old design; the rest bound how loud the new one is.
+ */
+describe("notificationRepository re-engagement (integration)", () => {
+  /** The lapsed ids this run created, among everything the global query returned. */
+  async function dueAmong(ids: number[]): Promise<number[]> {
+    const rows = await notificationRepository.getUsersForReEngagement();
+    return rows.filter((row) => ids.includes(row.userId)).map((row) => row.userId);
+  }
+
+  async function readLapseState(userId: number): Promise<{
+    notificationEnabled: boolean;
+    reengagementCount: number;
+    lastReengagementAt: Date | null;
+  }> {
+    const rows = await getDb()
+      .select({
+        notificationEnabled: userLanguageSettings.notificationEnabled,
+        reengagementCount: userLanguageSettings.reengagementCount,
+        lastReengagementAt: userLanguageSettings.lastReengagementAt,
+      })
+      .from(userLanguageSettings)
+      .where(eq(userLanguageSettings.userId, userId));
+    return rows[0]!;
+  }
+
+  const lapsed = (daysAgo = 20) => ({ lastInteractionAt: new Date(Date.now() - daysAgo * DAY_MS) });
+
+  it("selects a subscriber who has gone quiet past the inactivity threshold", async () => {
+    const userId = await seedNotifiableUser(lapsed());
+
+    expect(await dueAmong([userId])).toEqual([userId]);
+  });
+
+  it("does not select a user who is still active", async () => {
+    const userId = await seedNotifiableUser();
+
+    expect(await dueAmong([userId])).toEqual([]);
+  });
+
+  it("does not select a user who has never interacted", async () => {
+    // NULL means "never seen", not "lapsed" — they still get ordinary cards, so
+    // nudging them to come back would be addressed to someone who never left.
+    const userId = await seedNotifiableUser({ lastInteractionAt: null });
+
+    expect(await dueAmong([userId])).toEqual([]);
+  });
+
+  it("does not select a user who opted out or was deactivated", async () => {
+    const optedOut = await seedNotifiableUser({ ...lapsed(), notificationEnabled: false });
+    const deactivated = await seedNotifiableUser({ ...lapsed(), isActive: false });
+
+    expect(await dueAmong([optedOut, deactivated])).toEqual([]);
+  });
+
+  it("holds a ping back until the spacing interval has elapsed", async () => {
+    const justPinged = await seedNotifiableUser({
+      ...lapsed(),
+      reengagementCount: 1,
+      lastReengagementAt: new Date(Date.now() - 2 * DAY_MS),
+    });
+    const overdue = await seedNotifiableUser({
+      ...lapsed(),
+      reengagementCount: 1,
+      lastReengagementAt: new Date(Date.now() - (REENGAGEMENT_INTERVAL_DAYS + 1) * DAY_MS),
+    });
+
+    expect(await dueAmong([justPinged, overdue])).toEqual([overdue]);
+  });
+
+  it("keeps selecting a long-gone user — the cadence has no ping cap", async () => {
+    // The design this replaces stopped after four nudges and went quiet forever,
+    // turning "nothing new to say" into "unreachable". A curated word every few
+    // days is content the user subscribed to, so it simply continues.
+    const longGone = await seedNotifiableUser({
+      ...lapsed(120),
+      reengagementCount: 40,
+      lastReengagementAt: new Date(Date.now() - 60 * DAY_MS),
+    });
+
+    expect(await dueAmong([longGone])).toEqual([longGone]);
+  });
+
+  it("recording a ping advances the budget and does not unsubscribe the user", async () => {
+    const userId = await seedNotifiableUser(lapsed());
+
+    await notificationRepository.recordReEngagement(userId);
+
+    const state = await readLapseState(userId);
+    expect(state.reengagementCount).toBe(1);
+    expect(state.lastReengagementAt).toBeInstanceOf(Date);
+    // The whole point: going quiet is an episode, not an unsubscribe.
+    expect(state.notificationEnabled).toBe(true);
+    // ...and the freshly-stamped user is no longer due, so a second sweep the
+    // same day cannot double-ping them.
+    expect(await dueAmong([userId])).toEqual([]);
+  });
+
+  it("starts a clean episode after the user has come back and drifted away again", async () => {
+    const userId = await seedNotifiableUser({
+      ...lapsed(),
+      reengagementCount: 7,
+      lastReengagementAt: new Date(Date.now() - 30 * DAY_MS),
+    });
+
+    // The user comes back: the only signal the system gets, and what closes the
+    // episode. The spacing clock is cleared too, so the next lapse is not paced
+    // against a stamp from the previous one.
+    await userRepository.updateLastInteraction(userId);
+    expect(await readLapseState(userId)).toMatchObject({ reengagementCount: 0, lastReengagementAt: null });
+    expect(await dueAmong([userId])).toEqual([]);
+
+    // ...then drifts away again.
+    await getDb()
+      .update(userLanguageSettings)
+      .set({ lastInteractionAt: new Date(Date.now() - 20 * DAY_MS) })
+      .where(eq(userLanguageSettings.userId, userId));
+
+    expect(await dueAmong([userId])).toEqual([userId]);
   });
 });

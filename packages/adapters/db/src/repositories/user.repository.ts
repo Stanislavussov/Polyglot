@@ -227,12 +227,19 @@ export const userRepository = {
     return rows[0] ?? null;
   },
 
-  /** Update last interaction timestamp (fire-and-forget friendly). */
+  /**
+   * Update last interaction timestamp (fire-and-forget friendly).
+   *
+   * Clearing the re-engagement counters here is what closes the lapse episode:
+   * this is the only signal the system gets that a user came back, and without
+   * the reset someone who lapsed once would exhaust their ping budget for good
+   * and get nothing the next time they drifted away.
+   */
   async updateLastInteraction(userId: number): Promise<void> {
     const db = getDb();
     await db
       .update(userLanguageSettings)
-      .set({ lastInteractionAt: new Date(), updatedAt: new Date() })
+      .set({ lastInteractionAt: new Date(), lastReengagementAt: null, reengagementCount: 0, updatedAt: new Date() })
       .where(eq(userLanguageSettings.userId, userId));
   },
 
