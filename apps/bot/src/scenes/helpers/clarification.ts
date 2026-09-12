@@ -19,24 +19,19 @@ import {
 } from "@polyglot/core";
 import { inputCorrectionCounter, unrecognizedWordCounter } from "../../metrics.js";
 import { commitRecovery, resolveRecoveryPrefix } from "../../momentum/recovery.helper.js";
-import {
-  buildTranslationKeyboard,
-  renderSentenceTranslation,
-  renderTranslation,
-} from "../../renderers/translation.renderer.js";
+import { renderSentenceTranslation, renderTranslation } from "../../renderers/translation.renderer.js";
 import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
 import { resolveLanguageOrder } from "../../utils/language-order.js";
 import { LONG_OP_TIMEOUT_MS, startTypingKeepalive, withTimeout } from "../../utils/long-op.js";
-import { ensurePaidFeature, resolveLockedBadges } from "./paid-feature.helper.js";
+import { buildCardKeyboard } from "./card-keyboard.js";
+import { ensurePaidFeature } from "./paid-feature.helper.js";
 import { answerStaleCallback } from "./stale-callback.helper.js";
 import { handleMistypeConfirmCallback } from "./translate-flow.js";
 import {
   clearPendingClarification,
   getUserLanguageGroup,
-  isEtymologyEligible,
   normalizeLearningLangs,
-  resolvePronounceLangs,
   showAddLanguagePrompt,
 } from "./translate-mode.shared.js";
 import { setTranslationEntry } from "./translation-map.helper.js";
@@ -297,16 +292,11 @@ export async function handleTranslationClarificationContextText(ctx: BotContext,
         ? `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(decision.output, order, lang, nativeLang)}`
         : renderTranslation(decision.output, order, lang, effectiveTemplate.fields, nativeLang);
 
-      const showGrammarButton =
-        entry.inputType !== "word" && (isSentence || !effectiveTemplate.fields.grammarBreakdown);
-      const showEtymologyButton = isEtymologyEligible(entry.inputType, decision.output.sourceLang, nativeLang);
-
       // Append-not-edit: the clarified translation is a NEW card; the previous
       // card stays put as a snapshot (which also avoids Telegram's 48h edit
       // limit). Preserve any accumulated "Other meaning" history for the new
       // card and advance the pending-card pointers to it.
-      const pronounceLangs = await resolvePronounceLangs(ctx, decision.output, entry.inputType, order);
-
+      //
       // Recovery only (§2.2 S3): a returning user's line has ONE chance, and the
       // clarify path is where a first word after the pause commonly lands. Praise is
       // deliberately not offered here — it is event-driven and rare, so it waits for
@@ -317,22 +307,18 @@ export async function handleTranslationClarificationContextText(ctx: BotContext,
         parse_mode: "HTML",
       });
       if (recovery) await commitRecovery(ctx, recovery.gapDays, now);
-      const keyboard = buildTranslationKeyboard({
-        interfaceLang: lang,
-        msgId: newMsg.message_id,
-        showGrammarButton,
-        showEtymologyButton,
-        pronounceLangs,
-        locked: await resolveLockedBadges(ctx),
-      });
-      await ctx.api.editMessageReplyMarkup(ctx.chat!.id, newMsg.message_id, { reply_markup: keyboard });
 
       setTranslationEntry(ctx.session, newMsg.message_id, {
         output: decision.output,
         inputType: entry.inputType,
         contextHint: entry.contextHint,
         previousTranslations: entry.previousTranslations,
+        actionsExpanded: entry.actionsExpanded === true,
       });
+      const newEntry = ctx.session.translationMap![String(newMsg.message_id)]!;
+      const keyboard = await buildCardKeyboard(ctx, newEntry, newMsg.message_id, lang, nativeLang);
+      await ctx.api.editMessageReplyMarkup(ctx.chat!.id, newMsg.message_id, { reply_markup: keyboard });
+
       ctx.session.pendingCardMsgId = newMsg.message_id;
       ctx.session.pendingTranslation = decision.output;
     } catch (err) {

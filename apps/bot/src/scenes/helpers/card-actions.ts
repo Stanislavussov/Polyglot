@@ -24,7 +24,6 @@ import type { InlineKeyboard } from "grammy";
 import { recordEffort } from "../../momentum/momentum.wiring.js";
 import {
   buildGrammarLangKeyboard,
-  buildTranslationKeyboard,
   renderSentenceTranslation,
   renderTranslation,
 } from "../../renderers/translation.renderer.js";
@@ -33,10 +32,10 @@ import { resolveDefaultAIModel } from "../../utils/ai-model.js";
 import { languageOrderFromSettings, resolveLanguageOrder } from "../../utils/language-order.js";
 import { isUserFacingTimeout, LONG_OP_TIMEOUT_MS, loadingKeyboard, withTimeout } from "../../utils/long-op.js";
 import { toVocabularyInput } from "../../utils/vocabulary-mapper.js";
+import { buildCardKeyboard } from "./card-keyboard.js";
 import { editMessageReplyMarkupOrIgnore, editMessageTextOrReply } from "./edit-message.helper.js";
-import { ensurePaidFeature, resolveLockedBadges } from "./paid-feature.helper.js";
+import { ensurePaidFeature } from "./paid-feature.helper.js";
 import { answerStaleCallback } from "./stale-callback.helper.js";
-import { isEtymologyEligible, resolvePronounceLangs } from "./translate-mode.shared.js";
 import { setTranslationEntry } from "./translation-map.helper.js";
 
 /** Per-message translation state kept in the session, keyed by the card's message id. */
@@ -291,32 +290,25 @@ export async function handleAltMeaningCallback(ctx: BotContext): Promise<void> {
       ? `${t("sentenceTranslation", lang)}\n\n${renderSentenceTranslation(decision.output, order, lang, nativeLang)}`
       : renderTranslation(decision.output, order, lang, effectiveTemplate.fields, nativeLang);
 
-    const showGrammarButton = entry.inputType !== "word" && (isSentence || !effectiveTemplate.fields.grammarBreakdown);
-    const showEtymologyButton = isEtymologyEligible(entry.inputType, decision.output.sourceLang, nativeLang);
-
     // Append-not-edit: the new meaning is a NEW card; the previous one stays put
     // as a snapshot. Carry the accumulated negative constraints forward into the
     // new card's entry so a further "Other meaning" tap still excludes every
     // sense shown so far, and point the pending-card pointers at the new card.
-    const pronounceLangs = await resolvePronounceLangs(ctx, decision.output, entry.inputType, order);
-
     const newMsg = await ctx.reply(cardText, { parse_mode: "HTML" });
-    const keyboard = buildTranslationKeyboard({
-      interfaceLang: lang,
-      msgId: newMsg.message_id,
-      showGrammarButton,
-      showEtymologyButton,
-      pronounceLangs,
-      locked: await resolveLockedBadges(ctx),
-    });
-    await ctx.api.editMessageReplyMarkup(ctx.chat!.id, newMsg.message_id, { reply_markup: keyboard });
 
     setTranslationEntry(ctx.session, newMsg.message_id, {
       output: decision.output,
       inputType: entry.inputType,
       contextHint: entry.contextHint,
       previousTranslations: prev,
+      // The tap that produced this card came from an open action list, so the new
+      // card opens with the list already open — the user is still in that mode.
+      actionsExpanded: entry.actionsExpanded === true,
     });
+    const newEntry = ctx.session.translationMap![String(newMsg.message_id)]!;
+    const keyboard = await buildCardKeyboard(ctx, newEntry, newMsg.message_id, lang, nativeLang);
+    await ctx.api.editMessageReplyMarkup(ctx.chat!.id, newMsg.message_id, { reply_markup: keyboard });
+
     ctx.session.pendingCardMsgId = newMsg.message_id;
     ctx.session.pendingTranslation = decision.output;
   } catch (err) {
@@ -469,8 +461,13 @@ export async function handleEtymologyCallback(ctx: BotContext): Promise<void> {
 
 /**
  * Card text + keyboard for an entry's CURRENT state: whichever on-demand sections
- * have been generated, each learning-aid button hidden once its section is on the
- * card, and the saved state once the word is in the dictionary.
+ * have been generated, and the saved state once the word is in the dictionary.
+ *
+ * The keyboard comes from {@link buildCardKeyboard}, which is what a fresh card
+ * and the `⋯ More` toggle use too — each learning aid retires once its section is
+ * on the card, and nothing else about the card's buttons changes just because one
+ * of them was tapped. The action list stays open, since a section appearing under
+ * a still-open menu is the result the tap promised.
  */
 async function buildCardView(
   ctx: BotContext,
@@ -498,25 +495,8 @@ async function buildCardView(
         entry.etymology,
       );
 
+  const keyboard = await buildCardKeyboard(ctx, entry, msgId, lang, nativeLang);
   const isSaved = entry.savedWordId !== undefined;
-  const grammarShown = !!entry.grammarBreakdown;
-  const etymologyShown = !!entry.etymology;
-  const grammarEligible = entry.inputType !== "word" && (isSentence || !effectiveTemplate.fields.grammarBreakdown);
-
-  const pronounceLangs = await resolvePronounceLangs(ctx, entry.output, entry.inputType, order);
-
-  // Grammar button hides once shown (replaced by the Details button for phrases);
-  // etymology button hides once its section is on the card.
-  const keyboard = buildTranslationKeyboard({
-    interfaceLang: lang,
-    msgId,
-    isAlreadySaved: isSaved,
-    showGrammarButton: grammarEligible && !grammarShown,
-    showGrammarDetailButton: grammarShown && !isSentence,
-    showEtymologyButton: isEtymologyEligible(entry.inputType, entry.output.sourceLang, nativeLang) && !etymologyShown,
-    pronounceLangs,
-    locked: await resolveLockedBadges(ctx),
-  });
 
   return { text: isSaved ? `${body}\n\n${t("savedToDict", lang)}` : body, keyboard };
 }
@@ -592,30 +572,17 @@ export async function handleGrammarLangSelectCallback(ctx: BotContext): Promise<
   const iLang = settings?.interfaceLang ?? "en";
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
   const nativeLang = settings?.nativeLang ?? "en";
-  // Every keyboard rebuild below is a restore, so the pronunciation row has to be
-  // recomputed too — otherwise the speaker silently disappears once a user opens
-  // the grammar-detail flow on a card.
-  const detailPronounceLangs = await resolvePronounceLangs(
-    ctx,
-    entry.output,
-    entry.inputType,
-    languageOrderFromSettings(settings),
-  );
-  const locked = await resolveLockedBadges(ctx);
-  /** The card's normal keyboard, with the detail button back — every exit from this flow restores it. */
-  const restoreKeyboard = () =>
-    buildTranslationKeyboard({
-      interfaceLang: lang,
-      msgId,
-      isAlreadySaved: entry.savedWordId !== undefined,
-      showGrammarDetailButton: true,
-      pronounceLangs: detailPronounceLangs,
-      locked,
-    });
+  /**
+   * The card's normal keyboard — every exit from this flow restores it. Derived
+   * from the card rather than hand-listed: a hand-listed restore is how the
+   * speaker used to vanish once a user opened the grammar-detail flow, and how
+   * the source-language override never came back at all.
+   */
+  const restoreKeyboard = () => buildCardKeyboard(ctx, entry, msgId, lang, nativeLang);
 
   // Cancel — restore normal keyboard with detail button
   if (langCodeOrCancel === "cancel") {
-    const keyboard = restoreKeyboard();
+    const keyboard = await restoreKeyboard();
     await ctx.api.editMessageReplyMarkup(ctx.chat!.id, msgId, { reply_markup: keyboard });
     await ctx.answerCallbackQuery();
     return;
@@ -669,11 +636,11 @@ export async function handleGrammarLangSelectCallback(ctx: BotContext): Promise<
     await ctx.reply(header + escapeHtml(detailText), { parse_mode: "HTML" });
 
     // Restore keyboard with detail button
-    const keyboard = restoreKeyboard();
+    const keyboard = await restoreKeyboard();
     await ctx.api.editMessageReplyMarkup(ctx.chat!.id, msgId, { reply_markup: keyboard });
   } catch (err) {
     logEvent("card.grammar_detail_failed", { word: entry.output.original, langCode, ...errorFields(err) }, "error");
-    const keyboard = restoreKeyboard();
+    const keyboard = await restoreKeyboard();
     await ctx.api.editMessageReplyMarkup(ctx.chat!.id, msgId, { reply_markup: keyboard }).catch(() => {});
     await ctx.answerCallbackQuery({ text: longOpFailureText(err, lang), show_alert: true });
     return;

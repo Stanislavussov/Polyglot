@@ -40,7 +40,13 @@ export const MENTOR_MAX_INPUT_LENGTH = 1000;
 export interface MentorTurnOptions {
   /** Thread to continue (reply-continuation or retry); resolved from session/DB when absent. */
   threadId?: string;
-  /** Held user message id, for a turn resumed from a callback where `ctx.message` is absent. */
+  /**
+   * Message id to anchor the user's turn to when the turn did not arrive as a
+   * message: a held message resumed from a callback, or a card's "Ask the mentor"
+   * button, where the card itself is what the question is about. Without it the
+   * question would be missing from the thread's history and a follow-up would
+   * read the answer with no question.
+   */
   userMessageId?: number;
 }
 

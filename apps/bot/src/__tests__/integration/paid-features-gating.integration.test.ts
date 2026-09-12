@@ -29,6 +29,7 @@ import {
   createBotHarness,
   lastRenderedCard,
   messageUpdate,
+  openCardActions,
 } from "../../test-helpers/integration/bot-harness.js";
 import { uniqueTelegramId } from "../../test-helpers/integration/id-factory.js";
 import { deterministicTranslateAi } from "../../test-helpers/integration/translate-ai-mock.js";
@@ -79,10 +80,20 @@ function cardLabels(harness: BotHarness): Record<string, string> {
   return labels;
 }
 
-/** Send a word and return the rendered card. */
+/**
+ * Send a word and return the rendered card with its action list already open.
+ *
+ * The badged clarify/other-meaning buttons live behind `⋯ More`, so the list has
+ * to be opened to see them; the speakers and Save do not, so the collapsed card's
+ * labels are captured first and handed back separately — `cardLabels` only ever
+ * reads the most recent markup, and after the tap that is the menu.
+ */
 async function renderCard(harness: BotHarness, chatId: number, word: string) {
   await harness.dispatch(messageUpdate({ chatId, fromId: chatId, text: word }));
-  return lastRenderedCard(harness.sent);
+  const { messageId } = lastRenderedCard(harness.sent);
+  const cardOnlyLabels = cardLabels(harness);
+  const buttons = await openCardActions(harness, { chatId, messageId });
+  return { messageId, buttons, cardOnlyLabels };
 }
 
 const tap = (harness: BotHarness, chatId: number, messageId: number, data: string) =>
@@ -102,7 +113,7 @@ describe("paid features on a translation card (integration)", () => {
     const userId = await arrangeOnboardedTranslator(id); // native en, learning cs → free plan
 
     // Act
-    const { messageId: cardMsgId, buttons } = await renderCard(harness, id, "hello");
+    const { messageId: cardMsgId, buttons, cardOnlyLabels } = await renderCard(harness, id, "hello");
 
     // Assert — the badge is on the paid buttons only, each naming the tier that
     // actually sells it: clarify is the Plus rung, audio is Pro-only. A ⭐ on the
@@ -112,7 +123,9 @@ describe("paid features on a translation card (integration)", () => {
     expect(labels[`tr:altmeaning:${cardMsgId}`]).toContain("⭐");
     expect(labels[`tr:say:cs:${cardMsgId}`]).toContain("💎");
     expect(labels[`tr:say:cs:${cardMsgId}`]).not.toContain("⭐");
-    expect(labels[`tr:save:${cardMsgId}`]).not.toMatch(/⭐|💎/);
+    // Save is on the card rather than in the menu, and is free for everyone.
+    expect(cardOnlyLabels[`tr:save:${cardMsgId}`]).toBeDefined();
+    expect(cardOnlyLabels[`tr:save:${cardMsgId}`]).not.toMatch(/⭐|💎/);
     // Locked or not, the card carries the same buttons — nothing is hidden.
     expect(buttons).toContain(`tr:say:cs:${cardMsgId}`);
 

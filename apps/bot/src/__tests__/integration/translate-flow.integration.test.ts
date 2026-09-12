@@ -155,11 +155,12 @@ describe("translate happy path (integration)", () => {
       callbackQueryUpdate({ chatId: id, fromId: id, messageId: cardMsgId, data: `tr:save:${cardMsgId}` }),
     );
 
-    // Assert — the fallback message carries the keyboard, still addressing the same card entry.
+    // Assert — the fallback message carries the keyboard, still addressing the same
+    // card entry: Save, and the opener that reaches everything behind `⋯ More`.
     const { text, buttons } = savedCard(harness.sent);
     expect(harness.sent.some((c) => c.method === "sendMessage")).toBe(true);
     expect(buttons.map((b) => b.data)).toContain(`tr:save:${cardMsgId}`);
-    expect(buttons.map((b) => b.data)).toContain(`tr:clarifypost:${cardMsgId}`);
+    expect(buttons.map((b) => b.data)).toContain(`tr:more:${cardMsgId}`);
     expect(text).toContain(t("savedToDict", "en"));
   });
 

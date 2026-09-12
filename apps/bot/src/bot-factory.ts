@@ -57,6 +57,8 @@ import {
   handleSaveCallback,
   handleSkipCallback,
 } from "./scenes/helpers/card-actions.js";
+import { handleCardMentorCallback } from "./scenes/helpers/card-mentor.js";
+import { handleCardLessCallback, handleCardMoreCallback } from "./scenes/helpers/card-menu.js";
 import { handleClarifyPostCallback, handleTranslationClarificationCallback } from "./scenes/helpers/clarification.js";
 import {
   handleDictAdd,
@@ -499,6 +501,9 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   onCallback(/^tr:grammar:/, handleGrammarBreakdownCallback);
   onCallback(/^tr:etymology:/, handleEtymologyCallback);
   onCallback(/^tr:say:/, handlePronounceCallback);
+  onCallback(/^tr:more:/, handleCardMoreCallback);
+  onCallback(/^tr:less:/, handleCardLessCallback);
+  onCallback(/^tr:mentor:/, handleCardMentorCallback);
   onCallback("tr:mistype:confirm", handleMistypeConfirmCallback);
 
   onCallback("plan:upgrade", handleUpgradePromptCallback);
