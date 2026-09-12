@@ -48,6 +48,13 @@ export interface MentorTurnOptions {
    * read the answer with no question.
    */
   userMessageId?: number;
+  /**
+   * The part of `text` the user actually typed, when the turn's text is composed
+   * rather than typed (a card question carries the whole card with it). The
+   * length guard is about what a user may send, so it measures this — a composed
+   * block is the bot's own doing and is bounded by the card it came from.
+   */
+  userInput?: string;
 }
 
 /**
@@ -82,7 +89,7 @@ export async function handleMentorText(ctx: BotContext, text: string, opts?: Men
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
 
   // Validate input length
-  if (text.length > MENTOR_MAX_INPUT_LENGTH) {
+  if ((opts?.userInput ?? text).length > MENTOR_MAX_INPUT_LENGTH) {
     await ctx.reply(t("mentorInputTooLong", lang, { max: MENTOR_MAX_INPUT_LENGTH }));
     return;
   }

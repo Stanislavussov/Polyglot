@@ -10,6 +10,7 @@ import { isVideoUrl, isYouTubeUrl } from "@polyglot/adapter-youtube";
 import { isSupported, logEvent, type SupportedLang, t } from "@polyglot/core";
 import type { NextFunction } from "grammy";
 import { markHandled } from "../observability/handler-log.js";
+import { tryHandleCardMentorQuestion } from "../scenes/helpers/card-mentor.js";
 import { handleTranslationClarificationContextText } from "../scenes/helpers/clarification.js";
 import { handleDictionaryNameInput } from "../scenes/helpers/dictionary.helper.js";
 import { maybePromptMentorIdle } from "../scenes/helpers/mentor-idle.helper.js";
@@ -100,6 +101,13 @@ export async function modeRouterMiddleware(ctx: BotContext, next: NextFunction):
   if (ctx.session.awaitingTranslationClarificationContext) {
     markHandled(ctx, "modeRouter:clarificationContext");
     await handleTranslationClarificationContextText(ctx, text);
+    return;
+  }
+
+  // The card's "what would you like to clarify?" prompt claims the next message
+  // as its question, and answering it is what moves the user into mentor mode.
+  if (await tryHandleCardMentorQuestion(ctx, text)) {
+    markHandled(ctx, "modeRouter:cardMentorQuestion");
     return;
   }
 

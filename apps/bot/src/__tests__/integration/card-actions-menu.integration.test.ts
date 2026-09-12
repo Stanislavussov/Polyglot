@@ -13,9 +13,11 @@
  *  - opening the list costs nothing — no AI call, no message rewrite;
  *  - a section generated from the list leaves the list open and retires only its
  *    own button, because every rebuild goes through the one keyboard resolver;
- *  - "Ask the mentor" persists a real two-row thread the user never typed into.
+ *  - "Ask the mentor" only opens its question prompt: no AI call, and the user is
+ *    left in translate mode (the turn itself is card-mentor-ask.integration.test.ts).
  */
-import { botSessionRepository, mentorMessageRepository } from "@polyglot/adapter-db";
+import { botSessionRepository } from "@polyglot/adapter-db";
+import { t } from "@polyglot/core";
 import { describe, expect, it, vi } from "vitest";
 import { arrangeOnboardedTranslator } from "../../test-helpers/integration/arrange.js";
 import {
@@ -166,7 +168,7 @@ describe("the card's hidden action list (integration)", () => {
     expect(callbackAlert(harness)).toBeUndefined();
   });
 
-  it("asks the mentor about the card and persists both turns of the new thread", async () => {
+  it("opens the mentor's question prompt without spending a turn or moving the user", async () => {
     // Arrange
     const { harness, generateChat } = arrangeHarness();
     const id = uniqueTelegramId();
@@ -179,29 +181,13 @@ describe("the card's hidden action list (integration)", () => {
     harness.reset();
     await tap(harness, id, cardId, `tr:mentor:${cardId}`);
 
-    // Assert — the question the user never typed carries the card's own text.
-    expect(generateChat).toHaveBeenCalledTimes(1);
-    const messages = generateChat.mock.calls[0]![0] as Array<{ role: string; content: string }>;
-    const question = messages.at(-1)!;
-    expect(question.role).toBe("user");
-    expect(question.content).toContain(SENTENCE);
-    expect(lastMessageText(harness)).toBe(MENTOR_ANSWER);
-
-    // Assert — a real thread, so a reply to the answer can continue it. Both rows
-    // are there: a question missing from history would leave a follow-up reading
-    // an answer to nothing.
-    const answerId = harness.sent.find((call) => call.payload.text === MENTOR_ANSWER)!.messageId!;
-    const threadId = await mentorMessageRepository.findThreadByMessage(id, answerId);
-    expect(threadId).toBeTruthy();
-    const history = await mentorMessageRepository.getRecentMessages(threadId!, 10);
-    expect(history.map((m) => m.role)).toEqual(["user", "assistant"]);
-    expect(history[0]!.content).toContain(SENTENCE);
-    expect(history[1]!.content).toBe(MENTOR_ANSWER);
-
-    // Assert — the tap explained the card; it did not move the user into mentor
-    // mode, where the next typed word would stop being translated.
-    const session = await botSessionRepository.get(String(id));
-    expect((session?.data as SessionData | undefined)?.activeMode).toBe("translate");
+    // Assert — the tap asks what to clarify; nothing is generated and the user is
+    // still translating. The turn itself lives in card-mentor-ask.integration.test.ts.
+    expect(generateChat).not.toHaveBeenCalled();
+    expect(lastMessageText(harness)).toBe(t("cardMentorAskPrompt", "en", { text: SENTENCE }));
+    const session = (await botSessionRepository.get(String(id)))?.data as SessionData | undefined;
+    expect(session?.activeMode).toBe("translate");
+    expect(session?.pendingCardMentorAsk?.cardMsgId).toBe(cardId);
     expect(userId).toBeGreaterThan(0);
   });
 

@@ -55,7 +55,13 @@ import {
   handleSaveCallback,
   handleSkipCallback,
 } from "./scenes/helpers/card-actions.js";
-import { handleCardMentorCallback } from "./scenes/helpers/card-mentor.js";
+import {
+  CARD_MENTOR_CANCEL_CALLBACK,
+  CARD_MENTOR_EXPLAIN_CALLBACK,
+  handleCardMentorCallback,
+  handleCardMentorCancelCallback,
+  handleCardMentorExplainCallback,
+} from "./scenes/helpers/card-mentor.js";
 import { handleCardLessCallback, handleCardMoreCallback } from "./scenes/helpers/card-menu.js";
 import { handleClarifyPostCallback, handleTranslationClarificationCallback } from "./scenes/helpers/clarification.js";
 import {
@@ -401,14 +407,16 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
       // stops firing, LEGACY_MENU_LABELS in utils/main-menu.ts can be deleted.
       if (tap.legacy) logEvent("menu.legacy_tap", { action: tap.action });
       // A hot button reaches its mode without passing through modeRouterMiddleware, which
-      // is where all three "waiting for your next message" flags are consumed. Left armed,
+      // is where every "waiting for your next message" flag is consumed. Left armed,
       // the user's next word is swallowed by a flow they walked away from — filed as a
-      // notification context, or as the name of a new dictionary, or as clarification
-      // context for the previous card — instead of being translated. Tapping a button is
-      // an explicit abandonment of the prompt, so all three are disarmed together.
+      // notification context, as the name of a new dictionary, as clarification context
+      // for the previous card, or as a question to the mentor about it — instead of being
+      // translated. Tapping a button is an explicit abandonment of the prompt, so they are
+      // all disarmed together.
       ctx.session.awaitingNotifContext = false;
       ctx.session.dictionaryWizard = undefined;
       ctx.session.awaitingTranslationClarificationContext = undefined;
+      ctx.session.pendingCardMentorAsk = undefined;
       switch (tap.action) {
         case "flashcard":
           return handleFlashcardCommand(ctx);
@@ -500,6 +508,11 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   onCallback(/^tr:more:/, handleCardMoreCallback);
   onCallback(/^tr:less:/, handleCardLessCallback);
   onCallback(/^tr:mentor:/, handleCardMentorCallback);
+
+  // The two answers to the card's "what would you like to clarify?" prompt: the
+  // card's own question, or drop the prompt and stay put.
+  onCallback(CARD_MENTOR_EXPLAIN_CALLBACK, handleCardMentorExplainCallback);
+  onCallback(CARD_MENTOR_CANCEL_CALLBACK, handleCardMentorCancelCallback);
   onCallback("tr:mistype:confirm", handleMistypeConfirmCallback);
 
   onCallback("plan:upgrade", handleUpgradePromptCallback);
