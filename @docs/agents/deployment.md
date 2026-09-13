@@ -301,3 +301,53 @@ see at all.
 
 On `develop` use only `db:generate` + `db:push`; a true from-scratch `db:migrate`
 replay is a CI-environment check, never a local one.
+
+## 9. Data changes ride the deploy, never a laptop
+
+A change that repairs or backfills **rows** — a one-off fix for data an earlier
+bug damaged, a backfill for a new column, an upsert of reference data — is not
+finished when a script works against some database. It is finished when it
+applies itself to **both** databases without anyone running anything.
+
+1. **CI runs it.** The deploy already migrates and seeds both databases; a data
+   step belongs beside them in `deploy.yml`, right after the seed, as a compiled
+   CLI (`apps/bot/src/<name>.cli.ts`, registered in `knip.json`'s `apps/bot`
+   entry list) invoked with
+   `docker compose run --rm --no-deps bot node apps/bot/dist/<name>.cli.js`. A
+   `pnpm <name>` script is not a substitute: it needs a production connection
+   string on a developer machine, and production is exactly the environment
+   nobody should be reaching that way — so the database carrying the most damaged
+   rows is the one that never gets fixed.
+
+2. **One unconditional step, both environments.** `deploy.yml` serves `master`
+   and `develop` from a single job, and the only branch-conditional steps are the
+   dev-only Neon branch cut, the tester reset, and the prod-only release
+   announcement. Wrap a data step in `if [ "$DEPLOY_ENV" = "development" ]` and
+   production diverges silently — nothing fails, nobody is told, and the gap is
+   found months later. Develop is the rehearsal; master must run what it
+   rehearsed.
+
+3. **Idempotent by construction, not by a flag.** The step runs on *every* deploy
+   from the day it lands until someone deletes it, and on dev it runs against a
+   database freshly branched from production each time. Make the second run a
+   no-op in the data itself: a predicate that stops matching once repaired
+   (`NOT EXISTS (… the row …)`), `onConflictDoNothing`, an `if_version` guard.
+   Never a "has this run?" marker table, and never a flag someone must remember
+   to flip — both are how a repair gets run twice or not at all.
+
+4. **Additive, and safe against the old image.** The step runs in the same window
+   as §6: the new schema is live, the **old** containers are still serving.
+   Prefer inserting what is missing over updating or deleting what is there. A
+   step that rewrites rows the running code also writes gets the compatibility
+   review a destructive migration gets.
+
+5. **Proved against real Postgres before it is pointed at a dictionary.** Assert
+   what it restores, what it refuses to touch, and that a second run writes
+   nothing — `packages/adapters/db/src/__tests__/*.integration.test.ts`, run with
+   `pnpm test:integration`. A data repair is the one kind of change whose bugs are
+   not visible in a diff.
+
+6. **Write down how it dies.** A one-off repair is dead weight the day after it
+   works, and it stays forever unless the removal is spelled out. Name the CLI,
+   its deploy step and its query module in the file header and in the CHANGELOG
+   entry, with the condition ("once both environments have run it").
