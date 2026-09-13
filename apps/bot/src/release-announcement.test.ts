@@ -46,6 +46,9 @@ function makeRepository(
     findExternalId: vi.fn<ReleaseAnnouncementRepository["findExternalId"]>((userId) =>
       Promise.resolve(externalIds[userId] ?? null),
     ),
+    recordNotificationDelivery: vi.fn<ReleaseAnnouncementRepository["recordNotificationDelivery"]>(() =>
+      Promise.resolve(),
+    ),
   };
 }
 
@@ -101,6 +104,14 @@ describe("sendReleaseAnnouncement", () => {
       { parse_mode: "HTML", disable_web_page_preview: true },
     );
     expect(messenger.sendMessage).not.toHaveBeenCalledWith(333, expect.any(String), expect.anything());
+    expect(repository.recordNotificationDelivery).toHaveBeenCalledTimes(2);
+    expect(repository.recordNotificationDelivery).toHaveBeenCalledWith({
+      userId: 1,
+      kind: "release_announcement",
+      text: vi.mocked(messenger.sendMessage).mock.calls[0]?.[1],
+      parseMode: "HTML",
+      meta: { releaseId: "release-1" },
+    });
   });
 
   it("does not resend already recorded deliveries", async () => {

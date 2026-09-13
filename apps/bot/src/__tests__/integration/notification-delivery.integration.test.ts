@@ -33,6 +33,7 @@
  * This deviation is deliberate.
  */
 import {
+  notificationDeliveryRepository,
   notificationRepository,
   systemSettingsRepository,
   translationRequestRepository,
@@ -130,6 +131,12 @@ async function deliveryDelta(act: () => Promise<unknown>): Promise<Record<string
 
 function textOf(call: CapturedCall): string {
   return String((call.payload as { text?: string }).text ?? "");
+}
+
+/** The admin panel's view of what this user was sent, newest first. */
+async function journalFor(userId: number) {
+  const { deliveries } = await notificationDeliveryRepository.list({ page: 1, limit: 10, userId });
+  return deliveries;
 }
 
 /** Users the current test created. Drained unconditionally in `afterEach`. */
@@ -253,6 +260,9 @@ describe("scheduled notification delivery (integration)", () => {
     expect(mine).toHaveLength(1);
     expect(textOf(mine[0]!)).toContain("Your dictionary is empty");
     expect(await notificationRepository.getSentWordsSince(userId, since)).toEqual([]);
+    expect((await journalFor(userId)).map((row) => [row.kind, row.text])).toEqual([
+      ["dictionary_empty", textOf(mine[0]!)],
+    ]);
     expect(ai.wasCalled()).toBe(false);
   });
 
@@ -277,6 +287,34 @@ describe("scheduled notification delivery (integration)", () => {
     expect(await notificationRepository.getSentWordsSince(userId, since)).toEqual([]);
     const settings = await userRepository.getSettings(userId);
     expect(settings?.notificationEnabled).toBe(false);
+    // A message Telegram refused never reached the chat, so the admin must not see it as delivered.
+    expect(await journalFor(userId)).toEqual([]);
+    expect(ai.wasCalled()).toBe(false);
+  });
+
+  it("C15: journals the delivered card with the exact text that reached the chat", async () => {
+    // Arrange
+    const harness = createBotHarness();
+    const telegramId = uniqueTelegramId();
+    const { userId, headword } = await arrangeTracked(telegramId);
+    const { sendFn, deps, ai } = await buildDelivery(harness);
+    harness.reset();
+
+    // Act
+    await checkAndSend(sendFn, deps);
+
+    // Assert — the wire, then the journal row the admin panel reads.
+    const mine = messagesTo(harness.sent, telegramId);
+    expect(mine).toHaveLength(1);
+    const journal = await journalFor(userId);
+    expect(journal).toHaveLength(1);
+    expect(journal[0]).toMatchObject({
+      kind: "word_card",
+      text: textOf(mine[0]!),
+      parseMode: "HTML",
+      user: { id: userId, telegramId },
+    });
+    expect(journal[0]?.meta?.word).toBe(headword);
     expect(ai.wasCalled()).toBe(false);
   });
 

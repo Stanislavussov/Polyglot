@@ -4,6 +4,7 @@ import {
   getLang,
   identityRepository,
   momentumRepository,
+  notificationDeliveryRepository,
   notificationRepository,
   onboardingDemoCardRepository,
   settingsAdapter,
@@ -40,6 +41,7 @@ import { mockPaymentAdapter } from "../payment.js";
 import { buildAiFailover, resolveDefaultAIModel, resolveFallbackAIModel } from "../utils/ai-model.js";
 import { clampAiBudgetToOpGuard } from "../utils/long-op.js";
 import { isUserBlocked } from "../utils/telegram-errors.js";
+import { logDelivery } from "./delivery-log.js";
 import { buildNotificationKeyboard, formatNotificationMessage } from "./notification.formatter.js";
 
 const jitTranslationSchema = z.object({
@@ -350,6 +352,17 @@ Return translations as JSON array.`;
         reply_markup: kb,
       }),
     );
+    await logDelivery(notificationDeliveryRepository, {
+      userId,
+      kind: "word_card",
+      text: message,
+      parseMode: "HTML",
+      meta: {
+        word: payload.word.headword ?? payload.word.original,
+        source: payload.word.source ?? null,
+        entryId: payload.word.entryId ?? null,
+      },
+    });
     await weeklyProof?.commit();
   };
 
@@ -360,6 +373,12 @@ Return translations as JSON array.`;
       return;
     }
     await withDeliveryMetrics(() => api.sendMessage(telegramId, message, { parse_mode: "HTML" }));
+    await logDelivery(notificationDeliveryRepository, {
+      userId,
+      kind: "re_engagement",
+      text: message,
+      parseMode: "HTML",
+    });
   };
 
   // The preset layer's free source: cards already rendered and human-reviewed
@@ -419,10 +438,9 @@ Return translations as JSON array.`;
     sendDictionaryEmptyPrompt: async (userId: number, lang: string) => {
       const telegramId = await resolveTelegramId(userId);
       if (telegramId === null) return;
-      await api.sendMessage(
-        telegramId,
-        t("notifNoDictionary" as never, (isSupported(lang) ? lang : "en") as SupportedLang),
-      );
+      const text = t("notifNoDictionary" as never, (isSupported(lang) ? lang : "en") as SupportedLang);
+      await api.sendMessage(telegramId, text);
+      await logDelivery(notificationDeliveryRepository, { userId, kind: "dictionary_empty", text });
     },
     t: (key: string, lang: string, params?: Record<string, string>) =>
       t(key as never, (isSupported(lang) ? lang : "en") as SupportedLang, params),

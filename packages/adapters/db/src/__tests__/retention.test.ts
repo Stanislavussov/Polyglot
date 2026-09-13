@@ -78,9 +78,9 @@ describe("runTelemetryRetention", () => {
     await runTelemetryRetention(DEFAULT_RETENTION_DAYS);
     const after = Date.now();
 
-    // One delete + one lt predicate per telemetry table (12 tables).
-    expect(mockDb.delete).toHaveBeenCalledTimes(12);
-    expect(ltCalls).toHaveLength(12);
+    // One delete + one lt predicate per telemetry table (13 tables).
+    expect(mockDb.delete).toHaveBeenCalledTimes(13);
+    expect(ltCalls).toHaveLength(13);
 
     // Every timestamp cutoff is exactly `now - 90d`; the compact daily counter
     // uses the same instant rendered as a UTC "YYYY-MM-DD" day string.
@@ -157,7 +157,7 @@ describe("runTelemetryRetention", () => {
     // [0] dictionary_lookup_logs [1] translation_requests [2] translation_request_timings
     // [3] ai_request_latencies [4] language_detection_events [5] notification_history
     // [6] word_review_log [7] momentum_events [8] bot_sessions [9] user_daily_request_counts [10] mentor_messages
-    // [11] product_events
+    // [11] product_events [12] notification_deliveries
     rowsPerDelete = [
       [{ id: 1 }, { id: 2 }], // dictionary_lookup_logs → 2
       [{ id: 3 }], // translation_requests → 1
@@ -171,6 +171,7 @@ describe("runTelemetryRetention", () => {
       [{ userId: 1 }, { userId: 2 }], // user_daily_request_counts → 2
       [{ id: 8 }], // mentor_messages → 1
       [{ id: 10 }, { id: 11 }, { id: 12 }], // product_events → 3
+      [{ id: 13 }, { id: 14 }], // notification_deliveries → 2
     ];
 
     const result = await runTelemetryRetention();
@@ -188,6 +189,7 @@ describe("runTelemetryRetention", () => {
       user_daily_request_counts: 2,
       mentor_messages: 1,
       product_events: 3,
+      notification_deliveries: 2,
     });
   });
 

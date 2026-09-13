@@ -72,6 +72,13 @@ export {
   parseNotificationMinutes,
 } from "./repositories/notification.repository.js";
 export type {
+  NotificationDeliveryListFilters,
+  NotificationDeliveryListItem,
+  NotificationDeliveryListResult,
+  RecordNotificationDeliveryInput,
+} from "./repositories/notification-delivery.repository.js";
+export { notificationDeliveryRepository } from "./repositories/notification-delivery.repository.js";
+export type {
   OnboardingDemoCardCounts,
   OnboardingDemoCardListFilters,
   OnboardingDemoCardListResult,

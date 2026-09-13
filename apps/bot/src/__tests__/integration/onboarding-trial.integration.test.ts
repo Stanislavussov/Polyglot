@@ -32,6 +32,7 @@
 import {
   identityRepository,
   momentumRepository,
+  notificationDeliveryRepository,
   notificationRepository,
   subscriptionRepository,
   userRepository,
@@ -117,7 +118,13 @@ async function renderCard(harness: BotHarness, chatId: number): Promise<number> 
 }
 
 function sweepServices() {
-  return { subscriptionRepository, userRepository, notificationRepository, momentumRepository };
+  return {
+    subscriptionRepository,
+    userRepository,
+    notificationRepository,
+    momentumRepository,
+    notificationDeliveryRepository,
+  };
 }
 
 describe("onboarding reverse trial (integration)", () => {
@@ -165,12 +172,16 @@ describe("onboarding reverse trial (integration)", () => {
     // database with the other worker, so only this user's messages are ours.
     const mine = () => sendMessage.mock.calls.filter(([chatId]) => chatId === id);
     expect(mine()).toHaveLength(1);
+    const journal = async () =>
+      (await notificationDeliveryRepository.list({ page: 1, limit: 10, userId, kind: "trial" })).deliveries;
+    expect((await journal()).map((row) => row.text)).toEqual([mine()[0]?.[1]]);
 
     // Act — sweep again the same day.
     await runTrialLifecycleSweep({ sendMessage }, sweepServices(), AFTER_PARKED_END);
 
     // Assert — nothing is sent twice.
     expect(mine()).toHaveLength(1);
+    expect(await journal()).toHaveLength(1);
 
     // Act — the same button, now that the user is on free.
     harness.reset();

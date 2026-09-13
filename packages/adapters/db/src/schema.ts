@@ -565,6 +565,44 @@ export const notificationHistory = pgTable(
 
 export type NotificationHistory = typeof notificationHistory.$inferSelect;
 
+export const NOTIFICATION_DELIVERY_KINDS = [
+  "word_card",
+  "re_engagement",
+  "dictionary_empty",
+  "activation_nudge",
+  "trial",
+  "release_announcement",
+] as const;
+
+export type NotificationDeliveryKind = (typeof NOTIFICATION_DELIVERY_KINDS)[number];
+
+/**
+ * Every proactive message that reached a user's chat. Kept apart from
+ * `notification_history`, which is a de-dup and one-off-claim ledger read by the
+ * pickers and sweeps: a row there can mean "spent on a blocked chat", and its
+ * `original` holds a word or a `[tag]`, never the message itself.
+ */
+export const notificationDeliveries = pgTable(
+  "notification_deliveries",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    kind: varchar("kind", { length: 32 }).$type<NotificationDeliveryKind>().notNull(),
+    /** The exact text handed to Telegram, markup included. */
+    text: text("text").notNull(),
+    /** `HTML` when `text` carries Telegram HTML markup; null for plain text. */
+    parseMode: varchar("parse_mode", { length: 16 }),
+    meta: jsonb("meta").$type<Record<string, string | number | null>>(),
+    sentAt: timestamp("sent_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    index("notif_deliveries_user_sent_idx").on(t.userId, t.sentAt),
+    index("notif_deliveries_sent_idx").on(t.sentAt),
+  ],
+);
+
 // ─────────────────────────────────────────────
 // Mentor messages — durable mentor-chat threads
 // Telegram exposes only ONE reply level (reply_to_message), so thread
