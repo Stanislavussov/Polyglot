@@ -18,6 +18,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- **Develop deploys filled the dev server's disk.** Each release is about 3.3 GB of images (bot, admin, admin-api, migrate), and the deploy only pruned images older than a week — so a few pushes a day filled the 20 GB disk within a day, and on 2026-09-13 deploys started failing while copying the compose file onto it. The deploy now keeps exactly two releases, the running one and the one `PREVIOUS_RELEASE` names for rollback, and removes every other image. (The dev disk was cleared by hand the same day, keeping the same two releases.)
+
 - **A failed dev deploy could not be re-run.** The deploy cuts a Neon branch named `dev/<sha>` before it copies anything to the VPS, so when a later step failed — an SSH handshake reset while copying the compose file, in the case that surfaced it — "Re-run failed jobs" tried to create the same branch name again and died on Neon's 409, and only a new commit could deploy. The step now drops a branch of that exact name left by the earlier attempt (it never served the running stack — a failed deploy keeps the previous release) and cuts it again from current production.
 
 - **The notification's remove button did not check whose word it removed.** `vocabularyRepository.delete` ignored the user id its port promised, so a forged `notif:learned:{id}` could soft-delete another user's entry. The delete is now owner-scoped and returns whether anything was removed; a tap on a word already gone answers "not found" instead of confirming a removal that did not happen.
