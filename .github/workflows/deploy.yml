@@ -319,6 +319,13 @@ jobs:
 
             docker compose run --rm admin-api node apps/admin-api/dist/seed.js
 
+            # One-off data repair (see repair-native-translations.cli.ts): puts
+            # back the native translations background enrichment deleted. Runs on
+            # both environments so nobody has to hold a production connection
+            # string; a repaired database makes it a no-op. Remove this step and
+            # the CLI once dev and prod have both run it.
+            docker compose run --rm --no-deps bot node apps/bot/dist/repair-native-translations.cli.js
+
             # Dev only: wipe the configured tester accounts from the freshly
             # branched production data. The CLI itself refuses to run unless
             # POLYGLOT_ENV=development, so a stray call on prod is a no-op error.
