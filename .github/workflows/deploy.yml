@@ -168,6 +168,18 @@ jobs:
           auth=(-H "Authorization: Bearer ${NEON_API_KEY}" -H "Accept: application/json")
           name="dev/${GITHUB_SHA:0:12}"
 
+          # A re-run of this job finds the branch its failed attempt cut, and
+          # creating the same name again is a 409 — so "Re-run failed jobs" could
+          # never recover a dev deploy that failed after this step. That branch never
+          # served the running stack (a failed deploy keeps the previous release), so
+          # it is dropped and cut again from current production.
+          existing="$(curl -fsS "${auth[@]}" "${api}/branches" \
+            | jq -r --arg name "$name" '.branches[] | select(.name == $name) | .id')"
+          for id in $existing; do
+            echo "Replacing dev branch ${name} (${id}) left by a previous attempt"
+            curl -fsS "${auth[@]}" -X DELETE "${api}/branches/${id}" >/dev/null
+          done
+
           created="$(curl -fsS "${auth[@]}" -H "Content-Type: application/json" -X POST "${api}/branches" \
             -d "{\"branch\":{\"name\":\"${name}\"},\"endpoints\":[{\"type\":\"read_write\"}]}")"
           branch_id="$(jq -r '.branch.id' <<<"$created")"
