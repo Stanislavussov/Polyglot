@@ -8,6 +8,7 @@ import type {
   TranslateOutput,
   User,
   UserLanguageSettings,
+  VocabDifficulty,
 } from "@polyglot/core";
 import { Context, SessionFlavor } from "grammy";
 
@@ -73,6 +74,12 @@ export interface SessionData {
        * closed independently.
        */
       actionsExpanded?: boolean;
+      /**
+       * Set on a card revealed from a notification nudge: the grades the nudge
+       * carried stay on the card through every keyboard rebuild, with the grade on
+       * file marked.
+       */
+      recallGrade?: { entryId: number; selected?: VocabDifficulty | null };
       /**
        * Monotonic insertion stamp used for recency-based eviction. Set by
        * {@link setTranslationEntry}; Telegram message ids are not a safe proxy
