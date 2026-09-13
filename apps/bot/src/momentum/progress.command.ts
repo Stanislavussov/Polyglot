@@ -21,19 +21,20 @@ import { InlineKeyboard } from "grammy";
 import { motivationProgressOpenedCounter } from "../metrics.js";
 import type { BotContext } from "../types.js";
 
-/** Where the screen was opened from — the `entry` field of `momentum.progress_opened` (§7.3). */
+/**
+ * Where the screen was opened from — the `entry` field of `momentum.progress_opened` (§7.3).
+ * `srs_done` outlived `/review` (Task 85): its done-screen buttons remain in chat history.
+ */
 type ProgressEntry = "command" | "srs_done" | "flashcard_done";
 
-export const PROGRESS_SRS_DONE_CALLBACK = "progress:open:srs_done";
 export const PROGRESS_FLASHCARD_DONE_CALLBACK = "progress:open:flashcard_done";
 export const PROGRESS_CALLBACK_PATTERN = /^progress:open:(srs_done|flashcard_done)$/;
 
 /**
- * The one next step the screen offers. `srs:restart` is the existing SRS entry —
- * it builds the due deck and answers `srsEmpty` when there is nothing to review,
- * so the button stays honest at a due count of zero (§2.2 S1: one step, not a menu).
+ * The one next step the screen offers (§2.2 S1: one step, not a menu). A Cards deck
+ * tops up with practice-ahead cards, so the button leads somewhere at a due count of zero.
  */
-const SRS_ENTRY_CALLBACK = "srs:restart";
+const REVIEW_ENTRY_CALLBACK = "fc:restart";
 
 /** Rolling window behind `progressActiveDays` — four weeks, as the copy says. */
 const ACTIVE_DAYS_WINDOW = 28;
@@ -99,7 +100,7 @@ async function renderProgress(ctx: BotContext, entry: ProgressEntry): Promise<vo
     ].join("\n");
     await ctx.reply(text, {
       parse_mode: "HTML",
-      reply_markup: new InlineKeyboard().text(t("progressReviewButton", lang, { count: due }), SRS_ENTRY_CALLBACK),
+      reply_markup: new InlineKeyboard().text(t("progressReviewButton", lang, { count: due }), REVIEW_ENTRY_CALLBACK),
     });
   }
 

@@ -2,8 +2,8 @@
  * `/progress` — grammY e2e integration test (Task 81, Slice 2, §8.2.3).
  *
  * Drives the screen through the REAL dispatcher and a real Postgres from both of
- * its entry points: the typed command and the 📈 button on the SRS done-keyboard,
- * the latter reached by actually finishing a review session rather than by
+ * its entry points: the typed command and the 📈 button on the Cards done-keyboard,
+ * the latter reached by actually finishing a Cards session rather than by
  * synthesising the tap.
  *
  * `enabled` is flipped through the harness's settings override rather than a
@@ -131,13 +131,17 @@ async function seedActiveDays(userId: number, days: number): Promise<void> {
   }
 }
 
-/** Finish a one-card SRS session and return the keyboard of the done screen. */
-async function finishSrsSession(harness: BotHarness, chatId: number): Promise<string[][]> {
-  await harness.dispatch(messageUpdate({ chatId, fromId: chatId, text: "/review" }));
+/** Finish a one-card Cards session and return the keyboard of the done screen. */
+async function finishCardsSession(harness: BotHarness, chatId: number): Promise<string[][]> {
+  await harness.dispatch(messageUpdate({ chatId, fromId: chatId, text: "/flashcard" }));
   const cardMsgId = harness.sent.filter((call) => call.method === "sendMessage").at(-1)?.messageId;
-  if (cardMsgId === undefined) throw new Error("no SRS card was sent — the seeded word was not due");
-  await harness.dispatch(callbackQueryUpdate({ chatId, fromId: chatId, messageId: cardMsgId, data: "srs:reveal" }));
-  await harness.dispatch(callbackQueryUpdate({ chatId, fromId: chatId, messageId: cardMsgId, data: "srs:rate:good" }));
+  if (cardMsgId === undefined) throw new Error("no card was sent — the seeded dictionary is empty");
+  await harness.dispatch(callbackQueryUpdate({ chatId, fromId: chatId, messageId: cardMsgId, data: "fc:reveal" }));
+  const rateGood = lastEditedKeyboard(harness.sent)
+    .flat()
+    .find((data) => data.startsWith("fc:rate:good:"));
+  if (!rateGood) throw new Error("the revealed card offers no rating");
+  await harness.dispatch(callbackQueryUpdate({ chatId, fromId: chatId, messageId: cardMsgId, data: rateGood }));
   return lastEditedKeyboard(harness.sent);
 }
 
@@ -173,12 +177,12 @@ describe("/progress (integration)", () => {
     expect(screen.text).not.toContain("44");
     expect(screen.text).not.toContain("45");
 
-    // One next step, and it is the existing SRS entry — not a new route.
-    expect(screen.buttons).toEqual([["srs:restart"]]);
+    // One next step, and it opens the Cards deck — not a new route.
+    expect(screen.buttons).toEqual([["fc:restart"]]);
     expect(screen.text).not.toContain(t("progressEmpty", "en"));
   });
 
-  it("is reachable from the SRS done screen and reports that entry point", async () => {
+  it("is reachable from the Cards done screen and reports that entry point", async () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     vi.setSystemTime(NOW);
 
@@ -187,15 +191,15 @@ describe("/progress (integration)", () => {
     const userId = await arrangeOnboardedTranslator(id);
     await seedVocabulary(userId, { count: 1, mature: 0, due: 1 });
 
-    const doneKeyboard = await finishSrsSession(harness, id);
+    const doneKeyboard = await finishCardsSession(harness, id);
     // Its own row (§6): a third button beside restart/close would be squeezed unreadable.
-    expect(doneKeyboard).toEqual([["srs:restart", "srs:close"], ["progress:open:srs_done"]]);
+    expect(doneKeyboard).toEqual([["fc:restart", "fc:close"], ["progress:open:flashcard_done"]]);
 
     const events = collectEvents();
     const before = await readProgressOpened("resting");
     harness.reset();
     await harness.dispatch(
-      callbackQueryUpdate({ chatId: id, fromId: id, messageId: 1, data: "progress:open:srs_done" }),
+      callbackQueryUpdate({ chatId: id, fromId: id, messageId: 1, data: "progress:open:flashcard_done" }),
     );
 
     // A NEW message, not an edit of the session's receipt.
@@ -205,7 +209,7 @@ describe("/progress (integration)", () => {
 
     const opened = events.named("momentum.progress_opened");
     expect(opened).toHaveLength(1);
-    expect(opened[0]?.fields.entry).toBe("srs_done");
+    expect(opened[0]?.fields.entry).toBe("flashcard_done");
     // A single review is worth 3 points, so this user is squarely in the bottom band.
     expect(opened[0]?.fields.band).toBe("resting");
     expect(await readProgressOpened("resting")).toBe(before + 1);
@@ -266,9 +270,10 @@ describe("/progress (integration)", () => {
 
     // The switch has to gate the button, not just the handler: a 📈 that opens
     // nothing is the dead-button failure this project has already shipped once.
-    expect(await finishSrsSession(harness, id)).toEqual([["srs:restart", "srs:close"]]);
+    expect(await finishCardsSession(harness, id)).toEqual([["fc:restart", "fc:close"]]);
 
-    // A tap can still arrive — from a keyboard printed before the switch went off.
+    // A tap can still arrive — from a keyboard printed before the switch went off, here
+    // a `/review` done screen left in chat history.
     // It gets no screen, but it must be answered, or the client spins on it forever.
     harness.reset();
     await harness.dispatch(

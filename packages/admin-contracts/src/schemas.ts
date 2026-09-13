@@ -224,8 +224,6 @@ export const srsSettingsSchema = z.object({
 
 export const dictionarySettingsSchema = z.object({
   flashcardLimit: z.coerce.number().int("Flashcard limit must be an integer").min(1),
-  notificationDictLimit: z.coerce.number().int("Notification dictionary limit must be an integer").min(1),
-  wordOfDayLimit: z.coerce.number().int("Word of day limit must be an integer").min(1),
 });
 
 // ── Settings: video vocabulary ─────────────────────────────────────────────────

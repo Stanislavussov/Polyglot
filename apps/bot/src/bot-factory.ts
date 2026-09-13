@@ -85,16 +85,15 @@ import {
 } from "./scenes/helpers/dictionary.helper.js";
 import {
   FLASHCARD_DELETE_PATTERN,
-  FLASHCARD_GRADE_PATTERN,
+  FLASHCARD_RATE_PATTERN,
   handleFcClose,
   handleFcDelete,
-  handleFcDone,
-  handleFcGrade,
-  handleFcNext,
   handleFcQuit,
+  handleFcRate,
   handleFcRestart,
   handleFcReveal,
-  handleFcStart,
+  handleLegacyCardCallback,
+  LEGACY_CARD_CALLBACK_PATTERN,
 } from "./scenes/helpers/flashcard.helper.js";
 import {
   handleMentorExitCallback,
@@ -146,15 +145,6 @@ import {
   handleSetTemplateCallback,
 } from "./scenes/helpers/settings.helper.js";
 import {
-  handleSrsClose,
-  handleSrsDelete,
-  handleSrsQuit,
-  handleSrsRate,
-  handleSrsRestart,
-  handleSrsReveal,
-  SRS_DELETE_PATTERN,
-} from "./scenes/helpers/srs.helper.js";
-import {
   handleBuyPlanCallback,
   handleCancelPlanCallback,
   handleConfirmPlanCallback,
@@ -198,7 +188,6 @@ import { handleMentorCommand } from "./scenes/mentor.scene.js";
 import { handleMenuCallback, handleMenuCommand, MENU_CALLBACK_PATTERN } from "./scenes/menu.scene.js";
 import { handleReportIssue } from "./scenes/report-issue.scene.js";
 import { handleSettingsCommand } from "./scenes/settings.scene.js";
-import { handleReviewCommand } from "./scenes/srs.scene.js";
 import { handleTemplateCommand } from "./scenes/template.scene.js";
 import { handleTranslateCommand } from "./scenes/translate.scene.js";
 import type { BotContext, ConversationContext, SessionData } from "./types.js";
@@ -283,8 +272,7 @@ export function createInitialSession(): SessionData {
     templateWizard: undefined,
     dictionary: undefined,
     dictionaryWizard: undefined,
-    flashcard: undefined,
-    srs: undefined,
+    cards: undefined,
     mentor: undefined,
     pendingDetectedLang: undefined,
     pendingWord: undefined,
@@ -393,7 +381,7 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   onCommand("learn", handleLearnCommand);
   onCommand("menu", handleMenuCommand);
   onCommand("flashcard", handleFlashcardCommand);
-  onCommand("review", handleReviewCommand);
+  onCommand("review", handleFlashcardCommand);
   onCommand("settings", handleSettingsCommand);
   onCommand("changes", changesCommand);
   onCommand("videos", handleVideosCommand);
@@ -536,24 +524,18 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   onCallback(/^tr:oos:/, handleOutOfSetCallback);
   onCallback(/^tr:clarify:/, handleTranslationClarificationCallback);
 
-  onCallback("fc:start", handleFcStart);
-  onCallback(FLASHCARD_GRADE_PATTERN, handleFcGrade);
+  onCallback(FLASHCARD_RATE_PATTERN, handleFcRate);
   onCallback(FLASHCARD_DELETE_PATTERN, handleFcDelete);
   onCallback("fc:reveal", handleFcReveal);
-  onCallback("fc:next", handleFcNext);
-  onCallback("fc:done", handleFcDone);
   onCallback("fc:restart", handleFcRestart);
   onCallback("fc:quit", handleFcQuit);
   onCallback("fc:close", handleFcClose);
+  // `/review`'s done-screen buttons, still in chat history, lead to the deck that replaced it.
+  onCallback("srs:restart", handleFcRestart);
+  onCallback("srs:close", handleFcClose);
+  onCallback(LEGACY_CARD_CALLBACK_PATTERN, handleLegacyCardCallback);
 
   onCallback(PROGRESS_CALLBACK_PATTERN, handleProgressCallback);
-
-  onCallback("srs:reveal", handleSrsReveal);
-  onCallback(/^srs:rate:(again|hard|good|easy)$/, handleSrsRate);
-  onCallback("srs:restart", handleSrsRestart);
-  onCallback("srs:quit", handleSrsQuit);
-  onCallback("srs:close", handleSrsClose);
-  onCallback(SRS_DELETE_PATTERN, handleSrsDelete);
 
   onCallback(/^dict:page:/, handleDictPage);
   onCallback(/^dict:view:/, handleDictView);

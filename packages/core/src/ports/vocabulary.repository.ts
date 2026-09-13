@@ -74,11 +74,6 @@ export interface VocabularyEntryWithTranslations extends VocabularyEntry {
   translations: VocabularyTranslation[];
 }
 
-/** Vocabulary entry with resolved source language code (for dictionary pipeline). */
-export interface VocabularyEntryWithSourceLang extends VocabularyEntryWithTranslations {
-  sourceLangCode: string;
-}
-
 export interface CreateVocabularyInput {
   original: string;
   sourceLangId: number;
@@ -161,10 +156,6 @@ export interface VocabularyRepository {
     sourceLangId: number,
   ): Promise<VocabularyEntryWithTranslations | null>;
   findOriginalsByUserAndSource(userId: number, sourceLangId: number): Promise<string[]>;
-  findByUserWithSourceLang(
-    userId: number,
-    langResolver: (id: number) => string | undefined,
-  ): Promise<VocabularyEntryWithSourceLang[]>;
   create(userId: number, input: CreateVocabularyInput): Promise<{ id: number }>;
   updateEntry(
     entryId: number,
@@ -192,6 +183,8 @@ export interface VocabularyRepository {
   /** Permanently delete an entry (used after the last dictionary membership is removed). */
   hardDelete(entryId: number): Promise<void>;
   findDueForSrs(userId: number, now: Date, limit: number): Promise<SrsDueVocabularyCard[]>;
+  /** Not-yet-due live cards, weakest first: entry graded hard, then lowest ease, then soonest due. */
+  findAheadForSrs(userId: number, now: Date, limit: number): Promise<SrsDueVocabularyCard[]>;
   /** Translations at or past the "stuck" SRS interval — the counter behind `mature` (momentum §3.10). */
   countMatureTranslations(userId: number, minInterval: number): Promise<number>;
   /** `findDueForSrs`'s predicate without materialising the cards. */

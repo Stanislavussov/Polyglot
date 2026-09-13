@@ -13,10 +13,10 @@ import { errorFields, logEvent, t } from "@polyglot/core";
 import type { NextFunction } from "grammy";
 import { MAX_LEARNING_LANGS } from "../constants.js";
 import { handleDictionaryCommand } from "../scenes/dictionary.scene.js";
+import { handleFlashcardCommand } from "../scenes/flashcard.scene.js";
 import { handleTranslateText } from "../scenes/helpers/translate-flow.js";
 import { handleVideosCommand } from "../scenes/helpers/video-vocabulary.helper.js";
 import { handleSettingsCommand } from "../scenes/settings.scene.js";
-import { handleReviewCommand } from "../scenes/srs.scene.js";
 import type { BotContext } from "../types.js";
 import { cacheDemoCard, resolveHookWord, sendCachedDemoCard } from "./hook-cards.js";
 import {
@@ -52,7 +52,7 @@ export const LEGACY_ONBOARDING_CALLBACK_PATTERN = /^(?:lang|learn|level):/;
 
 const FEATURE_HANDLERS: Record<OnboardingFeature, (ctx: BotContext) => Promise<void>> = {
   dictionary: handleDictionaryCommand,
-  training: handleReviewCommand,
+  training: handleFlashcardCommand,
   video: handleVideosCommand,
   settings: handleSettingsCommand,
 };

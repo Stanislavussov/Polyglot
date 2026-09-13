@@ -1,11 +1,8 @@
 /**
  * Learning hub — `/learn` and the 🎓 category button.
  *
- * The practice modes used to be spread across the reply keyboard and the command list.
- * `/review` was in neither — commented out of the command list and never on a keyboard —
- * so spaced repetition was reachable only by typing the command from memory. The hub is
- * what gives it a button at all. (`/mentor` is a different case: it is listed and paid-gated
- * on `develop`, and it also has a hot button of its own.)
+ * The practice modes used to be spread across the reply keyboard and the command list;
+ * the hub gathers them behind one button. (`/mentor` also has a hot button of its own.)
  *
  * Each entry delegates to the command handler that already owned the mode; this file
  * is navigation and nothing else.
@@ -19,7 +16,6 @@ import { dismissMenuMessage } from "./helpers/edit-message.helper.js";
 import { handleVideosCommand } from "./helpers/video-vocabulary.helper.js";
 import { handlePickWordsCommand } from "./helpers/word-picker.helper.js";
 import { handleMentorCommand } from "./mentor.scene.js";
-import { handleReviewCommand } from "./srs.scene.js";
 
 interface LearnMode {
   readonly callback: string;
@@ -29,16 +25,18 @@ interface LearnMode {
 }
 
 /**
- * Modes in render order: what to do with words you do not have yet, then the two
- * drills over words you do, then the two open-ended sources.
+ * Modes in render order: what to do with words you do not have yet, then the drill
+ * over words you do, then the two open-ended sources.
  */
 const LEARN_MODES: readonly LearnMode[] = [
   { callback: "lrn:pick", icon: "✨", labelKey: "menuBtnPickWords", run: handlePickWordsCommand },
   { callback: "lrn:cards", icon: "🎴", labelKey: "menuBtnFlashcards", run: handleFlashcardCommand },
-  { callback: "lrn:review", icon: "🔁", labelKey: "menuBtnReview", run: handleReviewCommand },
   { callback: "lrn:videos", icon: "🎬", labelKey: "menuBtnVideos", run: handleVideosCommand },
   { callback: "lrn:mentor", icon: "🧑‍🏫", labelKey: "menuBtnMentor", run: handleMentorCommand },
 ];
+
+/** The hub's 🔁 Review entry was merged into Cards (Task 85); its buttons still sit in chat history. */
+const LEGACY_MODE_CALLBACKS: Readonly<Record<string, string>> = { "lrn:review": "lrn:cards" };
 
 /**
  * Where the hub's ⬅️ button goes. A literal rather than an import from `menu.scene.ts`,
@@ -88,7 +86,8 @@ export async function handleLearnCommand(ctx: BotContext): Promise<void> {
  */
 export async function handleLearnModeCallback(ctx: BotContext): Promise<void> {
   const data = ctx.callbackQuery?.data ?? "";
-  const mode = LEARN_MODES.find((candidate) => candidate.callback === data);
+  const callback = LEGACY_MODE_CALLBACKS[data] ?? data;
+  const mode = LEARN_MODES.find((candidate) => candidate.callback === callback);
   if (!mode) {
     await ctx.answerCallbackQuery();
     return;

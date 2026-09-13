@@ -4,8 +4,8 @@
  * The contract under test is not any single renderer's output — it is the
  * relation between them, which is what the user actually reported: the same word
  * looked like a different product depending on where it resurfaced. Each surface
- * has its own input type (`VocabularyEntryWithTranslations`, `WordDisplayData`,
- * `SrsDueVocabularyCard`), so nothing but a test holds them to the same shape;
+ * has its own input type (`VocabularyEntryWithTranslations`, `CardsDeckCard`),
+ * so nothing but a test holds them to the same shape;
  * a per-renderer suite can be entirely green while the four disagree.
  *
  * One object mother describes the word; each surface's fixture is a projection of
@@ -25,12 +25,11 @@ vi.mock("@polyglot/core", async () => {
   };
 });
 
-import type { SrsDueVocabularyCard, WordDisplayData } from "@polyglot/core";
+import type { CardsDeckCard } from "@polyglot/core";
 import { createLanguageOrderContext } from "@polyglot/core";
 import { formatNotificationMessage } from "../../notifications/notification.formatter.js";
 import { renderDictionaryEntry } from "../dictionary.renderer.js";
 import { renderFlashCardBack, renderFlashCardFront } from "../flashcard.renderer.js";
-import { renderSrsBack, renderSrsFront } from "../srs.renderer.js";
 import { renderPhraseList } from "../video-vocabulary.renderer.js";
 import { renderPickedSet } from "../word-picker.renderer.js";
 
@@ -105,27 +104,7 @@ const DICTIONARY_ENTRY: VocabularyEntryWithTranslations = {
   ],
 };
 
-const FLASHCARD_WORD: WordDisplayData = {
-  id: 10,
-  original: WORD.original,
-  nativeMeaning: WORD.nativeMeaning,
-  sourceUsage: WORD.sourceUsage,
-  sourceLang: WORD.sourceLang,
-  inputType: "word",
-  emoji: WORD.emoji,
-  createdAt: new Date("2025-01-01"),
-  translations: {
-    en: {
-      text: WORD.targetText,
-      synonyms: [{ text: WORD.targetSynonym }],
-      examples: [WORD.targetExample],
-      usageNote: WORD.usageNote,
-    },
-    ru: { text: "работа" },
-  },
-};
-
-const SRS_CARD: SrsDueVocabularyCard = {
+const CARDS_CARD: CardsDeckCard = {
   translationId: 103,
   entryId: 10,
   original: WORD.original,
@@ -144,19 +123,18 @@ const SRS_CARD: SrsDueVocabularyCard = {
   difficulty: null,
   srsEaseFactor: 2.5,
   srsInterval: 0,
-  srsDueDate: null,
   srsReviewCount: 0,
+  ahead: false,
 };
 
 /**
  * Every card a saved word can be shown on: the surface's name, its rendering, and
  * the answer that surface promotes under the headword — the reader's own language
- * where the whole word is shown, the recalled language on an SRS review.
+ * where the whole word is shown, the recalled language on a review card.
  */
 const SURFACES: Array<[string, string, string]> = [
   ["dictionary entry", renderDictionaryEntry(DICTIONARY_ENTRY, resolveCode, "ru", ORDER), "работа"],
-  ["flashcard back", renderFlashCardBack(FLASHCARD_WORD, 1, 3, "ru", ORDER), "работа"],
-  ["srs back", renderSrsBack(SRS_CARD, "de", "en", 1, 3, "ru"), WORD.targetText],
+  ["cards back", renderFlashCardBack(CARDS_CARD, "de", "en", 1, 3, "ru"), WORD.targetText],
 ];
 
 /** The line naming the word — located by content, since chrome sits above some cards. */
@@ -214,8 +192,11 @@ const EVERY_FRONT_OPTION = { synonyms: true, example: true, hint: true };
 
 describe("card grammar — a reveal-style front hands over nothing", () => {
   it.each([
-    ["flashcard front", renderFlashCardFront(FLASHCARD_WORD, 1, 3, "ru", EVERY_FRONT_OPTION)],
-    ["srs front", renderSrsFront(SRS_CARD, "de", "en", 1, 3, "ru", EVERY_FRONT_OPTION)],
+    ["cards front", renderFlashCardFront(CARDS_CARD, "de", "en", 1, 3, "ru", EVERY_FRONT_OPTION)],
+    [
+      "practice-ahead cards front",
+      renderFlashCardFront({ ...CARDS_CARD, ahead: true }, "de", "en", 1, 3, "ru", EVERY_FRONT_OPTION),
+    ],
   ])("%s shows the word but neither the answer nor a glossed source example", (_name, front) => {
     expect(front).toContain("💼 🇩🇪 <b>die Arbeit</b>");
     expect(front).not.toContain(WORD.targetText);
@@ -223,8 +204,10 @@ describe("card grammar — a reveal-style front hands over nothing", () => {
     expect(front).not.toContain("Работа в радость.");
   });
 
-  it("srs front names the language being recalled — the one line it cannot lose", () => {
-    expect(renderSrsFront(SRS_CARD, "de", "en", 1, 3, "ru", EVERY_FRONT_OPTION)).toContain("<i>→ 🇬🇧 English</i>");
+  it("cards front names the language being recalled — the one line it cannot lose", () => {
+    expect(renderFlashCardFront(CARDS_CARD, "de", "en", 1, 3, "ru", EVERY_FRONT_OPTION)).toContain(
+      "<i>→ 🇬🇧 English</i>",
+    );
   });
 });
 

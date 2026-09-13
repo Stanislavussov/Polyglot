@@ -1,15 +1,13 @@
 import { type ConversationFlavor } from "@grammyjs/conversations";
 import type { UserMode } from "@polyglot/adapter-db";
 import type {
-  DictionaryWordConfig,
+  CardsDeckCard,
   InputType,
   ServiceContainer,
-  SrsDueVocabularyCard,
   TemplateFields,
   TranslateOutput,
   User,
   UserLanguageSettings,
-  WordDisplayData,
 } from "@polyglot/core";
 import { Context, SessionFlavor } from "grammy";
 
@@ -258,32 +256,20 @@ export interface SessionData {
    */
   awaitingNotifContext?: boolean;
   /**
-   * Flash card session state (Task 33).
-   * Active during a flashcard session. Cleared on quit/close or session loss.
+   * Cards session (Task 85), under a key of its own so a pre-deploy `flashcard`/`srs`
+   * deck of another shape is ignored rather than misread. The session is jsonb: dates
+   * inside `deck` come back as strings, so nothing reads them after the deck is built.
    */
-  flashcard?: {
-    /** Words in the deck (from pipeline), stored for rendering without re-fetch */
-    deck: WordDisplayData[];
-    /** Current position in deck (0-based index) */
+  cards?: {
+    deck: CardsDeckCard[];
     currentIndex: number;
-    /** Message ID of the current card message (for in-place editing) */
-    cardMsgId?: number;
-    /** Config used to generate this deck */
-    config: DictionaryWordConfig;
-  };
-  /**
-   * SRS review session state.
-   * Stores due translation rows so each target language is reviewed independently.
-   */
-  srs?: {
-    deck: SrsDueVocabularyCard[];
-    currentIndex: number;
-    cardMsgId?: number;
+    /** The current card's back is on screen; ratings are refused until it is. */
+    revealed: boolean;
+    /** Good/Easy on a first presentation — retries do not count. */
+    recalled: number;
     /**
-     * Praise evidence accumulated by this session, for the line on `srsDone`
-     * (momentum §2.2 S2). Primitives only: the session is jsonb, so anything
-     * key-ordered comes back reordered — the word itself is looked up in `deck`
-     * by this id at render time rather than carried alongside it.
+     * Praise evidence for the finish screen (momentum §2.2 S2). Primitives only: jsonb
+     * reorders object keys, so the word itself is looked up in `deck` by this id.
      */
     maturedTranslationId?: number;
     /** A card the user had graded "hard" was answered good or easy in this session. */

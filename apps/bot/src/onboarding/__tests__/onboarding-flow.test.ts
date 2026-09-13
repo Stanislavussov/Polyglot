@@ -51,14 +51,16 @@ vi.mock("../../constants.js", async (importOriginal) => ({
   },
 }));
 
-const { handleDictionaryCommand, handleReviewCommand, handleVideosCommand, handleSettingsCommand } = vi.hoisted(() => ({
-  handleDictionaryCommand: vi.fn(),
-  handleReviewCommand: vi.fn(),
-  handleVideosCommand: vi.fn(),
-  handleSettingsCommand: vi.fn(),
-}));
+const { handleDictionaryCommand, handleFlashcardCommand, handleVideosCommand, handleSettingsCommand } = vi.hoisted(
+  () => ({
+    handleDictionaryCommand: vi.fn(),
+    handleFlashcardCommand: vi.fn(),
+    handleVideosCommand: vi.fn(),
+    handleSettingsCommand: vi.fn(),
+  }),
+);
 vi.mock("../../scenes/dictionary.scene.js", () => ({ handleDictionaryCommand }));
-vi.mock("../../scenes/srs.scene.js", () => ({ handleReviewCommand }));
+vi.mock("../../scenes/flashcard.scene.js", () => ({ handleFlashcardCommand }));
 vi.mock("../../scenes/helpers/video-vocabulary.helper.js", () => ({ handleVideosCommand }));
 vi.mock("../../scenes/settings.scene.js", () => ({ handleSettingsCommand }));
 
@@ -892,7 +894,7 @@ describe("onboarding — screen 3 (instruction + feature entry points)", () => {
     await h.tap("onb:go:settings");
 
     expect(handleDictionaryCommand).toHaveBeenCalledWith(h.ctx);
-    expect(handleReviewCommand).toHaveBeenCalledWith(h.ctx);
+    expect(handleFlashcardCommand).toHaveBeenCalledWith(h.ctx);
     expect(handleVideosCommand).toHaveBeenCalledWith(h.ctx);
     expect(handleSettingsCommand).toHaveBeenCalledWith(h.ctx);
   });

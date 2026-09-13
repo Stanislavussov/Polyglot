@@ -9,7 +9,6 @@ import type {
   VocabDifficulty,
   VocabTranslationDetails,
   VocabularyEntry,
-  VocabularyEntryWithSourceLang,
   VocabularyEntryWithTranslations,
   VocabularySource,
   VocabularyTranslation,
@@ -20,6 +19,7 @@ import {
   count,
   desc,
   eq,
+  gt,
   gte,
   ilike,
   inArray,
@@ -45,7 +45,6 @@ export type {
   VocabDifficulty,
   VocabTranslationDetails,
   VocabularyEntry,
-  VocabularyEntryWithSourceLang,
   VocabularyEntryWithTranslations,
   VocabularySource,
   VocabularyTranslation,
@@ -117,6 +116,30 @@ function dueForSrsFilter(userId: number, now: Date): SQL | undefined {
     or(isNull(vocabularyTranslations.srsDueDate), lte(vocabularyTranslations.srsDueDate, now)),
   );
 }
+
+/** One review card per translation row — the shape both the due and the practice-ahead query return. */
+const srsCardColumns = {
+  translationId: vocabularyTranslations.id,
+  entryId: vocabularyEntries.id,
+  original: vocabularyEntries.original,
+  sourceLangId: vocabularyEntries.sourceLangId,
+  targetLangId: vocabularyTranslations.targetLangId,
+  inputType: vocabularyEntries.inputType,
+  emoji: vocabularyEntries.emoji,
+  nativeMeaning: vocabularyEntries.nativeMeaning,
+  sourceUsage: vocabularyEntries.sourceUsage,
+  text: vocabularyTranslations.text,
+  expressionType: vocabularyTranslations.expressionType,
+  equivalentNote: vocabularyTranslations.equivalentNote,
+  usageNote: vocabularyTranslations.usageNote,
+  connotationWarning: vocabularyTranslations.connotationWarning,
+  details: vocabularyTranslations.details,
+  difficulty: vocabularyEntries.difficulty,
+  srsEaseFactor: vocabularyTranslations.srsEaseFactor,
+  srsInterval: vocabularyTranslations.srsInterval,
+  srsDueDate: vocabularyTranslations.srsDueDate,
+  srsReviewCount: vocabularyTranslations.srsReviewCount,
+};
 
 /* ------------------------------------------------------------------ */
 /*  Repository                                                         */
@@ -533,32 +556,29 @@ export const vocabularyRepository = {
   async findDueForSrs(userId: number, now: Date, limit: number): Promise<SrsDueVocabularyCard[]> {
     const db = getDb();
     const rows = await db
-      .select({
-        translationId: vocabularyTranslations.id,
-        entryId: vocabularyEntries.id,
-        original: vocabularyEntries.original,
-        sourceLangId: vocabularyEntries.sourceLangId,
-        targetLangId: vocabularyTranslations.targetLangId,
-        inputType: vocabularyEntries.inputType,
-        emoji: vocabularyEntries.emoji,
-        nativeMeaning: vocabularyEntries.nativeMeaning,
-        sourceUsage: vocabularyEntries.sourceUsage,
-        text: vocabularyTranslations.text,
-        expressionType: vocabularyTranslations.expressionType,
-        equivalentNote: vocabularyTranslations.equivalentNote,
-        usageNote: vocabularyTranslations.usageNote,
-        connotationWarning: vocabularyTranslations.connotationWarning,
-        details: vocabularyTranslations.details,
-        difficulty: vocabularyEntries.difficulty,
-        srsEaseFactor: vocabularyTranslations.srsEaseFactor,
-        srsInterval: vocabularyTranslations.srsInterval,
-        srsDueDate: vocabularyTranslations.srsDueDate,
-        srsReviewCount: vocabularyTranslations.srsReviewCount,
-      })
+      .select(srsCardColumns)
       .from(vocabularyTranslations)
       .innerJoin(vocabularyEntries, eq(vocabularyTranslations.entryId, vocabularyEntries.id))
       .where(dueForSrsFilter(userId, now))
       .orderBy(asc(vocabularyTranslations.srsDueDate), asc(vocabularyTranslations.createdAt))
+      .limit(limit);
+
+    return rows;
+  },
+
+  async findAheadForSrs(userId: number, now: Date, limit: number): Promise<SrsDueVocabularyCard[]> {
+    const db = getDb();
+    const rows = await db
+      .select(srsCardColumns)
+      .from(vocabularyTranslations)
+      .innerJoin(vocabularyEntries, eq(vocabularyTranslations.entryId, vocabularyEntries.id))
+      .where(and(liveTranslationsOf(userId), gt(vocabularyTranslations.srsDueDate, now)))
+      .orderBy(
+        sql`case when ${vocabularyEntries.difficulty} = 'hard' then 0 else 1 end`,
+        asc(vocabularyTranslations.srsEaseFactor),
+        asc(vocabularyTranslations.srsDueDate),
+        asc(vocabularyTranslations.createdAt),
+      )
       .limit(limit);
 
     return rows;
@@ -723,23 +743,5 @@ export const vocabularyRepository = {
       )
       .returning({ id: vocabularyEntries.id });
     return updated.length > 0;
-  },
-
-  /**
-   * Find all entries for a user with resolved source language code.
-   * Used by dictionary pipeline (Task 33).
-   */
-  async findByUserWithSourceLang(
-    userId: number,
-    langResolver: (id: number) => string | undefined,
-  ): Promise<VocabularyEntryWithSourceLang[]> {
-    const entries = await vocabularyRepository.findByUser(userId);
-    return entries
-      .map((entry) => {
-        const sourceLangCode = langResolver(entry.sourceLangId);
-        if (!sourceLangCode) return null;
-        return { ...entry, sourceLangCode };
-      })
-      .filter((e): e is VocabularyEntryWithSourceLang => e !== null);
   },
 };

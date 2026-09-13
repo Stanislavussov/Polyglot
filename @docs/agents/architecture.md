@@ -143,12 +143,6 @@ its layer: no cross-boundary changes.
 - Cache-first: check the cache before calling translation; batch translation calls.
 - Language codes come from callers (DB settings), never hardcoded.
 
-### Dictionary pipeline — `packages/core/src/modules/dictionary-pipeline`
-
-- Pure core module — no adapter imports; all dependencies injected via `DictionaryPipelineDeps`.
-- Preset configs are the single source of truth for word-selection strategies.
-- `TemplateFields` controls field visibility, loaded from the user's saved template.
-
 ### Bot — `apps/bot`
 
 - No business logic — it composes and calls core services; no direct DB access (go through repositories).
@@ -158,7 +152,7 @@ its layer: no cross-boundary changes.
   transcribed voice message both go through `dispatchByActiveMode`, so a new input channel
   must reuse it rather than call a mode handler directly (a reply to a mentor answer is the
   one documented override, and it applies to both).
-- **A review card's front hands over nothing.** Flashcard and SRS fronts render through
+- **A review card's front hands over nothing.** Card fronts render through
   `renderCardFront` only — an allow-list of the word plus the user's `CardFrontFields`
   (recall hint, source synonyms, a source example without its `native` gloss). The stored
   meaning, explanation and any translation belong to the back; a new front option must be

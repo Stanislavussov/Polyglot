@@ -29,19 +29,26 @@ export function isValidSessionData(value: unknown): value is SessionData {
 }
 
 /**
+ * The decks sessions carried before Cards replaced flashcards and `/review` (Task 85).
+ * Nothing reads them, and grammY writes the whole session back on every update, so
+ * left alone they would be stored forever.
+ */
+function hasLegacyDecks(value: object): boolean {
+  return "flashcard" in value || "srs" in value;
+}
+
+/**
  * Non-destructively repair a stored session payload keyed by session version.
- * An invalid/unknown `activeMode` is defaulted in place while every other field
- * (translationMap, mentor history, pending state) is preserved — a single bad
- * field must never wipe the whole session. Returns undefined only when the
- * payload is not an object at all (nothing salvageable).
+ * An invalid/unknown `activeMode` is defaulted in place and the pre-Task-85 decks are
+ * dropped, while every other field (translationMap, mentor history, pending state) is
+ * preserved — a single bad field must never wipe the whole session. Returns undefined
+ * only when the payload is not an object at all (nothing salvageable).
  */
 export function migrateSessionData(value: unknown): SessionData | undefined {
-  if (isValidSessionData(value)) return value;
   if (!isRecord(value)) return undefined;
-  return {
-    ...(value as Partial<SessionData>),
-    activeMode: isValidMode(value.activeMode) ? value.activeMode : "translate",
-  } as SessionData;
+  const { flashcard: _flashcard, srs: _srs, ...rest } = value;
+  const repaired = { ...rest, activeMode: isValidMode(value.activeMode) ? value.activeMode : "translate" };
+  return isValidSessionData(repaired) ? repaired : undefined;
 }
 
 /**
@@ -58,8 +65,7 @@ function summariseSession(data: SessionData): Record<string, unknown> {
     translationMapSize: Object.keys(data.translationMap ?? {}).length,
     pendingRetries: Object.keys(data.pendingRetries ?? {}).length,
     pendingOutOfSet: Object.keys(data.pendingOutOfSet ?? {}).length,
-    flashcardDeckSize: data.flashcard?.deck.length ?? 0,
-    srsDeckSize: data.srs?.deck.length ?? 0,
+    cardsDeckSize: data.cards?.deck.length ?? 0,
     hasMentorThread: data.mentor?.threadId !== undefined,
     hasDictionaryWizard: data.dictionaryWizard !== undefined,
     hasTemplateWizard: data.templateWizard !== undefined,
@@ -79,7 +85,7 @@ export function createPostgresSessionStorage(): StorageAdapter<SessionData> {
           return undefined;
         }
 
-        if (isValidSessionData(row.data)) {
+        if (isValidSessionData(row.data) && !hasLegacyDecks(row.data)) {
           logEvent("session.loaded", { sessionKey: key, ...summariseSession(row.data) }, "debug");
           return row.data;
         }
@@ -91,7 +97,8 @@ export function createPostgresSessionStorage(): StorageAdapter<SessionData> {
           return undefined;
         }
 
-        logEvent("session.repaired", { sessionKey: key, reason: "invalid_active_mode" }, "warn");
+        const reason = isValidSessionData(row.data) ? "legacy_decks" : "invalid_active_mode";
+        logEvent("session.repaired", { sessionKey: key, reason }, "warn");
         await botSessionRepository.upsert(key, repaired);
         return repaired;
       });

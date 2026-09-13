@@ -1,15 +1,7 @@
 export type CallbackRestartSafetyClass = "stateless-restorable" | "session-backed" | "intentionally-ephemeral";
 
 export interface CallbackContract {
-  family:
-    | "translation"
-    | "flashcard"
-    | "srs"
-    | "dictionary"
-    | "template"
-    | "settings"
-    | "notification"
-    | "subscription";
+  family: "translation" | "flashcard" | "dictionary" | "template" | "settings" | "notification" | "subscription";
   prefix: string;
   restartSafety: CallbackRestartSafetyClass;
   durableLookupKey: string;
@@ -142,37 +134,12 @@ export const callbackContracts = [
     family: "flashcard",
     prefix: "fc",
     restartSafety: "session-backed",
-    durableLookupKey: "target is deck/session id plus card id",
-    dbSource: "vocabulary_entries, vocabulary_translations, word_review_log",
-    expiryBehavior: "localized flashcardSessionExpired, also when fc:fb/fc:del names a card the deck moved past",
-    maxExampleData: "fc:fb:normal:2147483647",
-  },
-  {
-    family: "srs",
-    prefix: "srs:rate",
-    restartSafety: "session-backed",
-    durableLookupKey: "target is vocabulary_translation id plus rating",
-    dbSource: "vocabulary_translations SRS columns",
-    expiryBehavior: "localized srsSessionExpired",
-    maxExampleData: "srs:rate:again",
-  },
-  {
-    family: "srs",
-    prefix: "srs",
-    restartSafety: "session-backed",
-    durableLookupKey: "target is review session id plus card id",
-    dbSource: "vocabulary_translations SRS columns",
-    expiryBehavior: "localized srsSessionExpired",
-    maxExampleData: "srs:reveal",
-  },
-  {
-    family: "srs",
-    prefix: "srs:del",
-    restartSafety: "session-backed",
-    durableLookupKey: "vocabulary entry id, checked against the session's current card",
-    dbSource: "vocabulary_entries soft delete scoped by owner",
-    expiryBehavior: "localized srsSessionExpired when the id is not the current card",
-    maxExampleData: "srs:del:2147483647",
+    durableLookupKey:
+      "vocabulary_translation id (fc:rate) or entry id (fc:del), checked against the session's current card",
+    dbSource: "vocabulary_translations SRS columns, vocabulary_entries difficulty and soft delete, word_review_log",
+    expiryBehavior:
+      "localized flashcardSessionExpired, also when fc:rate/fc:del names a card the deck moved past and for legacy srs:*, fc:next|done|start|fb:*",
+    maxExampleData: "fc:rate:again:2147483647",
   },
   {
     family: "dictionary",

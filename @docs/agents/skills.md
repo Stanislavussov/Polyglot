@@ -28,7 +28,6 @@ in `@docs/agents/architecture.md`.
 - `ai` - AI provider adapter and model/request plumbing.
 - `translation` - prompt building, translation orchestration, and response shaping.
 - `context-enrichment` - pre-AI context lookup and enrichment.
-- `dictionary-pipeline` - dictionary-derived display/read models.
 - `topics` - topic datasets, custom topic generation, and topic caches.
 - `notifications` - scheduling and delivery of notifications.
 - `bot` - Telegram commands, scenes, middleware, callbacks, and renderers.

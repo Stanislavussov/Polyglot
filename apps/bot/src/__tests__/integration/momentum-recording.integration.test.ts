@@ -2,7 +2,7 @@
  * Momentum recording — grammY e2e integration test (Task 81, Slice 1, §8.2.3).
  *
  * Drives the three effort kinds Slice 1 can reach through the REAL dispatcher and a
- * real Postgres: a translation, a save tap on the rendered card, and an SRS rating
+ * real Postgres: a translation, a save tap on the rendered card, and a Cards rating
  * of the word that was just saved. Nothing user-visible changes in this slice, so
  * the assertions are on the journal, the snapshot, and the delivered card.
  *
@@ -68,21 +68,37 @@ function readMomentumScore(userId: number): Promise<Array<{ score: number }>> {
   `;
 }
 
+function readReviewLog(entryId: number): Promise<Array<{ session_type: string }>> {
+  return getDb().$client<Array<{ session_type: string }>>`
+    select session_type from word_review_log where entry_id = ${entryId}
+  `;
+}
+
 /** Translate one word and return the id of the card the bot rendered. */
 async function translateWord(harness: BotHarness, chatId: number, word: string): Promise<number> {
   await harness.dispatch(messageUpdate({ chatId, fromId: chatId, text: word }));
   return lastRenderedCard(harness.sent).messageId;
 }
 
-/** Run a one-card SRS session to completion: `/review` → reveal → rate. */
-async function reviewOneCard(harness: BotHarness, chatId: number): Promise<void> {
+/** Run a one-card Cards session to completion: `/review` → reveal → rate good. Returns the rating's callback data. */
+async function reviewOneCard(harness: BotHarness, chatId: number): Promise<string> {
   harness.reset();
   await harness.dispatch(messageUpdate({ chatId, fromId: chatId, text: "/review" }));
   const cardMsgId = harness.sent.filter((call) => call.method === "sendMessage").at(-1)?.messageId;
-  if (cardMsgId === undefined) throw new Error("no SRS card was sent — the word was not due for review");
+  if (cardMsgId === undefined) throw new Error("no card was sent — the saved word is missing");
 
-  await harness.dispatch(callbackQueryUpdate({ chatId, fromId: chatId, messageId: cardMsgId, data: "srs:reveal" }));
-  await harness.dispatch(callbackQueryUpdate({ chatId, fromId: chatId, messageId: cardMsgId, data: "srs:rate:good" }));
+  await harness.dispatch(callbackQueryUpdate({ chatId, fromId: chatId, messageId: cardMsgId, data: "fc:reveal" }));
+  const back = harness.sent.filter((call) => call.method === "editMessageText").at(-1);
+  const markup = back?.payload.reply_markup as
+    | { inline_keyboard?: Array<Array<{ callback_data?: string }>> }
+    | undefined;
+  const rateGood = markup?.inline_keyboard
+    ?.flat()
+    .map((button) => button.callback_data)
+    .find((data) => data?.startsWith("fc:rate:good:"));
+  if (!rateGood) throw new Error("the revealed card offers no rating");
+  await harness.dispatch(callbackQueryUpdate({ chatId, fromId: chatId, messageId: cardMsgId, data: rateGood }));
+  return rateGood;
 }
 
 /** A momentum service on the real journal, with the kill switches under the test's control. */
@@ -118,7 +134,7 @@ describe("momentum recording (integration)", () => {
       await harness.dispatch(saveUpdate);
 
       vi.setSystemTime(REVIEWED_AT);
-      await reviewOneCard(harness, id);
+      const rating = await reviewOneCard(harness, id);
 
       const [ledgerRow] = await translationRequestRepository.getRecentRequests(userId, 1);
       if (!ledgerRow) throw new Error("expected a translation_requests row");
@@ -152,9 +168,7 @@ describe("momentum recording (integration)", () => {
       // Neither may add a row — the second tap is refused by the card handler, the
       // second rating by the finished session, and behind both stands the dedupe key.
       await harness.dispatch(saveUpdate);
-      await harness.dispatch(
-        callbackQueryUpdate({ chatId: id, fromId: id, messageId: cardMsgId, data: "srs:rate:good" }),
-      );
+      await harness.dispatch(callbackQueryUpdate({ chatId: id, fromId: id, messageId: cardMsgId, data: rating }));
       expect(await readMomentumEvents(userId)).toEqual(events);
     } finally {
       vi.useRealTimers();
@@ -181,7 +195,7 @@ describe("momentum recording (integration)", () => {
       const savedEntry = (await vocabularyRepository.findByUser(userId)).at(0);
       if (!savedEntry) throw new Error("expected the saved vocabulary entry");
       // The review really happened — otherwise "no momentum rows" would pass vacuously.
-      expect(await harness.services.wordReviewRepository.getReviewsForWord(savedEntry.id)).toHaveLength(1);
+      expect(await readReviewLog(savedEntry.id)).toHaveLength(1);
       expect(await readMomentumEvents(userId)).toHaveLength(0);
       expect(await readMomentumScore(userId)).toHaveLength(0);
     } finally {
