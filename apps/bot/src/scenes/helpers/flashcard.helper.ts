@@ -216,8 +216,11 @@ export async function handleFcGrade(ctx: BotContext): Promise<void> {
   const lang = await getUserLang(ctx);
   const saved = await ctx.services.vocabularyRepository.setDifficulty(word.id, ctx.user.id, grade);
   if (!saved) {
-    // Removed from the dictionary elsewhere since the deck was built.
-    await ctx.answerCallbackQuery({ text: t("noResults", lang) });
+    // Removed from the dictionary elsewhere since the deck was built: the card is
+    // dead weight, so it leaves the deck instead of answering every grade tap with
+    // the same toast.
+    await leaveCurrentCard(ctx, fc, lang);
+    await ctx.answerCallbackQuery({ text: t("wordDeleted", lang) });
     return;
   }
   logReviewSafe(ctx, word.id);
@@ -248,10 +251,20 @@ export async function handleFcDelete(ctx: BotContext): Promise<void> {
   const lang = await getUserLang(ctx);
   // A false result means the word was already gone; either way it leaves the deck.
   await ctx.services.vocabularyRepository.delete(word.id, ctx.user.id);
-  fc.deck.splice(fc.currentIndex, 1);
+  await leaveCurrentCard(ctx, fc, lang);
+  await ctx.answerCallbackQuery({ text: t("wordDeleted", lang) });
+}
 
+/** Drop the current card from the deck and show whatever comes next — the next front or the finish screen. */
+async function leaveCurrentCard(ctx: BotContext, fc: FlashcardSession, lang: SupportedLang): Promise<void> {
+  fc.deck.splice(fc.currentIndex, 1);
   if (fc.deck.length === 0) {
-    await editMessageTextOrReply(ctx, t("wordDeleted", lang));
+    // Nothing reviewed to report, but the finish screen's buttons stay: a bare
+    // "deleted" line left the chat with no way to a new deck.
+    const { enabled: showProgress } = await ctx.services.settings.getMotivationConfig();
+    await editMessageTextOrReply(ctx, t("wordDeleted", lang), {
+      reply_markup: buildFlashCardDoneKeyboard(lang, { showProgress }),
+    });
     ctx.session.flashcard = undefined;
   } else if (fc.currentIndex >= fc.deck.length) {
     fc.currentIndex = fc.deck.length - 1;
@@ -259,7 +272,6 @@ export async function handleFcDelete(ctx: BotContext): Promise<void> {
   } else {
     await showCurrentFront(ctx, fc, lang);
   }
-  await ctx.answerCallbackQuery({ text: t("wordDeleted", lang) });
 }
 
 /* ── fc:done ───────────────────────────────────────────────────── */

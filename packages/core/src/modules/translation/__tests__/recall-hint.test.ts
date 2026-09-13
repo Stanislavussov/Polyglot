@@ -34,6 +34,29 @@ describe("withoutLeakingRecallHint", () => {
     expect(withoutLeakingRecallHint(usage("Почти труд."), RESULT).recallHint).toBeNull();
   });
 
+  it("drops a hint that gives the answer away in an inflected form", () => {
+    expect(withoutLeakingRecallHint(usage("Про любую работу руками."), RESULT).recallHint).toBeNull();
+  });
+
+  it("keeps a hint where the answer only occurs inside a longer, unrelated word", () => {
+    const art: TranslationResult = {
+      nativeSynonyms: [],
+      translations: { en: { text: "art", synonyms: [], examples: [] } },
+    };
+    const hint = "A particular word, heard in museums.";
+    expect(withoutLeakingRecallHint(usage(hint), art).recallHint).toBe(hint);
+  });
+
+  it("checks the content word of a multi-word answer but not its article", () => {
+    const german: TranslationResult = {
+      nativeSynonyms: [],
+      translations: { de: { text: "die Arbeit", synonyms: [], examples: [] } },
+    };
+    expect(withoutLeakingRecallHint(usage("Wie Arbeit, nur formeller."), german).recallHint).toBeNull();
+    const hint = "Sagt man, wenn die Woche beginnt.";
+    expect(withoutLeakingRecallHint(usage(hint), german).recallHint).toBe(hint);
+  });
+
   it("ignores answers too short to match meaningfully", () => {
     const shortAnswer: TranslationResult = {
       nativeSynonyms: [],

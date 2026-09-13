@@ -1,14 +1,41 @@
 import type { SourceUsage, TranslationResult } from "./types.js";
 
-/** Below this length a "leak" match is noise — a one- or two-letter translation sits inside ordinary words. */
-const MIN_LEAK_LENGTH = 3;
+/** Below this length a one-word answer is matched only as a whole word — "go" or "art" sit inside ordinary words. */
+const MIN_STEM_LENGTH = 5;
+/** Tokens of a multi-word answer shorter than this are articles and particles ("die", "to"), not the answer. */
+const MIN_PHRASE_TOKEN_LENGTH = 4;
+
+function words(text: string): string[] {
+  return text.toLowerCase().match(/[\p{L}\p{M}]+/gu) ?? [];
+}
+
+/**
+ * Whether `hintWords` contain `answerWord` as a word, or — for a long enough
+ * answer — an inflected form of it: "работу" gives away "работа" as surely as
+ * the citation form does. One trailing letter is the stem; that is crude, but
+ * it errs toward dropping a hint, which is the safe side.
+ */
+function mentionsWord(hintWords: readonly string[], answerWord: string): boolean {
+  if (answerWord.length < MIN_STEM_LENGTH) return hintWords.includes(answerWord);
+  const stem = answerWord.slice(0, -1);
+  return hintWords.some((word) => word.startsWith(stem) && word.length <= answerWord.length + 2);
+}
 
 function answersOf(result: TranslationResult): string[] {
-  const answers = [...(result.nativeSynonyms ?? []).map((synonym) => synonym.text)];
+  const answers = (result.nativeSynonyms ?? []).map((synonym) => synonym.text);
   for (const block of Object.values(result.translations)) {
     answers.push(block.text, ...(block.synonyms ?? []).map((synonym) => synonym.text));
   }
-  return answers.map((answer) => answer.trim().toLowerCase()).filter((answer) => answer.length >= MIN_LEAK_LENGTH);
+  return answers;
+}
+
+function leaks(hint: string, answer: string): boolean {
+  const hintWords = words(hint);
+  const answerWords = words(answer);
+  if (answerWords.length === 1) return answerWords[0]!.length >= 3 && mentionsWord(hintWords, answerWords[0]!);
+  return answerWords
+    .filter((word) => word.length >= MIN_PHRASE_TOKEN_LENGTH)
+    .some((word) => mentionsWord(hintWords, word));
 }
 
 /**
@@ -23,7 +50,6 @@ export function withoutLeakingRecallHint(sourceUsage: SourceUsage, result: Trans
   if (sourceUsage.recallHint === undefined) return sourceUsage;
   const hint = sourceUsage.recallHint?.trim();
   if (!hint) return { ...sourceUsage, recallHint: null };
-  const lowered = hint.toLowerCase();
-  const leaks = answersOf(result).some((answer) => lowered.includes(answer));
-  return { ...sourceUsage, recallHint: leaks ? null : hint };
+  const leaked = answersOf(result).some((answer) => leaks(hint, answer));
+  return { ...sourceUsage, recallHint: leaked ? null : hint };
 }

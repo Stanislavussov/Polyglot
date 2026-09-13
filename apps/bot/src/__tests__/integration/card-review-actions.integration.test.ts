@@ -262,4 +262,54 @@ describe("review-card actions (integration)", () => {
     await send(harness, telegramId, "/flashcard");
     expect(lastScreen(harness.sent).text).toContain("Friendly and informal; said when you meet someone.");
   });
+
+  it("K7: removing the only card left ends on the finish screen, not a dead end", async () => {
+    const harness = createBotHarness();
+    const { telegramId, userId } = await arrangeReviewer();
+    const { id } = await vocabularyRepository.create(userId, word("anchor"));
+
+    await send(harness, telegramId, "/flashcard");
+    await tap(harness, telegramId, `fc:del:${id}`);
+
+    expect(await vocabularyRepository.findByUser(userId)).toHaveLength(0);
+    const screen = lastScreen(harness.sent);
+    expect(screen.text).toContain("deleted");
+    expect(screen.buttons).toContain("fc:restart");
+  });
+
+  it("K8: a grade left on a card the deck moved past changes nothing", async () => {
+    const harness = createBotHarness();
+    const { telegramId, userId } = await arrangeReviewer();
+    await vocabularyRepository.create(userId, word("anchor"));
+    await vocabularyRepository.create(userId, word("harbor"));
+
+    await send(harness, telegramId, "/flashcard");
+    const first = shownEntryId(lastScreen(harness.sent).buttons, "fc");
+    await tap(harness, telegramId, "fc:reveal");
+    await tap(harness, telegramId, `fc:fb:hard:${first}`);
+
+    await tap(harness, telegramId, `fc:fb:easy:${first}`);
+
+    expect((await vocabularyRepository.findById(first))?.difficulty).toBe("hard");
+    expect(toasts(harness.sent)).toEqual([expect.stringContaining("Session expired")]);
+  });
+
+  it("K9: grading a word removed elsewhere since the deck was built moves on to the next card", async () => {
+    const harness = createBotHarness();
+    const { telegramId, userId } = await arrangeReviewer();
+    await vocabularyRepository.create(userId, word("anchor"));
+    await vocabularyRepository.create(userId, word("harbor"));
+
+    await send(harness, telegramId, "/flashcard");
+    const first = shownEntryId(lastScreen(harness.sent).buttons, "fc");
+    await tap(harness, telegramId, "fc:reveal");
+    // Removed from a notification or the dictionary screen while this card was open.
+    await vocabularyRepository.delete(first, userId);
+
+    await tap(harness, telegramId, `fc:fb:hard:${first}`);
+
+    const next = shownEntryId(lastScreen(harness.sent).buttons, "fc");
+    expect(next).not.toBe(first);
+    expect(toasts(harness.sent)).toEqual([expect.stringContaining("deleted")]);
+  });
 });

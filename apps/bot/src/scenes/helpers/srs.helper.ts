@@ -221,8 +221,12 @@ export async function handleSrsDelete(ctx: BotContext): Promise<void> {
 
   if (srs.deck.length === 0) {
     ctx.session.srs = undefined;
+    // The finish screen's buttons stay: a bare "deleted" line is a dead end.
+    const { enabled: showProgress } = await ctx.services.settings.getMotivationConfig();
     try {
-      await editMessageTextOrReply(ctx, t("wordDeleted", lang));
+      await editMessageTextOrReply(ctx, t("wordDeleted", lang), {
+        reply_markup: buildSrsDoneKeyboard(lang, { showProgress }),
+      });
     } catch {
       /* ignore */
     }
