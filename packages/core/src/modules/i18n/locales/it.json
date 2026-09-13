@@ -299,6 +299,7 @@
   "correctionNotice": "✏️ Corretto: {original} → {corrected} — {explanation}",
   "sentenceErrorNotice": "✏️ Corretto: {corrected}\n{explanation}",
   "rateLimitExceeded": "⚠️ Limite mensile di traduzioni raggiunto. Passa a un piano superiore per averne di più.",
+  "dailyCeilingReached": "⏸ È stato raggiunto il limite di sicurezza giornaliero: è ben oltre una normale giornata di studio, quindi le nuove richieste sono in pausa. Riaprono alle {resetsAt}.",
   "mentorModeOn": "🧑‍🏫 Modalità mentore attiva! Chiedimi ciò che vuoi sulle lingue che studi: grammatica, espressioni, uso. Meglio un argomento per sessione: quando cambi argomento, avviane una nuova con 🆕 o /mentor. Rispondi a una mia risposta per riprendere quell'argomento più tardi. Esci con /translate.",
   "loaderMentorStart1": "🧠 Sto pensando...",
   "loaderMentorStart2": "💭 Ci sto ragionando...",
@@ -444,10 +445,10 @@
   "recoveryLine": "Bentornato. È tutto al suo posto.",
   "recoveryDue": "Da ripassare: {count}.",
   "weeklyProofLine": "Questa settimana — in memoria a lungo termine: {mature}, ripassi: {reviews}.",
-  "onbTrialGranted": "⭐ Hai Plus per i tuoi primi {days} giorni — tutti i pulsanti sotto la scheda sono sbloccati: altri significati, precisare, mentore, video.\n\nDopo, le traduzioni restano gratuite. Salva {words} parole questa settimana e Plus dura {extraDays} giorni in più.",
-  "trialEndingSoon": "⏳ La tua settimana Plus finisce il {date}.\n\nSalva {words} parole questa settimana e Plus dura {extraDays} giorni in più. Altrimenti precisare, mentore e video si disattivano — le traduzioni restano gratuite.",
-  "trialEndingFinal": "⏳ I tuoi giorni Plus finiscono il {date}.\n\nDopo, le traduzioni restano gratuite; precisare, mentore e video si disattivano.",
-  "trialExtended": "🎁 Hai salvato abbastanza parole questa settimana — Plus resta con te {extraDays} giorni in più.\n\nContinua così, per ora non si disattiva nulla.",
-  "trialEnded": "La tua settimana Plus è finita. Salvate questa settimana: {saved} — restano tue e i ripassi continuano.\n\nAncora gratis: traduzioni. Disattivati: altri significati, precisare, mentore, video.",
-  "trialEndedEmpty": "La tua settimana Plus è finita.\n\nAncora gratis: traduzioni. Disattivati: altri significati, precisare, mentore, video."
+  "onbTrialGranted": "⭐ Hai Pro per i tuoi primi {days} giorni — tutti i pulsanti sotto la scheda sono sbloccati: altri significati, precisare, pronuncia, messaggi vocali, mentore, video.\n\nDopo, le traduzioni restano gratuite. Salva {words} parole questa settimana e Pro dura {extraDays} giorni in più.",
+  "trialEndingSoon": "⏳ La tua settimana Pro finisce il {date}.\n\nSalva {words} parole questa settimana e Pro dura {extraDays} giorni in più. Altrimenti precisare, pronuncia, messaggi vocali, mentore e video si disattivano — le traduzioni restano gratuite.",
+  "trialEndingFinal": "⏳ I tuoi giorni Pro finiscono il {date}.\n\nDopo, le traduzioni restano gratuite; precisare, pronuncia, messaggi vocali, mentore e video si disattivano.",
+  "trialExtended": "🎁 Hai salvato abbastanza parole questa settimana — Pro resta con te {extraDays} giorni in più.\n\nContinua così, per ora non si disattiva nulla.",
+  "trialEnded": "La tua settimana Pro è finita. Salvate questa settimana: {saved} — restano tue e i ripassi continuano.\n\nAncora gratis: traduzioni. Disattivati: altri significati, precisare, pronuncia, messaggi vocali, mentore, video.",
+  "trialEndedEmpty": "La tua settimana Pro è finita.\n\nAncora gratis: traduzioni. Disattivati: altri significati, precisare, pronuncia, messaggi vocali, mentore, video."
 }

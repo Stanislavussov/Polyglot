@@ -1,12 +1,17 @@
 /**
- * The onboarding reverse trial: every new account gets Plus for its first week,
- * then drops to free — see `@docs/tasks/84-onboarding-reverse-trial.md` for why
- * the shape is "a week of Plus" rather than "a day of everything".
+ * The onboarding reverse trial: every new account gets the top tier for its first
+ * week, then drops to free — see `@docs/tasks/84-onboarding-reverse-trial.md` for
+ * why the shape is "a week" rather than "a day of everything".
  *
  * Three rules are load-bearing and encoded here rather than at the call sites:
  *
- *  - The tier is **Plus, not Pro.** A user cannot resent losing pronunciation or
- *    voice input they never had, and Pro has to keep something left to sell.
+ *  - The tier is **Pro — the whole product.** The trial shipped on Plus first, to
+ *    keep Pro's two features (pronunciation, voice input) as something left to
+ *    sell. That was reversed deliberately: a newcomer judging the bot in week one
+ *    must meet the product, not a tier of it, and holding two features back left
+ *    ⭐ badges on the very first card — the screen the trial exists to make
+ *    convincing. What is sold after the week is now the whole thing, not the top
+ *    slice of it.
  *  - The gift is **once per account, forever.** The guard is the existence of a
  *    trial row in any status, so re-running onboarding can never re-grant it.
  *  - The ending is **announced before it happens, and earnable.** A user who
@@ -23,8 +28,8 @@ import type { SubscriptionUserUpdater } from "./index.js";
 /** `subscriptions.provider` marking a granted, never-billed period. */
 export const TRIAL_PROVIDER = "trial";
 
-/** The tier the first week runs on. */
-export const TRIAL_PLAN = "plus";
+/** The tier the first week runs on — the dearest one, so nothing is badged. */
+export const TRIAL_PLAN = "pro";
 
 export const TRIAL_DAYS = 7;
 export const TRIAL_EXTENSION_DAYS = 3;
@@ -74,12 +79,12 @@ export type TrialGrant =
   | { granted: false; reason: "already_trialled" | "has_subscription" };
 
 /**
- * Hand a freshly onboarded user their week of Plus.
+ * Hand a freshly onboarded user their week of the top tier.
  *
  * Refuses in exactly two cases, and writes nothing in either: the account has
  * held a trial before, or it already has an active subscription (a paying user
- * re-running onboarding must not be swapped onto Plus — that would be a
- * downgrade for a Pro subscriber).
+ * re-running onboarding must not be swapped onto a week that expires sooner than
+ * the period they bought).
  */
 export async function grantOnboardingTrial(
   deps: TrialGrantDeps,
@@ -98,7 +103,7 @@ export async function grantOnboardingTrial(
 
   const currentPeriodEnd = addDays(now, TRIAL_DAYS);
   // The row comes first: if the plan pointer moved and the row write then
-  // failed, the user would hold Plus with nothing to expire it. `createdAt` is
+  // failed, the user would hold the paid tier with nothing to expire it. `createdAt` is
   // passed rather than left to the database so that it and `currentPeriodEnd`
   // share one clock — `hasBeenExtended` is the difference between them.
   const row = await deps.subscriptions.create({
@@ -211,7 +216,7 @@ export function resolveMeteredWindowStart(monthStart: Date, trialEnd: Date | nul
  * read off the period the row actually carries rather than off whether the
  * congratulation reached Telegram. A transiently failed send used to leave the
  * extension looking unspent, and the sweep then granted another three days every
- * time the row came back around: free Plus without end.
+ * time the row came back around: a free top tier without end.
  *
  * Exact by construction: `grantOnboardingTrial` writes both timestamps from one
  * clock. Raising {@link TRIAL_DAYS} while trials are in flight would let each of

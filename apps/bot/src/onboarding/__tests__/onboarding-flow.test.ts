@@ -114,7 +114,7 @@ function createHarness(opts: { languageCode?: string; langs?: typeof LANGS } = {
     },
     settings: null as null | { interfaceLang: string; nativeLang: string; learningLangs: string[] },
     levels: [] as Array<{ languageCode: string; proficiencyLevel: string }>,
-    subscriptions: [] as Array<{ plan: string; provider: string; currentPeriodEnd: Date }>,
+    subscriptions: [] as Array<{ plan: string; provider: string; currentPeriodEnd: Date; status?: string }>,
   };
 
   const userRepository = {
@@ -166,7 +166,10 @@ function createHarness(opts: { languageCode?: string; langs?: typeof LANGS } = {
       store.subscriptions.push(row);
       return row;
     }),
-    findActiveByUser: vi.fn(async () => store.subscriptions.find((row) => row.provider === "mock") ?? null),
+    // Mirrors the real repository: the subscription currently in force, whatever
+    // opened it. Filtering by provider here would have hidden the trial row from
+    // the closing screen, which reads its own gift back through this call.
+    findActiveByUser: vi.fn(async () => store.subscriptions.find((row) => row.status === "active") ?? null),
     findTrialByUser: vi.fn(async () => store.subscriptions.find((row) => row.provider === "trial") ?? null),
     findTrialsEndingBetween: vi.fn(async () => []),
     findExpired: vi.fn(async () => []),
@@ -1148,7 +1151,7 @@ describe("onboarding — the reverse trial (Task 84)", () => {
     payload: DEMO_PAYLOAD,
   };
 
-  it("hands the finished account a week of Plus and says so once", async () => {
+  it("hands the finished account a week of Pro and says so once", async () => {
     const h = createHarness({ languageCode: "ru" });
     await reachDemoScreen(h);
     h.onboardingDemoCardRepository.findOne.mockResolvedValue(CACHED_CARD);

@@ -358,6 +358,7 @@ export interface PlanLimitConfig {
   creditCost: number;
   videoLimit: number | null;
   mentorDailyLimit: number | null;
+  dailyCreditCeiling: number | null;
   videoWindow: "none" | "lifetime" | "monthly";
   /** Display price in US cents (500 = $5/mo). null = not for sale. */
   priceUsdCents: number | null;

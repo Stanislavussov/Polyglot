@@ -299,6 +299,7 @@
   "correctionNotice": "✏️ Fixed: {original} → {corrected} — {explanation}",
   "sentenceErrorNotice": "✏️ Corrected: {corrected}\n{explanation}",
   "rateLimitExceeded": "⚠️ Monthly translation limit reached. Upgrade your plan for more translations.",
+  "dailyCeilingReached": "⏸ Today's safety limit is reached — this is well past a normal day of study, so new requests are paused. They open again at {resetsAt}.",
   "mentorModeOn": "🧑‍🏫 Mentor mode is on! Ask me anything about the languages you're learning — grammar, phrases, usage. One topic per session works best: when you switch topics, start a fresh one with the 🆕 button or /mentor. Reply to any of my answers to come back to that topic later. Exit with /translate.",
   "loaderMentorStart1": "🧠 Thinking...",
   "loaderMentorStart2": "💭 Turning it over...",
@@ -444,10 +445,10 @@
   "recoveryLine": "Welcome back. Everything is right where you left it.",
   "recoveryDue": "To review: {count}.",
   "weeklyProofLine": "This week — in long-term memory: {mature}, reviews: {reviews}.",
-  "onbTrialGranted": "⭐ Plus is on for your first {days} days — every button under the card is open: other meanings, clarify, mentor, video.\n\nAfter that translations stay free. Save {words} words this week and Plus stays {extraDays} days longer.",
-  "trialEndingSoon": "⏳ Your Plus week ends on {date}.\n\nSave {words} words this week and Plus stays {extraDays} days longer. Otherwise clarify, mentor and video switch off — translations stay free.",
-  "trialEndingFinal": "⏳ Your Plus days end on {date}.\n\nAfter that translations stay free; clarify, mentor and video switch off.",
-  "trialExtended": "🎁 You saved enough words this week — Plus stays with you {extraDays} days longer.\n\nKeep going, nothing switches off yet.",
-  "trialEnded": "Your Plus week is over. Saved this week: {saved} — they stay yours, and reviews keep coming.\n\nStill free: translations. Switched off: other meanings, clarify, mentor, video.",
-  "trialEndedEmpty": "Your Plus week is over.\n\nStill free: translations. Switched off: other meanings, clarify, mentor, video."
+  "onbTrialGranted": "⭐ Pro is on for your first {days} days — every button under the card is open: other meanings, clarify, word audio, voice messages, mentor, video.\n\nAfter that translations stay free. Save {words} words this week and Pro stays {extraDays} days longer.",
+  "trialEndingSoon": "⏳ Your Pro week ends on {date}.\n\nSave {words} words this week and Pro stays {extraDays} days longer. Otherwise clarify, word audio, voice messages, mentor and video switch off — translations stay free.",
+  "trialEndingFinal": "⏳ Your Pro days end on {date}.\n\nAfter that translations stay free; clarify, word audio, voice messages, mentor and video switch off.",
+  "trialExtended": "🎁 You saved enough words this week — Pro stays with you {extraDays} days longer.\n\nKeep going, nothing switches off yet.",
+  "trialEnded": "Your Pro week is over. Saved this week: {saved} — they stay yours, and reviews keep coming.\n\nStill free: translations. Switched off: other meanings, clarify, word audio, voice messages, mentor, video.",
+  "trialEndedEmpty": "Your Pro week is over.\n\nStill free: translations. Switched off: other meanings, clarify, word audio, voice messages, mentor, video."
 }

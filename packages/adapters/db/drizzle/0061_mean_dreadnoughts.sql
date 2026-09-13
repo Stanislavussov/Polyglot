@@ -1,0 +1,1 @@
+ALTER TABLE "rate_limit_plans" ADD COLUMN "daily_credit_ceiling" integer;

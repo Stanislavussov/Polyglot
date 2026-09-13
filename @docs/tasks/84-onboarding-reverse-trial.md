@@ -1,4 +1,4 @@
-# Task 84 — Onboarding reverse trial (a week of Plus, then a survivable free tier)
+# Task 84 — Onboarding reverse trial (a week of Pro, then a survivable free tier)
 
 Status: **implemented** (2026-09-12) · Date: 2026-09-12
 Builds on: Task 72 (stateless onboarding) · Task 79 (`@docs/tasks/79-paid-features-presentation-layer.md`) · Task 81 (momentum journal)
@@ -9,11 +9,15 @@ The original proposal was "give a new user every feature free for their first da
 
 **Length.** One day is below the floor where a trial does anything. RevenueCat's 2026 cohort data puts trials of four days or less at 25.5 % trial-to-paid against 42.5 % for 17–32 days, and 64 % of seven-day trials are abandoned inside the first 24 hours. A language habit does not exist on day one: the user has no saved words, no reviews coming back, nothing to lose. Loss aversion needs something to grab onto.
 
-**Tier.** "Every feature" hands out the two most expensive calls on the platform (TTS, mentor) to a cohort that has not yet shown it will return, and leaves nothing above the tier the user was just given — there is no upsell left after Pro. Worse, it teaches the user that pronunciation and voice input are part of the product, then takes them away.
+**Tier.** Two readings, and the second one won.
+
+The first shipped: Plus, not Pro. "Every feature" hands out the two most expensive calls on the platform (TTS, mentor) to a cohort that has not yet shown it will return, leaves nothing above the tier the user was just given, and teaches them that pronunciation and voice input are part of the product before taking them away.
+
+It was reversed to **Pro** because it made the card lie about itself. Buttons are badged with the glyph of the tier that sells them (⭐ Plus, 💎 Pro), so a Plus trial left 💎 on the first card a newcomer ever sees — the single screen the whole onboarding exists to make convincing. A newcomer forming their opinion in week one has to meet the product, not a tier of it; the cost of the two extra calls is bounded by the same seven days, and what is sold afterwards is the whole thing rather than the top slice. The upsell after the week is Pro itself, which is exactly what the user just lost.
 
 **The ending.** This is where resentment actually comes from, and the research is blunt about it: confusing endowment with lock-in earns resentment rather than loyalty. The felt injury is not "the trial ended", it is "the product stopped being usable". Before this task the free tier was 10 translations a month — a landing page rather than a smaller product. Any trial expiring onto that floor converts into churn no matter how the message is worded.
 
-So: a **seven-day Plus** reverse trial, announced honestly at the start, warned about before it ends, earnable by use, landing on a free tier that still works.
+So: a **seven-day Pro** reverse trial, announced honestly at the start, warned about before it ends, earnable by use, landing on a free tier that still works.
 
 Sources consulted: [RevenueCat on trial length](https://www.revenuecat.com/blog/growth/7-day-trial-subscription-app), [Poyar/ChartMogul 2026 free-to-paid report](https://www.growthunhinged.com/p/free-to-paid-conversion-report) (reverse trials: 4–6 % good, 8–12 % great — *not* statistically better than plain freemium, so the effect is entirely in the execution), [Inflection on reverse trials](https://www.inflection.io/post/complete-guide-to-reverse-trials), [The Good on trial strategies and resentment](https://thegood.com/insights/saas-trial-strategies/), [endowment effect](https://www.getmonetizely.com/articles/how-does-the-endowment-effect-make-free-trials-so-powerful), [loss-framed paywall copy (+21 %)](https://anapintar.com/3-behavioral-science-principles-to-run-your-next-product-experiments/), [Duolingo's 3/7-day Super trial and streak-milestone Super gifts](https://www.revenuecat.com/blog/growth/cem-kansu-duolingo-sub-club-podcast-2026).
 
@@ -21,19 +25,19 @@ Sources consulted: [RevenueCat on trial length](https://www.revenuecat.com/blog/
 
 | | during the trial | after it |
 |---|---|---|
-| Plan pointer | `plus` | `free` |
-| Length | 7 days from onboarding completion, +3 days once if ≥ 10 words saved | — |
+| Plan pointer | `pro` | `free` |
+| Length | 7 days from reaching the demo screen, +3 days once if ≥ 10 words saved | — |
 | Translations | unlimited | 30 / month (was 10) |
 | Other meanings / clarify | ✅ | 🔒 |
-| Mentor | ✅ (Plus daily cap) | 🔒 |
+| Mentor | ✅ (unmetered, as Pro) | 🔒 |
 | YouTube video | ✅ | 🔒 (the one onboarding video stays) |
-| Pronunciation / voice input | 🔒 (Pro only, never granted) | 🔒 |
+| Pronunciation / voice input | ✅ | 🔒 |
 
-Pro is deliberately never trialled: a user cannot resent losing what they never had, and Pro keeps something left to sell to a converted Plus subscriber.
+**Where the grant happens is part of the spec, not an implementation detail.** It runs on entry to the demo screen, one update before the first card can render, because the card resolves its badges from the plan pointer at render time: granted any later, the newcomer's first card carries locks for features they already hold. It is not granted earlier than that — a user who abandons on the language picker has used nothing, and the gift is once per account forever.
 
 ### 2.1 The four messages
 
-1. **Grant**, on the closing onboarding screen, once: names the tier, the seven days, what stays free afterwards, and the earn-more rule. Announced only when a trial was actually granted.
+1. **Grant**, written on entry to the demo screen and announced once on the closing screen, which reads the live trial back out of the ledger rather than granting it: names the tier, the seven days, what stays free afterwards, and the earn-more rule. Announced only when the account actually holds a trial.
 2. **Warn**, one to two days before the end: names what switches off, states the **date** the trial ends, and repeats the earn-more offer while it is still open (`canEarn`). The decision window is 48 h, not 24, because the sweep runs once a day: at 24 h a trial ending just before the sweep hour would be reached with minutes left — too late to act on the warning and too late to earn the extension, which falls due in the same window. With a daily sweep and a 48 h window, the first sweep that sees a trial is always 24–48 h from its end, so the warning is never late. The copy names a date rather than a count of hours for two reasons: that 24-hour spread makes any fixed number wrong for most users, and a *variable* number breaks noun agreement in ru/uk/pl/cs, where the old fixed "24" happened to be grammatical. A user warned *before* earning the extension is warned again before the new end, under a second history source.
 3. **Extend**, once, when ≥ 10 words were saved during the trial: +3 days, "nothing switches off yet".
 4. **Close**, on expiry: leads with what stays free, states what switched off, and reports the week's saved-word count (omitted when it is zero — "you saved 0 words" is the one sentence that could only discourage).
@@ -42,7 +46,7 @@ Each is one-off per account, recorded in `notification_history` under `trial_end
 
 Those rows answer one question only: *was this message sent*. Whether the extension was **granted** is read off the ledger (`hasBeenExtended`: the row carries more than `TRIAL_DAYS`). The distinction is load-bearing — while "already extended" came from the congratulation's history row, a transiently failed send left the grant looking unspent and the next sweep added another three days, and the next, without bound.
 
-A row also has to still speak for the user before anything is sent: `activate` supersedes a trial the moment the user *buys*, and telling a paying convert that their Plus is over would aim the worst message in the product at the one cohort the whole feature exists to produce.
+A row also has to still speak for the user before anything is sent: `activate` supersedes a trial the moment the user *buys*, and telling a paying convert that their free week is over would aim the worst message in the product at the one cohort the whole feature exists to produce.
 
 ## 3. Implementation
 
@@ -61,14 +65,14 @@ Both are consequences of granting an unmetered week, and both were found by walk
 
 1. **The monthly translation window.** Trial translations land in the same ledger the free plan is billed against, so a heavy trial week would have exhausted the free month before it began. `resolveMeteredWindowStart` rebases the metered month on the trial's end; the daily credit meter is left alone, where the same overlap costs at most the remainder of one day.
 
-2. **The one free lifetime video.** The curated starter videos are the empty state of Videos mode, reachable long after onboarding, and their run was charged to the once-per-account giveaway. During a Plus trial the plan already covers the video, so the giveaway is now spent only when the plan has no video allowance at all — otherwise the trial would quietly empty the screen the user meets the week it expires.
+2. **The one free lifetime video.** The curated starter videos are the empty state of Videos mode, reachable long after onboarding, and their run was charged to the once-per-account giveaway. During the trial the plan already covers the video, so the giveaway is now spent only when the plan has no video allowance at all — otherwise the trial would quietly empty the screen the user meets the week it expires.
 
 ### 3.2 Two bugs this would have shipped on top of
 
 Both were live before this task and would have silently broken the feature:
 
-1. **`mockPaymentAdapter.verifyRenewal` answers `paid: true` to everything.** A trial row reaching the nightly renewal sweep would have been *renewed* — a free Plus subscription for life. Fixed by never asking a provider about a trial.
-2. **`refuseAsDowngrade` compares the current plan's list price.** A trialling user sits on `plus` (500¢), so the plan comparison hid Plus and a tap on it was refused as a downgrade — the product would have refused the exact purchase the trial exists to produce. Fixed by pricing a trial-held plan at 0 in both places that ask "what has this user paid for".
+1. **`mockPaymentAdapter.verifyRenewal` answers `paid: true` to everything.** A trial row reaching the nightly renewal sweep would have been *renewed* — a free top-tier subscription for life. Fixed by never asking a provider about a trial.
+2. **`refuseAsDowngrade` compares the current plan's list price.** A trialling user sits on a paid pointer they never paid for, so the plan comparison hid everything at or below that tier and a tap on it was refused as a downgrade — the product would have refused the exact purchase the trial exists to produce. Fixed by pricing a trial-held plan at 0 in both places that ask "what has this user paid for".
 
 ## 4. Rollout
 
@@ -78,12 +82,12 @@ Both were live before this task and would have silently broken the feature:
 
 - **Per-feature weekly allowances on free** (e.g. 3 clarifications and 1 mentor thread a week). This is the softest possible landing and it was in the original plan, but the plan schema meters exactly two things — a monthly translation count and a daily credit budget — so a weekly per-feature allowance needs a new usage counter (table, repository, gate and admin fields). That is its own task, and it is now the *only* qualitative thing free could keep: the grammar breakdown was that thing for one week, and then the button left the card (the mentor answers grammar), so free is back to a larger translation allowance and nothing else.
 - **A discount at expiry.** Deliberate: it trains users to wait for the offer, and there is no conversion baseline yet to measure it against.
-- **Transactional paired writes.** `grantOnboardingTrial` (row, then plan pointer) and `expireAndDowngrade` (status, then pointer) each write through two repositories, and the port layer has no cross-repository transaction. The row-first order is the safe one — the reverse could leave a user holding Plus with nothing to expire it — and a failed pointer write now retires its own row (`canceled`), which keeps the gift spent while making both sweeps skip it forever.
+- **Transactional paired writes.** `grantOnboardingTrial` (row, then plan pointer) and `expireAndDowngrade` (status, then pointer) each write through two repositories, and the port layer has no cross-repository transaction. The row-first order is the safe one — the reverse could leave a user holding the paid tier with nothing to expire it — and a failed pointer write now retires its own row (`canceled`), which keeps the gift spent while making both sweeps skip it forever.
 
   Two residuals, both narrower than what they replace, both deliberate:
 
   - A hard process kill between the two statements. The user loses the gift, and the sweep's pointer check keeps that silent rather than mailing them about a week they never had.
-  - A pointer write that **commits and then throws** — a dropped connection or a client timeout after the server committed. The compensation then cancels a row whose pointer did take, leaving `subscription_plan = 'plus'` with no active row: Plus indefinitely, and `currentPlanPrice` falls back to the list price, so the upgrade screen hides Plus and refuses a tap on it. Rarer than the any-failure case the compensation replaces, and the alternative outcome (loudly telling a never-trialled user their Plus is over) is the more common one. Guarding it properly means re-reading the pointer before retiring the row, which widens `SubscriptionUserUpdater` — a deliberately narrow port — for a tail case.
+  - A pointer write that **commits and then throws** — a dropped connection or a client timeout after the server committed. The compensation then cancels a row whose pointer did take, leaving `subscription_plan = 'pro'` with no active row: the paid tier indefinitely, and `currentPlanPrice` falls back to the list price, so the upgrade screen has nothing left to offer and refuses every tap. Rarer than the any-failure case the compensation replaces, and the alternative outcome (loudly telling a never-trialled user their free week is over) is the more common one. Guarding it properly means re-reading the pointer before retiring the row, which widens `SubscriptionUserUpdater` — a deliberately narrow port — for a tail case.
 
   Fixing either properly means a unit of work in the ports, which is its own task.
 - **An index on `subscriptions(provider, current_period_end)`.** The daily sweep scans the table once a day; with a few thousand trial rows that is nothing, and a migration is worth adding when it stops being nothing.

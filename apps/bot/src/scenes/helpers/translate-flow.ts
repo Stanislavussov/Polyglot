@@ -56,6 +56,7 @@ import { trackProductEvent } from "../../observability/product-events.js";
 import { renderSentenceTranslation, renderTranslation } from "../../renderers/translation.renderer.js";
 import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
+import { ensureTranslationDailyCeiling } from "../../utils/ai-quota.js";
 import { classifyInput } from "../../utils/classify-input.js";
 import { resolveLanguageOrder } from "../../utils/language-order.js";
 import {
@@ -105,17 +106,23 @@ async function ensureTranslationQuota(
     planFeatures: [],
   });
 
-  if (entitlements.translationsPerMonth === null) {
-    return creditCost;
+  if (entitlements.translationsPerMonth !== null) {
+    const usedCredits = await ctx.services.translationRequestRepository.getUserCreditsInWindow(
+      ctx.user.id,
+      await resolveQuotaWindowStart(ctx),
+    );
+    if (usedCredits + creditCost > entitlements.translationsPerMonth) {
+      trackProductEvent(ctx, "limit.reached", "translation");
+      await ctx.reply(t("rateLimitExceeded", lang), { reply_markup: buildUpgradeKeyboard(lang) });
+      return null;
+    }
   }
 
-  const usedCredits = await ctx.services.translationRequestRepository.getUserCreditsInWindow(
-    ctx.user.id,
-    await resolveQuotaWindowStart(ctx),
-  );
-  if (usedCredits + creditCost > entitlements.translationsPerMonth) {
-    trackProductEvent(ctx, "limit.reached", "translation");
-    await ctx.reply(t("rateLimitExceeded", lang), { reply_markup: buildUpgradeKeyboard(lang) });
+  // The safety ceiling runs even when the plan said yes, and especially then: an
+  // unlimited plan and an internal role are exactly the accounts the monthly
+  // window above returns early for, so this is the only thing standing between a
+  // stuck client and an unbounded AI bill.
+  if (!(await ensureTranslationDailyCeiling(ctx, plan, lang, creditCost))) {
     return null;
   }
 

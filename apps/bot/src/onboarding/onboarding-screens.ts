@@ -17,8 +17,11 @@
 import {
   errorFields,
   grantOnboardingTrial,
+  isTrial,
   isUnlimitedRole,
   logEvent,
+  type Subscription,
+  TRIAL_DAYS,
   TRIAL_EXTENSION_DAYS,
   TRIAL_EXTENSION_WORDS,
   t,
@@ -102,6 +105,14 @@ export async function showDemoScreen(ctx: BotContext, state: OnboardingState): P
 
   await enterStep(ctx, state, ONBOARDING_STEPS.demo);
 
+  // Granted here, one screen before the first card, and not on the closing screen
+  // where it used to sit. The card renderer badges every feature the viewer's plan
+  // lacks with the glyph of the tier that sells it (⭐ Plus, 💎 Pro), so a trial
+  // handed over after the demo left a newcomer's very first card — the one screen
+  // that has to sell the product — covered in locks for features they already
+  // held. This screen says nothing about the gift; the closing screen announces it.
+  await grantTrialQuietly(ctx, state.userId);
+
   if (hooks.length === 0) {
     // No curated words for this language set — the typed path is still a full
     // demo, so the screen degrades to a standalone instruction. It cannot reuse
@@ -124,9 +135,11 @@ export async function showFinalScreen(ctx: BotContext, state: OnboardingState): 
 
   await sendScreencast(ctx);
 
-  // Granted before the closing text is composed, so the screen can only promise a
-  // trial the user actually holds.
-  const trial = await grantTrialQuietly(ctx, state.userId);
+  // Read back rather than granted here: the grant happened on the demo screen, an
+  // update earlier, so the only honest source is the ledger. A user who arrives
+  // with no live trial (theirs was spent, or an internal role never got one) sees
+  // no line at all.
+  const trial = await activeTrial(ctx, state.userId);
 
   // One closing message carrying one menu. The mode keyboard rides on this screen
   // rather than a second message after it: the inline feature buttons that used to
@@ -147,7 +160,7 @@ export async function showFinalScreen(ctx: BotContext, state: OnboardingState): 
   const complete = t("onboardingComplete", lang);
   const closing = trial
     ? `${complete}\n\n${t("onbTrialGranted", lang, {
-        days: String(trial.days),
+        days: String(TRIAL_DAYS),
         words: String(TRIAL_EXTENSION_WORDS),
         extraDays: String(TRIAL_EXTENSION_DAYS),
       })}`
@@ -175,36 +188,45 @@ export async function showFinalScreen(ctx: BotContext, state: OnboardingState): 
 }
 
 /**
- * Hand the new account its first week of Plus, and report what the closing
- * screen may say about it.
+ * Hand the new account its first week of the top tier.
  *
  * Everything is swallowed: the trial is a gift, not a step, so neither a missing
  * repository (a container assembled without payments) nor a failed write may cost
- * the user their onboarding completion. Null means "say nothing about a trial" —
- * which is also the honest answer for a user who already spent theirs.
+ * the user their onboarding completion — they simply stay on free. Nothing is
+ * reported back, because the screen that announces the gift runs an update later
+ * and reads the ledger itself.
  */
-async function grantTrialQuietly(
-  ctx: BotContext,
-  userId: number,
-): Promise<{ days: number; currentPeriodEnd: Date } | null> {
+async function grantTrialQuietly(ctx: BotContext, userId: number): Promise<void> {
   const subscriptions = ctx.services.subscriptionRepository;
-  if (!subscriptions) return null;
+  if (!subscriptions) return;
 
   // An internal role already bypasses every plan, so a trial row would buy them
-  // nothing and would earn them a "your Plus week is over" message a week later
+  // nothing and would earn them a "your free week is over" message a week later
   // for a week they never had.
-  if (ctx.user && isUnlimitedRole(ctx.user.audienceGroup)) return null;
+  if (ctx.user && isUnlimitedRole(ctx.user.audienceGroup)) return;
 
   try {
     const grant = await grantOnboardingTrial({ subscriptions, users: ctx.services.userRepository }, userId);
     if (!grant.granted) {
       logEvent("onboarding.trial_not_granted", { reason: grant.reason });
-      return null;
+      return;
     }
+    // The context was built before this write, so the card rendered by the very
+    // next tap would still resolve its locks against the free plan without this.
+    if (ctx.user) ctx.user.subscriptionPlan = grant.plan;
     logEvent("onboarding.trial_granted", { plan: grant.plan, days: grant.days });
-    return { days: grant.days, currentPeriodEnd: grant.currentPeriodEnd };
   } catch (err) {
     logEvent("onboarding.trial_grant_failed", errorFields(err), "error");
+  }
+}
+
+/** The live trial this account holds, or null — what the closing screen announces. */
+async function activeTrial(ctx: BotContext, userId: number): Promise<Subscription | null> {
+  try {
+    const active = await ctx.services.subscriptionRepository?.findActiveByUser(userId);
+    return active && isTrial(active) ? active : null;
+  } catch (err) {
+    logEvent("onboarding.trial_read_failed", errorFields(err), "warn");
     return null;
   }
 }

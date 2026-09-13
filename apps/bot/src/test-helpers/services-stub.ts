@@ -38,6 +38,7 @@ export const DEFAULT_PLAN_LIMIT: NonNullable<Awaited<ReturnType<ServiceContainer
   videoLimit: 0,
   videoWindow: "none",
   mentorDailyLimit: null,
+  dailyCreditCeiling: null,
   priceUsdCents: null,
   isActive: true,
   isDefault: true,

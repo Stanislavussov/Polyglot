@@ -12,6 +12,8 @@ export interface PlanCatalogEntry {
   videoLimit: number | null;
   videoWindow: "none" | "lifetime" | "monthly";
   mentorDailyLimit: number | null;
+  /** Daily credit ceiling; null = the built-in default, never "no ceiling". */
+  dailyCreditCeiling: number | null;
   priceUsdCents: number | null;
   isActive: boolean;
   isDefault: boolean;
@@ -43,6 +45,7 @@ export const DEFAULT_PLAN_CATALOG: PlanCatalogEntry[] = [
     videoLimit: 0,
     videoWindow: "none",
     mentorDailyLimit: 0,
+    dailyCreditCeiling: null,
     priceUsdCents: null,
     isActive: true,
     isDefault: true,
@@ -58,6 +61,7 @@ export const DEFAULT_PLAN_CATALOG: PlanCatalogEntry[] = [
     // The mentor model is priced above the translate default, so unmetered
     // Plus still caps the expensive calls; unlimited mentor is Pro's pitch.
     mentorDailyLimit: 30,
+    dailyCreditCeiling: null,
     priceUsdCents: 500,
     isActive: true,
     isDefault: false,
@@ -71,6 +75,7 @@ export const DEFAULT_PLAN_CATALOG: PlanCatalogEntry[] = [
     videoLimit: null,
     videoWindow: "monthly",
     mentorDailyLimit: null,
+    dailyCreditCeiling: null,
     priceUsdCents: 1000,
     isActive: true,
     isDefault: false,
@@ -84,6 +89,7 @@ export const DEFAULT_PLAN_CATALOG: PlanCatalogEntry[] = [
     videoLimit: null,
     videoWindow: "monthly",
     mentorDailyLimit: null,
+    dailyCreditCeiling: null,
     priceUsdCents: null,
     isActive: true,
     isDefault: false,

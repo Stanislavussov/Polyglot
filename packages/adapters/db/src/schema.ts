@@ -684,6 +684,13 @@ export const rateLimitPlans = pgTable("rate_limit_plans", {
    */
   mentorDailyLimit: integer("mentor_daily_limit"),
   /**
+   * Credits per UTC day this plan's users can never exceed — the operational
+   * guard on the AI bill, not a product limit. NULL means "use the built-in
+   * default", never "no ceiling": an unlimited plan still has to have a norm,
+   * and a plan row created without this column must not reopen that hole.
+   */
+  dailyCreditCeiling: integer("daily_credit_ceiling"),
+  /**
    * Display price in US cents shown on the upgrade screen. `null` = not for sale
    * (the free plan). Deliberately NOT a billing price: real charges will pin an
    * immutable `plan_prices` version per subscription (tech-req 16 §4.1), so this

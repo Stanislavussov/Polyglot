@@ -299,6 +299,7 @@
   "correctionNotice": "✏️ Corregido: {original} → {corrected} — {explanation}",
   "sentenceErrorNotice": "✏️ Corregido: {corrected}\n{explanation}",
   "rateLimitExceeded": "⚠️ Límite mensual de traducciones alcanzado. Mejora tu plan para tener más.",
+  "dailyCeilingReached": "⏸ Se alcanzó el límite diario de seguridad: esto supera con creces un día normal de estudio, así que las nuevas solicitudes están en pausa. Se reabren a las {resetsAt}.",
   "mentorModeOn": "🧑‍🏫 ¡Modo mentor activado! Pregúntame lo que quieras sobre los idiomas que aprendes: gramática, expresiones, uso. Funciona mejor un tema por sesión: al cambiar de tema, empieza una nueva con el botón 🆕 o /mentor. Responde a cualquiera de mis mensajes para retomar ese tema más tarde. Sal con /translate.",
   "loaderMentorStart1": "🧠 Pensando...",
   "loaderMentorStart2": "💭 Dándole vueltas...",
@@ -444,10 +445,10 @@
   "recoveryLine": "Bienvenido de nuevo. Todo sigue en su sitio.",
   "recoveryDue": "Para repasar: {count}.",
   "weeklyProofLine": "Esta semana — en memoria a largo plazo: {mature}, repasos: {reviews}.",
-  "onbTrialGranted": "⭐ Tienes Plus tus primeros {days} días: todos los botones de la tarjeta están desbloqueados — otros significados, precisar, mentor, vídeo.\n\nDespués las traducciones siguen siendo gratis. Guarda {words} palabras esta semana y Plus dura {extraDays} días más.",
-  "trialEndingSoon": "⏳ Tu semana de Plus termina el {date}.\n\nGuarda {words} palabras esta semana y Plus dura {extraDays} días más. Si no, precisar, mentor y vídeo se desactivan — las traducciones siguen siendo gratis.",
-  "trialEndingFinal": "⏳ Tus días de Plus terminan el {date}.\n\nDespués las traducciones siguen siendo gratis; precisar, mentor y vídeo se desactivan.",
-  "trialExtended": "🎁 Has guardado suficientes palabras esta semana — Plus se queda contigo {extraDays} días más.\n\nSigue así, todavía no se desactiva nada.",
-  "trialEnded": "Tu semana de Plus terminó. Guardadas esta semana: {saved} — siguen siendo tuyas y los repasos continúan.\n\nSigue gratis: traducciones. Desactivado: otros significados, precisar, mentor, vídeo.",
-  "trialEndedEmpty": "Tu semana de Plus terminó.\n\nSigue gratis: traducciones. Desactivado: otros significados, precisar, mentor, vídeo."
+  "onbTrialGranted": "⭐ Tienes Pro tus primeros {days} días: todos los botones de la tarjeta están desbloqueados — otros significados, precisar, audio de la palabra, mensajes de voz, mentor, vídeo.\n\nDespués las traducciones siguen siendo gratis. Guarda {words} palabras esta semana y Pro dura {extraDays} días más.",
+  "trialEndingSoon": "⏳ Tu semana de Pro termina el {date}.\n\nGuarda {words} palabras esta semana y Pro dura {extraDays} días más. Si no, precisar, audio de la palabra, mensajes de voz, mentor y vídeo se desactivan — las traducciones siguen siendo gratis.",
+  "trialEndingFinal": "⏳ Tus días de Pro terminan el {date}.\n\nDespués las traducciones siguen siendo gratis; precisar, audio de la palabra, mensajes de voz, mentor y vídeo se desactivan.",
+  "trialExtended": "🎁 Has guardado suficientes palabras esta semana — Pro se queda contigo {extraDays} días más.\n\nSigue así, todavía no se desactiva nada.",
+  "trialEnded": "Tu semana de Pro terminó. Guardadas esta semana: {saved} — siguen siendo tuyas y los repasos continúan.\n\nSigue gratis: traducciones. Desactivado: otros significados, precisar, audio de la palabra, mensajes de voz, mentor, vídeo.",
+  "trialEndedEmpty": "Tu semana de Pro terminó.\n\nSigue gratis: traducciones. Desactivado: otros significados, precisar, audio de la palabra, mensajes de voz, mentor, vídeo."
 }

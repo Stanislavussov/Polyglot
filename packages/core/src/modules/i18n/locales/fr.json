@@ -299,6 +299,7 @@
   "correctionNotice": "✏️ Corrigé: {original} → {corrected} — {explanation}",
   "sentenceErrorNotice": "✏️ Corrigé: {corrected}\n{explanation}",
   "rateLimitExceeded": "⚠️ Limite mensuelle de traductions atteinte. Améliorez votre offre pour en avoir plus.",
+  "dailyCeilingReached": "⏸ La limite de sécurité du jour est atteinte — c'est bien au-delà d'une journée d'étude normale, donc les nouvelles demandes sont en pause. Elles rouvrent à {resetsAt}.",
   "mentorModeOn": "🧑‍🏫 Mode mentor activé ! Posez-moi vos questions sur les langues que vous apprenez : grammaire, tournures, usage. Un sujet par session, c'est l'idéal : quand vous changez de sujet, démarrez-en une nouvelle avec 🆕 ou /mentor. Répondez à l'un de mes messages pour reprendre ce sujet plus tard. Quittez avec /translate.",
   "loaderMentorStart1": "🧠 Je réfléchis...",
   "loaderMentorStart2": "💭 Je retourne ça dans ma tête...",
@@ -444,10 +445,10 @@
   "recoveryLine": "Bon retour. Tout est là où tu l'as laissé.",
   "recoveryDue": "À réviser : {count}.",
   "weeklyProofLine": "Cette semaine — en mémoire à long terme : {mature}, révisions : {reviews}.",
-  "onbTrialGranted": "⭐ Plus est activé pour tes {days} premiers jours — tous les boutons sous la carte sont ouverts : autres sens, préciser, mentor, vidéo.\n\nAprès ça, les traductions restent gratuites. Enregistre {words} mots cette semaine et Plus dure {extraDays} jours de plus.",
-  "trialEndingSoon": "⏳ Ta semaine Plus se termine le {date}.\n\nEnregistre {words} mots cette semaine et Plus dure {extraDays} jours de plus. Sinon, préciser, mentor et vidéo se désactivent — les traductions restent gratuites.",
-  "trialEndingFinal": "⏳ Tes jours Plus se terminent le {date}.\n\nAprès ça, les traductions restent gratuites ; préciser, mentor et vidéo se désactivent.",
-  "trialExtended": "🎁 Tu as enregistré assez de mots cette semaine — Plus reste avec toi {extraDays} jours de plus.\n\nContinue, rien ne se désactive encore.",
-  "trialEnded": "Ta semaine Plus est terminée. Enregistrés cette semaine : {saved} — ils restent à toi, et les révisions continuent.\n\nToujours gratuit : traductions. Désactivé : autres sens, préciser, mentor, vidéo.",
-  "trialEndedEmpty": "Ta semaine Plus est terminée.\n\nToujours gratuit : traductions. Désactivé : autres sens, préciser, mentor, vidéo."
+  "onbTrialGranted": "⭐ Pro est activé pour tes {days} premiers jours — tous les boutons sous la carte sont ouverts : autres sens, préciser, prononciation, messages vocaux, mentor, vidéo.\n\nAprès ça, les traductions restent gratuites. Enregistre {words} mots cette semaine et Pro dure {extraDays} jours de plus.",
+  "trialEndingSoon": "⏳ Ta semaine Pro se termine le {date}.\n\nEnregistre {words} mots cette semaine et Pro dure {extraDays} jours de plus. Sinon, préciser, prononciation, messages vocaux, mentor et vidéo se désactivent — les traductions restent gratuites.",
+  "trialEndingFinal": "⏳ Tes jours Pro se terminent le {date}.\n\nAprès ça, les traductions restent gratuites ; préciser, prononciation, messages vocaux, mentor et vidéo se désactivent.",
+  "trialExtended": "🎁 Tu as enregistré assez de mots cette semaine — Pro reste avec toi {extraDays} jours de plus.\n\nContinue, rien ne se désactive encore.",
+  "trialEnded": "Ta semaine Pro est terminée. Enregistrés cette semaine : {saved} — ils restent à toi, et les révisions continuent.\n\nToujours gratuit : traductions. Désactivé : autres sens, préciser, prononciation, messages vocaux, mentor, vidéo.",
+  "trialEndedEmpty": "Ta semaine Pro est terminée.\n\nToujours gratuit : traductions. Désactivé : autres sens, préciser, prononciation, messages vocaux, mentor, vidéo."
 }

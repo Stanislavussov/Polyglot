@@ -279,7 +279,7 @@ async function handleOne(
 
   if (action.kind === "extend") {
     // The row moves first: an extension the user was told about but that never
-    // reached the ledger would take Plus away a day after promising three more.
+    // reached the ledger would take the tier away a day after promising three more.
     await services.subscriptionRepository.extend(sub.id, action.newPeriodEnd);
     await deliver(api, services, sub.userId, lang, {
       source: TRIAL_EXTENDED_SOURCE,

@@ -2,8 +2,9 @@
  * The onboarding reverse trial — grammY e2e integration test (Task 84).
  *
  * Drives the whole arc through the real dispatcher, the real DI container and a
- * real Postgres: finishing onboarding writes a genuine `subscriptions` row and
- * flips the plan pointer, a Plus-only card button works while that row is live,
+ * real Postgres: onboarding writes a genuine `subscriptions` row and flips the
+ * plan pointer before the first card renders, a paid card button works while that
+ * row is live,
  * the lifecycle sweep closes the period and drops the user to free, and the same
  * button then answers with the upgrade screen instead.
  *
@@ -95,6 +96,20 @@ async function completeOnboarding(harness: BotHarness, chatId: number): Promise<
   return userId;
 }
 
+/** The last rendered card's button labels, keyed by callback data. */
+function cardLabels(harness: BotHarness): Record<string, string> {
+  const edit = harness.sent.filter((call) => call.method === "editMessageReplyMarkup").at(-1);
+  if (!edit) throw new Error("no card was rendered (no editMessageReplyMarkup captured)");
+  const markup = edit.payload.reply_markup as
+    | { inline_keyboard?: Array<Array<{ callback_data?: string; text?: string }>> }
+    | undefined;
+  const labels: Record<string, string> = {};
+  for (const button of (markup?.inline_keyboard ?? []).flat()) {
+    if (button.callback_data && button.text) labels[button.callback_data] = button.text;
+  }
+  return labels;
+}
+
 /** Render a fresh card and return its message id. */
 async function renderCard(harness: BotHarness, chatId: number): Promise<number> {
   await harness.dispatch(messageUpdate({ chatId, fromId: chatId, text: "hello" }));
@@ -106,7 +121,7 @@ function sweepServices() {
 }
 
 describe("onboarding reverse trial (integration)", () => {
-  it("grants a week of Plus on completion, then hands the user to a free tier on expiry", async () => {
+  it("grants a week of Pro on completion, then hands the user to a free tier on expiry", async () => {
     // Arrange
     const harness = createBotHarness({ ai: deterministicTranslateAi() });
     const id = uniqueTelegramId();
@@ -129,7 +144,7 @@ describe("onboarding reverse trial (integration)", () => {
     });
     expect(texts(harness).some((text) => text.includes(announcement))).toBe(true);
 
-    // Act — tap a Plus-only button while the trial is live.
+    // Act — tap a paid button while the trial is live.
     harness.reset();
     const cardId = await renderCard(harness, id);
     harness.reset();
@@ -166,6 +181,47 @@ describe("onboarding reverse trial (integration)", () => {
     // Assert — the upgrade screen with real prices, and no context prompt.
     expect(texts(harness).some((text) => text.includes("$5"))).toBe(true);
     expect(texts(harness)).not.toContain(t("clarifyTranslationPrompt", "en"));
+  });
+
+  it("leaves no paid badge on the first card a newcomer ever sees", async () => {
+    // Arrange — word audio is the Pro-only button, and it is only rendered at all
+    // when TTS is configured; without this the card would be badge-free for the
+    // wrong reason.
+    const harness = createBotHarness({
+      ai: deterministicTranslateAi(),
+      settings: {
+        getTtsConfig: vi
+          .fn()
+          .mockResolvedValue({ enabled: true, modelId: `test/tts-trial-${process.pid}`, voice: "Kore", maxChars: 200 }),
+      },
+    });
+    const id = uniqueTelegramId();
+
+    // Act — walk to the demo screen and type the first word. The card that comes
+    // back is the first one this account has ever been shown.
+    const userId = await completeOnboarding(harness, id);
+
+    // Assert — the trial was already live when that card rendered, which is the
+    // whole reason the grant sits on the demo screen rather than the closing one.
+    expect((await userRepository.findById(userId))?.subscriptionPlan).toBe(TRIAL_PLAN);
+
+    // Word audio is Pro's own button and it sits on the card itself.
+    const front = cardLabels(harness);
+    expect(Object.keys(front).some((data) => data.startsWith("tr:say:"))).toBe(true);
+
+    // Clarify lives one level down, under "⋯ More" — the badges have to be
+    // absent there too, or the newcomer meets the lock one tap later instead.
+    const cardId = lastRenderedCard(harness.sent).messageId;
+    await tap(harness, id, cardId, `tr:more:${cardId}`);
+    const more = cardLabels(harness);
+    expect(Object.keys(more).some((data) => data.startsWith("tr:clarifypost:"))).toBe(true);
+
+    // Not one button on either level is badged, in either tier's glyph — ⭐ sells
+    // Plus and 💎 sells Pro, and a trial on the top tier owes the newcomer neither.
+    const badged = [...Object.values(front), ...Object.values(more)].filter(
+      (label) => label.includes("⭐") || label.includes("💎"),
+    );
+    expect(badged).toEqual([]);
   });
 
   it("spends the gift once per account, even after the trial is over", async () => {

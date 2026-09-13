@@ -299,6 +299,7 @@
   "correctionNotice": "✏️ Poprawiono: {original} → {corrected} — {explanation}",
   "sentenceErrorNotice": "✏️ Poprawiono: {corrected}\n{explanation}",
   "rateLimitExceeded": "⚠️ Miesięczny limit tłumaczeń wyczerpany. Ulepsz plan, aby tłumaczyć więcej.",
+  "dailyCeilingReached": "⏸ Osiągnięto dzienny limit bezpieczeństwa — to znacznie więcej niż zwykły dzień nauki, więc nowe zapytania są wstrzymane. Otworzą się ponownie o {resetsAt}.",
   "mentorModeOn": "🧑‍🏫 Tryb mentora włączony! Pytaj o języki, których się uczysz: gramatyka, zwroty, użycie. Najlepiej jeden temat na sesję: zmieniając temat, zacznij nową przyciskiem 🆕 lub /mentor. Odpowiedz na dowolną moją wiadomość, aby później wrócić do tego tematu. Wyjście: /translate.",
   "loaderMentorStart1": "🧠 Myślę...",
   "loaderMentorStart2": "💭 Zastanawiam się...",
@@ -444,10 +445,10 @@
   "recoveryLine": "Witaj z powrotem. Wszystko jest na swoim miejscu.",
   "recoveryDue": "Do powtórzenia: {count}.",
   "weeklyProofLine": "W tym tygodniu — w pamięci długotrwałej: {mature}, powtórzeń: {reviews}.",
-  "onbTrialGranted": "⭐ Pierwsze {days} dni masz Plus za darmo — wszystkie przyciski pod kartą są odblokowane: inne znaczenia, doprecyzowanie, mentor, filmy.\n\nPotem tłumaczenia zostają darmowe. Zapisz {words} słów w tym tygodniu, a Plus potrwa o {extraDays} dni dłużej.",
-  "trialEndingSoon": "⏳ Twój tydzień z Plus kończy się {date}.\n\nZapisz {words} słów w tym tygodniu, a Plus potrwa o {extraDays} dni dłużej. W przeciwnym razie doprecyzowanie, mentor i filmy się wyłączą — tłumaczenia zostają darmowe.",
-  "trialEndingFinal": "⏳ Twoje dni z Plus kończą się {date}.\n\nPotem tłumaczenia zostają darmowe; doprecyzowanie, mentor i filmy się wyłączą.",
-  "trialExtended": "🎁 W tym tygodniu zapisano wystarczająco dużo słów — Plus zostaje z tobą o {extraDays} dni dłużej.\n\nTak trzymaj, nic jeszcze się nie wyłącza.",
-  "trialEnded": "Twój tydzień z Plus się skończył. Zapisano w tym tygodniu: {saved} — zostają twoje, powtórki trwają dalej.\n\nWciąż za darmo: tłumaczenia. Wyłączone: inne znaczenia, doprecyzowanie, mentor, filmy.",
-  "trialEndedEmpty": "Twój tydzień z Plus się skończył.\n\nWciąż za darmo: tłumaczenia. Wyłączone: inne znaczenia, doprecyzowanie, mentor, filmy."
+  "onbTrialGranted": "⭐ Pierwsze {days} dni masz Pro za darmo — wszystkie przyciski pod kartą są odblokowane: inne znaczenia, doprecyzowanie, wymowa, wiadomości głosowe, mentor, filmy.\n\nPotem tłumaczenia zostają darmowe. Zapisz {words} słów w tym tygodniu, a Pro potrwa o {extraDays} dni dłużej.",
+  "trialEndingSoon": "⏳ Twój tydzień z Pro kończy się {date}.\n\nZapisz {words} słów w tym tygodniu, a Pro potrwa o {extraDays} dni dłużej. W przeciwnym razie doprecyzowanie, wymowa, wiadomości głosowe, mentor i filmy się wyłączą — tłumaczenia zostają darmowe.",
+  "trialEndingFinal": "⏳ Twoje dni z Pro kończą się {date}.\n\nPotem tłumaczenia zostają darmowe; doprecyzowanie, wymowa, wiadomości głosowe, mentor i filmy się wyłączą.",
+  "trialExtended": "🎁 W tym tygodniu zapisano wystarczająco dużo słów — Pro zostaje z tobą o {extraDays} dni dłużej.\n\nTak trzymaj, nic jeszcze się nie wyłącza.",
+  "trialEnded": "Twój tydzień z Pro się skończył. Zapisano w tym tygodniu: {saved} — zostają twoje, powtórki trwają dalej.\n\nWciąż za darmo: tłumaczenia. Wyłączone: inne znaczenia, doprecyzowanie, wymowa, wiadomości głosowe, mentor, filmy.",
+  "trialEndedEmpty": "Twój tydzień z Pro się skończył.\n\nWciąż za darmo: tłumaczenia. Wyłączone: inne znaczenia, doprecyzowanie, wymowa, wiadomości głosowe, mentor, filmy."
 }
