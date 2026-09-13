@@ -71,6 +71,11 @@ Docker, nginx, certbot TLS). Details: `@docs/agents/deployment.md`.
 - Changed `deploy/ansible/**` or nginx routing? The change is dormant until re-applied. Added
   an infra var to `.env.prod` that Ansible or the deploy workflow consumes? Push it with
   `gh secret set` or CI runs stale. Surface either even when you cannot execute it.
+- **A change that repairs or backfills rows is not done when a script works locally.** It
+  rides `deploy.yml` as an *unconditional* step, so `develop` and `master` both apply it and
+  no production connection string leaves CI; it must be idempotent, because it re-runs on
+  every deploy until deleted; and its removal must be written down. Details and the exact
+  shape: `@docs/agents/deployment.md` §9.
 
 ### 7. Comments Carry the Why, Not the What
 
