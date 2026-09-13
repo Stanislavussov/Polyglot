@@ -15,6 +15,7 @@ import { isSupported, orderRecordEntries, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import { PROGRESS_FLASHCARD_DONE_CALLBACK } from "../momentum/progress.command.js";
 import { esc } from "./card-sections.js";
+import { appendGradeRow } from "./grade-row.js";
 import { renderCardFront, renderWordCard } from "./word-card.js";
 
 /** Resolve a string to SupportedLang with "en" fallback */
@@ -79,13 +80,6 @@ export function renderFlashCardBack(
   return [progressLine(cardIndex, totalCards, lang), "", card].join("\n");
 }
 
-/** The notification grades, in the same order and wording, so one word is graded the same way everywhere. */
-const GRADES: ReadonlyArray<{ grade: VocabDifficulty; labelKey: I18nKey }> = [
-  { grade: "hard", labelKey: "notifFbHard" },
-  { grade: "normal", labelKey: "notifFbNormal" },
-  { grade: "easy", labelKey: "notifFbEasy" },
-];
-
 /**
  * The entry id rides in the data so a button left on an older card cannot act
  * on whichever word the session has moved on to.
@@ -117,9 +111,7 @@ export function buildFlashCardFrontKeyboard(lang: SupportedLang, entryId: number
 export function buildFlashCardBackKeyboard(isLastCard: boolean, lang: SupportedLang, entryId: number): InlineKeyboard {
   const l = toLang(lang);
   const kb = new InlineKeyboard();
-  for (const { grade, labelKey } of GRADES) {
-    kb.text(t(labelKey, l), flashcardGradeCallback(grade, entryId));
-  }
+  appendGradeRow(kb, l, (grade) => flashcardGradeCallback(grade, entryId));
   kb.row().text(t("notifFbDelete", l), flashcardDeleteCallback(entryId)).row();
   if (isLastCard) {
     return kb.text(t("flashcardDoneBtn", l), "fc:done").text(t("flashcardRestart", l), "fc:restart");

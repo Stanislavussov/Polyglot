@@ -236,6 +236,24 @@ describe("review-card actions (integration)", () => {
     expect(shownEntryId(lastScreen(harness.sent).buttons, "srs")).toBe(remaining[0]?.id);
   });
 
+  it("K5b: rating an SRS card also sets the word's notification grade", async () => {
+    const harness = createBotHarness();
+    const { telegramId, userId } = await arrangeReviewer();
+    const created = await vocabularyRepository.create(userId, word("anchor"));
+    await vocabularyRepository.updateSrsState(created.translations[0]!.id, {
+      easeFactor: 2.5,
+      interval: 1,
+      dueDate: new Date("2020-01-01T00:00:00.000Z"),
+      reviewCount: 1,
+    });
+
+    await send(harness, telegramId, "/review");
+    await tap(harness, telegramId, "srs:reveal");
+    await tap(harness, telegramId, "srs:rate:again");
+
+    expect((await vocabularyRepository.findById(created.id))?.difficulty).toBe("hard");
+  });
+
   it("K6: a translated and saved word carries its recall hint to the card front", async () => {
     const harness = createBotHarness({ ai: deterministicTranslateAi() });
     const { telegramId, userId } = await arrangeReviewer();

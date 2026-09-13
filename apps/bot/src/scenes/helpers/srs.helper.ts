@@ -7,6 +7,7 @@ import {
   type SrsRating,
   type SupportedLang,
   t,
+  type VocabDifficulty,
 } from "@polyglot/core";
 import type { InlineKeyboard } from "grammy";
 import { recordMatureIfCrossed } from "../../momentum/momentum.wiring.js";
@@ -135,6 +136,13 @@ export async function handleSrsReveal(ctx: BotContext): Promise<void> {
   await ctx.answerCallbackQuery();
 }
 
+const SRS_RATING_DIFFICULTY: Record<SrsRating, VocabDifficulty> = {
+  again: "hard",
+  hard: "hard",
+  good: "normal",
+  easy: "easy",
+};
+
 export async function handleSrsRate(ctx: BotContext): Promise<void> {
   const rating = ctx.match?.[1] as SrsRating | undefined;
   if (!rating) return void answerExpired(ctx);
@@ -169,6 +177,10 @@ export async function handleSrsRate(ctx: BotContext): Promise<void> {
     if (card.difficulty === "hard" && (rating === "good" || rating === "easy")) {
       srs.hardRecalled = true;
     }
+    // The rating is also the word's notification grade — the same column the nudge
+    // and the flashcard write — so a word the reader struggles with in review comes
+    // back more often in notifications too.
+    await ctx.services.vocabularyRepository.setDifficulty(card.entryId, ctx.user.id, SRS_RATING_DIFFICULTY[rating]);
     await ctx.services.wordReviewRepository.logReview(ctx.user.id, card.entryId, "srs");
     // The scheduling decision itself: a card resurfacing too soon or never
     // again is only explainable from the interval/ease the rating produced.

@@ -43,6 +43,7 @@ async function resolveCardKeyboardOptions(
     sourceOverrideLangs: entry.sourceOverrideLangs ?? [],
     pronounceLangs: await resolvePronounceLangs(ctx, entry.output, order),
     locked: await resolveLockedBadges(ctx),
+    ...(entry.recallGrade ? { grades: entry.recallGrade } : {}),
   };
 }
 
