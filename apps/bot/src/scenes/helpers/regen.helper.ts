@@ -70,7 +70,8 @@ export async function handleRegenLoop(
   // and must cross the conversation boundary exactly like the ordering settings.
   // Crossed as an array — replay state is JSON, and a Set would come back empty.
   const locked = new Map(await conversation.external(async () => [...(await resolveLockedBadges(ctx))]));
-  const buildKeyboard = (_codes: string[], l: SupportedLang) => buildTranslationKeyboard({ interfaceLang: l, locked });
+  const buildKeyboard = (_codes: string[], l: SupportedLang) =>
+    buildTranslationKeyboard({ interfaceLang: l, locked, inputType });
 
   let card = renderCard(current, lang);
   let keyboard = buildKeyboard(langCodes, lang);

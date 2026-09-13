@@ -407,64 +407,16 @@ describe("i18n — t()", () => {
   });
 
   // Flash card keys (task 33)
-  it("returns flashcardStart with {count} interpolation in English", () => {
-    expect(t("flashcardStart", "en", { count: 10 })).toBe("📚 Flash Cards — 10 words in your deck.");
-  });
-
-  it("returns flashcardStart with {count} interpolation in Russian", () => {
-    expect(t("flashcardStart", "ru", { count: 10 })).toBe("📚 Карточки — 10 слов в колоде.");
-  });
-
-  it("returns flashcardStart with {count} interpolation in Czech", () => {
-    expect(t("flashcardStart", "cs", { count: 10 })).toBe("📚 Kartičky — 10 slov v balíčku.");
-  });
-
-  it("returns flashcardStartBtn in all locales", () => {
-    expect(t("flashcardStartBtn", "en")).toBe("▶️ Start");
-    expect(t("flashcardStartBtn", "ru")).toBe("▶️ Начать");
-    expect(t("flashcardStartBtn", "cs")).toBe("▶️ Začít");
-  });
-
-  it("returns flashcardEmpty in all locales", () => {
-    expect(t("flashcardEmpty", "en")).toContain("dictionary is empty");
-    expect(t("flashcardEmpty", "ru")).toContain("словарь пуст");
-    expect(t("flashcardEmpty", "cs")).toContain("slovník je prázdný");
-  });
-
   it("returns flashcardReveal in all locales", () => {
     expect(t("flashcardReveal", "en")).toBe("👁 Reveal");
     expect(t("flashcardReveal", "ru")).toBe("👁 Показать");
     expect(t("flashcardReveal", "cs")).toBe("👁 Odkrýt");
   });
 
-  it("returns flashcardNext in all locales", () => {
-    expect(t("flashcardNext", "en")).toBe("▶️ Next");
-    expect(t("flashcardNext", "ru")).toBe("▶️ Далее");
-    expect(t("flashcardNext", "cs")).toBe("▶️ Další");
-  });
-
-  it("returns flashcardDone with {count} interpolation in English", () => {
-    expect(t("flashcardDone", "en", { count: 10 })).toBe("🎉 Done! You reviewed 10 words.");
-  });
-
-  it("returns flashcardDone with {count} interpolation in Russian", () => {
-    expect(t("flashcardDone", "ru", { count: 10 })).toBe("🎉 Готово! Вы повторили 10 слов.");
-  });
-
-  it("returns flashcardDone with {count} interpolation in Czech", () => {
-    expect(t("flashcardDone", "cs", { count: 10 })).toBe("🎉 Hotovo! Prošli jste 10 slov.");
-  });
-
   it("returns flashcardQuit in all locales", () => {
     expect(t("flashcardQuit", "en")).toContain("session ended");
     expect(t("flashcardQuit", "ru")).toContain("завершена");
     expect(t("flashcardQuit", "cs")).toContain("ukončena");
-  });
-
-  it("returns flashcardRestart in all locales", () => {
-    expect(t("flashcardRestart", "en")).toBe("🔄 New Deck");
-    expect(t("flashcardRestart", "ru")).toBe("🔄 Новая колода");
-    expect(t("flashcardRestart", "cs")).toBe("🔄 Nový balíček");
   });
 
   it("returns flashcardClose in all locales", () => {
@@ -491,12 +443,6 @@ describe("i18n — t()", () => {
     expect(t("flashcardQuitBtn", "cs")).toBe("✕ Ukončit");
   });
 
-  it("returns flashcardDoneBtn in all locales", () => {
-    expect(t("flashcardDoneBtn", "en")).toBe("🎉 Done!");
-    expect(t("flashcardDoneBtn", "ru")).toBe("🎉 Готово!");
-    expect(t("flashcardDoneBtn", "cs")).toBe("🎉 Hotovo!");
-  });
-
   it("returns flashcardNewDeckBtn in all locales", () => {
     expect(t("flashcardNewDeckBtn", "en")).toBe("🔄 New Deck");
     expect(t("flashcardNewDeckBtn", "ru")).toBe("🔄 Новая колода");
@@ -515,11 +461,10 @@ describe("i18n — t()", () => {
     expect(t("cmdDescFlashcard", "cs")).toBe("Začít relaci kartiček");
   });
 
-  it("returns SRS review keys in all locales", () => {
-    expect(t("cmdDescReview", "en")).toBe("Review due words with spaced repetition");
-    expect(t("srsProgress", "en", { current: 2, total: 5 })).toBe("Review 2 of 5");
-    expect(t("srsDone", "ru", { count: 3 })).toContain("3");
-    expect(t("srsReveal", "cs")).toBe("👁 Ukázat");
+  it("returns the Cards finish counts with {cards} and {recalled} interpolation", () => {
+    expect(t("cardsDone", "en", { cards: 7, recalled: 5 })).toBe("🎉 Done — cards: 7 · recalled: 5");
+    expect(t("cardsDone", "ru", { cards: 7, recalled: 5 })).toBe("🎉 Готово — карточки: 7 · вспомнили: 5");
+    expect(t("cardsDone", "cs", { cards: 7, recalled: 5 })).toBe("🎉 Hotovo — kartičky: 7 · zapamatováno: 5");
   });
 
   it("returns localized input type labels", () => {
@@ -832,37 +777,22 @@ describe("i18n — locale consistency", () => {
       "cmdDescTemplate",
       "cmdDescSettings",
       "qualityUncertain",
-      "flashcardStart",
-      "flashcardStartBtn",
-      "flashcardEmpty",
       "flashcardReveal",
-      "flashcardNext",
-      "flashcardDone",
       "flashcardQuit",
-      "flashcardRestart",
       "flashcardClose",
       "flashcardProgress",
       "flashcardQuitBtn",
-      "flashcardDoneBtn",
       "flashcardNewDeckBtn",
       "flashcardSessionExpired",
       "cmdDescFlashcard",
-      "cmdDescReview",
-      "srsEmpty",
-      "srsProgress",
-      "srsReveal",
+      "cardsNoSavedWords",
+      "cardsAheadNote",
+      "cardsDone",
       "srsChooseRating",
       "srsAgain",
       "srsHard",
       "srsGood",
       "srsEasy",
-      "srsScheduled",
-      "srsDone",
-      "srsQuit",
-      "srsQuitBtn",
-      "srsNewSessionBtn",
-      "srsClose",
-      "srsSessionExpired",
       "dictionaryHeader",
       "dictionaryPage",
       "dictionaryPrev",

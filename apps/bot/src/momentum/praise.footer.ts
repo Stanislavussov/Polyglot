@@ -5,7 +5,7 @@
  * the card is rendered BEFORE the user taps 💾, so the dictionary count read here is
  * the count as of the previous save. `previousDictionaryCount` is therefore left
  * unset — the selector then fires a milestone on an exact landing — and the praise
- * for the tenth word arrives on the NEXT translation card or on the `srsDone` screen,
+ * for the tenth word arrives on the NEXT translation card or on the Cards finish screen,
  * whichever the user reaches first. That is what keeps ten saves to one line rather
  * than ten.
  */
@@ -21,7 +21,7 @@ import { motivationPraiseCounter, motivationPraiseSuppressedCounter } from "../m
 import type { BotContext } from "../types.js";
 
 /** Where the line rides. A bounded enum — it is a Prometheus label (§7.2). */
-export type PraiseSurface = "translation_card" | "srs_done" | "flashcard_done";
+export type PraiseSurface = "translation_card" | "flashcard_done";
 
 /** Facts only the finishing session knows; the counted ones are read from the database here. */
 export interface SessionPraiseEvidence {

@@ -44,7 +44,6 @@ export type {
   UpdateTranslationData,
   VocabTranslationDetails,
   VocabularyEntry,
-  VocabularyEntryWithSourceLang,
   VocabularyEntryWithTranslations,
   VocabularyRepository,
   VocabularySource,

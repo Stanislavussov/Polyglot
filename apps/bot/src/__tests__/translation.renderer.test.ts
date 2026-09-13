@@ -473,6 +473,49 @@ describe("buildTranslationKeyboard", () => {
       });
       expect(kb.inline_keyboard.flat().some((b) => b.text.includes("⭐") || b.text.includes("💎"))).toBe(false);
     });
+
+    it("names what was translated on the More button, a word when the card does not say", () => {
+      const moreLabel = (options: Parameters<typeof buildTranslationKeyboard>[0]) =>
+        buildTranslationKeyboard({ interfaceLang: "ru", msgId: 42, ...options })
+          .inline_keyboard.flat()
+          .find((b) => cbData(b) === "tr:more:42")?.text;
+
+      expect(moreLabel({ inputType: "word" })).toBe("🔍 Разобрать слово");
+      expect(moreLabel({ inputType: "phrase" })).toBe("🔍 Разобрать фразу");
+      expect(moreLabel({ inputType: "sentence" })).toBe("🔍 Разобрать предложение");
+      expect(moreLabel({})).toBe("🔍 Разобрать слово");
+    });
+  });
+
+  describe("recall grades — a card opened from a notification", () => {
+    const grades = { entryId: 7 };
+
+    it("puts the grades on the first row of the collapsed card", () => {
+      const kb = buildTranslationKeyboard({ interfaceLang: "en", msgId: 42, grades });
+      expect(rows(kb)).toEqual([
+        ["notif:fb:hard:7", "notif:fb:normal:7", "notif:fb:easy:7"],
+        ["tr:more:42"],
+        ["tr:save:42"],
+      ]);
+    });
+
+    it("keeps the grades while the action list is open", () => {
+      const kb = expanded({ interfaceLang: "en", msgId: 42, grades });
+      expect(rows(kb)[0]).toEqual(["notif:fb:hard:7", "notif:fb:normal:7", "notif:fb:easy:7"]);
+      expect(rows(kb).at(-1)).toEqual(["tr:less:42"]);
+    });
+
+    it("marks the grade already given", () => {
+      const kb = buildTranslationKeyboard({ interfaceLang: "en", msgId: 42, grades: { entryId: 7, selected: "hard" } });
+      const marked = kb.inline_keyboard[0]!.filter((b) => b.text.startsWith("✓"));
+      expect(marked.map(cbData)).toEqual(["notif:fb:hard:7"]);
+    });
+
+    it("offers no grades on an ordinary translation card", () => {
+      expect(
+        allData(buildTranslationKeyboard({ interfaceLang: "en", msgId: 42 })).some((d) => d?.startsWith("notif:")),
+      ).toBe(false);
+    });
   });
 
   describe("expanded — the action list behind More", () => {

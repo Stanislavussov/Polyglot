@@ -10,13 +10,13 @@
  * The unit lane pins each renderer's output against the translate card. This file
  * covers what that cannot: the defect lived in *which* renderer a callback
  * reaches, and in what the surfaces upstream of the renderer actually hand it —
- * a session-held flashcard deck and an SRS row are different projections of the
- * same saved word, and a projection that drops a field diverges no matter how
- * faithful the renderer is.
+ * a session-held Cards deck is a projection of the saved word, and a projection
+ * that drops a field diverges no matter how faithful the renderer is.
  *
  * Every case walks a real user path: translate → save → open it from somewhere.
  */
 import { userRepository, vocabularyRepository } from "@polyglot/adapter-db";
+import { t } from "@polyglot/core";
 import { describe, expect, it } from "vitest";
 import { arrangeOnboardedTranslator } from "../../test-helpers/integration/arrange.js";
 import type { BotHarness, CapturedCall } from "../../test-helpers/integration/bot-harness.js";
@@ -170,18 +170,21 @@ describe("word card consistency (integration)", () => {
     expectSameGrammarAs(translateCard, lastCardText(harness.sent));
   });
 
-  it("W3: a flashcard hides the answer on the front and reveals it in the shared grammar", async () => {
+  it("W3: a practice-ahead card hides the answer on the front and reveals it in the shared grammar", async () => {
     const harness = createBotHarness({ ai: deterministicTranslateAi() });
     const id = uniqueTelegramId();
     const { translateCard } = await arrangeSavedWord(harness, id);
 
+    // A freshly saved word is due tomorrow, so today's deck practises it ahead.
     harness.reset();
     await harness.dispatch(messageUpdate({ chatId: id, fromId: id, text: "/flashcard" }));
     const front = lastKeyboard(harness.sent);
     const frontText = textsOf(harness.sent).at(-1) ?? "";
 
-    // The front is a recall prompt: the word, and none of the answers.
+    // The front is a recall prompt: the word, the language to recall, and none of the answers.
     expect(frontText).toContain(`<b>${WORD}</b>`);
+    expect(frontText).toMatch(/<i>→ \S+ .+<\/i>/u);
+    expect(frontText).toContain(t("cardsAheadNote", "en"));
     expect(answerLines(frontText)).toEqual([]);
 
     harness.reset();
@@ -189,10 +192,12 @@ describe("word card consistency (integration)", () => {
       callbackQueryUpdate({ chatId: id, fromId: id, messageId: front.messageId, data: "fc:reveal" }),
     );
 
-    expectSameGrammarAs(translateCard, lastCardText(harness.sent));
+    const back = lastCardText(harness.sent);
+    expectSameGrammarAs(translateCard, back);
+    expect(answerLines(back)).toHaveLength(1);
   });
 
-  it("W4: an SRS review names the recalled language and reveals it in the shared grammar", async () => {
+  it("W4: a due card opened by /review names the recalled language and reveals it in the shared grammar", async () => {
     const harness = createBotHarness({ ai: deterministicTranslateAi() });
     const id = uniqueTelegramId();
     const { userId, translateCard } = await arrangeSavedWord(harness, id);
@@ -214,18 +219,19 @@ describe("word card consistency (integration)", () => {
     const front = lastKeyboard(harness.sent);
     const frontText = textsOf(harness.sent).at(-1) ?? "";
 
-    // Which language to recall is the one thing an SRS front cannot leave out.
+    // Which language to recall is the one thing a card front cannot leave out.
     expect(frontText).toMatch(/<i>→ \S+ .+<\/i>/u);
+    expect(frontText).not.toContain(t("cardsAheadNote", "en"));
     expect(answerLines(frontText)).toEqual([]);
 
     harness.reset();
     await harness.dispatch(
-      callbackQueryUpdate({ chatId: id, fromId: id, messageId: front.messageId, data: "srs:reveal" }),
+      callbackQueryUpdate({ chatId: id, fromId: id, messageId: front.messageId, data: "fc:reveal" }),
     );
 
     const back = lastCardText(harness.sent);
     expectSameGrammarAs(translateCard, back);
-    // A review asks for one language, so the back promotes exactly that one.
+    // A card asks for one language, so the back promotes exactly that one.
     expect(answerLines(back)).toHaveLength(1);
   });
 

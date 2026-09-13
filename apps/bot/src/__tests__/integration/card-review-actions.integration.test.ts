@@ -2,9 +2,9 @@
  * Review-card actions — e2e (real dispatcher, real Postgres, fake `fetch`).
  *
  * @business A saved word the learner no longer wants, or finds hard, is usually
- * noticed while reviewing it — not when a notification happens to arrive. So the
- * flashcard offers the notification's own grades (they drive how often the word
- * comes back) and both review surfaces can remove the word for good. The card's
+ * noticed while reviewing it — not when a notification happens to arrive. So rating a
+ * card also stores the notification's own grade (it drives how often the word comes
+ * back in notifications) and the card can remove the word for good. The card's
  * hidden-answer front is the learner's to shape: a native-language hint written
  * at translation time, source synonyms, a bare example — and never the meaning.
  *
@@ -68,10 +68,17 @@ function toasts(sent: CapturedCall[]): string[] {
 }
 
 /** The entry id the on-screen card's remove button addresses. */
-function shownEntryId(buttons: string[], prefix: "fc" | "srs"): number {
-  const data = buttons.find((button) => button.startsWith(`${prefix}:del:`));
-  if (!data) throw new Error(`no ${prefix}:del button on screen: ${buttons.join(", ")}`);
+function shownEntryId(buttons: string[]): number {
+  const data = buttons.find((button) => button.startsWith("fc:del:"));
+  if (!data) throw new Error(`no fc:del button on screen: ${buttons.join(", ")}`);
   return Number(data.split(":")[2]);
+}
+
+/** The translation id the revealed card's rating buttons address. */
+function shownTranslationId(buttons: string[]): number {
+  const data = buttons.find((button) => button.startsWith("fc:rate:good:"));
+  if (!data) throw new Error(`no fc:rate button on screen: ${buttons.join(", ")}`);
+  return Number(data.split(":")[3]);
 }
 
 async function tap(harness: BotHarness, chatId: number, data: string): Promise<void> {
@@ -91,31 +98,31 @@ async function arrangeReviewer(): Promise<{ telegramId: number; userId: number }
 }
 
 describe("review-card actions (integration)", () => {
-  it("K1: grading a revealed flashcard stores the notification grade and opens the next card", async () => {
+  it("K1: rating a revealed card stores the notification grade and opens the next card", async () => {
     const harness = createBotHarness();
     const { telegramId, userId } = await arrangeReviewer();
     await vocabularyRepository.create(userId, word("anchor"));
     await vocabularyRepository.create(userId, word("harbor"));
 
     await send(harness, telegramId, "/flashcard");
-    const first = shownEntryId(lastScreen(harness.sent).buttons, "fc");
+    const first = shownEntryId(lastScreen(harness.sent).buttons);
 
     await tap(harness, telegramId, "fc:reveal");
+    const translation = shownTranslationId(lastScreen(harness.sent).buttons);
     expect(lastScreen(harness.sent).buttons).toEqual(
       expect.arrayContaining([
-        `fc:fb:hard:${first}`,
-        `fc:fb:normal:${first}`,
-        `fc:fb:easy:${first}`,
+        `fc:rate:again:${translation}`,
+        `fc:rate:hard:${translation}`,
+        `fc:rate:good:${translation}`,
+        `fc:rate:easy:${translation}`,
         `fc:del:${first}`,
       ]),
     );
 
-    await tap(harness, telegramId, `fc:fb:hard:${first}`);
+    await tap(harness, telegramId, `fc:rate:hard:${translation}`);
 
     expect((await vocabularyRepository.findById(first))?.difficulty).toBe("hard");
-    const next = shownEntryId(lastScreen(harness.sent).buttons, "fc");
-    expect(next).not.toBe(first);
-    expect(toasts(harness.sent)).toEqual([expect.stringContaining("more often")]);
+    expect(shownEntryId(lastScreen(harness.sent).buttons)).not.toBe(first);
   });
 
   it("K2: removing a word from a flashcard takes it out of the dictionary and carries on with the deck", async () => {
@@ -125,14 +132,14 @@ describe("review-card actions (integration)", () => {
     await vocabularyRepository.create(userId, word("harbor"));
 
     await send(harness, telegramId, "/flashcard");
-    const removed = shownEntryId(lastScreen(harness.sent).buttons, "fc");
+    const removed = shownEntryId(lastScreen(harness.sent).buttons);
 
     await tap(harness, telegramId, `fc:del:${removed}`);
 
     const remaining = await vocabularyRepository.findByUser(userId);
     expect(remaining.map((entry) => entry.id)).not.toContain(removed);
     expect(remaining).toHaveLength(1);
-    expect(shownEntryId(lastScreen(harness.sent).buttons, "fc")).toBe(remaining[0]?.id);
+    expect(shownEntryId(lastScreen(harness.sent).buttons)).toBe(remaining[0]?.id);
     expect(toasts(harness.sent)).toEqual([expect.stringContaining("deleted")]);
 
     // The removed card's button, tapped again, must not take the card now on screen with it.
@@ -141,7 +148,7 @@ describe("review-card actions (integration)", () => {
     expect(toasts(harness.sent)).toEqual([expect.stringContaining("Session expired")]);
   });
 
-  it("K3: a forged remove button cannot delete another user's word from any surface", async () => {
+  it("K3: a forged remove button — current or left over from /review — cannot delete another user's word", async () => {
     const harness = createBotHarness();
     const owner = await arrangeReviewer();
     const stranger = await arrangeReviewer();
@@ -198,7 +205,7 @@ describe("review-card actions (integration)", () => {
     }
   });
 
-  it("K5: removing a word during review drops every card of that word and moves on", async () => {
+  it("K5: removing a word saved in two languages takes it out of the deck and moves on", async () => {
     const harness = createBotHarness();
     const { telegramId, userId } = await arrangeReviewer();
     const past = new Date("2020-01-01T00:00:00.000Z");
@@ -225,15 +232,34 @@ describe("review-card actions (integration)", () => {
     }
 
     await send(harness, telegramId, "/review");
-    const removed = shownEntryId(lastScreen(harness.sent).buttons, "srs");
+    const removed = shownEntryId(lastScreen(harness.sent).buttons);
 
-    await tap(harness, telegramId, "srs:reveal");
-    expect(lastScreen(harness.sent).buttons).toContain(`srs:del:${removed}`);
-    await tap(harness, telegramId, `srs:del:${removed}`);
+    await tap(harness, telegramId, "fc:reveal");
+    expect(lastScreen(harness.sent).buttons).toContain(`fc:del:${removed}`);
+    await tap(harness, telegramId, `fc:del:${removed}`);
 
     const remaining = await vocabularyRepository.findByUser(userId);
     expect(remaining.map((entry) => entry.id)).not.toContain(removed);
-    expect(shownEntryId(lastScreen(harness.sent).buttons, "srs")).toBe(remaining[0]?.id);
+    expect(shownEntryId(lastScreen(harness.sent).buttons)).toBe(remaining[0]?.id);
+  });
+
+  it("K5b: rating a card also sets the word's notification grade", async () => {
+    const harness = createBotHarness();
+    const { telegramId, userId } = await arrangeReviewer();
+    const created = await vocabularyRepository.create(userId, word("anchor"));
+    const translationId = created.translations[0]!.id;
+    await vocabularyRepository.updateSrsState(translationId, {
+      easeFactor: 2.5,
+      interval: 1,
+      dueDate: new Date("2020-01-01T00:00:00.000Z"),
+      reviewCount: 1,
+    });
+
+    await send(harness, telegramId, "/review");
+    await tap(harness, telegramId, "fc:reveal");
+    await tap(harness, telegramId, `fc:rate:again:${translationId}`);
+
+    expect((await vocabularyRepository.findById(created.id))?.difficulty).toBe("hard");
   });
 
   it("K6: a translated and saved word carries its recall hint to the card front", async () => {
@@ -277,38 +303,40 @@ describe("review-card actions (integration)", () => {
     expect(screen.buttons).toContain("fc:restart");
   });
 
-  it("K8: a grade left on a card the deck moved past changes nothing", async () => {
+  it("K8: a rating left on a card the deck moved past changes nothing", async () => {
     const harness = createBotHarness();
     const { telegramId, userId } = await arrangeReviewer();
     await vocabularyRepository.create(userId, word("anchor"));
     await vocabularyRepository.create(userId, word("harbor"));
 
     await send(harness, telegramId, "/flashcard");
-    const first = shownEntryId(lastScreen(harness.sent).buttons, "fc");
+    const first = shownEntryId(lastScreen(harness.sent).buttons);
     await tap(harness, telegramId, "fc:reveal");
-    await tap(harness, telegramId, `fc:fb:hard:${first}`);
+    const translation = shownTranslationId(lastScreen(harness.sent).buttons);
+    await tap(harness, telegramId, `fc:rate:hard:${translation}`);
 
-    await tap(harness, telegramId, `fc:fb:easy:${first}`);
+    await tap(harness, telegramId, `fc:rate:easy:${translation}`);
 
     expect((await vocabularyRepository.findById(first))?.difficulty).toBe("hard");
     expect(toasts(harness.sent)).toEqual([expect.stringContaining("Session expired")]);
   });
 
-  it("K9: grading a word removed elsewhere since the deck was built moves on to the next card", async () => {
+  it("K9: rating a word removed elsewhere since the deck was built moves on to the next card", async () => {
     const harness = createBotHarness();
     const { telegramId, userId } = await arrangeReviewer();
     await vocabularyRepository.create(userId, word("anchor"));
     await vocabularyRepository.create(userId, word("harbor"));
 
     await send(harness, telegramId, "/flashcard");
-    const first = shownEntryId(lastScreen(harness.sent).buttons, "fc");
+    const first = shownEntryId(lastScreen(harness.sent).buttons);
     await tap(harness, telegramId, "fc:reveal");
+    const translation = shownTranslationId(lastScreen(harness.sent).buttons);
     // Removed from a notification or the dictionary screen while this card was open.
     await vocabularyRepository.delete(first, userId);
 
-    await tap(harness, telegramId, `fc:fb:hard:${first}`);
+    await tap(harness, telegramId, `fc:rate:hard:${translation}`);
 
-    const next = shownEntryId(lastScreen(harness.sent).buttons, "fc");
+    const next = shownEntryId(lastScreen(harness.sent).buttons);
     expect(next).not.toBe(first);
     expect(toasts(harness.sent)).toEqual([expect.stringContaining("deleted")]);
   });

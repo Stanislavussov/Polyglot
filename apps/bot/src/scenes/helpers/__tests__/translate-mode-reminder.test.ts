@@ -110,7 +110,7 @@ function createMockCtx(overrides?: Partial<SessionData>): BotContext {
     savedWordId: undefined,
     templateWizard: undefined,
     dictionary: undefined,
-    flashcard: undefined,
+    cards: undefined,
     pendingDetectedLang: undefined,
     pendingWord: undefined,
     pendingDirection: undefined,

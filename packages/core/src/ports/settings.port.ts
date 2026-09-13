@@ -57,9 +57,8 @@ export interface NotificationDefaults {
 }
 
 export interface DictionaryConfig {
+  /** Cards in one review session: due cards first, topped up with practice-ahead ones. */
   flashcardLimit: number;
-  notificationDictLimit: number;
-  wordOfDayLimit: number;
 }
 
 export interface TranslationPresetConfig {

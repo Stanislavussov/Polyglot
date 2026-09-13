@@ -148,7 +148,6 @@ export type {
   UpdateTranslationData,
   VocabTranslationDetails,
   VocabularyEntry,
-  VocabularyEntryWithSourceLang,
   VocabularyEntryWithTranslations,
   VocabularyTranslation,
 } from "./repositories/vocabulary.repository.js";
@@ -172,7 +171,6 @@ export type {
 } from "./repositories/word-picker-run.repository.js";
 export { wordPickerRunRepository } from "./repositories/word-picker-run.repository.js";
 
-export type { WordReview } from "./repositories/word-review.repository.js";
 export { wordReviewRepository } from "./repositories/word-review.repository.js";
 export type { RetentionResult } from "./retention.js";
 export { DEFAULT_RETENTION_DAYS, PRODUCT_EVENT_RETENTION_DAYS, runTelemetryRetention } from "./retention.js";

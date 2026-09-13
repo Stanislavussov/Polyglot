@@ -150,9 +150,7 @@ const fieldDescriptions: FieldDescriptionMap = {
     defaultEaseFactor: "Starting SRS ease factor for new cards before the user has review history.",
   },
   dictionary: {
-    flashcardLimit: "Maximum number of dictionary entries shown when building flashcards.",
-    notificationDictLimit: "Maximum number of dictionary entries considered when selecting notification content.",
-    wordOfDayLimit: "Maximum number of dictionary entries considered for word-of-day style suggestions.",
+    flashcardLimit: "Cards in one review session: due cards first, then practice-ahead cards to fill it.",
   },
   tts: {},
   stt: {},

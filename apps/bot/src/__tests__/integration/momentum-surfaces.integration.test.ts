@@ -59,7 +59,12 @@ function momentumServiceWith(flags: Partial<MotivationConfig>) {
  * switch there before it queries any evidence, so a praise test has to flip both.
  */
 function motivationSettings(flags: Partial<MotivationConfig>) {
-  return { getMotivationConfig: async () => ({ ...DEFAULT_MOTIVATION_CONFIG, ...flags }) };
+  return {
+    getMotivationConfig: async () => ({ ...DEFAULT_MOTIVATION_CONFIG, ...flags }),
+    // One card per session: a Cards deck tops up with practice-ahead words, and
+    // `reviewOneCard` must reach the finish screen whatever else the user has saved.
+    getDictionaryConfig: async () => ({ flashcardLimit: 1 }),
+  };
 }
 
 function sentTexts(sent: CapturedCall[]): string[] {
@@ -160,13 +165,22 @@ async function translateWord(harness: BotHarness, chatId: number, word: string):
   return lastRenderedCard(harness.sent).messageId;
 }
 
-/** Finish a one-card SRS session: `/review` → reveal → rate "good". */
+/** Finish a one-card Cards session: `/flashcard` → reveal → rate "good". */
 async function reviewOneCard(harness: BotHarness, chatId: number): Promise<void> {
-  await harness.dispatch(messageUpdate({ chatId, fromId: chatId, text: "/review" }));
+  await harness.dispatch(messageUpdate({ chatId, fromId: chatId, text: "/flashcard" }));
   const cardMsgId = harness.sent.filter((call) => call.method === "sendMessage").at(-1)?.messageId;
-  if (cardMsgId === undefined) throw new Error("no SRS card was sent — the seeded word was not due");
-  await harness.dispatch(callbackQueryUpdate({ chatId, fromId: chatId, messageId: cardMsgId, data: "srs:reveal" }));
-  await harness.dispatch(callbackQueryUpdate({ chatId, fromId: chatId, messageId: cardMsgId, data: "srs:rate:good" }));
+  if (cardMsgId === undefined) throw new Error("no card was sent — the seeded dictionary is empty");
+  await harness.dispatch(callbackQueryUpdate({ chatId, fromId: chatId, messageId: cardMsgId, data: "fc:reveal" }));
+  const back = harness.sent.filter((call) => call.method === "editMessageText").at(-1);
+  const markup = back?.payload.reply_markup as
+    | { inline_keyboard?: Array<Array<{ callback_data?: string }>> }
+    | undefined;
+  const rateGood = markup?.inline_keyboard
+    ?.flat()
+    .map((button) => button.callback_data)
+    .find((data) => data?.startsWith("fc:rate:good:"));
+  if (!rateGood) throw new Error("the revealed card offers no rating");
+  await harness.dispatch(callbackQueryUpdate({ chatId, fromId: chatId, messageId: cardMsgId, data: rateGood }));
 }
 
 afterEach(() => {
@@ -349,7 +363,7 @@ describe("praise line (integration)", () => {
     expect(countMatureTranslations).not.toHaveBeenCalled();
   });
 
-  it("puts one praise line in the srsDone text when a word reaches long-term memory", async () => {
+  it("puts one praise line on the Cards finish screen when a word reaches long-term memory", async () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     vi.setSystemTime(NOW);
     const harness = createBotHarness({
@@ -361,13 +375,13 @@ describe("praise line (integration)", () => {
     const userId = await arrangeOnboardedTranslator(id);
     await seedAlmostMatureCard(userId);
 
-    const shownBefore = await praiseShownCount("first_mature", "srs_done");
+    const shownBefore = await praiseShownCount("first_mature", "flashcard_done");
     await reviewOneCard(harness, id);
 
     const done = lastEditedText(harness.sent);
-    expect(done).toContain(t("srsDone", "en", { count: "1" }));
+    expect(done).toContain(t("cardsDone", "en", { cards: 1, recalled: 1 }));
     expect(done).toContain(t("praiseFirstMature", "en"));
-    expect(await praiseShownCount("first_mature", "srs_done")).toBe(shownBefore + 1);
+    expect(await praiseShownCount("first_mature", "flashcard_done")).toBe(shownBefore + 1);
     expect(await praiseRowCount(userId)).toBe(1);
   });
 

@@ -11,16 +11,7 @@ describe("callback restart-safety contracts", () => {
     const families = new Set(callbackContracts.map((contract) => contract.family));
 
     expect(families).toEqual(
-      new Set([
-        "translation",
-        "flashcard",
-        "srs",
-        "dictionary",
-        "template",
-        "settings",
-        "notification",
-        "subscription",
-      ]),
+      new Set(["translation", "flashcard", "dictionary", "template", "settings", "notification", "subscription"]),
     );
   });
 

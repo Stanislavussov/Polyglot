@@ -535,30 +535,4 @@ describe("vocabularyRepository", () => {
       expect(updateFn).toHaveBeenCalledTimes(1);
     });
   });
-
-  describe("findByUserWithSourceLang", () => {
-    it("resolves sourceLangId to code using langResolver", async () => {
-      const entry = makeEntry({ id: 1, sourceLangId: 5 });
-      const translation = makeTranslation({ entryId: 1 });
-      // findByUser internally: entries, then translations
-      selectResultQueue.push([entry], [translation]);
-
-      const resolver = (id: number) => (id === 5 ? "en" : undefined);
-      const result = await vocabularyRepository.findByUserWithSourceLang(42, resolver);
-
-      expect(result).toHaveLength(1);
-      expect(result[0]!.sourceLangCode).toBe("en");
-    });
-
-    it("filters out entries with unresolvable sourceLangId", async () => {
-      const entry = makeEntry({ id: 1, sourceLangId: 999 });
-      const translation = makeTranslation({ entryId: 1 });
-      selectResultQueue.push([entry], [translation]);
-
-      const resolver = (_id: number) => undefined;
-      const result = await vocabularyRepository.findByUserWithSourceLang(42, resolver);
-
-      expect(result).toEqual([]);
-    });
-  });
 });

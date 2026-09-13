@@ -12,8 +12,8 @@
  *    being translated as a word.
  *
  * Every assertion pins a string unique to the screen it claims. The empty-state copy of
- * the dictionary, the deck and the review queue all open with "Your dictionary is empty",
- * so matching that prefix would pass for any of the three and prove no routing at all.
+ * the dictionary and the deck both open with "Your dictionary is empty", so matching that
+ * prefix would pass for either and prove no routing at all.
  */
 import { userRepository, wordPickerPresetRepository } from "@polyglot/adapter-db";
 import { describe, expect, it } from "vitest";
@@ -29,8 +29,7 @@ import { deterministicTranslateAi } from "../../test-helpers/integration/transla
 import { buildMainKeyboard } from "../../utils/main-menu.js";
 
 /** Copy unique to one screen, so a misroute cannot satisfy the assertion. */
-const ONLY_REVIEW = "come back here for review";
-const ONLY_DECK = "Translate some words and save them first";
+const ONLY_DECK = "come back here for review";
 const ONLY_DICTIONARY = "tap 💾 on the card to add it";
 const ONLY_MENTOR = "Mentor mode is on";
 
@@ -136,14 +135,7 @@ describe("menu navigation (integration)", () => {
     // Into the learning hub…
     harness.reset();
     await harness.dispatch(callbackQueryUpdate({ chatId: id, fromId: id, messageId: menuId, data: "menu:learn" }));
-    expect(lastEdit(harness.sent).buttons).toEqual([
-      "lrn:pick",
-      "lrn:cards",
-      "lrn:review",
-      "lrn:videos",
-      "lrn:mentor",
-      "menu:root",
-    ]);
+    expect(lastEdit(harness.sent).buttons).toEqual(["lrn:pick", "lrn:cards", "lrn:videos", "lrn:mentor", "menu:root"]);
     expect(sentMessages(harness.sent)).toEqual([]);
 
     // …and back out, still the same message.
@@ -153,7 +145,7 @@ describe("menu navigation (integration)", () => {
     expect(sentMessages(harness.sent)).toEqual([]);
   });
 
-  it("reaches spaced repetition, which had no button anywhere before the hub", async () => {
+  it("opens Cards from a Review button left in chat history by the old hub", async () => {
     const harness = createBotHarness({ ai: deterministicTranslateAi() });
     const id = uniqueTelegramId();
     await arrangeOnboardedTranslator(id);
@@ -163,9 +155,8 @@ describe("menu navigation (integration)", () => {
     harness.reset();
     await harness.dispatch(callbackQueryUpdate({ chatId: id, fromId: id, messageId: menuId, data: "lrn:review" }));
 
-    // srsNoSavedWords in its own words — the deck and the dictionary say something else.
-    expect(said(harness.sent, ONLY_REVIEW)).toBe(true);
-    expect(said(harness.sent, ONLY_DECK)).toBe(false);
+    // Review was merged into Cards; the dictionary says something else.
+    expect(said(harness.sent, ONLY_DECK)).toBe(true);
     expect(said(harness.sent, ONLY_DICTIONARY)).toBe(false);
   });
 
