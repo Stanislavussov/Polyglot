@@ -31,6 +31,7 @@ async function arrangePlan(features: string[]): Promise<void> {
     videoLimit: null,
     videoWindow: "none",
     mentorDailyLimit: null,
+    dailyCreditCeiling: null,
     // Not for sale: invisible to upgrade screens other workers may render.
     priceUsdCents: null,
     isActive: false,

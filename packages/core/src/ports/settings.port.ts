@@ -16,6 +16,14 @@ export interface PlanLimitConfig {
   videoWindow: VideoWindow;
   /** Max mentor turns per day (UTC window). null = unlimited */
   mentorDailyLimit: number | null;
+  /**
+   * Daily credit ceiling — the safety guard every account obeys. `null` means the
+   * built-in default (`DEFAULT_DAILY_CREDIT_CEILING`), never "no ceiling", and so
+   * does an absent field: optional so a config assembled before this column
+   * existed reads as "use the default" rather than failing to typecheck into
+   * something that could not be enforced.
+   */
+  dailyCreditCeiling?: number | null;
   /** Display price in US cents for the upgrade screen. null = not for sale. */
   priceUsdCents: number | null;
   isActive: boolean;

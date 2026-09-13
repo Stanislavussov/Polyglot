@@ -1,18 +1,18 @@
 import { describe, expect, it } from "vitest";
+// Straight from connection.ts rather than the package barrel: the barrel re-exports
+// every repository and the whole schema, and pulling that in costs ~600ms — inside a
+// test body it is charged against the 5s timeout and the test blinks under a cold
+// transform cache.
+import { closeDb, getDb } from "../connection.js";
 
 describe("getDb", () => {
   it("should throw if DATABASE_URL is not set", async () => {
-    // Ensure DATABASE_URL is not set for this test
     const original = process.env.DATABASE_URL;
     delete process.env.DATABASE_URL;
 
     try {
-      // Dynamic import to avoid module-level side effects
-      // Reset module cache by importing the factory function fresh
-      const { getDb } = await import("../index.js");
-
-      // Reset singleton state — we need a fresh call
-      const { closeDb } = await import("../index.js");
+      // The connection is a module singleton: drop any client a previous caller left
+      // behind, or getDb() returns it instead of re-reading the environment.
       await closeDb();
 
       expect(() => getDb()).toThrow("DATABASE_URL environment variable is not set");

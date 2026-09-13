@@ -99,6 +99,37 @@ describe("upgrade screen", () => {
     expect(buttons(reply)).toEqual(["plan:buy:plus", "plan:buy:pro"]);
   });
 
+  it("marks the tapped feature inside the plan block that grants it, so the offer points at one tier", async () => {
+    const { ctx, reply } = createCtx({ subscriptionPlan: "free" });
+
+    await sendUpgradeScreen(ctx, "en", FEATURE_KEYS.pronunciation);
+
+    // Both tiers stay on offer; only Pro's block claims the line that refused the tap.
+    const [plusBlock, proBlock] = text(reply).split("<b>Pro</b> — ");
+    expect(plusBlock).not.toContain("<b>Word audio</b>");
+    expect(proBlock).toContain("• <b>Word audio</b>");
+    // A line the tap did not ask about keeps its plain bullet.
+    expect(plusBlock).toContain("• Clarify meaning and other meanings");
+  });
+
+  it("heads every block with the glyph its buy button wears, so block and button pair by sight", async () => {
+    const { ctx, reply } = createCtx({ subscriptionPlan: "free" });
+
+    await sendUpgradeScreen(ctx, "en");
+
+    expect(text(reply)).toContain("⭐ <b>Plus</b> — $5");
+    expect(text(reply)).toContain("💎 <b>Pro</b> — $10");
+  });
+
+  it("marks nothing when the offer answers no particular feature", async () => {
+    const { ctx, reply } = createCtx({ subscriptionPlan: "free" });
+
+    await sendUpgradeScreen(ctx, "en");
+
+    // Bold survives only in the plan headers, never on a bullet.
+    expect(text(reply)).not.toMatch(/• <b>/);
+  });
+
   it("falls back to the generic prompt when no feature refused the tap", async () => {
     const { ctx, reply } = createCtx({ subscriptionPlan: "free" });
 

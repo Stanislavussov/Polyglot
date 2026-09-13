@@ -1,7 +1,15 @@
 /**
  * Shared arrange helpers for the bot e2e integration lane (Task 71).
  */
-import { getLang, notificationRepository, userRepository, vocabularyRepository } from "@polyglot/adapter-db";
+import {
+  getDb,
+  getLang,
+  notificationRepository,
+  onboardingDemoCardRepository,
+  userRepository,
+  vocabularyRepository,
+} from "@polyglot/adapter-db";
+import { getHookWords } from "@polyglot/core";
 
 /**
  * The UTC slot the notification-delivery e2e lane owns, and nothing else may use.
@@ -20,6 +28,8 @@ export const DELIVERY_TEST_SLOT_UTC = { hour: 13, minute: 0 } as const;
 export const DELIVERY_TEST_SLOT_TIME = `${String(DELIVERY_TEST_SLOT_UTC.hour).padStart(2, "0")}:${String(
   DELIVERY_TEST_SLOT_UTC.minute,
 ).padStart(2, "0")}`;
+
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 /** The seeded entry's headword — the string a delivery test looks for on the wire. */
 const NOTIFIABLE_HEADWORD = "bridge";
@@ -175,4 +185,131 @@ export async function arrangeOnboardedTranslator(
     await userRepository.updateSubscriptionPlan(user.id, plan);
   }
   return user.id;
+}
+
+/** Days of silence that put a user well past the inactivity threshold. */
+export const LAPSED_DAYS = 20;
+
+export interface LapsedUserOptions {
+  /** Re-engagement cards already sent in the current episode. Defaults to none. */
+  pingsAlreadySent?: number;
+  /** Seed a saved word so the dictionary layer answers before the presets. Defaults to false. */
+  withVocabulary?: boolean;
+}
+
+export interface LapsedUser {
+  userId: number;
+  telegramId: number;
+  /** The seeded entry's headword — only meaningful under `withVocabulary`. */
+  headword: string;
+}
+
+/**
+ * Provision a subscriber who has gone quiet long enough to be due a
+ * re-engagement card.
+ *
+ * The lapse columns are written directly because the only things that move them
+ * in production are the passage of time and the sweep itself — there is no API
+ * to drive, and adding a production setter for a test fixture would put a method
+ * on the repository that nothing ships.
+ *
+ * `withVocabulary` decides which layer answers. It defaults to **false** because
+ * an empty dictionary forces the curated preset set to supply the word, and that
+ * is both the case the feature turns on and the population the previous design
+ * served worst.
+ *
+ * Being lapsed also makes these users invisible to the delivery lane — they are
+ * past the reachability ceiling, so `getUsersForWindow` cannot return them at any
+ * hour and the two lanes need no slot arrangement between them.
+ */
+export async function arrangeLapsedUser(telegramId: number, options: LapsedUserOptions = {}): Promise<LapsedUser> {
+  const { pingsAlreadySent = 0, withVocabulary = false } = options;
+  const { userId, headword } = await arrangeNotifiableUser(telegramId, { withVocabulary });
+  await setLapseState(userId, {
+    lastInteractionAt: new Date(Date.now() - LAPSED_DAYS * DAY_MS),
+    reengagementCount: pingsAlreadySent,
+    // Far enough back that the spacing interval has certainly elapsed; NULL when
+    // the episode has produced no card yet.
+    lastReengagementAt: pingsAlreadySent > 0 ? new Date(Date.now() - 30 * DAY_MS) : null,
+  });
+  return { userId, telegramId, headword };
+}
+
+/**
+ * Overwrite the lapse-tracking columns directly. See {@link arrangeLapsedUser}.
+ *
+ * `drizzle-orm` is not a dependency of `apps/bot` (only the adapter owns it) and
+ * no repository method writes these columns to an arbitrary value — nothing in
+ * production needs one — so the write goes through the driver the adapter
+ * exposes, as `momentum-recording.integration.test.ts` does for the same reason.
+ */
+export async function setLapseState(
+  userId: number,
+  state: { lastInteractionAt?: Date; reengagementCount?: number; lastReengagementAt?: Date | null },
+): Promise<void> {
+  const sql = getDb().$client;
+  // Timestamps go over the wire as ISO text with an explicit cast: the client is
+  // the one drizzle configured, and it rejects a bare `Date` parameter.
+  const iso = (value: Date | null): string | null => value?.toISOString() ?? null;
+
+  if (state.lastInteractionAt !== undefined) {
+    await sql`update user_language_settings
+              set last_interaction_at = ${iso(state.lastInteractionAt)}::timestamptz
+              where user_id = ${userId}`;
+  }
+  if (state.reengagementCount !== undefined) {
+    await sql`update user_language_settings
+              set reengagement_count = ${state.reengagementCount}
+              where user_id = ${userId}`;
+  }
+  if (state.lastReengagementAt !== undefined) {
+    await sql`update user_language_settings
+              set last_reengagement_at = ${iso(state.lastReengagementAt)}::timestamptz
+              where user_id = ${userId}`;
+  }
+}
+
+/**
+ * Publish reviewed demo cards for the first `count` curated headwords of a
+ * language pair, and return those headwords.
+ *
+ * This is the preset layer's *free* path: `resolvePreset` reads the reviewed
+ * demo-card cache first and only falls through to a just-in-time AI translation
+ * when no reviewed card covers the pair. A lapse test that skips this seeding
+ * does not fail loudly — the AI path is unavailable under the harness, so the
+ * sweep quietly drops to its plain-text floor and the assertion reads as "the
+ * preset layer is broken" when nothing is.
+ *
+ * Rows are keyed by (sourceLang, nativeLang, headword) and shared across the
+ * integration database, so the upsert is idempotent and safe to re-run. The
+ * delivery lane closes its preset path outright (`pickPresetWord: async () =>
+ * null`), so seeding real pairs here cannot reach it.
+ */
+export async function arrangeCuratedPresets(sourceLang: string, nativeLang: string, count: number): Promise<string[]> {
+  const headwords = getHookWords(sourceLang)
+    .slice(0, count)
+    .map((hook) => hook.headword);
+
+  for (const [index, headword] of headwords.entries()) {
+    await onboardingDemoCardRepository.upsert({
+      sourceLang,
+      nativeLang,
+      headword,
+      sortOrder: index,
+      payload: {
+        original: headword,
+        sourceLang,
+        emoji: "✨",
+        nativeMeaning: `curated meaning of ${headword}`,
+        nativeSynonyms: [],
+        translations: {
+          [nativeLang]: { text: `translation of ${headword}`, synonyms: [], examples: [] },
+        },
+      },
+    });
+    // `upsert` writes the row unreviewed; only a reviewed card is ever served.
+    await onboardingDemoCardRepository.setActive(sourceLang, nativeLang, headword, true);
+  }
+
+  return headwords;
 }

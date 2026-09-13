@@ -11,7 +11,6 @@ describe("dictionary pipeline presets", () => {
       alternatives: true,
       equivalentNote: true,
       connotationWarning: true,
-      grammarBreakdown: false,
     });
     expect(FLASHCARD_CONFIG.presentation.flashcard).toEqual({ frontSide: "original" });
   });
@@ -24,7 +23,6 @@ describe("dictionary pipeline presets", () => {
       alternatives: false,
       equivalentNote: false,
       connotationWarning: false,
-      grammarBreakdown: false,
     });
     expect(NOTIFICATION_DICT_CONFIG.presentation.flashcard).toBeUndefined();
   });
@@ -37,7 +35,6 @@ describe("dictionary pipeline presets", () => {
       alternatives: false,
       equivalentNote: true,
       connotationWarning: true,
-      grammarBreakdown: false,
     });
   });
 

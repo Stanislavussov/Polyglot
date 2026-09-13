@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { ALL_FEATURES, FEATURE_KEYS, type PlanEntitlementConfig, resolveEntitlements } from "./index.js";
+import { ALL_FEATURES, FEATURE_KEYS, FREE_FALLBACK, type PlanEntitlementConfig, resolveEntitlements } from "./index.js";
 
-const FREE: PlanEntitlementConfig = { translationLimit: 10, videoLimit: 0, videoWindow: "none" };
+// The real free tier, not a hand-written copy of it: the limit is a pricing knob
+// that has moved once already (Task 84) and will move again.
+const FREE: PlanEntitlementConfig = FREE_FALLBACK;
 const PLUS: PlanEntitlementConfig = { translationLimit: null, videoLimit: 20, videoWindow: "monthly" };
 const PRO: PlanEntitlementConfig = { translationLimit: null, videoLimit: null, videoWindow: "monthly" };
 const PREMIUM_FEATURES = [FEATURE_KEYS.grammarBreakdown, FEATURE_KEYS.etymology, FEATURE_KEYS.grammarDetail];
@@ -9,9 +11,9 @@ const PLUS_FEATURES = [...PREMIUM_FEATURES, FEATURE_KEYS.clarification, FEATURE_
 const PRO_FEATURES = [...PLUS_FEATURES, FEATURE_KEYS.pronunciation, FEATURE_KEYS.voiceInput];
 
 describe("resolveEntitlements", () => {
-  it("gives free (product) 10 translations/month, no video, no features", () => {
+  it("gives free (product) the free monthly allowance, no video, no features", () => {
     const e = resolveEntitlements({ audienceGroup: "product", plan: "free", planConfig: FREE, planFeatures: [] });
-    expect(e.translationsPerMonth).toBe(10);
+    expect(e.translationsPerMonth).toBe(FREE_FALLBACK.translationLimit);
     expect(e.video).toEqual({ limit: 0, window: "none" });
     expect(e.features.size).toBe(0);
   });
@@ -80,7 +82,7 @@ describe("resolveEntitlements", () => {
 
   it("falls back to free entitlements when the plan config is missing", () => {
     const e = resolveEntitlements({ audienceGroup: "product", plan: "free", planConfig: null, planFeatures: [] });
-    expect(e.translationsPerMonth).toBe(10);
+    expect(e.translationsPerMonth).toBe(FREE_FALLBACK.translationLimit);
     expect(e.video).toEqual({ limit: 0, window: "none" });
   });
 

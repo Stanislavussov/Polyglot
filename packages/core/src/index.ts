@@ -39,6 +39,12 @@ export type {
 } from "./ports/notification.repository.js";
 export type { CheckoutResult, PaymentPort, RenewableSubscription, RenewalResult } from "./ports/payment.port.js";
 export type {
+  ProductEvent,
+  ProductEventRepository,
+  RecordProductEventInput,
+} from "./ports/product-event.repository.js";
+export { PRODUCT_EVENTS } from "./ports/product-event.repository.js";
+export type {
   IssueType,
   ReportedIssue,
   ReportedIssueRepository,
@@ -206,6 +212,7 @@ export { AI_GENERATION_DEFAULTS, parseAIGenerationDefaults } from "./modules/set
 export * from "./modules/settings/settings.service.js";
 export * from "./modules/srs/index.js";
 export * from "./modules/subscriptions/index.js";
+export * from "./modules/subscriptions/trial.js";
 export * from "./modules/topics/index.js";
 export * from "./modules/translation/index.js";
 export type { SpeakableCard } from "./modules/tts/pronounceable-langs.js";

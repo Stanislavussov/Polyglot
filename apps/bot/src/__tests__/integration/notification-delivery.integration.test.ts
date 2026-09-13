@@ -37,9 +37,10 @@ import {
   systemSettingsRepository,
   translationRequestRepository,
   userRepository,
+  vocabularyRepository,
 } from "@polyglot/adapter-db";
 import { checkAndSend, type NotificationPayload, type SchedulerDeps } from "@polyglot/adapter-notifications";
-import type { GenerateObjectFn, NotificationDefaults } from "@polyglot/core";
+import { type GenerateObjectFn, type NotificationDefaults, t } from "@polyglot/core";
 import { afterEach, describe, expect, it } from "vitest";
 import { notificationCounter } from "../../metrics.js";
 import { buildNotificationScheduling } from "../../notifications/notification.wiring.js";
@@ -341,13 +342,13 @@ describe("scheduled notification delivery (integration)", () => {
     expect(messagesTo(harness.sent, telegramId)).toHaveLength(2);
   });
 
-  it("C10: delivers the card with the reader's own language directly under the headword", async () => {
-    // Arrange — a ru-native user studying cs and de, whose entry is seeded
-    // native-LAST. The card must be reordered at render time; a fixture that
-    // already read native-first would prove nothing. This is the assertion the
-    // unit tests cannot make: the ordering context is built inside the real
-    // `sendFn` from the real settings row, so a wiring regression that dropped
-    // it would leave every unit test green.
+  it("C10: delivers the word alone, handing over nothing that answers it", async () => {
+    // Arrange — a ru-native user studying cs and de whose entry carries a native
+    // translation, a stored meaning and a second learning language: everything the
+    // card used to inline. The notification is a recall prompt, so none of it may
+    // reach the chat before the reader taps Reveal. Only the real `sendFn` renders
+    // from the real settings row, so a wiring regression that re-inlined the answer
+    // would leave every unit test green.
     const harness = createBotHarness();
     const telegramId = uniqueTelegramId();
     const { headword, nativeTranslation, nativeMeaning, otherTranslation } = await arrangeTracked(telegramId, {
@@ -359,23 +360,128 @@ describe("scheduled notification delivery (integration)", () => {
     // Act
     await checkAndSend(sendFn, deps);
 
-    // Assert — the delivered text, by line position rather than mere presence.
+    // Assert — the delivered text: the word, the prompt, and nothing else.
     const mine = messagesTo(harness.sent, telegramId);
     expect(mine).toHaveLength(1);
     const lines = textOf(mine[0]!)
       .split("\n")
       .filter((line) => line.trim() !== "");
 
-    const headwordAt = lines.findIndex((line) => line.includes(headword));
-    const answerAt = lines.findIndex((line) => line.includes(nativeTranslation!));
-    const meaningAt = lines.findIndex((line) => line.includes(nativeMeaning!));
-    const otherAt = lines.findIndex((line) => line.includes(otherTranslation!));
-
-    expect(headwordAt).toBeGreaterThanOrEqual(0);
-    expect(answerAt).toBe(headwordAt + 1);
-    expect(answerAt).toBeLessThan(meaningAt);
-    expect(meaningAt).toBeLessThan(otherAt);
+    expect(lines).toHaveLength(2);
+    expect(lines[0]).toContain(headword);
+    expect(lines[1]).toContain(t("notifSelfCheck", "en"));
+    expect(textOf(mine[0]!)).not.toContain(nativeTranslation!);
+    expect(textOf(mine[0]!)).not.toContain(nativeMeaning!);
+    expect(textOf(mine[0]!)).not.toContain(otherTranslation!);
     expect(ai.wasCalled()).toBe(false);
+  });
+
+  it("C14: tapping Reveal opens the translation card, with the buttons a translation card has", async () => {
+    // Arrange — deliver first, then tap the button the delivery actually carried:
+    // the entry id travels from the picker into the callback data, and a card
+    // revealed by a hand-built id would not prove that leg.
+    const harness = createBotHarness();
+    const telegramId = uniqueTelegramId();
+    const { userId, headword, nativeTranslation, otherTranslation } = await arrangeTracked(telegramId, {
+      richCard: true,
+    });
+    const { sendFn, deps, ai } = await buildDelivery(harness);
+    harness.reset();
+    await checkAndSend(sendFn, deps);
+
+    const delivered = messagesTo(harness.sent, telegramId)[0];
+    const markup = delivered?.payload.reply_markup as { inline_keyboard: Array<Array<{ callback_data?: string }>> };
+    const reveal = markup.inline_keyboard.flat().find((b) => b.callback_data?.startsWith("notif:reveal:"));
+    const entries = await vocabularyRepository.findByUser(userId);
+    expect(reveal?.callback_data).toBe(`notif:reveal:${entries[0]?.id}`);
+
+    // Act — through the real dispatcher, as the tap arrives.
+    const nudgeMsgId = 800;
+    harness.reset();
+    await harness.dispatch(
+      callbackQueryUpdate({
+        chatId: telegramId,
+        fromId: telegramId,
+        messageId: nudgeMsgId,
+        data: reveal!.callback_data!,
+      }),
+    );
+
+    // Assert — the card: the reader's own language, the second learning language,
+    // and the answer directly under the headword, as every other card renders it.
+    const revealed = harness.sent
+      .filter((call) => call.method === "editMessageText")
+      .map((call) => String((call.payload as { text?: string }).text ?? ""))
+      .at(-1);
+    expect(revealed).toBeDefined();
+    const lines = revealed!.split("\n").filter((line) => line.trim() !== "");
+
+    expect(lines[0]).toContain(headword);
+    expect(lines[1]).toContain(nativeTranslation!);
+    expect(revealed).toContain(otherTranslation!);
+
+    // Assert — the keyboard is the translation card's, addressed to this message,
+    // and it says the word is already saved rather than offering to save it twice.
+    const buttons = harness.sent
+      .filter((call) => call.method === "editMessageReplyMarkup")
+      .map((call) => call.payload as { reply_markup?: { inline_keyboard?: Array<Array<{ callback_data?: string }>> } })
+      .at(-1)
+      ?.reply_markup?.inline_keyboard?.flat()
+      .map((button) => button.callback_data);
+
+    // A fresh card ships collapsed, so what proves this is the card's keyboard is
+    // the pair a collapsed card always carries — ⋯ More and Save — both addressed
+    // to this message. Expanding it is `tr:more`'s job and is covered where that
+    // behaviour lives.
+    expect(buttons).toContain(`tr:more:${nudgeMsgId}`);
+    expect(buttons).toContain(`tr:save:${nudgeMsgId}`);
+    expect(buttons?.every((data) => data?.endsWith(`:${nudgeMsgId}`))).toBe(true);
+    // None of the nudge's own buttons survive the reveal — the card owns the message now.
+    expect(buttons?.some((data) => data?.startsWith("notif:"))).toBe(false);
+    expect(ai.wasCalled()).toBe(false);
+  });
+
+  it("C15: the revealed card's buttons still work — the session entry travels with it", async () => {
+    // The card addresses its own state by message id. Without that entry every
+    // button on the freshly revealed card answers "this card has expired", which
+    // is invisible to any assertion about the card's text.
+    const harness = createBotHarness();
+    const telegramId = uniqueTelegramId();
+    const { headword } = await arrangeTracked(telegramId, { richCard: true });
+    const { sendFn, deps } = await buildDelivery(harness);
+    await checkAndSend(sendFn, deps);
+
+    const delivered = messagesTo(harness.sent, telegramId)[0];
+    const markup = delivered?.payload.reply_markup as { inline_keyboard: Array<Array<{ callback_data?: string }>> };
+    const reveal = markup.inline_keyboard.flat().find((b) => b.callback_data?.startsWith("notif:reveal:"));
+    const nudgeMsgId = 810;
+    await harness.dispatch(
+      callbackQueryUpdate({
+        chatId: telegramId,
+        fromId: telegramId,
+        messageId: nudgeMsgId,
+        data: reveal!.callback_data!,
+      }),
+    );
+
+    // Act — tap Pronounce's neighbour: "save" is the one button that needs no AI
+    // and reports what it found through the toast.
+    harness.reset();
+    await harness.dispatch(
+      callbackQueryUpdate({
+        chatId: telegramId,
+        fromId: telegramId,
+        messageId: nudgeMsgId,
+        data: `tr:save:${nudgeMsgId}`,
+      }),
+    );
+
+    // Assert — the word was recognised as this card's, not answered as expired.
+    const answers = harness.sent
+      .filter((call) => call.method === "answerCallbackQuery")
+      .map((call) => String((call.payload as { text?: string }).text ?? ""));
+    expect(answers.join(" ")).not.toMatch(/expired|устарел/i);
+    expect(headword.length).toBeGreaterThan(0);
   });
 });
 

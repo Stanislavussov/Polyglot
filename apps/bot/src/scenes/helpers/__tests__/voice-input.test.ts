@@ -1,19 +1,23 @@
 /**
- * Voice message → translation (Task 80).
+ * Voice message → the active mode (Task 80).
  *
  * The refusals are the interesting part, and their ORDER is what these pin: the
  * feature switch, the plan, and the duration cap each have to bite before any
  * money is spent, so a refused voice message must reach neither Telegram's file
- * API nor the transcription model. The success path only has to prove the
- * transcript re-enters the ordinary text pipeline.
+ * API nor the transcription model. The success path proves the transcript
+ * re-enters the ordinary text pipeline — whichever mode owns it.
  */
 import { FEATURE_KEYS, type PlanLimitConfig, type ServiceContainer, type SttConfig } from "@polyglot/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createServicesStub, createSettingsStub } from "../../../test-helpers/services-stub.js";
-import type { BotContext } from "../../../types.js";
+import type { BotContext, UserMode } from "../../../types.js";
 
-const { handleTranslateText } = vi.hoisted(() => ({ handleTranslateText: vi.fn().mockResolvedValue(undefined) }));
+const { handleTranslateText, handleMentorText } = vi.hoisted(() => ({
+  handleTranslateText: vi.fn().mockResolvedValue(undefined),
+  handleMentorText: vi.fn().mockResolvedValue(undefined),
+}));
 vi.mock("../translate-flow.js", () => ({ handleTranslateText }));
+vi.mock("../mentor-mode.helper.js", () => ({ handleMentorText, MENTOR_MAX_INPUT_LENGTH: 1000 }));
 
 const { handleVoiceMessage } = await import("../voice-input.js");
 
@@ -37,6 +41,11 @@ interface CtxOptions {
   duration?: number;
   hasAccess?: boolean;
   transcribe?: ReturnType<typeof vi.fn>;
+  activeMode?: UserMode;
+  /** Makes the voice message a reply to the bot message with this id. */
+  replyToMessageId?: number;
+  /** Thread the replied-to message belongs to, as `mentor_messages` would answer. */
+  replyThreadId?: string | null;
 }
 
 function createCtx(opts: CtxOptions = {}) {
@@ -48,11 +57,20 @@ function createCtx(opts: CtxOptions = {}) {
   const reply = vi.fn().mockResolvedValue({ message_id: 1 });
   const answerCallbackQuery = vi.fn().mockResolvedValue(true);
 
+  const findThreadByMessage = vi.fn().mockResolvedValue(opts.replyThreadId ?? null);
+
   const ctx = {
     user: { id: 1, audienceGroup: "product", subscriptionPlan: opts.hasAccess === false ? "free" : "pro" },
     chat: { id: 1 },
-    session: {},
-    message: { voice: { file_id: "v1", file_unique_id: "u1", duration: opts.duration ?? 5 } },
+    me: { id: 42 },
+    session: { activeMode: opts.activeMode ?? "translate" },
+    message: {
+      message_id: 7,
+      voice: { file_id: "v1", file_unique_id: "u1", duration: opts.duration ?? 5 },
+      ...(opts.replyToMessageId !== undefined
+        ? { reply_to_message: { message_id: opts.replyToMessageId, from: { id: 42, is_bot: true } } }
+        : {}),
+    },
     api: { getFile, token: "TEST:TOKEN", options: { fetch: download } },
     reply,
     answerCallbackQuery,
@@ -72,10 +90,13 @@ function createCtx(opts: CtxOptions = {}) {
         checkFeatureAccess: vi.fn().mockResolvedValue({ hasAccess: opts.hasAccess ?? true }),
       } as unknown as ServiceContainer["featureAccess"],
       ai: { transcribe } as unknown as ServiceContainer["ai"],
+      mentorMessageRepository: {
+        findThreadByMessage,
+      } as unknown as ServiceContainer["mentorMessageRepository"],
     }),
   } as unknown as BotContext;
 
-  return { ctx, transcribe, getFile, reply, answerCallbackQuery };
+  return { ctx, transcribe, getFile, reply, answerCallbackQuery, findThreadByMessage };
 }
 
 const lastReply = (reply: ReturnType<typeof vi.fn>): string => String(reply.mock.calls.at(-1)?.[0] ?? "");
@@ -83,6 +104,7 @@ const lastReply = (reply: ReturnType<typeof vi.fn>): string => String(reply.mock
 describe("voice message handling", () => {
   beforeEach(() => {
     handleTranslateText.mockClear();
+    handleMentorText.mockClear();
   });
 
   it("declines the update when speech-to-text is switched off, leaving the old non-text rejection to the caller", async () => {
@@ -110,7 +132,9 @@ describe("voice message handling", () => {
 
     // A message has no callback query to answer — answering one would throw.
     expect(answerCallbackQuery).not.toHaveBeenCalled();
-    expect(lastReply(reply)).toContain("Voice input");
+    // Named by the very line the plan block sells it under, set in bold there.
+    expect(lastReply(reply)).toContain("🎙️ Voice message translation is a <b>Pro</b> feature.");
+    expect(lastReply(reply)).toContain("• <b>🎙️ Voice message translation</b>");
     expect(getFile).not.toHaveBeenCalled();
     expect(transcribe).not.toHaveBeenCalled();
   });
@@ -154,6 +178,38 @@ describe("voice message handling", () => {
     expect(transcribe).toHaveBeenCalledWith(
       expect.objectContaining({ format: "ogg", modelId: STT.modelId, userId: 1 }),
     );
+    expect(handleTranslateText).toHaveBeenCalledWith(ctx, "Hallo");
+  });
+
+  it("sends the transcript to the mentor while mentor mode is active, not to translation", async () => {
+    const { ctx } = createCtx({ activeMode: "mentor" });
+
+    await expect(handleVoiceMessage(ctx)).resolves.toBe(true);
+
+    expect(handleMentorText).toHaveBeenCalledWith(ctx, "Hallo");
+    expect(handleTranslateText).not.toHaveBeenCalled();
+  });
+
+  it("continues a mentor thread when the voice message replies to a mentor answer, whatever the mode", async () => {
+    const { ctx, findThreadByMessage } = createCtx({
+      activeMode: "translate",
+      replyToMessageId: 99,
+      replyThreadId: "thread-1",
+    });
+
+    await expect(handleVoiceMessage(ctx)).resolves.toBe(true);
+
+    expect(findThreadByMessage).toHaveBeenCalledWith(1, 99);
+    expect(handleMentorText).toHaveBeenCalledWith(ctx, "Hallo", { threadId: "thread-1" });
+    expect(handleTranslateText).not.toHaveBeenCalled();
+  });
+
+  it("translates a voice reply that anchors to no mentor thread", async () => {
+    const { ctx } = createCtx({ activeMode: "translate", replyToMessageId: 99, replyThreadId: null });
+
+    await expect(handleVoiceMessage(ctx)).resolves.toBe(true);
+
+    expect(handleMentorText).not.toHaveBeenCalled();
     expect(handleTranslateText).toHaveBeenCalledWith(ctx, "Hallo");
   });
 

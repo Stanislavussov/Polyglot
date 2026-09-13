@@ -76,7 +76,6 @@ describe("presets", () => {
       includeUsageNote: true,
       includeConnotationWarning: true,
       includeNativeSynonyms: true,
-      includeGrammarBreakdown: true,
     });
 
     expect(MINIMAL_OUTPUT).toEqual({
@@ -87,7 +86,6 @@ describe("presets", () => {
       includeUsageNote: false,
       includeConnotationWarning: false,
       includeNativeSynonyms: false,
-      includeGrammarBreakdown: false,
     });
 
     expect(RELIABLE_OUTPUT).toEqual({
@@ -98,7 +96,6 @@ describe("presets", () => {
       includeUsageNote: true,
       includeConnotationWarning: false,
       includeNativeSynonyms: false,
-      includeGrammarBreakdown: false,
     });
 
     expect(NOTIFICATION_OUTPUT).toEqual({
@@ -109,7 +106,6 @@ describe("presets", () => {
       includeUsageNote: true,
       includeConnotationWarning: false,
       includeNativeSynonyms: false,
-      includeGrammarBreakdown: false,
     });
 
     expect(SENTENCE_OUTPUT).toEqual({
@@ -120,7 +116,6 @@ describe("presets", () => {
       includeUsageNote: false,
       includeConnotationWarning: false,
       includeNativeSynonyms: false,
-      includeGrammarBreakdown: false,
       includeEmoji: false,
       includeNativeMeaning: false,
     });
@@ -467,6 +462,36 @@ describe("translate() with SENTENCE_OUTPUT and inputType=sentence", () => {
     expect(unwrap(output).translations.de.equivalentNote).toBeNull();
     expect(unwrap(output).translations.de.expressionType).toBeNull();
     // Transcription is still included (not disabled)
+  });
+
+  it("drops source-usage synonyms and examples the config disabled", async () => {
+    const mockResult = {
+      emoji: "👋",
+      nativeMeaning: "greeting",
+      // The model volunteers the source block in full even when the prompt
+      // stopped asking for these two sections.
+      sourceUsage: {
+        explanation: "a greeting",
+        synonyms: [{ text: "hi" }],
+        examples: [{ context: "greeting", target: "Hello there!", native: "Привет!" }],
+      },
+      translations: { cs: validLangEntry() },
+    };
+
+    const input: TranslateInput = {
+      word: "hello",
+      sourceLang: "en",
+      targetLangs: ["cs"],
+      nativeLang: "ru",
+      model: "openai/gpt-4o",
+      outputConfig: RELIABLE_OUTPUT,
+    };
+
+    const output = unwrap(await translate(input, createTranslateMock(mockResult)));
+
+    expect(output.sourceUsage?.explanation).toBe("a greeting");
+    expect(output.sourceUsage?.synonyms).toEqual([]);
+    expect(output.sourceUsage?.examples).toEqual([]);
   });
 
   // ─── WI-B: sentences omit emoji and nativeMeaning ───

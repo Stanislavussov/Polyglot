@@ -273,6 +273,42 @@ export const languageDetection = {
   list: (days = 7) => get<LanguageDetectionResponse>(`/api/stats/language-detection?days=${days}`),
 };
 
+/** One product event's totals over the window — how often it fired, and to how many people. */
+export interface ProductEventTotal {
+  event: string;
+  count: number;
+  users: number;
+}
+
+/** A product event split by its context: which feature, which plan, which command, which mode. */
+export interface ProductEventBreakdownRow {
+  event: string;
+  context: string;
+  count: number;
+  users: number;
+}
+
+export interface ProductEventDayRow {
+  date: string;
+  paywallShown: number;
+  planSelected: number;
+  planConfirmed: number;
+}
+
+export interface ProductMetricsResponse {
+  /** The window actually served — clamped to `retentionDays`. */
+  days: number;
+  /** How long these rows live before the retention sweep deletes them. */
+  retentionDays: number;
+  totals: ProductEventTotal[];
+  breakdown: ProductEventBreakdownRow[];
+  byDay: ProductEventDayRow[];
+}
+
+export const productMetrics = {
+  get: (days = 30) => get<ProductMetricsResponse>(`/api/stats/product-metrics?days=${days}`),
+};
+
 export interface DictionaryLookupLog {
   id: number;
   lookupInput: string;
@@ -322,6 +358,7 @@ export interface PlanLimitConfig {
   creditCost: number;
   videoLimit: number | null;
   mentorDailyLimit: number | null;
+  dailyCreditCeiling: number | null;
   videoWindow: "none" | "lifetime" | "monthly";
   /** Display price in US cents (500 = $5/mo). null = not for sale. */
   priceUsdCents: number | null;

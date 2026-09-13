@@ -61,26 +61,3 @@ describe("renderSentenceTranslation — language order", () => {
     expect(renderedLanguageOrder(renderSentenceTranslation(REHYDRATED, ORDER, "en"))).toEqual(USER_ORDER);
   });
 });
-
-describe("grammar breakdown — language order", () => {
-  /**
-   * A breakdown covers only the languages that have one, so it is a strict subset
-   * of the translated languages. An earlier design passed a separately-built list
-   * of codes alongside the record; against a subset that list was a superset,
-   * which would have rendered headers for absent languages. Order is derived from
-   * the breakdown record itself, so the rendered set is exactly its key set.
-   */
-  it("orders only the languages present in the breakdown", () => {
-    const withBreakdown = renderTranslation(REHYDRATED, ORDER, "en", undefined, undefined, undefined, {
-      cs: ["cs note"],
-      de: ["de note"],
-    });
-
-    // de before cs — the user's order, not the record's alphabetical one.
-    expect(withBreakdown.indexOf("de note")).toBeLessThan(withBreakdown.indexOf("cs note"));
-    // Languages absent from the breakdown get no section, even though they are
-    // present in the translations record.
-    expect(withBreakdown).not.toContain("es note");
-    expect(withBreakdown).not.toContain("ru note");
-  });
-});

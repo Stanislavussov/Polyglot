@@ -25,8 +25,6 @@ export interface TranslationOutputConfig {
   includeConnotationWarning?: boolean;
   /** Include native-language synonyms for the source word (shown inline with source). Default: true */
   includeNativeSynonyms?: boolean;
-  /** Include constructional grammar breakdown per target language. Default: false */
-  includeGrammarBreakdown?: boolean;
   /** Request a top-level emoji for the card header. Default: true (sentences disable it). */
   includeEmoji?: boolean;
   /** Request a top-level native-language meaning/explanation. Default: true (sentences disable it). */

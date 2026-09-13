@@ -22,7 +22,6 @@ export const FULL_OUTPUT: TranslationOutputConfig = {
   includeUsageNote: true,
   includeConnotationWarning: true,
   includeNativeSynonyms: true,
-  includeGrammarBreakdown: true,
 };
 
 /** Reliable default — one translation per language, minimal metadata for small models */
@@ -34,7 +33,6 @@ export const RELIABLE_OUTPUT: TranslationOutputConfig = {
   includeUsageNote: true,
   includeConnotationWarning: false,
   includeNativeSynonyms: false,
-  includeGrammarBreakdown: false,
 };
 
 /** Lightweight — for bulk topic translation, caching pipelines */
@@ -46,7 +44,6 @@ export const MINIMAL_OUTPUT: TranslationOutputConfig = {
   includeUsageNote: false,
   includeConnotationWarning: false,
   includeNativeSynonyms: false,
-  includeGrammarBreakdown: false,
 };
 
 /** Notification word-of-the-day — compact but still useful */
@@ -58,7 +55,6 @@ export const NOTIFICATION_OUTPUT: TranslationOutputConfig = {
   includeUsageNote: true,
   includeConnotationWarning: false,
   includeNativeSynonyms: false,
-  includeGrammarBreakdown: false,
 };
 
 /** Sentence translation — just translation text, no learning metadata, no emoji/nativeMeaning */
@@ -70,7 +66,6 @@ export const SENTENCE_OUTPUT: TranslationOutputConfig = {
   includeUsageNote: false,
   includeConnotationWarning: false,
   includeNativeSynonyms: false,
-  includeGrammarBreakdown: false,
   includeEmoji: false,
   includeNativeMeaning: false,
 };

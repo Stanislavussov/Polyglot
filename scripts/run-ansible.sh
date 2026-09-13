@@ -2,7 +2,12 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-ENV_FILE="${ROOT_DIR}/.env.prod"
+# Target host is selected by env file: .env.prod (default) or .env.dev via
+# POLYGLOT_ENV=dev (`pnpm ansible:dev`). Defaulting to prod keeps the existing
+# `pnpm ansible` contract; the explicit-prod rule in @docs/agents/deployment.md
+# still applies to it.
+POLYGLOT_ENV="${POLYGLOT_ENV:-prod}"
+ENV_FILE="${ROOT_DIR}/.env.${POLYGLOT_ENV}"
 ANSIBLE_DIR="${ROOT_DIR}/deploy/ansible"
 
 expand_path() {
@@ -14,6 +19,11 @@ expand_path() {
     *) printf '%s\n' "${path}" ;;
   esac
 }
+
+case "${POLYGLOT_ENV}" in
+  prod|dev) ;;
+  *) echo "POLYGLOT_ENV must be 'prod' or 'dev' (got '${POLYGLOT_ENV}')." >&2; exit 1 ;;
+esac
 
 if [[ ! -f "${ENV_FILE}" ]]; then
   echo "Missing ${ENV_FILE}. Create it from .env.example first." >&2
@@ -60,6 +70,8 @@ if [[ -n "${ACME_EMAIL:-}" && ( -z "${ADMIN_PANEL_DOMAIN:-}" || -z "${ADMIN_API_
   echo "ACME_EMAIL requires ADMIN_PANEL_DOMAIN and ADMIN_API_DOMAIN." >&2
   exit 1
 fi
+
+echo "Provisioning [${POLYGLOT_ENV}] ${VPS_USER}@${VPS_HOST}:${VPS_SSH_PORT:-22} from ${ENV_FILE}" >&2
 
 cd "${ANSIBLE_DIR}"
 exec ansible-playbook site.yml "$@"

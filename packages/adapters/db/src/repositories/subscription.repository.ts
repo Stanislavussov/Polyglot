@@ -1,4 +1,5 @@
-import { and, eq, lte } from "drizzle-orm";
+import { TRIAL_PROVIDER } from "@polyglot/core";
+import { and, desc, eq, gte, lte } from "drizzle-orm";
 import { getDb } from "../connection.js";
 import type { Subscription, SubscriptionStatus } from "../schema.js";
 import { subscriptions } from "../schema.js";
@@ -11,6 +12,8 @@ export interface CreateSubscriptionInput {
   currentPeriodEnd: Date;
   provider?: string;
   externalId?: string | null;
+  /** Supplied when it must share a clock with `currentPeriodEnd`; otherwise `now()`. */
+  createdAt?: Date;
 }
 
 export const subscriptionRepository = {
@@ -25,6 +28,7 @@ export const subscriptionRepository = {
         provider: input.provider ?? "mock",
         externalId: input.externalId ?? null,
         status: "active",
+        ...(input.createdAt && { createdAt: input.createdAt }),
       })
       .returning();
     return row!;
@@ -38,6 +42,37 @@ export const subscriptionRepository = {
       .where(and(eq(subscriptions.userId, userId), eq(subscriptions.status, "active")))
       .limit(1);
     return rows[0] ?? null;
+  },
+
+  /**
+   * Any trial row this user has ever held, in any status — the once-per-account
+   * guard for the onboarding trial. Status is deliberately not filtered: a spent
+   * trial is still spent.
+   */
+  async findTrialByUser(userId: number): Promise<Subscription | null> {
+    const db = getDb();
+    const rows = await db
+      .select()
+      .from(subscriptions)
+      .where(and(eq(subscriptions.userId, userId), eq(subscriptions.provider, TRIAL_PROVIDER)))
+      .orderBy(desc(subscriptions.id))
+      .limit(1);
+    return rows[0] ?? null;
+  },
+
+  /** Trial rows ending inside the window — the lifecycle sweep set (any status). */
+  async findTrialsEndingBetween(since: Date, cutoff: Date): Promise<Subscription[]> {
+    const db = getDb();
+    return db
+      .select()
+      .from(subscriptions)
+      .where(
+        and(
+          eq(subscriptions.provider, TRIAL_PROVIDER),
+          gte(subscriptions.currentPeriodEnd, since),
+          lte(subscriptions.currentPeriodEnd, cutoff),
+        ),
+      );
   },
 
   /** Active subscriptions whose paid period has ended by `now` — the cron sweep set. */

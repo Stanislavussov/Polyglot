@@ -20,7 +20,11 @@ vi.mock("@polyglot/adapter-ai", () => ({
   generateObject: vi.fn(),
 }));
 
-vi.mock("@polyglot/core", () => ({
+// Spread the real module — see the note in `scenes/helpers/out-of-set.test.ts`:
+// a hand-listed core mock breaks collection whenever a transitively imported
+// adapter module starts using another core export.
+vi.mock("@polyglot/core", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@polyglot/core")>()),
   translate: vi.fn(),
   t: vi.fn((key: string) => `[${key}]`),
   isSupported: vi.fn(() => true),
@@ -42,8 +46,16 @@ vi.mock("../scenes/helpers/translate-flow.js", () => ({
 vi.mock("../scenes/helpers/clarification.js", () => ({
   handleTranslationClarificationContextText: vi.fn(),
 }));
+vi.mock("../scenes/helpers/mentor-mode.helper.js", () => ({
+  handleMentorText: vi.fn(),
+}));
+vi.mock("../scenes/helpers/mentor-idle.helper.js", () => ({
+  maybePromptMentorIdle: vi.fn().mockResolvedValue(false),
+}));
 
 import type { ServiceContainer } from "@polyglot/core";
+import { maybePromptMentorIdle } from "../scenes/helpers/mentor-idle.helper.js";
+import { handleMentorText } from "../scenes/helpers/mentor-mode.helper.js";
 import { handleTranslateText } from "../scenes/helpers/translate-flow.js";
 import { createServicesStub } from "../test-helpers/services-stub.js";
 
@@ -55,7 +67,14 @@ const mockUserRepository = {
 };
 
 function createMockContext(
-  overrides: { text?: string; activeMode?: UserMode; onboarded?: boolean; userId?: number } = {},
+  overrides: {
+    text?: string;
+    activeMode?: UserMode;
+    onboarded?: boolean;
+    userId?: number;
+    /** Extra message fields — e.g. `{ video: {...} }` for a non-text update. */
+    message?: Record<string, unknown>;
+  } = {},
 ): BotContext {
   const session: SessionData = {
     activeMode: overrides.activeMode ?? "translate",
@@ -67,7 +86,10 @@ function createMockContext(
   return {
     from: { id: overrides.userId ?? 123456789 },
     chat: { id: 123456789 },
-    message: overrides.text !== undefined ? { text: overrides.text } : undefined,
+    message:
+      overrides.text !== undefined || overrides.message
+        ? { ...(overrides.text !== undefined ? { text: overrides.text } : {}), ...overrides.message }
+        : undefined,
     session,
     reply: vi.fn().mockResolvedValue({ message_id: 1 }),
     api: {
@@ -108,6 +130,28 @@ describe("Translate Mode System", () => {
 
       expect(next).toHaveBeenCalled();
       expect(handleTranslateText).not.toHaveBeenCalled();
+    });
+
+    it("holds the message for the idle re-confirm prompt instead of running a mentor turn", async () => {
+      vi.mocked(maybePromptMentorIdle).mockResolvedValueOnce(true);
+      const ctx = createMockContext({ text: "hello", activeMode: "mentor" });
+      const next = vi.fn().mockResolvedValue(undefined);
+
+      await modeRouterMiddleware(ctx, next);
+
+      expect(maybePromptMentorIdle).toHaveBeenCalledWith(ctx, "hello");
+      expect(handleMentorText).not.toHaveBeenCalled();
+      expect(next).not.toHaveBeenCalled();
+    });
+
+    it("runs the mentor turn when the idle prompt declines", async () => {
+      const ctx = createMockContext({ text: "hello", activeMode: "mentor" });
+      const next = vi.fn().mockResolvedValue(undefined);
+
+      await modeRouterMiddleware(ctx, next);
+
+      expect(handleMentorText).toHaveBeenCalledWith(ctx, "hello");
+      expect(next).not.toHaveBeenCalled();
     });
 
     it("routes plain text to handleTranslateText when in translate mode", async () => {
@@ -162,6 +206,35 @@ describe("Translate Mode System", () => {
       expect(handleTranslateText).not.toHaveBeenCalled();
       expect(next).not.toHaveBeenCalled();
       expect(ctx.reply).toHaveBeenCalledWith("[welcome]");
+    });
+
+    it("names video specifically instead of the generic text-only refusal", async () => {
+      const ctx = createMockContext({ message: { video: { file_id: "vid-1", duration: 4 } } });
+      const next = vi.fn().mockResolvedValue(undefined);
+
+      await modeRouterMiddleware(ctx, next);
+
+      expect(ctx.reply).toHaveBeenCalledWith("[videoNotSupported]");
+      expect(next).not.toHaveBeenCalled();
+      expect(handleTranslateText).not.toHaveBeenCalled();
+    });
+
+    it("refuses a round video note as video too", async () => {
+      const ctx = createMockContext({ message: { video_note: { file_id: "note-1", duration: 4 } } });
+      const next = vi.fn().mockResolvedValue(undefined);
+
+      await modeRouterMiddleware(ctx, next);
+
+      expect(ctx.reply).toHaveBeenCalledWith("[videoNotSupported]");
+    });
+
+    it("keeps the text-only refusal for other non-text content", async () => {
+      const ctx = createMockContext({ message: { photo: [{ file_id: "photo-1" }] } });
+      const next = vi.fn().mockResolvedValue(undefined);
+
+      await modeRouterMiddleware(ctx, next);
+
+      expect(ctx.reply).toHaveBeenCalledWith("[textOnly]");
     });
 
     it("falls back to translation for unknown mode with onboarded user", async () => {

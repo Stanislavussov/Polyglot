@@ -385,6 +385,8 @@ export function voiceMessageUpdate(opts: {
   fileId?: string;
   duration?: number;
   messageId?: number;
+  /** Makes this voice message a reply to a BOT message with this id. */
+  replyToMessageId?: number;
 }): Update {
   const messageId = opts.messageId ?? 1;
   return {
@@ -400,7 +402,44 @@ export function voiceMessageUpdate(opts: {
         duration: opts.duration ?? 3,
         mime_type: "audio/ogg",
       },
+      ...(opts.replyToMessageId !== undefined
+        ? {
+            reply_to_message: {
+              message_id: opts.replyToMessageId,
+              date: 0,
+              chat: { id: opts.chatId, type: "private" as const, first_name: "Test" },
+              from: BOT_INFO,
+            } as unknown as NonNullable<NonNullable<Update["message"]>["reply_to_message"]>,
+          }
+        : {}),
     },
+  };
+}
+
+/** Build a private-chat video or video-note update — content the bot refuses by design. */
+export function videoMessageUpdate(opts: {
+  chatId: number;
+  fromId: number;
+  kind?: "video" | "video_note";
+  messageId?: number;
+}): Update {
+  const messageId = opts.messageId ?? 1;
+  const kind = opts.kind ?? "video";
+  const clip = {
+    file_id: `${kind}-file-${messageId}`,
+    file_unique_id: `${kind}-unique-${messageId}`,
+    duration: 4,
+    ...(kind === "video" ? { width: 640, height: 480, mime_type: "video/mp4" } : { length: 240 }),
+  };
+  return {
+    update_id: ++updateSeq,
+    message: {
+      message_id: messageId,
+      date: 0,
+      chat: { id: opts.chatId, type: "private", first_name: "Test" },
+      from: { id: opts.fromId, is_bot: false, first_name: "Test" },
+      [kind]: clip,
+    } as unknown as NonNullable<Update["message"]>,
   };
 }
 
@@ -424,6 +463,23 @@ export function lastRenderedCard(sent: CapturedCall[]): { messageId: number; but
     .map((button) => button.callback_data)
     .filter((data): data is string => typeof data === "string");
   return { messageId, buttons };
+}
+
+/**
+ * Tap `⋯ More` on a rendered card and return the action list it reveals.
+ *
+ * A fresh card carries only `⋯ More` and Save, so any assertion about a card's
+ * actions has to open the list first — exactly as a user does. Resets the capture
+ * buffer, so what comes back is only this tap's markup.
+ */
+export async function openCardActions(
+  harness: BotHarness,
+  opts: { chatId: number; messageId: number },
+): Promise<string[]> {
+  const { chatId, messageId } = opts;
+  harness.reset();
+  await harness.dispatch(callbackQueryUpdate({ chatId, fromId: chatId, messageId, data: `tr:more:${messageId}` }));
+  return lastRenderedCard(harness.sent).buttons;
 }
 
 /** Build a callback-query update on an inline button of a prior bot message. */

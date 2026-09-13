@@ -407,6 +407,34 @@
       "when": 1787682537343,
       "tag": "0057_flaky_black_cat",
       "breakpoints": true
+    },
+    {
+      "idx": 58,
+      "version": "7",
+      "when": 1788979402805,
+      "tag": "0058_aromatic_beast",
+      "breakpoints": true
+    },
+    {
+      "idx": 59,
+      "version": "7",
+      "when": 1789204860384,
+      "tag": "0059_lying_vampiro",
+      "breakpoints": true
+    },
+    {
+      "idx": 60,
+      "version": "7",
+      "when": 1789204875509,
+      "tag": "0060_enable_notifications_for_never_subscribed",
+      "breakpoints": true
+    },
+    {
+      "idx": 61,
+      "version": "7",
+      "when": 1789290681095,
+      "tag": "0061_mean_dreadnoughts",
+      "breakpoints": true
     }
   ]
 }

@@ -10,17 +10,24 @@ import { isVideoUrl, isYouTubeUrl } from "@polyglot/adapter-youtube";
 import { isSupported, logEvent, type SupportedLang, t } from "@polyglot/core";
 import type { NextFunction } from "grammy";
 import { markHandled } from "../observability/handler-log.js";
+import { dispatchByActiveMode } from "../scenes/helpers/active-mode-dispatch.js";
+import { tryHandleCardMentorQuestion } from "../scenes/helpers/card-mentor.js";
 import { handleTranslationClarificationContextText } from "../scenes/helpers/clarification.js";
 import { handleDictionaryNameInput } from "../scenes/helpers/dictionary.helper.js";
-import { handleMentorText } from "../scenes/helpers/mentor-mode.helper.js";
 import { tryHandleMentorReply } from "../scenes/helpers/mentor-thread.helper.js";
 import { handleNotifContextTextInput } from "../scenes/helpers/settings.helper.js";
-import { handleTranslateText } from "../scenes/helpers/translate-flow.js";
 import { handleVideoVocabularyUrl } from "../scenes/helpers/video-vocabulary.helper.js";
 import { handleVoiceMessage } from "../scenes/helpers/voice-input.js";
 import type { BotContext } from "../types.js";
-import { detectNonTextContent, isEmojiOnly } from "../utils/validate-text-input.js";
+import { detectNonTextContent, isEmojiOnly, type NonTextType } from "../utils/validate-text-input.js";
 import { getRequestSettings } from "./request-settings.js";
+
+/**
+ * Clips get their own refusal: a "text only" answer reads as a bug to someone
+ * who just filmed something, and the bot has no video pipeline behind a chat
+ * upload (the YouTube flow takes links, not files).
+ */
+const VIDEO_TYPES = new Set<NonTextType>(["video", "video_note", "animation"]);
 
 /**
  * Resolve the user's interface language from DB settings.
@@ -62,10 +69,14 @@ export async function modeRouterMiddleware(ctx: BotContext, next: NextFunction):
         return;
       }
       const nonTextType = detectNonTextContent(ctx.message as unknown as Record<string, unknown>);
-      markHandled(ctx, "modeRouter:nonText");
-      logEvent("mode_router.rejected", { reason: "non_text", contentType: nonTextType });
+      const isVideo = nonTextType !== null && VIDEO_TYPES.has(nonTextType);
+      markHandled(ctx, isVideo ? "modeRouter:video" : "modeRouter:nonText");
+      logEvent("mode_router.rejected", {
+        reason: isVideo ? "video" : "non_text",
+        contentType: nonTextType,
+      });
       const lang = await resolveInterfaceLang(ctx);
-      await ctx.reply(t("textOnly", lang));
+      await ctx.reply(t(isVideo ? "videoNotSupported" : "textOnly", lang));
       return;
     }
     return next();
@@ -102,6 +113,13 @@ export async function modeRouterMiddleware(ctx: BotContext, next: NextFunction):
     return;
   }
 
+  // The card's "what would you like to clarify?" prompt claims the next message
+  // as its question, and answering it is what moves the user into mentor mode.
+  if (await tryHandleCardMentorQuestion(ctx, text)) {
+    markHandled(ctx, "modeRouter:cardMentorQuestion");
+    return;
+  }
+
   // Reply to a mentor answer → continue that thread, regardless of active mode.
   // After the wizard interceptors (one-shot prompts sent moments earlier win),
   // before URL detection (an explicit reply names its target).
@@ -132,38 +150,17 @@ export async function modeRouterMiddleware(ctx: BotContext, next: NextFunction):
 
   logEvent("mode_router.routed", { mode, textLength: text.length });
 
-  switch (mode) {
-    case "translate":
-      markHandled(ctx, "modeRouter:translate");
-      await handleTranslateText(ctx, text);
-      return; // Don't call next() — we handled it
-    case "mentor":
-      markHandled(ctx, "modeRouter:mentor");
-      await handleMentorText(ctx, text);
-      return;
-    default: {
-      // Safety net: idle mode should not silently drop messages.
-      // For onboarded users → fall back to translation and persist to DB.
-      // For non-onboarded users → hint to run /start.
-      const user = ctx.user;
-
-      if (user?.onboarded) {
-        markHandled(ctx, "modeRouter:idleFallback");
-        logEvent("mode_router.idle_fallback", { mode }, "warn");
-        ctx.session.activeMode = "translate";
-        await ctx.services.userRepository.updateActiveMode(user.id, "translate");
-        await handleTranslateText(ctx, text);
-        return;
-      }
-
-      // Non-onboarded user — show hint to start onboarding
-      markHandled(ctx, "modeRouter:welcomeHint");
-      logEvent("mode_router.welcome_hint", {});
-      const settings = user ? await getRequestSettings(ctx, user.id) : null;
-      const rawLang = settings?.interfaceLang ?? "en";
-      const lang: SupportedLang = isSupported(rawLang) ? rawLang : "en";
-      await ctx.reply(t("welcome", lang));
-      return;
-    }
+  const isKnownMode = mode === "translate" || mode === "mentor";
+  if (!isKnownMode && !ctx.user?.onboarded) {
+    // Non-onboarded user with no mode — hint to start onboarding.
+    markHandled(ctx, "modeRouter:welcomeHint");
+    logEvent("mode_router.welcome_hint", {});
+    const settings = ctx.user ? await getRequestSettings(ctx, ctx.user.id) : null;
+    const rawLang = settings?.interfaceLang ?? "en";
+    const lang: SupportedLang = isSupported(rawLang) ? rawLang : "en";
+    await ctx.reply(t("welcome", lang));
+    return;
   }
+
+  await dispatchByActiveMode(ctx, text);
 }

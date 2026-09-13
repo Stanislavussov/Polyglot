@@ -58,6 +58,18 @@ export const rateLimitPlanSchema = z.object({
     .nullable()
     .default(null),
   /**
+   * Daily credit ceiling — the operational guard every account obeys, internal
+   * roles included. Empty means the built-in default, never "no ceiling", so the
+   * form cannot express an uncapped plan. `0` is rejected for the same reason a
+   * `0` price is: a typo would take the bot down for everyone on the plan.
+   */
+  dailyCreditCeiling: z.coerce
+    .number()
+    .int("Daily ceiling must be an integer")
+    .min(1, "Daily ceiling must be at least 1 — leave empty to use the default")
+    .nullable()
+    .default(null),
+  /**
    * Display price in US cents (500 = $5/mo). `null` = not for sale, which is the
    * only way to withdraw a plan from the upgrade screen — so `0` is rejected
    * rather than treated as "free but purchasable", where a typo would publish a
