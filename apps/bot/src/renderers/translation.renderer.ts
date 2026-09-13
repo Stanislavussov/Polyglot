@@ -5,6 +5,8 @@
 
 import type {
   FeatureKey,
+  I18nKey,
+  InputType,
   LanguageOrderContext,
   LanguageTranslation,
   SupportedLang,
@@ -18,12 +20,20 @@ import { NOOP_CALLBACK } from "../utils/long-op.js";
 import { expandableSection } from "./card-sections.js";
 import { appendGradeRow, notifGradeCallback } from "./grade-row.js";
 
+const EXPLORE_LABEL: Record<InputType, I18nKey> = {
+  word: "cardExploreWord",
+  phrase: "cardExplorePhrase",
+  sentence: "cardExploreSentence",
+};
+
 export interface TranslationKeyboardOptions {
   interfaceLang?: string;
   msgId?: number;
   isAlreadySaved?: boolean;
-  /** Show the action list rather than the `⋯ More` button that opens it. */
+  /** Show the action list rather than the `🔍 Explore this word` button that opens it. */
   expanded?: boolean;
+  /** What was translated — names it on the button that opens the action list; a word when absent. */
+  inputType?: InputType;
   showEtymologyButton?: boolean;
   showMentorButton?: boolean;
   sourceOverrideLangs?: readonly string[];
@@ -348,10 +358,10 @@ function appendInRows(kb: InlineKeyboard, buttons: readonly CardButton[], perRow
  * **Collapsed** (the default, what a fresh card wears):
  * ```
  * 🔊 🇩🇪  🔊 🇨🇿
- * ⋯ More
+ * 🔍 Explore this word      (phrase / sentence, per `inputType`)
  * 💾 Save
  * ```
- * **Expanded** (after `⋯ More`) — the actions two to a row, then the
+ * **Expanded** (after `🔍 Explore`) — the actions two to a row, then the
  * source-language override, then the same speakers, then the way back:
  * ```
  * 🎯 Clarify meaning  🔄 Other meaning
@@ -404,6 +414,7 @@ export function buildTranslationKeyboard(options: TranslationKeyboardOptions = {
     pronounceLangs,
     locked,
     grades,
+    inputType,
   } = options;
   const lang = toLang(interfaceLang);
   const kb = new InlineKeyboard();
@@ -450,7 +461,7 @@ export function buildTranslationKeyboard(options: TranslationKeyboardOptions = {
     appendInRows(
       kb,
       [
-        { text: t("cardMoreActions", lang), data: `tr:more:${mid}` },
+        { text: t(EXPLORE_LABEL[inputType ?? "word"], lang), data: `tr:more:${mid}` },
         {
           text: isAlreadySaved ? t("alreadySavedButton", lang) : t("save", lang),
           data: `tr:save:${mid}`,

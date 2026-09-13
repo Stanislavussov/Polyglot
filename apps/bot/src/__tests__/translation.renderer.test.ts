@@ -473,6 +473,18 @@ describe("buildTranslationKeyboard", () => {
       });
       expect(kb.inline_keyboard.flat().some((b) => b.text.includes("⭐") || b.text.includes("💎"))).toBe(false);
     });
+
+    it("names what was translated on the More button, a word when the card does not say", () => {
+      const moreLabel = (options: Parameters<typeof buildTranslationKeyboard>[0]) =>
+        buildTranslationKeyboard({ interfaceLang: "ru", msgId: 42, ...options })
+          .inline_keyboard.flat()
+          .find((b) => cbData(b) === "tr:more:42")?.text;
+
+      expect(moreLabel({ inputType: "word" })).toBe("🔍 Разобрать слово");
+      expect(moreLabel({ inputType: "phrase" })).toBe("🔍 Разобрать фразу");
+      expect(moreLabel({ inputType: "sentence" })).toBe("🔍 Разобрать предложение");
+      expect(moreLabel({})).toBe("🔍 Разобрать слово");
+    });
   });
 
   describe("recall grades — a card opened from a notification", () => {

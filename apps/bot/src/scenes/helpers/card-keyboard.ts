@@ -35,6 +35,7 @@ async function resolveCardKeyboardOptions(
     interfaceLang: lang,
     msgId,
     isAlreadySaved: entry.savedWordId !== undefined,
+    inputType: entry.inputType,
     // The aid retires once its section is on the card — there is nothing left to
     // generate, and the section is what the button promised.
     showEtymologyButton:

@@ -24,6 +24,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- **The translation card's «⋯ More» button now says what it opens and what was translated** — «🔍 Explore this word / phrase / sentence» (ru «🔍 Разобрать слово / фразу / предложение»), in every interface language. It opens clarification, other meanings, the mentor and etymology, which a bare «More» did not tell. The card's input type picks the label; a card that does not record one reads as a word.
+
 - **The front of a flashcard or SRS card no longer shows the stored meaning.** It printed `nativeMeaning` under the word — the answer, in the reader's own language, on the side that asks for it. The front is now built from an allow-list (word, and whatever the card settings switch on); the meaning and explanation stay on the back.
 
 ### Fixed
