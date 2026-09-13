@@ -84,8 +84,12 @@ import {
   handleDictView,
 } from "./scenes/helpers/dictionary.helper.js";
 import {
+  FLASHCARD_DELETE_PATTERN,
+  FLASHCARD_GRADE_PATTERN,
   handleFcClose,
+  handleFcDelete,
   handleFcDone,
+  handleFcGrade,
   handleFcNext,
   handleFcQuit,
   handleFcRestart,
@@ -112,7 +116,10 @@ import {
 import { handlePronounceCallback } from "./scenes/helpers/pronunciation.js";
 import { handleRetryCallback } from "./scenes/helpers/retry.helper.js";
 import {
+  CARD_TOGGLE_PATTERN,
   handleSetBackCallback,
+  handleSetCardCallback,
+  handleSetCardToggleCallback,
   handleSetChangesCallback,
   handleSetCloseCallback,
   handleSetIfaceSelectCallback,
@@ -140,10 +147,12 @@ import {
 } from "./scenes/helpers/settings.helper.js";
 import {
   handleSrsClose,
+  handleSrsDelete,
   handleSrsQuit,
   handleSrsRate,
   handleSrsRestart,
   handleSrsReveal,
+  SRS_DELETE_PATTERN,
 } from "./scenes/helpers/srs.helper.js";
 import {
   handleBuyPlanCallback,
@@ -487,6 +496,8 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   onCallback("set:notif:context:cancel", handleSetNotifContextCancelCallback);
   onCallback("set:notif:back", handleSetNotifBackCallback);
   onCallback("set:tpl", handleSetTemplateCallback);
+  onCallback("set:card", handleSetCardCallback);
+  onCallback(CARD_TOGGLE_PATTERN, handleSetCardToggleCallback);
   onCallback("set:plan", handleSetPlanCallback);
   onCallback("set:changes", handleSetChangesCallback);
   onCallback("set:back", handleSetBackCallback);
@@ -526,6 +537,8 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   onCallback(/^tr:clarify:/, handleTranslationClarificationCallback);
 
   onCallback("fc:start", handleFcStart);
+  onCallback(FLASHCARD_GRADE_PATTERN, handleFcGrade);
+  onCallback(FLASHCARD_DELETE_PATTERN, handleFcDelete);
   onCallback("fc:reveal", handleFcReveal);
   onCallback("fc:next", handleFcNext);
   onCallback("fc:done", handleFcDone);
@@ -540,6 +553,7 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   onCallback("srs:restart", handleSrsRestart);
   onCallback("srs:quit", handleSrsQuit);
   onCallback("srs:close", handleSrsClose);
+  onCallback(SRS_DELETE_PATTERN, handleSrsDelete);
 
   onCallback(/^dict:page:/, handleDictPage);
   onCallback(/^dict:view:/, handleDictView);

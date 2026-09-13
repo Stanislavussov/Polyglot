@@ -297,6 +297,21 @@ describe("buildTranslationPrompt", () => {
     expect(prompt).toContain("collocations or lexical chunks");
   });
 
+  it("asks for a native-language recall hint that must not give the meaning away", () => {
+    const request: TranslationRequest = {
+      text: "kudlanka",
+      sourceLang: "cs",
+      targetLangs: ["en", "ru"],
+      nativeLang: "ru",
+      inputType: "word",
+    };
+    // The live flow generates source usage in the metadata call, so both prompts must ask.
+    for (const prompt of [buildTranslationPrompt(request), buildMetadataPrompt(request)]) {
+      expect(prompt).toContain('"recallHint": ONE short sentence in Russian');
+      expect(prompt).toContain('NEVER translate, define, or paraphrase "kudlanka"');
+    }
+  });
+
   it("requests a canonical source headword and injects source-language traits (German article/capitalization)", () => {
     const request: TranslationRequest = {
       text: "arbeit",

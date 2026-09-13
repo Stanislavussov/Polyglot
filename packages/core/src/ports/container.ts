@@ -5,6 +5,7 @@ import type { ContextLookupFn } from "../modules/context-enrichment/types.js";
 import type { FindWordLanguagesFn } from "../modules/language-detect/types.js";
 import type { MomentumService } from "../modules/momentum/momentum.service.js";
 import type { AIPort } from "./ai.port.js";
+import type { CardTemplateRepository } from "./card-template.repository.js";
 import type { FeatureAccessPort } from "./feature-access.port.js";
 import type { IdentityRepository } from "./identity.repository.js";
 import type { LanguageCachePort } from "./language-cache.port.js";
@@ -39,6 +40,8 @@ export interface ServiceContainer {
   vocabularyRepository: VocabularyRepository;
   vocabularyDictionaryRepository: VocabularyDictionaryRepository;
   translationTemplateRepository: TranslationTemplateRepository;
+  /** What a review card's front shows — synonyms, example, recall hint. */
+  cardTemplateRepository: CardTemplateRepository;
   wordReviewRepository: WordReviewRepository;
   notificationRepository: NotificationRepository;
   /** Durable mentor-chat threads — reply-continuation lookups and history (mentor MVP). */

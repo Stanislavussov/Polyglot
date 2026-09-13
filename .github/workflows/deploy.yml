@@ -168,6 +168,18 @@ jobs:
           auth=(-H "Authorization: Bearer ${NEON_API_KEY}" -H "Accept: application/json")
           name="dev/${GITHUB_SHA:0:12}"
 
+          # A re-run of this job finds the branch its failed attempt cut, and
+          # creating the same name again is a 409 — so "Re-run failed jobs" could
+          # never recover a dev deploy that failed after this step. That branch never
+          # served the running stack (a failed deploy keeps the previous release), so
+          # it is dropped and cut again from current production.
+          existing="$(curl -fsS "${auth[@]}" "${api}/branches" \
+            | jq -r --arg name "$name" '.branches[] | select(.name == $name) | .id')"
+          for id in $existing; do
+            echo "Replacing dev branch ${name} (${id}) left by a previous attempt"
+            curl -fsS "${auth[@]}" -X DELETE "${api}/branches/${id}" >/dev/null
+          done
+
           created="$(curl -fsS "${auth[@]}" -H "Content-Type: application/json" -X POST "${api}/branches" \
             -d "{\"branch\":{\"name\":\"${name}\"},\"endpoints\":[{\"type\":\"read_write\"}]}")"
           branch_id="$(jq -r '.branch.id' <<<"$created")"
@@ -380,10 +392,20 @@ jobs:
               echo "no announcement content"
             fi
 
-            # Keep the previous release image for fast rollback; only prune images
-            # older than a week so disk stays bounded (was `prune -af`, which
-            # deleted the previous release and made rollback impossible).
-            docker image prune -af --filter "until=168h"
+            # Keep exactly two releases: what is running now and what
+            # PREVIOUS_RELEASE names for rollback. Age is the wrong bound — each
+            # release is ~3.3 GB (bot, admin, admin-api, migrate), so the old
+            # `until=168h` filter let a few develop pushes a day fill the 20 GB dev
+            # disk within a day, and the next deploy died copying files onto it
+            # (2026-09-13). `prune -af` was worse: it deleted the rollback image.
+            keep=" $(cut -d= -f2 PREVIOUS_RELEASE 2>/dev/null | tr '\n' ' ') $(docker ps -a --format '{{.Image}}' | tr '\n' ' ') "
+            docker images --format '{{.Repository}}:{{.Tag}}' | while read -r image; do
+              case "$keep" in
+                *" $image "*) ;;
+                *) docker rmi "$image" >/dev/null 2>&1 || true ;;
+              esac
+            done
+            docker image prune -f
             docker builder prune -af 2>/dev/null || true
 
       # Only after the deploy succeeded: a failed run keeps the previous branch

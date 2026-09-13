@@ -3,7 +3,9 @@
  * Manages native/learning/interface language pickers, notification prefs, and close.
  */
 import {
+  type CardFrontFields,
   formatNotificationTime,
+  isCardFrontField,
   isSupported,
   logEvent,
   NOTIFICATION_TYPES,
@@ -17,8 +19,12 @@ import { changesCommand } from "../../commands/changes.js";
 import { setUserCommands } from "../../commands/commands.js";
 import { MAX_LEARNING_LANGS, MAX_NOTIFICATION_TIMES } from "../../constants.js";
 import { trackProductEvent } from "../../observability/product-events.js";
+import { renderCardFront } from "../../renderers/word-card.js";
 import type { BotContext } from "../../types.js";
+import { makeLangCodeResolver } from "../../utils/language-order.js";
 import {
+  buildCardTemplateKeyboard,
+  buildCardTemplateText,
   buildLangGroupKeyboard,
   buildNotifSubKeyboard,
   buildNotifSubText,
@@ -550,6 +556,51 @@ export async function handleSetBackCallback(ctx: BotContext): Promise<void> {
 /** set:root — return to the settings root from a sub-menu */
 export async function handleSetRootCallback(ctx: BotContext): Promise<void> {
   await renderSettingsInPlace(ctx);
+  await ctx.answerCallbackQuery();
+}
+
+/**
+ * The card-front screen. The preview is the user's own latest word rather than a
+ * fixture: a stock example cannot show whether *their* words carry a hint yet.
+ */
+async function showCardTemplateMenu(ctx: BotContext, fields: CardFrontFields): Promise<void> {
+  const lang = await getLang(ctx);
+  const [latest] = await ctx.services.vocabularyRepository.findByUserPaginated(ctx.user.id, 0, 1);
+  const preview = latest
+    ? renderCardFront(
+        {
+          original: latest.original,
+          emoji: latest.emoji,
+          sourceLang: makeLangCodeResolver(ctx)(latest.sourceLangId),
+          sourceUsage: latest.sourceUsage,
+        },
+        fields,
+      )
+    : undefined;
+  await editMessageTextOrReply(ctx, buildCardTemplateText(lang, preview), {
+    reply_markup: buildCardTemplateKeyboard(lang, fields),
+    parse_mode: "HTML",
+  });
+}
+
+/** set:card — what a review card's front shows */
+export async function handleSetCardCallback(ctx: BotContext): Promise<void> {
+  await showCardTemplateMenu(ctx, await ctx.services.cardTemplateRepository.getFields(ctx.user.id));
+  await ctx.answerCallbackQuery();
+}
+
+export const CARD_TOGGLE_PATTERN = /^set:card:t:(\w+)$/;
+
+/** set:card:t:{field} — flip one front option; stateless, so an old screen's tap still lands */
+export async function handleSetCardToggleCallback(ctx: BotContext): Promise<void> {
+  const field = ctx.match?.[1];
+  if (!field || !isCardFrontField(field)) {
+    await ctx.answerCallbackQuery();
+    return;
+  }
+  const current = await ctx.services.cardTemplateRepository.getFields(ctx.user.id);
+  const fields = await ctx.services.cardTemplateRepository.setField(ctx.user.id, field, !current[field]);
+  await showCardTemplateMenu(ctx, fields);
   await ctx.answerCallbackQuery();
 }
 

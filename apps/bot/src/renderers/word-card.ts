@@ -12,7 +12,7 @@
  * `__tests__/word-card.test.ts`: a change to the translate card that this module
  * does not follow fails there rather than in a user's chat.
  */
-import type { Example, SourceUsage, SupportedLang, Synonym } from "@polyglot/core";
+import type { CardFrontFields, Example, SourceUsage, SupportedLang, Synonym } from "@polyglot/core";
 import { t } from "@polyglot/core";
 import { answerLine, esc, exampleLine, expandableSection, headwordLine, meaningLine } from "./card-sections.js";
 
@@ -47,15 +47,37 @@ export interface WordCardData {
   nativeLang?: string;
 }
 
+/** The saved word as a hidden-answer front needs it — nothing that carries the answer. */
+export interface CardFrontWord {
+  original: string;
+  emoji?: string | null;
+  sourceLang?: string;
+  sourceUsage?: SourceUsage | null;
+}
+
 /**
- * The saved source block reduced to what a hidden-answer front may show: the
- * citation form and its source-language synonyms. Without this a front showed the
- * raw input ("arbeit") while its own back showed the citation form ("die Arbeit");
- * passing the whole block instead would leak the examples and the explanation,
- * whose native glosses are the answer the front is asking for.
+ * The front of a review card: the citation form, plus whatever the user switched
+ * on in card settings.
+ *
+ * Built from an allow-list rather than by trimming the back, because every field
+ * left out of it is one that gives the answer away: the stored meaning and the
+ * explanation are the answer in the reader's own language, and a saved example's
+ * `native` gloss is its translation — so the example is shown bare.
  */
-export function citationOnly(usage: SourceUsage | null | undefined): SourceUsage | undefined {
-  return usage ? { headword: usage.headword, explanation: "", synonyms: usage.synonyms, examples: [] } : undefined;
+export function renderCardFront(word: CardFrontWord, fields: CardFrontFields): string {
+  const usage = word.sourceUsage;
+  // Without the citation form a front showed the raw input ("arbeit") while its
+  // own back showed "die Arbeit".
+  const headword = usage?.headword?.trim() ? usage.headword : word.original;
+  const synonyms = fields.synonyms ? texts(usage?.synonyms) : [];
+  const aids: string[] = [];
+  const hint = usage?.recallHint?.trim();
+  if (fields.hint && hint) aids.push(`🔎 <i>${esc(hint)}</i>`);
+  const example = usage?.examples?.[0]?.target;
+  if (fields.example && example) aids.push(exampleLine(example));
+
+  const head = headwordLine(headword, { emoji: word.emoji, sourceLang: word.sourceLang, synonyms });
+  return aids.length > 0 ? `${head}\n\n${aids.join("\n")}` : head;
 }
 
 /** Synonym rows carry `{ text }`; the shared atoms take bare strings. */

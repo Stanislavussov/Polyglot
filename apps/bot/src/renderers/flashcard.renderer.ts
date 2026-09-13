@@ -3,12 +3,19 @@
  * as HTML messages + inline keyboards.
  */
 
-import type { LanguageOrderContext, SupportedLang, WordDisplayData } from "@polyglot/core";
+import type {
+  CardFrontFields,
+  I18nKey,
+  LanguageOrderContext,
+  SupportedLang,
+  VocabDifficulty,
+  WordDisplayData,
+} from "@polyglot/core";
 import { isSupported, orderRecordEntries, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import { PROGRESS_FLASHCARD_DONE_CALLBACK } from "../momentum/progress.command.js";
 import { esc } from "./card-sections.js";
-import { citationOnly, renderWordCard } from "./word-card.js";
+import { renderCardFront, renderWordCard } from "./word-card.js";
 
 /** Resolve a string to SupportedLang with "en" fallback */
 function toLang(lang?: string): SupportedLang {
@@ -20,28 +27,19 @@ function progressLine(cardIndex: number, totalCards: number, lang: SupportedLang
 }
 
 /**
- * Render the FRONT of a flash card (original word, no translations).
- * Shown before user taps "Reveal".
- *
- * The saved source examples stay off the front: their native gloss would hand the
- * reader the answer they are here to recall.
+ * Render the FRONT of a flash card: the word plus what the user's card settings
+ * allow — see `renderCardFront` for why nothing else may appear here.
  */
 export function renderFlashCardFront(
   word: WordDisplayData,
   cardIndex: number,
   totalCards: number,
   lang: SupportedLang,
+  fields: CardFrontFields,
 ): string {
-  const card = renderWordCard(
-    {
-      original: word.original,
-      emoji: word.emoji,
-      sourceLang: word.sourceLang,
-      nativeMeaning: word.nativeMeaning,
-      sourceUsage: citationOnly(word.sourceUsage),
-      langs: [],
-    },
-    lang,
+  const card = renderCardFront(
+    { original: word.original, emoji: word.emoji, sourceLang: word.sourceLang, sourceUsage: word.sourceUsage },
+    fields,
   );
   return [progressLine(cardIndex, totalCards, lang), "", card].join("\n");
 }
@@ -81,19 +79,52 @@ export function renderFlashCardBack(
   return [progressLine(cardIndex, totalCards, lang), "", card].join("\n");
 }
 
-/** Build the keyboard for the front of a card (before reveal) */
-export function buildFlashCardFrontKeyboard(lang: SupportedLang): InlineKeyboard {
-  const l = toLang(lang);
-  return new InlineKeyboard().text(t("flashcardReveal", l), "fc:reveal").text(t("flashcardQuitBtn", l), "fc:quit");
+/** The notification grades, in the same order and wording, so one word is graded the same way everywhere. */
+const GRADES: ReadonlyArray<{ grade: VocabDifficulty; labelKey: I18nKey }> = [
+  { grade: "hard", labelKey: "notifFbHard" },
+  { grade: "normal", labelKey: "notifFbNormal" },
+  { grade: "easy", labelKey: "notifFbEasy" },
+];
+
+/**
+ * The entry id rides in the data so a button left on an older card cannot act
+ * on whichever word the session has moved on to.
+ */
+export function flashcardGradeCallback(grade: VocabDifficulty, entryId: number): string {
+  return `fc:fb:${grade}:${entryId}`;
 }
 
-/** Build the keyboard for the back of a card (after reveal) */
-export function buildFlashCardBackKeyboard(isLastCard: boolean, lang: SupportedLang): InlineKeyboard {
+export function flashcardDeleteCallback(entryId: number): string {
+  return `fc:del:${entryId}`;
+}
+
+/** Build the keyboard for the front of a card (before reveal) */
+export function buildFlashCardFrontKeyboard(lang: SupportedLang, entryId: number): InlineKeyboard {
   const l = toLang(lang);
-  if (isLastCard) {
-    return new InlineKeyboard().text(t("flashcardDoneBtn", l), "fc:done").text(t("flashcardRestart", l), "fc:restart");
+  return new InlineKeyboard()
+    .text(t("flashcardReveal", l), "fc:reveal")
+    .text(t("flashcardQuitBtn", l), "fc:quit")
+    .row()
+    .text(t("notifFbDelete", l), flashcardDeleteCallback(entryId));
+}
+
+/**
+ * Build the keyboard for the back of a card (after reveal).
+ *
+ * The grades sit on the back, unlike the notification's: here the reader has
+ * already tried to recall before tapping Reveal, and a grade doubles as "next".
+ */
+export function buildFlashCardBackKeyboard(isLastCard: boolean, lang: SupportedLang, entryId: number): InlineKeyboard {
+  const l = toLang(lang);
+  const kb = new InlineKeyboard();
+  for (const { grade, labelKey } of GRADES) {
+    kb.text(t(labelKey, l), flashcardGradeCallback(grade, entryId));
   }
-  return new InlineKeyboard().text(t("flashcardNext", l), "fc:next").text(t("flashcardQuitBtn", l), "fc:quit");
+  kb.row().text(t("notifFbDelete", l), flashcardDeleteCallback(entryId)).row();
+  if (isLastCard) {
+    return kb.text(t("flashcardDoneBtn", l), "fc:done").text(t("flashcardRestart", l), "fc:restart");
+  }
+  return kb.text(t("flashcardNext", l), "fc:next").text(t("flashcardQuitBtn", l), "fc:quit");
 }
 
 /** The 📈 screen renders nothing while the kill switch is off, so the switch gates the button too — not just the handler. */

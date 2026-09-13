@@ -5,12 +5,15 @@
  * Callback handlers are in helpers/settings.helper.ts.
  */
 import {
+  CARD_FRONT_FIELD_KEYS,
+  type CardFrontFields,
   DEFAULT_NOTIFICATION_TIME,
   evaluatePlanRateLimit,
   formatNotificationTime,
   getLangDisplay,
   getMonthlyWindowReset,
   getMonthlyWindowStart,
+  type I18nKey,
   isSupported,
   type PlanLimitConfig,
   parseNotificationMinutes,
@@ -106,6 +109,7 @@ export function buildSettingsKeyboard(lang: SupportedLang, options: { showChange
   kb.text(t("settingsGroupLanguages", lang), "set:lang").row();
   kb.text(t("settingsNotifManage", lang), "set:notif").row();
   kb.text(t("settingsGroupTemplate", lang), "set:tpl").row();
+  kb.text(t("settingsGroupCards", lang), "set:card").row();
   kb.text(t("settingsGroupPlan", lang), "set:plan").row();
   if (options.showChanges) {
     kb.text(t("settingsGroupChanges", lang), "set:changes").row();
@@ -125,6 +129,27 @@ export function buildLangGroupKeyboard(lang: SupportedLang): InlineKeyboard {
   kb.text(t("settingsChangeNative", lang), "set:native").row();
   kb.text(t("settingsChangeLearning", lang), "set:learning").row();
   kb.text(t("settingsChangeInterface", lang), "set:interface").row();
+  kb.text(`⬅️ ${t("back", lang)}`, "set:root").row();
+  return kb;
+}
+
+const CARD_FIELD_LABELS: Record<keyof CardFrontFields, I18nKey> = {
+  hint: "cardFieldHint",
+  synonyms: "cardFieldSynonyms",
+  example: "cardFieldExample",
+};
+
+/** `preview` is the front of the user's latest saved word, already rendered; absent for an empty dictionary. */
+export function buildCardTemplateText(lang: SupportedLang, preview?: string): string {
+  const body = preview ? `${t("cardTemplatePreview", lang)}\n\n${preview}` : t("cardTemplateNoPreview", lang);
+  return `${t("cardTemplateTitle", lang)}\n\n${body}`;
+}
+
+export function buildCardTemplateKeyboard(lang: SupportedLang, fields: CardFrontFields): InlineKeyboard {
+  const kb = new InlineKeyboard();
+  for (const key of CARD_FRONT_FIELD_KEYS) {
+    kb.text(`${fields[key] ? "✅" : "▫️"} ${t(CARD_FIELD_LABELS[key], lang)}`, `set:card:t:${key}`).row();
+  }
   kb.text(`⬅️ ${t("back", lang)}`, "set:root").row();
   return kb;
 }

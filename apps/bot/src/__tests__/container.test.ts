@@ -28,6 +28,10 @@ vi.mock("@polyglot/adapter-db", () => ({
   translationTemplateRepository: {
     getByUserId: vi.fn().mockResolvedValue(null),
   },
+  cardTemplateRepository: {
+    getFields: vi.fn().mockResolvedValue({ synonyms: true, example: false, hint: false }),
+    setField: vi.fn(),
+  },
   wordReviewRepository: {
     logReview: vi.fn().mockResolvedValue(undefined),
     getReviewCounts: vi.fn().mockResolvedValue(new Map()),

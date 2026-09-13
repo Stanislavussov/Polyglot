@@ -151,6 +151,7 @@ describe("handleSettingsCommand", () => {
       "set:lang",
       "set:notif",
       "set:tpl",
+      "set:card",
       "set:plan",
       "set:changes",
       "set:close",

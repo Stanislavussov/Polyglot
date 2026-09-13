@@ -30,6 +30,7 @@ export const sourceUsageSchema = z.object({
   explanation: z.string().min(1, "Source usage explanation is required"),
   synonyms: z.array(synonymSchema),
   examples: z.array(exampleSchema),
+  recallHint: z.string().nullish(),
 });
 
 function buildExampleSchema(requireNative: boolean) {
@@ -110,6 +111,9 @@ function buildSourceUsageSchema(config?: TranslationOutputConfig, requireExample
     examples: includeExamples
       ? z.array(buildExampleSchema(requireExampleNative)).min(1)
       : z.array(exampleSchema).optional(),
+    // Nullable, never required-non-empty: a hint the model cannot write without
+    // giving the meaning away is better absent than a failed card.
+    recallHint: z.string().nullish(),
   });
 }
 

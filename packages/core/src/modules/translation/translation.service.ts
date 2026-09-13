@@ -36,6 +36,7 @@ import {
   buildTranslationPrompt,
 } from "./prompt.builder.js";
 import { type SemanticJudgeResult, semanticJudgeSchema } from "./quality.schema.js";
+import { withoutLeakingRecallHint } from "./recall-hint.js";
 import {
   buildLanguageTranslationSchema,
   buildMetadataSchema,
@@ -1756,7 +1757,12 @@ function toOutput(
     ...(emoji !== undefined ? { emoji } : {}),
     ...(input.nativeLang && result.nativeMeaning ? { nativeMeaning: result.nativeMeaning } : {}),
     ...(input.nativeLang && result.sourceUsage
-      ? { sourceUsage: stripDisabledSourceUsage(result.sourceUsage, input.outputConfig) }
+      ? {
+          sourceUsage: withoutLeakingRecallHint(
+            stripDisabledSourceUsage(result.sourceUsage, input.outputConfig),
+            result,
+          ),
+        }
       : {}),
     nativeSynonyms: input.outputConfig?.includeNativeSynonyms === false ? [] : (result.nativeSynonyms ?? []),
     translations,

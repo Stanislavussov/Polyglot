@@ -54,6 +54,11 @@ export interface SourceUsage {
   synonyms: Synonym[];
   /** Source-language examples with native-language translations when available */
   examples: Example[];
+  /**
+   * Native-language nudge for the hidden-answer side of a review card: register,
+   * connotation, setting — never the meaning. Absent on words saved before it existed.
+   */
+  recallHint?: string | null;
 }
 
 /** A single translation variant */

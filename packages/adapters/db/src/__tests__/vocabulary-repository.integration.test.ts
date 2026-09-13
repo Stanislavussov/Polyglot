@@ -115,7 +115,7 @@ describe("vocabularyRepository (integration)", () => {
     const created = await vocabularyRepository.create(userId, entryInput("gato", es, en, "cat"));
 
     // Soft delete: the active lookup no longer finds it.
-    await vocabularyRepository.delete(created.id);
+    expect(await vocabularyRepository.delete(created.id, userId)).toBe(true);
     expect(await vocabularyRepository.findByOriginalAndSource(userId, "gato", es)).toBeNull();
 
     // Re-save reactivates the SAME row (no duplicate) rather than raising 23505.
@@ -163,7 +163,7 @@ describe("vocabularyRepository (integration)", () => {
     expect((await vocabularyRepository.findByUser(userId))[0]?.difficulty).toBe("easy");
   });
 
-  it("refuses to grade another user's entry or a nonexistent one", async () => {
+  it("refuses to grade or remove another user's entry, and never grades a removed one", async () => {
     const ownerId = await freshUserId();
     const strangerId = await freshUserId();
     const es = await langId("es");
@@ -177,7 +177,10 @@ describe("vocabularyRepository (integration)", () => {
     expect(await vocabularyRepository.setDifficulty(999_999_999, ownerId, "hard")).toBe(false);
 
     // A stale button on a removed word must not grade its ghost.
-    await vocabularyRepository.delete(created.id);
+    expect(await vocabularyRepository.delete(created.id, strangerId)).toBe(false);
+    expect(await vocabularyRepository.findByUser(ownerId)).toHaveLength(1);
+    expect(await vocabularyRepository.delete(created.id, ownerId)).toBe(true);
+    expect(await vocabularyRepository.delete(created.id, ownerId)).toBe(false);
     expect(await vocabularyRepository.setDifficulty(created.id, ownerId, "hard")).toBe(false);
   });
 });

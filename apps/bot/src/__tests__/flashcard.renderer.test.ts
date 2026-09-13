@@ -19,7 +19,7 @@ vi.mock("@polyglot/core", async () => {
   };
 });
 
-import { createLanguageOrderContext, type SupportedLang } from "@polyglot/core";
+import { type CardFrontFields, createLanguageOrderContext, type SupportedLang } from "@polyglot/core";
 import {
   buildFlashCardBackKeyboard,
   buildFlashCardDoneKeyboard,
@@ -39,6 +39,10 @@ const renderFlashCardBack = (
 
 /* ── Test data ─────────────────────────────────────────────────── */
 
+/** Every front option on: whatever still stays off the front is off it for every user. */
+const ALL_ON: CardFrontFields = { synonyms: true, example: true, hint: true };
+const ALL_OFF: CardFrontFields = { synonyms: false, example: false, hint: false };
+
 const sampleWord: WordDisplayData = {
   id: 1,
   original: "apple",
@@ -47,6 +51,7 @@ const sampleWord: WordDisplayData = {
     explanation: "Used for the fruit, not the technology company.",
     synonyms: [{ text: "fruit" }],
     examples: [{ context: "neutral", target: "This apple is sweet.", native: "Это яблоко сладкое." }],
+    recallHint: "Everyday word, often about food.",
   },
   sourceLang: "en",
   inputType: "word",
@@ -83,45 +88,68 @@ const wordNoSynonyms: WordDisplayData = {
 
 describe("renderFlashCardFront", () => {
   it("contains the original word in bold", () => {
-    const result = renderFlashCardFront(sampleWord, 1, 10, "en");
+    const result = renderFlashCardFront(sampleWord, 1, 10, "en", ALL_ON);
     expect(result).toContain("<b>apple</b>");
   });
 
-  it("contains native meaning when available", () => {
-    const result = renderFlashCardFront(sampleWord, 1, 5, "en");
-    expect(result).toContain("A round fruit.");
+  it("never shows the stored meaning or explanation — they are the answer in the reader's language", () => {
+    const result = renderFlashCardFront(sampleWord, 1, 5, "en", ALL_ON);
+    expect(result).not.toContain("A round fruit.");
+    expect(result).not.toContain("Used for the fruit, not the technology company.");
+  });
+
+  it("shows the recall hint, a bare source example and synonyms when the user switched them on", () => {
+    const result = renderFlashCardFront(sampleWord, 1, 5, "en", ALL_ON);
+    expect(result).toContain("🍎 🇬🇧 <b>apple</b> (fruit)");
+    expect(result).toContain("🔎 <i>Everyday word, often about food.</i>");
+    expect(result).toContain("💬 <i>This apple is sweet.</i>");
+  });
+
+  it("shows only the word when every front option is off", () => {
+    const result = renderFlashCardFront(sampleWord, 1, 5, "en", ALL_OFF);
+    expect(result).toContain("🍎 🇬🇧 <b>apple</b>");
+    expect(result).not.toContain("(fruit)");
+    expect(result).not.toContain("🔎");
+    expect(result).not.toContain("This apple is sweet.");
+  });
+
+  it("omits the hint line for a word saved before hints existed", () => {
+    const legacy: WordDisplayData = {
+      ...sampleWord,
+      sourceUsage: { ...sampleWord.sourceUsage!, recallHint: undefined },
+    };
+    expect(renderFlashCardFront(legacy, 1, 5, "en", ALL_ON)).not.toContain("🔎");
   });
 
   it("contains the progress string", () => {
-    const result = renderFlashCardFront(sampleWord, 3, 10, "en");
+    const result = renderFlashCardFront(sampleWord, 3, 10, "en", ALL_ON);
     expect(result).toContain("3");
     expect(result).toContain("10");
   });
 
   it("contains emoji", () => {
-    const result = renderFlashCardFront(sampleWord, 1, 10, "en");
+    const result = renderFlashCardFront(sampleWord, 1, 10, "en", ALL_ON);
     expect(result).toContain("🍎");
   });
 
   it("contains the source language flag beside the word", () => {
-    const result = renderFlashCardFront(sampleWord, 1, 10, "en");
+    const result = renderFlashCardFront(sampleWord, 1, 10, "en", ALL_ON);
     expect(result).toContain("🍎 🇬🇧 <b>apple</b>");
   });
 
   it("carries no input-type chrome line — the translate card has none", () => {
-    const result = renderFlashCardFront(sampleWord, 1, 10, "ru");
+    const result = renderFlashCardFront(sampleWord, 1, 10, "ru", ALL_ON);
     expect(result).not.toContain("слово ·");
     expect(result).not.toContain("word ·");
   });
 
-  it("keeps the saved source examples off the front — they carry the answer", () => {
-    const result = renderFlashCardFront(sampleWord, 1, 10, "en");
-    expect(result).not.toContain("This apple is sweet.");
+  it("keeps a source example's native gloss off the front — it is the translation", () => {
+    const result = renderFlashCardFront(sampleWord, 1, 10, "en", ALL_ON);
     expect(result).not.toContain("Это яблоко сладкое.");
   });
 
   it("does NOT contain translation text", () => {
-    const result = renderFlashCardFront(sampleWord, 1, 10, "en");
+    const result = renderFlashCardFront(sampleWord, 1, 10, "en", ALL_ON);
     expect(result).not.toContain("яблоко");
     expect(result).not.toContain("jablko");
   });
@@ -193,20 +221,31 @@ describe("renderFlashCardBack", () => {
 
 /* ── buildFlashCardFrontKeyboard ───────────────────────────────── */
 
+const callbacksOf = (kb: { inline_keyboard: Array<Array<object>> }): string[][] =>
+  kb.inline_keyboard.map((row) => row.map((button) => ("callback_data" in button ? String(button.callback_data) : "")));
+
 describe("buildFlashCardFrontKeyboard", () => {
-  it("has fc:reveal and fc:quit buttons", () => {
-    const kb = buildFlashCardFrontKeyboard("en");
-    const data = JSON.stringify(kb);
-    expect(data).toContain("fc:reveal");
-    expect(data).toContain("fc:quit");
+  it("offers reveal, quit, and removing this word from the dictionary", () => {
+    expect(callbacksOf(buildFlashCardFrontKeyboard("en", 7))).toEqual([["fc:reveal", "fc:quit"], ["fc:del:7"]]);
   });
 });
 
 /* ── buildFlashCardBackKeyboard ────────────────────────────────── */
 
 describe("buildFlashCardBackKeyboard", () => {
+  it("offers the notification grades and removal for the revealed word", () => {
+    const rows = callbacksOf(buildFlashCardBackKeyboard(false, "en", 7));
+    expect(rows[0]).toEqual(["fc:fb:hard:7", "fc:fb:normal:7", "fc:fb:easy:7"]);
+    expect(rows[1]).toEqual(["fc:del:7"]);
+  });
+
+  it("labels the grades exactly as the notification does", () => {
+    const labels = buildFlashCardBackKeyboard(false, "ru", 7).inline_keyboard[0]?.map((button) => button.text);
+    expect(labels).toEqual(["😅 Трудно", "👌 ОК", "😎 Знаю"]);
+  });
+
   it("has fc:next and fc:quit when not last card", () => {
-    const kb = buildFlashCardBackKeyboard(false, "en");
+    const kb = buildFlashCardBackKeyboard(false, "en", 7);
     const data = JSON.stringify(kb);
     expect(data).toContain("fc:next");
     expect(data).toContain("fc:quit");
@@ -214,7 +253,7 @@ describe("buildFlashCardBackKeyboard", () => {
   });
 
   it("has fc:done and fc:restart when last card", () => {
-    const kb = buildFlashCardBackKeyboard(true, "en");
+    const kb = buildFlashCardBackKeyboard(true, "en", 7);
     const data = JSON.stringify(kb);
     expect(data).toContain("fc:done");
     expect(data).toContain("fc:restart");

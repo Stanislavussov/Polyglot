@@ -229,7 +229,14 @@ describe("menu navigation (integration)", () => {
 
     harness.reset();
     await harness.dispatch(callbackQueryUpdate({ chatId: id, fromId: id, messageId: menuId, data: "menu:settings" }));
-    expect(lastEdit(harness.sent).buttons).toEqual(["set:lang", "set:notif", "set:tpl", "set:plan", "set:close"]);
+    expect(lastEdit(harness.sent).buttons).toEqual([
+      "set:lang",
+      "set:notif",
+      "set:tpl",
+      "set:card",
+      "set:plan",
+      "set:close",
+    ]);
 
     harness.reset();
     await harness.dispatch(callbackQueryUpdate({ chatId: id, fromId: id, messageId: menuId, data: "set:lang" }));

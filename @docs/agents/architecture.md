@@ -158,6 +158,12 @@ its layer: no cross-boundary changes.
   transcribed voice message both go through `dispatchByActiveMode`, so a new input channel
   must reuse it rather than call a mode handler directly (a reply to a mentor answer is the
   one documented override, and it applies to both).
+- **A review card's front hands over nothing.** Flashcard and SRS fronts render through
+  `renderCardFront` only — an allow-list of the word plus the user's `CardFrontFields`
+  (recall hint, source synonyms, a source example without its `native` gloss). The stored
+  meaning, explanation and any translation belong to the back; a new front option must be
+  something that helps recall without stating the answer. `DEFAULT_CARD_FRONT_FIELDS` is the
+  single source of truth for a user with no `user_card_templates` row.
 
 ### Onboarding — `apps/bot/src/onboarding`
 

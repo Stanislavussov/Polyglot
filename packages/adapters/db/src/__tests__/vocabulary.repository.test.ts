@@ -514,8 +514,10 @@ describe("vocabularyRepository", () => {
   });
 
   describe("delete", () => {
-    it("soft-deletes parent and all translations", async () => {
-      await vocabularyRepository.delete(10);
+    it("soft-deletes the owner's entry and all its translations", async () => {
+      insertResultQueue.push([{ id: 10 }], []);
+
+      expect(await vocabularyRepository.delete(10, 42)).toBe(true);
 
       expect(updateFn).toHaveBeenCalledTimes(2);
       const sets = updateSetFn.mock.calls.map((c) => c[0]);
@@ -523,6 +525,14 @@ describe("vocabularyRepository", () => {
       expect(sets[1]).toMatchObject({ isActive: false });
       expect(sets[0]).toHaveProperty("updatedAt");
       expect(sets[1]).toHaveProperty("updatedAt");
+    });
+
+    it("leaves translations alone when the entry is not the caller's", async () => {
+      insertResultQueue.push([]);
+
+      expect(await vocabularyRepository.delete(10, 99)).toBe(false);
+
+      expect(updateFn).toHaveBeenCalledTimes(1);
     });
   });
 
