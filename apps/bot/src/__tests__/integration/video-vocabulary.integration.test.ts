@@ -11,8 +11,9 @@
  * so `fetchMetadata`/`fetchTranscript` are module-mocked; everything else — the
  * dispatcher, quota billing, Postgres persistence, the confirmation dialog — is real.
  */
-import { botSessionRepository, videoVocabularyRepository } from "@polyglot/adapter-db";
+import { botSessionRepository, getLang, videoVocabularyRepository, vocabularyRepository } from "@polyglot/adapter-db";
 import { fetchMetadata, fetchTranscript, TranscriptNotAvailableError } from "@polyglot/adapter-youtube";
+import type { AIPort } from "@polyglot/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { arrangeOnboardedTranslator } from "../../test-helpers/integration/arrange.js";
 import {
@@ -23,6 +24,7 @@ import {
   messageUpdate,
 } from "../../test-helpers/integration/bot-harness.js";
 import { uniqueTelegramId } from "../../test-helpers/integration/id-factory.js";
+import { deterministicTranslateAi } from "../../test-helpers/integration/translate-ai-mock.js";
 
 vi.mock("@polyglot/adapter-youtube", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@polyglot/adapter-youtube")>()),
@@ -66,6 +68,21 @@ const EXTRACTED = {
     },
   ],
 };
+
+/**
+ * The extraction fixture first; every other schema falls through to the translate
+ * fixtures, so a saved phrase can run the real enrichment path.
+ */
+function videoAndTranslateAi(): Partial<AIPort> {
+  const translate = deterministicTranslateAi();
+  const generateObject: AIPort["generateObject"] = async (prompt, schema, model, options) => {
+    const parsed = schema.safeParse(EXTRACTED);
+    if (parsed.success) return parsed.data;
+    if (!translate.generateObject) throw new Error("translate mock lost its generateObject");
+    return translate.generateObject(prompt, schema, model, options);
+  };
+  return { ...translate, generateObject };
+}
 
 function arrangeHarness() {
   const generateObject = vi.fn().mockResolvedValue(EXTRACTED);
@@ -181,5 +198,86 @@ describe("video vocabulary flow (integration)", () => {
     expect(failed?.errorMessage).toContain("No transcript available");
     const notice = sentMessages(harness).at(-1);
     expect(String(notice?.payload.text)).toContain("❌");
+  });
+
+  /**
+   * Regression: a phrase saved from a video came back from background enrichment
+   * carrying only Czech. The enrichment asked for the learning languages minus the
+   * source and left the native language out, and `updateAllTranslations` deletes
+   * rows for languages absent from the request — so the Russian translation the
+   * save had just written was erased, and the card fell back to showing its stored
+   * description where the answer belongs.
+   */
+  it("keeps the native translation on a saved phrase after background enrichment", async () => {
+    // Arrange — the reported learner: ru native, learning cs+en, English video.
+    const harness = createBotHarness({
+      ai: videoAndTranslateAi(),
+      settings: {
+        getVideoVocabularyConfig: vi
+          .fn()
+          .mockResolvedValue({ monthlyLimit: 10, minPhrases: 1, maxPhrases: 5, extractionModelId: "test/extract" }),
+      },
+    });
+    const id = uniqueTelegramId();
+    const userId = await arrangeOnboardedTranslator(id, {
+      nativeLang: "ru",
+      learningLangs: ["cs", "en"],
+      plan: "plus",
+    });
+    const videoId = uniqueVideoId();
+    metadataMock.mockResolvedValue({ videoId, title: "Test video", durationSeconds: 0 });
+    transcriptMock.mockResolvedValue(EN_TRANSCRIPT);
+
+    // Act — URL → confirm → wait for the phrases to land.
+    await harness.dispatch(messageUpdate({ chatId: id, fromId: id, text: `https://youtu.be/${videoId}` }));
+    const { messageId, data } = confirmButton(harness);
+    harness.reset();
+    await harness.dispatch(callbackQueryUpdate({ chatId: id, fromId: id, messageId, data }));
+    const processId = Number(data.split(":")[2]);
+    await vi.waitFor(
+      async () => {
+        const row = await videoVocabularyRepository.findProcessById(processId);
+        expect(row?.status).toBe("completed");
+      },
+      { timeout: 5000 },
+    );
+
+    // Act — browse the phrases and save the one that was extracted.
+    const done = sentMessages(harness).at(-1);
+    harness.reset();
+    await harness.dispatch(
+      callbackQueryUpdate({
+        chatId: id,
+        fromId: id,
+        messageId: done?.messageId ?? 1,
+        data: `vid:browse:${processId}:1`,
+      }),
+    );
+    const phrases = await videoVocabularyRepository.findPhrasesByProcess(processId);
+    const phraseId = phrases[0]?.id;
+    expect(phraseId).toBeDefined();
+    await harness.dispatch(
+      callbackQueryUpdate({ chatId: id, fromId: id, messageId: done?.messageId ?? 1, data: `vid:save:${phraseId}` }),
+    );
+
+    // Assert — enrichment is fire-and-forget, so wait for it to have run, then
+    // read the languages that survived it.
+    const english = getLang("en");
+    if (!english) throw new Error("language cache is not loaded (en missing)");
+    await vi.waitFor(
+      async () => {
+        const entry = await vocabularyRepository.findByOriginalAndSource(userId, "nice phrase", english.id);
+        expect(entry?.translations.length).toBeGreaterThan(1);
+      },
+      { timeout: 5000 },
+    );
+
+    const entry = await vocabularyRepository.findByOriginalAndSource(userId, "nice phrase", english.id);
+    const byId = new Map(["ru", "cs", "en"].map((code) => [getLang(code)?.id, code]));
+    const codes = (entry?.translations ?? []).map((translation) => byId.get(translation.targetLangId));
+    expect(codes).toContain("ru");
+    expect(codes).toContain("cs");
+    // The source language is never one of the card's answers.
+    expect(codes).not.toContain("en");
   });
 });

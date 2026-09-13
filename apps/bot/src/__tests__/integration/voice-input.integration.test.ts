@@ -1,12 +1,14 @@
 /**
- * Voice message → translation — grammY e2e integration test (Task 80).
+ * Voice message → the active mode — grammY e2e integration test (Task 80).
  *
  * Drives a voice message through the real dispatcher: mode-router intercepts
  * `ctx.message.voice`, `handleVoiceMessage` gates it (STT config → paid feature →
  * duration cap → download → transcribe), and a successful transcript re-enters the
- * ordinary translate pipeline exactly like typed text. The refusal branches must
- * never reach the file API or the AI boundary — that is what `download`/`getFile`
- * call counts prove that a mock-only unit test cannot.
+ * ordinary text pipeline exactly like typed text — translation in translate mode,
+ * the mentor in mentor mode, and the anchored thread when it replies to a mentor
+ * answer. The refusal branches must never reach the file API or the AI boundary —
+ * that is what `download`/`getFile` call counts prove that a mock-only unit test
+ * cannot.
  *
  * Feature access (`voiceInput`) is real DB-backed (`plan_feature_access`), seeded
  * by `admin:seed` as part of `pnpm test:integration`'s bootstrap — the same plan
@@ -23,6 +25,8 @@ import {
   createBotHarness,
   FAKE_VOICE_AUDIO,
   lastRenderedCard,
+  messageUpdate,
+  videoMessageUpdate,
   voiceMessageUpdate,
 } from "../../test-helpers/integration/bot-harness.js";
 import { uniqueTelegramId } from "../../test-helpers/integration/id-factory.js";
@@ -163,5 +167,77 @@ describe("voice message → translation (integration)", () => {
     if (!en) throw new Error("expected seeded language 'en'");
     const saved = await vocabularyRepository.findByOriginalAndSource(userId, "hello", en.id);
     expect(saved).toBeNull();
+  });
+
+  it("answers a voice message from the mentor while mentor mode is active, with no translation card", async () => {
+    const transcribe = transcribeMock("why does German put the verb last?");
+    const generateChat = vi.fn().mockResolvedValue("In subordinate clauses the finite verb moves to the end.");
+    const harness = createBotHarness({
+      ai: { ...deterministicTranslateAi(), generateChat, transcribe },
+      settings: { getSttConfig: vi.fn().mockResolvedValue(STT_ENABLED) },
+    });
+    const id = uniqueTelegramId();
+    await arrangeOnboardedTranslator(id, { plan: "pro" });
+
+    await harness.dispatch(messageUpdate({ chatId: id, fromId: id, text: "/mentor" }));
+    harness.reset();
+    await harness.dispatch(voiceMessageUpdate({ chatId: id, fromId: id, duration: 5, messageId: 20 }));
+
+    expect(transcribe).toHaveBeenCalledTimes(1);
+    // The transcript reached the mentor as the user turn...
+    const turn = generateChat.mock.calls.at(-1)?.[0] as Array<{ role: string; content: string }>;
+    expect(turn.at(-1)).toEqual({ role: "user", content: "why does German put the verb last?" });
+    // ...and the mentor's answer came back instead of a translation card.
+    expect(sendMessageCalls(harness).map((c) => String(c.payload.text))).toContain(
+      "In subordinate clauses the finite verb moves to the end.",
+    );
+    expect(harness.sent.some((c) => c.method === "editMessageReplyMarkup")).toBe(false);
+  });
+
+  it("continues the mentor thread when a voice message replies to a mentor answer from translate mode", async () => {
+    const transcribe = transcribeMock("and in main clauses?");
+    const generateChat = vi.fn().mockResolvedValue("Second position for the finite verb.");
+    const harness = createBotHarness({
+      ai: { ...deterministicTranslateAi(), generateChat, transcribe },
+      settings: { getSttConfig: vi.fn().mockResolvedValue(STT_ENABLED) },
+    });
+    const id = uniqueTelegramId();
+    await arrangeOnboardedTranslator(id, { plan: "pro" });
+
+    await harness.dispatch(messageUpdate({ chatId: id, fromId: id, text: "/mentor" }));
+    await harness.dispatch(messageUpdate({ chatId: id, fromId: id, text: "where does the verb go?", messageId: 30 }));
+    const answer = sendMessageCalls(harness).find(
+      (call) => call.payload.text === "Second position for the finite verb.",
+    );
+    if (answer?.messageId === undefined) throw new Error("mentor answer was not sent");
+
+    // Back to translation — only the reply anchor may pull this turn to the mentor.
+    await harness.dispatch(messageUpdate({ chatId: id, fromId: id, text: "/translate" }));
+    harness.reset();
+    await harness.dispatch(
+      voiceMessageUpdate({ chatId: id, fromId: id, duration: 4, messageId: 40, replyToMessageId: answer.messageId }),
+    );
+
+    const turn = generateChat.mock.calls.at(-1)?.[0] as Array<{ role: string; content: string }>;
+    expect(turn.at(-1)).toEqual({ role: "user", content: "and in main clauses?" });
+    // History came from the anchored thread, so the first question is still in context.
+    expect(turn.map((m) => m.content)).toContain("where does the verb go?");
+    expect(harness.sent.some((c) => c.method === "editMessageReplyMarkup")).toBe(false);
+  });
+});
+
+describe("video message rejection (integration)", () => {
+  it.each(["video", "video_note"] as const)("names video in the refusal for a %s, calling no AI", async (kind) => {
+    const generateChat = vi.fn();
+    const harness = createBotHarness({ ai: { ...deterministicTranslateAi(), generateChat } });
+    const id = uniqueTelegramId();
+    await arrangeOnboardedTranslator(id, { plan: "pro" });
+
+    await harness.dispatch(videoMessageUpdate({ chatId: id, fromId: id, kind }));
+
+    const reply = sendMessageCalls(harness).at(-1);
+    expect(String(reply?.payload.text)).toContain("video");
+    expect(generateChat).not.toHaveBeenCalled();
+    expect(harness.sent.some((c) => c.method === "editMessageReplyMarkup")).toBe(false);
   });
 });

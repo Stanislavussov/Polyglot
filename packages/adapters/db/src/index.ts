@@ -57,6 +57,11 @@ export { languageDetectionRepository } from "./repositories/language-detection.r
 export { mentorMessageRepository } from "./repositories/mentor-message.repository.js";
 export { momentumRepository } from "./repositories/momentum.repository.js";
 export {
+  findRepairableNativeTranslations,
+  type RepairableNativeTranslation,
+  restoreNativeTranslations,
+} from "./repositories/native-translation-repair.js";
+export {
   DEFAULT_NOTIFICATION_TIME,
   DEFAULT_NOTIFICATION_TYPE,
   formatNotificationTime,

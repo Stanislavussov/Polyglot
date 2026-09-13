@@ -33,6 +33,7 @@ import {
   createBotHarness,
   lastRenderedCard,
   messageUpdate,
+  voiceMessageUpdate,
 } from "../../test-helpers/integration/bot-harness.js";
 import { uniqueTelegramId } from "../../test-helpers/integration/id-factory.js";
 import { deterministicTranslateAi } from "../../test-helpers/integration/translate-ai-mock.js";
@@ -51,6 +52,8 @@ const FIRST_ANSWER = "Present Perfect links a past event to now.";
 const RESUMED_ANSWER = "Sure — here is more on that.";
 /** The held message: a plain word, so the Switch branch produces a real card. */
 const HELD_TEXT = "hello";
+/** What the speech-to-text model returns for the held voice message. */
+const SPOKEN_TEXT = "and in main clauses?";
 
 const IDLE_QUESTION = t("mentorIdleQuestion", "en");
 /** The mode-switch confirmation up to its language pair, which is display-name formatted. */
@@ -354,5 +357,57 @@ describe("mentor idle prompt (integration)", () => {
     const session = await readSession(telegramId);
     expect(session.mentor).toBeUndefined();
     expect(session.mentorIdlePrompt).toBeUndefined();
+  });
+  it("holds a VOICE message behind the same prompt — a spoken turn is as ambiguous as a typed one", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(ENTRY_AT);
+
+    const telegramId = uniqueTelegramId();
+    await arrangeOnboardedTranslator(telegramId, { plan: "pro" });
+
+    const transcribe = vi
+      .fn()
+      .mockResolvedValue({ text: SPOKEN_TEXT, seconds: 2, costUsd: 0.0002, generationId: "gen-stt-idle" });
+    const generateChat = vi.fn().mockResolvedValue(FIRST_ANSWER);
+    const harness = createBotHarness({
+      ai: { ...deterministicTranslateAi(), generateChat, transcribe },
+      settings: {
+        getSttConfig: vi
+          .fn()
+          .mockResolvedValue({ enabled: true, modelId: "openai/whisper-large-v3", maxDurationSec: 60 }),
+      },
+    });
+
+    await harness.dispatch(messageUpdate({ chatId: telegramId, fromId: telegramId, text: "/mentor" }));
+    vi.setSystemTime(TURN_AT);
+    await harness.dispatch(
+      messageUpdate({ chatId: telegramId, fromId: telegramId, text: FIRST_QUESTION, messageId: 11 }),
+    );
+    expect(generateChat).toHaveBeenCalledTimes(1);
+
+    vi.setSystemTime(IDLE_AT);
+    harness.reset();
+    await harness.dispatch(voiceMessageUpdate({ chatId: telegramId, fromId: telegramId, duration: 4, messageId: 12 }));
+
+    // Transcribed — there has to be text to hold — but no second paid turn ran.
+    expect(transcribe).toHaveBeenCalledTimes(1);
+    const promptCall = sends(harness).find((call) => call.payload.text === IDLE_QUESTION);
+    expect(promptCall).toBeDefined();
+    expect(callbackData(promptCall)).toEqual([MENTOR_IDLE_STAY_CALLBACK, MENTOR_IDLE_EXIT_CALLBACK]);
+    expect(generateChat).toHaveBeenCalledTimes(1);
+
+    // "Stay" resumes the TRANSCRIPT, not the typed question that preceded it.
+    generateChat.mockResolvedValue(RESUMED_ANSWER);
+    await harness.dispatch(
+      callbackQueryUpdate({
+        chatId: telegramId,
+        fromId: telegramId,
+        messageId: promptCall?.messageId ?? 0,
+        data: MENTOR_IDLE_STAY_CALLBACK,
+      }),
+    );
+
+    const resumed = generateChat.mock.calls.at(-1)?.[0] as Array<{ role: string; content: string }>;
+    expect(resumed.at(-1)).toEqual({ role: "user", content: SPOKEN_TEXT });
   });
 });

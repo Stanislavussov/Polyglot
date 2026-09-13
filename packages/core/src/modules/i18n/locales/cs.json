@@ -331,6 +331,7 @@
   "videoProcessingDone": "Fráze extrahovány!",
   "videoProcessingFailed": "Zpracování videa selhalo. Limit byl vrácen.",
   "videoOnlyYouTube": "Zatím je podporován pouze YouTube.",
+  "videoNotSupported": "🎥 S videem pracovat neumím — pošlete mi slovo, frázi nebo větu jako text.",
   "videoNoSubtitles": "Titulky ve vašich jazycích nejsou dostupné.",
   "videoLimitReached": "Měsíční limit videí vyčerpán. Obnovení 1. dne.",
   "videoAlreadyProcessing": "Toto video se stále zpracovává.",
