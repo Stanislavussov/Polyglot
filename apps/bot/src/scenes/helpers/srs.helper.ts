@@ -3,10 +3,12 @@ import {
   errorFields,
   isSupported,
   logEvent,
+  type SrsDueVocabularyCard,
   type SrsRating,
   type SupportedLang,
   t,
 } from "@polyglot/core";
+import type { InlineKeyboard } from "grammy";
 import { recordMatureIfCrossed } from "../../momentum/momentum.wiring.js";
 import { resolvePraiseLine } from "../../momentum/praise.footer.js";
 import {
@@ -17,8 +19,11 @@ import {
   renderSrsFront,
 } from "../../renderers/srs.renderer.js";
 import type { BotContext } from "../../types.js";
-import { SRS_SESSION_LIMIT } from "../srs.scene.js";
 import { editMessageTextOrReply } from "./edit-message.helper.js";
+
+export const SRS_SESSION_LIMIT = 20;
+
+type SrsSession = NonNullable<BotContext["session"]["srs"]>;
 
 async function getUserLang(ctx: BotContext): Promise<SupportedLang> {
   const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
@@ -45,6 +50,65 @@ function currentCard(ctx: BotContext) {
   return srs.deck[srs.currentIndex];
 }
 
+/** The front of `deck[index]`, rendered with the user's card settings as they are now. */
+export async function buildSrsFront(
+  ctx: BotContext,
+  deck: readonly SrsDueVocabularyCard[],
+  index: number,
+  lang: SupportedLang,
+): Promise<{ text: string; keyboard: InlineKeyboard }> {
+  const card = deck[index]!;
+  const fields = await ctx.services.cardTemplateRepository.getFields(ctx.user.id);
+  return {
+    text: renderSrsFront(
+      card,
+      getLangCodeById(ctx, card.sourceLangId),
+      getLangCodeById(ctx, card.targetLangId),
+      index + 1,
+      deck.length,
+      lang,
+      fields,
+    ),
+    keyboard: buildSrsFrontKeyboard(lang, card.entryId),
+  };
+}
+
+async function showCurrentFront(ctx: BotContext, srs: SrsSession, lang: SupportedLang): Promise<void> {
+  const { text, keyboard } = await buildSrsFront(ctx, srs.deck, srs.currentIndex, lang);
+  try {
+    await editMessageTextOrReply(ctx, text, { parse_mode: "HTML", reply_markup: keyboard });
+  } catch {
+    /* ignore */
+  }
+}
+
+async function finishSession(ctx: BotContext, srs: SrsSession, lang: SupportedLang): Promise<void> {
+  logEvent("srs.session_finished", { reviewed: srs.deck.length });
+  const praise = await resolvePraiseLine(ctx, lang, "srs_done", new Date(), {
+    ...(srs.maturedTranslationId !== undefined
+      ? {
+          matureCrossedNow: {
+            translationId: srs.maturedTranslationId,
+            entryWord: srs.deck.find((c) => c.translationId === srs.maturedTranslationId)?.original,
+          },
+        }
+      : {}),
+    hardWordRecalledToday: srs.hardRecalled === true,
+  });
+  const done = t("srsDone", lang, { count: String(srs.deck.length) });
+  const text = praise ? `${done}\n\n${praise}` : done;
+  const { enabled: showProgress } = await ctx.services.settings.getMotivationConfig();
+  ctx.session.srs = undefined;
+  try {
+    await editMessageTextOrReply(ctx, text, {
+      parse_mode: "HTML",
+      reply_markup: buildSrsDoneKeyboard(lang, { showProgress }),
+    });
+  } catch {
+    /* ignore */
+  }
+}
+
 export async function handleSrsReveal(ctx: BotContext): Promise<void> {
   const card = currentCard(ctx);
   const srs = ctx.session.srs;
@@ -61,7 +125,10 @@ export async function handleSrsReveal(ctx: BotContext): Promise<void> {
   );
 
   try {
-    await editMessageTextOrReply(ctx, text, { parse_mode: "HTML", reply_markup: buildSrsBackKeyboard(lang) });
+    await editMessageTextOrReply(ctx, text, {
+      parse_mode: "HTML",
+      reply_markup: buildSrsBackKeyboard(lang, card.entryId),
+    });
   } catch {
     /* ignore */
   }
@@ -124,50 +191,47 @@ export async function handleSrsRate(ctx: BotContext): Promise<void> {
   srs.currentIndex++;
 
   if (srs.currentIndex >= srs.deck.length) {
-    logEvent("srs.session_finished", { reviewed: srs.deck.length });
-    const praise = await resolvePraiseLine(ctx, lang, "srs_done", new Date(), {
-      ...(srs.maturedTranslationId !== undefined
-        ? {
-            matureCrossedNow: {
-              translationId: srs.maturedTranslationId,
-              entryWord: srs.deck.find((c) => c.translationId === srs.maturedTranslationId)?.original,
-            },
-          }
-        : {}),
-      hardWordRecalledToday: srs.hardRecalled === true,
-    });
-    const done = t("srsDone", lang, { count: String(srs.deck.length) });
-    const text = praise ? `${done}\n\n${praise}` : done;
-    const { enabled: showProgress } = await ctx.services.settings.getMotivationConfig();
+    await finishSession(ctx, srs, lang);
+  } else {
+    await showCurrentFront(ctx, srs, lang);
+  }
+  await ctx.answerCallbackQuery({ text: t("srsScheduled", lang) });
+}
+
+export const SRS_DELETE_PATTERN = /^srs:del:(\d+)$/;
+
+/**
+ * Remove the current word from the dictionary and carry on. A word is reviewed
+ * once per target language, so every card of that entry leaves the deck — the
+ * next one would otherwise ask about the word just removed.
+ */
+export async function handleSrsDelete(ctx: BotContext): Promise<void> {
+  const entryId = Number(ctx.match?.[1]);
+  const card = currentCard(ctx);
+  const srs = ctx.session.srs;
+  // A button left on an older card must not remove the word the session moved on to.
+  if (!card || !srs || card.entryId !== entryId) return void answerExpired(ctx);
+
+  const lang = await getUserLang(ctx);
+  // A false result means the word was already gone; either way it leaves the deck.
+  await ctx.services.vocabularyRepository.delete(entryId, ctx.user.id);
+  const removedBefore = srs.deck.slice(0, srs.currentIndex).filter((c) => c.entryId === entryId).length;
+  srs.deck = srs.deck.filter((c) => c.entryId !== entryId);
+  srs.currentIndex -= removedBefore;
+
+  if (srs.deck.length === 0) {
     ctx.session.srs = undefined;
     try {
-      await editMessageTextOrReply(ctx, text, {
-        parse_mode: "HTML",
-        reply_markup: buildSrsDoneKeyboard(lang, { showProgress }),
-      });
+      await editMessageTextOrReply(ctx, t("wordDeleted", lang));
     } catch {
       /* ignore */
     }
-    await ctx.answerCallbackQuery({ text: t("srsScheduled", lang) });
-    return;
+  } else if (srs.currentIndex >= srs.deck.length) {
+    await finishSession(ctx, srs, lang);
+  } else {
+    await showCurrentFront(ctx, srs, lang);
   }
-
-  const nextCard = srs.deck[srs.currentIndex]!;
-  const text = renderSrsFront(
-    nextCard,
-    getLangCodeById(ctx, nextCard.sourceLangId),
-    getLangCodeById(ctx, nextCard.targetLangId),
-    srs.currentIndex + 1,
-    srs.deck.length,
-    lang,
-  );
-
-  try {
-    await editMessageTextOrReply(ctx, text, { parse_mode: "HTML", reply_markup: buildSrsFrontKeyboard(lang) });
-  } catch {
-    /* ignore */
-  }
-  await ctx.answerCallbackQuery({ text: t("srsScheduled", lang) });
+  await ctx.answerCallbackQuery({ text: t("wordDeleted", lang) });
 }
 
 export async function handleSrsRestart(ctx: BotContext): Promise<void> {
@@ -185,22 +249,9 @@ export async function handleSrsRestart(ctx: BotContext): Promise<void> {
     return;
   }
 
-  ctx.session.srs = { deck, currentIndex: 0 };
-  const card = deck[0]!;
-  const text = renderSrsFront(
-    card,
-    getLangCodeById(ctx, card.sourceLangId),
-    getLangCodeById(ctx, card.targetLangId),
-    1,
-    deck.length,
-    lang,
-  );
-
-  try {
-    await editMessageTextOrReply(ctx, text, { parse_mode: "HTML", reply_markup: buildSrsFrontKeyboard(lang) });
-  } catch {
-    /* ignore */
-  }
+  const srs: SrsSession = { deck, currentIndex: 0 };
+  ctx.session.srs = srs;
+  await showCurrentFront(ctx, srs, lang);
   await ctx.answerCallbackQuery();
 }
 

@@ -40,6 +40,10 @@ function createCtx(opts: { savedWords: number; dueWords?: number }) {
     services: createServicesStub({
       vocabularyRepository: vocabularyRepository as unknown as ServiceContainer["vocabularyRepository"],
       userRepository: userRepository as unknown as ServiceContainer["userRepository"],
+      cardTemplateRepository: {
+        getFields: vi.fn().mockResolvedValue({ synonyms: true, example: false, hint: false }),
+        setField: vi.fn(),
+      },
       languageCache: {
         getAllLangs: () => [
           { id: 1, code: "de", name: "German", nativeName: "Deutsch", flag: "🇩🇪", isSupported: true },

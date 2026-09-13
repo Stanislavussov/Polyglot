@@ -379,7 +379,7 @@ describe("vocabularyRepository momentum counters (integration)", () => {
     });
     expect(await vocabularyRepository.countMatureTranslations(userId, MATURE_INTERVAL_DAYS)).toBe(1);
 
-    await vocabularyRepository.delete(entry.id);
+    await vocabularyRepository.delete(entry.id, userId);
 
     expect(await vocabularyRepository.countMatureTranslations(userId, MATURE_INTERVAL_DAYS)).toBe(0);
     expect(await vocabularyRepository.countDueForSrs(userId, new Date("2026-02-10T09:00:00.000Z"))).toBe(0);

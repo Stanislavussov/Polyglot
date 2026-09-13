@@ -677,18 +677,31 @@ export const vocabularyRepository = {
 
   /**
    * Soft-delete: sets isActive = false on entry and all its translations.
+   * Owner-scoped because the entry id rides in callback data a client can forge;
+   * the translations are only touched once the entry update proved ownership.
    */
-  async delete(entryId: number): Promise<void> {
+  async delete(entryId: number, userId: number): Promise<boolean> {
     const db = getDb();
     const now = new Date();
-    await db
-      .update(vocabularyEntries)
-      .set({ isActive: false, updatedAt: now })
-      .where(eq(vocabularyEntries.id, entryId));
-    await db
-      .update(vocabularyTranslations)
-      .set({ isActive: false, updatedAt: now })
-      .where(eq(vocabularyTranslations.entryId, entryId));
+    return db.transaction(async (tx) => {
+      const removed = await tx
+        .update(vocabularyEntries)
+        .set({ isActive: false, updatedAt: now })
+        .where(
+          and(
+            eq(vocabularyEntries.id, entryId),
+            eq(vocabularyEntries.userId, userId),
+            eq(vocabularyEntries.isActive, true),
+          ),
+        )
+        .returning({ id: vocabularyEntries.id });
+      if (removed.length === 0) return false;
+      await tx
+        .update(vocabularyTranslations)
+        .set({ isActive: false, updatedAt: now })
+        .where(eq(vocabularyTranslations.entryId, entryId));
+      return true;
+    });
   },
 
   /**

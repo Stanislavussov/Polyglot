@@ -29,6 +29,7 @@ const METADATA_FAT = {
     explanation: "a greeting",
     synonyms: [{ text: "hi" }],
     examples: [{ context: "greeting", target: "hello there", native: "greeting" }],
+    recallHint: "Friendly and informal; said when you meet someone.",
   },
   nativeSynonyms: [{ text: "hi" }],
   primarySense: "a spoken greeting on meeting someone",

@@ -14,7 +14,13 @@ vi.mock("@polyglot/core", async () => {
   };
 });
 
-import { buildSrsDoneKeyboard, renderSrsBack, renderSrsFront } from "../srs.renderer.js";
+import {
+  buildSrsBackKeyboard,
+  buildSrsDoneKeyboard,
+  buildSrsFrontKeyboard,
+  renderSrsBack,
+  renderSrsFront,
+} from "../srs.renderer.js";
 
 const sampleCard: SrsDueVocabularyCard = {
   translationId: 10,
@@ -47,7 +53,7 @@ const sampleCard: SrsDueVocabularyCard = {
 
 describe("renderSrsFront", () => {
   it("names the language being recalled and puts the source flag beside the word", () => {
-    const html = renderSrsFront(sampleCard, "ru", "en", 2, 20, "ru");
+    const html = renderSrsFront(sampleCard, "ru", "en", 2, 20, "ru", { synonyms: true, example: false, hint: true });
 
     expect(html).toContain("Повторение 2 из 20");
     expect(html).toContain("<i>→ 🇬🇧 English</i>");
@@ -56,8 +62,15 @@ describe("renderSrsFront", () => {
     expect(html).not.toContain("слово ·");
   });
 
+  it("offers removing the word on both sides of the card", () => {
+    const callbacks = (kb: ReturnType<typeof buildSrsFrontKeyboard>) =>
+      kb.inline_keyboard.flat().map((button) => ("callback_data" in button ? button.callback_data : ""));
+    expect(callbacks(buildSrsFrontKeyboard("en", 1))).toContain("srs:del:1");
+    expect(callbacks(buildSrsBackKeyboard("en", 1))).toContain("srs:del:1");
+  });
+
   it("keeps the saved source examples off the front — they carry the answer", () => {
-    const html = renderSrsFront(sampleCard, "ru", "en", 2, 20, "ru");
+    const html = renderSrsFront(sampleCard, "ru", "en", 2, 20, "ru", { synonyms: true, example: false, hint: true });
 
     expect(html).not.toContain("Сначала обрисуем проблему.");
   });

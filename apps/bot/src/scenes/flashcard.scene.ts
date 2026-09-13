@@ -10,7 +10,7 @@
 import type { SupportedLang } from "@polyglot/core";
 import { FLASHCARD_CONFIG, isSupported, t } from "@polyglot/core";
 import type { BotContext } from "../types.js";
-import { getPipeline } from "./helpers/flashcard.helper.js";
+import { buildFlashCardFront, getPipeline } from "./helpers/flashcard.helper.js";
 
 /** Resolve user's interface language. */
 async function getUserLang(ctx: BotContext): Promise<SupportedLang> {
@@ -37,12 +37,7 @@ export async function handleFlashcardCommand(ctx: BotContext): Promise<void> {
     config: FLASHCARD_CONFIG,
   };
 
-  const word = result.words[0]!;
-  const { renderFlashCardFront } = await import("../renderers/flashcard.renderer.js");
-  const { buildFlashCardFrontKeyboard } = await import("../renderers/flashcard.renderer.js");
-  const text = renderFlashCardFront(word, 1, result.words.length, lang);
-  const kb = buildFlashCardFrontKeyboard(lang);
-
-  const msg = await ctx.reply(text, { parse_mode: "HTML", reply_markup: kb });
+  const { text, keyboard } = await buildFlashCardFront(ctx, result.words, 0, lang);
+  const msg = await ctx.reply(text, { parse_mode: "HTML", reply_markup: keyboard });
   ctx.session.flashcard.cardMsgId = msg.message_id;
 }

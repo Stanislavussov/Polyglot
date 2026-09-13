@@ -241,7 +241,20 @@ export async function handleNotifLearnedCallback(ctx: BotContext): Promise<void>
     lang = userLang;
     const word = entry?.original ?? "?";
 
-    await withTimeout(ctx.services.vocabularyRepository.delete(entryId, ctx.user.id), LONG_OP_TIMEOUT_MS);
+    const removed = await withTimeout(
+      ctx.services.vocabularyRepository.delete(entryId, ctx.user.id),
+      LONG_OP_TIMEOUT_MS,
+    );
+    if (!removed) {
+      // Already removed (from a card, say) or never this user's — nothing to confirm.
+      await ctx.answerCallbackQuery({ text: t("noResults", lang) });
+      try {
+        await editMessageReplyMarkupOrIgnore(ctx, { reply_markup: { inline_keyboard: [] } });
+      } catch {
+        // Too old to edit — the toast already answered the tap.
+      }
+      return;
+    }
 
     const confirmation = t("notifRemoved", lang, { word });
     await editMessageTextOrReply(ctx, confirmation, { parse_mode: "HTML" });

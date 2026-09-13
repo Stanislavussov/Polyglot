@@ -1,9 +1,9 @@
-import type { SrsDueVocabularyCard, SupportedLang } from "@polyglot/core";
+import type { CardFrontFields, SrsDueVocabularyCard, SupportedLang } from "@polyglot/core";
 import { getLangFlag, getLanguageName, isSupported, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import { PROGRESS_SRS_DONE_CALLBACK } from "../momentum/progress.command.js";
 import { esc } from "./card-sections.js";
-import { citationOnly, renderWordCard } from "./word-card.js";
+import { renderCardFront, renderWordCard } from "./word-card.js";
 
 function toLang(lang?: string): SupportedLang {
   return lang && isSupported(lang) ? lang : "en";
@@ -29,19 +29,11 @@ export function renderSrsFront(
   current: number,
   total: number,
   lang: SupportedLang,
+  fields: CardFrontFields,
 ): string {
-  // No saved source usage on the front — its examples carry native translations,
-  // which is the answer being asked for.
-  const front = renderWordCard(
-    {
-      original: card.original,
-      emoji: card.emoji,
-      sourceLang: sourceLangCode,
-      nativeMeaning: card.nativeMeaning,
-      sourceUsage: citationOnly(card.sourceUsage),
-      langs: [],
-    },
-    lang,
+  const front = renderCardFront(
+    { original: card.original, emoji: card.emoji, sourceLang: sourceLangCode, sourceUsage: card.sourceUsage },
+    fields,
   );
   return [...chromeLines(targetLangCode, current, total, lang), "", front].join("\n");
 }
@@ -81,12 +73,21 @@ export function renderSrsBack(
   );
 }
 
-export function buildSrsFrontKeyboard(lang: SupportedLang): InlineKeyboard {
-  const l = toLang(lang);
-  return new InlineKeyboard().text(t("srsReveal", l), "srs:reveal").text(t("srsQuitBtn", l), "srs:quit");
+/** Carries the entry id so a stale card's button cannot remove the word the session has moved on to. */
+export function srsDeleteCallback(entryId: number): string {
+  return `srs:del:${entryId}`;
 }
 
-export function buildSrsBackKeyboard(lang: SupportedLang): InlineKeyboard {
+export function buildSrsFrontKeyboard(lang: SupportedLang, entryId: number): InlineKeyboard {
+  const l = toLang(lang);
+  return new InlineKeyboard()
+    .text(t("srsReveal", l), "srs:reveal")
+    .text(t("srsQuitBtn", l), "srs:quit")
+    .row()
+    .text(t("notifFbDelete", l), srsDeleteCallback(entryId));
+}
+
+export function buildSrsBackKeyboard(lang: SupportedLang, entryId: number): InlineKeyboard {
   const l = toLang(lang);
   return new InlineKeyboard()
     .text(t("srsAgain", l), "srs:rate:again")
@@ -94,6 +95,8 @@ export function buildSrsBackKeyboard(lang: SupportedLang): InlineKeyboard {
     .row()
     .text(t("srsGood", l), "srs:rate:good")
     .text(t("srsEasy", l), "srs:rate:easy")
+    .row()
+    .text(t("notifFbDelete", l), srsDeleteCallback(entryId))
     .row()
     .text(t("srsQuitBtn", l), "srs:quit");
 }

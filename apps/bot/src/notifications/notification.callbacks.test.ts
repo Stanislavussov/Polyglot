@@ -47,7 +47,7 @@ import {
 
 const vocabularyRepository = {
   findById: vi.fn(),
-  delete: vi.fn().mockResolvedValue(undefined),
+  delete: vi.fn().mockResolvedValue(true),
   setDifficulty: vi.fn().mockResolvedValue(true),
 };
 
@@ -93,7 +93,7 @@ beforeEach(() => {
   // silent pass until the day the order changes. Re-establish the happy path.
   vocabularyRepository.findById.mockReset();
   vocabularyRepository.setDifficulty.mockResolvedValue(true);
-  vocabularyRepository.delete.mockResolvedValue(undefined);
+  vocabularyRepository.delete.mockResolvedValue(true);
 });
 
 /** A saved entry as `findById` returns it, with one resolvable translation. */
@@ -327,6 +327,16 @@ describe("handleNotifLearnedCallback", () => {
     expect(vocabularyRepository.delete).toHaveBeenCalledWith(42, 1);
     expect(ctx.editMessageText).toHaveBeenCalled();
     expect(ctx.answerCallbackQuery).toHaveBeenCalled();
+  });
+
+  it("answers without a removal confirmation when the word was already removed", async () => {
+    const ctx = createMockCtx("notif:learned:42");
+    vocabularyRepository.delete.mockResolvedValue(false);
+
+    await handleNotifLearnedCallback(ctx);
+
+    expect(ctx.editMessageText).not.toHaveBeenCalled();
+    expect(ctx.answerCallbackQuery).toHaveBeenCalledTimes(1);
   });
 
   it("handles invalid entryId gracefully", async () => {

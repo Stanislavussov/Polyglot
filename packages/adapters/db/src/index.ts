@@ -35,6 +35,7 @@ export type {
 export { aiRequestLatencyRepository } from "./repositories/ai-request-latency.repository.js";
 export type { StoredBotSession } from "./repositories/bot-session.repository.js";
 export { BOT_SESSION_VERSION, botSessionRepository } from "./repositories/bot-session.repository.js";
+export { cardTemplateRepository } from "./repositories/card-template.repository.js";
 export type {
   DictionaryLookupLogList,
   DictionaryLookupLogRow,

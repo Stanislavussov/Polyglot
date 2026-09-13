@@ -209,10 +209,13 @@ describe("card grammar — every surface renders a saved word the same way", () 
   });
 });
 
+/** Every option a user can switch on — a front that leaks nothing with all of them on leaks nothing at all. */
+const EVERY_FRONT_OPTION = { synonyms: true, example: true, hint: true };
+
 describe("card grammar — a reveal-style front hands over nothing", () => {
   it.each([
-    ["flashcard front", renderFlashCardFront(FLASHCARD_WORD, 1, 3, "ru")],
-    ["srs front", renderSrsFront(SRS_CARD, "de", "en", 1, 3, "ru")],
+    ["flashcard front", renderFlashCardFront(FLASHCARD_WORD, 1, 3, "ru", EVERY_FRONT_OPTION)],
+    ["srs front", renderSrsFront(SRS_CARD, "de", "en", 1, 3, "ru", EVERY_FRONT_OPTION)],
   ])("%s shows the word but neither the answer nor a glossed source example", (_name, front) => {
     expect(front).toContain("💼 🇩🇪 <b>die Arbeit</b>");
     expect(front).not.toContain(WORD.targetText);
@@ -221,7 +224,7 @@ describe("card grammar — a reveal-style front hands over nothing", () => {
   });
 
   it("srs front names the language being recalled — the one line it cannot lose", () => {
-    expect(renderSrsFront(SRS_CARD, "de", "en", 1, 3, "ru")).toContain("<i>→ 🇬🇧 English</i>");
+    expect(renderSrsFront(SRS_CARD, "de", "en", 1, 3, "ru", EVERY_FRONT_OPTION)).toContain("<i>→ 🇬🇧 English</i>");
   });
 });
 

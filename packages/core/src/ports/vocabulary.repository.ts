@@ -206,7 +206,8 @@ export interface VocabularyRepository {
     dictionaryId?: number,
     options?: DictionaryListOptions,
   ): Promise<VocabularyEntryWithTranslations[]>;
-  delete(entryId: number, userId: number): Promise<void>;
+  /** Soft-delete the user's own active entry. Owner-scoped; returns false when no row matched. */
+  delete(entryId: number, userId: number): Promise<boolean>;
   /** Persist the user's notification feedback grade. Owner-scoped; returns false when no row matched. */
   setDifficulty(entryId: number, userId: number, difficulty: VocabDifficulty): Promise<boolean>;
 }

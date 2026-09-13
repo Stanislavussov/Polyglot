@@ -144,8 +144,8 @@ export const callbackContracts = [
     restartSafety: "session-backed",
     durableLookupKey: "target is deck/session id plus card id",
     dbSource: "vocabulary_entries, vocabulary_translations, word_review_log",
-    expiryBehavior: "localized flashcardSessionExpired",
-    maxExampleData: "fc:reveal",
+    expiryBehavior: "localized flashcardSessionExpired, also when fc:fb/fc:del names a card the deck moved past",
+    maxExampleData: "fc:fb:normal:2147483647",
   },
   {
     family: "srs",
@@ -164,6 +164,15 @@ export const callbackContracts = [
     dbSource: "vocabulary_translations SRS columns",
     expiryBehavior: "localized srsSessionExpired",
     maxExampleData: "srs:reveal",
+  },
+  {
+    family: "srs",
+    prefix: "srs:del",
+    restartSafety: "session-backed",
+    durableLookupKey: "vocabulary entry id, checked against the session's current card",
+    dbSource: "vocabulary_entries soft delete scoped by owner",
+    expiryBehavior: "localized srsSessionExpired when the id is not the current card",
+    maxExampleData: "srs:del:2147483647",
   },
   {
     family: "dictionary",

@@ -14,6 +14,7 @@ export type {
   TranscriptionResult,
 } from "./ports/ai.port.js";
 // Ports — service container for dependency injection
+export type { CardTemplateRepository } from "./ports/card-template.repository.js";
 export type { ServiceContainer } from "./ports/container.js";
 export type { FeatureAccessPort, FeatureAccessResult, FeatureAccessSubject } from "./ports/feature-access.port.js";
 export { defaultFeatureAccess } from "./ports/feature-access.port.js";
@@ -282,6 +283,12 @@ export type { CircuitBreakerConfig, CircuitState } from "./resilience/circuit-br
 // Resilience — per-model circuit breaker (Phase 3)
 export { CircuitBreaker } from "./resilience/circuit-breaker.js";
 // Shared
+export type { CardFrontFields } from "./shared/card-template.types.js";
+export {
+  CARD_FRONT_FIELD_KEYS,
+  DEFAULT_CARD_FRONT_FIELDS,
+  isCardFrontField,
+} from "./shared/card-template.types.js";
 export * from "./shared/errors.js";
 export { formatLongDate } from "./shared/format-date.js";
 export { isFinitePositive } from "./shared/numbers.js";
