@@ -81,6 +81,13 @@ async function main(): Promise<void> {
   // Loads the `languages` table straight into the core registry (the single
   // source of truth); the getters delegate to it (Fable T21/A3).
   await loadLanguageCache();
+  // An empty registry is not a degraded start, it is a broken one: every flag and
+  // language label on every card resolves through it, so the bot would serve
+  // `🔤`-labelled cards to everyone while logging nothing at all. Fail here, where
+  // the cause is still visible.
+  if (getAllLangs().length === 0) {
+    throw new Error("Language registry is empty after loadLanguageCache() — the `languages` table returned no rows");
+  }
   logger.info({ count: getAllLangs().length }, "Language registry loaded from DB");
 
   await installBotCommands(bot);

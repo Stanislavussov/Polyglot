@@ -151,8 +151,8 @@ function targetAnswerLine(card: string): string {
 }
 
 describe("card grammar — every surface renders a saved word the same way", () => {
-  it.each(SURFACES)("%s puts emoji, source flag, headword and source synonyms on one line", (_name, card) => {
-    expect(headwordLine(card)).toBe("💼 🇩🇪 <b>die Arbeit</b> (die Tätigkeit)");
+  it.each(SURFACES)("%s puts emoji, the source label, headword and source synonyms on one line", (_name, card) => {
+    expect(headwordLine(card)).toBe("💼 🇩🇪 DE: <b>die Arbeit</b> (die Tätigkeit)");
   });
 
   it.each(SURFACES)("%s renders the answer as flag, code, bold text and inline synonyms", (_name, card) => {
@@ -177,6 +177,13 @@ describe("card grammar — every surface renders a saved word the same way", () 
     expect(card.indexOf(`<b>${promoted}</b>`)).toBeLessThan(card.indexOf("Работа, труд."));
   });
 
+  it.each(SURFACES)("%s names a real language on every labelled line", (_name, card) => {
+    // Every language in this fixture resolves, so a `🔤` anywhere means a code was
+    // dropped between the row and the renderer rather than a language without a
+    // flag. It is the fallback's job to be unreachable here.
+    expect(card).not.toContain("🔤");
+  });
+
   it.each(SURFACES)("%s never prefixes prose with a language label", (_name, card) => {
     // `🇷🇺 RU:` introduces a translation everywhere else on the card; prose wearing
     // it read as the answer the reader was hunting for.
@@ -198,7 +205,7 @@ describe("card grammar — a reveal-style front hands over nothing", () => {
       renderFlashCardFront({ ...CARDS_CARD, ahead: true }, "de", "en", 1, 3, "ru", EVERY_FRONT_OPTION),
     ],
   ])("%s shows the word but neither the answer nor a glossed source example", (_name, front) => {
-    expect(front).toContain("💼 🇩🇪 <b>die Arbeit</b>");
+    expect(front).toContain("💼 🇩🇪 DE: <b>die Arbeit</b>");
     expect(front).not.toContain(WORD.targetText);
     // The source example's native gloss is the answer in the reader's own language.
     expect(front).not.toContain("Работа в радость.");
@@ -301,12 +308,12 @@ describe("card grammar — compact and list surfaces use the same lines", () => 
     ["video phrase list", videoList],
   ];
 
-  it.each(COMPACT)("%s introduces the word with emoji and the source flag", (_name, card) => {
-    expect(card).toContain(`${WORD.emoji} 🇩🇪 <b>${WORD.original}</b>`);
+  it.each(COMPACT)("%s introduces the word with emoji and the source label", (_name, card) => {
+    expect(card).toContain(`${WORD.emoji} 🇩🇪 DE: <b>${WORD.original}</b>`);
   });
 
-  it("a notification introduces the word with emoji and the source flag", () => {
-    expect(notification).toContain(`${WORD.emoji} 🇩🇪 <b>die Arbeit</b>`);
+  it("a notification introduces the word with emoji and the source label", () => {
+    expect(notification).toContain(`${WORD.emoji} 🇩🇪 DE: <b>die Arbeit</b>`);
   });
 
   it.each(COMPACT)("%s renders the translation as a bold, flagged, coded answer line", (_name, card) => {
@@ -336,7 +343,7 @@ describe("card grammar — compact and list surfaces use the same lines", () => 
     const nudge = headwordLine(notification);
     const revealed = headwordLine(SURFACES[0]?.[1] ?? "");
 
-    expect(nudge).toBe("💼 🇩🇪 <b>die Arbeit</b>");
+    expect(nudge).toBe("💼 🇩🇪 DE: <b>die Arbeit</b>");
     expect(revealed.startsWith(nudge)).toBe(true);
   });
 });

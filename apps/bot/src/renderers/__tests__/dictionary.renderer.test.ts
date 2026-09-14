@@ -246,9 +246,9 @@ describe("renderDictionaryEntry", () => {
     return map[id];
   };
 
-  it("contains original word with emoji and the source flag beside it", () => {
+  it("contains original word with emoji and the source label beside it", () => {
     const html = renderDictionaryEntry(entryWithDetails, langResolver);
-    expect(html).toContain("🍎 🇬🇧 <b>apple</b>");
+    expect(html).toContain("🍎 🇬🇧 EN: <b>apple</b>");
   });
 
   it("carries no input-type chrome line — the translate card has none", () => {

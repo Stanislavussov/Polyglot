@@ -64,12 +64,12 @@ const callbacksOf = (kb: { inline_keyboard: Array<Array<{ callback_data?: string
   kb.inline_keyboard.map((row) => row.map((button) => ("callback_data" in button ? String(button.callback_data) : "")));
 
 describe("renderFlashCardFront", () => {
-  it("names the language to recall and puts the source flag beside the word", () => {
+  it("names the language to recall and puts the source label beside the word", () => {
     const html = renderFlashCardFront(CARD, "ru", "en", 2, 10, "ru", ALL_OFF);
 
     expect(html).toContain("Карточка 2 из 10");
     expect(html).toContain("<i>→ 🇬🇧 English</i>");
-    expect(html).toContain("📝 🇷🇺 <b>Обрисовать проблему</b>");
+    expect(html).toContain("📝 🇷🇺 RU: <b>Обрисовать проблему</b>");
   });
 
   it("hands over nothing of the answer, whatever the user switched on", () => {

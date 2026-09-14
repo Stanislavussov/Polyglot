@@ -15,7 +15,7 @@
  * conversations perform — fetch the plain settings across that boundary and build
  * the context on this side.
  */
-import { createLanguageOrderContext, type LanguageOrderContext } from "@polyglot/core";
+import { createLanguageOrderContext, type LanguageOrderContext, logEvent } from "@polyglot/core";
 import { getRequestSettings } from "../middlewares/request-settings.js";
 import type { BotContext } from "../types.js";
 
@@ -56,7 +56,22 @@ export async function resolveLanguageOrder(ctx: BotContext): Promise<LanguageOrd
  *
  * Ordering DB-backed translation rows needs this, since rows carry ids while the
  * user's preference is stored as codes.
+ *
+ * The id comes from a foreign key into `languages`, so `undefined` is never
+ * ordinary: it means the registry is missing a row it is pointing at. The card
+ * degrades quietly (a `🔤` headword, a translation that drops to a note), so the
+ * log line is the only thing that says why.
  */
 export function makeLangCodeResolver(ctx: BotContext): (id: number) => string | undefined {
-  return (id) => ctx.services.languageCache.getAllLangs().find((l) => l.id === id)?.code;
+  return (id) => {
+    const code = ctx.services.languageCache.getAllLangs().find((l) => l.id === id)?.code;
+    if (code === undefined) {
+      logEvent(
+        "language.id_unresolved",
+        { langId: id, registrySize: ctx.services.languageCache.getAllLangs().length },
+        "warn",
+      );
+    }
+    return code;
+  };
 }

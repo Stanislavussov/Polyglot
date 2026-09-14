@@ -35,8 +35,19 @@ const WORD = "hello";
 /** `🇷🇺 RU: <b>…</b>` — the shape the translate card gives every language. */
 const ANSWER_LINE = /^\S+ [A-Z]{2}: <b>[^<]+<\/b>( \([^)]+\))?$/u;
 
+/** Any line wearing the shared flag-and-code label, the headword's included. */
+const LABELLED_LINE = /(^|\s)\S+ [A-Z]{2}: /u;
+
+/**
+ * The card's answer lines.
+ *
+ * The headword wears the same label as an answer — deliberately, so the reader
+ * can tell the source language apart at a glance — so it is excluded by identity
+ * rather than by pattern: nothing in the shape of the line distinguishes them.
+ */
 function answerLines(card: string): string[] {
-  return card.split("\n").filter((line) => /^\S+ [A-Z]{2}: /u.test(line));
+  const head = card.split("\n").find((line) => line.includes(`<b>${WORD}</b>`));
+  return card.split("\n").filter((line) => line !== head && /^\S+ [A-Z]{2}: /u.test(line));
 }
 
 function textsOf(sent: CapturedCall[]): string[] {
@@ -94,6 +105,10 @@ function headwordLine(card: string): string {
  */
 function expectSameGrammarAs(translateCard: string, card: string): void {
   expect(headwordLine(card)).toBe(headwordLine(translateCard));
+  // The word being translated names its language the same way its translations
+  // do — flag *and* ISO code. A bare flag is what the headword used to carry, and
+  // two flags are hard to tell apart on a phone.
+  expect(headwordLine(card)).toMatch(LABELLED_LINE);
 
   const lines = answerLines(card);
   expect(lines.length).toBeGreaterThan(0);
@@ -103,6 +118,9 @@ function expectSameGrammarAs(translateCard: string, card: string): void {
   }
   // None of the layout the stored-word cards used to add on their own.
   expect(card).not.toMatch(/<i>[^<]*·/);
+  // Every language on this path resolves, so `🔤` here means a code was lost on
+  // the way from the row to the renderer — not that the language has no flag.
+  expect(card).not.toContain("🔤");
 }
 
 /**

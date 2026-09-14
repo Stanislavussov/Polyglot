@@ -72,12 +72,15 @@ function synonymSuffix(synonyms: readonly string[]): string {
 }
 
 /**
- * The word being learned: emoji, the source-language flag, the word, and its
- * source-language synonyms — the card's only source-language flag, so a surface
- * that also renders a source-usage block must not repeat it there.
+ * The word being learned: emoji, the source-language label, the word, and its
+ * source-language synonyms — the card's only mention of the source language, so a
+ * surface that also renders a source-usage block must not repeat it there.
  *
- * The flag precedes the word rather than trailing it: it says which language the
- * reader is looking at, which is needed before the word, not after.
+ * It wears {@link langLabel}, the same label as every answer, for the reason given
+ * there: a bare flag does not survive a glance on a small screen, and the headword
+ * is the one line whose language the reader must be sure of before reading
+ * anything below it. The label precedes the word rather than trailing it — it says
+ * which language you are looking at, which is needed before the word, not after.
  */
 export function headwordLine(
   headword: string,
@@ -91,15 +94,22 @@ export function headwordLine(
 ): string {
   const emoji = options.emoji ? `${esc(options.emoji)} ` : "";
   const synonyms = synonymSuffix(options.synonyms ?? []);
-  return `${emoji}${langFlag(options.sourceLang)} <b>${esc(headword)}</b>${synonyms}${options.badge ?? ""}`;
+  return `${emoji}${langLabel(options.sourceLang)} <b>${esc(headword)}</b>${synonyms}${options.badge ?? ""}`;
 }
 
 /**
  * A translation — bold, because it is what the reader came for. Every language on
  * the card gets this same line: a secondary language is still an answer, and
  * demoting it to plain text made one card read as two different kinds of list.
+ *
+ * `code` is required, and that is the point: this line promises the reader that
+ * the text beside it is *that language's* word for the headword. Text we cannot
+ * attribute to a language cannot make that promise, so a caller holding an
+ * unresolved language must render it as {@link meaningLine} rather than reach for
+ * a label naming nothing — the `🔤 <b>дом</b>` line that read as a translation
+ * into no language at all.
  */
-export function answerLine(code: string | undefined, text: string, synonyms: readonly string[] = []): string {
+export function answerLine(code: string, text: string, synonyms: readonly string[] = []): string {
   return `${langLabel(code)} <b>${esc(text)}</b>${synonymSuffix(synonyms)}`;
 }
 

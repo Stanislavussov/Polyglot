@@ -75,17 +75,21 @@ const sampleOutput: TranslateOutput = {
 describe("renderTranslation", () => {
   it("renders header with emoji and original word", () => {
     const result = renderTranslation(sampleOutput, "en");
-    expect(result).toContain("👋 🇬🇧 <b>hello</b>");
+    expect(result).toContain("👋 🇬🇧 EN: <b>hello</b>");
   });
 
-  it("renders native meaning under the original with native language label", () => {
+  // The gloss is a sentence *about* the word, so it wears 💡 like every other
+  // piece of prose on the card. Wearing `🇷🇺 RU:` made a description read as the
+  // translation the reader was looking for — the same defect renderWordCard was
+  // fixed for.
+  it("renders the native meaning under the original as a note, never as an answer", () => {
     const result = renderTranslation(sampleOutput, "en", undefined, "ru");
-    expect(result).toContain("🇷🇺 RU: A greeting.");
+    expect(result).toContain("💡 A greeting.");
+    expect(result).not.toContain("🇷🇺 RU: A greeting.");
   });
 
   it("does NOT render native meaning when nativeLang equals sourceLang", () => {
     const result = renderTranslation(sampleOutput, "en", undefined, "en");
-    expect(result).not.toContain("🇬🇧 EN:");
     expect(result).not.toContain("A greeting.");
   });
 
@@ -301,7 +305,7 @@ describe("renderTranslation", () => {
 
     const result = renderTranslation(output, "ru", undefined, "ru");
 
-    expect(result).toContain("🪲 🇨🇿 <b>kudlanka</b> (nábožná kudlanka)");
+    expect(result).toContain("🪲 🇨🇿 CS: <b>kudlanka</b> (nábožná kudlanka)");
     expect(result).toContain("🇷🇺 RU: <b>богомол</b> (богомоловые)");
     expect(result).toContain("💡 Так называют насекомое");
     expect(result).toContain("💬 <i>Na zahradě seděla kudlanka.</i> (В саду сидел богомол.)");
@@ -355,8 +359,8 @@ describe("renderTranslation", () => {
 
     const result = renderTranslation(output, "ru", undefined, "ru");
 
-    expect(result).toContain("🪲 🇨🇿 <b>kudlanka</b> (nábožná kudlanka)");
-    expect(result).toContain("🇷🇺 RU: Так называют насекомое");
+    expect(result).toContain("🪲 🇨🇿 CS: <b>kudlanka</b> (nábožná kudlanka)");
+    expect(result).toContain("💡 Так называют насекомое");
     expect(result).toContain("💬 <i>Na zahradě seděla kudlanka.</i> (В саду сидел богомол.)");
     expect(result).toContain("🇬🇧 EN: <b>mantis</b> (praying mantis)");
   });
@@ -394,7 +398,7 @@ describe("renderTranslation", () => {
       "ru",
     );
 
-    expect(result).toContain("🪲 🇨🇿 <b>kudlanka</b>");
+    expect(result).toContain("🪲 🇨🇿 CS: <b>kudlanka</b>");
     expect(result).not.toContain("nábožná kudlanka");
     expect(result).not.toContain("Na zahradě seděla kudlanka");
   });
@@ -414,7 +418,7 @@ describe("renderTranslation", () => {
 
     const result = renderTranslation(output, "ru", undefined, "ru");
 
-    expect(result).toContain("🪲 🇨🇿 <b>kudlanka</b>");
+    expect(result).toContain("🪲 🇨🇿 CS: <b>kudlanka</b>");
     expect(result).toContain("богомол");
   });
 });
@@ -874,7 +878,7 @@ describe("renderTranslation — idiomatic equivalents", () => {
 
   it("renders the original proverb in the header", () => {
     const result = renderTranslation(idiomaticOutput, "en");
-    expect(result).toContain("🍰 🇨🇿 <b>Bez práce nejsou koláče</b>");
+    expect(result).toContain("🍰 🇨🇿 CS: <b>Bez práce nejsou koláče</b>");
   });
 
   it("does not leak expressionType or equivalentNote into output", () => {
@@ -1116,17 +1120,17 @@ const sentenceOutput: TranslateOutput = {
 describe("renderSentenceTranslation", () => {
   it("renders emoji and original sentence as bold header", () => {
     const result = renderSentenceTranslation(sentenceOutput, "en");
-    expect(result).toContain("💊 🇬🇧 <b>Can you tell me where the nearest pharmacy is?</b>");
+    expect(result).toContain("💊 🇬🇧 EN: <b>Can you tell me where the nearest pharmacy is?</b>");
   });
 
-  it("renders native meaning for sentence translations", () => {
+  it("renders the native meaning for sentence translations as a note", () => {
     const result = renderSentenceTranslation(sentenceOutput, "en", "ru");
-    expect(result).toContain("🇷🇺 RU: A question asking for the location of the closest pharmacy.");
+    expect(result).toContain("💡 A question asking for the location of the closest pharmacy.");
+    expect(result).not.toContain("🇷🇺 RU: A question asking");
   });
 
   it("does NOT render native meaning when nativeLang equals sourceLang", () => {
     const result = renderSentenceTranslation(sentenceOutput, "en", "en");
-    expect(result).not.toContain("🇬🇧 EN:");
     expect(result).not.toContain("A question asking for the location of the closest pharmacy.");
   });
 
@@ -1230,7 +1234,7 @@ describe("renderSentenceTranslation", () => {
 
     it("still shows the original sentence as the header", () => {
       const result = renderSentenceTranslation(learningSourceSentence, "ru", "ru");
-      expect(result).toContain("📚 🇩🇪 <b>Ich habe gestern ein Buch über Geschichte gelesen.</b>");
+      expect(result).toContain("📚 🇩🇪 DE: <b>Ich habe gestern ein Buch über Geschichte gelesen.</b>");
     });
 
     it("does not repeat the original as a source-language translation block", () => {
@@ -1241,7 +1245,10 @@ describe("renderSentenceTranslation", () => {
           de: { text: "Ich habe gestern ein Buch über Geschichte gelesen.", synonyms: [], examples: [] },
         },
       };
-      expect(renderSentenceTranslation(withSourceEcho, "ru", "ru")).not.toContain("🇩🇪 DE: <b>");
+      // The headword now wears the same `🇩🇪 DE:` label every answer does, so
+      // "the source language appears once" is the assertion — not "never".
+      const result = renderSentenceTranslation(withSourceEcho, "ru", "ru");
+      expect(result.match(/🇩🇪 DE: <b>/gu)).toHaveLength(1);
     });
   });
 });

@@ -5,7 +5,7 @@
 import type { VideoPhrase, VideoProcess } from "@polyglot/core";
 import { type SupportedLang, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
-import { answerLine, esc as escapeHtml, exampleLine, headwordLine } from "./card-sections.js";
+import { answerLine, esc as escapeHtml, exampleLine, headwordLine, meaningLine } from "./card-sections.js";
 
 export function renderConfirmation(
   metadata: { title: string; durationSeconds: number; language: string },
@@ -67,7 +67,15 @@ export function renderPhraseList(
       }),
     );
     if (phrase.nativeTranslation) {
-      lines.push(answerLine(langs.native, phrase.nativeTranslation));
+      // A phrase row does not store the language it was translated into, so the
+      // reader's current native language is the only thing that can name it. With
+      // no settings row to name it, the text is a note rather than an answer
+      // labelled with a language nobody vouched for.
+      lines.push(
+        langs.native === undefined
+          ? meaningLine(phrase.nativeTranslation)
+          : answerLine(langs.native, phrase.nativeTranslation),
+      );
     }
     if (phrase.context) {
       lines.push(exampleLine(phrase.context));
