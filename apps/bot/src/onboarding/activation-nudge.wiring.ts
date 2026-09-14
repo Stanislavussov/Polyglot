@@ -15,7 +15,7 @@
  * the user stays eligible for tomorrow's sweep.
  */
 
-import { notificationRepository, userRepository } from "@polyglot/adapter-db";
+import { notificationDeliveryRepository, notificationRepository, userRepository } from "@polyglot/adapter-db";
 import {
   ACTIVATION_NUDGE_SOURCE,
   type ActivationNudgeCandidate,
@@ -33,6 +33,7 @@ import {
 import { type Api, InlineKeyboard, type RawApi } from "grammy";
 import cron from "node-cron";
 import { notificationCounter } from "../metrics.js";
+import { logDelivery, type NotificationDeliveryLog } from "../notifications/delivery-log.js";
 import { isPermanentDeliveryFailure } from "../utils/telegram-errors.js";
 import { buildNudgeCardCallback } from "./activation-nudge.callbacks.js";
 
@@ -67,7 +68,9 @@ function countNudge(status: NudgeStatus): void {
 }
 
 /** The subset of the container the sweep touches. */
-export type ActivationNudgeServices = Pick<ServiceContainer, "userRepository" | "notificationRepository">;
+export type ActivationNudgeServices = Pick<ServiceContainer, "userRepository" | "notificationRepository"> & {
+  notificationDeliveryRepository: NotificationDeliveryLog;
+};
 
 /** The subset of the Telegram API the sweep touches. */
 export type ActivationNudgeApi = Pick<Api<RawApi>, "sendMessage">;
@@ -146,10 +149,9 @@ async function nudgeOne(
     buildNudgeCardCallback(hook.sourceLang, hook.index),
   );
 
+  const text = t("onbNudgeMessage", lang, { word: hook.headword });
   try {
-    await api.sendMessage(candidate.telegramId, t("onbNudgeMessage", lang, { word: hook.headword }), {
-      reply_markup: keyboard,
-    });
+    await api.sendMessage(candidate.telegramId, text, { reply_markup: keyboard });
   } catch (err) {
     // Transient (network, 5xx, flood): rethrow so the sweep counts it as a
     // retryable failure and the user stays eligible tomorrow.
@@ -159,6 +161,13 @@ async function nudgeOne(
   }
 
   // Only now is the user's single nudge spent.
+  // Journaled before the claim write: that write can throw, and the message has already arrived.
+  await logDelivery(services.notificationDeliveryRepository, {
+    userId: candidate.userId,
+    kind: "activation_nudge",
+    text,
+    meta: { word: hook.headword, sourceLang: hook.sourceLang },
+  });
   await services.notificationRepository.recordSentWord(candidate.userId, hook.headword, ACTIVATION_NUDGE_SOURCE);
   countNudge("nudge_sent");
   logEvent("nudge.sent", { headword: hook.headword, sourceLang: hook.sourceLang });
@@ -216,7 +225,11 @@ export function wireActivationNudge(api: Api<RawApi>): void {
   }
 
   nudgeTask = cron.schedule(ACTIVATION_NUDGE_CRON, () => {
-    void runActivationNudgeSweep(api, { userRepository, notificationRepository }).catch((err) => {
+    void runActivationNudgeSweep(api, {
+      userRepository,
+      notificationRepository,
+      notificationDeliveryRepository,
+    }).catch((err) => {
       // Never let a failed sweep crash the process — it retries on the next tick.
       logEvent("nudge.sweep_failed", errorFields(err), "error");
     });

@@ -54,6 +54,12 @@
               {{ new Date(user.createdAt).toLocaleDateString() }}
             </td>
             <td class="whitespace-nowrap px-4 py-3 text-right">
+              <a
+                :href="`/notifications?userId=${user.id}`"
+                class="mr-2 text-sm font-medium text-indigo-600 transition-colors hover:text-indigo-700"
+              >
+                Notifications
+              </a>
               <AppButton variant="link" @click="openPlan(user)">
                 Change Plan
               </AppButton>

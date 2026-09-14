@@ -58,8 +58,7 @@ function makeSession(overrides: Partial<SessionData> = {}): SessionData {
     needsTranslateReminder: true,
     templateWizard: undefined,
     dictionary: undefined,
-    flashcard: undefined,
-    srs: undefined,
+    cards: undefined,
     pendingDetectedLang: undefined,
     pendingWord: undefined,
     pendingDirection: undefined,
@@ -125,6 +124,24 @@ describe("createPostgresSessionStorage", () => {
     expect(result?.translationMap).toEqual(stored.translationMap);
     expect(result?.mentor).toEqual(stored.mentor);
     // The repair is persisted so the next read is already clean.
+    expect(upsertSessionFn).toHaveBeenCalledWith("123", result);
+  });
+
+  it("drops the decks stored before Cards replaced flashcards and /review, and persists the cleaned session", async () => {
+    const current = makeSession({ activeMode: "idle" });
+    const stored = {
+      ...current,
+      flashcard: { deck: [{ id: 1, original: "apple" }], currentIndex: 0 },
+      srs: { deck: [{ translationId: 2 }], currentIndex: 0 },
+    };
+    getSessionFn.mockResolvedValueOnce({ data: stored });
+
+    const result = await createPostgresSessionStorage().read("123");
+
+    expect(result).toEqual(current);
+    expect(result).not.toHaveProperty("flashcard");
+    expect(result).not.toHaveProperty("srs");
+    expect(deleteSessionFn).not.toHaveBeenCalled();
     expect(upsertSessionFn).toHaveBeenCalledWith("123", result);
   });
 

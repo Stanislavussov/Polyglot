@@ -52,7 +52,7 @@ const DEFAULTS: {
 } = {
   srs: { minEaseFactor: 1.3, defaultEaseFactor: 2.5 },
   notifications: { defaultTime: "19:00", defaultType: "srs", inactivityDays: 14, notificationTimesLimit: 12 },
-  dictionary: { flashcardLimit: 10, notificationDictLimit: 1, wordOfDayLimit: 1 },
+  dictionary: { flashcardLimit: 10 },
   videoVocabulary: {
     monthlyLimit: 3,
     minPhrases: 15,

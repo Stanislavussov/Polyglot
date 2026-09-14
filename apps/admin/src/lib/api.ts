@@ -641,6 +641,51 @@ export const users = {
     put<void>(`/api/users/${id}/audience-group`, { audienceGroup }),
 };
 
+export type NotificationDeliveryKind =
+  | "word_card"
+  | "re_engagement"
+  | "dictionary_empty"
+  | "activation_nudge"
+  | "trial"
+  | "release_announcement";
+
+export interface NotificationDelivery {
+  id: number;
+  userId: number;
+  kind: NotificationDeliveryKind;
+  text: string;
+  /** `HTML` when `text` carries Telegram markup; null for plain text. */
+  parseMode: string | null;
+  meta: Record<string, string | number | null> | null;
+  sentAt: string;
+  user: {
+    id: number;
+    telegramId: number;
+    username: string | null;
+  };
+}
+
+export interface NotificationDeliveriesResponse {
+  deliveries: NotificationDelivery[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export const notificationDeliveries = {
+  list: (
+    page = 1,
+    limit = 20,
+    filters: { userId?: number; kind?: NotificationDeliveryKind | ""; search?: string } = {},
+  ) => {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (filters.userId !== undefined) params.set("userId", String(filters.userId));
+    if (filters.kind) params.set("kind", filters.kind);
+    if (filters.search) params.set("search", filters.search);
+    return get<NotificationDeliveriesResponse>(`/api/notification-deliveries?${params}`);
+  },
+};
+
 export type IssueType = "bug" | "suggestion" | "other";
 export type IssueStatus = "open" | "in_progress" | "resolved" | "rejected";
 

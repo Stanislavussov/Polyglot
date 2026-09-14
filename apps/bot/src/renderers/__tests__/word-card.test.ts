@@ -84,13 +84,13 @@ describe("renderWordCard — parity with the translate card", () => {
 });
 
 describe("renderWordCard — headword", () => {
-  it("puts the source flag beside the word and no provenance chrome above it", () => {
+  it("puts the source label beside the word and no provenance chrome above it", () => {
     const card = renderWordCard(
       { original: "Haus", emoji: "🏠", sourceLang: "de", langs: [{ code: "ru", text: "дом" }] },
       "ru",
     );
 
-    expect(card.split("\n")[0]).toBe("🏠 🇩🇪 <b>Haus</b>");
+    expect(card.split("\n")[0]).toBe("🏠 🇩🇪 DE: <b>Haus</b>");
     // The old dictionary/flashcard chrome line — the translate card never had it.
     expect(card).not.toMatch(/<i>[^<]*·/);
   });
@@ -116,11 +116,21 @@ describe("renderWordCard — headword", () => {
     expect(card).toContain("🇷🇺 RU: <b>дом</b> (жилище, здание)");
   });
 
-  it("falls back to 🔤 for a language whose row no longer resolves", () => {
-    const card = renderWordCard({ original: "Haus", langs: [{ text: "дом" }] }, "ru");
+  it("keeps the headword's label slot when the source language no longer resolves", () => {
+    const card = renderWordCard({ original: "Haus", langs: [] }, "ru");
 
     expect(card).toContain("🔤 <b>Haus</b>");
-    expect(card).toContain("🔤 <b>дом</b>");
+  });
+
+  // An answer line is a promise that the text beside it is *that language's* word.
+  // A row whose language no longer resolves cannot make that promise, so it drops
+  // to a note rather than wearing a label that names nothing.
+  it("renders a translation whose language no longer resolves as a note, not as an answer", () => {
+    const card = renderWordCard({ original: "Haus", langs: [{ text: "дом" }] }, "ru");
+
+    expect(card).toContain("💡 дом");
+    expect(card).not.toContain("🔤 <b>дом</b>");
+    expect(card).not.toMatch(/🔤:? <b>дом<\/b>/u);
   });
 
   it("escapes HTML in every slot", () => {

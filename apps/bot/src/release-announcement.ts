@@ -1,6 +1,14 @@
-import { AUDIENCE_GROUPS, identityRepository, isAudienceGroup, userRepository } from "@polyglot/adapter-db";
+import {
+  AUDIENCE_GROUPS,
+  identityRepository,
+  isAudienceGroup,
+  notificationDeliveryRepository,
+  type RecordNotificationDeliveryInput,
+  userRepository,
+} from "@polyglot/adapter-db";
 import type { AudienceGroup, User } from "@polyglot/core";
 import { logger } from "@polyglot/core";
+import { logDelivery } from "./notifications/delivery-log.js";
 
 export interface ReleaseAnnouncementEnv {
   RELEASE_ID?: string;
@@ -25,6 +33,7 @@ export interface ReleaseAnnouncementRepository {
   recordReleaseAnnouncementDelivery(releaseId: string, audienceGroup: AudienceGroup, userId: number): Promise<void>;
   /** Resolve the channel external id (Telegram chat id) for a neutral userId (Fable T24/A1). */
   findExternalId(userId: number, channel: string): Promise<string | null>;
+  recordNotificationDelivery(input: RecordNotificationDeliveryInput): Promise<void>;
 }
 
 /**
@@ -39,6 +48,7 @@ const defaultRepository: ReleaseAnnouncementRepository = {
   recordReleaseAnnouncementDelivery: (releaseId, audienceGroup, userId) =>
     userRepository.recordReleaseAnnouncementDelivery(releaseId, audienceGroup, userId),
   findExternalId: (userId, channel) => identityRepository.findExternalId(userId, channel),
+  recordNotificationDelivery: (input) => notificationDeliveryRepository.record(input),
 };
 
 export interface ReleaseAnnouncementResult {
@@ -141,11 +151,16 @@ export async function sendReleaseAnnouncement(
     }
 
     attempted += 1;
+    const text = formatAnnouncementHtml(message);
     try {
-      await messenger.sendMessage(Number(externalId), formatAnnouncementHtml(message), {
+      await messenger.sendMessage(Number(externalId), text, {
         parse_mode: "HTML",
         disable_web_page_preview: true,
       });
+      await logDelivery(
+        { record: (input) => repository.recordNotificationDelivery(input) },
+        { userId: user.id, kind: "release_announcement", text, parseMode: "HTML", meta: { releaseId } },
+      );
       await repository.recordReleaseAnnouncementDelivery(releaseId, user.audienceGroup, user.id);
       delivered += 1;
     } catch (err) {

@@ -10,13 +10,13 @@
  * The unit lane pins each renderer's output against the translate card. This file
  * covers what that cannot: the defect lived in *which* renderer a callback
  * reaches, and in what the surfaces upstream of the renderer actually hand it —
- * a session-held flashcard deck and an SRS row are different projections of the
- * same saved word, and a projection that drops a field diverges no matter how
- * faithful the renderer is.
+ * a session-held Cards deck is a projection of the saved word, and a projection
+ * that drops a field diverges no matter how faithful the renderer is.
  *
  * Every case walks a real user path: translate → save → open it from somewhere.
  */
 import { userRepository, vocabularyRepository } from "@polyglot/adapter-db";
+import { t } from "@polyglot/core";
 import { describe, expect, it } from "vitest";
 import { arrangeOnboardedTranslator } from "../../test-helpers/integration/arrange.js";
 import type { BotHarness, CapturedCall } from "../../test-helpers/integration/bot-harness.js";
@@ -35,8 +35,19 @@ const WORD = "hello";
 /** `🇷🇺 RU: <b>…</b>` — the shape the translate card gives every language. */
 const ANSWER_LINE = /^\S+ [A-Z]{2}: <b>[^<]+<\/b>( \([^)]+\))?$/u;
 
+/** Any line wearing the shared flag-and-code label, the headword's included. */
+const LABELLED_LINE = /(^|\s)\S+ [A-Z]{2}: /u;
+
+/**
+ * The card's answer lines.
+ *
+ * The headword wears the same label as an answer — deliberately, so the reader
+ * can tell the source language apart at a glance — so it is excluded by identity
+ * rather than by pattern: nothing in the shape of the line distinguishes them.
+ */
 function answerLines(card: string): string[] {
-  return card.split("\n").filter((line) => /^\S+ [A-Z]{2}: /u.test(line));
+  const head = card.split("\n").find((line) => line.includes(`<b>${WORD}</b>`));
+  return card.split("\n").filter((line) => line !== head && /^\S+ [A-Z]{2}: /u.test(line));
 }
 
 function textsOf(sent: CapturedCall[]): string[] {
@@ -94,6 +105,10 @@ function headwordLine(card: string): string {
  */
 function expectSameGrammarAs(translateCard: string, card: string): void {
   expect(headwordLine(card)).toBe(headwordLine(translateCard));
+  // The word being translated names its language the same way its translations
+  // do — flag *and* ISO code. A bare flag is what the headword used to carry, and
+  // two flags are hard to tell apart on a phone.
+  expect(headwordLine(card)).toMatch(LABELLED_LINE);
 
   const lines = answerLines(card);
   expect(lines.length).toBeGreaterThan(0);
@@ -103,6 +118,9 @@ function expectSameGrammarAs(translateCard: string, card: string): void {
   }
   // None of the layout the stored-word cards used to add on their own.
   expect(card).not.toMatch(/<i>[^<]*·/);
+  // Every language on this path resolves, so `🔤` here means a code was lost on
+  // the way from the row to the renderer — not that the language has no flag.
+  expect(card).not.toContain("🔤");
 }
 
 /**
@@ -170,18 +188,21 @@ describe("word card consistency (integration)", () => {
     expectSameGrammarAs(translateCard, lastCardText(harness.sent));
   });
 
-  it("W3: a flashcard hides the answer on the front and reveals it in the shared grammar", async () => {
+  it("W3: a practice-ahead card hides the answer on the front and reveals it in the shared grammar", async () => {
     const harness = createBotHarness({ ai: deterministicTranslateAi() });
     const id = uniqueTelegramId();
     const { translateCard } = await arrangeSavedWord(harness, id);
 
+    // A freshly saved word is due tomorrow, so today's deck practises it ahead.
     harness.reset();
     await harness.dispatch(messageUpdate({ chatId: id, fromId: id, text: "/flashcard" }));
     const front = lastKeyboard(harness.sent);
     const frontText = textsOf(harness.sent).at(-1) ?? "";
 
-    // The front is a recall prompt: the word, and none of the answers.
+    // The front is a recall prompt: the word, the language to recall, and none of the answers.
     expect(frontText).toContain(`<b>${WORD}</b>`);
+    expect(frontText).toMatch(/<i>→ \S+ .+<\/i>/u);
+    expect(frontText).toContain(t("cardsAheadNote", "en"));
     expect(answerLines(frontText)).toEqual([]);
 
     harness.reset();
@@ -189,10 +210,12 @@ describe("word card consistency (integration)", () => {
       callbackQueryUpdate({ chatId: id, fromId: id, messageId: front.messageId, data: "fc:reveal" }),
     );
 
-    expectSameGrammarAs(translateCard, lastCardText(harness.sent));
+    const back = lastCardText(harness.sent);
+    expectSameGrammarAs(translateCard, back);
+    expect(answerLines(back)).toHaveLength(1);
   });
 
-  it("W4: an SRS review names the recalled language and reveals it in the shared grammar", async () => {
+  it("W4: a due card opened by /review names the recalled language and reveals it in the shared grammar", async () => {
     const harness = createBotHarness({ ai: deterministicTranslateAi() });
     const id = uniqueTelegramId();
     const { userId, translateCard } = await arrangeSavedWord(harness, id);
@@ -214,18 +237,19 @@ describe("word card consistency (integration)", () => {
     const front = lastKeyboard(harness.sent);
     const frontText = textsOf(harness.sent).at(-1) ?? "";
 
-    // Which language to recall is the one thing an SRS front cannot leave out.
+    // Which language to recall is the one thing a card front cannot leave out.
     expect(frontText).toMatch(/<i>→ \S+ .+<\/i>/u);
+    expect(frontText).not.toContain(t("cardsAheadNote", "en"));
     expect(answerLines(frontText)).toEqual([]);
 
     harness.reset();
     await harness.dispatch(
-      callbackQueryUpdate({ chatId: id, fromId: id, messageId: front.messageId, data: "srs:reveal" }),
+      callbackQueryUpdate({ chatId: id, fromId: id, messageId: front.messageId, data: "fc:reveal" }),
     );
 
     const back = lastCardText(harness.sent);
     expectSameGrammarAs(translateCard, back);
-    // A review asks for one language, so the back promotes exactly that one.
+    // A card asks for one language, so the back promotes exactly that one.
     expect(answerLines(back)).toHaveLength(1);
   });
 

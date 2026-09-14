@@ -41,8 +41,8 @@ describe("formatNotificationMessage", () => {
   // nothing else. Everything it used to inline is behind Reveal, which opens the
   // card the word was translated on.
 
-  it("renders emoji, the source flag and the word — the headword the Reveal card shows", () => {
-    expect(formatNotificationMessage(srsPayload, "en")).toContain("🏠 🇬🇧 <b>house</b>");
+  it("renders emoji, the source label and the word — the headword the Reveal card shows", () => {
+    expect(formatNotificationMessage(srsPayload, "en")).toContain("🏠 🇬🇧 EN: <b>house</b>");
   });
 
   it("prefers the stored citation form, as the card behind Reveal does", () => {

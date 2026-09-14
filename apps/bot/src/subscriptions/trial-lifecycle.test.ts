@@ -117,6 +117,7 @@ function harness(
     momentumRepository: {
       countEventsSince: vi.fn(async () => options.wordsSaved ?? 0),
     },
+    notificationDeliveryRepository: { record: vi.fn(async () => {}) },
   };
 
   const api = { sendMessage: vi.fn(async () => ({ message_id: 1 })) };
@@ -149,6 +150,12 @@ describe("trial lifecycle sweep — a day before the end", () => {
     expect(h.history).toEqual([{ userId: USER_ID, source: TRIAL_ENDING_SOURCE }]);
     expect(h.services.subscriptionRepository.extend).not.toHaveBeenCalled();
     expect(h.plan).toBe(TRIAL_PLAN);
+    expect(h.services.notificationDeliveryRepository.record).toHaveBeenCalledWith({
+      userId: USER_ID,
+      kind: "trial",
+      text: sentText(h.api),
+      meta: { source: TRIAL_ENDING_SOURCE },
+    });
   });
 
   it("drops the earn-more offer once the extension is on the row, and files it separately", async () => {

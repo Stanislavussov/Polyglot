@@ -92,7 +92,13 @@ function splitExamples(examples: readonly Example[] | undefined): { visible: str
 }
 
 function langBlock(entry: WordCardLang, lang: SupportedLang): string[] {
-  const lines = [answerLine(entry.code, entry.text, texts(entry.synonyms))];
+  // Without a resolved language the text is still worth showing, but it is not an
+  // answer: `🇷🇺 RU:` promises *this* language's word, and a label naming nothing
+  // cannot. It drops to a note, which is what the card already does with prose it
+  // cannot attribute. Synonyms go with the label — a note has no slot for them.
+  const lines = [
+    entry.code === undefined ? meaningLine(entry.text) : answerLine(entry.code, entry.text, texts(entry.synonyms)),
+  ];
   const { visible, folded } = splitExamples(entry.examples);
   lines.push(...visible);
   if (entry.usageNote) {

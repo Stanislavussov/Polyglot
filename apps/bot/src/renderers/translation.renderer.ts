@@ -1,27 +1,47 @@
 /**
  * Renders AI translation output and topic words for Telegram.
  * Uses HTML parse mode for safe rendering of dynamic content.
+ *
+ * Every line of card text comes from `card-sections.ts` — the headword, each
+ * answer, each example, each note. This module used to build them inline, which
+ * is how the live card and the stored-word card drifted apart: a fix to the
+ * shared grammar reached `renderWordCard` and stopped here. Build a card line by
+ * hand below and that gap reopens; add the atom to `card-sections.ts` instead.
+ * Keyboard labels are not card text, and are the one place `getLangFlag` is still
+ * read directly — a button has room for the flag alone.
  */
 
 import type {
   FeatureKey,
+  I18nKey,
+  InputType,
   LanguageOrderContext,
   LanguageTranslation,
   SupportedLang,
   TemplateFields,
   TranslateOutput,
+  VocabDifficulty,
 } from "@polyglot/core";
 import { FEATURE_KEYS, getLangFlag, isSupported, orderRecordEntries, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import { NOOP_CALLBACK } from "../utils/long-op.js";
-import { expandableSection } from "./card-sections.js";
+import { answerLine, esc, exampleLine, expandableSection, headwordLine, meaningLine } from "./card-sections.js";
+import { appendGradeRow, notifGradeCallback } from "./grade-row.js";
+
+const EXPLORE_LABEL: Record<InputType, I18nKey> = {
+  word: "cardExploreWord",
+  phrase: "cardExplorePhrase",
+  sentence: "cardExploreSentence",
+};
 
 export interface TranslationKeyboardOptions {
   interfaceLang?: string;
   msgId?: number;
   isAlreadySaved?: boolean;
-  /** Show the action list rather than the `⋯ More` button that opens it. */
+  /** Show the action list rather than the `🔍 Explore this word` button that opens it. */
   expanded?: boolean;
+  /** What was translated — names it on the button that opens the action list; a word when absent. */
+  inputType?: InputType;
   showEtymologyButton?: boolean;
   showMentorButton?: boolean;
   sourceOverrideLangs?: readonly string[];
@@ -34,20 +54,8 @@ export interface TranslationKeyboardOptions {
    * tap opens — a screen that then offers exactly the tier the glyph named.
    */
   locked?: ReadonlyMap<string, string>;
-}
-
-/** Escape HTML special characters for Telegram */
-function esc(text: string): string {
-  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-}
-
-/**
- * Header emoji prefix. Optional: sentence translations omit the emoji
- * (includeEmoji: false), so render an escaped "emoji " prefix when present and
- * nothing (no dangling space) when absent.
- */
-function emojiPrefix(emoji: string | undefined): string {
-  return emoji ? `${esc(emoji)} ` : "";
+  /** Recall grades for a card opened from a notification nudge — the entry they grade and the grade on file. */
+  grades?: { entryId: number; selected?: VocabDifficulty | null };
 }
 
 /** Resolve a string to SupportedLang with "en" fallback */
@@ -55,11 +63,16 @@ function toLang(lang?: string): SupportedLang {
   return lang && isSupported(lang) ? lang : "en";
 }
 
-function renderNativeMeaningLine(nativeLang: string | undefined, nativeMeaning: string | undefined): string | null {
-  if (!nativeMeaning) return null;
-  if (!nativeLang) return esc(nativeMeaning);
-  const flag = getLangFlag(nativeLang) ?? "🔤";
-  return `${flag} ${esc(nativeLang.toUpperCase())}: ${esc(nativeMeaning)}`;
+/**
+ * The stored gloss, as a note.
+ *
+ * Never an answer line: the gloss is a sentence *about* the word ("Богомол;
+ * название насекомого."), and wearing `🇷🇺 RU:` made a paragraph of description
+ * read as the translation the reader was hunting for. `renderWordCard` has
+ * treated it this way since the same defect was fixed there.
+ */
+function renderNativeMeaningLine(nativeMeaning: string | undefined): string | null {
+  return nativeMeaning ? meaningLine(nativeMeaning) : null;
 }
 
 function isReverseLearningTranslation(output: TranslateOutput, nativeLang: string | undefined): boolean {
@@ -75,43 +88,39 @@ function renderSourceUsageBlock(
   if (!usage) return [];
 
   const lines: string[] = [];
-  const sourceFlag = getLangFlag(output.sourceLang) ?? "🔤";
   const showSynonyms = fields?.synonyms !== false && usage.synonyms.length > 0;
-  const synonyms = showSynonyms ? ` (${usage.synonyms.map((s) => esc(s.text)).join(", ")})` : "";
+  const synonyms = showSynonyms ? usage.synonyms.map((s) => s.text) : [];
 
   // Prefer the canonical citation form (e.g. German "die Arbeit") when the model
   // supplied one; the raw input stays in output.original for save/dedup.
   const headword = usage.headword?.trim() ? usage.headword : output.original;
-  lines.push(`${emojiPrefix(output.emoji)}${sourceFlag} <b>${esc(headword)}</b>${synonyms}`);
+  lines.push(headwordLine(headword, { emoji: output.emoji, sourceLang: output.sourceLang, synonyms }));
 
   const nativeTranslation = nativeLang ? output.translations[nativeLang] : undefined;
 
   // With a native translation the explanation is supplementary prose and folds
-  // below the examples; without one it IS the answer, so it stays visible.
+  // below the examples; without one it IS the answer, so it stays visible — but a
+  // note either way, never a labelled answer line: it is a description of the
+  // word, and dressing it as the missing translation is the defect this card was
+  // already fixed for once.
   const details: string[] = [];
   if (nativeTranslation && nativeLang) {
     lines.push("");
-    const nativeFlag = getLangFlag(nativeLang) ?? "🔤";
-    const nativeLabel = `${nativeFlag} ${esc(nativeLang.toUpperCase())}`;
     const showNativeSyns = fields?.synonyms !== false && nativeTranslation.synonyms.length > 0;
-    const nativeSyns = showNativeSyns ? ` (${nativeTranslation.synonyms.map((s) => esc(s.text)).join(", ")})` : "";
-    lines.push(`${nativeLabel}: <b>${esc(nativeTranslation.text)}</b>${nativeSyns}`);
+    const nativeSyns = showNativeSyns ? nativeTranslation.synonyms.map((s) => s.text) : [];
+    lines.push(answerLine(nativeLang, nativeTranslation.text, nativeSyns));
 
     if (usage.explanation) {
-      details.push(`💡 ${esc(usage.explanation)}`);
+      details.push(meaningLine(usage.explanation));
     }
   } else if (usage.explanation) {
     lines.push("");
-    const nativeFlag = nativeLang ? (getLangFlag(nativeLang) ?? "🔤") : "🔤";
-    const label = nativeLang ? `${nativeFlag} ${esc(nativeLang.toUpperCase())}` : nativeFlag;
-    lines.push(`${label}: ${esc(usage.explanation)}`);
+    lines.push(meaningLine(usage.explanation));
   }
 
   if (fields?.examples !== false && usage.examples.length > 0) {
     lines.push("");
-    const [first, ...rest] = usage.examples.map(
-      (ex) => `💬 <i>${esc(ex.target)}</i>${ex.native ? ` (${esc(ex.native)})` : ""}`,
-    );
+    const [first, ...rest] = usage.examples.map((ex) => exampleLine(ex.target, ex.native));
     lines.push(first!);
     details.unshift(...rest);
   }
@@ -159,17 +168,18 @@ export function renderTranslation(
   const sourceUsageLines = hideSourceText ? renderSourceUsageBlock(output, nativeLang, templateFields) : [];
 
   const showNativeSyns = !hideSourceText && templateFields?.synonyms !== false && output.nativeSynonyms.length > 0;
-  const nativeSyns = showNativeSyns ? ` (${output.nativeSynonyms.map((s) => esc(s.text)).join(", ")})` : "";
-  const sourceFlag = getLangFlag(output.sourceLang) ?? "🔤";
+  const nativeSyns = showNativeSyns ? output.nativeSynonyms.map((s) => s.text) : [];
   if (sourceUsageLines.length > 0) {
     lines.push(...sourceUsageLines);
   } else {
     // Reverse direction without a sourceUsage block (the model may omit it) still
     // needs the headword: dropping it left the user with translations of a word
     // the card never named.
-    lines.push(`${emojiPrefix(output.emoji)}${sourceFlag} <b>${esc(output.original)}</b>${nativeSyns}`);
+    lines.push(
+      headwordLine(output.original, { emoji: output.emoji, sourceLang: output.sourceLang, synonyms: nativeSyns }),
+    );
   }
-  const nativeMeaningLine = renderNativeMeaningLine(nativeLang, output.nativeMeaning);
+  const nativeMeaningLine = renderNativeMeaningLine(output.nativeMeaning);
   const hasNativeTranslation = nativeLang !== undefined && output.translations[nativeLang] !== undefined;
   if (nativeMeaningLine && nativeLang !== output.sourceLang && sourceUsageLines.length === 0 && !hasNativeTranslation) {
     lines.push(nativeMeaningLine);
@@ -205,15 +215,11 @@ function renderEtymologySection(etymology: string, lang: SupportedLang): string 
 function renderLangBlock(code: string, lt: LanguageTranslation, lang: SupportedLang, fields?: TemplateFields): string {
   const lines: string[] = [];
 
-  const header = `<b>${esc(lt.text)}</b>`;
-
   // Inline synonyms: omit when fields?.synonyms === false
   const showSynonyms = fields?.synonyms !== false;
-  const synInline =
-    showSynonyms && lt.synonyms.length > 0 ? ` (${lt.synonyms.map((s) => esc(s.text)).join(", ")})` : "";
+  const synInline = showSynonyms ? lt.synonyms.map((s) => s.text) : [];
 
-  const flag = getLangFlag(code) ?? "🔤";
-  lines.push(`${flag} ${esc(code.toUpperCase())}: ${header}${synInline}`);
+  lines.push(answerLine(code, lt.text, synInline));
 
   // Alternatives: omit when fields?.alternatives === false
   if (fields?.alternatives !== false && lt.alternatives && lt.alternatives.length > 0) {
@@ -228,14 +234,12 @@ function renderLangBlock(code: string, lt: LanguageTranslation, lang: SupportedL
   // it leaves no empty blockquote behind.
   const details: string[] = [];
   if (fields?.examples !== false && lt.examples.length > 0) {
-    const [first, ...rest] = lt.examples.map(
-      (ex) => `💬 <i>${esc(ex.target)}</i>${ex.native ? ` (${esc(ex.native)})` : ""}`,
-    );
+    const [first, ...rest] = lt.examples.map((ex) => exampleLine(ex.target, ex.native));
     lines.push(first!);
     details.push(...rest);
   }
   if (lt.usageNote) {
-    details.push(`💡 ${esc(lt.usageNote)}`);
+    details.push(meaningLine(lt.usageNote));
   }
   if (fields?.connotationWarning !== false && lt.connotationWarning) {
     details.push(t("connotationWarning", lang, { warning: esc(lt.connotationWarning) }));
@@ -275,11 +279,10 @@ export function renderSentenceTranslation(
   }
   const hideSourceText = isReverseLearningTranslation(output, nativeLang);
 
-  const sourceFlag = getLangFlag(output.sourceLang) ?? "🔤";
   // Always shown, in both directions: a sentence has no sourceUsage block to carry
   // the original the way a word card does, so hiding it left an unanchored card.
-  lines.push(`${emojiPrefix(output.emoji)}${sourceFlag} <b>${esc(output.original)}</b>`);
-  const nativeMeaningLine = renderNativeMeaningLine(nativeLang, output.nativeMeaning);
+  lines.push(headwordLine(output.original, { emoji: output.emoji, sourceLang: output.sourceLang }));
+  const nativeMeaningLine = renderNativeMeaningLine(output.nativeMeaning);
   const hasNativeTranslation = nativeLang !== undefined && output.translations[nativeLang] !== undefined;
   if (nativeMeaningLine && nativeLang !== output.sourceLang && !hasNativeTranslation) {
     lines.push(nativeMeaningLine);
@@ -301,9 +304,7 @@ export function renderSentenceTranslation(
 
 /** Render a single language block for sentence translation (compact) */
 function renderSentenceLangBlock(code: string, lt: LanguageTranslation): string {
-  const flag = getLangFlag(code) ?? "🔤";
-  const header = `<b>${esc(lt.text)}</b>`;
-  return `${flag} ${esc(code.toUpperCase())}: ${header}`;
+  return answerLine(code, lt.text);
 }
 
 /** One inline button, before it is placed into a row. */
@@ -344,10 +345,10 @@ function appendInRows(kb: InlineKeyboard, buttons: readonly CardButton[], perRow
  * **Collapsed** (the default, what a fresh card wears):
  * ```
  * 🔊 🇩🇪  🔊 🇨🇿
- * ⋯ More
+ * 🔍 Explore this word      (phrase / sentence, per `inputType`)
  * 💾 Save
  * ```
- * **Expanded** (after `⋯ More`) — the actions two to a row, then the
+ * **Expanded** (after `🔍 Explore`) — the actions two to a row, then the
  * source-language override, then the same speakers, then the way back:
  * ```
  * 🎯 Clarify meaning  🔄 Other meaning
@@ -399,10 +400,17 @@ export function buildTranslationKeyboard(options: TranslationKeyboardOptions = {
     sourceOverrideLangs,
     pronounceLangs,
     locked,
+    grades,
+    inputType,
   } = options;
   const lang = toLang(interfaceLang);
   const kb = new InlineKeyboard();
   const mid = msgId ?? 0;
+  // First row in both states: the grade answers the question the nudge asked, and
+  // opening the action list must not move it out from under the reader's thumb.
+  if (grades) {
+    appendGradeRow(kb, lang, (grade) => notifGradeCallback(grade, grades.entryId), grades.selected);
+  }
   /** Label + the badge of the plan that sells it, when this viewer's plan does not. */
   const label = (text: string, feature: FeatureKey): string => {
     const badge = locked?.get(feature);
@@ -440,7 +448,7 @@ export function buildTranslationKeyboard(options: TranslationKeyboardOptions = {
     appendInRows(
       kb,
       [
-        { text: t("cardMoreActions", lang), data: `tr:more:${mid}` },
+        { text: t(EXPLORE_LABEL[inputType ?? "word"], lang), data: `tr:more:${mid}` },
         {
           text: isAlreadySaved ? t("alreadySavedButton", lang) : t("save", lang),
           data: `tr:save:${mid}`,

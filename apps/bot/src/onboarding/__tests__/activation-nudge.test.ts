@@ -52,7 +52,7 @@ function createNudgeServices(pool: ActivationNudgeCandidate[]): {
   history: Array<{ userId: number; original: string; source: string }>;
 } {
   const history: Array<{ userId: number; original: string; source: string }> = [];
-  const services = createServicesStub();
+  const services = { ...createServicesStub(), notificationDeliveryRepository: { record: vi.fn(async () => {}) } };
 
   vi.mocked(services.userRepository.findActivationNudgeCandidates).mockImplementation(async () =>
     pool.filter((user) => !history.some((row) => row.userId === user.userId && row.source === ACTIVATION_NUDGE_SOURCE)),
@@ -80,6 +80,33 @@ describe("runActivationNudgeSweep", () => {
     expect(options.reply_markup.inline_keyboard[0][0].callback_data).toBe(buildNudgeCardCallback("de", 0));
 
     expect(history).toEqual([{ userId: 1, original: DE_FIRST_HOOK, source: ACTIVATION_NUDGE_SOURCE }]);
+    expect(services.notificationDeliveryRepository.record).toHaveBeenCalledWith({
+      userId: 1,
+      kind: "activation_nudge",
+      text,
+      meta: { word: DE_FIRST_HOOK, sourceLang: "de" },
+    });
+  });
+
+  it("still spends the nudge when the delivery journal write fails", async () => {
+    const { services, history } = createNudgeServices([candidate()]);
+    vi.mocked(services.notificationDeliveryRepository.record).mockRejectedValue(new Error("db down"));
+    const sendMessage = vi.fn().mockResolvedValue({ message_id: 1 });
+
+    await runActivationNudgeSweep({ sendMessage }, services, NOW);
+    await runActivationNudgeSweep({ sendMessage }, services, NOW);
+
+    expect(sendMessage).toHaveBeenCalledTimes(1);
+    expect(history).toHaveLength(1);
+  });
+
+  it("journals nothing when the Telegram send fails", async () => {
+    const { services } = createNudgeServices([candidate()]);
+    const sendMessage = vi.fn().mockRejectedValue(new Error("ETIMEDOUT"));
+
+    await runActivationNudgeSweep({ sendMessage }, services, NOW);
+
+    expect(services.notificationDeliveryRepository.record).not.toHaveBeenCalled();
   });
 
   it("sends nothing on a second sweep once the delivery is recorded", async () => {

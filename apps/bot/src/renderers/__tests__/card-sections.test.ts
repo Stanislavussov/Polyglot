@@ -91,8 +91,11 @@ describe("langLabel", () => {
 });
 
 describe("line builders", () => {
-  it("puts the source flag before the word, where it says what you are reading", () => {
-    expect(headwordLine("Haus", { emoji: "🏠", sourceLang: "de" })).toBe("🏠 🇩🇪 <b>Haus</b>");
+  // The same label every answer wears. A bare flag was what the headword had,
+  // and a bare flag is exactly what langLabel's own comment calls not enough to
+  // tell two languages apart at a glance.
+  it("introduces the word with the same flag-and-code label every answer wears", () => {
+    expect(headwordLine("Haus", { emoji: "🏠", sourceLang: "de" })).toBe("🏠 🇩🇪 DE: <b>Haus</b>");
   });
 
   it("keeps the flag slot when the source language does not resolve", () => {
@@ -100,11 +103,11 @@ describe("line builders", () => {
   });
 
   it("carries source synonyms on the headword's own line", () => {
-    expect(headwordLine("Haus", { sourceLang: "de", synonyms: ["Gebäude"] })).toBe("🇩🇪 <b>Haus</b> (Gebäude)");
+    expect(headwordLine("Haus", { sourceLang: "de", synonyms: ["Gebäude"] })).toBe("🇩🇪 DE: <b>Haus</b> (Gebäude)");
   });
 
   it("appends a per-surface badge after the word, never inside it", () => {
-    expect(headwordLine("Haus", { sourceLang: "de", badge: " ✅" })).toBe("🇩🇪 <b>Haus</b> ✅");
+    expect(headwordLine("Haus", { sourceLang: "de", badge: " ✅" })).toBe("🇩🇪 DE: <b>Haus</b> ✅");
   });
 
   it("renders every language with the same bold answer line", () => {

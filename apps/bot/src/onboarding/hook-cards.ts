@@ -95,6 +95,7 @@ export async function sendCachedDemoCard(
     interfaceLang: opts.interfaceLang,
     msgId: cardMsg.message_id,
     isAlreadySaved: false,
+    inputType: classifyInput(opts.headword).type,
     locked: await resolveLockedBadges(ctx),
   });
   await ctx.api.editMessageReplyMarkup(ctx.chat!.id, cardMsg.message_id, { reply_markup: keyboard });

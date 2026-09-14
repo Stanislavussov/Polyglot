@@ -33,6 +33,7 @@
  * This deviation is deliberate.
  */
 import {
+  notificationDeliveryRepository,
   notificationRepository,
   systemSettingsRepository,
   translationRequestRepository,
@@ -130,6 +131,12 @@ async function deliveryDelta(act: () => Promise<unknown>): Promise<Record<string
 
 function textOf(call: CapturedCall): string {
   return String((call.payload as { text?: string }).text ?? "");
+}
+
+/** The admin panel's view of what this user was sent, newest first. */
+async function journalFor(userId: number) {
+  const { deliveries } = await notificationDeliveryRepository.list({ page: 1, limit: 10, userId });
+  return deliveries;
 }
 
 /** Users the current test created. Drained unconditionally in `afterEach`. */
@@ -253,6 +260,9 @@ describe("scheduled notification delivery (integration)", () => {
     expect(mine).toHaveLength(1);
     expect(textOf(mine[0]!)).toContain("Your dictionary is empty");
     expect(await notificationRepository.getSentWordsSince(userId, since)).toEqual([]);
+    expect((await journalFor(userId)).map((row) => [row.kind, row.text])).toEqual([
+      ["dictionary_empty", textOf(mine[0]!)],
+    ]);
     expect(ai.wasCalled()).toBe(false);
   });
 
@@ -277,6 +287,34 @@ describe("scheduled notification delivery (integration)", () => {
     expect(await notificationRepository.getSentWordsSince(userId, since)).toEqual([]);
     const settings = await userRepository.getSettings(userId);
     expect(settings?.notificationEnabled).toBe(false);
+    // A message Telegram refused never reached the chat, so the admin must not see it as delivered.
+    expect(await journalFor(userId)).toEqual([]);
+    expect(ai.wasCalled()).toBe(false);
+  });
+
+  it("C15: journals the delivered card with the exact text that reached the chat", async () => {
+    // Arrange
+    const harness = createBotHarness();
+    const telegramId = uniqueTelegramId();
+    const { userId, headword } = await arrangeTracked(telegramId);
+    const { sendFn, deps, ai } = await buildDelivery(harness);
+    harness.reset();
+
+    // Act
+    await checkAndSend(sendFn, deps);
+
+    // Assert — the wire, then the journal row the admin panel reads.
+    const mine = messagesTo(harness.sent, telegramId);
+    expect(mine).toHaveLength(1);
+    const journal = await journalFor(userId);
+    expect(journal).toHaveLength(1);
+    expect(journal[0]).toMatchObject({
+      kind: "word_card",
+      text: textOf(mine[0]!),
+      parseMode: "HTML",
+      user: { id: userId, telegramId },
+    });
+    expect(journal[0]?.meta?.word).toBe(headword);
     expect(ai.wasCalled()).toBe(false);
   });
 
@@ -435,9 +473,12 @@ describe("scheduled notification delivery (integration)", () => {
     // behaviour lives.
     expect(buttons).toContain(`tr:more:${nudgeMsgId}`);
     expect(buttons).toContain(`tr:save:${nudgeMsgId}`);
-    expect(buttons?.every((data) => data?.endsWith(`:${nudgeMsgId}`))).toBe(true);
-    // None of the nudge's own buttons survive the reveal — the card owns the message now.
-    expect(buttons?.some((data) => data?.startsWith("notif:"))).toBe(false);
+    // The card owns the message now: apart from the recall grades, which address
+    // the entry, every button is the card's own. Reveal and Remove do not survive.
+    const entryId = entries[0]?.id;
+    const grades = [`notif:fb:hard:${entryId}`, `notif:fb:normal:${entryId}`, `notif:fb:easy:${entryId}`];
+    expect(buttons?.slice(0, 3)).toEqual(grades);
+    expect(buttons?.slice(3).every((data) => data?.endsWith(`:${nudgeMsgId}`))).toBe(true);
     expect(ai.wasCalled()).toBe(false);
   });
 
@@ -482,6 +523,48 @@ describe("scheduled notification delivery (integration)", () => {
       .map((call) => String((call.payload as { text?: string }).text ?? ""));
     expect(answers.join(" ")).not.toMatch(/expired|устарел/i);
     expect(headword.length).toBeGreaterThan(0);
+  });
+
+  it("C16: a word can be graded after the reveal, and the grade survives the card's own taps", async () => {
+    const harness = createBotHarness();
+    const telegramId = uniqueTelegramId();
+    const { userId } = await arrangeTracked(telegramId, { richCard: true });
+    const { sendFn, deps } = await buildDelivery(harness);
+    await checkAndSend(sendFn, deps);
+    const [entry] = await vocabularyRepository.findByUser(userId);
+    const entryId = entry!.id;
+    const cardMsgId = 820;
+    const tapCard = async (data: string): Promise<void> => {
+      harness.reset();
+      await harness.dispatch(
+        callbackQueryUpdate({ chatId: telegramId, fromId: telegramId, messageId: cardMsgId, data }),
+      );
+    };
+    const lastButtons = (): Array<string | undefined> =>
+      harness.sent
+        .filter((call) => call.method === "editMessageReplyMarkup")
+        .map(
+          (call) =>
+            call.payload as {
+              reply_markup?: { inline_keyboard?: Array<Array<{ text: string; callback_data?: string }>> };
+            },
+        )
+        .at(-1)
+        ?.reply_markup?.inline_keyboard?.flat()
+        .map((button) => (button.text.startsWith("✓") ? `✓${button.callback_data}` : button.callback_data)) ?? [];
+
+    await tapCard(`notif:reveal:${entryId}`);
+    await tapCard(`notif:fb:hard:${entryId}`);
+
+    // DB: the grade landed. Wire: the card kept its buttons, with the grade marked.
+    expect((await vocabularyRepository.findById(entryId))?.difficulty).toBe("hard");
+    expect(lastButtons()).toContain(`✓notif:fb:hard:${entryId}`);
+    expect(lastButtons()).toContain(`tr:more:${cardMsgId}`);
+
+    // Opening the action list rebuilds the keyboard; the grades and the mark stay.
+    await tapCard(`tr:more:${cardMsgId}`);
+    expect(lastButtons()).toContain(`✓notif:fb:hard:${entryId}`);
+    expect(lastButtons()).toContain(`tr:less:${cardMsgId}`);
   });
 });
 

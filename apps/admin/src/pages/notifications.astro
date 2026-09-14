@@ -1,0 +1,15 @@
+---
+import AdminLayout from "../layouts/AdminLayout.astro";
+import NotificationDeliveriesManager from "../components/NotificationDeliveriesManager.vue";
+---
+
+<AdminLayout title="Notifications">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Notifications</h1>
+      <p class="mt-1 text-sm text-gray-500">Every proactive message the bot delivered, kept for 90 days</p>
+    </div>
+  </div>
+
+  <NotificationDeliveriesManager client:idle />
+</AdminLayout>

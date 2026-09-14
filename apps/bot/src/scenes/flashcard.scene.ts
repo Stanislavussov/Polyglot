@@ -1,43 +1,21 @@
 /**
- * Flashcard scene — /flashcard command handler.
- *
- * Starts a flash card session by running the dictionary pipeline
- * and storing the deck in session state.
- *
- * All DB access through ctx.services. All text via i18n.
+ * Cards — `/flashcard`, `/review`, the 🎴 hot button, the Learning hub and onboarding's
+ * training button all open the same SRS-backed deck (Task 85).
  */
 
-import type { SupportedLang } from "@polyglot/core";
-import { FLASHCARD_CONFIG, isSupported, t } from "@polyglot/core";
+import { t } from "@polyglot/core";
 import type { BotContext } from "../types.js";
-import { buildFlashCardFront, getPipeline } from "./helpers/flashcard.helper.js";
+import { buildCardsSession, buildCurrentFront, getUserLang } from "./helpers/flashcard.helper.js";
 
-/** Resolve user's interface language. */
-async function getUserLang(ctx: BotContext): Promise<SupportedLang> {
-  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
-  const lang = settings?.interfaceLang;
-  return lang && isSupported(lang) ? lang : "en";
-}
-
-/** /flashcard command — start a new flash card session. */
 export async function handleFlashcardCommand(ctx: BotContext): Promise<void> {
   const lang = await getUserLang(ctx);
-  const pipeline = getPipeline(ctx);
-
-  const result = await pipeline.run(ctx.user.id, FLASHCARD_CONFIG);
-
-  if (result.words.length === 0) {
-    await ctx.reply(t("flashcardEmpty", lang));
+  const cards = await buildCardsSession(ctx);
+  if (!cards) {
+    await ctx.reply(t("cardsNoSavedWords", lang));
     return;
   }
 
-  ctx.session.flashcard = {
-    deck: result.words,
-    currentIndex: 0,
-    config: FLASHCARD_CONFIG,
-  };
-
-  const { text, keyboard } = await buildFlashCardFront(ctx, result.words, 0, lang);
-  const msg = await ctx.reply(text, { parse_mode: "HTML", reply_markup: keyboard });
-  ctx.session.flashcard.cardMsgId = msg.message_id;
+  ctx.session.cards = cards;
+  const { text, keyboard } = await buildCurrentFront(ctx, cards, lang);
+  await ctx.reply(text, { parse_mode: "HTML", reply_markup: keyboard });
 }

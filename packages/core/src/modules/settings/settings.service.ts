@@ -196,8 +196,6 @@ const FALLBACK_MENTOR: MentorConfig = {
 
 const FALLBACK_DICTIONARY: DictionaryConfig = {
   flashcardLimit: 10,
-  notificationDictLimit: 1,
-  wordOfDayLimit: 1,
 };
 
 const FALLBACK_PRESETS: TranslationPresetConfig[] = [

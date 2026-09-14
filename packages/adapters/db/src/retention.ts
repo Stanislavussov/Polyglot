@@ -26,6 +26,7 @@ import {
   languageDetectionEvents,
   mentorMessages,
   momentumEvents,
+  notificationDeliveries,
   notificationHistory,
   productEvents,
   translationRequests,
@@ -81,6 +82,7 @@ export async function runTelemetryRetention(retentionDays = DEFAULT_RETENTION_DA
     userDailyRequestCountsDeleted,
     mentorMessagesDeleted,
     productEventsDeleted,
+    notificationDeliveriesDeleted,
   ] = await Promise.all([
     db
       .delete(dictionaryLookupLogs)
@@ -125,6 +127,10 @@ export async function runTelemetryRetention(retentionDays = DEFAULT_RETENTION_DA
     // never dangles behind a session that can still reference it.
     db.delete(mentorMessages).where(lt(mentorMessages.createdAt, cutoff)).returning({ id: mentorMessages.id }),
     db.delete(productEvents).where(lt(productEvents.createdAt, productCutoff)).returning({ id: productEvents.id }),
+    db
+      .delete(notificationDeliveries)
+      .where(lt(notificationDeliveries.sentAt, cutoff))
+      .returning({ id: notificationDeliveries.id }),
   ]);
 
   return {
@@ -140,5 +146,6 @@ export async function runTelemetryRetention(retentionDays = DEFAULT_RETENTION_DA
     user_daily_request_counts: userDailyRequestCountsDeleted.length,
     mentor_messages: mentorMessagesDeleted.length,
     product_events: productEventsDeleted.length,
+    notification_deliveries: notificationDeliveriesDeleted.length,
   };
 }

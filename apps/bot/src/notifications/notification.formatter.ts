@@ -7,9 +7,10 @@
  * 3. No DB access — uses pre-built payload
  */
 import type { NotificationPayload } from "@polyglot/adapter-notifications";
-import { type SupportedLang, t } from "@polyglot/core";
+import { type SupportedLang, t, type VocabDifficulty } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import { assembleCard, emptySections, esc, headwordLine } from "../renderers/card-sections.js";
+import { appendGradeRow, notifGradeCallback } from "../renderers/grade-row.js";
 
 /**
  * Format a notification payload as a Telegram HTML message.
@@ -52,14 +53,7 @@ export function formatNotificationMessage(
 }
 
 /** Feedback grade a user can give a notification word. Drives pick frequency. */
-export type NotifFeedbackGrade = "hard" | "normal" | "easy";
-
-const FEEDBACK_GRADES: Array<{ grade: NotifFeedbackGrade; labelKey: "notifFbHard" | "notifFbNormal" | "notifFbEasy" }> =
-  [
-    { grade: "hard", labelKey: "notifFbHard" },
-    { grade: "normal", labelKey: "notifFbNormal" },
-    { grade: "easy", labelKey: "notifFbEasy" },
-  ];
+export type NotifFeedbackGrade = VocabDifficulty;
 
 /**
  * Append the feedback menu: one row of grades (the chosen one marked with a
@@ -74,10 +68,7 @@ function appendFeedbackMenu(
   entryId: number,
   selected?: NotifFeedbackGrade,
 ): InlineKeyboard {
-  for (const { grade, labelKey } of FEEDBACK_GRADES) {
-    const label = t(labelKey, lang);
-    kb.text(grade === selected ? `✓ ${label}` : label, `notif:fb:${grade}:${entryId}`);
-  }
+  appendGradeRow(kb, lang, (grade) => notifGradeCallback(grade, entryId), selected);
   return kb.row().text(t("notifFbDelete", lang), `notif:learned:${entryId}`);
 }
 
@@ -89,9 +80,9 @@ function appendFeedbackMenu(
  * - grade row "Hard | OK | Easy" → notif:fb:{grade}:{entryId}
  * - "🗑 Remove from dictionary" → notif:learned:{entryId}
  *
- * The grades stay on this message rather than moving to the revealed card: a
- * grade given before the answer is the honest one, and the card that opens is the
- * translation card, which owns its own keyboard.
+ * The grades are here before the reveal and on the revealed card after it (the
+ * card's `recallGrade` state): a reader who only knows how hard the word was once
+ * the answer is in front of them must still be able to say so.
  *
  * A pick with no dictionary entry (a curated preset, an AI suggestion, a
  * contextual sentence) has nothing to grade or remove, so it gets the Reveal

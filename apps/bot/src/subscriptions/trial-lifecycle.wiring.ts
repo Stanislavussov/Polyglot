@@ -23,6 +23,7 @@
 
 import {
   momentumRepository,
+  notificationDeliveryRepository,
   notificationRepository,
   subscriptionRepository,
   userRepository,
@@ -55,6 +56,7 @@ import {
 import type { Api, RawApi } from "grammy";
 import cron from "node-cron";
 import { notificationCounter } from "../metrics.js";
+import { logDelivery, type NotificationDeliveryLog } from "../notifications/delivery-log.js";
 import { mockPaymentAdapter } from "../payment.js";
 import { buildUpgradeKeyboard } from "../scenes/helpers/subscription.helper.js";
 import { isPermanentDeliveryFailure } from "../utils/telegram-errors.js";
@@ -121,6 +123,7 @@ export interface TrialSweepServices {
     "hasSentFromSource" | "recordSentWord" | "disableNotifications"
   >;
   momentumRepository: Pick<MomentumRepository, "countEventsSince">;
+  notificationDeliveryRepository: NotificationDeliveryLog;
 }
 
 /** The subset of the Telegram API the sweep touches. */
@@ -234,6 +237,13 @@ async function deliver(
     return;
   }
 
+  // Journaled before the claim write: that write can throw, and the message has already arrived.
+  await logDelivery(services.notificationDeliveryRepository, {
+    userId,
+    kind: "trial",
+    text: message.text,
+    meta: { source: message.source },
+  });
   await services.notificationRepository.recordSentWord(userId, historyOriginal(message.source), message.source);
   countTrial(message.status);
   logEvent("trial.message_sent", { source: message.source });
@@ -393,6 +403,7 @@ export function wireTrialLifecycle(api: Api<RawApi>): void {
       userRepository,
       notificationRepository,
       momentumRepository,
+      notificationDeliveryRepository,
     }).catch((err) => {
       // Never let a failed sweep crash the process — it retries on the next tick.
       logEvent("trial.sweep_failed", errorFields(err), "error");

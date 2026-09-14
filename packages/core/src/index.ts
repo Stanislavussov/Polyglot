@@ -107,7 +107,6 @@ export type {
   VocabDifficulty,
   VocabTranslationDetails,
   VocabularyEntry,
-  VocabularyEntryWithSourceLang,
   VocabularyEntryWithTranslations,
   VocabularyRepository,
   VocabularySource,
@@ -144,7 +143,6 @@ export { enrichTrace, getTraceContext, newTraceId, runWithTrace } from "./observ
 // Modules
 
 export * from "./modules/context-enrichment/index.js";
-export * from "./modules/dictionary-pipeline/index.js";
 export * from "./modules/entitlements/index.js";
 export * from "./modules/i18n/index.js";
 export * from "./modules/idiom-analysis/index.js";

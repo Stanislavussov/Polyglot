@@ -121,7 +121,12 @@ export async function handleNotifRevealCallback(ctx: BotContext): Promise<void> 
     // The session entry first: the keyboard is derived from the card's own state,
     // which is what keeps this card's buttons identical to every other rebuild of
     // one (`card-keyboard.ts`) instead of a second hand-assembled guess at them.
-    const cardEntry = { output, inputType: entry.inputType, savedWordId: entry.id };
+    const cardEntry = {
+      output,
+      inputType: entry.inputType,
+      savedWordId: entry.id,
+      recallGrade: { entryId: entry.id, selected: entry.difficulty },
+    };
     setTranslationEntry(ctx.session, cardMsgId, cardEntry);
     ctx.session.pendingCardMsgId = cardMsgId;
 
@@ -180,6 +185,34 @@ function parseFeedback(data: string | undefined): { grade: NotifFeedbackGrade; e
 }
 
 /**
+ * Mark the new grade on whichever keyboard the grade was tapped on: the nudge's,
+ * or the translation card it was revealed into.
+ *
+ * A card whose session state was evicted still carries `tr:` buttons; rebuilding
+ * the nudge keyboard there would throw the card's buttons away, so it keeps its
+ * keyboard and the toast alone confirms the grade.
+ */
+async function remarkGrade(
+  ctx: BotContext,
+  lang: SupportedLang,
+  entryId: number,
+  grade: NotifFeedbackGrade,
+): Promise<void> {
+  const msgId = ctx.callbackQuery?.message?.message_id;
+  const card = msgId === undefined ? undefined : ctx.session.translationMap?.[String(msgId)];
+  if (msgId !== undefined && card?.recallGrade) {
+    card.recallGrade = { entryId, selected: grade };
+    const nativeLang = (await resolveLanguageOrder(ctx)).nativeLang ?? card.output.sourceLang;
+    const keyboard = await buildCardKeyboard(ctx, card, msgId, lang, nativeLang);
+    await editMessageReplyMarkupOrIgnore(ctx, { reply_markup: keyboard });
+    return;
+  }
+  const buttons = ctx.callbackQuery?.message?.reply_markup?.inline_keyboard.flat() ?? [];
+  if (buttons.some((button) => "callback_data" in button && button.callback_data?.startsWith("tr:"))) return;
+  await editMessageReplyMarkupOrIgnore(ctx, { reply_markup: buildNotificationKeyboard(lang, entryId, grade) });
+}
+
+/**
  * notif:fb:{grade}:{entryId} — persist the user's difficulty feedback.
  * The grade drives how often the word returns in notifications (hard → often,
  * easy → almost never). Answers with a toast and marks the chosen button.
@@ -206,11 +239,8 @@ export async function handleNotifFeedbackCallback(ctx: BotContext): Promise<void
       return;
     }
 
-    // The grades ride the nudge only — a revealed card carries the translation
-    // keyboard — so there is one keyboard to re-render, with the choice marked.
-    const kb = buildNotificationKeyboard(lang, entryId, grade);
     try {
-      await editMessageReplyMarkupOrIgnore(ctx, { reply_markup: kb });
+      await remarkGrade(ctx, lang, entryId, grade);
     } catch {
       // >48h-old messages can't be edited — the toast still confirms the save.
     }
