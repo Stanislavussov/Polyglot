@@ -10,7 +10,10 @@ coverage
 .env.prod
 .env.dev
 .pnpm-store/*
-.claude/
+.claude/*
+!.claude/skills/
+.claude/skills/*
+!.claude/skills/bot-testing/
 .astro/
 **/.astro/
 .omc/
