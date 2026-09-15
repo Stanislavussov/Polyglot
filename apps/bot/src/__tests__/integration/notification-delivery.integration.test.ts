@@ -318,6 +318,63 @@ describe("scheduled notification delivery (integration)", () => {
     expect(ai.wasCalled()).toBe(false);
   });
 
+  it("C17: tapping Reveal on a delivered card marks that delivery as opened", async () => {
+    // Arrange — deliver, then tap the very message the harness sent, by its id.
+    const harness = createBotHarness();
+    const telegramId = uniqueTelegramId();
+    const { userId } = await arrangeTracked(telegramId, { richCard: true });
+    const { sendFn, deps, ai } = await buildDelivery(harness);
+    harness.reset();
+    await checkAndSend(sendFn, deps);
+
+    const delivered = messagesTo(harness.sent, telegramId)[0];
+    const markup = delivered?.payload.reply_markup as { inline_keyboard: Array<Array<{ callback_data?: string }>> };
+    const reveal = markup.inline_keyboard.flat().find((b) => b.callback_data?.startsWith("notif:reveal:"));
+    expect(delivered?.messageId).toBeDefined();
+    expect((await journalFor(userId))[0]).toMatchObject({ openedAt: null, interactionCount: 0 });
+
+    // Act — through the real dispatcher.
+    await harness.dispatch(
+      callbackQueryUpdate({
+        chatId: telegramId,
+        fromId: telegramId,
+        messageId: delivered!.messageId!,
+        data: reveal!.callback_data!,
+      }),
+    );
+
+    // Assert — the journal row the admin panel reads now carries the tap.
+    const journal = await journalFor(userId);
+    expect(journal).toHaveLength(1);
+    expect(journal[0]?.interactionCount).toBe(1);
+    expect(journal[0]?.openedAt).toBeInstanceOf(Date);
+    expect(ai.wasCalled()).toBe(false);
+  });
+
+  it("C18: a tap on a message that is not a notification opens nothing", async () => {
+    // Arrange — a delivered card, and a tap addressed to some other message.
+    const harness = createBotHarness();
+    const telegramId = uniqueTelegramId();
+    const { userId } = await arrangeTracked(telegramId, { richCard: true });
+    const { sendFn, deps } = await buildDelivery(harness);
+    harness.reset();
+    await checkAndSend(sendFn, deps);
+    const delivered = messagesTo(harness.sent, telegramId)[0];
+
+    // Act
+    await harness.dispatch(
+      callbackQueryUpdate({
+        chatId: telegramId,
+        fromId: telegramId,
+        messageId: delivered!.messageId! + 1000,
+        data: "notif:tr",
+      }),
+    );
+
+    // Assert
+    expect((await journalFor(userId))[0]).toMatchObject({ openedAt: null, interactionCount: 0 });
+  });
+
   it("C11: a delivered notification is counted as delivery_sent, and nothing else", async () => {
     // The alert divides delivery_failed by (sent + failed). If a healthy send
     // did not move the denominator, one failure would read as 100% and page.
