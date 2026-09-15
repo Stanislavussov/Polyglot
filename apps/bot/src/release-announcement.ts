@@ -24,7 +24,7 @@ export interface TelegramMessenger {
       parse_mode: "HTML";
       disable_web_page_preview: boolean;
     },
-  ): Promise<unknown>;
+  ): Promise<{ message_id: number }>;
 }
 
 export interface ReleaseAnnouncementRepository {
@@ -153,13 +153,20 @@ export async function sendReleaseAnnouncement(
     attempted += 1;
     const text = formatAnnouncementHtml(message);
     try {
-      await messenger.sendMessage(Number(externalId), text, {
+      const sent = await messenger.sendMessage(Number(externalId), text, {
         parse_mode: "HTML",
         disable_web_page_preview: true,
       });
       await logDelivery(
         { record: (input) => repository.recordNotificationDelivery(input) },
-        { userId: user.id, kind: "release_announcement", text, parseMode: "HTML", meta: { releaseId } },
+        {
+          userId: user.id,
+          kind: "release_announcement",
+          text,
+          parseMode: "HTML",
+          meta: { releaseId },
+          telegramMessageId: sent.message_id,
+        },
       );
       await repository.recordReleaseAnnouncementDelivery(releaseId, user.audienceGroup, user.id);
       delivered += 1;

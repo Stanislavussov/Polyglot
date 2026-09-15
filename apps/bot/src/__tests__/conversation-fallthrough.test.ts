@@ -33,6 +33,12 @@ vi.mock("@polyglot/infra", () => ({
   logger: { info: vi.fn(), error: vi.fn(), warn: vi.fn(), debug: vi.fn() },
 }));
 
+// The real bot journals every tap; a unit lane must never reach a database for it.
+vi.mock("@polyglot/adapter-db", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@polyglot/adapter-db")>()),
+  notificationDeliveryRepository: { recordInteraction: vi.fn(async () => null) },
+}));
+
 /**
  * Stub the Telegram transport itself, injected via the factory's `fetch` test
  * seam. A bot.api transformer is NOT enough: the conversations plugin builds

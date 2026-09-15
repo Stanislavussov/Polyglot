@@ -37,6 +37,7 @@
             <th class="px-4 py-3 text-left text-xs font-semibold tracking-wide text-gray-600 uppercase">User</th>
             <th class="px-4 py-3 text-left text-xs font-semibold tracking-wide text-gray-600 uppercase">Kind</th>
             <th class="px-4 py-3 text-left text-xs font-semibold tracking-wide text-gray-600 uppercase">Message</th>
+            <th class="px-4 py-3 text-left text-xs font-semibold tracking-wide text-gray-600 uppercase">Opened</th>
             <th class="px-4 py-3 text-right text-xs font-semibold tracking-wide text-gray-600 uppercase">Actions</th>
           </tr>
         </thead>
@@ -62,6 +63,13 @@
             <td class="max-w-xl px-4 py-3 text-sm text-gray-900">
               <p class="line-clamp-3 whitespace-pre-line break-words">{{ plainText(delivery) }}</p>
             </td>
+            <td class="whitespace-nowrap px-4 py-3 text-sm">
+              <template v-if="delivery.openedAt">
+                <span class="text-emerald-700">{{ formatDate(delivery.openedAt) }}</span>
+                <div class="text-xs text-gray-500">{{ tapsLabel(delivery.interactionCount) }}</div>
+              </template>
+              <span v-else class="text-gray-400">—</span>
+            </td>
             <td class="whitespace-nowrap px-4 py-3 text-right">
               <AppButton variant="link" @click="selected = delivery">View</AppButton>
             </td>
@@ -81,6 +89,11 @@
             <h3 class="text-sm font-semibold text-gray-700 uppercase">Sent</h3>
             <p class="mt-1 text-sm text-gray-900">{{ formatDate(selected.sentAt) }}</p>
             <p class="text-xs text-gray-500">Telegram ID: {{ selected.user.telegramId }}</p>
+            <h3 class="mt-3 text-sm font-semibold text-gray-700 uppercase">Opened</h3>
+            <p v-if="selected.openedAt" class="mt-1 text-sm text-gray-900">
+              {{ formatDate(selected.openedAt) }} · {{ tapsLabel(selected.interactionCount) }}
+            </p>
+            <p v-else class="mt-1 text-sm text-gray-400">No button tapped yet</p>
           </div>
           <div v-if="selected.meta && Object.keys(selected.meta).length > 0">
             <h3 class="text-sm font-semibold text-gray-700 uppercase">Details</h3>
@@ -224,6 +237,10 @@ function kindClass(value: NotificationDeliveryKind): string {
   if (value === "trial") return "bg-emerald-100 text-emerald-800";
   if (value === "activation_nudge") return "bg-sky-100 text-sky-800";
   return "bg-gray-100 text-gray-800";
+}
+
+function tapsLabel(count: number): string {
+  return `${count} tap${count !== 1 ? "s" : ""}`;
 }
 
 function formatDate(value: string): string {

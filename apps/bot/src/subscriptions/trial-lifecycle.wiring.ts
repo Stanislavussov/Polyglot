@@ -225,12 +225,14 @@ async function deliver(
     return;
   }
 
+  let telegramMessageId: number;
   try {
-    await api.sendMessage(
+    const sent = await api.sendMessage(
       telegramId,
       message.text,
       message.keyboard === false ? {} : { reply_markup: buildUpgradeKeyboard(lang) },
     );
+    telegramMessageId = sent.message_id;
   } catch (err) {
     if (!isPermanentDeliveryFailure(err)) throw err;
     await retireUndeliverable(services, userId, message.source, err);
@@ -243,6 +245,7 @@ async function deliver(
     kind: "trial",
     text: message.text,
     meta: { source: message.source },
+    telegramMessageId,
   });
   await services.notificationRepository.recordSentWord(userId, historyOriginal(message.source), message.source);
   countTrial(message.status);

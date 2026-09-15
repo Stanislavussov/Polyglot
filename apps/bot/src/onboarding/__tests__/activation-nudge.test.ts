@@ -85,6 +85,7 @@ describe("runActivationNudgeSweep", () => {
       kind: "activation_nudge",
       text,
       meta: { word: DE_FIRST_HOOK, sourceLang: "de" },
+      telegramMessageId: 1,
     });
   });
 

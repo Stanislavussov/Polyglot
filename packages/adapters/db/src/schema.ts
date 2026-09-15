@@ -595,12 +595,37 @@ export const notificationDeliveries = pgTable(
     /** `HTML` when `text` carries Telegram HTML markup; null for plain text. */
     parseMode: varchar("parse_mode", { length: 16 }),
     meta: jsonb("meta").$type<Record<string, string | number | null>>(),
+    /**
+     * The id Telegram gave the sent message. A button tap carries only this id, so it
+     * is the sole handle tying a tap back to its delivery; ids are per chat, hence the
+     * lookup is always scoped by user. Null on rows journaled before it was captured.
+     */
+    telegramMessageId: integer("telegram_message_id"),
     sentAt: timestamp("sent_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [
     index("notif_deliveries_user_sent_idx").on(t.userId, t.sentAt),
     index("notif_deliveries_sent_idx").on(t.sentAt),
+    index("notif_deliveries_user_message_idx").on(t.userId, t.telegramMessageId),
   ],
+);
+
+/**
+ * Every button tapped on a journaled notification. Telegram never tells a bot that a
+ * message was read, so a tap is the only per-message evidence it was opened.
+ */
+export const notificationInteractions = pgTable(
+  "notification_interactions",
+  {
+    id: serial("id").primaryKey(),
+    deliveryId: integer("delivery_id")
+      .references(() => notificationDeliveries.id, { onDelete: "cascade" })
+      .notNull(),
+    /** The tapped button's verbatim callback payload, e.g. `notif:reveal:42`. */
+    action: varchar("action", { length: 64 }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [index("notif_interactions_delivery_created_idx").on(t.deliveryId, t.createdAt)],
 );
 
 // ─────────────────────────────────────────────

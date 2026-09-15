@@ -33,6 +33,7 @@ import {
   handleNotifRevealCallback,
   handleNotifTranslateCallback,
 } from "./notifications/notification.callbacks.js";
+import { notificationInteractionMiddleware } from "./notifications/notification-interaction.middleware.js";
 import { createApiLogTransformer } from "./observability/api-log.js";
 import { handlerName, withHandlerLog } from "./observability/handler-log.js";
 import { withCommandTracking } from "./observability/product-events.js";
@@ -346,6 +347,9 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   });
 
   bot.use(authMiddleware);
+
+  // Ahead of the onboarding gate and every route, so a tap is journaled whoever consumes it.
+  bot.use(notificationInteractionMiddleware);
 
   // Conversations run in a replayed context that the outer service-injection
   // middleware above never touches, so ctx.services is undefined inside them.

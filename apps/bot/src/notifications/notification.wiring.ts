@@ -320,10 +320,11 @@ Return translations as JSON array.`;
    * notifications for a blocked user. It lives here rather than in the
    * scheduler because that package must never import from the bot.
    */
-  const withDeliveryMetrics = async (send: () => Promise<unknown>): Promise<void> => {
+  const withDeliveryMetrics = async <T>(send: () => Promise<T>): Promise<T> => {
     try {
-      await send();
+      const sent = await send();
       countDelivery("delivery_sent");
+      return sent;
     } catch (err) {
       countDelivery(isUserBlocked(err) ? "delivery_blocked" : "delivery_failed");
       throw err;
@@ -346,7 +347,7 @@ Return translations as JSON array.`;
     const kb = buildNotificationKeyboard(lang, payload.word.entryId);
     const weeklyProof = await prepareWeeklyProof(userId, lang, settings?.timezone ?? "UTC");
     const message = formatNotificationMessage(payload, lang, weeklyProof ? { footer: weeklyProof.line } : {});
-    await withDeliveryMetrics(() =>
+    const sent = await withDeliveryMetrics(() =>
       api.sendMessage(telegramId, message, {
         parse_mode: "HTML",
         reply_markup: kb,
@@ -357,6 +358,7 @@ Return translations as JSON array.`;
       kind: "word_card",
       text: message,
       parseMode: "HTML",
+      telegramMessageId: sent.message_id,
       meta: {
         word: payload.word.headword ?? payload.word.original,
         source: payload.word.source ?? null,
@@ -372,12 +374,13 @@ Return translations as JSON array.`;
       countDelivery("delivery_skipped");
       return;
     }
-    await withDeliveryMetrics(() => api.sendMessage(telegramId, message, { parse_mode: "HTML" }));
+    const sent = await withDeliveryMetrics(() => api.sendMessage(telegramId, message, { parse_mode: "HTML" }));
     await logDelivery(notificationDeliveryRepository, {
       userId,
       kind: "re_engagement",
       text: message,
       parseMode: "HTML",
+      telegramMessageId: sent.message_id,
     });
   };
 
@@ -439,8 +442,13 @@ Return translations as JSON array.`;
       const telegramId = await resolveTelegramId(userId);
       if (telegramId === null) return;
       const text = t("notifNoDictionary" as never, (isSupported(lang) ? lang : "en") as SupportedLang);
-      await api.sendMessage(telegramId, text);
-      await logDelivery(notificationDeliveryRepository, { userId, kind: "dictionary_empty", text });
+      const sent = await api.sendMessage(telegramId, text);
+      await logDelivery(notificationDeliveryRepository, {
+        userId,
+        kind: "dictionary_empty",
+        text,
+        telegramMessageId: sent.message_id,
+      });
     },
     t: (key: string, lang: string, params?: Record<string, string>) =>
       t(key as never, (isSupported(lang) ? lang : "en") as SupportedLang, params),
