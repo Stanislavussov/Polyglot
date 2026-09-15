@@ -1,353 +1,82 @@
-# Deployment & Host Provisioning
+# Deployment Rules
 
-Canonical, harness-neutral guidance for shipping Polyglot. There are **two
-separate pipelines** — never conflate them.
+Two pipelines, never conflated.
 
-## 1. App deploy (containers)
+## App deploy — `.github/workflows/deploy.yml`
 
-- File: `.github/workflows/deploy.yml`, triggered on push to `master`
-  (→ production VPS) and `develop` (→ dev VPS, `admin.dev.polyglot.monster`).
-- The branch picks the GitHub **environment** on the `push` and `deploy` jobs
-  (`production` / `development`), and the environment supplies the host-specific
-  secrets. Lookup falls back to repository secrets, so `production` is empty and
-  inherits everything, while `development` holds only what differs: `VPS_*`,
-  `ADMIN_*_DOMAIN`, `DATABASE_URL`, `BOT_TOKEN`, `JWT_SECRET`,
-  `OPENROUTER_API_KEY`. Same workflow, same compose file, same container names;
-  dev images are tagged `dev-<sha>`; release announcements are prod-only.
-- **Dev database lifecycle.** Every dev deploy cuts a Neon branch `dev/<sha>`
-  from the project's default branch (production) — a copy-on-write snapshot —
-  waits for it to be `ready`, and ships its connection string as the dev
-  `DATABASE_URL`. The develop migrations then run on top of the production
-  schema, which is the same rehearsal a master merge performs for real. After
-  a successful deploy the older `dev/*` branches are deleted, so one dev branch
-  (and one extra compute endpoint) is live at a time; a failed deploy leaves
-  the previous branch and stack untouched. Needs `NEON_API_KEY` and
-  `NEON_PROJECT_ID` (the production project) visible to the `development`
-  environment; `development` needs no `DATABASE_URL` secret of its own.
-- **Tester reset.** Between migrate/seed and `up -d`, dev runs
-  `apps/bot/dist/dev-reset-users.cli.js` with `DEV_RESET_USERS` — a
-  `development` environment **variable** listing `@username`s and/or numeric
-  Telegram ids. Each listed account is deleted (FK cascade) together with its
-  `bot_sessions` row, so the tester walks `/start` → onboarding on real
-  production-shaped data. The CLI refuses to run unless
-  `POLYGLOT_ENV=development`.
-- Builds/pushes the Docker images and runs `docker compose up` on the VPS.
-- Touches **containers only** — it never configures nginx, TLS, or host packages.
-- Image names, ports, `NODE_ENV`, and `*_URL` values are **computed inside the
-  workflow** from a few base secrets (`DOCKER_USERNAME`, the `*_DOMAIN`s, the
-  commit SHA). Do not store them as standalone secrets.
+- Push to `master` → production VPS; push to `develop` → dev VPS. Containers only — never
+  nginx, TLS or host packages. Order: CI → images → migrate → seed → data steps → `up -d`
+  → health gate.
+- Branch selects the GitHub environment. `production` has no secrets of its own (inherits
+  repository secrets); `development` overrides only what differs, under the same names.
+- Image names, ports, `NODE_ENV` and `*_URL` are computed in the workflow. Never store them
+  as secrets.
+- Dev DB: each dev deploy cuts Neon branch `dev/<sha>` from production, migrates it, and
+  deletes older `dev/*` after success. Never `db:push` into that branch — the same deploy's
+  migrate then fails with `42P07`. Dev also deletes the accounts in `DEV_RESET_USERS`
+  (refuses unless `POLYGLOT_ENV=development`).
+- Health gate: every container must reach `healthy` and bot `/readyz` must pass, before
+  image pruning. A failure turns the workflow red and leaves the previous image.
+- Rollback (VPS, app containers only):
+  `cd /opt/polyglot && cat PREVIOUS_RELEASE >> .env && docker compose up -d --remove-orphans`.
+  Prune keeps images 7 days; `deploy-monitoring.yml` prunes dangling images only.
+- Concurrency: prod `deploy` job and `deploy-monitoring.yml` share `vps-host`; dev uses
+  `vps-host-dev`. A newer pending run evicts an older one — an evicted `deploy-monitoring`
+  run is lost; re-run it via `workflow_dispatch`. `ci.yml` must never cancel in-progress on
+  `master`.
+- Build cache: the bot's `production` target alone writes `scope=bot`; `migrate` is
+  `cache-from` only.
 
-### Build cache layout
+## Migrations
 
-Each Dockerfile owns a `type=gha` cache scope: `bot`, `admin-api`, `admin`, and
-`landing` (the last with `mode=min` — it is a small static Astro build, and the
-scopes share one 10 GB repo-wide Actions cache with `setup-node`'s pnpm cache in
-`ci.yml`). Check `gh cache list` if builds start missing.
+- **Expand/contract.** Migrations run before new containers start, so old code runs on the
+  new schema and rollback depends on it. Never drop, rename or tighten anything deployed
+  code still uses: add → switch reads → contract in a later release.
+- `meta/_journal.json` is the apply order, not filenames. Never renumber applied files; a
+  `.sql` absent from the journal never runs.
+- Never squash history without rewriting seed migrations from the current `schema.ts`.
+- `pnpm db:check` validates the journal only — not drift, never connects. Drift is caught
+  by CI's `Schema drift` step.
 
-**The bot's two targets share `scope=bot`, and only `production` may write to
-it.** `production` runs first and exports with `mode=max`, which carries
-`base`/`deps`/`build` along because it resolves `COPY --from=build`. `migrate`
-runs last and is `cache-from` only. Giving `migrate` a `cache-to` would write a
-newer index that shadows production's on the next run, evicting the
-`pnpm install --frozen-lockfile --prod` layer — the most expensive one in the
-image — from the restorable set, while caching nothing of value in return
-(`migrate` is `FROM build` plus three metadata-only layers).
+## Data changes ride the deploy
 
-Note what does **not** cache: `apps/admin/reports-data` is tracked and not in
-`.dockerignore`, so it lands in two build contexts — `COPY apps/ apps/`
-(`deploy/Dockerfile:30`, the bot's build stage) and `COPY apps/admin/ apps/admin/`
-(`Dockerfile.admin:33`, where `astro build` actually pays for it). It only changes
-when a report under `@docs/reports` is regenerated, so the context is stable across
-most commits.
+A change that repairs or backfills rows is done when it applies itself to both databases
+without anyone running anything.
 
-### Concurrency
+1. A compiled CLI `apps/bot/src/<name>.cli.ts` (listed in `knip.json` entries), invoked in
+   `deploy.yml` after the seed with
+   `docker compose run --rm --no-deps bot node apps/bot/dist/<name>.cli.js`. Never a
+   `pnpm` script run from a laptop.
+2. Unconditional — never gated on `DEPLOY_ENV`. Develop rehearses what master runs.
+3. Idempotent in the data (a predicate that stops matching, `onConflictDoNothing`), never a
+   marker table or flag. It re-runs every deploy.
+4. Additive and safe against the old image still serving.
+5. Proved in `packages/adapters/db/src/__tests__/*.integration.test.ts`: what it restores,
+   what it leaves alone, and that a second run writes nothing.
+6. Removal condition written in the file header and CHANGELOG entry.
 
-`deploy.yml`'s `deploy` job (on `master`) and the whole of `deploy-monitoring.yml`
-share the `vps-host` concurrency group: one mutex on the VPS Docker daemon, since
-both touch the same host and `deploy.yml` has no `paths` filter. A `develop`
-deploy uses `vps-host-dev` — a different host, so it never queues behind prod. It sits on the job
-rather than the workflow so the mutex is held for the ~2 min the host is busy,
-not the ~8 min including `ci` and `push`.
+## Host provisioning — `deploy/ansible/site.yml`
 
-`cancel-in-progress: false` protects the **running** deploy, but GitHub keeps at
-most one **pending** run per group and a newer one evicts the older. Two
-consequences worth knowing:
+- `pnpm ansible` (prod, `.env.prod`) / `pnpm ansible:dev` (`.env.dev`). Requires `VPS_HOST`,
+  `VPS_USER`, `VPS_SSH_KEY` (a path). Read the printed `[env] user@host` — the env file is
+  the only thing selecting the host.
+- Configures UFW, Docker, nginx, certbot. Each vhost is gated by its domain var (admin needs
+  both `ADMIN_PANEL_DOMAIN` and `ADMIN_API_DOMAIN`; TLS needs `ACME_EMAIL`).
+- Apply to dev first. Production only on an explicit, separate user request. Confirm DNS
+  resolves first — certbot failures burn Let's Encrypt quota.
+- Changed `deploy/ansible/**` or nginx → dormant until re-applied; say so. App-only changes
+  never need Ansible.
+- Monitoring images are pinned by patch tag; bump deliberately after reading release notes.
+- No CSP header (it breaks the admin SPA and Grafana); ciphers/protocols live in the
+  per-server snippet, not http context (duplicate-directive error).
 
-- Within `deploy.yml`, three merges in quick succession mean the middle commit
-  never deploys on its own — it ships inside the third run's tree, and the
-  release announcement then covers both.
-- Across workflows, an evicted pending `deploy-monitoring` run is **not**
-  absorbed: `deploy.yml` never deploys monitoring. The config change is lost and
-  shows only as a `cancelled` row. Re-run it with `workflow_dispatch`.
+## Secrets
 
-`ci.yml` uses `cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}`
-rather than `true`. Inside a `workflow_call` invocation the `github` context
-belongs to the **caller**, so a literal `true` would let a second merge cancel
-the CI gate of an in-flight production deploy and kill the release.
-
-## 2. Host provisioning (Ansible)
-
-- Playbook: `deploy/ansible/site.yml`, run via the wrapper:
-
-  ```bash
-  pnpm ansible          # prod: sources .env.prod → ansible-playbook site.yml
-  pnpm ansible:dev      # dev:  sources .env.dev  (POLYGLOT_ENV=dev)
-  ```
-
-- The wrapper sources `.env.<POLYGLOT_ENV>` (`prod` by default; must exist
-  locally, both are git-ignored) and requires `VPS_HOST`, `VPS_USER`,
-  `VPS_SSH_KEY` (a **path** to the private key file). It prints the resolved
-  `[env] user@host` before running — read it; the playbook itself has no notion
-  of environment, the env file is the only thing that selects the target host.
-- The dev host (`polyglot-dev`, `admin.dev.polyglot.monster` /
-  `api.dev.polyglot.monster`) is the rehearsal target for provisioning changes:
-  apply there first, then to prod under the explicit-prod rule below.
-- Configures UFW, Docker, nginx reverse proxies, and certbot TLS.
-- Each routing block is **gated by its domain env var** — the play degrades
-  gracefully when one is unset:
-  - admin needs **both** `ADMIN_PANEL_DOMAIN` and `ADMIN_API_DOMAIN`
-  - Grafana needs `GRAFANA_DOMAIN`
-  - landing needs `LANDING_DOMAIN` (optional `LANDING_WWW_DOMAIN`,
-    `LANDING_PORT` defaults to `8080`)
-  - any TLS needs `ACME_EMAIL`
-- The landing site is a **separate** nginx vhost (`polyglot-landing`); admin
-  routing is never touched by landing changes.
-
-### Rules
-
-- **Production provisioning is a manual, explicit step.** Agents must not run
-  `pnpm ansible` against production without an explicit, separate user request
-  for that exact action — same posture as `pnpm db:migrate`.
-- **Confirm DNS first.** The target domain (and `www`) must resolve to the VPS
-  before provisioning, or certbot fails and burns Let's Encrypt rate-limit
-  quota. The playbook is idempotent; certs are guarded by certbot's `creates:`.
-- Host routing/TLS is set up **once** per domain. After that, ordinary app
-  deploys just swap the container — no re-run needed (certbot auto-renews).
-
-## 3. GitHub Actions secrets
-
-- Manage with `gh secret set <NAME>` (value via stdin, never on the CLI).
-  Dev-specific values go to the `development` environment under the **same
-  names**: `gh secret set <NAME> --env development`. Never move or rename the
-  repository-level (prod) secrets — `production` inherits them as-is.
-  `scripts/sync-dev-secrets.sh` pushes the whole dev set from `.env.dev`
-  (host, domains, dev bot token, OpenRouter key, SSH key contents, known_hosts,
-  a generated `JWT_SECRET`) — every call carries `--env development`.
-- Sync **infra/Ansible** vars from `.env.prod`:
-  `VPS_HOST`, `VPS_USER`, `VPS_SSH_PORT`, `DEPLOY_USER_SSH_KEY`, `ACME_EMAIL`,
+- `gh secret set <NAME>` with the value on stdin. Dev: `--env development`, same names;
+  `scripts/sync-dev-secrets.sh` pushes the dev set. Never rename repository-level secrets.
+- Infra vars from `.env.prod` that Ansible or the workflow consumes must be pushed, or CI
+  runs stale: `VPS_HOST`, `VPS_USER`, `VPS_SSH_PORT`, `DEPLOY_USER_SSH_KEY`, `ACME_EMAIL`,
   `ADMIN_PANEL_DOMAIN`, `ADMIN_API_DOMAIN`, `GRAFANA_DOMAIN`, `LANDING_DOMAIN`,
   `LANDING_WWW_DOMAIN`.
-- **Do not push** derived/generated vars (`*_IMAGE_NAME`, `*_PORT`, `NODE_ENV`,
-  `ADMIN_PANEL_URL`, `PUBLIC_API_URL`) — the deploy workflow computes them.
-- **`VPS_SSH_KEY` is special:** in `.env.prod` it is a file *path*, but the
-  GitHub secret must hold the key *contents*. Set it manually and never sync it
-  from `.env.prod`:
-
-  ```bash
-  gh secret set VPS_SSH_KEY < ~/.ssh/your_deploy_key
-  ```
-
-## 4. When to run these steps (code-change triggers)
-
-Treat these as part of "done" — a related code change is **not complete** until
-the matching step is handled. Surface it even when you cannot execute it.
-
-- **Changed `deploy/ansible/**`, nginx routing, or added a domain/service that
-  needs host routing** → host provisioning must be re-applied with
-  `pnpm ansible`. The change is dormant until then. Production runs still need
-  the explicit user go-ahead from §2 — do not silently apply to prod, but do
-  flag that provisioning is required and confirm DNS first.
-- **Added/changed an infra var in `.env.prod` that Ansible or the deploy
-  workflow consumes** (see §3 for the synced set) → push it to GitHub with
-  `gh secret set`, or CI/provisioning will run with stale values.
-- **Changed only app code / containers** → nothing here applies; the normal
-  app-deploy pipeline (§1) covers it. Do not run Ansible for app-only changes.
-
-## 5. Deploy health gate & rollback (T13)
-
-The app-deploy pipeline (§1) does **not** blindly declare success:
-
-- **Health gate.** After `docker compose up -d`, the deploy script waits for each
-  container's `docker inspect … .State.Health.Status` to become `healthy`
-  (services without a healthcheck are skipped), then probes the bot's **`/readyz`**
-  (T12) to confirm the DB is reachable and long-polling is live. A crash-loop or a
-  failed readiness check makes the **workflow fail** (red) instead of silently
-  shipping a broken release. The gate runs **before** image pruning, so a failed
-  deploy leaves the previous image in place.
-- **Rollback.** Before pulling new images, the script records the currently
-  running image references to `/opt/polyglot/PREVIOUS_RELEASE`. Pruning uses
-  `docker image prune -af --filter "until=168h"` (not `-af`), so the previous
-  release image survives for **7 days from the moment it was built** — a bound,
-  not a guarantee of "always". If more than a week passes between releases, the
-  deploy that creates the need for a rollback is also the one that prunes its
-  target. Pin the image by hand before a long gap, or pull the tag from Docker
-  Hub, where it still exists.
-
-  `deploy-monitoring.yml` prunes **dangling images only** for the same reason: it
-  runs on the same daemon, and a host-wide `-a` prune there deleted the image
-  this rollback depends on.
-
-  **To roll back** (on the VPS):
-
-  ```bash
-  cd /opt/polyglot
-  # Overlay the previous image tags onto the running env and restart.
-  cat PREVIOUS_RELEASE >> .env
-  docker compose up -d --remove-orphans
-  ```
-
-  Rollback reverts **app containers only**. The database schema is not rolled
-  back — which is safe *only* if migrations followed the expand/contract rule
-  below (old code keeps working against the newer schema).
-
-## 6. Expand/contract migrations
-
-`db:migrate` runs in CI on merge to `master` (CLAUDE.md Hard Rule #3), **before**
-the new containers start. For the window between "schema migrated" and "new code
-live", the **old** code runs against the **new** schema — a destructive change
-(drop/rename column, tighten a constraint) is an instant incident there, and it
-also breaks rollback.
-
-Split every destructive schema change into backward-compatible steps across
-**separate releases**:
-
-1. **Expand** — add the new column/table/index; keep the old one. Deploy code
-   that writes both (or reads new, falls back to old). Backfill data.
-2. **Migrate reads** — once the new shape is populated, switch code to read it.
-3. **Contract** — only in a *later* release, after the expand code is fully
-   deployed and stable, drop the old column/constraint.
-
-A single migration must never drop or rename something the currently-deployed
-code still uses. Destructive migrations get an explicit compatibility review.
-
-## 7. Monitoring image pins & nginx edge hardening (T20)
-
-**Monitoring images are pinned** by patch tag in
-`deploy/monitoring/docker-compose.monitoring.yml` (Grafana, Loki, promtail,
-Prometheus, node-exporter, cadvisor). `docker compose pull` must never drag in a
-new **major** — Loki changes its on-disk storage schema between majors and
-Grafana changes provisioning. Bump a pin deliberately: read the release notes,
-then update the tag in one commit.
-
-**nginx is hardened** via provisioned includes (written by `site.yml`):
-
-- `/etc/nginx/conf.d/polyglot-tls.conf` — **only** the TLS session cache
-  (`ssl_session_cache shared:PolyglotSSL:10m`, timeout, tickets off), in the
-  http context so the named shared-memory zone is defined exactly once. The
-  protocol/cipher directives are deliberately **not** here: Ubuntu's stock
-  `nginx.conf` already sets `ssl_protocols` and `ssl_prefer_server_ciphers` in
-  the http context, so repeating them there is a duplicate-directive error
-  (`nginx -t` emerg). They live in the per-server snippet below instead.
-- `/etc/nginx/snippets/polyglot-hardening.conf` — Mozilla "intermediate" TLS
-  (`TLSv1.2`/`TLSv1.3`, modern `ssl_ciphers`, `ssl_prefer_server_ciphers off`) +
-  HSTS + `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`,
-  `client_max_body_size`, proxy timeouts; `include`d per TLS `server` block.
-  Server context **overrides** the stock http-level `ssl_protocols` /
-  `ssl_prefer_server_ciphers` cleanly (no duplicate), and HSTS must not be
-  emitted over plain HTTP. A full CSP is intentionally **not** set — a
-  restrictive policy would break the Astro admin SPA and Grafana;
-  `X-Frame-Options: SAMEORIGIN` covers clickjacking.
-- `/etc/nginx/conf.d/polyglot-limits.conf` — `limit_req_zone` applied to
-  `/api/auth/login` (5 r/min per IP), edge-level defense-in-depth in front of the
-  app's own limiter (T05).
-
-**Pre-TLS bootstrap (S10):** before a certificate exists, the admin panel, admin
-API and Grafana vhosts return **503** on port 80 instead of proxying their login
-UIs over plain HTTP. `certbot --nginx` layers the ACME HTTP-01 challenge on top,
-then the TLS `server` blocks take over on the next provisioning pass. (The public
-landing site has no login and keeps proxying during bootstrap.)
-
-These are **provisioning** changes: they are dormant until `pnpm ansible` is
-re-run against the host (subject to the explicit-prod rule in §Rules). Verify
-after applying with `curl -I https://<domain>` (expect `Strict-Transport-Security`
-and the security headers; no `TLSv1.0/1.1`).
-
-## 8. Migration file hygiene (T26)
-
-**`meta/_journal.json` is the source of apply order — the numeric filename is
-not.** `drizzle-kit migrate` applies exactly the migrations listed in the
-journal, in journal order, and ignores any `drizzle/*.sql` file that has no
-journal entry. Consequences to keep in mind:
-
-- Duplicate or gapped numbers are harmless as long as the journal is correct —
-  `packages/adapters/db/drizzle/` legitimately has two `0017_*` tags (both in the
-  journal) and no `0018`. Do **not** "fix" numbering by renaming applied files.
-- A `.sql` file that is **not** in the journal is dead — it never applies. Such
-  files are landmines when someone later assumes filename = order (or squashes
-  history). The orphaned `0015_custom_notification_time.sql` (absent from the
-  journal, and updating the long-since-renamed `notification_time` column) was
-  removed under T26.
-- **Never squash/rebuild migration history without rewriting seed migrations from
-  the current `schema.ts`.** Old seeds reference columns valid only at their point
-  in history — e.g. `0002_languages_metadata` still inserts `iso3_code`, which is
-  correct only because `0007_drop_iso3_code` runs after it on a fresh DB. Replay
-  them out of that order and `drizzle-kit migrate` fails with `42703 column … does
-  not exist` (see CLAUDE.md Hard Rule #3).
-
-Run `pnpm db:check` (safe on any branch) after touching migrations — it must
-report "Everything's fine". Be precise about what it checks: it validates the
-**migration folder and journal** for collisions and inconsistencies. It does
-**not** compare `schema.ts` against the snapshots, and it is not a drift check —
-a table added to `schema.ts` and present in no migration passes it, and so does
-an unreachable `DATABASE_URL`, because it never opens a connection (it needs the
-variable set only because `drizzle.config.ts` throws when it is absent).
-
-Drift — "someone edited `schema.ts` and forgot `db:generate`" — is caught by the
-**`Schema drift` step in `ci.yml`**, which re-runs `db:generate` and fails if
-anything new appears under `packages/adapters/db/drizzle`. It asserts with
-`git status --porcelain`, not `git diff`, because `db:generate` writes its new
-`.sql` and `meta/*_snapshot.json` as **untracked** files that `git diff` cannot
-see at all.
-
-On `develop` use only `db:generate` + `db:push`; a true from-scratch `db:migrate`
-replay is a CI-environment check, never a local one.
-
-## 9. Data changes ride the deploy, never a laptop
-
-A change that repairs or backfills **rows** — a one-off fix for data an earlier
-bug damaged, a backfill for a new column, an upsert of reference data — is not
-finished when a script works against some database. It is finished when it
-applies itself to **both** databases without anyone running anything.
-
-1. **CI runs it.** The deploy already migrates and seeds both databases; a data
-   step belongs beside them in `deploy.yml`, right after the seed, as a compiled
-   CLI (`apps/bot/src/<name>.cli.ts`, registered in `knip.json`'s `apps/bot`
-   entry list) invoked with
-   `docker compose run --rm --no-deps bot node apps/bot/dist/<name>.cli.js`. A
-   `pnpm <name>` script is not a substitute: it needs a production connection
-   string on a developer machine, and production is exactly the environment
-   nobody should be reaching that way — so the database carrying the most damaged
-   rows is the one that never gets fixed.
-
-2. **One unconditional step, both environments.** `deploy.yml` serves `master`
-   and `develop` from a single job, and the only branch-conditional steps are the
-   dev-only Neon branch cut, the tester reset, and the prod-only release
-   announcement. Wrap a data step in `if [ "$DEPLOY_ENV" = "development" ]` and
-   production diverges silently — nothing fails, nobody is told, and the gap is
-   found months later. Develop is the rehearsal; master must run what it
-   rehearsed.
-
-3. **Idempotent by construction, not by a flag.** The step runs on *every* deploy
-   from the day it lands until someone deletes it, and on dev it runs against a
-   database freshly branched from production each time. Make the second run a
-   no-op in the data itself: a predicate that stops matching once repaired
-   (`NOT EXISTS (… the row …)`), `onConflictDoNothing`, an `if_version` guard.
-   Never a "has this run?" marker table, and never a flag someone must remember
-   to flip — both are how a repair gets run twice or not at all.
-
-4. **Additive, and safe against the old image.** The step runs in the same window
-   as §6: the new schema is live, the **old** containers are still serving.
-   Prefer inserting what is missing over updating or deleting what is there. A
-   step that rewrites rows the running code also writes gets the compatibility
-   review a destructive migration gets.
-
-5. **Proved against real Postgres before it is pointed at a dictionary.** Assert
-   what it restores, what it refuses to touch, and that a second run writes
-   nothing — `packages/adapters/db/src/__tests__/*.integration.test.ts`, run with
-   `pnpm test:integration`. A data repair is the one kind of change whose bugs are
-   not visible in a diff.
-
-6. **Write down how it dies.** A one-off repair is dead weight the day after it
-   works, and it stays forever unless the removal is spelled out. Name the CLI,
-   its deploy step and its query module in the file header and in the CHANGELOG
-   entry, with the condition ("once both environments have run it").
+- `VPS_SSH_KEY` holds key contents in GitHub but a path in `.env.prod` — set it manually:
+  `gh secret set VPS_SSH_KEY < ~/.ssh/<deploy_key>`.

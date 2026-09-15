@@ -2,13 +2,14 @@
 
 Harness entrypoint. The hard rules below bind every change; the stable detail lives in
 `@docs/agents/` — read the file a rule points at before working in its area.
-`CLAUDE.md` and `AGENTS.md` are kept byte-identical: edit both.
+`CLAUDE.md` is a symlink to `AGENTS.md`: edit `AGENTS.md`.
 
 ## Hard Rules (never violate)
 
 ### 1. Quality Gate After Every Change
 
-After any source change, update `CHANGELOG.md` (under `## [Unreleased]`) and run:
+After any source change, add a user-facing or operational entry to `CHANGELOG.md` under
+`## [Unreleased]` and run:
 
 ```bash
 pnpm build && pnpm lint && pnpm lint:deps && pnpm lint:knip && pnpm test && pnpm db:push
@@ -16,8 +17,6 @@ pnpm build && pnpm lint && pnpm lint:deps && pnpm lint:knip && pnpm test && pnpm
 
 Fix every failure before moving on — a deferred fix is an unfinished change. `pnpm db:push`
 stays last. Markdown-only changes skip the gate; verify the rendering instead.
-
-Changelog scope and the database notes: `@docs/agents/quality-gate.md`.
 
 ### 2. No `any` Types
 
@@ -32,12 +31,13 @@ the migration journal — it detects no drift.
 - **Never run `pnpm db:migrate` on `develop`, even with user approval**, and never run it
   locally as an agent on any branch. Migrations are applied by CI/deploy only: merging to
   `master` migrates production, pushing `develop` migrates the dev DB.
-- Generated migrations are read-only: no hand edits, no raw SQL.
+- Generated migrations are read-only: no hand edits, no raw SQL. Destructive schema changes
+  follow expand/contract (`@docs/agents/deployment.md`).
 - `db:push` syncs schema only. Seed rows reach a dev DB through the CI-applied migration or
   an idempotent Drizzle upsert.
 - Hand-writing a data-seed migration: take the column list from the **current** schema file,
   never by copying an `INSERT` from an older one — that re-introduces a dropped column and
-  fails with `42703`, which then re-fails on every later deploy (`@docs/agents/deployment.md`).
+  fails with `42703`, which then re-fails on every later deploy.
 
 ### 4. No Logic in Index Files
 
@@ -46,11 +46,9 @@ Framework-required entry points are the exception.
 
 ### 5. Spec-First Testing
 
-Write the behavior spec first — interface, expected outcomes, constraints, edge cases,
-non-goals — derive tests from it, then implement in red-green-refactor slices. Use the
-`testing-strategy-tdd` skill whenever tests are planned, written, reviewed, or changed;
-canonical guidance in `@docs/agents/testing-strategy-tdd.md`. When a change needs no new
-test, name the existing test or static check that already covers the behavior.
+Write the behavior spec first, derive tests from it, then implement in red-green-refactor
+slices (`@docs/agents/testing-strategy-tdd.md`). When a change needs no new test, name the
+existing test or static check that already covers the behavior.
 
 **E2E coverage is mandatory for cross-cutting flows.** A flow that crosses layers (bot
 command/callback/conversation → service → persisted state, or scheduler → delivery) is not
@@ -72,10 +70,8 @@ Docker, nginx, certbot TLS). Details: `@docs/agents/deployment.md`.
   an infra var to `.env.prod` that Ansible or the deploy workflow consumes? Push it with
   `gh secret set` or CI runs stale. Surface either even when you cannot execute it.
 - **A change that repairs or backfills rows is not done when a script works locally.** It
-  rides `deploy.yml` as an *unconditional* step, so `develop` and `master` both apply it and
-  no production connection string leaves CI; it must be idempotent, because it re-runs on
-  every deploy until deleted; and its removal must be written down. Details and the exact
-  shape: `@docs/agents/deployment.md` §9.
+  rides `deploy.yml` as an *unconditional*, idempotent step with its removal written down
+  (`@docs/agents/deployment.md` → Data changes ride the deploy).
 
 ### 7. Comments Carry the Why, Not the What
 
@@ -91,12 +87,9 @@ a block.
 ## Guidance Map
 
 `@docs/` is the canonical documentation directory — never a top-level `docs/`.
-`@docs/agents/` is the harness-neutral source of truth; read the relevant file before editing:
+Read the relevant `@docs/agents/` file before editing its area:
 
-- `architecture.md` — layout, boundaries, and the Module Contracts (per-module invariants).
-- `quality-gate.md` — the full gate, changelog scope, database notes.
-- `workflows.md` — planning, implementation, review, documentation flows.
-- `testing-strategy-tdd.md` — spec-first TDD and test selection.
-- `observability.md` — trace context, event catalogue, adding a log line.
-- `deployment.md` — both pipelines in depth.
-- `skills.md` — role index for domain-specific work.
+- `architecture.md` — layers, dependency direction, per-module contracts.
+- `testing-strategy-tdd.md` — spec-first workflow, test lanes, what to test.
+- `observability.md` — traces, event vocabulary, product events.
+- `deployment.md` — app deploy, migrations, data changes, provisioning, secrets.
