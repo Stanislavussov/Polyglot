@@ -78,6 +78,7 @@ export type {
   RecordNotificationDeliveryInput,
 } from "./repositories/notification-delivery.repository.js";
 export { notificationDeliveryRepository } from "./repositories/notification-delivery.repository.js";
+export { notificationTemplateRepository } from "./repositories/notification-template.repository.js";
 export type {
   OnboardingDemoCardCounts,
   OnboardingDemoCardListFilters,

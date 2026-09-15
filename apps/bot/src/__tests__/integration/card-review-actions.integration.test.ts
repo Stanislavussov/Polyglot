@@ -185,7 +185,7 @@ describe("review-card actions (integration)", () => {
 
     await tap(harness, telegramId, "set:card");
     expect(lastScreen(harness.sent).buttons).toEqual(
-      expect.arrayContaining(["set:card:t:hint", "set:card:t:synonyms", "set:card:t:example", "set:root"]),
+      expect.arrayContaining(["set:card:t:hint", "set:card:t:synonyms", "set:card:t:example", "set:tpls"]),
     );
     await tap(harness, telegramId, "set:card:t:hint");
     await tap(harness, telegramId, "set:card:t:example");

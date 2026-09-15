@@ -12,6 +12,7 @@ import type { LanguageCachePort } from "./language-cache.port.js";
 import type { LanguageDetectionRepository } from "./language-detection.repository.js";
 import type { MentorMessageRepository } from "./mentor-message.repository.js";
 import type { NotificationRepository } from "./notification.repository.js";
+import type { NotificationTemplateRepository } from "./notification-template.repository.js";
 import type { OnboardingDemoCardRepository } from "./onboarding-demo-card.repository.js";
 import type { PaymentPort } from "./payment.port.js";
 import type { ProductEventRepository } from "./product-event.repository.js";
@@ -42,6 +43,8 @@ export interface ServiceContainer {
   translationTemplateRepository: TranslationTemplateRepository;
   /** What a review card's front shows — synonyms, example, recall hint. */
   cardTemplateRepository: CardTemplateRepository;
+  /** What an opened word notification shows below the recall question. */
+  notificationTemplateRepository: NotificationTemplateRepository;
   wordReviewRepository: WordReviewRepository;
   notificationRepository: NotificationRepository;
   /** Durable mentor-chat threads — reply-continuation lookups and history (mentor MVP). */

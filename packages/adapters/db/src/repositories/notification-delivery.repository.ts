@@ -2,7 +2,7 @@ import type { SQL } from "drizzle-orm";
 import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { getDb } from "../connection.js";
 import { escapeLikePattern } from "../like-escape.js";
-import { type NotificationDeliveryKind, notificationDeliveries, users } from "../schema.js";
+import { type NotificationDeliveryKind, notificationDeliveries, notificationInteractions, users } from "../schema.js";
 
 export interface RecordNotificationDeliveryInput {
   userId: number;
@@ -10,6 +10,18 @@ export interface RecordNotificationDeliveryInput {
   text: string;
   parseMode?: "HTML" | null;
   meta?: Record<string, string | number | null>;
+  telegramMessageId?: number | null;
+}
+
+export interface RecordNotificationInteractionInput {
+  userId: number;
+  telegramMessageId: number;
+  action: string;
+}
+
+export interface LinkedNotificationInteraction {
+  deliveryId: number;
+  kind: NotificationDeliveryKind;
 }
 
 export interface NotificationDeliveryListFilters {
@@ -28,6 +40,9 @@ export interface NotificationDeliveryListItem {
   parseMode: string | null;
   meta: Record<string, string | number | null> | null;
   sentAt: Date;
+  /** When the first button on this message was tapped; null while nobody has. */
+  openedAt: Date | null;
+  interactionCount: number;
   user: {
     id: number;
     telegramId: number;
@@ -77,7 +92,28 @@ export const notificationDeliveryRepository = {
       text: input.text,
       parseMode: input.parseMode ?? null,
       meta: input.meta ?? null,
+      telegramMessageId: input.telegramMessageId ?? null,
     });
+  },
+
+  /** Null, with nothing written, when the tapped message was not a journaled notification. */
+  async recordInteraction(input: RecordNotificationInteractionInput): Promise<LinkedNotificationInteraction | null> {
+    const db = getDb();
+    const [delivery] = await db
+      .select({ deliveryId: notificationDeliveries.id, kind: notificationDeliveries.kind })
+      .from(notificationDeliveries)
+      .where(
+        and(
+          eq(notificationDeliveries.userId, input.userId),
+          eq(notificationDeliveries.telegramMessageId, input.telegramMessageId),
+        ),
+      )
+      .orderBy(desc(notificationDeliveries.id))
+      .limit(1);
+    if (!delivery) return null;
+
+    await db.insert(notificationInteractions).values({ deliveryId: delivery.deliveryId, action: input.action });
+    return delivery;
   },
 
   async list(filters: NotificationDeliveryListFilters): Promise<NotificationDeliveryListResult> {
@@ -94,6 +130,14 @@ export const notificationDeliveryRepository = {
         parseMode: notificationDeliveries.parseMode,
         meta: notificationDeliveries.meta,
         sentAt: notificationDeliveries.sentAt,
+        openedAt: sql<Date | null>`(
+          select min(${notificationInteractions.createdAt}) from ${notificationInteractions}
+          where ${notificationInteractions.deliveryId} = ${notificationDeliveries.id}
+        )`.mapWith((value: string | null) => (value === null ? null : new Date(value))),
+        interactionCount: sql<number>`(
+          select count(*)::int from ${notificationInteractions}
+          where ${notificationInteractions.deliveryId} = ${notificationDeliveries.id}
+        )`,
         user: {
           id: users.id,
           telegramId: users.telegramId,

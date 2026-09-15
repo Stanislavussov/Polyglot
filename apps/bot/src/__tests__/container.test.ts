@@ -32,6 +32,10 @@ vi.mock("@polyglot/adapter-db", () => ({
     getFields: vi.fn().mockResolvedValue({ synonyms: true, example: false, hint: false }),
     setField: vi.fn(),
   },
+  notificationTemplateRepository: {
+    getFields: vi.fn().mockResolvedValue({ synonyms: false }),
+    setField: vi.fn(),
+  },
   wordReviewRepository: {
     logReview: vi.fn().mockResolvedValue(undefined),
   },

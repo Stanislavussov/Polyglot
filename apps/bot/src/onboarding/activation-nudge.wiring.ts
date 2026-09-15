@@ -150,8 +150,10 @@ async function nudgeOne(
   );
 
   const text = t("onbNudgeMessage", lang, { word: hook.headword });
+  let telegramMessageId: number;
   try {
-    await api.sendMessage(candidate.telegramId, text, { reply_markup: keyboard });
+    const sent = await api.sendMessage(candidate.telegramId, text, { reply_markup: keyboard });
+    telegramMessageId = sent.message_id;
   } catch (err) {
     // Transient (network, 5xx, flood): rethrow so the sweep counts it as a
     // retryable failure and the user stays eligible tomorrow.
@@ -167,6 +169,7 @@ async function nudgeOne(
     kind: "activation_nudge",
     text,
     meta: { word: hook.headword, sourceLang: hook.sourceLang },
+    telegramMessageId,
   });
   await services.notificationRepository.recordSentWord(candidate.userId, hook.headword, ACTIVATION_NUDGE_SOURCE);
   countNudge("nudge_sent");

@@ -1,155 +1,67 @@
-# Observability — trace context and the event stream
+# Observability Rules
 
-Canonical guidance for logging. Read this before adding a log line.
+Logs: stdout → promtail → self-hosted Loki → Grafana (`deploy/monitoring/`).
 
-Records go to stdout → promtail → **self-hosted Loki** → Grafana
-(`deploy/monitoring/`). Nothing leaves the VPS.
+## Every record carries a trace and an event
 
-## The two things every record carries
+- **Trace.** Each unit of work starting outside the process (Telegram update, scheduler
+  tick, notification delivery, cron sweep) opens a trace via `AsyncLocalStorage`
+  (`packages/core/src/observability/trace-context.ts`); the pino `mixin` stamps it on every
+  record. A new background job must wrap itself in `runWithTrace` with a `jobName`.
+- **Event.** Use `logEvent(name, fields, level)`, never `logger.*`. Names are
+  `<area>.<subject>.<outcome>`. `tracedOperation(name, fields, fn)` emits
+  started/finished/failed with duration. `logEvent` never throws.
 
-**1. A trace.** Every unit of work that starts outside the process opens one:
-a Telegram update, a scheduler tick, a single notification delivery, a cron
-sweep. Everything running underneath shares it through `AsyncLocalStorage`
-(`packages/core/src/observability/trace-context.ts`), and the pino `mixin` in
-`packages/core/src/logger.ts` stamps it onto every record — including ones
-written deep inside a core service or a DB adapter that never saw a `ctx`.
-
-Trace fields: `traceId`, `source`, and whichever of `userId`, `telegramId`,
-`chatId`, `updateId`, `jobName`, `parentTraceId` are known. The auth middleware
-calls `enrichTrace({ userId })` once the DB lookup resolves, so records written
-before and after it share the same identity.
-
-**2. An `event` name.** Emit through `logEvent(name, fields, level)` rather than
-`logger.info(...)`. The stable name is what makes the stream queryable instead
-of merely readable — `| json | event="translation.failed"` beats grepping prose
-someone may reword. Names are `<area>.<subject>.<outcome>`, dot-delimited,
-general → specific.
-
-```ts
-import { logEvent, tracedOperation, errorFields } from "@polyglot/core";
-
-logEvent("dictionary.entry_removed", { dictionaryId, entryId });
-logEvent("translation.failed", { word, ...errorFields(err) }, "error");
-
-// started/finished/failed with a duration, in one wrapper:
-await tracedOperation("video.transcript_fetch", { videoId }, () => fetch(...));
-```
-
-`logEvent` never throws: observability must not be able to break the flow it
-observes.
-
-## Reproducing a problem
-
-A user reports a broken button. In Grafana → Explore → Loki:
-
-```logql
-# Everything that user did, newest first
-{container_name="polyglot-bot"} | json | telegramId="123456789"
-
-# One tap and its entire causal chain — handler, DB, AI, replies
-{container_name="polyglot-bot"} | json | traceId="a1b2c3d4e5f6"
-
-# Buttons that matched no handler (dead keyboards from an old release)
-{container_name="polyglot-bot"} | json | event="update.unhandled"
-
-# Slowest translations
-{container_name="polyglot-bot"} | json | event="translation.completed" | totalMs > 15000
-```
-
-The usual path is: filter by `telegramId` → find the failing action → copy its
-`traceId` → filter by that.
-
-## Coverage
-
-Registration in `bot-factory.ts` goes through the `onCommand` / `onCallback`
-helpers, which wrap every handler in `withHandlerLog`. **A new command or
-callback is therefore logged with no second edit** — keep using the helpers.
-
-| Layer | Events |
-|---|---|
-| Update lifecycle | `update.received`, `update.finished`, `update.failed`, `update.unhandled` |
-| Handlers | `handler.started` (debug), `handler.finished`, `handler.failed` |
-| Text routing | `mode_router.routed`, `mode_router.rejected`, `mode_router.idle_fallback` |
-| Mentor idle prompt (Task 83) | `mentor.idle_prompt_shown` (`idleMs`), `mentor.idle_prompt_choice` (`choice`: `stay` \| `translate` \| `stale`) |
-| Outgoing Telegram | `telegram.api.call`, `telegram.api.body` (debug), `telegram.api.failed` |
-| Session | `session.loaded`/`saved` (debug), `session.miss` (debug), `session.repaired`, `session.reset`, `session.deleted` |
-| Translation | `translation.language_detected`, `.direction_resolved`, `.completed`, `.failed`, `.clarification_requested` |
-| Translation pipeline | `translation.pipeline.started`, `.sense_anchored` (debug), `.generation_failed`, `.validation_failed`, `.needs_review`, `.judge_failed`, `.judge_timed_out`, `.repair_*` |
-| AI | `ai.request.completed`, `ai.request.failed` (with `budgetMs`, `timedOut`) |
-| AI credit (Task 78) | `ai.credit.polled`, `.unlimited`, `.poll_failed`, `.poll_disabled`, `.scheduled`, `.schedule_duplicate_ignored`, `.poll_stopped` |
-| Callbacks | `callback.stale` — a button whose backing state was gone, for every guard (`action`); `recovered` says whether a retry could be offered. Supersedes the per-site `vocabulary.save_state_lost` / `card.tts_state_lost` |
-| Vocabulary | `vocabulary.saved`, `.save_skipped`, `.save_failed` |
-| Dictionary | `dictionary.created`, `.renamed`, `.deleted`, `.entry_added`, `.entry_moved`, `.entry_removed`, `.translate_failed` |
-| Onboarding | `onboarding.started`, `.screen_rendered`, `.native_lang_selected`, `.learning_lang_confirmed`, `.languages_done`, `.completed`, `.demo_failed`, `.gate_redirected` (`kind`: `callback` \| `command` \| `message` — a not-yet-onboarded user reached a feature route and was put back on their onboarding screen) |
-| Settings | `settings.native_lang_changed`, `.interface_lang_changed`, `.learning_lang_added`/`_removed`, `.notifications_toggled`, `.notification_*_changed`, `.timezone_changed` |
-| Cards (Task 85) | `cards.session_started` (`deckSize`, `ahead`), `cards.card_rated` (`rating`, `ahead`, `scheduled` — false when the rating wrote no SRS state, `previousInterval`/`nextInterval`), `cards.session_finished` (`cards`, `recalled`, `retries`), `cards.rating_persist_failed` (error) |
-| Notifications / cron | `notification.sent`, `notification.delivery_log_failed`, `notification.dictionary_exhausted`, `notification.preset.picked`/`.exhausted`/`.no_candidates`/`.unresolvable`, `nudge.*`, `retention.*` |
-| Momentum (Task 81) | `momentum.effort_recorded` (debug — `kind`, `weight`, `capped`), `momentum.record_failed` (error), `momentum.mature_word` (`entryId`, `translationId`, `interval`), `momentum.band_changed` (`userId`, `from`, `to` — the discounted score crossed a band boundary on a credited effort), `momentum.praise_shown` (`praiseKind`, `surface`, `band`), `momentum.recovery_shown` (`gapDays` — logged here and never printed to the user), `momentum.progress_opened` (`band`, `entry`: `flashcard_done` \| `command` \| `srs_done` — the last only from `/review` done screens still in chat history), `momentum.weekly_line_shown` (`mature`, `reviews`), `momentum.backfill_finished` (`users`, `events`) / `momentum.recompute_failed` (error, `userId`) |
-| Voice input (Task 80) | `voice.transcribed`, `.transcribe_failed`, `.transcribe_empty`, `.too_long` |
-| Pronunciation (Task 77) | `card.tts_played`, `.tts_failed`, `.tts_state_lost` |
-| Errors | `bot.error`, `bot.error_handler_failed` |
-
-## Product events — a separate stream, a separate question
-
-Everything above answers *what the process did*. A second, much smaller stream
-answers *what the product did* — who reached the price list, who bought, which
-features get used and which get refused. It is written to Postgres
-(`product_events`) and read in the admin panel's **Product Metrics** page, not
-in Grafana, because the questions are aggregates ("how many distinct people
-paid last month") rather than traces.
-
-```ts
-import { trackProductEvent } from "../observability/product-events.js";
-
-trackProductEvent(ctx, "plan.selected", plan.name);
-```
-
-- The vocabulary is **closed**: `PRODUCT_EVENTS` in
-  `packages/core/src/ports/product-event.repository.ts`. Adding a member there
-  is the whole cost of tracking something new.
-- Two columns carry everything — the `event` and a short `context` from an
-  already-bounded set (plan name, feature key, command, mode). No jsonb payload.
-- Calls are **fire-and-forget**: never awaited, never able to fail a user flow.
-- Rows are pruned at **30 days** (`PRODUCT_EVENT_RETENTION_DAYS`), shorter than
-  the 90-day telemetry horizon.
-
-**Do not add a call site for something already covered.** Commands are counted
-in `bot-factory`'s `onCommand` helper, and both paid-feature outcomes
-(`feature.used` / `feature.locked`) inside the entitlement gate in
-`paid-feature.helper.ts` — one place each, so a new command or feature is
-counted with no second edit and the used/blocked split cannot drift.
-
-## Levels
-
-Production runs at `info`. Set `LOG_LEVEL=debug` on a container to add the
-high-volume half — handler starts, outgoing message bodies, session
-reads/writes, per-phase timings — while chasing an incident.
-
-`debug` is the right level for anything emitted more than once per user action,
-or anything whose value is only forensic. A `*.started` record is debug on
-purpose: at `info` the stream stays one line per completed operation, and at
-`debug` an operation that was entered but never returned shows up as a dangling
-start — the signature of a hang.
-
-## PII
-
-`packages/core/src/logger.ts` redacts `username` and `password` at every nesting
-level. **User message text is deliberately not redacted**: reproducing a
-translation bug means knowing the exact input, and Loki is ours. `userId` and
-`telegramId` already identify a user, so the handle adds exposure without adding
-diagnostic value.
-
-That makes **Loki retention the control that bounds this data** — it is the only
-thing deciding how long user-typed text is kept. Check it before widening what
-is logged.
+Debug path: filter `| json | telegramId="…"` → find the failing action → filter by its
+`traceId`.
 
 ## Adding a log line
 
-1. `logEvent`, not `logger.*`. Pick a name from the table's vocabulary or extend
-   it in the same shape, and add it to the table.
-2. Pass only what is specific to the event — identity comes from the trace.
-3. Log the **outcome**, not the intent. "User tapped delete" is already covered
-   by `handler.finished`; what is missing without you is *what the tap changed*.
-4. Never log a whole session, deck, or translation map. Log sizes and ids.
-5. Opening a new background job? Wrap it in `runWithTrace` with a `jobName`, or
-   its records will have no thread to pull.
+1. Reuse or extend the vocabulary below, and add new names to the table.
+2. Pass only event-specific fields; identity comes from the trace.
+3. Log the outcome, not the intent — `handler.finished` already records the tap.
+4. Log sizes and ids, never whole sessions, decks or translation maps.
+5. Anything emitted more than once per user action, or purely forensic, is `debug`.
+   `*.started` is always `debug` (a dangling start at debug = a hang).
+6. Register commands/callbacks through `onCommand`/`onCallback` in `bot-factory.ts` — they
+   log automatically.
+
+User message text is deliberately not redacted (only `username`/`password` are); Loki
+retention is the control bounding it — check it before widening what is logged.
+
+## Event vocabulary
+
+| Area | Events |
+|---|---|
+| Update | `update.received`, `.finished`, `.failed`, `.unhandled` |
+| Handlers | `handler.started` (debug), `.finished`, `.failed` |
+| Routing | `mode_router.routed`, `.rejected`, `.idle_fallback` |
+| Mentor | `mentor.idle_prompt_shown` (`idleMs`), `.idle_prompt_choice` (`stay` \| `translate` \| `stale`) |
+| Telegram | `telegram.api.call`, `.body` (debug), `.failed` |
+| Session | `session.loaded`/`.saved`/`.miss` (debug), `.repaired`, `.reset`, `.deleted` |
+| Translation | `translation.language_detected`, `.direction_resolved`, `.completed`, `.failed`, `.clarification_requested` |
+| Pipeline | `translation.pipeline.started`, `.sense_anchored` (debug), `.generation_failed`, `.validation_failed`, `.needs_review`, `.judge_failed`, `.judge_timed_out`, `.repair_*` |
+| AI | `ai.request.completed`, `.failed` (`budgetMs`, `timedOut`) |
+| AI credit | `ai.credit.polled`, `.unlimited`, `.poll_failed`, `.poll_disabled`, `.scheduled`, `.schedule_duplicate_ignored`, `.poll_stopped` |
+| Callbacks | `callback.stale` (`action`, `recovered`) — for every stale-state guard |
+| Vocabulary | `vocabulary.saved`, `.save_skipped`, `.save_failed` |
+| Dictionary | `dictionary.created`, `.renamed`, `.deleted`, `.entry_added`, `.entry_moved`, `.entry_removed`, `.translate_failed` |
+| Onboarding | `onboarding.started`, `.screen_rendered`, `.native_lang_selected`, `.learning_lang_confirmed`, `.languages_done`, `.completed`, `.demo_failed`, `.gate_redirected` (`kind`) |
+| Settings | `settings.native_lang_changed`, `.interface_lang_changed`, `.learning_lang_added`/`_removed`, `.notifications_toggled`, `.notification_*_changed`, `.timezone_changed` |
+| Cards | `cards.session_started`, `.card_rated`, `.session_finished`, `.rating_persist_failed` |
+| Notifications | `notification.sent`, `.delivery_log_failed`, `.interaction` (`deliveryId`, `kind`, `action`), `.interaction_log_failed`, `.dictionary_exhausted`, `.preset.picked`/`.exhausted`/`.no_candidates`/`.unresolvable`, `nudge.*`, `retention.*` |
+| Momentum | `momentum.effort_recorded` (debug), `.record_failed`, `.mature_word`, `.band_changed`, `.praise_shown`, `.recovery_shown`, `.progress_opened`, `.weekly_line_shown`, `.backfill_finished`, `.recompute_failed` |
+| Voice | `voice.transcribed`, `.transcribe_failed`, `.transcribe_empty`, `.too_long` |
+| TTS | `card.tts_played`, `.tts_failed` |
+| Errors | `bot.error`, `bot.error_handler_failed` |
+
+## Product events
+
+A separate Postgres stream (`product_events`, shown on the admin Product Metrics page) for
+aggregate product questions: `trackProductEvent(ctx, event, context)`.
+
+- Closed vocabulary: `PRODUCT_EVENTS` in `packages/core/src/ports/product-event.repository.ts`.
+- Two columns only — `event` and a short bounded `context`. No jsonb payload.
+- Fire-and-forget: never awaited, never fails a flow. Pruned at 30 days.
+- Commands (`onCommand`) and `feature.used`/`feature.locked` (`paid-feature.helper.ts`) are
+  already counted in one place each — don't add call sites for them.

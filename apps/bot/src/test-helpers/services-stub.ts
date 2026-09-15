@@ -133,6 +133,7 @@ export function createServicesStub(overrides: Partial<ServiceContainer> = {}): S
     vocabularyDictionaryRepository: autoMockObject<ServiceContainer["vocabularyDictionaryRepository"]>(),
     translationTemplateRepository: autoMockObject<ServiceContainer["translationTemplateRepository"]>(),
     cardTemplateRepository: autoMockObject<ServiceContainer["cardTemplateRepository"]>(),
+    notificationTemplateRepository: autoMockObject<ServiceContainer["notificationTemplateRepository"]>(),
     wordReviewRepository: autoMockObject<ServiceContainer["wordReviewRepository"]>(),
     ttsCacheRepository: autoMockObject<ServiceContainer["ttsCacheRepository"]>(),
     notificationRepository: autoMockObject<ServiceContainer["notificationRepository"]>(),

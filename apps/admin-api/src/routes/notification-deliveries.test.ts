@@ -13,6 +13,8 @@ const mocks = vi.hoisted(() => ({
           parseMode: "HTML",
           meta: { word: "Haus", source: "srs", entryId: 3 },
           sentAt: new Date("2026-09-13T08:00:00Z"),
+          openedAt: new Date("2026-09-13T08:05:00Z"),
+          interactionCount: 2,
           user: { id: 10, telegramId: 12345, username: "polyglot_user" },
         },
       ],

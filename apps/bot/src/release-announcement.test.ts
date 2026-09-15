@@ -54,7 +54,7 @@ function makeRepository(
 
 function makeMessenger(): TelegramMessenger {
   return {
-    sendMessage: vi.fn<TelegramMessenger["sendMessage"]>(() => Promise.resolve({ ok: true })),
+    sendMessage: vi.fn<TelegramMessenger["sendMessage"]>(() => Promise.resolve({ message_id: 900 })),
   };
 }
 
@@ -111,6 +111,7 @@ describe("sendReleaseAnnouncement", () => {
       text: vi.mocked(messenger.sendMessage).mock.calls[0]?.[1],
       parseMode: "HTML",
       meta: { releaseId: "release-1" },
+      telegramMessageId: 900,
     });
   });
 

@@ -141,7 +141,11 @@ async function buildDelivery(
   ai: { wasCalled: () => boolean };
 }> {
   const ai = createAiTripwire();
-  const { sendFn, deps } = await buildNotificationScheduling(harness.bot.api, { generateObject: ai.fn, now });
+  const { sendFn, deps } = await buildNotificationScheduling(harness.bot.api, {
+    generateObject: ai.fn,
+    now,
+    pickSelfCheckVariant: () => 0,
+  });
   return { sendFn, ai, deps: { ...deps, now: () => WEEKLY_SLOT_UTC, pickPresetWord: async () => null } };
 }
 

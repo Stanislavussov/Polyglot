@@ -102,4 +102,68 @@ describe("notificationDeliveryRepository (integration)", () => {
 
     expect(result.deliveries.map((row) => row.text)).toEqual(["100% done"]);
   });
+
+  it("links a tap to the delivery sent as that message, and lists the first tap as the open", async () => {
+    const reader = await seedUser();
+    await notificationDeliveryRepository.record({
+      userId: reader.id,
+      kind: "word_card",
+      text: "Haus",
+      telegramMessageId: 51,
+    });
+    await notificationDeliveryRepository.record({
+      userId: reader.id,
+      kind: "trial",
+      text: "Trial",
+      telegramMessageId: 52,
+    });
+
+    const linked = await notificationDeliveryRepository.recordInteraction({
+      userId: reader.id,
+      telegramMessageId: 51,
+      action: "notif:reveal:9",
+    });
+    await notificationDeliveryRepository.recordInteraction({
+      userId: reader.id,
+      telegramMessageId: 51,
+      action: "notif:fb:easy:9",
+    });
+
+    expect(linked).toMatchObject({ kind: "word_card" });
+    const { deliveries } = await notificationDeliveryRepository.list({ page: 1, limit: 10, userId: reader.id });
+    const card = deliveries.find((row) => row.text === "Haus");
+    const trial = deliveries.find((row) => row.text === "Trial");
+    expect(card?.id).toBe(linked?.deliveryId);
+    expect(card?.interactionCount).toBe(2);
+    expect(card?.openedAt).toBeInstanceOf(Date);
+    expect(trial).toMatchObject({ interactionCount: 0, openedAt: null });
+  });
+
+  it("links nothing for a message that was not a notification, or was another user's", async () => {
+    const reader = await seedUser();
+    const other = await seedUser();
+    await notificationDeliveryRepository.record({
+      userId: other.id,
+      kind: "word_card",
+      text: "Baum",
+      telegramMessageId: 61,
+    });
+
+    const unknownMessage = await notificationDeliveryRepository.recordInteraction({
+      userId: reader.id,
+      telegramMessageId: 999,
+      action: "tr:more:999",
+    });
+    // Message ids are per chat, so the same id in another user's chat is a different message.
+    const foreignMessage = await notificationDeliveryRepository.recordInteraction({
+      userId: reader.id,
+      telegramMessageId: 61,
+      action: "notif:reveal:1",
+    });
+
+    expect(unknownMessage).toBeNull();
+    expect(foreignMessage).toBeNull();
+    const { deliveries } = await notificationDeliveryRepository.list({ page: 1, limit: 10, userId: other.id });
+    expect(deliveries[0]).toMatchObject({ interactionCount: 0, openedAt: null });
+  });
 });

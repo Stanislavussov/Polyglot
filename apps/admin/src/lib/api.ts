@@ -658,6 +658,9 @@ export interface NotificationDelivery {
   parseMode: string | null;
   meta: Record<string, string | number | null> | null;
   sentAt: string;
+  /** When the first button on this message was tapped; null while nobody has. */
+  openedAt: string | null;
+  interactionCount: number;
   user: {
     id: number;
     telegramId: number;

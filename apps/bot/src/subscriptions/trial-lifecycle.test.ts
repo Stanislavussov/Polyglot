@@ -155,6 +155,7 @@ describe("trial lifecycle sweep — a day before the end", () => {
       kind: "trial",
       text: sentText(h.api),
       meta: { source: TRIAL_ENDING_SOURCE },
+      telegramMessageId: 1,
     });
   });
 

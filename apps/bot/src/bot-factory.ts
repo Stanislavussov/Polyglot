@@ -33,6 +33,7 @@ import {
   handleNotifRevealCallback,
   handleNotifTranslateCallback,
 } from "./notifications/notification.callbacks.js";
+import { notificationInteractionMiddleware } from "./notifications/notification-interaction.middleware.js";
 import { createApiLogTransformer } from "./observability/api-log.js";
 import { handlerName, withHandlerLog } from "./observability/handler-log.js";
 import { withCommandTracking } from "./observability/product-events.js";
@@ -133,6 +134,8 @@ import {
   handleSetNotifCallback,
   handleSetNotifContextCallback,
   handleSetNotifContextCancelCallback,
+  handleSetNotifTemplateCallback,
+  handleSetNotifTemplateToggleCallback,
   handleSetNotifTimeCallback,
   handleSetNotifTimeSelectCallback,
   handleSetNotifToggleCallback,
@@ -143,6 +146,8 @@ import {
   handleSetPlanCallback,
   handleSetRootCallback,
   handleSetTemplateCallback,
+  handleSetTemplatesCallback,
+  NOTIF_TEMPLATE_TOGGLE_PATTERN,
 } from "./scenes/helpers/settings.helper.js";
 import {
   handleBuyPlanCallback,
@@ -347,6 +352,9 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
 
   bot.use(authMiddleware);
 
+  // Ahead of the onboarding gate and every route, so a tap is journaled whoever consumes it.
+  bot.use(notificationInteractionMiddleware);
+
   // Conversations run in a replayed context that the outer service-injection
   // middleware above never touches, so ctx.services is undefined inside them.
   // Re-inject the singleton container as a conversation plugin — it is a stable
@@ -483,9 +491,12 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   onCallback("set:notif:context", handleSetNotifContextCallback);
   onCallback("set:notif:context:cancel", handleSetNotifContextCancelCallback);
   onCallback("set:notif:back", handleSetNotifBackCallback);
+  onCallback("set:tpls", handleSetTemplatesCallback);
   onCallback("set:tpl", handleSetTemplateCallback);
   onCallback("set:card", handleSetCardCallback);
   onCallback(CARD_TOGGLE_PATTERN, handleSetCardToggleCallback);
+  onCallback("set:ntpl", handleSetNotifTemplateCallback);
+  onCallback(NOTIF_TEMPLATE_TOGGLE_PATTERN, handleSetNotifTemplateToggleCallback);
   onCallback("set:plan", handleSetPlanCallback);
   onCallback("set:changes", handleSetChangesCallback);
   onCallback("set:back", handleSetBackCallback);

@@ -220,14 +220,7 @@ describe("menu navigation (integration)", () => {
 
     harness.reset();
     await harness.dispatch(callbackQueryUpdate({ chatId: id, fromId: id, messageId: menuId, data: "menu:settings" }));
-    expect(lastEdit(harness.sent).buttons).toEqual([
-      "set:lang",
-      "set:notif",
-      "set:tpl",
-      "set:card",
-      "set:plan",
-      "set:close",
-    ]);
+    expect(lastEdit(harness.sent).buttons).toEqual(["set:lang", "set:notif", "set:tpls", "set:plan", "set:close"]);
 
     harness.reset();
     await harness.dispatch(callbackQueryUpdate({ chatId: id, fromId: id, messageId: menuId, data: "set:lang" }));
@@ -244,5 +237,28 @@ describe("menu navigation (integration)", () => {
     harness.reset();
     await harness.dispatch(callbackQueryUpdate({ chatId: id, fromId: id, messageId: menuId, data: "set:root" }));
     expect(lastEdit(harness.sent).buttons).toContain("set:notif");
+  });
+
+  it("leads from the settings root into the templates group, through the notification template and back", async () => {
+    const harness = createBotHarness({ ai: deterministicTranslateAi() });
+    const id = uniqueTelegramId();
+    await arrangeOnboardedTranslator(id);
+    const menuId = await openMenu(harness, id);
+    await harness.dispatch(callbackQueryUpdate({ chatId: id, fromId: id, messageId: menuId, data: "menu:settings" }));
+
+    harness.reset();
+    await harness.dispatch(callbackQueryUpdate({ chatId: id, fromId: id, messageId: menuId, data: "set:tpls" }));
+    expect(lastEdit(harness.sent).buttons).toEqual(["set:tpl", "set:card", "set:ntpl", "set:root"]);
+
+    harness.reset();
+    await harness.dispatch(callbackQueryUpdate({ chatId: id, fromId: id, messageId: menuId, data: "set:ntpl" }));
+    expect(lastEdit(harness.sent).text).toContain("Word notification");
+    expect(lastEdit(harness.sent).buttons).toEqual(["set:ntpl:t:synonyms", "set:tpls"]);
+
+    // Back from a template screen returns to the group, not past it to the root.
+    harness.reset();
+    await harness.dispatch(callbackQueryUpdate({ chatId: id, fromId: id, messageId: menuId, data: "set:tpls" }));
+    expect(lastEdit(harness.sent).buttons).toContain("set:ntpl");
+    expect(sentMessages(harness.sent)).toEqual([]);
   });
 });
