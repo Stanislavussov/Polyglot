@@ -15,8 +15,15 @@ vi.mock("@polyglot/core", async () => {
 });
 
 import type { NotificationPayload } from "@polyglot/adapter-notifications";
-import { t } from "@polyglot/core";
-import { buildNotificationKeyboard, formatNotificationMessage } from "./notification.formatter.js";
+import { type SupportedLang, t } from "@polyglot/core";
+import {
+  buildNotificationKeyboard,
+  formatNotificationMessage,
+  SELF_CHECK_KEYS,
+  sourceSynonymTexts,
+} from "./notification.formatter.js";
+
+const INTERFACE_LANGS: readonly SupportedLang[] = ["en", "ru", "cs", "de", "fr", "es", "it", "pt", "uk", "pl", "kk"];
 
 /** Content lines only; blank separators are layout, not content. */
 function contentLines(msg: string): string[] {
@@ -119,6 +126,79 @@ describe("formatNotificationMessage", () => {
     expect(msg.endsWith(`\n\n${footer}`)).toBe(true);
     // Everything the card said without a footer is still there, in order.
     expect(msg.startsWith(formatNotificationMessage(srsPayload, "en"))).toBe(true);
+  });
+
+  // ── Rotating question ──────────────────────────────────────────
+  // The same sentence under every daily word stops being read; the question varies
+  // while its place in the message does not.
+
+  it("asks a different question for each variant and wraps past the last one", () => {
+    const questionAt = (selfCheckVariant: number): string | undefined =>
+      contentLines(formatNotificationMessage(srsPayload, "en", { selfCheckVariant }))[1];
+
+    expect(questionAt(3)).toBe(`<i>${t("notifSelfCheck4", "en")}</i>`);
+    expect(questionAt(SELF_CHECK_KEYS.length)).toBe(questionAt(0));
+    expect(new Set(SELF_CHECK_KEYS.map((_, index) => questionAt(index))).size).toBe(SELF_CHECK_KEYS.length);
+  });
+
+  it("has every question written in every interface language", () => {
+    for (const lang of INTERFACE_LANGS) {
+      const questions = SELF_CHECK_KEYS.map((key) => t(key, lang));
+      expect(new Set(questions).size).toBe(SELF_CHECK_KEYS.length);
+      // A key missing from a locale falls back to English, which only English may equal.
+      if (lang !== "en") {
+        expect(questions.filter((question, index) => question === t(SELF_CHECK_KEYS[index]!, "en"))).toEqual([]);
+      }
+    }
+  });
+
+  // ── Synonyms (notification template) ───────────────────────────
+  // A phone's push preview shows only the first lines, so the word and the question
+  // must keep them; synonyms come after.
+
+  it("puts synonyms below the question, keeping the word and the question on top", () => {
+    const lines = contentLines(formatNotificationMessage(srsPayload, "en", { synonyms: ["home", "dwelling"] }));
+
+    expect(lines).toEqual([
+      expect.stringContaining("<b>house</b>"),
+      `<i>${t("notifSelfCheck", "en")}</i>`,
+      t("notifSynonymsLine", "en", { synonyms: "home, dwelling" }),
+    ]);
+    expect(lines[0]).not.toContain("home");
+  });
+
+  it("escapes HTML in synonyms", () => {
+    const msg = formatNotificationMessage(srsPayload, "en", { synonyms: ["a <b> & c"] });
+
+    expect(msg).toContain("a &lt;b&gt; &amp; c");
+  });
+
+  it("renders the bare prompt when there are no synonyms to show", () => {
+    expect(formatNotificationMessage(srsPayload, "en", { synonyms: [] })).toBe(
+      formatNotificationMessage(srsPayload, "en"),
+    );
+  });
+
+  it("keeps the footer last, after the synonyms", () => {
+    const footer = "This week — in long-term memory: 3, reviews: 14.";
+    const msg = formatNotificationMessage(srsPayload, "en", { synonyms: ["home"], footer });
+
+    expect(msg.endsWith(`${t("notifSynonymsLine", "en", { synonyms: "home" })}\n\n${footer}`)).toBe(true);
+  });
+});
+
+describe("sourceSynonymTexts", () => {
+  it("takes each stored synonym's text and drops blank ones", () => {
+    const usage = {
+      explanation: "",
+      synonyms: [{ text: " home " }, { text: "  " }, { text: "dwelling" }],
+      examples: [],
+    };
+    expect(sourceSynonymTexts(usage)).toEqual(["home", "dwelling"]);
+  });
+
+  it("returns nothing for a word saved without source usage", () => {
+    expect(sourceSynonymTexts(null)).toEqual([]);
   });
 });
 

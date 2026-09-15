@@ -7,10 +7,43 @@
  * 3. No DB access — uses pre-built payload
  */
 import type { NotificationPayload } from "@polyglot/adapter-notifications";
-import { type SupportedLang, t, type VocabDifficulty } from "@polyglot/core";
+import { type I18nKey, type SourceUsage, type SupportedLang, t, type VocabDifficulty } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import { assembleCard, emptySections, esc, headwordLine } from "../renderers/card-sections.js";
 import { appendGradeRow, notifGradeCallback } from "../renderers/grade-row.js";
+
+/**
+ * The recall questions a notification rotates through. One fixed sentence under a
+ * new word every day stops being read within a week; the first entry is the
+ * original question, so a render that picks no variant is unchanged.
+ */
+export const SELF_CHECK_KEYS = [
+  "notifSelfCheck",
+  "notifSelfCheck2",
+  "notifSelfCheck3",
+  "notifSelfCheck4",
+  "notifSelfCheck5",
+  "notifSelfCheck6",
+  "notifSelfCheck7",
+  "notifSelfCheck8",
+  "notifSelfCheck9",
+  "notifSelfCheck10",
+  "notifSelfCheck11",
+  "notifSelfCheck12",
+] as const satisfies readonly I18nKey[];
+
+/** A stored word's source-language synonyms as plain text, blanks dropped. */
+export function sourceSynonymTexts(usage: SourceUsage | null | undefined): string[] {
+  return (usage?.synonyms ?? []).map((synonym) => synonym.text.trim()).filter((text) => text !== "");
+}
+
+export interface NotificationMessageOptions {
+  footer?: string;
+  /** Index into `SELF_CHECK_KEYS`, wrapped; absent renders the first question. */
+  selfCheckVariant?: number;
+  /** Source-language synonyms, when the user's notification template switched them on. */
+  synonyms?: readonly string[];
+}
 
 /**
  * Format a notification payload as a Telegram HTML message.
@@ -26,6 +59,10 @@ import { appendGradeRow, notifGradeCallback } from "../renderers/grade-row.js";
  * The headword is the citation form when one was stored, with its source flag, so
  * the nudge and the card behind it introduce the same word the same way.
  *
+ * Synonyms go below the question, never beside the word: a phone's push preview
+ * shows only the first lines, and there the word and the question must survive.
+ * They are source-language synonyms, so they help recall without answering it.
+ *
  * `footer` arrives already rendered so this stays pure: the motivation layer's
  * weekly line (Task 81, S4) needs a database read and a kill-switch check, and
  * omitting it must leave the card byte-identical to what it was before that layer
@@ -34,18 +71,26 @@ import { appendGradeRow, notifGradeCallback } from "../renderers/grade-row.js";
 export function formatNotificationMessage(
   payload: NotificationPayload,
   lang: SupportedLang,
-  options: { footer?: string } = {},
+  options: NotificationMessageOptions = {},
 ): string {
   const { word } = payload;
+  const count = SELF_CHECK_KEYS.length;
+  const variant = options.selfCheckVariant ?? 0;
+  const question = SELF_CHECK_KEYS[((variant % count) + count) % count]!;
+  const synonyms = options.synonyms ?? [];
 
   return assembleCard({
     ...emptySections(),
     headword: [
       headwordLine(word.headword?.trim() || word.original, { emoji: word.emoji, sourceLang: word.sourceLang }),
     ],
-    // Blank separator first: glued to the word the prompt would read as a second
-    // line of it rather than as an instruction about it.
-    aids: ["", `<i>${esc(t("notifSelfCheck", lang))}</i>`],
+    // Blank separators: glued to the word the prompt would read as a second line
+    // of it, and glued to the prompt the synonyms would read as its answer.
+    aids: [
+      "",
+      `<i>${esc(t(question, lang))}</i>`,
+      ...(synonyms.length > 0 ? ["", t("notifSynonymsLine", lang, { synonyms: synonyms.map(esc).join(", ") })] : []),
+    ],
     // Blank separator first: glued to the prompt the weekly line would read as
     // part of it rather than as the week's own tally.
     footer: options.footer ? ["", options.footer] : [],

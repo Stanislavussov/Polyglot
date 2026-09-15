@@ -42,6 +42,7 @@ import {
   momentumRepository,
   normalizeToIso1,
   notificationRepository,
+  notificationTemplateRepository,
   onboardingDemoCardRepository,
   planFeatureAccessRepository,
   productEventRepository,
@@ -233,6 +234,7 @@ export function createContainer(): ServiceContainer {
     vocabularyDictionaryRepository,
     translationTemplateRepository,
     cardTemplateRepository,
+    notificationTemplateRepository,
     // Object-spread wrapper in the composition root: repositories arrive as plain
     // named exports with no observer hook, so this is the only place a review can
     // credit momentum from all four `logReview` call sites at once (§4.1).

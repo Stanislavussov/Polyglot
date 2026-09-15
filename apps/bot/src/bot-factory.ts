@@ -134,6 +134,8 @@ import {
   handleSetNotifCallback,
   handleSetNotifContextCallback,
   handleSetNotifContextCancelCallback,
+  handleSetNotifTemplateCallback,
+  handleSetNotifTemplateToggleCallback,
   handleSetNotifTimeCallback,
   handleSetNotifTimeSelectCallback,
   handleSetNotifToggleCallback,
@@ -144,6 +146,8 @@ import {
   handleSetPlanCallback,
   handleSetRootCallback,
   handleSetTemplateCallback,
+  handleSetTemplatesCallback,
+  NOTIF_TEMPLATE_TOGGLE_PATTERN,
 } from "./scenes/helpers/settings.helper.js";
 import {
   handleBuyPlanCallback,
@@ -487,9 +491,12 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   onCallback("set:notif:context", handleSetNotifContextCallback);
   onCallback("set:notif:context:cancel", handleSetNotifContextCancelCallback);
   onCallback("set:notif:back", handleSetNotifBackCallback);
+  onCallback("set:tpls", handleSetTemplatesCallback);
   onCallback("set:tpl", handleSetTemplateCallback);
   onCallback("set:card", handleSetCardCallback);
   onCallback(CARD_TOGGLE_PATTERN, handleSetCardToggleCallback);
+  onCallback("set:ntpl", handleSetNotifTemplateCallback);
+  onCallback(NOTIF_TEMPLATE_TOGGLE_PATTERN, handleSetNotifTemplateToggleCallback);
   onCallback("set:plan", handleSetPlanCallback);
   onCallback("set:changes", handleSetChangesCallback);
   onCallback("set:back", handleSetBackCallback);

@@ -56,6 +56,8 @@ export interface NotifiableUserOptions {
    * vacuously. Anything asserting card order must set this.
    */
   richCard?: boolean;
+  /** Source-language synonyms stored on the seeded entry, for the notification template. */
+  sourceSynonyms?: string[];
 }
 
 export interface NotifiableUser {
@@ -90,6 +92,7 @@ export async function arrangeNotifiableUser(
     notificationEnabled = true,
     withVocabulary = true,
     richCard = false,
+    sourceSynonyms,
   } = options;
 
   const user = await userRepository.create({ telegramId, username: "notifiable" });
@@ -125,6 +128,9 @@ export async function arrangeNotifiableUser(
       emoji: "🌉",
       unverified: false,
       ...(richCard ? { nativeMeaning: RICH_NATIVE_MEANING } : {}),
+      ...(sourceSynonyms
+        ? { sourceUsage: { explanation: "", synonyms: sourceSynonyms.map((text) => ({ text })), examples: [] } }
+        : {}),
       // Seeded native-last on purpose: the card must be reordered at render
       // time, so a fixture that already reads native-first would prove nothing.
       translations: [

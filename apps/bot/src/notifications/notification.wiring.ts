@@ -6,6 +6,7 @@ import {
   momentumRepository,
   notificationDeliveryRepository,
   notificationRepository,
+  notificationTemplateRepository,
   onboardingDemoCardRepository,
   settingsAdapter,
   subscriptionRepository,
@@ -42,7 +43,12 @@ import { buildAiFailover, resolveDefaultAIModel, resolveFallbackAIModel } from "
 import { clampAiBudgetToOpGuard } from "../utils/long-op.js";
 import { isUserBlocked } from "../utils/telegram-errors.js";
 import { logDelivery } from "./delivery-log.js";
-import { buildNotificationKeyboard, formatNotificationMessage } from "./notification.formatter.js";
+import {
+  buildNotificationKeyboard,
+  formatNotificationMessage,
+  SELF_CHECK_KEYS,
+  sourceSynonymTexts,
+} from "./notification.formatter.js";
 
 const jitTranslationSchema = z.object({
   translations: z.array(
@@ -108,6 +114,12 @@ export interface NotificationSchedulingOverrides {
    * written by the application rather than by the database (§4.4).
    */
   now?: () => Date;
+  /**
+   * Which recall question a delivery asks, as an index into `SELF_CHECK_KEYS`.
+   * Random in production; a test comparing a delivered message with
+   * `formatNotificationMessage` pins it.
+   */
+  pickSelfCheckVariant?: () => number;
 }
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
@@ -144,6 +156,17 @@ export async function buildNotificationScheduling(
   const settings = new SettingsService(settingsAdapter);
   const contextualModel = await resolveDefaultAIModel(settings);
   const now = overrides.now ?? ((): Date => new Date());
+  const pickSelfCheckVariant =
+    overrides.pickSelfCheckVariant ?? ((): number => Math.floor(Math.random() * SELF_CHECK_KEYS.length));
+
+  /** Only a dictionary pick has a stored row to take synonyms from; a preset or AI suggestion shows none. */
+  const loadTemplateSynonyms = async (userId: number, entryId: number | undefined): Promise<string[]> => {
+    if (entryId == null) return [];
+    const fields = await notificationTemplateRepository.getFields(userId);
+    if (!fields.synonyms) return [];
+    const entry = await vocabularyRepository.findById(entryId);
+    return sourceSynonymTexts(entry?.sourceUsage);
+  };
 
   /**
    * The motivation layer's only outbound surface (Task 81, §2.2 S4): one line
@@ -346,7 +369,11 @@ Return translations as JSON array.`;
 
     const kb = buildNotificationKeyboard(lang, payload.word.entryId);
     const weeklyProof = await prepareWeeklyProof(userId, lang, settings?.timezone ?? "UTC");
-    const message = formatNotificationMessage(payload, lang, weeklyProof ? { footer: weeklyProof.line } : {});
+    const message = formatNotificationMessage(payload, lang, {
+      ...(weeklyProof ? { footer: weeklyProof.line } : {}),
+      selfCheckVariant: pickSelfCheckVariant(),
+      synonyms: await loadTemplateSynonyms(userId, payload.word.entryId),
+    });
     const sent = await withDeliveryMetrics(() =>
       api.sendMessage(telegramId, message, {
         parse_mode: "HTML",

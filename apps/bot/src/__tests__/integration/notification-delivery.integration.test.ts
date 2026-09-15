@@ -35,6 +35,7 @@
 import {
   notificationDeliveryRepository,
   notificationRepository,
+  notificationTemplateRepository,
   systemSettingsRepository,
   translationRequestRepository,
   userRepository,
@@ -89,7 +90,11 @@ async function buildDelivery(harness: BotHarness): Promise<{
   ai: AiTripwire;
 }> {
   const ai = createAiTripwire();
-  const { sendFn, deps } = await buildNotificationScheduling(harness.bot.api, { generateObject: ai.fn });
+  // The question is pinned so a layout assertion can name it; rotation is a formatter test.
+  const { sendFn, deps } = await buildNotificationScheduling(harness.bot.api, {
+    generateObject: ai.fn,
+    pickSelfCheckVariant: () => 0,
+  });
   return {
     sendFn,
     ai,
@@ -468,6 +473,64 @@ describe("scheduled notification delivery (integration)", () => {
     expect(textOf(mine[0]!)).not.toContain(nativeTranslation!);
     expect(textOf(mine[0]!)).not.toContain(nativeMeaning!);
     expect(textOf(mine[0]!)).not.toContain(otherTranslation!);
+    expect(ai.wasCalled()).toBe(false);
+  });
+
+  it("C19: synonyms switched on in the notification template arrive below the question, never beside the word", async () => {
+    // Arrange — the toggle goes through the real settings callback, so the row the
+    // delivery reads is the one a user's tap writes.
+    const harness = createBotHarness();
+    const telegramId = uniqueTelegramId();
+    const { userId, headword } = await arrangeTracked(telegramId, { sourceSynonyms: ["span", "viaduct"] });
+    const { sendFn, deps, ai } = await buildDelivery(harness);
+    await harness.dispatch(
+      callbackQueryUpdate({ chatId: telegramId, fromId: telegramId, messageId: 1, data: "set:ntpl:t:synonyms" }),
+    );
+    expect(await notificationTemplateRepository.getFields(userId)).toEqual({ synonyms: true });
+    const synonymsLine = t("notifSynonymsLine", "en", { synonyms: "span, viaduct" });
+    // The settings screen previews the choice on the user's own latest word.
+    expect(
+      harness.sent.some((call) => String((call.payload as { text?: string }).text ?? "").includes(synonymsLine)),
+    ).toBe(true);
+    harness.reset();
+
+    // Act
+    await checkAndSend(sendFn, deps);
+
+    // Assert — the first two lines are what a phone's push preview shows: word and question.
+    const mine = messagesTo(harness.sent, telegramId);
+    expect(mine).toHaveLength(1);
+    const lines = textOf(mine[0]!)
+      .split("\n")
+      .filter((line) => line.trim() !== "");
+    expect(lines).toHaveLength(3);
+    expect(lines[0]).toContain(headword);
+    expect(lines[0]).not.toContain("span");
+    expect(lines[1]).toContain(t("notifSelfCheck", "en"));
+    expect(lines[2]).toBe(synonymsLine);
+    expect(ai.wasCalled()).toBe(false);
+  });
+
+  it("C20: an entry with synonyms still arrives as the bare prompt while the template leaves them off", async () => {
+    // Arrange
+    const harness = createBotHarness();
+    const telegramId = uniqueTelegramId();
+    await arrangeTracked(telegramId, { sourceSynonyms: ["span", "viaduct"] });
+    const { sendFn, deps, ai } = await buildDelivery(harness);
+    harness.reset();
+
+    // Act
+    await checkAndSend(sendFn, deps);
+
+    // Assert
+    const mine = messagesTo(harness.sent, telegramId);
+    expect(mine).toHaveLength(1);
+    expect(textOf(mine[0]!)).not.toContain("span");
+    expect(
+      textOf(mine[0]!)
+        .split("\n")
+        .filter((line) => line.trim() !== ""),
+    ).toHaveLength(2);
     expect(ai.wasCalled()).toBe(false);
   });
 

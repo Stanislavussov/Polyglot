@@ -38,6 +38,7 @@ export type {
   NotificationType,
   NotificationUser,
 } from "./ports/notification.repository.js";
+export type { NotificationTemplateRepository } from "./ports/notification-template.repository.js";
 export type { CheckoutResult, PaymentPort, RenewableSubscription, RenewalResult } from "./ports/payment.port.js";
 export type {
   ProductEvent,
@@ -289,6 +290,12 @@ export {
 } from "./shared/card-template.types.js";
 export * from "./shared/errors.js";
 export { formatLongDate } from "./shared/format-date.js";
+export type { NotificationTemplateFields } from "./shared/notification-template.types.js";
+export {
+  DEFAULT_NOTIFICATION_TEMPLATE_FIELDS,
+  isNotificationTemplateField,
+  NOTIFICATION_TEMPLATE_FIELD_KEYS,
+} from "./shared/notification-template.types.js";
 export { isFinitePositive } from "./shared/numbers.js";
 export type { InputContext } from "./shared/translation-template.service.js";
 export {

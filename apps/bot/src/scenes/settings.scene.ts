@@ -15,6 +15,8 @@ import {
   getMonthlyWindowStart,
   type I18nKey,
   isSupported,
+  NOTIFICATION_TEMPLATE_FIELD_KEYS,
+  type NotificationTemplateFields,
   type PlanLimitConfig,
   parseNotificationMinutes,
   type SupportedLang,
@@ -108,8 +110,7 @@ export function buildSettingsKeyboard(lang: SupportedLang, options: { showChange
   const kb = new InlineKeyboard();
   kb.text(t("settingsGroupLanguages", lang), "set:lang").row();
   kb.text(t("settingsNotifManage", lang), "set:notif").row();
-  kb.text(t("settingsGroupTemplate", lang), "set:tpl").row();
-  kb.text(t("settingsGroupCards", lang), "set:card").row();
+  kb.text(t("settingsGroupTemplate", lang), "set:tpls").row();
   kb.text(t("settingsGroupPlan", lang), "set:plan").row();
   if (options.showChanges) {
     kb.text(t("settingsGroupChanges", lang), "set:changes").row();
@@ -133,6 +134,20 @@ export function buildLangGroupKeyboard(lang: SupportedLang): InlineKeyboard {
   return kb;
 }
 
+/**
+ * Build the templates sub-menu keyboard. Translation, review card and notification each
+ * shape what one surface shows, so they share one root row instead of taking three.
+ * Their screens' Back returns here.
+ */
+export function buildTemplatesKeyboard(lang: SupportedLang): InlineKeyboard {
+  const kb = new InlineKeyboard();
+  kb.text(t("templatesTranslation", lang), "set:tpl").row();
+  kb.text(t("templatesCard", lang), "set:card").row();
+  kb.text(t("templatesNotification", lang), "set:ntpl").row();
+  kb.text(`⬅️ ${t("back", lang)}`, "set:root").row();
+  return kb;
+}
+
 const CARD_FIELD_LABELS: Record<keyof CardFrontFields, I18nKey> = {
   hint: "cardFieldHint",
   synonyms: "cardFieldSynonyms",
@@ -150,7 +165,29 @@ export function buildCardTemplateKeyboard(lang: SupportedLang, fields: CardFront
   for (const key of CARD_FRONT_FIELD_KEYS) {
     kb.text(`${fields[key] ? "✅" : "▫️"} ${t(CARD_FIELD_LABELS[key], lang)}`, `set:card:t:${key}`).row();
   }
-  kb.text(`⬅️ ${t("back", lang)}`, "set:root").row();
+  kb.text(`⬅️ ${t("back", lang)}`, "set:tpls").row();
+  return kb;
+}
+
+const NOTIFICATION_FIELD_LABELS: Record<keyof NotificationTemplateFields, I18nKey> = {
+  synonyms: "cardFieldSynonyms",
+};
+
+/** `preview` is the user's latest saved word as a notification, already rendered; absent for an empty dictionary. */
+export function buildNotificationTemplateText(lang: SupportedLang, preview?: string): string {
+  const body = preview ? `${t("cardTemplatePreview", lang)}\n\n${preview}` : t("cardTemplateNoPreview", lang);
+  return `${t("notifTemplateTitle", lang)}\n\n${body}`;
+}
+
+export function buildNotificationTemplateKeyboard(
+  lang: SupportedLang,
+  fields: NotificationTemplateFields,
+): InlineKeyboard {
+  const kb = new InlineKeyboard();
+  for (const key of NOTIFICATION_TEMPLATE_FIELD_KEYS) {
+    kb.text(`${fields[key] ? "✅" : "▫️"} ${t(NOTIFICATION_FIELD_LABELS[key], lang)}`, `set:ntpl:t:${key}`).row();
+  }
+  kb.text(`⬅️ ${t("back", lang)}`, "set:tpls").row();
   return kb;
 }
 

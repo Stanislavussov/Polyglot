@@ -6,9 +6,11 @@ import {
   type CardFrontFields,
   formatNotificationTime,
   isCardFrontField,
+  isNotificationTemplateField,
   isSupported,
   logEvent,
   NOTIFICATION_TYPES,
+  type NotificationTemplateFields,
   type NotificationType,
   parseNotificationMinutes,
   type SupportedLang,
@@ -18,6 +20,7 @@ import { InlineKeyboard } from "grammy";
 import { changesCommand } from "../../commands/changes.js";
 import { setUserCommands } from "../../commands/commands.js";
 import { MAX_LEARNING_LANGS, MAX_NOTIFICATION_TIMES } from "../../constants.js";
+import { formatNotificationMessage, sourceSynonymTexts } from "../../notifications/notification.formatter.js";
 import { trackProductEvent } from "../../observability/product-events.js";
 import { renderCardFront } from "../../renderers/word-card.js";
 import type { BotContext } from "../../types.js";
@@ -26,8 +29,11 @@ import {
   buildCardTemplateKeyboard,
   buildCardTemplateText,
   buildLangGroupKeyboard,
+  buildNotificationTemplateKeyboard,
+  buildNotificationTemplateText,
   buildNotifSubKeyboard,
   buildNotifSubText,
+  buildTemplatesKeyboard,
   notifTypeLabel,
   renderSettingsInPlace,
 } from "../settings.scene.js";
@@ -601,6 +607,64 @@ export async function handleSetCardToggleCallback(ctx: BotContext): Promise<void
   const current = await ctx.services.cardTemplateRepository.getFields(ctx.user.id);
   const fields = await ctx.services.cardTemplateRepository.setField(ctx.user.id, field, !current[field]);
   await showCardTemplateMenu(ctx, fields);
+  await ctx.answerCallbackQuery();
+}
+
+/** set:tpls — the templates sub-menu: translation, review card, notification */
+export async function handleSetTemplatesCallback(ctx: BotContext): Promise<void> {
+  const lang = await getLang(ctx);
+  await editMessageTextOrReply(ctx, t("settingsTemplatesTitle", lang), {
+    reply_markup: buildTemplatesKeyboard(lang),
+    parse_mode: "HTML",
+  });
+  await ctx.answerCallbackQuery();
+}
+
+/** The notification-template screen, previewed on the user's latest word like the card screen. */
+async function showNotificationTemplateMenu(ctx: BotContext, fields: NotificationTemplateFields): Promise<void> {
+  const lang = await getLang(ctx);
+  const [latest] = await ctx.services.vocabularyRepository.findByUserPaginated(ctx.user.id, 0, 1);
+  const headword = latest?.sourceUsage?.headword?.trim();
+  const preview = latest
+    ? formatNotificationMessage(
+        {
+          hour: 0,
+          word: {
+            original: latest.original,
+            ...(headword ? { headword } : {}),
+            emoji: latest.emoji ?? "",
+            sourceLang: makeLangCodeResolver(ctx)(latest.sourceLangId),
+            translations: {},
+          },
+        },
+        lang,
+        { synonyms: fields.synonyms ? sourceSynonymTexts(latest.sourceUsage) : [] },
+      )
+    : undefined;
+  await editMessageTextOrReply(ctx, buildNotificationTemplateText(lang, preview), {
+    reply_markup: buildNotificationTemplateKeyboard(lang, fields),
+    parse_mode: "HTML",
+  });
+}
+
+/** set:ntpl — what an opened word notification shows */
+export async function handleSetNotifTemplateCallback(ctx: BotContext): Promise<void> {
+  await showNotificationTemplateMenu(ctx, await ctx.services.notificationTemplateRepository.getFields(ctx.user.id));
+  await ctx.answerCallbackQuery();
+}
+
+export const NOTIF_TEMPLATE_TOGGLE_PATTERN = /^set:ntpl:t:(\w+)$/;
+
+/** set:ntpl:t:{field} — flip one notification option; stateless, so an old screen's tap still lands */
+export async function handleSetNotifTemplateToggleCallback(ctx: BotContext): Promise<void> {
+  const field = ctx.match?.[1];
+  if (!field || !isNotificationTemplateField(field)) {
+    await ctx.answerCallbackQuery();
+    return;
+  }
+  const current = await ctx.services.notificationTemplateRepository.getFields(ctx.user.id);
+  const fields = await ctx.services.notificationTemplateRepository.setField(ctx.user.id, field, !current[field]);
+  await showNotificationTemplateMenu(ctx, fields);
   await ctx.answerCallbackQuery();
 }
 

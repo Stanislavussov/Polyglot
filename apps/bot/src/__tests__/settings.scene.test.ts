@@ -54,6 +54,8 @@ vi.mock("../commands/commands.js", () => ({
   setUserCommands: vi.fn().mockResolvedValue(undefined),
 }));
 
+import { DEFAULT_CARD_FRONT_FIELDS, DEFAULT_NOTIFICATION_TEMPLATE_FIELDS } from "@polyglot/core";
+import type { InlineKeyboard } from "grammy";
 import { setUserCommands } from "../commands/commands.js";
 import {
   handleSetBackCallback,
@@ -68,7 +70,13 @@ import {
   handleSetNativeSelectCallback,
   handleSetRootCallback,
 } from "../scenes/helpers/settings.helper.js";
-import { formatNotificationTimes, handleSettingsCommand } from "../scenes/settings.scene.js";
+import {
+  buildCardTemplateKeyboard,
+  buildNotificationTemplateKeyboard,
+  buildTemplatesKeyboard,
+  formatNotificationTimes,
+  handleSettingsCommand,
+} from "../scenes/settings.scene.js";
 
 /** Default settings for tests */
 const DEFAULT_SETTINGS = {
@@ -150,11 +158,22 @@ describe("handleSettingsCommand", () => {
     expect(callbackData(ctx.reply.mock.calls[0][1])).toEqual([
       "set:lang",
       "set:notif",
-      "set:tpl",
-      "set:card",
+      "set:tpls",
       "set:plan",
       "set:changes",
       "set:close",
+    ]);
+  });
+
+  it("gathers the translation, card and notification templates in one sub-menu that their screens return to", () => {
+    const data = (kb: InlineKeyboard): Array<string | undefined> =>
+      kb.inline_keyboard.flat().map((button) => ("callback_data" in button ? button.callback_data : undefined));
+
+    expect(data(buildTemplatesKeyboard("en"))).toEqual(["set:tpl", "set:card", "set:ntpl", "set:root"]);
+    expect(data(buildCardTemplateKeyboard("en", DEFAULT_CARD_FRONT_FIELDS)).at(-1)).toBe("set:tpls");
+    expect(data(buildNotificationTemplateKeyboard("en", DEFAULT_NOTIFICATION_TEMPLATE_FIELDS))).toEqual([
+      "set:ntpl:t:synonyms",
+      "set:tpls",
     ]);
   });
 

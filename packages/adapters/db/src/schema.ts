@@ -521,6 +521,21 @@ export const userCardTemplates = pgTable("user_card_templates", {
 });
 
 // ─────────────────────────────────────────────
+// User notification templates — what an opened word notification shows.
+// 1-to-1 with users; no row = DEFAULT_NOTIFICATION_TEMPLATE_FIELDS (column defaults mirror it).
+// ─────────────────────────────────────────────
+export const userNotificationTemplates = pgTable("user_notification_templates", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .unique()
+    .notNull(),
+  showSynonyms: boolean("show_synonyms").notNull().default(false),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+// ─────────────────────────────────────────────
 // Reported issues — user-submitted bugs, suggestions, and other issues
 // ─────────────────────────────────────────────
 
