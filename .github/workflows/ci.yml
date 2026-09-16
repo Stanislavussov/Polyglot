@@ -33,7 +33,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
+      # Full history: the release-notes gate diffs this change against its base
+      # to tell "touched code without a note" from "touched nothing".
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: pnpm/action-setup@v4
 
@@ -43,6 +47,14 @@ jobs:
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
+
+      # First gate, and the only one that needs no install: a change a user could
+      # notice arrives with a note in every required language
+      # (@docs/releases/README.md). Escape hatch: [skip notes] in the commit.
+      - name: Release notes
+        run: node scripts/check-release-notes.mjs --base "$BASE_SHA"
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
 
       - name: Biome check
         run: pnpm lint
