@@ -7,7 +7,8 @@
  * fill the onboarding keyboard and then keep a daily notification unique for a
  * month, no entry is a duplicate, every entry carries a category the copy can
  * key off, the first three keep their positions (live callbacks address a word
- * by index), and an unknown language degrades to "no hook words" rather than
+ * by index), idioms and slang reach a user early instead of queueing behind the
+ * original set, and an unknown language degrades to "no hook words" rather than
  * throwing.
  */
 import { describe, expect, it } from "vitest";
@@ -17,7 +18,7 @@ import { getHookWordLanguages, getHookWords } from "../hook-words.js";
 /** The 11 interface languages, which are also the supported learning languages. */
 const SUPPORTED_LANGS = ["en", "ru", "cs", "de", "fr", "es", "it", "pt", "uk", "pl", "kk"];
 
-const CATEGORIES: HookWordCategory[] = ["untranslatable", "idiom", "quirk"];
+const CATEGORIES: HookWordCategory[] = ["untranslatable", "idiom", "quirk", "slang"];
 
 describe("hook words", () => {
   it.each(SUPPORTED_LANGS)("can fill the onboarding keyboard for '%s'", (lang) => {
@@ -52,6 +53,19 @@ describe("hook words", () => {
         .slice(0, 3)
         .map((hook) => hook.headword),
     ).toEqual(pinned[lang]);
+  });
+
+  it.each(SUPPORTED_LANGS)("rotates slang and idioms into the first weeks for '%s'", (lang) => {
+    // Presets are served in list order (one every 5 days to a lapsed user), so a
+    // word appended at the end would not reach anyone for months. Right after the
+    // six onboarding-addressed slots, the next twelve must mix in the livelier
+    // categories.
+    const early = getHookWords(lang).slice(6, 18);
+    // Kazakh has no curated slang set we could verify beyond one word, so it is
+    // held to the idiom rotation only.
+    const minSlang = lang === "kk" ? 1 : 4;
+    expect(early.filter((hook) => hook.category === "slang").length).toBeGreaterThanOrEqual(minSlang);
+    expect(early.filter((hook) => hook.category === "idiom").length).toBeGreaterThanOrEqual(4);
   });
 
   it("covers every supported language and nothing else", () => {
