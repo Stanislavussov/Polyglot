@@ -208,6 +208,7 @@ export {
   resolveVideoSuggestion,
 } from "./modules/onboarding/video-suggestions.js";
 export * from "./modules/rate-limit/index.js";
+export * from "./modules/release-notes/index.js";
 export { AI_GENERATION_DEFAULTS, parseAIGenerationDefaults } from "./modules/settings/ai-defaults.schema.js";
 export * from "./modules/settings/settings.service.js";
 export * from "./modules/srs/index.js";

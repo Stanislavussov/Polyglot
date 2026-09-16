@@ -1,0 +1,5 @@
+{
+  "required": ["en", "ru"],
+  "refreshedAt": "2026-09-16",
+  "source": "Every interface_lang and native_lang of an active production user, plus English. Refresh with the query in README.md."
+}

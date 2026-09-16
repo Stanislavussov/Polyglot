@@ -25,6 +25,7 @@
     "lint:fix": "biome check --write .",
     "lint:deps": "depcruise --config .dependency-cruiser.cjs packages apps/bot/src",
     "lint:knip": "knip",
+    "lint:release-notes": "node scripts/check-release-notes.mjs",
     "lint:deps:graph": "depcruise --config .dependency-cruiser.cjs --output-type dot packages apps/bot/src | dot -T svg > @docs/dependency-graph.svg",
     "reports:sync-admin": "node scripts/sync-admin-reports.mjs",
     "clean": "pnpm -r run clean && rm -rf coverage .vitest",

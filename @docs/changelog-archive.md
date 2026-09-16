@@ -1,10 +1,12 @@
-# Changelog
+# Changelog archive (frozen 2026-09-16)
 
-All notable changes to this project will be documented in this file.
+Everything this project shipped up to 2026-09-16, in the old developer-facing format. It is
+history: nothing is added here, and nothing here is announced to anyone.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+Release notes now live in `@docs/releases/` — one short line per change, written to the
+reader, in every language our users read. See `@docs/releases/README.md`.
 
-## [Unreleased]
+## [Unreleased at the time of the freeze]
 
 ### Added
 

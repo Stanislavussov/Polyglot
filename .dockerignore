@@ -7,7 +7,9 @@ coverage
 docs
 .pi
 *.md
-!CHANGELOG.md
+# Release notes ship in the image: the bot reads them at runtime (/changes) and
+# the deploy announces them from there.
+!@docs/releases
 .dependency-cruiser.cjs
 biome.json
 vitest.config.ts

@@ -1339,3 +1339,42 @@ export const productEvents = pgTable(
 );
 
 export type ProductEventRow = typeof productEvents.$inferSelect;
+
+// ─────────────────────────────────────────────
+// Release announcements requested from the admin panel
+// ─────────────────────────────────────────────
+export const releaseAnnouncementJobStatusEnum = pgEnum("release_announcement_job_status", [
+  "pending",
+  "sending",
+  "sent",
+  "failed",
+]);
+
+/**
+ * One announcement a human asked for. Releases go out several times a day, so
+ * nothing is announced automatically — an editor picks the moment. The panel
+ * holds no bot token by design (secrets are scoped per service), so a row here
+ * is the request and the bot, the only service that talks to Telegram, claims
+ * it, sends it and writes the outcome back.
+ */
+export const releaseAnnouncementJobs = pgTable(
+  "release_announcement_jobs",
+  {
+    id: serial("id").primaryKey(),
+    /** The notes as approved in the panel; an edit there never travels back into the repository. */
+    notes: jsonb("notes").$type<{ id: string; texts: Record<string, string> }[]>().notNull(),
+    audienceGroups: text("audience_groups").array().notNull(),
+    status: releaseAnnouncementJobStatusEnum("status").default("pending").notNull(),
+    /** Counts on success, the error on failure — what the panel shows about the run. */
+    result: jsonb("result").$type<Record<string, string | number>>(),
+    /** The requesting admin's email, kept as text so it survives that admin row being deleted. */
+    createdBy: text("created_by"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    startedAt: timestamp("started_at", { withTimezone: true }),
+    finishedAt: timestamp("finished_at", { withTimezone: true }),
+  },
+  // The worker's only query is "oldest pending job".
+  (t) => [index("release_announcement_jobs_status_idx").on(t.status, t.id)],
+);
+
+export type ReleaseAnnouncementJobRow = typeof releaseAnnouncementJobs.$inferSelect;
