@@ -87,6 +87,23 @@ describe("hook words", () => {
     expect([...getHookWordLanguages()].sort()).toEqual([...SUPPORTED_LANGS].sort());
   });
 
+  it("has no headword that differs from another only in case or punctuation", () => {
+    // The notification de-dup compares exact strings, so `low-key` and `lowkey`
+    // are two entries to the pool and one word to the reader — it arrives twice
+    // and reads as the repetition this list exists to avoid. Merging two
+    // curation passes is how such a pair gets in.
+    for (const lang of SUPPORTED_LANGS) {
+      const byShape = new Map<string, string[]>();
+      for (const { headword } of getHookWords(lang)) {
+        const shape = headword.toLowerCase().replaceAll(/[\s\-']/g, "");
+        byShape.set(shape, [...(byShape.get(shape) ?? []), headword]);
+      }
+      const collisions = [...byShape.values()].filter((spellings) => spellings.length > 1);
+
+      expect(collisions, `same word spelled two ways in '${lang}'`).toEqual([]);
+    }
+  });
+
   it("never repeats a headword within a language", () => {
     for (const lang of SUPPORTED_LANGS) {
       const headwords = getHookWords(lang).map((hook) => hook.headword);
