@@ -107,6 +107,32 @@ describe("vocabularyRepository (integration)", () => {
     expect(underscore.map((e) => e.original)).toEqual(["abc_def"]);
   });
 
+  it("filters the browse list by translation text too, one row per entry, with a matching count", async () => {
+    const userId = await freshUserId();
+    const es = await langId("es");
+    const en = await langId("en");
+    const de = await langId("de");
+
+    // "casa" matches through BOTH of its translations — it must still be a single row.
+    await vocabularyRepository.create(userId, {
+      ...entryInput("casa", es, en, "house"),
+      translations: [
+        { targetLangId: en, text: "house", details: { synonyms: [], examples: [] } },
+        { targetLangId: de, text: "Haus", details: { synonyms: [], examples: [] } },
+      ],
+    });
+    await vocabularyRepository.create(userId, entryInput("perro", es, en, "dog"));
+    await vocabularyRepository.create(userId, entryInput("hausa", es, en, "a language"));
+
+    const found = await vocabularyRepository.findByUserPaginated(userId, 0, 10, undefined, {
+      search: "HAUS",
+      sort: "alpha",
+    });
+
+    expect(found.map((e) => e.original)).toEqual(["casa", "hausa"]);
+    expect(await vocabularyRepository.countByUser(userId, undefined, "HAUS")).toBe(2);
+  });
+
   it("soft-deletes then reactivates the same row on re-save (entity-scoped retention)", async () => {
     const userId = await freshUserId();
     const es = await langId("es");

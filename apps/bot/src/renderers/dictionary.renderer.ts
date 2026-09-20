@@ -6,6 +6,7 @@
  */
 
 import type {
+  DictionaryListOptions,
   LanguageOrderContext,
   SupportedLang,
   VocabTranslationDetails,
@@ -50,17 +51,26 @@ export function renderDictionaryList(
   langResolver: (id: number) => string | undefined,
   order: LanguageOrderContext,
   dictionaryName?: string,
+  search?: string,
 ): string {
   const l = toLang(lang);
   const lines: string[] = [];
 
-  lines.push(
-    esc(
-      dictionaryName
-        ? t("dictionaryNamedHeader", l, { name: dictionaryName, count: String(totalWords) })
-        : t("dictionaryHeader", l, { count: String(totalWords) }),
-    ),
-  );
+  if (search && entries.length === 0) {
+    return esc(t("dictionarySearchEmpty", l, { query: search }));
+  }
+
+  if (search) {
+    lines.push(esc(t("dictionarySearchHeader", l, { query: search, count: String(totalWords) })));
+  } else {
+    lines.push(
+      esc(
+        dictionaryName
+          ? t("dictionaryNamedHeader", l, { name: dictionaryName, count: String(totalWords) })
+          : t("dictionaryHeader", l, { count: String(totalWords) }),
+      ),
+    );
+  }
   lines.push("");
 
   if (entries.length === 0) {
@@ -159,6 +169,7 @@ export function buildDictionaryListKeyboard(
   totalPages: number,
   lang: SupportedLang,
   dictionaryId: number,
+  view: DictionaryListOptions = {},
 ): InlineKeyboard {
   const l = toLang(lang);
   const kb = new InlineKeyboard();
@@ -182,6 +193,19 @@ export function buildDictionaryListKeyboard(
       kb.text(t("dictionaryNext", l), `dict:page:${dictionaryId}:${page + 1}`);
     }
     kb.row();
+  }
+
+  if (entries.length > 0 || view.search) {
+    kb.text(t("dictionarySearch", l), `dict:search:${dictionaryId}`);
+    if (view.sort === "alpha") {
+      kb.text(t("dictionarySortRecent", l), `dict:sort:${dictionaryId}:recent`);
+    } else {
+      kb.text(t("dictionarySortAlpha", l), `dict:sort:${dictionaryId}:alpha`);
+    }
+    kb.row();
+  }
+  if (view.search) {
+    kb.text(t("dictionarySearchClear", l), `dict:search-clear:${dictionaryId}`).row();
   }
 
   // Close row
@@ -268,6 +292,10 @@ export function buildDictionarySwitcherKeyboard(
   }
   kb.text(t("dictionaryClose", l), "dict:close");
   return kb;
+}
+
+export function buildDictionarySearchPromptKeyboard(lang: SupportedLang, dictionaryId: number): InlineKeyboard {
+  return new InlineKeyboard().text(t("dictionaryDeleteCancel", toLang(lang)), `dict:page:${dictionaryId}:1`);
 }
 
 export function buildDictionaryNamePromptKeyboard(lang: SupportedLang): InlineKeyboard {

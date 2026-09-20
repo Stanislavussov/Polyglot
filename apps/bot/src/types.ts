@@ -2,6 +2,7 @@ import { type ConversationFlavor } from "@grammyjs/conversations";
 import type { UserMode } from "@polyglot/adapter-db";
 import type {
   CardsDeckCard,
+  DictionaryListSort,
   InputType,
   ServiceContainer,
   TemplateFields,
@@ -164,10 +165,13 @@ export interface SessionData {
     dictionaryId?: number;
     /** Message ID of the dictionary message (for in-place editing) */
     msgId?: number;
+    /** Active search query. Lives here because 64-byte callback data cannot carry free text. */
+    search?: string;
+    sort?: DictionaryListSort;
   };
-  /** Pending dictionary create/rename text input. */
+  /** Pending dictionary text input: a new name, or a search query. */
   dictionaryWizard?: {
-    action: "create" | "rename";
+    action: "create" | "rename" | "search";
     dictionaryId?: number;
     msgId?: number;
   };

@@ -13,7 +13,7 @@ import { markHandled } from "../observability/handler-log.js";
 import { dispatchByActiveMode } from "../scenes/helpers/active-mode-dispatch.js";
 import { tryHandleCardMentorQuestion } from "../scenes/helpers/card-mentor.js";
 import { handleTranslationClarificationContextText } from "../scenes/helpers/clarification.js";
-import { handleDictionaryNameInput } from "../scenes/helpers/dictionary.helper.js";
+import { handleDictionaryTextInput } from "../scenes/helpers/dictionary.helper.js";
 import { tryHandleMentorReply } from "../scenes/helpers/mentor-thread.helper.js";
 import { handleNotifContextTextInput } from "../scenes/helpers/settings.helper.js";
 import { handleVideoVocabularyUrl } from "../scenes/helpers/video-vocabulary.helper.js";
@@ -102,8 +102,8 @@ export async function modeRouterMiddleware(ctx: BotContext, next: NextFunction):
   }
 
   if (ctx.session.dictionaryWizard) {
-    markHandled(ctx, "modeRouter:dictionaryName");
-    await handleDictionaryNameInput(ctx);
+    markHandled(ctx, "modeRouter:dictionaryText");
+    await handleDictionaryTextInput(ctx);
     return;
   }
 

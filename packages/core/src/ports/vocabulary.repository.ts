@@ -143,7 +143,7 @@ export type DictionaryListSort = "recent" | "alpha";
 export interface DictionaryListOptions {
   /** Ordering: "recent" = newest first (default), "alpha" = A→Z by original. */
   sort?: DictionaryListSort;
-  /** Case-insensitive substring filter on the original term. Empty/whitespace = no filter. */
+  /** Case-insensitive substring filter on the original term or any translation. Empty/whitespace = no filter. */
   search?: string;
 }
 

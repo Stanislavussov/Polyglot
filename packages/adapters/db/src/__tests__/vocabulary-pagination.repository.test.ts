@@ -244,7 +244,8 @@ describe("vocabularyRepository — pagination & hardDelete", () => {
     it("accepts sort + search options and still assembles entries", async () => {
       const entry = makeEntry({ id: 1, original: "apple" });
       const translation = makeTranslation({ entryId: 1, text: "jablko" });
-      selectResultQueue.push([entry], [translation]);
+      // The search filter builds an EXISTS subquery first; this mock hands every where() a queue slot.
+      selectResultQueue.push([], [entry], [translation]);
 
       const result = await vocabularyRepository.findByUserPaginated(42, 0, 15, undefined, {
         sort: "alpha",
@@ -258,7 +259,8 @@ describe("vocabularyRepository — pagination & hardDelete", () => {
 
   describe("countByUser with search", () => {
     it("accepts an optional search filter", async () => {
-      selectResultQueue.push([{ value: 3 }]);
+      // First slot: the EXISTS subquery of the search filter (see above).
+      selectResultQueue.push([], [{ value: 3 }]);
 
       const result = await vocabularyRepository.countByUser(42, undefined, "app");
 

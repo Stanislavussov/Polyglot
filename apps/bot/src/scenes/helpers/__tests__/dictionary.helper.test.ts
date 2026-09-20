@@ -157,7 +157,7 @@ describe("handleDictPage", () => {
 
     await handleDictPage(ctx);
 
-    expect(mockFindByUserPaginated).toHaveBeenCalledWith(1, 15, 15, 7);
+    expect(mockFindByUserPaginated).toHaveBeenCalledWith(1, 15, 15, 7, { search: undefined, sort: undefined });
     expect(ctx.editMessageText).toHaveBeenCalled();
     expect(ctx.answerCallbackQuery).toHaveBeenCalled();
   });
@@ -285,7 +285,7 @@ describe("handleDictConfirmDelete", () => {
     await handleDictConfirmDelete(ctx);
 
     // Should go to page 1 (totalPages = 1 < page 2)
-    expect(mockFindByUserPaginated).toHaveBeenCalledWith(1, 0, 15, 7);
+    expect(mockFindByUserPaginated).toHaveBeenCalledWith(1, 0, 15, 7, { search: undefined, sort: undefined });
     expect(ctx.session.dictionary?.currentPage).toBe(1);
   });
 
@@ -342,7 +342,7 @@ describe("restart recovery and ownership", () => {
 
     await handleDictPage(ctx);
 
-    expect(mockFindByUserPaginated).toHaveBeenCalledWith(1, 15, 15, 7);
+    expect(mockFindByUserPaginated).toHaveBeenCalledWith(1, 15, 15, 7, { search: undefined, sort: undefined });
     expect(ctx.editMessageText).toHaveBeenCalled();
     expect(ctx.session.dictionary?.currentPage).toBe(2);
   });
