@@ -267,6 +267,9 @@ jobs:
             # must not be world/group-readable on the host.
             chmod 600 .env
 
+            # The socket proxy runs as nonroot with this group to read docker.sock.
+            echo "DOCKER_GID=$(getent group docker | cut -d: -f3)" >> .env
+
             echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
             # Rollback safety net (T13): record the currently-running images BEFORE
