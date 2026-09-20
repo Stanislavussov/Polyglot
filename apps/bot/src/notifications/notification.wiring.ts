@@ -460,6 +460,8 @@ Return translations as JSON array.`;
     // with the activation nudge so both paths classify failures identically.
     isUserBlocked,
     getSentWordsSince: (userId: number, since: Date) => notificationRepository.getSentWordsSince(userId, since),
+    getSentWordsFromSourceSince: (userId: number, source: string, since: Date) =>
+      notificationRepository.getSentWordsFromSourceSince(userId, source, since),
     recordSentWord: (userId: number, original: string, source: string) =>
       notificationRepository.recordSentWord(userId, original, source),
     pickDictionaryWord: (userId: number, recentWords) => notifService.pickDictionaryWord(userId, recentWords),

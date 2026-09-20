@@ -101,7 +101,7 @@ describe("lapsed-user re-engagement (integration)", () => {
     // means nothing to send, so they got a bare "come back" nudge four times and
     // then nothing at all. The curated set exists precisely for them.
     const harness = createBotHarness();
-    const curated = await arrangeCuratedPresets("cs", "en", 3);
+    const curated = await arrangeCuratedPresets("cs", "en");
     const { userId, telegramId } = await arrangeTrackedLapsed({ withVocabulary: false });
     harness.reset();
 
@@ -119,10 +119,9 @@ describe("lapsed-user re-engagement (integration)", () => {
 
   it("R3: does not repeat the previous word on the next card", async () => {
     // The de-dup window the daily lane uses is 24 hours, which at this cadence
-    // has always expired — and the preset picker takes the FIRST unseen
-    // candidate, so a short window would mail one headword forever.
+    // has always expired, so a short window would mail one headword forever.
     const harness = createBotHarness();
-    await arrangeCuratedPresets("cs", "en", 3);
+    await arrangeCuratedPresets("cs", "en");
     const { userId, telegramId } = await arrangeTrackedLapsed({ withVocabulary: false });
     harness.reset();
 
@@ -149,7 +148,7 @@ describe("lapsed-user re-engagement (integration)", () => {
 
   it("R5: keeps sending however long the user has been gone — there is no cap", async () => {
     const harness = createBotHarness();
-    await arrangeCuratedPresets("cs", "en", 3);
+    await arrangeCuratedPresets("cs", "en");
     const { userId, telegramId } = await arrangeTrackedLapsed({ pingsAlreadySent: 40, withVocabulary: false });
     harness.reset();
 

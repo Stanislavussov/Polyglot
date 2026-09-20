@@ -28,8 +28,22 @@ export interface NotificationRepository {
   recordReEngagement(userId: number): Promise<void>;
   disableNotifications(userId: number): Promise<void>;
   recordSentWord(userId: number, original: string, source: string): Promise<void>;
-  /** Original words sent to the user since the given instant (rolling de-dup window). */
+  /**
+   * Original words sent to the user since the given instant, **newest first**
+   * (rolling de-dup window).
+   *
+   * The order is part of the contract: the pickers rank a word's staleness by
+   * its position, so a reordered result would change which word they pick.
+   */
   getSentWordsSince(userId: number, since: Date): Promise<string[]>;
+  /**
+   * The same, narrowed to one `source`, newest first.
+   *
+   * The curated-preset pool and the user's own dictionary need opposite de-dup
+   * windows — a five-word dictionary has to keep cycling, sixty presets must
+   * not — so each is queried over its own horizon and must not shrink the other.
+   */
+  getSentWordsFromSourceSince(userId: number, source: string, since: Date): Promise<string[]>;
   /**
    * Whether this user has ever been sent a message filed under `source` — the
    * idempotence guard for one-off deliveries (the trial lifecycle messages),

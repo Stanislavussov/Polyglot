@@ -101,6 +101,7 @@ function buildSchedulerDeps(overrides: Partial<SchedulerDeps> = {}): SchedulerDe
     recordReEngagement: vi.fn().mockResolvedValue(undefined),
     disableNotifications: vi.fn().mockResolvedValue(undefined),
     getSentWordsSince: vi.fn().mockResolvedValue([]),
+    getSentWordsFromSourceSince: vi.fn().mockResolvedValue([]),
     getLastSentWord: vi.fn().mockResolvedValue(null),
     recordSentWord: vi.fn().mockResolvedValue(undefined),
     pickDictionaryWord: vi.fn().mockResolvedValue(mockDictWord),
@@ -181,6 +182,42 @@ describe("layered word selection", () => {
     expect(mockSendFn).toHaveBeenCalledWith(1, expect.objectContaining({ word: preset }));
     expect(deps.sendDictionaryEmptyPrompt).not.toHaveBeenCalled();
     expect(result.sent).toBe(1);
+  });
+
+  it("remembers presets far longer than dictionary words, and only presets", async () => {
+    // The bug this closes: at one notification a day the 24-hour window holds a
+    // single send, so the preset picker's queue came back around immediately and
+    // the whole curated pool read as three words in the logs. The dictionary
+    // window must stay short (a five-word dictionary has to keep cycling), so
+    // the preset pool gets its own query over its own horizon.
+    const deps = buildSchedulerDeps({
+      pickDictionaryWord: vi.fn().mockResolvedValue(null),
+      pickPresetWord: vi.fn().mockResolvedValue({ ...mockDictWord, source: "preset" }),
+      getSentWordsFromSourceSince: vi.fn().mockResolvedValue(["hangry", "cozy"]),
+    });
+
+    await checkAndSend(mockSendFn, deps);
+
+    const [, source, since] = vi.mocked(deps.getSentWordsFromSourceSince).mock.calls[0] ?? [];
+    expect(source).toBe("preset");
+    const daysBack = (Date.now() - (since as Date).getTime()) / (24 * 60 * 60 * 1000);
+    expect(daysBack).toBeGreaterThanOrEqual(89);
+    expect(vi.mocked(deps.pickPresetWord).mock.calls[0]?.[1]).toEqual(["hangry", "cozy"]);
+  });
+
+  it("leads the picker's list with the last sent word so staleness ranks correctly", async () => {
+    // The pickers read this list as newest first; appending the last sent word
+    // would rank it as the stalest and re-send it on the next restart.
+    const deps = buildSchedulerDeps({
+      pickDictionaryWord: vi.fn().mockResolvedValue(null),
+      pickPresetWord: vi.fn().mockResolvedValue({ ...mockDictWord, source: "preset" }),
+      getSentWordsSince: vi.fn().mockResolvedValue(["older", "oldest"]),
+      getLastSentWord: vi.fn().mockResolvedValue("newest"),
+    });
+
+    await checkAndSend(mockSendFn, deps);
+
+    expect(vi.mocked(deps.pickPresetWord).mock.calls[0]?.[1]).toEqual(["newest", "older", "oldest"]);
   });
 
   it("shows the empty-dictionary prompt only when no layer can supply a word", async () => {
@@ -476,17 +513,17 @@ describe("processLapsedUsers", () => {
     expect(result).toEqual({ processed: 1, errors: 0 });
   });
 
-  it("de-dups against a year of history, not the daily lane's 24-hour window", async () => {
-    // At a five-day cadence a 24-hour window is always empty, and the preset
-    // picker takes the FIRST unseen candidate — so a short window would mail the
-    // same headword forever.
+  it("de-dups against the full retained history, not the daily lane's 24-hour window", async () => {
+    // At a five-day cadence a 24-hour window is always empty, so a short window
+    // would mail the same few headwords forever. The ceiling is retention:
+    // asking for more than notification_history keeps buys nothing.
     const deps = lapsedDeps();
 
     await processLapsedUsers(mockSend, mockReEngagementSend, deps);
 
     const since = vi.mocked(deps.getSentWordsSince).mock.calls[0]?.[1] as Date;
     const daysBack = (Date.now() - since.getTime()) / (24 * 60 * 60 * 1000);
-    expect(daysBack).toBeGreaterThan(300);
+    expect(daysBack).toBeGreaterThanOrEqual(89);
   });
 
   it("falls back to the curated presets when the dictionary has nothing", async () => {
@@ -502,24 +539,23 @@ describe("processLapsedUsers", () => {
     expect(deps.recordSentWord).toHaveBeenCalledWith(1, "serendipity", "preset");
   });
 
-  it("restarts the preset cycle instead of going silent once every word has been seen", async () => {
+  it("hands the picker the last sent word first so the restart cannot repeat it", async () => {
+    // The cycle restart itself lives in the picker, which serves the stalest
+    // word rather than nothing. It ranks by position, so the freshest word has
+    // to lead the list or the restart would re-send the previous card.
     const preset: SuggestedWord = { ...mockDictWord, original: "serendipity", source: "preset" };
-    const pickPresetWord = vi
-      .fn()
-      // First attempt sees the full year of history and finds nothing unseen.
-      .mockResolvedValueOnce(null)
-      // Second attempt excludes only the previous card, so the set starts over.
-      .mockResolvedValueOnce(preset);
+    const pickPresetWord = vi.fn().mockResolvedValue(preset);
     const deps = lapsedDeps({
       pickDictionaryWord: vi.fn().mockResolvedValue(null),
       pickPresetWord,
+      getSentWordsSince: vi.fn().mockResolvedValue(["hangry", "cozy"]),
       getLastSentWord: vi.fn().mockResolvedValue("cozy"),
     });
 
     await processLapsedUsers(mockSend, mockReEngagementSend, deps);
 
-    expect(pickPresetWord).toHaveBeenCalledTimes(2);
-    expect(pickPresetWord.mock.calls[1]?.[1]).toEqual(["cozy"]);
+    expect(pickPresetWord).toHaveBeenCalledTimes(1);
+    expect(pickPresetWord.mock.calls[0]?.[1]).toEqual(["cozy", "hangry"]);
     expect(mockSend).toHaveBeenCalledWith(1, expect.objectContaining({ word: preset }));
   });
 

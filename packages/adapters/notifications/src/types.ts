@@ -219,8 +219,18 @@ export interface SchedulerDeps {
    */
   disableNotifications: (userId: number) => Promise<void>;
 
-  /** Get words sent to a user since the given instant (rolling de-dup window). */
+  /**
+   * Get words sent to a user since the given instant, newest first (rolling
+   * de-dup window).
+   */
   getSentWordsSince: (userId: number, since: Date) => Promise<string[]>;
+
+  /**
+   * The same, narrowed to one source, newest first. The preset layer reads its
+   * own history over a far longer horizon than the dictionary lane, and neither
+   * pool may shrink the other.
+   */
+  getSentWordsFromSourceSince: (userId: number, source: string, since: Date) => Promise<string[]>;
 
   /** Record a sent word in history. */
   recordSentWord: (userId: number, original: string, source: string) => Promise<void>;
