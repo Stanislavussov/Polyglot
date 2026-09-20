@@ -129,12 +129,12 @@ const CARDS_CARD: CardsDeckCard = {
 
 /**
  * Every card a saved word can be shown on: the surface's name, its rendering, and
- * the answer that surface promotes under the headword — the reader's own language
- * where the whole word is shown, the recalled language on a review card.
+ * the answer that surface promotes under the headword — the reader's own language,
+ * on the review card too since it answers in every language the word is saved in.
  */
 const SURFACES: Array<[string, string, string]> = [
   ["dictionary entry", renderDictionaryEntry(DICTIONARY_ENTRY, resolveCode, "ru", ORDER), "работа"],
-  ["cards back", renderFlashCardBack(CARDS_CARD, "de", "en", 1, 3, "ru"), WORD.targetText],
+  ["cards back", renderFlashCardBack(DICTIONARY_ENTRY, resolveCode, 1, 3, "ru", ORDER), "работа"],
 ];
 
 /** The line naming the word — located by content, since chrome sits above some cards. */
@@ -177,6 +177,12 @@ describe("card grammar — every surface renders a saved word the same way", () 
     expect(card.indexOf(`<b>${promoted}</b>`)).toBeLessThan(card.indexOf("Работа, труд."));
   });
 
+  it("the cards back carries the dictionary card verbatim, plus the deck's chrome", () => {
+    // Not "the same grammar" — the same bytes. The review deck used to project one
+    // translation row into a card of its own, which is how the two drifted at all.
+    expect(SURFACES[1]?.[1]).toContain(SURFACES[0]?.[1] ?? "");
+  });
+
   it.each(SURFACES)("%s names a real language on every labelled line", (_name, card) => {
     // Every language in this fixture resolves, so a `🔤` anywhere means a code was
     // dropped between the row and the renderer rather than a language without a
@@ -199,10 +205,10 @@ const EVERY_FRONT_OPTION = { synonyms: true, example: true, hint: true };
 
 describe("card grammar — a reveal-style front hands over nothing", () => {
   it.each([
-    ["cards front", renderFlashCardFront(CARDS_CARD, "de", "en", 1, 3, "ru", EVERY_FRONT_OPTION)],
+    ["cards front", renderFlashCardFront(CARDS_CARD, "de", 1, 3, "ru", EVERY_FRONT_OPTION)],
     [
       "practice-ahead cards front",
-      renderFlashCardFront({ ...CARDS_CARD, ahead: true }, "de", "en", 1, 3, "ru", EVERY_FRONT_OPTION),
+      renderFlashCardFront({ ...CARDS_CARD, ahead: true }, "de", 1, 3, "ru", EVERY_FRONT_OPTION),
     ],
   ])("%s shows the word but neither the answer nor a glossed source example", (_name, front) => {
     expect(front).toContain("💼 🇩🇪 DE: <b>die Arbeit</b>");
@@ -211,10 +217,10 @@ describe("card grammar — a reveal-style front hands over nothing", () => {
     expect(front).not.toContain("Работа в радость.");
   });
 
-  it("cards front names the language being recalled — the one line it cannot lose", () => {
-    expect(renderFlashCardFront(CARDS_CARD, "de", "en", 1, 3, "ru", EVERY_FRONT_OPTION)).toContain(
-      "<i>→ 🇬🇧 English</i>",
-    );
+  it("cards front names no recall direction — the back answers in every saved language", () => {
+    // It used to promise one: `→ 🇬🇧 English`, in English inside a Russian card,
+    // for a reader who already knows which languages they study.
+    expect(renderFlashCardFront(CARDS_CARD, "de", 1, 3, "ru", EVERY_FRONT_OPTION)).not.toMatch(/<i>→/u);
   });
 });
 

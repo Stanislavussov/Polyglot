@@ -17,6 +17,7 @@ import {
 } from "@polyglot/core";
 import type { InlineKeyboard } from "grammy";
 import { recordEffort } from "../../momentum/momentum.wiring.js";
+import { renderFlashCardBackScreen } from "../../renderers/flashcard.renderer.js";
 import { renderSentenceTranslation, renderTranslation } from "../../renderers/translation.renderer.js";
 import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
@@ -407,9 +408,26 @@ async function buildCardView(
     : renderTranslation(entry.output, order, lang, effectiveTemplate.fields, nativeLang, false, entry.etymology);
 
   const keyboard = await buildCardKeyboard(ctx, entry, msgId, lang, nativeLang);
-  const isSaved = entry.savedWordId !== undefined;
+  // A word under review is in the dictionary by definition, so the confirmation
+  // tells the reader nothing and lands between the card and the question the
+  // ratings answer.
+  const isSaved = entry.savedWordId !== undefined && entry.reviewCard === undefined;
+  const cardText = isSaved ? `${body}\n\n${t("savedToDict", lang)}` : body;
 
-  return { text: isSaved ? `${body}\n\n${t("savedToDict", lang)}` : body, keyboard };
+  // A revealed review card is an ordinary card inside the deck's screen, so a
+  // rewrite has to put the chrome back — otherwise the progress line and the
+  // question the ratings answer vanish from under the reader mid-review. Applied
+  // here for the same reason the deck's buttons are applied in `buildCardKeyboard`:
+  // every later rewrite of this message comes through this one function. Without
+  // the deck session there are no honest numbers for the progress line, so the
+  // card renders bare rather than inventing them.
+  const cards = ctx.session.cards;
+  const text =
+    entry.reviewCard && cards
+      ? renderFlashCardBackScreen(cardText, cards.currentIndex + 1, cards.deck.length, lang)
+      : cardText;
+
+  return { text, keyboard };
 }
 
 /** Redraw a card in place after an on-demand section was generated. */

@@ -475,5 +475,6 @@
   "trialEndingFinal": "⏳ Twoje dni z Pro kończą się {date}.\n\nPotem tłumaczenia zostają darmowe; doprecyzowanie, wymowa, wiadomości głosowe, mentor i filmy się wyłączą.",
   "trialExtended": "🎁 W tym tygodniu zapisano wystarczająco dużo słów — Pro zostaje z tobą o {extraDays} dni dłużej.\n\nTak trzymaj, nic jeszcze się nie wyłącza.",
   "trialEnded": "Twój tydzień z Pro się skończył. Zapisano w tym tygodniu: {saved} — zostają twoje, powtórki trwają dalej.\n\nWciąż za darmo: tłumaczenia. Wyłączone: inne znaczenia, doprecyzowanie, wymowa, wiadomości głosowe, mentor, filmy.",
-  "trialEndedEmpty": "Twój tydzień z Pro się skończył.\n\nWciąż za darmo: tłumaczenia. Wyłączone: inne znaczenia, doprecyzowanie, wymowa, wiadomości głosowe, mentor, filmy."
+  "trialEndedEmpty": "Twój tydzień z Pro się skończył.\n\nWciąż za darmo: tłumaczenia. Wyłączone: inne znaczenia, doprecyzowanie, wymowa, wiadomości głosowe, mentor, filmy.",
+  "releaseNotesHeader": "Co nowego"
 }

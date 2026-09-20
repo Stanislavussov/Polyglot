@@ -475,5 +475,6 @@
   "trialEndingFinal": "⏳ Tus días de Pro terminan el {date}.\n\nDespués las traducciones siguen siendo gratis; precisar, audio de la palabra, mensajes de voz, mentor y vídeo se desactivan.",
   "trialExtended": "🎁 Has guardado suficientes palabras esta semana — Pro se queda contigo {extraDays} días más.\n\nSigue así, todavía no se desactiva nada.",
   "trialEnded": "Tu semana de Pro terminó. Guardadas esta semana: {saved} — siguen siendo tuyas y los repasos continúan.\n\nSigue gratis: traducciones. Desactivado: otros significados, precisar, audio de la palabra, mensajes de voz, mentor, vídeo.",
-  "trialEndedEmpty": "Tu semana de Pro terminó.\n\nSigue gratis: traducciones. Desactivado: otros significados, precisar, audio de la palabra, mensajes de voz, mentor, vídeo."
+  "trialEndedEmpty": "Tu semana de Pro terminó.\n\nSigue gratis: traducciones. Desactivado: otros significados, precisar, audio de la palabra, mensajes de voz, mentor, vídeo.",
+  "releaseNotesHeader": "Novedades"
 }

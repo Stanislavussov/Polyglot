@@ -10,6 +10,7 @@
  */
 import type { SupportedLang } from "@polyglot/core";
 import type { InlineKeyboard } from "grammy";
+import { buildFlashCardBackKeyboard } from "../../renderers/flashcard.renderer.js";
 import { buildTranslationKeyboard, type TranslationKeyboardOptions } from "../../renderers/translation.renderer.js";
 import type { BotContext, SessionData } from "../../types.js";
 import { resolveLanguageOrder } from "../../utils/language-order.js";
@@ -57,5 +58,9 @@ export async function buildCardKeyboard(
   nativeLang: string,
 ): Promise<InlineKeyboard> {
   const options = await resolveCardKeyboardOptions(ctx, entry, msgId, lang, nativeLang);
-  return buildTranslationKeyboard({ ...options, expanded: entry.actionsExpanded === true });
+  const menu = buildTranslationKeyboard({ ...options, expanded: entry.actionsExpanded === true });
+  // A revealed review card is an ordinary card wearing the deck's controls. They
+  // are re-applied here rather than at the reveal, because every later rebuild of
+  // this message's keyboard comes through this function.
+  return entry.reviewCard ? buildFlashCardBackKeyboard(lang, entry.reviewCard, menu.inline_keyboard) : menu;
 }

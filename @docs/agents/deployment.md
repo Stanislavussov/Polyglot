@@ -27,6 +27,22 @@ Two pipelines, never conflated.
 - Build cache: the bot's `production` target alone writes `scope=bot`; `migrate` is
   `cache-from` only.
 
+## Release notes
+
+- Written per change into `@docs/releases/unreleased/<lang>.md`, one friendly line per
+  required language (`@docs/releases/README.md` is the format; `languages.json` is what CI
+  enforces). They ship **inside the bot image**, so a release announces exactly what its
+  own commit carried — nothing travels through the environment but `RELEASE_ID`.
+- **A deploy announces nothing.** Releases go out several times a day; what reaches people
+  is chosen by hand in the admin panel (📣 Release notes → send), which writes a
+  `release_announcement_jobs` row. The bot polls that queue every 10s and sends, because it
+  is the only service holding `BOT_TOKEN`. Audience: `admin` and `tester`.
+- Dedup is per **note**, not per deploy: `release_announcement_deliveries.release_id` holds
+  `note:<hash of the English text>`, so a release that adds nothing announces nothing, and
+  editing an English bullet mints a new id and re-announces it.
+- A note that does not fit Telegram's 4096 chars stays pending instead of being recorded —
+  the queue drains over the next releases rather than losing anything.
+
 ## Migrations
 
 - **Expand/contract.** Migrations run before new containers start, so old code runs on the
@@ -53,7 +69,7 @@ without anyone running anything.
 4. Additive and safe against the old image still serving.
 5. Proved in `packages/adapters/db/src/__tests__/*.integration.test.ts`: what it restores,
    what it leaves alone, and that a second run writes nothing.
-6. Removal condition written in the file header and CHANGELOG entry.
+6. Removal condition written in the file header and the release note.
 
 ## Host provisioning — `deploy/ansible/site.yml`
 

@@ -475,5 +475,6 @@
   "trialEndingFinal": "⏳ Vaše dny s Pro končí {date}.\n\nPotom zůstanou překlady zdarma; upřesnění, výslovnost, hlasové zprávy, mentor a video se vypnou.",
   "trialExtended": "🎁 Tento týden bylo uloženo dost slov — Pro vám zůstává o {extraDays} dny déle.\n\nPokračujte, zatím se nic nevypíná.",
   "trialEnded": "Váš týden s Pro skončil. Uloženo tento týden: {saved} — zůstávají vaše a opakování pokračují.\n\nStále zdarma: překlady. Vypnuto: další významy, upřesnění, výslovnost, hlasové zprávy, mentor, video.",
-  "trialEndedEmpty": "Váš týden s Pro skončil.\n\nStále zdarma: překlady. Vypnuto: další významy, upřesnění, výslovnost, hlasové zprávy, mentor, video."
+  "trialEndedEmpty": "Váš týden s Pro skončil.\n\nStále zdarma: překlady. Vypnuto: další významy, upřesnění, výslovnost, hlasové zprávy, mentor, video.",
+  "releaseNotesHeader": "Co je nového"
 }

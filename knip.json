@@ -19,6 +19,7 @@
         "src/release-announcement.cli.ts",
         "src/dev-reset-users.cli.ts",
         "src/repair-native-translations.cli.ts",
+        "src/repair-self-language-translations.cli.ts",
         "src/momentum.backfill.wiring.ts"
       ],
       "project": ["src/**/*.ts"]

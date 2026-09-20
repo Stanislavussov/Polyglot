@@ -2,6 +2,7 @@ import type {
   CreateVocabularyInput,
   DictionaryListOptions,
   DictionaryListSort,
+  EntrySrsRow,
   SourceUsage,
   SrsDueVocabularyCard,
   UpdateSrsStateInput,
@@ -25,6 +26,7 @@ import {
   inArray,
   isNull,
   lte,
+  ne,
   notInArray,
   or,
   type SQL,
@@ -38,6 +40,7 @@ export type {
   CreateVocabularyInput,
   DictionaryListOptions,
   DictionaryListSort,
+  EntrySrsRow,
   SourceUsage,
   SrsDueVocabularyCard,
   UpdateSrsStateInput,
@@ -106,6 +109,10 @@ function liveTranslationsOf(userId: number): SQL | undefined {
     eq(vocabularyEntries.userId, userId),
     eq(vocabularyEntries.isActive, true),
     eq(vocabularyTranslations.isActive, true),
+    // A row in the entry's own language is a same-language paraphrase the model
+    // once produced (see `repair-self-language-translations.cli.ts`); as a review
+    // card it asks the learner to recall the word from itself.
+    ne(vocabularyTranslations.targetLangId, vocabularyEntries.sourceLangId),
   );
 }
 
@@ -604,6 +611,27 @@ export const vocabularyRepository = {
       .where(and(liveTranslationsOf(userId), gte(vocabularyTranslations.srsInterval, minInterval)));
 
     return result[0]?.value ?? 0;
+  },
+
+  /**
+   * Every live translation row of one entry, owner-scoped on the same join the
+   * due/ahead queries use — so a rating cannot reach a row `/review` would never
+   * have shown (another user's, a soft-deleted one).
+   */
+  async findEntrySrsRows(userId: number, entryId: number): Promise<EntrySrsRow[]> {
+    const db = getDb();
+    return db
+      .select({
+        translationId: vocabularyTranslations.id,
+        srsEaseFactor: vocabularyTranslations.srsEaseFactor,
+        srsInterval: vocabularyTranslations.srsInterval,
+        srsDueDate: vocabularyTranslations.srsDueDate,
+        srsReviewCount: vocabularyTranslations.srsReviewCount,
+      })
+      .from(vocabularyTranslations)
+      .innerJoin(vocabularyEntries, eq(vocabularyTranslations.entryId, vocabularyEntries.id))
+      .where(and(liveTranslationsOf(userId), eq(vocabularyTranslations.entryId, entryId)))
+      .orderBy(asc(vocabularyTranslations.id));
   },
 
   async updateSrsState(translationId: number, state: UpdateSrsStateInput): Promise<void> {

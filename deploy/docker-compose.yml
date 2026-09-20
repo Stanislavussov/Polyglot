@@ -14,10 +14,10 @@ services:
       - BOT_TOKEN=${BOT_TOKEN:?BOT_TOKEN is required}
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:?OPENROUTER_API_KEY is required}
       # Consumed by the release-announcement CLI (`docker compose run bot …`) on
-      # deploy; empty when a release has no changelog notes.
+      # deploy. The notes themselves ship inside the image (@docs/releases), so
+      # only the release identity travels through the environment.
       - RELEASE_ID=${RELEASE_ID:-}
       - RELEASE_AUDIENCE_GROUPS=${RELEASE_AUDIENCE_GROUPS:-}
-      - RELEASE_ANNOUNCEMENT_BASE64=${RELEASE_ANNOUNCEMENT_BASE64:-}
     ports:
       - "127.0.0.1:${METRICS_PORT:-9090}:9090"
     # Healthcheck is baked into the image (deploy/Dockerfile HEALTHCHECK), single
