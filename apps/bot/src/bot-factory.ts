@@ -84,6 +84,9 @@ import {
   handleDictPage,
   handleDictRename,
   handleDictRestore,
+  handleDictSearch,
+  handleDictSearchClear,
+  handleDictSort,
   handleDictTranslate,
   handleDictView,
 } from "./scenes/helpers/dictionary.helper.js";
@@ -386,6 +389,16 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   // together with the response to the very message they just sent.
   bot.use(mainKeyboardMiddleware);
 
+  // A typed command or a tap on any button abandons a pending dictionary text prompt
+  // (search query, dictionary name). Left armed, the user's next word is swallowed by it
+  // instead of being translated. dict:search / dict:create / dict:rename re-arm it themselves.
+  bot.use((ctx, next) => {
+    if (ctx.chat && (ctx.callbackQuery || ctx.message?.text?.startsWith("/"))) {
+      ctx.session.dictionaryWizard = undefined;
+    }
+    return next();
+  });
+
   onCommand("start", startCommand);
   onCommand("translate", handleTranslateCommand);
   onCommand("mentor", handleMentorCommand);
@@ -572,6 +585,9 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   onCallback(/^dict:add:/, handleDictAdd);
   onCallback(/^dict:move:/, handleDictMove);
   onCallback(/^dict:translate:/, handleDictTranslate);
+  onCallback(/^dict:search-clear:/, handleDictSearchClear);
+  onCallback(/^dict:search:/, handleDictSearch);
+  onCallback(/^dict:sort:/, handleDictSort);
   onCallback("dict:close", handleDictClose);
   onCallback("dict:noop", handleDictNoop);
 

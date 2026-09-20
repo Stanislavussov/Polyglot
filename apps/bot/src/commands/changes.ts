@@ -1,70 +1,23 @@
-import { existsSync } from "node:fs";
-import { readFile } from "node:fs/promises";
-import { dirname, resolve } from "node:path";
-import { logger } from "@polyglot/core";
+import {
+  buildAnnouncementText,
+  findUnreleasedDir,
+  isSupported,
+  logger,
+  pickNotesLang,
+  readNotesForReader,
+  type SupportedLang,
+  t,
+} from "@polyglot/core";
 import type { BotContext } from "../types.js";
-
-const MAX_TELEGRAM_TEXT_LENGTH = 3900;
 
 export function canUseChangesCommand(audienceGroup: string): boolean {
   return audienceGroup === "admin" || audienceGroup === "tester";
 }
 
-function findChangelogPath(startDir = process.cwd()): string | null {
-  let dir = startDir;
-  while (true) {
-    const candidate = resolve(dir, "CHANGELOG.md");
-    if (existsSync(candidate)) return candidate;
-
-    const parent = dirname(dir);
-    if (parent === dir) return null;
-    dir = parent;
-  }
-}
-
-export function formatDeliveredChanges(changelog: string): string {
-  const lines = changelog.split(/\r?\n/);
-  const firstSectionIndex = lines.findIndex((line) => line.startsWith("## "));
-  const body = (firstSectionIndex >= 0 ? lines.slice(firstSectionIndex) : lines).join("\n").trim();
-
-  if (!body) {
-    return "No delivered changes are documented yet.";
-  }
-
-  return `Delivered changes\n\n${body}`;
-}
-
-export function splitTelegramText(text: string): string[] {
-  if (text.length <= MAX_TELEGRAM_TEXT_LENGTH) return [text];
-
-  const chunks: string[] = [];
-  let remaining = text;
-
-  while (remaining.length > MAX_TELEGRAM_TEXT_LENGTH) {
-    const slice = remaining.slice(0, MAX_TELEGRAM_TEXT_LENGTH);
-    const splitAt = Math.max(slice.lastIndexOf("\n## "), slice.lastIndexOf("\n- "), slice.lastIndexOf("\n\n"));
-    const cut = splitAt > 0 ? splitAt : MAX_TELEGRAM_TEXT_LENGTH;
-    chunks.push(remaining.slice(0, cut).trim());
-    remaining = remaining.slice(cut).trim();
-  }
-
-  if (remaining.length > 0) {
-    chunks.push(remaining);
-  }
-
-  return chunks;
-}
-
-async function readDeliveredChanges(): Promise<string> {
-  const changelogPath = findChangelogPath();
-  if (!changelogPath) {
-    throw new Error("CHANGELOG.md not found");
-  }
-
-  const changelog = await readFile(changelogPath, "utf8");
-  return formatDeliveredChanges(changelog);
-}
-
+/**
+ * The pending release notes, in the reader's language — the same queue the next
+ * production deploy announces, so a tester can re-read what they were sent.
+ */
 export async function changesCommand(ctx: BotContext): Promise<void> {
   const user = ctx.user;
   if (!user || !canUseChangesCommand(user.audienceGroup)) {
@@ -73,12 +26,25 @@ export async function changesCommand(ctx: BotContext): Promise<void> {
   }
 
   try {
-    const message = await readDeliveredChanges();
-    for (const chunk of splitTelegramText(message)) {
-      await ctx.reply(chunk);
+    const notesDir = findUnreleasedDir();
+    if (!notesDir) throw new Error("Release notes directory not found");
+
+    const settings = await ctx.services.userRepository.getSettings(user.id);
+    const readerLangs = [settings?.interfaceLang, settings?.nativeLang];
+    const notes = readNotesForReader(notesDir, readerLangs);
+
+    if (notes.length === 0) {
+      await ctx.reply("Nothing pending — the next release has no notes yet.");
+      return;
     }
+
+    const notesLang = pickNotesLang(notesDir, readerLangs);
+    const headerLang: SupportedLang = isSupported(notesLang) ? notesLang : "en";
+    const { text } = buildAnnouncementText(t("releaseNotesHeader", headerLang), notes);
+
+    await ctx.reply(text, { parse_mode: "HTML", link_preview_options: { is_disabled: true } });
   } catch (err) {
-    logger.error({ err }, "Failed to read delivered changes");
-    await ctx.reply("Delivered changes are temporarily unavailable.");
+    logger.error({ err }, "Failed to read release notes");
+    await ctx.reply("Release notes are temporarily unavailable.");
   }
 }

@@ -199,9 +199,9 @@ describe("word card consistency (integration)", () => {
     const front = lastKeyboard(harness.sent);
     const frontText = textsOf(harness.sent).at(-1) ?? "";
 
-    // The front is a recall prompt: the word, the language to recall, and none of the answers.
+    // The front is a recall prompt: the word and none of the answers.
     expect(frontText).toContain(`<b>${WORD}</b>`);
-    expect(frontText).toMatch(/<i>→ \S+ .+<\/i>/u);
+    expect(frontText).not.toMatch(/<i>→/u);
     expect(frontText).toContain(t("cardsAheadNote", "en"));
     expect(answerLines(frontText)).toEqual([]);
 
@@ -212,10 +212,12 @@ describe("word card consistency (integration)", () => {
 
     const back = lastCardText(harness.sent);
     expectSameGrammarAs(translateCard, back);
-    expect(answerLines(back)).toHaveLength(1);
+    // Every language the word is saved in, in the translate card's own order — the
+    // deck used to answer in the one language the card happened to be drawn from.
+    expect(answerLines(back)).toEqual(answerLines(translateCard));
   });
 
-  it("W4: a due card opened by /review names the recalled language and reveals it in the shared grammar", async () => {
+  it("W4: a due card opened by /review reveals every saved language in the shared grammar", async () => {
     const harness = createBotHarness({ ai: deterministicTranslateAi() });
     const id = uniqueTelegramId();
     const { userId, translateCard } = await arrangeSavedWord(harness, id);
@@ -237,8 +239,7 @@ describe("word card consistency (integration)", () => {
     const front = lastKeyboard(harness.sent);
     const frontText = textsOf(harness.sent).at(-1) ?? "";
 
-    // Which language to recall is the one thing a card front cannot leave out.
-    expect(frontText).toMatch(/<i>→ \S+ .+<\/i>/u);
+    expect(frontText).not.toMatch(/<i>→/u);
     expect(frontText).not.toContain(t("cardsAheadNote", "en"));
     expect(answerLines(frontText)).toEqual([]);
 
@@ -249,8 +250,9 @@ describe("word card consistency (integration)", () => {
 
     const back = lastCardText(harness.sent);
     expectSameGrammarAs(translateCard, back);
-    // A card asks for one language, so the back promotes exactly that one.
-    expect(answerLines(back)).toHaveLength(1);
+    // The word is one word: the back answers in every language it is saved in.
+    expect(answerLines(back)).toEqual(answerLines(translateCard));
+    expect(answerLines(back).length).toBeGreaterThan(1);
   });
 
   it("W5: a Reveal button that outlived its word answers instead of rendering an empty card", async () => {

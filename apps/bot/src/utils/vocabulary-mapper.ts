@@ -32,6 +32,7 @@ export type LangResolver = (code: string) => number | null;
  * - Builds `details: { synonyms, examples, alternatives }` JSONB per translation
  * - Strips transient fields: needsReview, dictionaryContext, original, sourceLang
  * - Skips languages where langResolver returns null (logs a warning)
+ * - Skips the entry's own source language (logs a warning)
  *
  * @param output        Full AI translation output
  * @param sourceLangId  Resolved source language FK
@@ -47,6 +48,13 @@ export function toVocabularyInput(
   const translations: CreateVocabularyInput["translations"] = [];
 
   for (const [code, lang] of Object.entries(output.translations)) {
+    // A block in the entry's own language is a paraphrase, not a translation, and
+    // stored it becomes a review card asking the word to be recalled from itself.
+    if (code === output.sourceLang) {
+      logger.warn({ code, original: output.original }, "Translation into the source language — skipping translation");
+      continue;
+    }
+
     const targetLangId = langResolver(code);
     if (targetLangId === null) {
       logger.warn({ code, original: output.original }, "Unknown language code — skipping translation");

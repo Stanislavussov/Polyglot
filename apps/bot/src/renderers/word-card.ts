@@ -117,8 +117,14 @@ export function renderWordCard(card: WordCardData, lang: SupportedLang): string 
   // input "arbeit"); the raw input stays in `original` for save/dedup.
   const headword = usage?.headword?.trim() ? usage.headword : card.original;
 
-  const answer = card.answerLang ? card.langs.find((entry) => entry.code === card.answerLang) : undefined;
-  const others = card.langs.filter((entry) => entry !== answer);
+  // A block in the card's own language repeats the headword one line above it —
+  // `🇨🇿 CS: Povzdech úlevy` under `🇨🇿 CS: Povzdech ulevy`. The translate card
+  // drops it too (`translation.renderer.ts`); an unresolved block has no code and
+  // stays, because it cannot be shown to duplicate anything.
+  const sourceLang = card.sourceLang;
+  const answers = sourceLang === undefined ? card.langs : card.langs.filter((entry) => entry.code !== sourceLang);
+  const answer = card.answerLang ? answers.find((entry) => entry.code === card.answerLang) : undefined;
+  const others = answers.filter((entry) => entry !== answer);
   // One paragraph, never two. The stored explanation and the stored gloss describe
   // the same word at different lengths, and the translate card renders one or the
   // other — showing both put two walls of description between the headword and the

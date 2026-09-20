@@ -6,14 +6,23 @@ import {
   type RecordNotificationDeliveryInput,
   userRepository,
 } from "@polyglot/adapter-db";
-import type { AudienceGroup, User } from "@polyglot/core";
-import { logger } from "@polyglot/core";
+import type { AudienceGroup, SupportedLang, TranslatedReleaseNote, User } from "@polyglot/core";
+import {
+  buildAnnouncementText,
+  findUnreleasedDir,
+  isSupported,
+  logger,
+  readTranslatedNotes,
+  t,
+  textForReader,
+} from "@polyglot/core";
 import { logDelivery } from "./notifications/delivery-log.js";
 
 export interface ReleaseAnnouncementEnv {
   RELEASE_ID?: string;
-  RELEASE_ANNOUNCEMENT_BASE64?: string;
   RELEASE_AUDIENCE_GROUPS?: string;
+  /** Override for tests; a container reads the queue baked into its image. */
+  RELEASE_NOTES_DIR?: string;
 }
 
 export interface TelegramMessenger {
@@ -27,6 +36,12 @@ export interface TelegramMessenger {
   ): Promise<{ message_id: number }>;
 }
 
+/** The two languages a note may be read in, before English. */
+export interface ReaderLangs {
+  interfaceLang: string;
+  nativeLang: string;
+}
+
 export interface ReleaseAnnouncementRepository {
   listActiveByAudienceGroups(audienceGroups: AudienceGroup[]): Promise<User[]>;
   hasReleaseAnnouncementDelivery(releaseId: string, audienceGroup: AudienceGroup, userId: number): Promise<boolean>;
@@ -34,6 +49,7 @@ export interface ReleaseAnnouncementRepository {
   /** Resolve the channel external id (Telegram chat id) for a neutral userId (Fable T24/A1). */
   findExternalId(userId: number, channel: string): Promise<string | null>;
   recordNotificationDelivery(input: RecordNotificationDeliveryInput): Promise<void>;
+  getReaderLangs(userId: number): Promise<ReaderLangs | null>;
 }
 
 /**
@@ -49,6 +65,10 @@ const defaultRepository: ReleaseAnnouncementRepository = {
     userRepository.recordReleaseAnnouncementDelivery(releaseId, audienceGroup, userId),
   findExternalId: (userId, channel) => identityRepository.findExternalId(userId, channel),
   recordNotificationDelivery: (input) => notificationDeliveryRepository.record(input),
+  getReaderLangs: async (userId) => {
+    const settings = await userRepository.getSettings(userId);
+    return settings ? { interfaceLang: settings.interfaceLang, nativeLang: settings.nativeLang } : null;
+  },
 };
 
 export interface ReleaseAnnouncementResult {
@@ -58,11 +78,22 @@ export interface ReleaseAnnouncementResult {
   failed: number;
 }
 
+export interface AnnounceNotesOptions {
+  notes: readonly TranslatedReleaseNote[];
+  audienceGroups: AudienceGroup[];
+  /** Recorded on each journal row so a delivery can be traced to the send that made it. */
+  releaseId: string;
+}
+
 const DEFAULT_AUDIENCE_GROUPS: readonly AudienceGroup[] = ["admin", "tester"];
 
-function decodeAnnouncement(base64: string | undefined): string {
-  if (!base64) return "";
-  return Buffer.from(base64, "base64").toString("utf8").trim();
+/**
+ * Dedup key: one row per note per reader, not per send. Sending the same queue
+ * twice — first to testers, then to everyone — repeats nothing for the people
+ * who already read it.
+ */
+function noteDeliveryKey(noteId: string): string {
+  return `note:${noteId}`;
 }
 
 function parseAudienceGroups(value: string | undefined): AudienceGroup[] {
@@ -81,51 +112,19 @@ function parseAudienceGroups(value: string | undefined): AudienceGroup[] {
   return groups as AudienceGroup[];
 }
 
-function escapeHtml(value: string): string {
-  return value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
-}
-
-/** Telegram rejects any single message longer than this many characters. */
-const TELEGRAM_MAX_MESSAGE_CHARS = 4096;
-const ANNOUNCEMENT_PREFIX = "<b>Polyglot update</b>\n\n";
-
-function formatAnnouncementHtml(message: string): string {
-  // Defence in depth: the deploy step already bounds the announcement, but a
-  // message that still exceeds Telegram's hard limit would make every send throw.
-  // Truncate the escaped body to fit, and never cut inside an HTML entity
-  // (e.g. `&amp;`) — a dangling `&amp` would corrupt the HTML parse.
-  const budget = TELEGRAM_MAX_MESSAGE_CHARS - ANNOUNCEMENT_PREFIX.length;
-  let body = escapeHtml(message);
-  if (body.length > budget) {
-    body = body.slice(0, budget - 1);
-    const lastAmp = body.lastIndexOf("&");
-    if (lastAmp !== -1 && !body.slice(lastAmp).includes(";")) {
-      body = body.slice(0, lastAmp);
-    }
-    body = `${body.trimEnd()}…`;
-  }
-  return `${ANNOUNCEMENT_PREFIX}${body}`;
-}
-
-export async function sendReleaseAnnouncement(
-  env: ReleaseAnnouncementEnv,
+/**
+ * Send the given notes to everyone in the given groups, in each reader's own
+ * language, skipping what they already received.
+ */
+export async function announceNotes(
+  options: AnnounceNotesOptions,
   messenger: TelegramMessenger,
   repository: ReleaseAnnouncementRepository = defaultRepository,
 ): Promise<ReleaseAnnouncementResult> {
-  const releaseId = env.RELEASE_ID?.trim();
-  if (!releaseId) {
-    throw new Error("RELEASE_ID is required");
-  }
+  const { notes, audienceGroups, releaseId } = options;
 
-  const message = decodeAnnouncement(env.RELEASE_ANNOUNCEMENT_BASE64);
-  if (!message) {
-    logger.info({ releaseId }, "No announcement content");
-    return { skipped: true, attempted: 0, delivered: 0, failed: 0 };
-  }
-
-  const audienceGroups = parseAudienceGroups(env.RELEASE_AUDIENCE_GROUPS);
-  if (audienceGroups.length === 0) {
-    logger.info({ releaseId }, "No release audience groups configured");
+  if (notes.length === 0 || audienceGroups.length === 0) {
+    logger.info({ releaseId }, "Nothing to announce");
     return { skipped: true, attempted: 0, delivered: 0, failed: 0 };
   }
 
@@ -135,12 +134,21 @@ export async function sendReleaseAnnouncement(
   let failed = 0;
 
   for (const user of users) {
-    const alreadyDelivered = await repository.hasReleaseAnnouncementDelivery(releaseId, user.audienceGroup, user.id);
-    if (alreadyDelivered) {
-      logger.info(
-        { releaseId, userId: user.id, audienceGroup: user.audienceGroup },
-        "Release announcement already sent",
+    const langs = await repository.getReaderLangs(user.id);
+    const readerLangs = [langs?.interfaceLang, langs?.nativeLang];
+
+    const pending = [];
+    for (const note of notes) {
+      const already = await repository.hasReleaseAnnouncementDelivery(
+        noteDeliveryKey(note.id),
+        user.audienceGroup,
+        user.id,
       );
+      if (!already) pending.push({ id: note.id, text: textForReader(note, readerLangs) });
+    }
+
+    if (pending.length === 0) {
+      logger.info({ releaseId, userId: user.id }, "No release notes pending for user");
       continue;
     }
 
@@ -150,8 +158,11 @@ export async function sendReleaseAnnouncement(
       continue;
     }
 
+    const headerLang: SupportedLang =
+      readerLangs.find((lang): lang is SupportedLang => !!lang && isSupported(lang)) ?? "en";
+    const { text, included } = buildAnnouncementText(t("releaseNotesHeader", headerLang), pending);
+
     attempted += 1;
-    const text = formatAnnouncementHtml(message);
     try {
       const sent = await messenger.sendMessage(Number(externalId), text, {
         parse_mode: "HTML",
@@ -164,11 +175,15 @@ export async function sendReleaseAnnouncement(
           kind: "release_announcement",
           text,
           parseMode: "HTML",
-          meta: { releaseId },
+          meta: { releaseId, noteIds: included.map((note) => note.id).join(",") },
           telegramMessageId: sent.message_id,
         },
       );
-      await repository.recordReleaseAnnouncementDelivery(releaseId, user.audienceGroup, user.id);
+      // Only what the message actually carried: a note pushed out by Telegram's
+      // length limit must stay pending rather than be recorded as read.
+      for (const note of included) {
+        await repository.recordReleaseAnnouncementDelivery(noteDeliveryKey(note.id), user.audienceGroup, user.id);
+      }
       delivered += 1;
     } catch (err) {
       failed += 1;
@@ -181,4 +196,35 @@ export async function sendReleaseAnnouncement(
 
   logger.info({ releaseId, audienceGroups, attempted, delivered, failed }, "Release announcement finished");
   return { skipped: false, attempted, delivered, failed };
+}
+
+/**
+ * The whole pending queue, straight from the image — the command-line path, kept
+ * for a send from a shell when the panel is not an option.
+ */
+export async function sendReleaseAnnouncement(
+  env: ReleaseAnnouncementEnv,
+  messenger: TelegramMessenger,
+  repository: ReleaseAnnouncementRepository = defaultRepository,
+): Promise<ReleaseAnnouncementResult> {
+  const releaseId = env.RELEASE_ID?.trim();
+  if (!releaseId) {
+    throw new Error("RELEASE_ID is required");
+  }
+
+  const notesDir = env.RELEASE_NOTES_DIR?.trim() || findUnreleasedDir();
+  if (!notesDir) {
+    logger.warn({ releaseId }, "Release notes directory not found");
+    return { skipped: true, attempted: 0, delivered: 0, failed: 0 };
+  }
+
+  return announceNotes(
+    {
+      notes: readTranslatedNotes(notesDir),
+      audienceGroups: parseAudienceGroups(env.RELEASE_AUDIENCE_GROUPS),
+      releaseId,
+    },
+    messenger,
+    repository,
+  );
 }

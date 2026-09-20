@@ -276,8 +276,8 @@ export async function setLapseState(
 }
 
 /**
- * Publish reviewed demo cards for the first `count` curated headwords of a
- * language pair, and return those headwords.
+ * Publish reviewed demo cards for every curated headword of a language pair,
+ * and return those headwords.
  *
  * This is the preset layer's *free* path: `resolvePreset` reads the reviewed
  * demo-card cache first and only falls through to a just-in-time AI translation
@@ -286,15 +286,19 @@ export async function setLapseState(
  * sweep quietly drops to its plain-text floor and the assertion reads as "the
  * preset layer is broken" when nothing is.
  *
+ * Seeds the whole pool rather than a prefix: the picker walks a per-user
+ * permutation of it, so "the first three" names no subset it will try first,
+ * and a partial seed sends the JIT AI path a run of live calls before it
+ * stumbles onto a cached pair.
+ *
  * Rows are keyed by (sourceLang, nativeLang, headword) and shared across the
  * integration database, so the upsert is idempotent and safe to re-run. The
  * delivery lane closes its preset path outright (`pickPresetWord: async () =>
- * null`), so seeding real pairs here cannot reach it.
+ * null`) unless a test opts back in, so seeding real pairs here cannot reach it
+ * by accident.
  */
-export async function arrangeCuratedPresets(sourceLang: string, nativeLang: string, count: number): Promise<string[]> {
-  const headwords = getHookWords(sourceLang)
-    .slice(0, count)
-    .map((hook) => hook.headword);
+export async function arrangeCuratedPresets(sourceLang: string, nativeLang: string): Promise<string[]> {
+  const headwords = getHookWords(sourceLang).map((hook) => hook.headword);
 
   for (const [index, headword] of headwords.entries()) {
     await onboardingDemoCardRepository.upsert({

@@ -205,49 +205,6 @@ jobs:
         run: |
           cp deploy/docker-compose.yml ./docker-compose.yml
 
-          # Release announcements are a production-only signal: the dev bot
-          # talks to testers' chats and must not narrate every develop push.
-          RELEASE_ANNOUNCEMENT_BASE64=""
-          if [ "$DEPLOY_ENV" = "production" ]; then
-          RELEASE_ANNOUNCEMENT_BASE64="$(python - <<'PY'
-          from pathlib import Path
-          import base64
-
-          # A single environment variable string cannot exceed the kernel's
-          # MAX_ARG_STRLEN (~128 KB); a value larger than that makes every exec in
-          # the bot container (including its healthcheck) fail with E2BIG
-          # ("argument list too long"). The announcement is also delivered as one
-          # Telegram message, which is hard-capped at 4096 characters. So bound the
-          # extracted changelog well under both limits — a growing Unreleased
-          # section must never be able to break the deploy.
-          MAX_CHARS = 3500
-
-          text = Path("CHANGELOG.md").read_text(encoding="utf-8")
-          lines = text.splitlines()
-          in_unreleased = False
-          collected = []
-          for line in lines:
-              if line.startswith("## [Unreleased]"):
-                  in_unreleased = True
-                  continue
-              if in_unreleased and line.startswith("## ["):
-                  break
-              if in_unreleased:
-                  collected.append(line)
-
-          message = "\n".join(collected).strip()
-          if len(message) > MAX_CHARS:
-              truncated = message[:MAX_CHARS]
-              boundary = truncated.rfind("\n")
-              if boundary > 0:
-                  truncated = truncated[:boundary]
-              message = truncated.rstrip() + "\n\n…\n(See the full changelog for all changes.)"
-          if message:
-              print(base64.b64encode(message.encode("utf-8")).decode("ascii"))
-          PY
-          )"
-          fi
-
           echo "BOT_IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/polyglot-bot:${{ env.IMAGE_TAG }}" >> .env
           echo "MIGRATE_IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/polyglot:migrate-${{ env.IMAGE_TAG }}" >> .env
           echo "ADMIN_API_IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/polyglot-admin-api:${{ env.IMAGE_TAG }}" >> .env
@@ -263,7 +220,6 @@ jobs:
           echo "REPOSITORY=${{ secrets.REPOSITORY }}" >> .env
           echo "RELEASE_ID=${{ github.sha }}" >> .env
           echo "RELEASE_AUDIENCE_GROUPS=admin,tester" >> .env
-          echo "RELEASE_ANNOUNCEMENT_BASE64=${RELEASE_ANNOUNCEMENT_BASE64}" >> .env
 
       - name: Copy Compose and Env to VPS
         # Pinned to the commit SHA of v1.0.0 (Fable T30, F8): this third-party
@@ -311,6 +267,9 @@ jobs:
             # must not be world/group-readable on the host.
             chmod 600 .env
 
+            # The socket proxy runs as nonroot with this group to read docker.sock.
+            echo "DOCKER_GID=$(getent group docker | cut -d: -f3)" >> .env
+
             echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
             # Rollback safety net (T13): record the currently-running images BEFORE
@@ -337,6 +296,14 @@ jobs:
             # string; a repaired database makes it a no-op. Remove this step and
             # the CLI once dev and prod have both run it.
             docker compose run --rm --no-deps bot node apps/bot/dist/repair-native-translations.cli.js
+
+            # One-off data repair (see repair-self-language-translations.cli.ts):
+            # removes the same-language "translations" the notification's
+            # just-in-time call used to store, each of which became its own review
+            # card. Runs on both environments; a repaired database makes it a
+            # no-op. Remove this step, the CLI and its repository module once dev
+            # and prod have both run it.
+            docker compose run --rm --no-deps bot node apps/bot/dist/repair-self-language-translations.cli.js
 
             # Dev only: wipe the configured tester accounts from the freshly
             # branched production data. The CLI itself refuses to run unless
@@ -386,11 +353,10 @@ jobs:
             fi
             echo "OK: bot /readyz ready"
 
-            if grep -q '^RELEASE_ANNOUNCEMENT_BASE64=.' .env; then
-              docker compose run --rm --no-deps bot node apps/bot/dist/release-announcement.cli.js
-            else
-              echo "no announcement content"
-            fi
+            # No release announcement here on purpose: releases go out several
+            # times a day, and a user must not get several messages a day. The
+            # notes ride inside the image and are sent by hand, when there is
+            # something worth telling people about.
 
             # Keep exactly two releases: what is running now and what
             # PREVIOUS_RELEASE names for rollback. Age is the wrong bound — each

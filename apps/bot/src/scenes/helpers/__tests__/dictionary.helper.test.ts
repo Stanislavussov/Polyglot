@@ -161,7 +161,7 @@ describe("handleDictPage", () => {
 
     await handleDictPage(ctx);
 
-    expect(mockFindByUserPaginated).toHaveBeenCalledWith(1, 15, 15, 7);
+    expect(mockFindByUserPaginated).toHaveBeenCalledWith(1, 15, 15, 7, { search: undefined, sort: undefined });
     expect(ctx.editMessageText).toHaveBeenCalled();
     expect(ctx.answerCallbackQuery).toHaveBeenCalled();
   });
@@ -184,7 +184,7 @@ describe("handleDictPage", () => {
 
     await handleDictPage(ctx);
 
-    expect(mockFindByUserPaginated).toHaveBeenCalledWith(1, 0, 15, 7);
+    expect(mockFindByUserPaginated).toHaveBeenCalledWith(1, 0, 15, 7, { search: undefined, sort: undefined });
     expect(ctx.session.dictionary?.currentPage).toBe(1);
   });
 
@@ -339,7 +339,7 @@ describe("restart recovery and ownership", () => {
 
     await handleDictPage(ctx);
 
-    expect(mockFindByUserPaginated).toHaveBeenCalledWith(1, 15, 15, 7);
+    expect(mockFindByUserPaginated).toHaveBeenCalledWith(1, 15, 15, 7, { search: undefined, sort: undefined });
     expect(ctx.editMessageText).toHaveBeenCalled();
     expect(ctx.session.dictionary?.currentPage).toBe(2);
   });

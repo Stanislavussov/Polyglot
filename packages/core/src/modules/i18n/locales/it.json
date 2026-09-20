@@ -189,6 +189,13 @@
   "dictionaryDeleteYes": "✅ Sì, elimina",
   "dictionaryDeleteCancel": "← Annulla",
   "dictionarySessionExpired": "Sessione scaduta. Usa /dictionary per ricominciare.",
+  "dictionarySearch": "🔍 Cerca",
+  "dictionarySearchPrompt": "🔍 Invia una parola o una sua parte — cercherò in questo dizionario per parola e per traduzioni.",
+  "dictionarySearchHeader": "🔍 «{query}» — trovati: {count}",
+  "dictionarySearchEmpty": "Nessun risultato per «{query}».",
+  "dictionarySearchClear": "✕ Azzera ricerca",
+  "dictionarySortAlpha": "🔤 A–Z",
+  "dictionarySortRecent": "🕒 Più recenti",
   "textOnly": "✏️ Lavoro solo con il testo — inviami una parola, frase o periodo e te lo tradurrò!",
   "emojiNotSupported": "😊 Gli emoji non possono essere tradotti. Invia una parola o frase in qualsiasi lingua.",
   "settingsTitle": "⚙️ Impostazioni",
@@ -462,5 +469,6 @@
   "trialEndingFinal": "⏳ I tuoi giorni Pro finiscono il {date}.\n\nDopo, le traduzioni restano gratuite; precisare, pronuncia, messaggi vocali, mentore e video si disattivano.",
   "trialExtended": "🎁 Hai salvato abbastanza parole questa settimana — Pro resta con te {extraDays} giorni in più.\n\nContinua così, per ora non si disattiva nulla.",
   "trialEnded": "La tua settimana Pro è finita. Salvate questa settimana: {saved} — restano tue e i ripassi continuano.\n\nAncora gratis: traduzioni. Disattivati: altri significati, precisare, pronuncia, messaggi vocali, mentore, video.",
-  "trialEndedEmpty": "La tua settimana Pro è finita.\n\nAncora gratis: traduzioni. Disattivati: altri significati, precisare, pronuncia, messaggi vocali, mentore, video."
+  "trialEndedEmpty": "La tua settimana Pro è finita.\n\nAncora gratis: traduzioni. Disattivati: altri significati, precisare, pronuncia, messaggi vocali, mentore, video.",
+  "releaseNotesHeader": "Novità"
 }

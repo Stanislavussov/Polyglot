@@ -38,6 +38,8 @@ export interface TranslationKeyboardOptions {
   interfaceLang?: string;
   msgId?: number;
   isAlreadySaved?: boolean;
+  /** The surface this card sits in removes the word itself (a review deck, which then moves on), so the save slot stays empty. */
+  hideSaveSlot?: boolean;
   /** Show the action list rather than the `🔍 Explore this word` button that opens it. */
   expanded?: boolean;
   /** What was translated — names it on the button that opens the action list; a word when absent. */
@@ -394,6 +396,7 @@ export function buildTranslationKeyboard(options: TranslationKeyboardOptions = {
     interfaceLang,
     msgId,
     isAlreadySaved,
+    hideSaveSlot,
     expanded,
     showEtymologyButton,
     showMentorButton,
@@ -445,17 +448,12 @@ export function buildTranslationKeyboard(options: TranslationKeyboardOptions = {
 
   if (!expanded) {
     appendSpeakers();
-    appendInRows(
-      kb,
-      [
-        { text: t(EXPLORE_LABEL[inputType ?? "word"], lang), data: `tr:more:${mid}` },
-        // A saved card says so in its body, so the button slot offers the way out instead.
-        isAlreadySaved
-          ? { text: t("notifFbDelete", lang), data: `tr:remove:${mid}` }
-          : { text: t("save", lang), data: `tr:save:${mid}` },
-      ],
-      1,
-    );
+    // A saved card says so in its body, so the button slot offers the way out instead.
+    const saveSlot: CardButton = isAlreadySaved
+      ? { text: t("notifFbDelete", lang), data: `tr:remove:${mid}` }
+      : { text: t("save", lang), data: `tr:save:${mid}` };
+    const explore: CardButton = { text: t(EXPLORE_LABEL[inputType ?? "word"], lang), data: `tr:more:${mid}` };
+    appendInRows(kb, hideSaveSlot ? [explore] : [explore, saveSlot], 1);
     return kb;
   }
 

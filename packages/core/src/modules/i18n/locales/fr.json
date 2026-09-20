@@ -189,6 +189,13 @@
   "dictionaryDeleteYes": "✅ Oui, supprimer",
   "dictionaryDeleteCancel": "← Annuler",
   "dictionarySessionExpired": "Session expirée. Utilise /dictionary pour recommencer.",
+  "dictionarySearch": "🔍 Rechercher",
+  "dictionarySearchPrompt": "🔍 Envoyez un mot ou une partie du mot — je chercherai dans ce dictionnaire par mot et par traductions.",
+  "dictionarySearchHeader": "🔍 « {query} » — trouvés : {count}",
+  "dictionarySearchEmpty": "Rien trouvé pour « {query} ».",
+  "dictionarySearchClear": "✕ Réinitialiser la recherche",
+  "dictionarySortAlpha": "🔤 A–Z",
+  "dictionarySortRecent": "🕒 Plus récents",
   "textOnly": "✏️ Je ne traite que du texte — envoie-moi simplement un mot, une expression ou une phrase et je te le traduis !",
   "emojiNotSupported": "😊 Les émojis ne peuvent pas être traduits. Envoie un mot ou une expression dans n'importe quelle langue.",
   "settingsTitle": "⚙️ Paramètres",
@@ -462,5 +469,6 @@
   "trialEndingFinal": "⏳ Tes jours Pro se terminent le {date}.\n\nAprès ça, les traductions restent gratuites ; préciser, prononciation, messages vocaux, mentor et vidéo se désactivent.",
   "trialExtended": "🎁 Tu as enregistré assez de mots cette semaine — Pro reste avec toi {extraDays} jours de plus.\n\nContinue, rien ne se désactive encore.",
   "trialEnded": "Ta semaine Pro est terminée. Enregistrés cette semaine : {saved} — ils restent à toi, et les révisions continuent.\n\nToujours gratuit : traductions. Désactivé : autres sens, préciser, prononciation, messages vocaux, mentor, vidéo.",
-  "trialEndedEmpty": "Ta semaine Pro est terminée.\n\nToujours gratuit : traductions. Désactivé : autres sens, préciser, prononciation, messages vocaux, mentor, vidéo."
+  "trialEndedEmpty": "Ta semaine Pro est terminée.\n\nToujours gratuit : traductions. Désactivé : autres sens, préciser, prononciation, messages vocaux, mentor, vidéo.",
+  "releaseNotesHeader": "Quoi de neuf"
 }

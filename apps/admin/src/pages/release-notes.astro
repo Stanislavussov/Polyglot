@@ -1,0 +1,17 @@
+---
+import ReleaseNotesManager from "../components/ReleaseNotesManager.vue";
+import AdminLayout from "../layouts/AdminLayout.astro";
+---
+
+<AdminLayout title="Release notes">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Release notes</h1>
+      <p class="mt-1 text-sm text-gray-500">
+        What is waiting to be told to people — edit the wording, then send it to admins and testers
+      </p>
+    </div>
+  </div>
+
+  <ReleaseNotesManager client:idle />
+</AdminLayout>

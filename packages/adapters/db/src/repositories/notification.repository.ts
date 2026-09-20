@@ -249,7 +249,26 @@ export const notificationRepository = {
     const rows = await db
       .select({ original: notificationHistory.original })
       .from(notificationHistory)
-      .where(and(eq(notificationHistory.userId, userId), gte(notificationHistory.sentAt, since)));
+      .where(and(eq(notificationHistory.userId, userId), gte(notificationHistory.sentAt, since)))
+      // Newest first: the pickers read position in this list as "how recently",
+      // so an unordered result would make them pick a word at random age.
+      .orderBy(desc(notificationHistory.sentAt));
+    return rows.map((r) => r.original);
+  },
+
+  async getSentWordsFromSourceSince(userId: number, source: string, since: Date): Promise<string[]> {
+    const db = getDb();
+    const rows = await db
+      .select({ original: notificationHistory.original })
+      .from(notificationHistory)
+      .where(
+        and(
+          eq(notificationHistory.userId, userId),
+          eq(notificationHistory.source, source),
+          gte(notificationHistory.sentAt, since),
+        ),
+      )
+      .orderBy(desc(notificationHistory.sentAt));
     return rows.map((r) => r.original);
   },
 
