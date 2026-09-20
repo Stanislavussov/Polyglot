@@ -23,6 +23,7 @@ import {
   buildDeleteConfirmKeyboard,
   buildDictionaryEntryKeyboard,
   buildDictionaryListKeyboard,
+  buildDictionaryRemovedKeyboard,
   DICTIONARY_PAGE_SIZE,
   renderDictionaryEntry as renderDictionaryEntryRaw,
   renderDictionaryList as renderDictionaryListRaw,
@@ -419,6 +420,15 @@ describe("buildDeleteConfirmKeyboard", () => {
     const kb = buildDeleteConfirmKeyboard(1, 1, "en", 7);
     expect(kb.inline_keyboard[0]![0]!.text).toContain("Yes");
     expect(kb.inline_keyboard[1]![0]!.text).toContain("Cancel");
+  });
+});
+
+/* ── buildDictionaryRemovedKeyboard ────────────────────────────── */
+
+describe("buildDictionaryRemovedKeyboard", () => {
+  it("offers the word back first, then the list it was removed from", () => {
+    const rows = buildDictionaryRemovedKeyboard(42, 2, "en", 7).inline_keyboard;
+    expect(rows.map((row) => row.map(cbData))).toEqual([["dict:restore:7:42:2"], ["dict:page:7:2"]]);
   });
 });
 

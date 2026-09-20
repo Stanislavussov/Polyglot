@@ -12,7 +12,8 @@ const mockGetSettings = vi.fn();
 const mockCountByUser = vi.fn();
 const mockFindByUserPaginated = vi.fn();
 const mockFindById = vi.fn();
-const mockHardDelete = vi.fn();
+const mockSoftDelete = vi.fn();
+const mockListEntryDictionaries = vi.fn();
 const mockGetAllLangs = vi.fn();
 const mockFindOwnedById = vi.fn();
 const mockEntryBelongsToDictionary = vi.fn();
@@ -106,12 +107,13 @@ function createMockCtx(
         countByUser: (...args: unknown[]) => mockCountByUser(...args),
         findByUserPaginated: (...args: unknown[]) => mockFindByUserPaginated(...args),
         findById: (...args: unknown[]) => mockFindById(...args),
-        hardDelete: (...args: unknown[]) => mockHardDelete(...args),
+        delete: (...args: unknown[]) => mockSoftDelete(...args),
       } as unknown as ServiceContainer["vocabularyRepository"],
       vocabularyDictionaryRepository: {
         findOwnedById: (...args: unknown[]) => mockFindOwnedById(...args),
         entryBelongsToDictionary: (...args: unknown[]) => mockEntryBelongsToDictionary(...args),
         removeEntry: (...args: unknown[]) => mockRemoveEntry(...args),
+        listEntryDictionaries: (...args: unknown[]) => mockListEntryDictionaries(...args),
       } as unknown as ServiceContainer["vocabularyDictionaryRepository"],
       languageCache: {
         getAllLangs: () => mockGetAllLangs(),
@@ -143,7 +145,9 @@ beforeEach(() => {
     updatedAt: new Date(),
   });
   mockEntryBelongsToDictionary.mockResolvedValue(true);
-  mockRemoveEntry.mockResolvedValue(0);
+  mockRemoveEntry.mockResolvedValue(undefined);
+  mockSoftDelete.mockResolvedValue(true);
+  mockListEntryDictionaries.mockResolvedValue([{ id: 7 }]);
 });
 
 /* ── handleDictPage ────────────────────────────────────────────── */
@@ -170,6 +174,18 @@ describe("handleDictPage", () => {
     await handleDictPage(ctx);
 
     expect(ctx.session.dictionary?.currentPage).toBe(2);
+  });
+
+  it("falls back to the last page when the requested one no longer exists", async () => {
+    // A word removed from page 2 can leave it empty; its "back to list" button still says page 2.
+    mockCountByUser.mockResolvedValue(15);
+    mockFindByUserPaginated.mockResolvedValue([makeEntry(1, "word")]);
+    const ctx = createMockCtx({ callbackData: "dict:page:7:2" });
+
+    await handleDictPage(ctx);
+
+    expect(mockFindByUserPaginated).toHaveBeenCalledWith(1, 0, 15, 7);
+    expect(ctx.session.dictionary?.currentPage).toBe(1);
   });
 
   it("shows emptyDictionary when total is 0", async () => {
@@ -258,51 +274,32 @@ describe("handleDictDelete", () => {
 /* ── handleDictConfirmDelete ───────────────────────────────────── */
 
 describe("handleDictConfirmDelete", () => {
-  it("calls hardDelete and returns to list", async () => {
+  it("soft-deletes a word that lives only here, keeping its membership, and offers it back", async () => {
     mockFindById.mockResolvedValue(makeEntry(42, "hello"));
-    mockHardDelete.mockResolvedValue(undefined);
-    mockCountByUser.mockResolvedValue(5);
-    mockFindByUserPaginated.mockResolvedValue([makeEntry(2, "remaining")]);
-    const ctx = createMockCtx({ callbackData: "dict:confirm-delete:7:42:1" });
-
-    await handleDictConfirmDelete(ctx);
-
-    expect(mockHardDelete).toHaveBeenCalledWith(42);
-    expect(ctx.answerCallbackQuery).toHaveBeenCalledWith(
-      expect.objectContaining({ text: expect.stringContaining("deleted") }),
-    );
-    expect(ctx.editMessageText).toHaveBeenCalled();
-  });
-
-  it("goes to previous page when current page becomes empty", async () => {
-    mockFindById.mockResolvedValue(makeEntry(42, "hello"));
-    mockHardDelete.mockResolvedValue(undefined);
-    // After deletion, only 15 entries left → 1 page, but we're on page 2
-    mockCountByUser.mockResolvedValue(15);
-    mockFindByUserPaginated.mockResolvedValue([makeEntry(1, "word")]);
     const ctx = createMockCtx({ callbackData: "dict:confirm-delete:7:42:2" });
 
     await handleDictConfirmDelete(ctx);
 
-    // Should go to page 1 (totalPages = 1 < page 2)
-    expect(mockFindByUserPaginated).toHaveBeenCalledWith(1, 0, 15, 7);
-    expect(ctx.session.dictionary?.currentPage).toBe(1);
+    expect(mockSoftDelete).toHaveBeenCalledWith(42, 1);
+    expect(mockRemoveEntry).not.toHaveBeenCalled();
+    expect(ctx.answerCallbackQuery).toHaveBeenCalledWith(
+      expect.objectContaining({ text: expect.stringContaining("deleted") }),
+    );
+    const [text, options] = ctx.editMessageText.mock.calls[0]!;
+    expect(text).toContain("hello");
+    expect(JSON.stringify(options.reply_markup)).toContain("dict:restore:7:42:2");
+    expect(JSON.stringify(options.reply_markup)).toContain("dict:page:7:2");
   });
 
-  it("shows emptyDictionary when last word deleted", async () => {
+  it("only unlinks a word that another dictionary still holds", async () => {
     mockFindById.mockResolvedValue(makeEntry(42, "hello"));
-    mockHardDelete.mockResolvedValue(undefined);
-    mockCountByUser.mockResolvedValue(0);
-    mockFindByUserPaginated.mockResolvedValue([]);
+    mockListEntryDictionaries.mockResolvedValue([{ id: 7 }, { id: 8 }]);
     const ctx = createMockCtx({ callbackData: "dict:confirm-delete:7:42:1" });
 
     await handleDictConfirmDelete(ctx);
 
-    expect(ctx.editMessageText).toHaveBeenCalledWith(
-      expect.stringContaining("empty"),
-      expect.objectContaining({ reply_markup: expect.any(Object) }),
-    );
-    expect(ctx.session.dictionary?.dictionaryId).toBe(7);
+    expect(mockRemoveEntry).toHaveBeenCalledWith(7, 42);
+    expect(mockSoftDelete).not.toHaveBeenCalled();
   });
 });
 
@@ -382,6 +379,7 @@ describe("restart recovery and ownership", () => {
         text: expect.stringContaining("No results"),
       }),
     );
-    expect(mockHardDelete).not.toHaveBeenCalled();
+    expect(mockSoftDelete).not.toHaveBeenCalled();
+    expect(mockRemoveEntry).not.toHaveBeenCalled();
   });
 });

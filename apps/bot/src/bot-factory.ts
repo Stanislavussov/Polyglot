@@ -30,6 +30,7 @@ import {
 import {
   handleNotifFeedbackCallback,
   handleNotifLearnedCallback,
+  handleNotifRestoreCallback,
   handleNotifRevealCallback,
   handleNotifTranslateCallback,
 } from "./notifications/notification.callbacks.js";
@@ -53,6 +54,7 @@ import {
   handleAltMeaningCallback,
   handleEtymologyCallback,
   handleRegenCallback,
+  handleRemoveCallback,
   handleSaveCallback,
   handleSkipCallback,
 } from "./scenes/helpers/card-actions.js";
@@ -81,18 +83,21 @@ import {
   handleDictOpen,
   handleDictPage,
   handleDictRename,
+  handleDictRestore,
   handleDictTranslate,
   handleDictView,
 } from "./scenes/helpers/dictionary.helper.js";
 import {
   FLASHCARD_DELETE_PATTERN,
   FLASHCARD_RATE_PATTERN,
+  FLASHCARD_UNDO_PATTERN,
   handleFcClose,
   handleFcDelete,
   handleFcQuit,
   handleFcRate,
   handleFcRestart,
   handleFcReveal,
+  handleFcUndo,
   handleLegacyCardCallback,
   LEGACY_CARD_CALLBACK_PATTERN,
 } from "./scenes/helpers/flashcard.helper.js";
@@ -507,8 +512,10 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   onCallback(/^notif:tr$/, handleNotifTranslateCallback);
   onCallback(/^notif:fb:/, handleNotifFeedbackCallback);
   onCallback(/^notif:learned:/, handleNotifLearnedCallback);
+  onCallback(/^notif:restore:/, handleNotifRestoreCallback);
 
   onCallback(/^tr:save:/, handleSaveCallback);
+  onCallback(/^tr:remove:/, handleRemoveCallback);
   onCallback(/^tr:skip:/, handleSkipCallback);
   onCallback(/^tr:regen:/, handleRegenCallback);
   onCallback(/^tr:clarifypost:/, handleClarifyPostCallback);
@@ -537,6 +544,7 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
 
   onCallback(FLASHCARD_RATE_PATTERN, handleFcRate);
   onCallback(FLASHCARD_DELETE_PATTERN, handleFcDelete);
+  onCallback(FLASHCARD_UNDO_PATTERN, handleFcUndo);
   onCallback("fc:reveal", handleFcReveal);
   onCallback("fc:restart", handleFcRestart);
   onCallback("fc:quit", handleFcQuit);
@@ -552,6 +560,7 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   onCallback(/^dict:view:/, handleDictView);
   onCallback(/^dict:delete:/, handleDictDelete);
   onCallback(/^dict:confirm-delete:/, handleDictConfirmDelete);
+  onCallback(/^dict:restore:/, handleDictRestore);
   onCallback("dict:list", handleDictList);
   onCallback(/^dict:open:/, handleDictOpen);
   onCallback("dict:create", handleDictCreate);

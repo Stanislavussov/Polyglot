@@ -109,7 +109,7 @@ describe("translate happy path (integration)", () => {
   // A save used to blank the card's keyboard: `editMessageText` was called with no
   // `reply_markup`, and Telegram drops the buttons when that field is absent. The
   // user was left with a dead card and had to open the dictionary to keep working.
-  it("keeps every card button after a save, with the save button flipped to its saved state", async () => {
+  it("keeps every card button after a save, with the save slot now offering Remove", async () => {
     // Arrange
     const harness = createBotHarness({ ai: deterministicTranslateAi() });
     const id = uniqueTelegramId();
@@ -124,10 +124,13 @@ describe("translate happy path (integration)", () => {
       callbackQueryUpdate({ chatId: id, fromId: id, messageId: cardMsgId, data: `tr:save:${cardMsgId}` }),
     );
 
-    // Assert — reply: every button that was on the card is still on it.
+    // Assert — reply: every button that was on the card is still on it, in place;
+    // only the save slot changed hands. The body is what says "saved".
     const { text, buttons } = savedCard(harness.sent);
-    expect(buttons.map((b) => b.data)).toEqual(before);
-    expect(buttons.find((b) => b.data === `tr:save:${cardMsgId}`)?.text).toBe(t("alreadySavedButton", "en"));
+    expect(buttons.map((b) => b.data)).toEqual(
+      before.map((data) => (data === `tr:save:${cardMsgId}` ? `tr:remove:${cardMsgId}` : data)),
+    );
+    expect(buttons.find((b) => b.data === `tr:remove:${cardMsgId}`)?.text).toBe(t("notifFbDelete", "en"));
     expect(text).toContain(t("savedToDict", "en"));
 
     // Assert — DB and session both know the word is banked.
@@ -156,10 +159,10 @@ describe("translate happy path (integration)", () => {
     );
 
     // Assert — the fallback message carries the keyboard, still addressing the same
-    // card entry: Save, and the opener that reaches everything behind `⋯ More`.
+    // card entry: the save slot, and the opener that reaches everything behind `⋯ More`.
     const { text, buttons } = savedCard(harness.sent);
     expect(harness.sent.some((c) => c.method === "sendMessage")).toBe(true);
-    expect(buttons.map((b) => b.data)).toContain(`tr:save:${cardMsgId}`);
+    expect(buttons.map((b) => b.data)).toContain(`tr:remove:${cardMsgId}`);
     expect(buttons.map((b) => b.data)).toContain(`tr:more:${cardMsgId}`);
     expect(text).toContain(t("savedToDict", "en"));
   });
@@ -207,7 +210,7 @@ describe("translate happy path (integration)", () => {
       callbackQueryUpdate({ chatId: id, fromId: id, messageId: cardMsgId, data: `tr:save:${cardMsgId}` }),
     );
 
-    // Act — the user taps the now-✅ button again.
+    // Act — a second Save tap: a double tap, or a card saved before Remove took the slot.
     harness.reset();
     await harness.dispatch(
       callbackQueryUpdate({ chatId: id, fromId: id, messageId: cardMsgId, data: `tr:save:${cardMsgId}` }),

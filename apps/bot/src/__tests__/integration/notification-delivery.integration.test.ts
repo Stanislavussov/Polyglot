@@ -588,11 +588,11 @@ describe("scheduled notification delivery (integration)", () => {
       .map((button) => button.callback_data);
 
     // A fresh card ships collapsed, so what proves this is the card's keyboard is
-    // the pair a collapsed card always carries — ⋯ More and Save — both addressed
-    // to this message. Expanding it is `tr:more`'s job and is covered where that
-    // behaviour lives.
+    // the pair a collapsed card always carries — ⋯ More and the Save slot, which
+    // offers Remove because a nudged word is a saved one — both addressed to this
+    // message. Expanding it is `tr:more`'s job and is covered where that behaviour lives.
     expect(buttons).toContain(`tr:more:${nudgeMsgId}`);
-    expect(buttons).toContain(`tr:save:${nudgeMsgId}`);
+    expect(buttons).toContain(`tr:remove:${nudgeMsgId}`);
     // The card owns the message now: apart from the recall grades, which address
     // the entry, every button is the card's own. Reveal and Remove do not survive.
     const entryId = entries[0]?.id;
@@ -625,8 +625,8 @@ describe("scheduled notification delivery (integration)", () => {
       }),
     );
 
-    // Act — tap Pronounce's neighbour: "save" is the one button that needs no AI
-    // and reports what it found through the toast.
+    // Act — tap the Save button a card revealed before Remove took that slot still
+    // carries: it needs no AI and reports what it found through the toast.
     harness.reset();
     await harness.dispatch(
       callbackQueryUpdate({

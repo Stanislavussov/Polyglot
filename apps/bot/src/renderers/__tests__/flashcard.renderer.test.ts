@@ -135,6 +135,19 @@ describe("card keyboards", () => {
     ]);
   });
 
+  it("the screen after a removal offers the removed word back on a row of its own", () => {
+    expect(callbacksOf(buildFlashCardFrontKeyboard("en", 2, 1))).toEqual([
+      ["fc:reveal", "fc:quit"],
+      ["fc:del:2"],
+      ["fc:undo:1"],
+    ]);
+    expect(callbacksOf(buildFlashCardDoneKeyboard("en", { showProgress: true, undoEntryId: 1 }))).toEqual([
+      ["fc:restart", "fc:close"],
+      ["progress:open:flashcard_done"],
+      ["fc:undo:1"],
+    ]);
+  });
+
   it("finish screen omits the progress button while the motivation surface is off", () => {
     expect(callbacksOf(buildFlashCardDoneKeyboard("en", { showProgress: false }))).toEqual([
       ["fc:restart", "fc:close"],

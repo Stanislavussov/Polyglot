@@ -235,6 +235,20 @@ export function buildDeleteConfirmKeyboard(
     .text(t("dictionaryDeleteCancel", l), `dict:view:${dictionaryId}:${entryId}:${page}`);
 }
 
+/** The screen a confirmed delete leaves behind: the way back, then the way on. */
+export function buildDictionaryRemovedKeyboard(
+  entryId: number,
+  page: number,
+  lang: SupportedLang,
+  dictionaryId: number,
+): InlineKeyboard {
+  const l = toLang(lang);
+  return new InlineKeyboard()
+    .text(t("undoRemoveWord", l), `dict:restore:${dictionaryId}:${entryId}:${page}`)
+    .row()
+    .text(t("dictionaryBack", l), `dict:page:${dictionaryId}:${page}`);
+}
+
 export function renderDictionarySwitcher(dictionaries: VocabularyDictionaryWithCount[], lang: SupportedLang): string {
   const l = toLang(lang);
   const lines = [esc(t("dictionarySwitcherTitle", l)), ""];

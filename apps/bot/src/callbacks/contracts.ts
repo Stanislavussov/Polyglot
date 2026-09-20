@@ -24,6 +24,15 @@ export const callbackContracts = [
   },
   {
     family: "translation",
+    prefix: "tr:remove",
+    restartSafety: "session-backed",
+    durableLookupKey: "currently Telegram message_id; the entry id is the card's savedWordId in the session",
+    dbSource: "vocabulary_entries soft delete scoped by owner",
+    expiryBehavior: "localized stale translation callback and stale callback metric",
+    maxExampleData: "tr:remove:2147483647",
+  },
+  {
+    family: "translation",
     prefix: "tr:skip",
     restartSafety: "session-backed",
     durableLookupKey: "currently Telegram message_id; target is translationRequestId",
@@ -173,9 +182,19 @@ export const callbackContracts = [
     prefix: "dict:confirm-delete",
     restartSafety: "stateless-restorable",
     durableLookupKey: "dictionary id, entry id, and page number",
-    dbSource: "vocabulary_dictionary_entries scoped by owner, then hard delete if last membership",
+    dbSource:
+      "vocabulary_dictionary_entries scoped by owner; soft delete of the entry when this is its last membership",
     expiryBehavior: "localized noResults if missing or not owned",
     maxExampleData: "dict:confirm-delete:2147483647:2147483647:2147483647",
+  },
+  {
+    family: "dictionary",
+    prefix: "dict:restore",
+    restartSafety: "stateless-restorable",
+    durableLookupKey: "dictionary id, entry id, and page number",
+    dbSource: "vocabulary_entries restore and vocabulary_dictionary_entries re-link, both scoped by owner",
+    expiryBehavior: "localized noResults if missing or not owned",
+    maxExampleData: "dict:restore:2147483647:2147483647:2147483647",
   },
   {
     family: "dictionary",

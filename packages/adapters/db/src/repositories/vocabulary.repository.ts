@@ -687,15 +687,6 @@ export const vocabularyRepository = {
   },
 
   /**
-   * Hard delete: permanently removes the entry and all its translations from the DB.
-   * CASCADE on vocabulary_translations handles child rows.
-   */
-  async hardDelete(entryId: number): Promise<void> {
-    const db = getDb();
-    await db.delete(vocabularyEntries).where(eq(vocabularyEntries.id, entryId));
-  },
-
-  /**
    * Soft-delete: sets isActive = false on entry and all its translations.
    * Owner-scoped because the entry id rides in callback data a client can forge;
    * the translations are only touched once the entry update proved ownership.
@@ -716,10 +707,62 @@ export const vocabularyRepository = {
         )
         .returning({ id: vocabularyEntries.id });
       if (removed.length === 0) return false;
+      // Live translations only, stamped with the entry's own timestamp: that pair is
+      // how `restore` tells what this removal turned off from what was already off.
       await tx
         .update(vocabularyTranslations)
         .set({ isActive: false, updatedAt: now })
-        .where(eq(vocabularyTranslations.entryId, entryId));
+        .where(and(eq(vocabularyTranslations.entryId, entryId), eq(vocabularyTranslations.isActive, true)));
+      return true;
+    });
+  },
+
+  /**
+   * Undo of {@link delete}: a flag flip and nothing else, so the grade, the review
+   * schedule and the dictionary memberships come back exactly as they were —
+   * re-saving through `create` would overwrite the stored translations instead.
+   *
+   * Only the translations that removal turned off come back, matched by the
+   * timestamp `delete` stamps on the entry and on them alike. A translation can be
+   * off for another reason — `create` reactivates only the languages a re-save
+   * carries — and flipping it on here would resurrect a language the word had lost.
+   */
+  async restore(entryId: number, userId: number): Promise<boolean> {
+    const db = getDb();
+    const now = new Date();
+    return db.transaction(async (tx) => {
+      const removedEntry = and(
+        eq(vocabularyEntries.id, entryId),
+        eq(vocabularyEntries.userId, userId),
+        eq(vocabularyEntries.isActive, false),
+      );
+      const [removed] = await tx
+        .select({ removedAt: vocabularyEntries.updatedAt })
+        .from(vocabularyEntries)
+        .where(removedEntry)
+        .for("update");
+      if (!removed) return false;
+
+      await tx.update(vocabularyEntries).set({ isActive: true, updatedAt: now }).where(removedEntry);
+      const reactivated = await tx
+        .update(vocabularyTranslations)
+        .set({ isActive: true, updatedAt: now })
+        .where(
+          and(
+            eq(vocabularyTranslations.entryId, entryId),
+            eq(vocabularyTranslations.isActive, false),
+            eq(vocabularyTranslations.updatedAt, removed.removedAt),
+          ),
+        )
+        .returning({ id: vocabularyTranslations.id });
+      // Nothing carries the stamp when the entry was touched after its removal. A word
+      // back with no translations is the worse outcome, so bring them all back then.
+      if (reactivated.length === 0) {
+        await tx
+          .update(vocabularyTranslations)
+          .set({ isActive: true, updatedAt: now })
+          .where(eq(vocabularyTranslations.entryId, entryId));
+      }
       return true;
     });
   },

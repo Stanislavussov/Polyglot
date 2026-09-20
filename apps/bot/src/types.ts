@@ -57,6 +57,11 @@ export interface SessionData {
       inputType: InputType;
       contextHint?: string;
       savedWordId?: number;
+      /**
+       * The entry this card's Remove soft-deleted. Save then restores that row as it
+       * was instead of re-saving the card's output over its stored translations.
+       */
+      removedWordId?: number;
       /** Accumulated negative constraints for "Other meaning" button */
       previousTranslations?: Record<string, string[]>;
       /** Cached on-demand etymology prose for the original term */
@@ -281,6 +286,8 @@ export interface SessionData {
     maturedTranslationId?: number;
     /** A card the user had graded "hard" was answered good or easy in this session. */
     hardRecalled?: boolean;
+    /** The card the previous tap removed, kept for the one screen that offers it back. */
+    lastRemoved?: CardsDeckCard;
   };
   /**
    * Mentor mode state (Task 66, reply-threads MVP).

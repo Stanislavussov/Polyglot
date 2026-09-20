@@ -130,6 +130,72 @@ describe("vocabularyRepository (integration)", () => {
     expect(rows[0]?.isActive).toBe(true);
   });
 
+  it("restores a removed entry as it was — translations, grade and review schedule intact", async () => {
+    const userId = await freshUserId();
+    const es = await langId("es");
+    const en = await langId("en");
+
+    const created = await vocabularyRepository.create(userId, entryInput("luna", es, en, "moon"));
+    const translationId = created.translations[0]!.id;
+    await vocabularyRepository.setDifficulty(created.id, userId, "hard");
+    const dueDate = new Date("2030-01-01T00:00:00Z");
+    await vocabularyRepository.updateSrsState(translationId, {
+      easeFactor: 2.1,
+      interval: 12,
+      reviewCount: 4,
+      dueDate,
+    });
+    await vocabularyRepository.delete(created.id, userId);
+
+    expect(await vocabularyRepository.restore(created.id, userId)).toBe(true);
+
+    const restored = await vocabularyRepository.findByOriginalAndSource(userId, "luna", es);
+    expect(restored?.id).toBe(created.id);
+    expect(restored?.difficulty).toBe("hard");
+    expect(restored?.translations.map((tr) => tr.text)).toEqual(["moon"]);
+    expect(restored?.translations[0]).toMatchObject({ srsInterval: 12, srsReviewCount: 4, srsDueDate: dueDate });
+  });
+
+  it("restores only what the removal turned off — a translation dropped by an earlier re-save stays dropped", async () => {
+    const userId = await freshUserId();
+    const es = await langId("es");
+    const en = await langId("en");
+    const ru = await langId("ru");
+
+    const both: CreateVocabularyInput = {
+      ...entryInput("casa", es, en, "house"),
+      translations: [
+        { targetLangId: en, text: "house", details: { synonyms: [], examples: [] } },
+        { targetLangId: ru, text: "дом", details: { synonyms: [], examples: [] } },
+      ],
+    };
+    const created = await vocabularyRepository.create(userId, both);
+    await vocabularyRepository.delete(created.id, userId);
+    // Re-saved from a card that no longer translates into Russian: only English comes back.
+    await vocabularyRepository.create(userId, entryInput("casa", es, en, "house"));
+    await vocabularyRepository.delete(created.id, userId);
+
+    expect(await vocabularyRepository.restore(created.id, userId)).toBe(true);
+
+    const restored = await vocabularyRepository.findByOriginalAndSource(userId, "casa", es);
+    expect(restored?.translations.map((tr) => tr.text)).toEqual(["house"]);
+  });
+
+  it("refuses to restore another user's entry, and reports nothing to restore for a live or unknown one", async () => {
+    const ownerId = await freshUserId();
+    const strangerId = await freshUserId();
+    const es = await langId("es");
+    const en = await langId("en");
+
+    const created = await vocabularyRepository.create(ownerId, entryInput("mar", es, en, "sea"));
+    expect(await vocabularyRepository.restore(created.id, ownerId)).toBe(false);
+
+    await vocabularyRepository.delete(created.id, ownerId);
+    expect(await vocabularyRepository.restore(created.id, strangerId)).toBe(false);
+    expect(await vocabularyRepository.findByUser(ownerId)).toHaveLength(0);
+    expect(await vocabularyRepository.restore(999_999_999, ownerId)).toBe(false);
+  });
+
   it("upserts a duplicate (userId, original, sourceLang) without creating a second row", async () => {
     const userId = await freshUserId();
     const es = await langId("es");

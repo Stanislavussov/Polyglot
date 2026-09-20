@@ -2,8 +2,9 @@
  * Dictionary callback handlers — dict:* callbacks for dictionary browsing.
  */
 
-import type { SupportedLang, VocabularyDictionaryWithCount } from "@polyglot/core";
+import type { SupportedLang, VocabularyDictionaryWithCount, VocabularyEntryWithTranslations } from "@polyglot/core";
 import { errorFields, isSupported, logEvent, resolveOutputConfig, resolveTemplate, t, translate } from "@polyglot/core";
+import { esc } from "../../renderers/card-sections.js";
 import {
   buildDeleteConfirmKeyboard,
   buildDictionaryChoiceKeyboard,
@@ -11,6 +12,7 @@ import {
   buildDictionaryEntryKeyboard,
   buildDictionaryListKeyboard,
   buildDictionaryNamePromptKeyboard,
+  buildDictionaryRemovedKeyboard,
   buildDictionarySwitcherKeyboard,
   DICTIONARY_PAGE_SIZE,
   renderDictionaryEntry,
@@ -24,6 +26,7 @@ import { ensureAiQuota, recordAiUsage } from "../../utils/ai-quota.js";
 import { languageOrderFromSettings, makeLangCodeResolver, resolveLanguageOrder } from "../../utils/language-order.js";
 import { isUserFacingTimeout, LONG_OP_TIMEOUT_MS, withTimeout } from "../../utils/long-op.js";
 import { editMessageTextOrReply } from "./edit-message.helper.js";
+import { removeWord, restoreWord } from "./word-removal.js";
 
 const MAX_DICTIONARY_NAME_LENGTH = 32;
 
@@ -191,14 +194,24 @@ export async function handleDictView(ctx: BotContext): Promise<void> {
     return;
   }
 
+  await showDictionaryEntry(ctx, entry, dictionaryId, page, lang);
+  await ctx.answerCallbackQuery();
+}
+
+async function showDictionaryEntry(
+  ctx: BotContext,
+  entry: VocabularyEntryWithTranslations,
+  dictionaryId: number,
+  page: number,
+  lang: SupportedLang,
+): Promise<void> {
   const order = await resolveLanguageOrder(ctx);
   const text = renderDictionaryEntry(entry, makeLangCodeResolver(ctx), lang, order);
   const hasTranslations = entry.translations.length > 0;
-  const kb = buildDictionaryEntryKeyboard(entryId, page, lang, dictionaryId, { hasTranslations });
+  const kb = buildDictionaryEntryKeyboard(entry.id, page, lang, dictionaryId, { hasTranslations });
 
   await editMessageTextOrReply(ctx, text, { parse_mode: "HTML", reply_markup: kb });
   ctx.session.dictionary = { ...(ctx.session.dictionary ?? {}), currentPage: page, dictionaryId };
-  await ctx.answerCallbackQuery();
 }
 
 export async function handleDictDelete(ctx: BotContext): Promise<void> {
@@ -219,7 +232,7 @@ export async function handleDictDelete(ctx: BotContext): Promise<void> {
     return;
   }
 
-  const text = t("dictionaryDeleteConfirm", lang, { word: entry.original });
+  const text = t("dictionaryDeleteConfirm", lang, { word: esc(entry.original) });
   const kb = buildDeleteConfirmKeyboard(entryId, page, lang, dictionaryId);
 
   await editMessageTextOrReply(ctx, text, { parse_mode: "HTML", reply_markup: kb });
@@ -245,20 +258,51 @@ export async function handleDictConfirmDelete(ctx: BotContext): Promise<void> {
     return;
   }
 
-  const remainingMemberships = await ctx.services.vocabularyDictionaryRepository.removeEntry(dictionaryId, entryId);
-  if (remainingMemberships === 0) {
-    await ctx.services.vocabularyRepository.hardDelete(entryId);
+  const memberships = await ctx.services.vocabularyDictionaryRepository.listEntryDictionaries(ctx.user.id, entryId);
+  const livesElsewhere = memberships.some((dictionary) => dictionary.id !== dictionaryId);
+  if (livesElsewhere) {
+    await ctx.services.vocabularyDictionaryRepository.removeEntry(dictionaryId, entryId);
+  } else {
+    // The membership stays on purpose: bringing the word back is then a flag flip
+    // that returns it to this very dictionary, as from a notification or a deck.
+    await removeWord(ctx, entryId, "dictionary");
   }
-  // `hardDeleted` distinguishes "removed from this list" from "gone entirely",
-  // which is the difference between a recoverable and an unrecoverable mistake.
-  logEvent("dictionary.entry_removed", {
-    dictionaryId,
-    entryId,
-    remainingMemberships,
-    hardDeleted: remainingMemberships === 0,
+  // `wordRemoved` distinguishes "left this list" from "left the dictionary altogether".
+  logEvent("dictionary.entry_removed", { dictionaryId, entryId, wordRemoved: !livesElsewhere });
+
+  await editMessageTextOrReply(ctx, t("notifRemoved", lang, { word: esc(entry.original) }), {
+    parse_mode: "HTML",
+    reply_markup: buildDictionaryRemovedKeyboard(entryId, page, lang, dictionaryId),
   });
+  ctx.session.dictionary = { ...(ctx.session.dictionary ?? {}), currentPage: page, dictionaryId };
   await ctx.answerCallbackQuery({ text: t("wordDeleted", lang) });
-  await showDictionaryList(ctx, dictionaryId, page);
+}
+
+/** dict:restore — undo of a confirmed delete, from the screen that delete left behind. */
+export async function handleDictRestore(ctx: BotContext): Promise<void> {
+  const parts = (ctx.callbackQuery?.data ?? "").split(":");
+  const dictionaryId = parsePositiveInteger(parts[2]);
+  const entryId = parsePositiveInteger(parts[3]);
+  const page = parsePositiveInteger(parts[4]) ?? 1;
+
+  if (!dictionaryId || !entryId || !(await getOwnedDictionary(ctx, dictionaryId))) {
+    await answerNoResults(ctx);
+    return;
+  }
+
+  // False for a word that only left this dictionary: it never stopped being live,
+  // and the ownership check below covers it as well as a restored one.
+  await restoreWord(ctx, entryId, "dictionary");
+  const entry = await getOwnedEntry(ctx, entryId);
+  if (!entry) {
+    await answerNoResults(ctx);
+    return;
+  }
+
+  await ctx.services.vocabularyDictionaryRepository.addEntry(dictionaryId, entryId);
+  const lang = await getUserLang(ctx);
+  await showDictionaryEntry(ctx, entry, dictionaryId, page, lang);
+  await ctx.answerCallbackQuery({ text: t("wordRestored", lang) });
 }
 
 export async function handleDictList(ctx: BotContext): Promise<void> {
@@ -325,7 +369,7 @@ export async function handleDictDeleteDictionary(ctx: BotContext): Promise<void>
     return;
   }
   const lang = await getUserLang(ctx);
-  await editMessageTextOrReply(ctx, t("dictionaryDeleteCollectionConfirm", lang, { name: dictionary.name }), {
+  await editMessageTextOrReply(ctx, t("dictionaryDeleteCollectionConfirm", lang, { name: esc(dictionary.name) }), {
     reply_markup: buildDictionaryDeleteConfirmKeyboard(dictionaryId, lang),
     parse_mode: "HTML",
   });

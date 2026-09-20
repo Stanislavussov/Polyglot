@@ -8,7 +8,6 @@ import type {
 // ── Mock Drizzle query builder ──────────────────────────────────
 
 let selectResultQueue: unknown[][] = [];
-let deleteWhereArgs: unknown[] = [];
 
 /**
  * Creates a thenable object that mimics Drizzle's query builder chain.
@@ -40,12 +39,6 @@ const selectFromFn = vi.fn(() => ({
 
 const selectFn = vi.fn(() => ({ from: selectFromFn }));
 
-const deleteWhereFn = vi.fn((...args: unknown[]) => {
-  deleteWhereArgs.push(args);
-  return Promise.resolve();
-});
-const deleteFn = vi.fn(() => ({ where: deleteWhereFn }));
-
 const insertReturningFn = vi.fn(() => Promise.resolve([]));
 const insertValuesFn = vi.fn(() => ({ returning: insertReturningFn }));
 const insertFn = vi.fn(() => ({ values: insertValuesFn }));
@@ -63,7 +56,6 @@ const mockDb = {
   select: selectFn,
   insert: insertFn,
   update: updateFn,
-  delete: deleteFn,
   transaction: transactionFn,
 };
 
@@ -75,7 +67,6 @@ const { vocabularyRepository } = await import("../repositories/vocabulary.reposi
 
 beforeEach(() => {
   selectResultQueue = [];
-  deleteWhereArgs = [];
   vi.clearAllMocks();
 });
 
@@ -126,7 +117,7 @@ function makeTranslation(overrides: Partial<VocabularyTranslation> = {}): Vocabu
 
 // ── Tests ────────────────────────────────────────────────────────
 
-describe("vocabularyRepository — pagination & hardDelete", () => {
+describe("vocabularyRepository — pagination", () => {
   describe("countByUser", () => {
     it("returns correct count for user with entries", async () => {
       selectResultQueue.push([{ value: 7 }]);
@@ -263,31 +254,6 @@ describe("vocabularyRepository — pagination & hardDelete", () => {
       const result = await vocabularyRepository.countByUser(42, undefined, "app");
 
       expect(result).toBe(3);
-    });
-  });
-
-  describe("hardDelete", () => {
-    it("deletes entry from the database (not soft-delete)", async () => {
-      await vocabularyRepository.hardDelete(10);
-
-      expect(deleteFn).toHaveBeenCalledOnce();
-      expect(deleteWhereFn).toHaveBeenCalledOnce();
-    });
-
-    it("calls delete on vocabularyEntries table", async () => {
-      await vocabularyRepository.hardDelete(5);
-
-      // Verify delete was called (CASCADE on translations handles child rows)
-      expect(deleteFn).toHaveBeenCalledOnce();
-      expect(deleteWhereFn).toHaveBeenCalledOnce();
-    });
-
-    it("is a no-op when entry does not exist", async () => {
-      // DELETE WHERE id = <nonexistent> just does nothing in SQL
-      await vocabularyRepository.hardDelete(99999);
-
-      expect(deleteFn).toHaveBeenCalledOnce();
-      // No error thrown
     });
   });
 });

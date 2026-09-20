@@ -25,7 +25,8 @@ import {
   renderFlashCardFront,
 } from "../../renderers/flashcard.renderer.js";
 import type { BotContext } from "../../types.js";
-import { editMessageTextOrReply } from "./edit-message.helper.js";
+import { editMessageReplyMarkupOrIgnore, editMessageTextOrReply } from "./edit-message.helper.js";
+import { removeWord, restoreWord } from "./word-removal.js";
 
 type CardsSession = NonNullable<BotContext["session"]["cards"]>;
 
@@ -76,11 +77,15 @@ export async function buildCardsSession(ctx: BotContext): Promise<CardsSession |
   return { deck, currentIndex: 0, revealed: false, recalled: 0 };
 }
 
-/** Rendered with the user's card settings as they are now, so a toggle changed mid-deck applies from the next card. */
+/**
+ * Rendered with the user's card settings as they are now, so a toggle changed mid-deck applies from the next card.
+ * `undoEntryId` is the word the previous tap removed: the screen that follows a removal is the one that offers it back.
+ */
 export async function buildCurrentFront(
   ctx: BotContext,
   cards: CardsSession,
   lang: SupportedLang,
+  undoEntryId?: number,
 ): Promise<{ text: string; keyboard: InlineKeyboard }> {
   const card = cards.deck[cards.currentIndex]!;
   const fields = await ctx.services.cardTemplateRepository.getFields(ctx.user.id);
@@ -94,16 +99,26 @@ export async function buildCurrentFront(
       lang,
       fields,
     ),
-    keyboard: buildFlashCardFrontKeyboard(lang, card.entryId),
+    keyboard: buildFlashCardFrontKeyboard(lang, card.entryId, undoEntryId),
   };
 }
 
-async function showCurrentFront(ctx: BotContext, cards: CardsSession, lang: SupportedLang): Promise<void> {
-  const { text, keyboard } = await buildCurrentFront(ctx, cards, lang);
+async function showCurrentFront(
+  ctx: BotContext,
+  cards: CardsSession,
+  lang: SupportedLang,
+  undoEntryId?: number,
+): Promise<void> {
+  const { text, keyboard } = await buildCurrentFront(ctx, cards, lang, undoEntryId);
   await editMessageTextOrReply(ctx, text, { parse_mode: "HTML", reply_markup: keyboard });
 }
 
-async function finishSession(ctx: BotContext, cards: CardsSession, lang: SupportedLang): Promise<void> {
+async function finishSession(
+  ctx: BotContext,
+  cards: CardsSession,
+  lang: SupportedLang,
+  undoEntryId?: number,
+): Promise<void> {
   const reviewed = cards.deck.filter((card) => !card.retry).length;
   logEvent("cards.session_finished", {
     cards: reviewed,
@@ -128,15 +143,21 @@ async function finishSession(ctx: BotContext, cards: CardsSession, lang: Support
   ctx.session.cards = undefined;
   await editMessageTextOrReply(ctx, text, {
     parse_mode: "HTML",
-    reply_markup: buildFlashCardDoneKeyboard(lang, { showProgress }),
+    reply_markup: buildFlashCardDoneKeyboard(lang, { showProgress, undoEntryId }),
   });
 }
 
 /**
  * Drop the current card — and a later retry of the same word — then show whatever
- * comes next: the next front or the finish screen.
+ * comes next: the next front or the finish screen. `undoEntryId` is set when this
+ * tap removed the word, so that screen can offer it back.
  */
-async function leaveCurrentCard(ctx: BotContext, cards: CardsSession, lang: SupportedLang): Promise<void> {
+async function leaveCurrentCard(
+  ctx: BotContext,
+  cards: CardsSession,
+  lang: SupportedLang,
+  undoEntryId?: number,
+): Promise<void> {
   const entryId = cards.deck[cards.currentIndex]?.entryId;
   cards.deck = cards.deck.filter((card, index) => index < cards.currentIndex || card.entryId !== entryId);
   cards.revealed = false;
@@ -146,12 +167,12 @@ async function leaveCurrentCard(ctx: BotContext, cards: CardsSession, lang: Supp
     const { enabled: showProgress } = await ctx.services.settings.getMotivationConfig();
     ctx.session.cards = undefined;
     await editMessageTextOrReply(ctx, t("wordDeleted", lang), {
-      reply_markup: buildFlashCardDoneKeyboard(lang, { showProgress }),
+      reply_markup: buildFlashCardDoneKeyboard(lang, { showProgress, undoEntryId }),
     });
   } else if (cards.currentIndex >= cards.deck.length) {
-    await finishSession(ctx, cards, lang);
+    await finishSession(ctx, cards, lang, undoEntryId);
   } else {
-    await showCurrentFront(ctx, cards, lang);
+    await showCurrentFront(ctx, cards, lang, undoEntryId);
   }
 }
 
@@ -173,6 +194,8 @@ export async function handleFcReveal(ctx: BotContext): Promise<void> {
     lang,
   );
   cards.revealed = true;
+  // The offer to bring a removed word back lasts one screen, and this is the next one.
+  cards.lastRemoved = undefined;
   await editMessageTextOrReply(ctx, text, { parse_mode: "HTML", reply_markup: buildFlashCardBackKeyboard(lang, card) });
   await ctx.answerCallbackQuery();
 }
@@ -279,8 +302,8 @@ export async function handleFcRate(ctx: BotContext): Promise<void> {
 export const FLASHCARD_DELETE_PATTERN = /^fc:del:(\d+)$/;
 
 /**
- * Remove the current word from the dictionary for good and carry on with the deck.
- * Soft delete, like the notification's remove button: re-saving the word restores it.
+ * Remove the current word from the dictionary and carry on with the deck. Soft delete,
+ * like the notification's remove button; the next screen offers the word back.
  */
 export async function handleFcDelete(ctx: BotContext): Promise<void> {
   const entryId = Number(ctx.match?.[1]);
@@ -292,10 +315,44 @@ export async function handleFcDelete(ctx: BotContext): Promise<void> {
   }
 
   const lang = await getUserLang(ctx);
-  // A false result means the word was already gone; either way it leaves the deck.
-  await ctx.services.vocabularyRepository.delete(entryId, ctx.user.id);
-  await leaveCurrentCard(ctx, cards, lang);
+  // A false result means the word was already gone; either way it leaves the deck,
+  // but only a removal this tap made is this deck's to undo.
+  const removed = await removeWord(ctx, entryId, "flashcard");
+  cards.lastRemoved = removed ? card : undefined;
+  await leaveCurrentCard(ctx, cards, lang, removed ? entryId : undefined);
   await ctx.answerCallbackQuery({ text: t("wordDeleted", lang) });
+}
+
+export const FLASHCARD_UNDO_PATTERN = /^fc:undo:(\d+)$/;
+
+/**
+ * Bring back the word the previous tap removed. The dictionary is restored whatever
+ * became of the deck; the card returns to it only while this deck still holds it.
+ */
+export async function handleFcUndo(ctx: BotContext): Promise<void> {
+  const entryId = Number(ctx.match?.[1]);
+  const lang = await getUserLang(ctx);
+  if (!(await restoreWord(ctx, entryId, "flashcard"))) {
+    await ctx.answerCallbackQuery({ text: t("noResults", lang) });
+    return;
+  }
+
+  const cards = ctx.session.cards;
+  const card = cards?.lastRemoved;
+  if (cards && card?.entryId === entryId) {
+    cards.deck.splice(cards.currentIndex, 0, card);
+    cards.lastRemoved = undefined;
+    cards.revealed = false;
+    await showCurrentFront(ctx, cards, lang);
+  } else if (!cards) {
+    // The removal ended the deck, so the finish screen is what carries the spent offer.
+    const { enabled: showProgress } = await ctx.services.settings.getMotivationConfig();
+    await editMessageReplyMarkupOrIgnore(ctx, { reply_markup: buildFlashCardDoneKeyboard(lang, { showProgress }) });
+  } else {
+    // A newer deck is running, so this is a message it left behind: nothing on it is live any more.
+    await editMessageReplyMarkupOrIgnore(ctx, { reply_markup: { inline_keyboard: [] } });
+  }
+  await ctx.answerCallbackQuery({ text: t("wordRestored", lang) });
 }
 
 export async function handleFcRestart(ctx: BotContext): Promise<void> {

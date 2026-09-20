@@ -6,18 +6,25 @@
  * - notif:tr → translate the nudged word that has no saved entry to open
  * - notif:fb:{grade}:{entryId} → persist difficulty feedback (hard/normal/easy)
  * - notif:learned:{entryId} → soft-delete entry from vocabulary
+ * - notif:restore:{entryId} → bring a removed entry back
  */
 import { isSupported, logger, resolveTemplate, type SupportedLang, t } from "@polyglot/core";
+import { esc } from "../renderers/card-sections.js";
 import { renderTranslation } from "../renderers/translation.renderer.js";
 import { buildCardKeyboard } from "../scenes/helpers/card-keyboard.js";
 import { editMessageReplyMarkupOrIgnore, editMessageTextOrReply } from "../scenes/helpers/edit-message.helper.js";
 import { handleTranslateText } from "../scenes/helpers/translate-flow.js";
 import { setTranslationEntry } from "../scenes/helpers/translation-map.helper.js";
+import { removeWord, restoreWord } from "../scenes/helpers/word-removal.js";
 import type { BotContext } from "../types.js";
 import { makeLangCodeResolver, resolveLanguageOrder } from "../utils/language-order.js";
 import { isUserFacingTimeout, LONG_OP_TIMEOUT_MS, loadingKeyboard, withTimeout } from "../utils/long-op.js";
 import { toTranslateOutput } from "../utils/vocabulary-mapper.js";
-import { buildNotificationKeyboard, type NotifFeedbackGrade } from "./notification.formatter.js";
+import {
+  buildNotificationKeyboard,
+  buildNotificationRestoreKeyboard,
+  type NotifFeedbackGrade,
+} from "./notification.formatter.js";
 
 function parseEntryId(data: string | undefined): number | null {
   if (!data) return null;
@@ -95,8 +102,10 @@ export async function handleNotifRevealCallback(ctx: BotContext): Promise<void> 
     );
     lang = userLang;
 
-    const output = entry ? toTranslateOutput(entry, makeLangCodeResolver(ctx)) : null;
-    if (!entry || !output) {
+    // `findById` is scoped by neither owner nor activity, and the id rides in callback data a client can forge.
+    const own = entry && entry.userId === ctx.user.id ? entry : null;
+    const output = own ? toTranslateOutput(own, makeLangCodeResolver(ctx)) : null;
+    if (!own || !output) {
       await ctx.answerCallbackQuery({ text: t("noResults", lang) });
       try {
         await editMessageReplyMarkupOrIgnore(ctx, { reply_markup: { inline_keyboard: [] } });
@@ -121,11 +130,13 @@ export async function handleNotifRevealCallback(ctx: BotContext): Promise<void> 
     // The session entry first: the keyboard is derived from the card's own state,
     // which is what keeps this card's buttons identical to every other rebuild of
     // one (`card-keyboard.ts`) instead of a second hand-assembled guess at them.
+    // A nudge can outlive its word. Removed since, it opens as a card that offers the
+    // word back: Save there restores the row, exactly as after the card's own Remove.
     const cardEntry = {
       output,
-      inputType: entry.inputType,
-      savedWordId: entry.id,
-      recallGrade: { entryId: entry.id, selected: entry.difficulty },
+      inputType: own.inputType,
+      ...(own.isActive ? { savedWordId: own.id } : { removedWordId: own.id }),
+      recallGrade: { entryId: own.id, selected: own.difficulty },
     };
     setTranslationEntry(ctx.session, cardMsgId, cardEntry);
     ctx.session.pendingCardMsgId = cardMsgId;
@@ -253,7 +264,7 @@ export async function handleNotifFeedbackCallback(ctx: BotContext): Promise<void
 
 /**
  * notif:learned:{entryId} — remove the word from the dictionary.
- * Soft-deletes the entry and replaces the message with a confirmation.
+ * Soft-deletes the entry and replaces the message with a confirmation that offers it back.
  */
 export async function handleNotifLearnedCallback(ctx: BotContext): Promise<void> {
   const entryId = parseEntryId(ctx.callbackQuery?.data);
@@ -269,12 +280,9 @@ export async function handleNotifLearnedCallback(ctx: BotContext): Promise<void>
       LONG_OP_TIMEOUT_MS,
     );
     lang = userLang;
-    const word = entry?.original ?? "?";
+    const word = esc(entry?.original ?? "?");
 
-    const removed = await withTimeout(
-      ctx.services.vocabularyRepository.delete(entryId, ctx.user.id),
-      LONG_OP_TIMEOUT_MS,
-    );
+    const removed = await withTimeout(removeWord(ctx, entryId, "notification"), LONG_OP_TIMEOUT_MS);
     if (!removed) {
       // Already removed (from a card, say) or never this user's — nothing to confirm.
       await ctx.answerCallbackQuery({ text: t("noResults", lang) });
@@ -287,11 +295,70 @@ export async function handleNotifLearnedCallback(ctx: BotContext): Promise<void>
     }
 
     const confirmation = t("notifRemoved", lang, { word });
-    await editMessageTextOrReply(ctx, confirmation, { parse_mode: "HTML" });
+    await editMessageTextOrReply(ctx, confirmation, {
+      parse_mode: "HTML",
+      reply_markup: buildNotificationRestoreKeyboard(lang, entryId),
+    });
   } catch (err) {
     logger.error({ err, entryId }, "Failed to delete vocabulary entry from notification");
     try {
       await editMessageReplyMarkupOrIgnore(ctx, { reply_markup: buildNotificationKeyboard(lang, entryId) });
+    } catch {
+      // Restore is best-effort; the alert below explains the failure.
+    }
+    await ctx.answerCallbackQuery({ text: failureAlertText(err, lang), show_alert: true });
+    return;
+  }
+
+  await ctx.answerCallbackQuery();
+}
+
+/**
+ * notif:restore:{entryId} — undo a removal from the confirmation it left behind.
+ * The nudge's question is gone with the message it replaced, so the word comes back
+ * under the nudge's full menu: open it, grade it, or remove it again.
+ */
+export async function handleNotifRestoreCallback(ctx: BotContext): Promise<void> {
+  const entryId = parseEntryId(ctx.callbackQuery?.data);
+  if (entryId == null) {
+    await ctx.answerCallbackQuery();
+    return;
+  }
+
+  let lang: SupportedLang = "en";
+  let restored = false;
+  try {
+    const [, userLang, wasRestored] = await withTimeout(
+      Promise.all([showLoadingKeyboard(ctx), getUserLang(ctx), restoreWord(ctx, entryId, "notification")]),
+      LONG_OP_TIMEOUT_MS,
+    );
+    lang = userLang;
+    restored = wasRestored;
+
+    if (!restored) {
+      // Already back (saved again from a card, say) or never this user's.
+      await ctx.answerCallbackQuery({ text: t("noResults", lang) });
+      try {
+        await editMessageReplyMarkupOrIgnore(ctx, { reply_markup: { inline_keyboard: [] } });
+      } catch {
+        // Too old to edit — the toast already answered the tap.
+      }
+      return;
+    }
+
+    const entry = await withTimeout(ctx.services.vocabularyRepository.findById(entryId), LONG_OP_TIMEOUT_MS);
+    await editMessageTextOrReply(ctx, t("notifRestored", lang, { word: esc(entry?.original ?? "?") }), {
+      parse_mode: "HTML",
+      reply_markup: buildNotificationKeyboard(lang, entryId, entry?.difficulty ?? undefined),
+    });
+  } catch (err) {
+    logger.error({ err, entryId }, "Failed to restore vocabulary entry from notification");
+    try {
+      // A failure past the restore itself leaves a live word: offering it back again would answer "no results".
+      const keyboard = restored
+        ? buildNotificationKeyboard(lang, entryId)
+        : buildNotificationRestoreKeyboard(lang, entryId);
+      await editMessageReplyMarkupOrIgnore(ctx, { reply_markup: keyboard });
     } catch {
       // Restore is best-effort; the alert below explains the failure.
     }

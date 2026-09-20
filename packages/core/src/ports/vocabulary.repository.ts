@@ -180,8 +180,6 @@ export interface VocabularyRepository {
       details: VocabTranslationDetails;
     }>,
   ): Promise<VocabularyTranslation[]>;
-  /** Permanently delete an entry (used after the last dictionary membership is removed). */
-  hardDelete(entryId: number): Promise<void>;
   findDueForSrs(userId: number, now: Date, limit: number): Promise<SrsDueVocabularyCard[]>;
   /** Not-yet-due live cards, weakest first: entry graded hard, then lowest ease, then soonest due. */
   findAheadForSrs(userId: number, now: Date, limit: number): Promise<SrsDueVocabularyCard[]>;
@@ -201,6 +199,8 @@ export interface VocabularyRepository {
   ): Promise<VocabularyEntryWithTranslations[]>;
   /** Soft-delete the user's own active entry. Owner-scoped; returns false when no row matched. */
   delete(entryId: number, userId: number): Promise<boolean>;
+  /** Undo a soft-delete of the user's own entry. Owner-scoped; returns false when there was nothing removed to restore. */
+  restore(entryId: number, userId: number): Promise<boolean>;
   /** Persist the user's notification feedback grade. Owner-scoped; returns false when no row matched. */
   setDifficulty(entryId: number, userId: number, difficulty: VocabDifficulty): Promise<boolean>;
 }

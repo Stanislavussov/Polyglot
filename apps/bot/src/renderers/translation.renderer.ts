@@ -449,10 +449,10 @@ export function buildTranslationKeyboard(options: TranslationKeyboardOptions = {
       kb,
       [
         { text: t(EXPLORE_LABEL[inputType ?? "word"], lang), data: `tr:more:${mid}` },
-        {
-          text: isAlreadySaved ? t("alreadySavedButton", lang) : t("save", lang),
-          data: `tr:save:${mid}`,
-        },
+        // A saved card says so in its body, so the button slot offers the way out instead.
+        isAlreadySaved
+          ? { text: t("notifFbDelete", lang), data: `tr:remove:${mid}` }
+          : { text: t("save", lang), data: `tr:save:${mid}` },
       ],
       1,
     );

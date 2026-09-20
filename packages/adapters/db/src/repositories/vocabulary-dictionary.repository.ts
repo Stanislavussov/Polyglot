@@ -195,7 +195,7 @@ export const vocabularyDictionaryRepository = {
     return vocabularyDictionaryRepository.entryBelongsToDictionary(entryId, dictionary.id);
   },
 
-  async removeEntry(dictionaryId: number, entryId: number): Promise<number> {
+  async removeEntry(dictionaryId: number, entryId: number): Promise<void> {
     const db = getDb();
     await db
       .delete(vocabularyDictionaryEntries)
@@ -205,12 +205,6 @@ export const vocabularyDictionaryRepository = {
           eq(vocabularyDictionaryEntries.entryId, entryId),
         ),
       );
-
-    const remaining = await db
-      .select({ value: count() })
-      .from(vocabularyDictionaryEntries)
-      .where(eq(vocabularyDictionaryEntries.entryId, entryId));
-    return remaining[0]?.value ?? 0;
   },
 
   async moveEntry(userId: number, fromDictionaryId: number, toDictionaryId: number, entryId: number): Promise<boolean> {

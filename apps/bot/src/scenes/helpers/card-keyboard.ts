@@ -44,7 +44,8 @@ async function resolveCardKeyboardOptions(
     sourceOverrideLangs: entry.sourceOverrideLangs ?? [],
     pronounceLangs: await resolvePronounceLangs(ctx, entry.output, order),
     locked: await resolveLockedBadges(ctx),
-    ...(entry.recallGrade ? { grades: entry.recallGrade } : {}),
+    // A grade on a removed word has no row to land on, so the row waits for the word to come back.
+    ...(entry.recallGrade && entry.savedWordId !== undefined ? { grades: entry.recallGrade } : {}),
   };
 }
 

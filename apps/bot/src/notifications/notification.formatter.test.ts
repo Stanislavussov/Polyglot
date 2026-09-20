@@ -18,6 +18,7 @@ import type { NotificationPayload } from "@polyglot/adapter-notifications";
 import { type SupportedLang, t } from "@polyglot/core";
 import {
   buildNotificationKeyboard,
+  buildNotificationRestoreKeyboard,
   formatNotificationMessage,
   SELF_CHECK_KEYS,
   sourceSynonymTexts,
@@ -215,6 +216,10 @@ describe("buildNotificationKeyboard", () => {
       "notif:fb:easy:42",
       "notif:learned:42",
     ]);
+  });
+
+  it("leaves a removal confirmation with the way back and nothing else", () => {
+    expect(callbackData(buildNotificationRestoreKeyboard("en", 42))).toEqual(["notif:restore:42"]);
   });
 
   it("keeps the grade row together and Remove on its own row", () => {

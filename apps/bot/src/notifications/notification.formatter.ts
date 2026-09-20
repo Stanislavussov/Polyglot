@@ -145,3 +145,8 @@ export function buildNotificationKeyboard(
   const kb = new InlineKeyboard().text(t("notifReveal", lang), `notif:reveal:${entryId}`).row();
   return appendFeedbackMenu(kb, lang, entryId, selected);
 }
+
+/** The one button a removal confirmation carries: the way back. */
+export function buildNotificationRestoreKeyboard(lang: SupportedLang, entryId: number): InlineKeyboard {
+  return new InlineKeyboard().text(t("undoRemoveWord", lang), `notif:restore:${entryId}`);
+}

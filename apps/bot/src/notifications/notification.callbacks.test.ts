@@ -34,6 +34,9 @@ vi.mock("./notification.formatter.js", () => ({
   buildNotificationKeyboard: vi.fn().mockReturnValue({
     inline_keyboard: [[{ text: "👀 Show translation", callback_data: "notif:reveal:42" }]],
   }),
+  buildNotificationRestoreKeyboard: vi.fn().mockReturnValue({
+    inline_keyboard: [[{ text: "↩️ Bring the removed word back", callback_data: "notif:restore:42" }]],
+  }),
 }));
 
 import type { ServiceContainer } from "@polyglot/core";
