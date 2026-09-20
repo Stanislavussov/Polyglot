@@ -109,6 +109,41 @@ async function loadPurchasablePlans(ctx: PlanReadingContext): Promise<Purchasabl
   );
 }
 
+/** A plan as it is sold: its glyph, the name the catalog gives it, and what it buys. */
+export interface PlanDescription {
+  readonly emoji: string;
+  readonly label: string;
+  readonly bullets: readonly string[];
+}
+
+/**
+ * Describe one plan by name, straight from the live catalog.
+ *
+ * Unlike {@link resolveFeatureBadges} this does not go through the purchasable
+ * ladder: the caller is the trial announcement, which has to describe the tier
+ * the ledger actually granted — and a plan held as a gift is worth describing
+ * even on a day it is not for sale. Null when the catalog has no such plan.
+ */
+export async function describePlan(
+  ctx: PlanReadingContext,
+  name: string,
+  lang: SupportedLang,
+): Promise<PlanDescription | null> {
+  const config = (await ctx.services.settings.getPlanLimits()).find((plan) => plan.name === name);
+  if (!config) return null;
+  const access = ctx.services.featureAccess ?? defaultFeatureAccess;
+  const plan: PurchasablePlan = {
+    name: config.name,
+    label: config.label,
+    priceUsdCents: config.priceUsdCents ?? 0,
+    translationLimit: config.translationLimit,
+    videoLimit: config.videoLimit,
+    videoWindow: config.videoWindow,
+    features: await access.listPlanFeatures(config.name),
+  };
+  return { emoji: planEmoji(plan.name), label: plan.label, bullets: planBullets(plan, lang) };
+}
+
 /**
  * The badge each of `features` wears when locked: the emoji of the cheapest plan
  * on sale that unlocks it. A Pro-only button badged ⭐ promised Plus and then

@@ -19,6 +19,7 @@ import { GrammyError } from "grammy";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createServicesStub } from "../../test-helpers/services-stub.js";
 import type { BotContext } from "../../types.js";
+import { flushScheduledClosings } from "../closing-screen.js";
 import {
   handleLegacyOnboardingCallback,
   handleOnboardingCallback,
@@ -210,7 +211,14 @@ function createHarness(opts: { languageCode?: string; langs?: typeof LANGS } = {
     chat: { id: 555 },
     user: store.user,
     session: { activeMode: "idle", translationMap: {}, technicalMessages: [] },
-    api: { editMessageReplyMarkup: vi.fn().mockResolvedValue(true), deleteMessage: vi.fn().mockResolvedValue(true) },
+    api: {
+      editMessageReplyMarkup: vi.fn().mockResolvedValue(true),
+      deleteMessage: vi.fn().mockResolvedValue(true),
+      // The closing screen leaves the update behind, so it sends through the raw
+      // Api rather than `ctx.reply` — see `closing-screen.ts`.
+      sendMessage: vi.fn().mockResolvedValue({ message_id: 950 }),
+      sendAnimation: vi.fn().mockResolvedValue({ message_id: 951 }),
+    },
     reply: vi.fn(async () => ({ message_id: 900 })),
     replyWithAnimation: vi.fn().mockResolvedValue({ message_id: 901 }),
     editMessageText: vi.fn().mockResolvedValue(true),
@@ -310,6 +318,21 @@ function createHarness(opts: { languageCode?: string; langs?: typeof LANGS } = {
     return String(last?.[0] ?? "");
   }
 
+  /**
+   * Run the closing screen's timer now and return the message it sent.
+   *
+   * The hand-off is deliberately not part of the update that triggers it (it waits
+   * out {@link CLOSING_SCREEN_DELAY_MS} so the first card is read before the
+   * instructions land), so a test that only inspected `ctx.reply` would see the
+   * card and conclude the hand-off never happened.
+   */
+  async function closing(): Promise<{ text: string; options: Record<string, unknown> }> {
+    await flushScheduledClosings();
+    const call = vi.mocked(ctx.api.sendMessage).mock.calls.at(-1);
+    if (!call) throw new Error("no closing screen was sent");
+    return { text: String(call[1]), options: (call[2] ?? {}) as Record<string, unknown> };
+  }
+
   function callbackData(keyboard: Keyboard = currentKeyboard()): string[] {
     return keyboard
       .flat()
@@ -327,6 +350,7 @@ function createHarness(opts: { languageCode?: string; langs?: typeof LANGS } = {
     tap,
     send,
     start,
+    closing,
     currentKeyboard,
     currentText,
     callbackData,
@@ -832,15 +856,12 @@ describe("onboarding — screen 3 (instruction + feature entry points)", () => {
 
     // The closing screen used to be two messages — inline feature buttons, then a
     // second message repeating the same modes in prose to deliver the keyboard.
-    const closing = vi.mocked(h.ctx.reply).mock.calls.at(-1);
-    const markup = closing?.[1] as {
-      reply_markup?: { inline_keyboard?: Keyboard; resize_keyboard?: boolean };
-    };
-    expect(markup?.reply_markup?.inline_keyboard).toBeUndefined();
-    expect(markup?.reply_markup).toMatchObject({ resize_keyboard: true });
-    expect(markup?.reply_markup).not.toHaveProperty("one_time_keyboard");
+    const { text, options } = await h.closing();
+    const markup = options.reply_markup as { inline_keyboard?: Keyboard; resize_keyboard?: boolean };
+    expect(markup?.inline_keyboard).toBeUndefined();
+    expect(markup).toMatchObject({ resize_keyboard: true });
+    expect(markup).not.toHaveProperty("one_time_keyboard");
     // The instructions and the hand-off are the same message now.
-    const text = String(closing?.[0]);
     expect(text).toContain("Сохранить");
     expect(text).not.toContain("/translate");
     // One voice, not three glued strings: the nudge that used to open this message
@@ -848,6 +869,32 @@ describe("onboarding — screen 3 (instruction + feature entry points)", () => {
     // second time three lines later.
     expect(text).not.toContain("Хотите ещё");
     expect(text.match(/Пришлите/g) ?? []).toHaveLength(1);
+  });
+
+  it("holds the instructions back until the card has been on screen alone", async () => {
+    const h = createHarness({ languageCode: "ru" });
+    await reachDemoScreen(h);
+    h.onboardingDemoCardRepository.findOne.mockResolvedValue(null);
+
+    await h.tap("onb:hook:de:0");
+
+    // The card is the screen the whole flow exists to produce; shipping the
+    // instructions in the same turn pushed it out of view the moment it landed.
+    expect(h.ctx.api.sendMessage).not.toHaveBeenCalled();
+    await expect(h.closing()).resolves.toBeDefined();
+  });
+
+  it("attaches the instructions to the message they are about", async () => {
+    const h = createHarness({ languageCode: "ru" });
+    await reachDemoScreen(h);
+
+    await h.send("Schmetterling");
+
+    // A reply, not a loose message: by the time the timer fires the chat may have
+    // moved on, and an unanchored wall of instructions explains a card the reader
+    // has to scroll back to find.
+    const { options } = await h.closing();
+    expect(options.reply_parameters).toMatchObject({ allow_sending_without_reply: true });
   });
 
   it("explains what saving a word buys the user, not just that the button exists", async () => {
@@ -859,8 +906,23 @@ describe("onboarding — screen 3 (instruction + feature entry points)", () => {
 
     // This is the one screen that has to earn a second session: a user who never
     // learns that saved words come back on their own has no reason to save one.
-    const closing = String(vi.mocked(h.ctx.reply).mock.calls.at(-1)?.[0]);
-    expect(closing).toContain("повторение");
+    expect((await h.closing()).text).toContain("повторение");
+  });
+
+  it("describes the buttons the card actually wears, not a retired layout", async () => {
+    const h = createHarness({ languageCode: "ru" });
+    await reachDemoScreen(h);
+    h.onboardingDemoCardRepository.findOne.mockResolvedValue(null);
+
+    await h.tap("onb:hook:de:0");
+
+    // Clarify and Other meaning moved behind `🔍 Explore` long before this screen
+    // was rewritten, and the frozen copy kept teaching them as top-level buttons.
+    const { text } = await h.closing();
+    const explore = text.indexOf(t("cardExploreWord", "ru"));
+    expect(explore).toBeGreaterThan(-1);
+    expect(text.indexOf(t("otherMeaning", "ru"))).toBeGreaterThan(explore);
+    expect(text.indexOf(t("clarifyTranslation", "ru"))).toBeGreaterThan(explore);
   });
 
   it("names the icon that brings the folded-away menu back", async () => {
@@ -872,16 +934,16 @@ describe("onboarding — screen 3 (instruction + feature entry points)", () => {
 
     // The menu is not pinned to the screen, so onboarding is the one place the
     // user is shown it — a hand-off that never happens leaves it undiscoverable.
-    const handover = vi.mocked(h.ctx.reply).mock.calls.at(-1);
+    const { text, options } = await h.closing();
     // Names the icon, not just the menu: the whole point of the hand-off is that a
     // collapsed keyboard is invisible until the user knows where to tap.
-    expect(String(handover?.[0])).toContain("⌨️");
-    expect(String(handover?.[0])).toContain("Карточки");
-    const handoverMarkup = (handover?.[1] as { reply_markup?: { resize_keyboard?: boolean } })?.reply_markup;
-    expect(handoverMarkup).toMatchObject({ resize_keyboard: true });
+    expect(text).toContain("⌨️");
+    expect(text).toContain("Карточки");
+    const markup = options.reply_markup as { resize_keyboard?: boolean };
+    expect(markup).toMatchObject({ resize_keyboard: true });
     // The named icon is the way back, so the hand-off must not send a keyboard that
     // collapses itself again on the user's first tap.
-    expect(handoverMarkup).not.toHaveProperty("one_time_keyboard");
+    expect(markup).not.toHaveProperty("one_time_keyboard");
   });
 
   it("routes each feature button to the existing scene handler", async () => {
@@ -904,8 +966,9 @@ describe("onboarding — screen 3 (instruction + feature entry points)", () => {
     await reachDemoScreen(h);
 
     await h.tap("onb:hook:de:0");
+    await h.closing();
 
-    expect(h.ctx.replyWithAnimation).not.toHaveBeenCalled();
+    expect(h.ctx.api.sendAnimation).not.toHaveBeenCalled();
     expect(h.userRepository.markOnboarded).toHaveBeenCalled();
   });
 
@@ -916,8 +979,9 @@ describe("onboarding — screen 3 (instruction + feature entry points)", () => {
       await reachDemoScreen(h);
 
       await h.tap("onb:hook:de:0");
+      await h.closing();
 
-      expect(h.ctx.replyWithAnimation).toHaveBeenCalledWith("BAADBAADrwADBREAAYag");
+      expect(h.ctx.api.sendAnimation).toHaveBeenCalledWith(555, "BAADBAADrwADBREAAYag");
     } finally {
       screencast.fileId = "";
     }
@@ -928,13 +992,12 @@ describe("onboarding — screen 3 (instruction + feature entry points)", () => {
     try {
       const h = createHarness({ languageCode: "ru" });
       await reachDemoScreen(h);
-      vi.mocked(h.ctx.replyWithAnimation).mockRejectedValue(new Error("wrong file identifier"));
+      vi.mocked(h.ctx.api.sendAnimation).mockRejectedValue(new Error("wrong file identifier"));
 
       await h.tap("onb:hook:de:0");
 
       expect(h.userRepository.markOnboarded).toHaveBeenCalledWith(1);
-      const final = vi.mocked(h.ctx.reply).mock.calls.at(-1);
-      expect(final).toBeDefined();
+      await expect(h.closing()).resolves.toBeDefined();
     } finally {
       screencast.fileId = "";
     }
@@ -1166,11 +1229,12 @@ describe("onboarding — the reverse trial (Task 84)", () => {
     expect(h.store.user.subscriptionPlan).toBe(TRIAL_PLAN);
     // The closing screen is the one place the gift is announced, and it names
     // both the length and the rule for earning more.
-    const closing = vi
-      .mocked(h.ctx.reply)
-      .mock.calls.map(([text]) => String(text))
-      .find((text) => text.includes(String(TRIAL_DAYS)) && text.includes(String(TRIAL_EXTENSION_WORDS)));
-    expect(closing).toBeDefined();
+    const { text } = await h.closing();
+    expect(text).toContain(String(TRIAL_DAYS));
+    expect(text).toContain(String(TRIAL_EXTENSION_WORDS));
+    // Never ⭐: that glyph sells Plus, and the gift has been the top tier since
+    // Task 84 — a badge that names the wrong tier is a promise the offer retracts.
+    expect(text).not.toContain("⭐");
   });
 
   it("says nothing about a trial to an account that already spent one", async () => {
@@ -1188,11 +1252,7 @@ describe("onboarding — the reverse trial (Task 84)", () => {
     expect(h.store.subscriptions).toHaveLength(1);
     expect(h.userRepository.updateSubscriptionPlan).not.toHaveBeenCalled();
     expect(h.userRepository.markOnboarded).toHaveBeenCalledWith(1);
-    const announced = vi
-      .mocked(h.ctx.reply)
-      .mock.calls.map(([text]) => String(text))
-      .some((text) => text.includes(String(TRIAL_EXTENSION_WORDS)));
-    expect(announced).toBe(false);
+    expect((await h.closing()).text).not.toContain(String(TRIAL_EXTENSION_WORDS));
   });
 
   it("hands no trial to an internal role, which already bypasses every plan", async () => {

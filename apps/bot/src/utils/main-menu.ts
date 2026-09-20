@@ -36,6 +36,13 @@ interface MenuItem {
   /** Emoji shown before the label — language independent, same convention as command icons. */
   readonly icon: string;
   readonly labelKey: I18nKey;
+  /**
+   * One line saying what the button is for. Required, not optional: the onboarding
+   * hand-off lists these buttons by reading this table, so a hot button added
+   * without a hint would silently go unmentioned on the one screen that teaches
+   * the keyboard exists.
+   */
+  readonly hintKey: I18nKey;
 }
 
 /**
@@ -48,9 +55,9 @@ interface MenuItem {
  */
 const MAIN_MENU_ROWS: ReadonlyArray<readonly MenuItem[]> = [
   [
-    { action: "flashcard", icon: "🎴", labelKey: "menuBtnFlashcards" },
-    { action: "mentor", icon: "🧑‍🏫", labelKey: "menuBtnMentor" },
-    { action: "dictionary", icon: "📖", labelKey: "menuBtnDictionary" },
+    { action: "flashcard", icon: "🎴", labelKey: "menuBtnFlashcards", hintKey: "menuHintFlashcards" },
+    { action: "mentor", icon: "🧑‍🏫", labelKey: "menuBtnMentor", hintKey: "menuHintMentor" },
+    { action: "dictionary", icon: "📖", labelKey: "menuBtnDictionary", hintKey: "menuHintDictionary" },
   ],
 ];
 
@@ -138,6 +145,23 @@ export function buildMainKeyboard(lang: SupportedLang): Keyboard {
     }
   });
   return kb.resized();
+}
+
+/** A hot button described for prose: the label as it is printed, and what it is for. */
+export interface MainMenuEntry {
+  readonly label: string;
+  readonly hint: string;
+}
+
+/**
+ * The live hot buttons, in keyboard order, each with the line that explains it.
+ *
+ * Read by the onboarding hand-off so its description of the keyboard is the
+ * keyboard: retire a button or add one and the closing screen follows, instead of
+ * teaching a layout that shipped two deploys ago.
+ */
+export function mainMenuEntries(lang: SupportedLang): MainMenuEntry[] {
+  return MAIN_MENU_ROWS.flat().map((item) => ({ label: buttonLabel(item, lang), hint: t(item.hintKey, lang) }));
 }
 
 let labelIndex: Map<string, MenuTap> | undefined;

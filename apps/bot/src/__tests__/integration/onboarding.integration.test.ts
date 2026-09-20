@@ -12,8 +12,9 @@
  * Each test uses its own synthetic Telegram user; no shared fixtures, no cleanup.
  */
 import { identityRepository, onboardingDemoCardRepository, userRepository } from "@polyglot/adapter-db";
-import { getHookWords } from "@polyglot/core";
+import { getHookWords, t } from "@polyglot/core";
 import { describe, expect, it } from "vitest";
+import { flushScheduledClosings } from "../../onboarding/closing-screen.js";
 import type { BotHarness, CapturedCall } from "../../test-helpers/integration/bot-harness.js";
 import {
   callbackQueryUpdate,
@@ -168,6 +169,28 @@ describe("/start onboarding (integration)", () => {
 
     // The card came from the cache, rendered by the production renderer.
     expect(allText(harness).some((text) => text.includes("перевод из кэша"))).toBe(true);
+
+    // The instructions are not part of this turn: the card gets its fifteen
+    // seconds before they land, so nothing but the card is on screen yet.
+    expect(allText(harness).some((text) => text.includes(t("onbClosingCardHeader", "ru")))).toBe(false);
+
+    await flushScheduledClosings();
+
+    const closing = harness.sent.filter((call) => call.method === "sendMessage").at(-1);
+    const text = String(closing?.payload.text ?? "");
+    // Derived from the card that is on screen, not from frozen copy: the actions
+    // behind `🔍 Explore` are described under it, and the hot-button keyboard
+    // rides on this one message.
+    expect(text).toContain(t("cardExploreWord", "ru"));
+    expect(text).toContain(t("otherMeaning", "ru"));
+    expect(text).toContain(t("menuBtnDictionary", "ru"));
+    expect(closing?.payload.reply_markup).toMatchObject({ resize_keyboard: true });
+    // Hung on the card it explains — the hook word was tapped, so there is no user
+    // message to reply to.
+    const card = harness.sent
+      .filter((call) => call.method === "sendMessage")
+      .find((call) => call.messageId !== undefined && String(call.payload.text ?? "").includes("перевод из кэша"));
+    expect(closing?.payload.reply_parameters).toMatchObject({ message_id: card?.messageId });
   });
 
   it("shows the level menu alone, then brings the language list back once the level is picked", async () => {

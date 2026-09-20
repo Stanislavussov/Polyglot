@@ -47,6 +47,7 @@ import {
   t,
 } from "@polyglot/core";
 import { describe, expect, it, vi } from "vitest";
+import { flushScheduledClosings } from "../../onboarding/closing-screen.js";
 import { runTrialLifecycleSweep } from "../../subscriptions/trial-lifecycle.wiring.js";
 import { arrangeOnboardedTranslator } from "../../test-helpers/integration/arrange.js";
 import {
@@ -143,13 +144,23 @@ describe("onboarding reverse trial (integration)", () => {
     const lengthDays = Math.round((granted!.currentPeriodEnd.getTime() - granted!.createdAt.getTime()) / DAY_MS);
     expect(lengthDays).toBe(TRIAL_DAYS);
     // The closing screen announced the gift — the whole rendered line, not just
-    // a digit that any onboarding copy might contain.
+    // a digit that any onboarding copy might contain. It waits out its delay
+    // behind the first card, so it is not in this turn's captured calls yet.
+    await flushScheduledClosings();
+    const plan = (await harness.services.settings.getPlanLimits()).find((row) => row.name === TRIAL_PLAN);
     const announcement = t("onbTrialGranted", "en", {
+      emoji: "💎",
       days: String(TRIAL_DAYS),
+      plan: plan!.label,
+    });
+    const after = t("onbTrialAfter", "en", {
       words: String(TRIAL_EXTENSION_WORDS),
+      plan: plan!.label,
       extraDays: String(TRIAL_EXTENSION_DAYS),
     });
-    expect(texts(harness).some((text) => text.includes(announcement))).toBe(true);
+    // Both halves name the tier by the label the catalog carries, so renaming the
+    // plan in the admin panel renames it here too.
+    expect(texts(harness).some((text) => text.includes(announcement) && text.includes(after))).toBe(true);
 
     // Act — tap a paid button while the trial is live.
     harness.reset();

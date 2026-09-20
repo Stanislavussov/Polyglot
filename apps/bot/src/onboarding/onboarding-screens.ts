@@ -21,17 +21,13 @@ import {
   isUnlimitedRole,
   logEvent,
   type Subscription,
-  TRIAL_DAYS,
-  TRIAL_EXTENSION_DAYS,
-  TRIAL_EXTENSION_WORDS,
   t,
 } from "@polyglot/core";
 import type { InlineKeyboard } from "grammy";
 import { setUserCommands } from "../commands/commands.js";
-import { ONBOARDING_SCREENCAST_FILE_ID } from "../constants.js";
-import { installMainKeyboard } from "../middlewares/main-keyboard.js";
 import { editMessageTextOrReply } from "../scenes/helpers/edit-message.helper.js";
 import type { BotContext } from "../types.js";
+import { buildClosingText, scheduleClosingScreen } from "./closing-screen.js";
 import { getHookWordsForLangs } from "./hook-cards.js";
 import { buildDemoKeyboard, buildLearningKeyboard, buildNativeKeyboard } from "./onboarding-keyboards.js";
 import { guessNativeLangFromLocale, type OnboardingState } from "./onboarding-state.js";
@@ -133,8 +129,6 @@ export async function showDemoScreen(ctx: BotContext, state: OnboardingState): P
 export async function showFinalScreen(ctx: BotContext, state: OnboardingState): Promise<void> {
   const lang = state.interfaceLang;
 
-  await sendScreencast(ctx);
-
   // Read back rather than granted here: the grant happened on the demo screen, an
   // update earlier, so the only honest source is the ledger. A user who arrives
   // with no live trial (theirs was spent, or an internal role never got one) sees
@@ -149,23 +143,15 @@ export async function showFinalScreen(ctx: BotContext, state: OnboardingState): 
   // collapses it, so an unnamed icon is a menu the user has to rediscover by
   // accident.
   //
-  // One key, not three glued together. The screen used to concatenate a "want
-  // another?" nudge, the instructions, and `mainMenuHint` — three voices that
-  // opened with a question, answered it with "Готово", invited a word twice, and
-  // ended on a hint written for users who onboarded before the menu existed. The
-  // nudge also fired on the path where the demo produced no card at all.
+  // Built now, sent later. The text has to be assembled while this update still
+  // holds the card's session entry, because that entry *is* what it describes —
+  // see `closing-screen.ts` for why the message is derived from the live keyboards
+  // rather than written out, and why it then waits behind a timer instead of
+  // landing on top of the card it is explaining.
   //
-  // The trial line is the one thing appended to it, and only when a trial was
+  // The trial block is the one part that is conditional, and only when a trial was
   // actually granted — this screen is the single place the gift is announced.
-  const complete = t("onboardingComplete", lang);
-  const closing = trial
-    ? `${complete}\n\n${t("onbTrialGranted", lang, {
-        days: String(TRIAL_DAYS),
-        words: String(TRIAL_EXTENSION_WORDS),
-        extraDays: String(TRIAL_EXTENSION_DAYS),
-      })}`
-    : complete;
-  await installMainKeyboard(ctx, closing, lang);
+  scheduleClosingScreen(ctx, await buildClosingText(ctx, state, trial), lang);
 
   await ctx.services.userRepository.markOnboarded(state.userId);
   recordOnboardingStep(ONBOARDING_STEPS.complete, "completed");
@@ -228,20 +214,6 @@ async function activeTrial(ctx: BotContext, userId: number): Promise<Subscriptio
   } catch (err) {
     logEvent("onboarding.trial_read_failed", errorFields(err), "warn");
     return null;
-  }
-}
-
-/**
- * Optional screencast above the instruction screen. Absent asset → nothing is
- * sent and nothing is logged as a failure; a send error (e.g. a stale file_id)
- * is swallowed so it can never block completion.
- */
-async function sendScreencast(ctx: BotContext): Promise<void> {
-  if (!ONBOARDING_SCREENCAST_FILE_ID) return;
-  try {
-    await ctx.replyWithAnimation(ONBOARDING_SCREENCAST_FILE_ID);
-  } catch (err) {
-    logEvent("onboarding.screencast_failed", errorFields(err), "warn");
   }
 }
 

@@ -708,7 +708,7 @@ describe("i18n — locale consistency", () => {
       "no",
       "chooseNativeLang",
       "chooseLearningLangs",
-      "onboardingComplete",
+      "onbClosingIntro",
       "welcomeBack",
       "maxLangsReached",
       "selectAtLeastOne",
