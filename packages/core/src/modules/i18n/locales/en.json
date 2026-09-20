@@ -466,5 +466,6 @@
   "trialEndingFinal": "⏳ Your Pro days end on {date}.\n\nAfter that translations stay free; clarify, word audio, voice messages, mentor and video switch off.",
   "trialExtended": "🎁 You saved enough words this week — Pro stays with you {extraDays} days longer.\n\nKeep going, nothing switches off yet.",
   "trialEnded": "Your Pro week is over. Saved this week: {saved} — they stay yours, and reviews keep coming.\n\nStill free: translations. Switched off: other meanings, clarify, word audio, voice messages, mentor, video.",
-  "trialEndedEmpty": "Your Pro week is over.\n\nStill free: translations. Switched off: other meanings, clarify, word audio, voice messages, mentor, video."
+  "trialEndedEmpty": "Your Pro week is over.\n\nStill free: translations. Switched off: other meanings, clarify, word audio, voice messages, mentor, video.",
+  "releaseNotesHeader": "What's new"
 }

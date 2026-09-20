@@ -31,6 +31,23 @@ const RETRY_DELAYS_MS = [1000, 2000, 4000];
 /** Rolling window for de-dup: don't repeat a word sent within the last 24h. */
 const DEDUP_WINDOW_MS = 24 * 60 * 60 * 1000;
 
+/**
+ * How far back the *preset* de-dup looks, independently of the dictionary one.
+ *
+ * The two pools need opposite windows. A dictionary of five words has to keep
+ * cycling, so its window must stay short. The preset pool is fixed and large
+ * (sixty curated headwords per learning language), so at one notification a day
+ * a 24-hour window remembers a single send — and that is what made the fallback
+ * look like a three-word loop in the logs: everything older had aged out, so the
+ * picker's first candidate came back around immediately.
+ *
+ * Ninety days is the longest window actually backed by data: `notification_history`
+ * is pruned at `DEFAULT_RETENTION_DAYS` (90) in @polyglot/adapter-db, so asking
+ * for more would quietly return the same rows and read as a wider guarantee than
+ * it is.
+ */
+const PRESET_DEDUP_WINDOW_MS = 90 * 24 * 60 * 60 * 1000;
+
 async function retryWithBackoff<T>(
   fn: () => Promise<T>,
   maxRetries: number,
@@ -129,10 +146,24 @@ async function pickWordForUser(
   if (fromDictionary) return fromDictionary;
 
   logEvent("notification.dictionary_exhausted", { recentWordCount: recentWords.length });
+
+  // Queried only on this path, so the common case — the dictionary had a word —
+  // still costs one history read per user per tick.
+  const presetHistory = await deps
+    .getSentWordsFromSourceSince(user.userId, "preset", new Date(Date.now() - PRESET_DEDUP_WINDOW_MS))
+    .catch(() => []);
+
   return deps.pickPresetWord(
     { userId: user.userId, nativeLang: user.nativeLang, learningLangs: user.learningLangs },
-    recentWords,
+    // Newest first, which is the order the picker ranks staleness on. The
+    // dictionary window goes first: it holds the last-sent word, and nothing may
+    // arrive twice running whichever pool it came from.
+    dedupe([...recentWords, ...presetHistory]),
   );
+}
+
+function dedupe(words: readonly string[]): string[] {
+  return [...new Set(words)];
 }
 
 /**
@@ -239,8 +270,10 @@ async function runNotificationBatch(sendFn: SendFn, deps: SchedulerDeps): Promis
           // Age-independent: guarantees "never the same word twice running"
           // even after the previous send has aged out of the rolling window —
           // the case a one-word dictionary would otherwise hit every time.
+          // Prepended, not appended: the pickers read this list as newest first
+          // and rank staleness by position, so the latest word must lead it.
           const lastSent = await deps.getLastSentWord(user.userId).catch(() => null);
-          const recentWords = lastSent && !windowWords.includes(lastSent) ? [...windowWords, lastSent] : windowWords;
+          const recentWords = lastSent ? dedupe([lastSent, ...windowWords]) : windowWords;
           const word = await pickWordForUser(user, deps, recentWords);
           if (!word) {
             logger.info({ userId: user.userId }, "No word picked — sending empty dictionary prompt");
@@ -298,12 +331,12 @@ async function runNotificationBatch(sendFn: SendFn, deps: SchedulerDeps): Promis
  *
  * The daily lane's 24-hour window is meaningless at a five-day cadence — every
  * previous card has aged out of it by the time the next one is due, so the
- * preset picker (which takes the FIRST unseen candidate, not a random one) would
- * hand the same headword to the same user forever. A year spans at least two
- * full passes through the thirty curated words of a single learning language,
- * while still bounding the query.
+ * picker would hand out the same few headwords forever. This asked for a year
+ * until the window was made honest: `notification_history` is pruned at
+ * `DEFAULT_RETENTION_DAYS` in @polyglot/adapter-db, so a year-long query
+ * returned ninety days of rows and read as a guarantee it never gave.
  */
-const LAPSE_DEDUP_WINDOW_MS = 365 * 24 * 60 * 60 * 1000;
+const LAPSE_DEDUP_WINDOW_MS = PRESET_DEDUP_WINDOW_MS;
 
 /**
  * Pick the word a lapsed subscriber gets: their own vocabulary first, the
@@ -316,11 +349,9 @@ const LAPSE_DEDUP_WINDOW_MS = 365 * 24 * 60 * 60 * 1000;
  * nothing. What a lapsed user needs is an interesting word, not their configured
  * flavour of one.
  *
- * The second attempt is the cycle restart. Once a year's worth of history covers
- * every curated candidate the picker returns null, and a user who has been away
- * that long would go silent at exactly the wrong moment; retrying with only the
- * previous card excluded starts the set over without ever repeating twice
- * running.
+ * The cycle restart lives in the picker, not here: once history covers every
+ * curated candidate it serves the stalest one rather than giving up, so a user
+ * who has been away that long cannot go silent at exactly the wrong moment.
  */
 async function pickLapsedWord(
   user: NotificationUser,
@@ -333,11 +364,8 @@ async function pickLapsedWord(
   const fromDictionary = await deps.pickDictionaryWord(user.userId, seenWords);
   if (fromDictionary) return fromDictionary;
 
-  const fromPresets = await deps.pickPresetWord(presetUser, seenWords);
-  if (fromPresets) return fromPresets;
-
-  logEvent("notification.lapse.cycle_restart", { seenWordCount: seenWords.length });
-  return deps.pickPresetWord(presetUser, lastSent ? [lastSent] : []);
+  // Newest first — the picker ranks staleness by position in this list.
+  return deps.pickPresetWord(presetUser, lastSent ? dedupe([lastSent, ...seenWords]) : seenWords);
 }
 
 /**

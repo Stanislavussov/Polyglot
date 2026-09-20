@@ -30,6 +30,7 @@ import {
   localDayKey,
   logEvent,
   logger,
+  resolveDirectionFromSource,
   type ServiceContainer,
   SettingsService,
   type SupportedLang,
@@ -58,6 +59,55 @@ const jitTranslationSchema = z.object({
     }),
   ),
 });
+
+/**
+ * The languages a just-in-time translation may ask for, resolved by the same rule
+ * as the translate path (`resolveDirectionFromSource`).
+ *
+ * Asking for the user's learning languages flat asked for the entry's own language
+ * whenever the word was saved in one of them: the model answered with a
+ * same-language paraphrase, `updateTranslation` stored it as a new row, and the
+ * reader got a Czech word offered as the translation of itself. An empty list
+ * means there is nothing legitimate left to ask for — translate nothing.
+ */
+export function jitTargetLangs(
+  sourceLang: string,
+  settings: { nativeLang: string; learningLangs: string[] },
+): string[] {
+  const direction = resolveDirectionFromSource({
+    sourceLang,
+    nativeLang: settings.nativeLang,
+    learningLangs: settings.learningLangs,
+  });
+  return direction?.targetLangs ?? [];
+}
+
+/**
+ * The blocks of a just-in-time answer that may be stored as translation rows.
+ *
+ * {@link jitTargetLangs} no longer *asks* for the entry's own language, but a
+ * model that ignores the prompt still answers with it, and every returned block
+ * used to be written as a row — a dead one (no SRS query returns it, no renderer
+ * prints it) that accumulates until a deploy's repair step clears it again.
+ * Refusing it on the way in is the only place the row never exists at all.
+ */
+export function jitRowsToStore(
+  blocks: ReadonlyArray<{ languageCode: string; text: string }>,
+  sourceLangId: number,
+  resolveLang: (code: string) => { id: number } | undefined,
+): Array<{ targetLangId: number; text: string }> {
+  const rows: Array<{ targetLangId: number; text: string }> = [];
+  for (const block of blocks) {
+    const lang = resolveLang(block.languageCode);
+    if (!lang) continue;
+    if (lang.id === sourceLangId) {
+      logEvent("notification.jit.same_language_block", { languageCode: block.languageCode }, "warn");
+      continue;
+    }
+    rows.push({ targetLangId: lang.id, text: block.text });
+  }
+  return rows;
+}
 
 /**
  * Resolve the Telegram chat id for a neutral userId on the outbound path
@@ -282,11 +332,11 @@ export async function buildNotificationScheduling(
       const userSettings = await userRepository.getSettings(userId);
       if (!userSettings) return null;
 
-      const targetLangs = userSettings.learningLangs;
-      if (targetLangs.length === 0) return null;
-
       const sourceLang = getAllLangs().find((l) => l.id === entry.sourceLangId);
       if (!sourceLang) return null;
+
+      const targetLangs = jitTargetLangs(sourceLang.code, userSettings);
+      if (targetLangs.length === 0) return null;
 
       const model = contextualModel;
       if (!model) return null;
@@ -302,14 +352,9 @@ Return translations as JSON array.`;
         failover: await resolveFailover(),
       });
 
-      const translations: Array<{ targetLangId: number; text: string; synonyms?: string[] }> = [];
-      for (const tr of result.translations) {
-        const lang = getLang(tr.languageCode);
-        if (lang) {
-          translations.push({ targetLangId: lang.id, text: tr.text });
-          // Save to DB for future use (upsert)
-          await vocabularyRepository.updateTranslation(entryId, lang.id, { text: tr.text });
-        }
+      const translations = jitRowsToStore(result.translations, entry.sourceLangId, getLang);
+      for (const row of translations) {
+        await vocabularyRepository.updateTranslation(entryId, row.targetLangId, { text: row.text });
       }
       return translations.length > 0 ? translations : null;
     },
@@ -460,6 +505,8 @@ Return translations as JSON array.`;
     // with the activation nudge so both paths classify failures identically.
     isUserBlocked,
     getSentWordsSince: (userId: number, since: Date) => notificationRepository.getSentWordsSince(userId, since),
+    getSentWordsFromSourceSince: (userId: number, source: string, since: Date) =>
+      notificationRepository.getSentWordsFromSourceSince(userId, source, since),
     recordSentWord: (userId: number, original: string, source: string) =>
       notificationRepository.recordSentWord(userId, original, source),
     pickDictionaryWord: (userId: number, recentWords) => notifService.pickDictionaryWord(userId, recentWords),

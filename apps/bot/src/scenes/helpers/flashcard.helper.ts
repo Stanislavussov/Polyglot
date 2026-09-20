@@ -8,10 +8,12 @@ import {
   isSupported,
   logEvent,
   type SrsRating,
+  type SrsReviewResult,
   type SupportedLang,
   scheduleCardRating,
   t,
   type VocabDifficulty,
+  type VocabularyEntryWithTranslations,
 } from "@polyglot/core";
 import type { InlineKeyboard } from "grammy";
 import { recordMatureIfCrossed } from "../../momentum/momentum.wiring.js";
@@ -21,11 +23,16 @@ import {
   buildFlashCardDoneKeyboard,
   buildFlashCardFrontKeyboard,
   renderFlashCardBack,
+  renderFlashCardBackFromCard,
   renderFlashCardDone,
   renderFlashCardFront,
 } from "../../renderers/flashcard.renderer.js";
 import type { BotContext } from "../../types.js";
+import { makeLangCodeResolver, resolveLanguageOrder } from "../../utils/language-order.js";
+import { toTranslateOutput } from "../../utils/vocabulary-mapper.js";
+import { buildCardKeyboard } from "./card-keyboard.js";
 import { editMessageTextOrReply } from "./edit-message.helper.js";
+import { setTranslationEntry } from "./translation-map.helper.js";
 
 type CardsSession = NonNullable<BotContext["session"]["cards"]>;
 
@@ -88,7 +95,6 @@ export async function buildCurrentFront(
     text: renderFlashCardFront(
       card,
       getLangCodeById(ctx, card.sourceLangId),
-      getLangCodeById(ctx, card.targetLangId),
       cards.currentIndex + 1,
       cards.deck.length,
       lang,
@@ -155,6 +161,37 @@ async function leaveCurrentCard(ctx: BotContext, cards: CardsSession, lang: Supp
   }
 }
 
+/**
+ * `findById` is not owner-scoped, so ownership is checked here — the same pair
+ * the dictionary uses (`getOwnedEntry`). A soft-deleted entry counts as gone.
+ */
+async function loadOwnedEntry(ctx: BotContext, entryId: number): Promise<VocabularyEntryWithTranslations | null> {
+  const entry = await ctx.services.vocabularyRepository.findById(entryId);
+  if (!entry || entry.userId !== ctx.user.id || !entry.isActive) return null;
+  return entry;
+}
+
+/**
+ * The revealed card as an ordinary card: the session entry a freshly translated
+ * word gets, so Explore, Save, the mentor and the rest work on a reviewed word
+ * too. `reviewCard` is what keeps the deck's own buttons on it through every
+ * later rebuild of the keyboard (`card-keyboard.ts`).
+ */
+function reviewCardEntry(
+  ctx: BotContext,
+  card: CardsDeckCard,
+  entry: VocabularyEntryWithTranslations,
+): NonNullable<BotContext["session"]["translationMap"]>[string] | null {
+  const output = toTranslateOutput(entry, makeLangCodeResolver(ctx));
+  if (!output) return null;
+  return {
+    output,
+    inputType: entry.inputType,
+    savedWordId: entry.id,
+    reviewCard: { entryId: card.entryId, translationId: card.translationId },
+  };
+}
+
 export async function handleFcReveal(ctx: BotContext): Promise<void> {
   const cards = ctx.session.cards;
   const card = cards?.deck[cards.currentIndex];
@@ -164,20 +201,86 @@ export async function handleFcReveal(ctx: BotContext): Promise<void> {
   }
 
   const lang = await getUserLang(ctx);
-  const text = renderFlashCardBack(
-    card,
-    getLangCodeById(ctx, card.sourceLangId),
-    getLangCodeById(ctx, card.targetLangId),
-    cards.currentIndex + 1,
-    cards.deck.length,
-    lang,
-  );
+  const [entry, order] = await Promise.all([loadOwnedEntry(ctx, card.entryId), resolveLanguageOrder(ctx)]);
+  const text = entry
+    ? renderFlashCardBack(entry, makeLangCodeResolver(ctx), cards.currentIndex + 1, cards.deck.length, lang, order)
+    : renderFlashCardBackFromCard(
+        card,
+        getLangCodeById(ctx, card.sourceLangId),
+        getLangCodeById(ctx, card.targetLangId),
+        cards.currentIndex + 1,
+        cards.deck.length,
+        lang,
+      );
+
+  const cardEntry = entry ? reviewCardEntry(ctx, card, entry) : null;
+  const nativeLang = order.nativeLang ?? cardEntry?.output.sourceLang ?? getLangCodeById(ctx, card.sourceLangId);
+  // The `tr:*` buttons address their card by message id, so the card's state is
+  // filed under the message the reveal actually lands on.
+  const msgId = ctx.callbackQuery?.message?.message_id;
+  /** File the card under a message id, and build the keyboard that addresses it. */
+  const attachCardTo = async (id: number): Promise<InlineKeyboard> => {
+    if (!cardEntry) return buildFlashCardBackKeyboard(lang, card);
+    setTranslationEntry(ctx.session, id, cardEntry);
+    return buildCardKeyboard(ctx, cardEntry, id, lang, nativeLang);
+  };
+
   cards.revealed = true;
-  await editMessageTextOrReply(ctx, text, { parse_mode: "HTML", reply_markup: buildFlashCardBackKeyboard(lang, card) });
+  const resent = await editMessageTextOrReply(ctx, text, {
+    parse_mode: "HTML",
+    reply_markup: msgId === undefined ? buildFlashCardBackKeyboard(lang, card) : await attachCardTo(msgId),
+  });
+  if (cardEntry && resent) {
+    // Past Telegram's 48-hour edit limit the reveal could not edit in place and a
+    // fresh message now owns the card; its actions have to address that one.
+    try {
+      await ctx.api.editMessageReplyMarkup(ctx.chat!.id, resent.message_id, {
+        reply_markup: await attachCardTo(resent.message_id),
+      });
+    } catch (err) {
+      // The ratings are already on screen; only the action menu was lost, and a
+      // failed reveal would cost the reader the card itself.
+      logEvent("cards.card_actions_failed", { entryId: card.entryId, ...errorFields(err) }, "warn");
+    }
+  }
   await ctx.answerCallbackQuery();
 }
 
 export const FLASHCARD_RATE_PATTERN = /^fc:rate:(again|hard|good|easy):(\d+)$/;
+
+/**
+ * A rating grades the word, not the row the deck happened to draw.
+ *
+ * The deck takes at most one card per entry and the back shows every language, so
+ * one rating covers all of them. Each row is scheduled from its *own* SM-2 state —
+ * copying the rated row's numbers across would reset schedules the reader earned
+ * in another language — and a row still ahead of its due date is treated as
+ * practice ahead, exactly as the deck itself classifies it.
+ *
+ * Returns the state written per translation id; rows SM-2 declined to touch are absent.
+ */
+async function rescheduleEntry(
+  ctx: BotContext,
+  card: CardsDeckCard,
+  rating: SrsRating,
+): Promise<Map<number, SrsReviewResult>> {
+  const now = new Date();
+  const rows = await ctx.services.vocabularyRepository.findEntrySrsRows(ctx.user.id, card.entryId);
+  const written = new Map<number, SrsReviewResult>();
+  for (const row of rows) {
+    const next = scheduleCardRating(
+      // `dueDate` is unused by SM-2; `ahead` above carries everything it says.
+      { easeFactor: row.srsEaseFactor, interval: row.srsInterval, reviewCount: row.srsReviewCount, dueDate: null },
+      rating,
+      { ahead: row.srsDueDate !== null && row.srsDueDate.getTime() > now.getTime(), retry: card.retry },
+      now,
+    );
+    if (!next) continue;
+    await ctx.services.vocabularyRepository.updateSrsState(row.translationId, next);
+    written.set(row.translationId, next);
+  }
+  return written;
+}
 
 /**
  * Everything a first presentation owes: the notification grade, the schedule, the
@@ -199,19 +302,14 @@ async function persistFirstRating(
     );
     if (!saved) return false;
 
-    // `srsDueDate` has been through jsonb and is a string by now; SM-2 never reads it.
-    const next = scheduleCardRating(
-      { easeFactor: card.srsEaseFactor, interval: card.srsInterval, reviewCount: card.srsReviewCount, dueDate: null },
-      rating,
-      card,
-    );
-    if (next) {
-      await ctx.services.vocabularyRepository.updateSrsState(card.translationId, next);
+    const next = await rescheduleEntry(ctx, card, rating);
+    const own = next.get(card.translationId);
+    if (own) {
       const crossed = await recordMatureIfCrossed(ctx.services.momentumService, {
         userId: ctx.user.id,
         entryId: card.entryId,
         translationId: card.translationId,
-        interval: next.interval,
+        interval: own.interval,
       });
       if (crossed) cards.maturedTranslationId = card.translationId;
     }
@@ -226,8 +324,8 @@ async function persistFirstRating(
       entryId: card.entryId,
       translationId: card.translationId,
       previousInterval: card.srsInterval,
-      scheduled: next !== null,
-      ...(next ? { nextInterval: next.interval, easeFactor: next.easeFactor, reviewCount: next.reviewCount } : {}),
+      scheduled: next.size,
+      ...(own ? { nextInterval: own.interval, easeFactor: own.easeFactor, reviewCount: own.reviewCount } : {}),
       position: cards.currentIndex + 1,
       deckSize: cards.deck.length,
     });

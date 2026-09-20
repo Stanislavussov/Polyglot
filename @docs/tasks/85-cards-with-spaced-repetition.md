@@ -26,6 +26,11 @@ are reused as they are.
 
 ## Behavior spec
 
+> **Superseded in part.** A later change made the revealed card show every stored language —
+> it renders `renderDictionaryEntry` itself — dropped the recall-direction line, and made one
+> rating reschedule every translation row of the word. Point 1 below describes what shipped
+> with this task, not what the deck does now. The rest still holds.
+
 ### Deck (built once per session, pure core function)
 
 1. **Unit** — one card = one translation row (a word × one target language), so the card

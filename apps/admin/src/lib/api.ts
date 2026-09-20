@@ -689,6 +689,38 @@ export const notificationDeliveries = {
   },
 };
 
+export interface ReleaseNoteItem {
+  id: string;
+  /** Language code → the text a reader of that language gets. `en` is always present. */
+  texts: Record<string, string>;
+}
+
+export type ReleaseNoteJobStatus = "pending" | "sending" | "sent" | "failed";
+
+export interface ReleaseNoteJob {
+  id: number;
+  status: ReleaseNoteJobStatus;
+  notes: ReleaseNoteItem[];
+  audienceGroups: string[];
+  result: Record<string, string | number> | null;
+  createdBy: string | null;
+  createdAt: string;
+  finishedAt: string | null;
+}
+
+export interface ReleaseNotesResponse {
+  notes: ReleaseNoteItem[];
+  /** Languages the queue is required to carry, English first. */
+  languages: string[];
+  jobs: ReleaseNoteJob[];
+}
+
+export const releaseNotes = {
+  list: () => get<ReleaseNotesResponse>("/api/release-notes"),
+  /** Queues the send; the bot picks it up within seconds and reports back on the job. */
+  send: (notes: ReleaseNoteItem[]) => post<{ jobId: number }>("/api/release-notes/send", { notes }),
+};
+
 export type IssueType = "bug" | "suggestion" | "other";
 export type IssueStatus = "open" | "in_progress" | "resolved" | "rejected";
 

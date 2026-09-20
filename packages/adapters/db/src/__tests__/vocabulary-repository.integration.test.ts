@@ -209,4 +209,44 @@ describe("vocabularyRepository (integration)", () => {
     expect(await vocabularyRepository.delete(created.id, ownerId)).toBe(false);
     expect(await vocabularyRepository.setDifficulty(created.id, ownerId, "hard")).toBe(false);
   });
+
+  it("hands a rating every live SRS row of an owned entry, and none of a stranger's or a removed word's", async () => {
+    const ownerId = await freshUserId();
+    const strangerId = await freshUserId();
+    const es = await langId("es");
+    const en = await langId("en");
+    const ru = await langId("ru");
+
+    const created = await vocabularyRepository.create(ownerId, {
+      original: "luna",
+      sourceLangId: es,
+      inputType: "word",
+      translations: [
+        { targetLangId: en, text: "moon", details: { synonyms: [], examples: [] } },
+        { targetLangId: ru, text: "луна", details: { synonyms: [], examples: [] } },
+      ],
+    });
+    const rated = created.translations[0]!;
+    await vocabularyRepository.updateSrsState(rated.id, {
+      easeFactor: 2.1,
+      interval: 4,
+      dueDate: new Date("2026-05-05T00:00:00.000Z"),
+      reviewCount: 3,
+    });
+
+    const rows = await vocabularyRepository.findEntrySrsRows(ownerId, created.id);
+    expect(rows.map((row) => row.translationId).sort()).toEqual(
+      created.translations.map((translation) => translation.id).sort(),
+    );
+    expect(rows.find((row) => row.translationId === rated.id)).toMatchObject({
+      srsEaseFactor: 2.1,
+      srsInterval: 4,
+      srsReviewCount: 3,
+    });
+
+    // A forged rating from another chat, and one left on a word since removed.
+    expect(await vocabularyRepository.findEntrySrsRows(strangerId, created.id)).toEqual([]);
+    await vocabularyRepository.delete(created.id, ownerId);
+    expect(await vocabularyRepository.findEntrySrsRows(ownerId, created.id)).toEqual([]);
+  });
 });

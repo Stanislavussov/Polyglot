@@ -82,6 +82,13 @@ export interface SessionData {
        */
       recallGrade?: { entryId: number; selected?: VocabDifficulty | null };
       /**
+       * Set on a revealed review card: which card of the deck this message is
+       * showing. `tr:more` and friends rebuild the whole keyboard, so without it
+       * on the card the four ratings would vanish from under the reader's thumb
+       * the moment they opened the action list.
+       */
+      reviewCard?: { entryId: number; translationId: number };
+      /**
        * Monotonic insertion stamp used for recency-based eviction. Set by
        * {@link setTranslationEntry}; Telegram message ids are not a safe proxy
        * for recency (a chat or a different bot sharing this session key can

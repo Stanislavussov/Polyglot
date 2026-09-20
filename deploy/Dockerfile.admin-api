@@ -52,6 +52,10 @@ COPY packages/adapters/youtube/package.json packages/adapters/youtube/
 
 RUN pnpm install --frozen-lockfile --prod
 
+# The release-notes page reads the pending queue from the image, the same files
+# the bot ships — so what the panel offers to send is what this commit carried.
+COPY ["@docs/releases", "@docs/releases"]
+
 COPY --from=build /app/apps/admin-api/dist apps/admin-api/dist
 # admin-api routes import @polyglot/admin-contracts (workspace dep); ship its built dist for runtime resolution
 COPY --from=build /app/packages/admin-contracts/dist packages/admin-contracts/dist

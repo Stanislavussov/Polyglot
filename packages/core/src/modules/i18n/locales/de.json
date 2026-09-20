@@ -466,5 +466,6 @@
   "trialEndingFinal": "⏳ Deine Pro-Tage enden am {date}.\n\nDanach bleiben Übersetzungen kostenlos; Präzisieren, Wortaussprache, Sprachnachrichten, Mentor und Video schalten sich ab.",
   "trialExtended": "🎁 Du hast diese Woche genug Wörter gespeichert — Pro bleibt dir {extraDays} Tage länger erhalten.\n\nMach weiter, noch schaltet sich nichts ab.",
   "trialEnded": "Deine Pro-Woche ist vorbei. Diese Woche gespeichert: {saved} — sie bleiben dir erhalten, Wiederholungen laufen weiter.\n\nWeiterhin kostenlos: Übersetzungen. Abgeschaltet: weitere Bedeutungen, Präzisieren, Wortaussprache, Sprachnachrichten, Mentor, Video.",
-  "trialEndedEmpty": "Deine Pro-Woche ist vorbei.\n\nWeiterhin kostenlos: Übersetzungen. Abgeschaltet: weitere Bedeutungen, Präzisieren, Wortaussprache, Sprachnachrichten, Mentor, Video."
+  "trialEndedEmpty": "Deine Pro-Woche ist vorbei.\n\nWeiterhin kostenlos: Übersetzungen. Abgeschaltet: weitere Bedeutungen, Präzisieren, Wortaussprache, Sprachnachrichten, Mentor, Video.",
+  "releaseNotesHeader": "Was ist neu"
 }

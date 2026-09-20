@@ -19,6 +19,7 @@ import { notificationRoutes } from "./routes/notifications.js";
 import { onboardingDemoCardRoutes } from "./routes/onboarding-demo-cards.js";
 import { presetRoutes } from "./routes/presets.js";
 import { rateLimitRoutes } from "./routes/rate-limits.js";
+import { releaseNoteRoutes } from "./routes/release-notes.js";
 import { reportedIssueRoutes } from "./routes/reported-issues.js";
 import { srsRoutes } from "./routes/srs.js";
 import { statsRoutes } from "./routes/stats.js";
@@ -94,6 +95,7 @@ export async function buildAdminApiApp() {
   await app.register(userRoutes, { prefix: "/api" });
   await app.register(reportedIssueRoutes, { prefix: "/api" });
   await app.register(notificationDeliveryRoutes, { prefix: "/api" });
+  await app.register(releaseNoteRoutes, { prefix: "/api" });
   await app.register(onboardingDemoCardRoutes, { prefix: "/api" });
   await app.register(statsRoutes, { prefix: "/api" });
 
