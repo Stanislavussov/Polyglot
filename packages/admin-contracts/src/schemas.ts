@@ -296,6 +296,29 @@ export const videoVocabularySettingsSchema = z
     path: ["maxPhrases"],
   });
 
+/**
+ * One release note as the sender approved it: the id ties the send back to the
+ * repository queue (and to what a reader already received), while `texts` carries
+ * the wording actually sent — the panel may edit it before pressing send, and an
+ * edit never travels back into the repository.
+ *
+ * The audience is deliberately not a field: release notes go to `admin` and
+ * `tester`, and widening that is a decision for the product, not for one form.
+ */
+export const releaseNoteSendSchema = z.object({
+  notes: z
+    .array(
+      z.object({
+        id: z.string().min(1, "Note id is required").max(64),
+        texts: z.record(
+          z.string().min(2).max(8),
+          z.string().min(1, "A note cannot be empty").max(3500, "A note must fit one Telegram message"),
+        ),
+      }),
+    )
+    .min(1, "Pick at least one note to send"),
+});
+
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
 /** Flatten a ZodError into a single user-facing string for form error display. */

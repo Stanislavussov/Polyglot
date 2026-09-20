@@ -30,9 +30,11 @@ export interface HookWord {
 }
 
 /**
- * Sixty curated headwords per supported learning language, keyed by ISO 639-1
- * code. Covers all 11 supported languages (en, ru, cs, de, fr, es, it, pt, uk,
- * pl, kk) — the same set the interface locales cover.
+ * Seventy-plus curated headwords per supported learning language, keyed by
+ * ISO 639-1 code. Covers all 11 supported languages (en, ru, cs, de, fr, es,
+ * it, pt, uk, pl, kk) — the same set the interface locales cover. The exact
+ * count differs per language because two curation passes were merged and their
+ * overlap was not uniform; nothing reads the length, only the guarantees below.
  *
  * The first three of each list are the original onboarding demo picks and MUST
  * keep their positions: `onb:hook:<lang>:<index>` callbacks and cached demo
@@ -42,12 +44,17 @@ export interface HookWord {
  * Length is driven by the re-engagement notification, not by onboarding (which
  * only ever shows the first few): the preset layer in
  * @polyglot/adapter-notifications draws from this list for every user with an
- * empty dictionary, and those users get a word a day. Sixty per language is
- * two months of daily sends before the rotation has to come back around, and
- * the second batch deliberately spreads across themes — food, work, weather,
- * city life, feelings — and into current slang, because the lapsed users this
- * layer exists for are the same ones who have already seen the earnest
- * untranslatable-noun batch.
+ * empty dictionary, and those users get a word a day. Seventy per language is
+ * well over two months of daily sends before the rotation has to come back
+ * around, and the later entries deliberately spread across themes — food, work,
+ * weather, city life, feelings — and into current slang, because the lapsed
+ * users this layer exists for are the same ones who have already seen the
+ * earnest untranslatable-noun opening.
+ *
+ * Position past the first few carries no meaning: the preset picker serves a
+ * per-user permutation of the whole list, so a word added at the end reaches a
+ * user exactly as soon as one added in the middle. Appending is therefore both
+ * safe and preferred.
  */
 export const HOOK_WORDS: Readonly<Record<string, readonly HookWord[]>> = {
   // English — an abstract noun most languages paraphrase, the canonical
@@ -84,9 +91,6 @@ export const HOOK_WORDS: Readonly<Record<string, readonly HookWord[]>> = {
     { headword: "put off", category: "quirk" },
     { headword: "take after", category: "quirk" },
     { headword: "used to", category: "quirk" },
-    // Batch 2 — everyday life and the screen-age register a dictionary is
-    // always a decade behind on: food, work, weather, city life, and the slang
-    // an English learner meets on the first day of any group chat.
     { headword: "hangry", category: "slang" },
     { headword: "brunch", category: "untranslatable" },
     { headword: "leftovers", category: "untranslatable" },
@@ -117,6 +121,23 @@ export const HOOK_WORDS: Readonly<Record<string, readonly HookWord[]>> = {
     { headword: "make do", category: "quirk" },
     { headword: "get away with", category: "quirk" },
     { headword: "would rather", category: "quirk" },
+    { headword: "no cap", category: "slang" },
+    { headword: "let the cat out of the bag", category: "idiom" },
+    { headword: "lowkey", category: "slang" },
+    { headword: "bite off more than you can chew", category: "idiom" },
+    { headword: "barking up the wrong tree", category: "idiom" },
+    { headword: "ghost", category: "slang" },
+    { headword: "the elephant in the room", category: "idiom" },
+    { headword: "salty", category: "slang" },
+    { headword: "when pigs fly", category: "idiom" },
+    { headword: "vibe check", category: "slang" },
+    { headword: "it's raining cats and dogs", category: "idiom" },
+    { headword: "a hot potato", category: "idiom" },
+    { headword: "rizz", category: "slang" },
+    { headword: "touch grass", category: "slang" },
+    { headword: "go down a rabbit hole", category: "idiom" },
+    { headword: "live rent-free in someone's head", category: "slang" },
+    { headword: "it's no use crying over spilled milk", category: "idiom" },
   ],
 
   // Russian — the textbook untranslatable noun, a vivid idiom whose literal
@@ -153,9 +174,6 @@ export const HOOK_WORDS: Readonly<Record<string, readonly HookWord[]>> = {
     { headword: "мол", category: "quirk" },
     { headword: "разве", category: "quirk" },
     { headword: "вроде", category: "quirk" },
-    // Batch 2 — the everyday layer: kitchen and dacha nouns no dictionary
-    // explains, the colloquial words a learner hears in the first week of any
-    // chat, and idioms about time, sleep and nonsense.
     { headword: "дача", category: "untranslatable" },
     { headword: "сгущёнка", category: "untranslatable" },
     { headword: "окрошка", category: "untranslatable" },
@@ -186,6 +204,24 @@ export const HOOK_WORDS: Readonly<Record<string, readonly HookWord[]>> = {
     { headword: "подложить свинью", category: "idiom" },
     { headword: "кстати", category: "quirk" },
     { headword: "неужели", category: "quirk" },
+    { headword: "вешать лапшу на уши", category: "idiom" },
+    { headword: "залипать", category: "slang" },
+    { headword: "когда рак на горе свистнет", category: "idiom" },
+    { headword: "краш", category: "slang" },
+    { headword: "медвежья услуга", category: "idiom" },
+    { headword: "рофлить", category: "slang" },
+    { headword: "имба", category: "slang" },
+    { headword: "сесть в калошу", category: "idiom" },
+    { headword: "душнила", category: "slang" },
+    { headword: "как с гуся вода", category: "idiom" },
+    { headword: "чилить", category: "slang" },
+    { headword: "выеденного яйца не стоит", category: "idiom" },
+    { headword: "хайп", category: "slang" },
+    { headword: "собаку съесть", category: "idiom" },
+    { headword: "изи", category: "slang" },
+    { headword: "пускать пыль в глаза", category: "idiom" },
+    { headword: "агриться", category: "slang" },
+    { headword: "без царя в голове", category: "idiom" },
   ],
 
   // Czech — the spec's own examples: a verb for a whole social protocol
@@ -223,9 +259,6 @@ export const HOOK_WORDS: Readonly<Record<string, readonly HookWord[]>> = {
     { headword: "aspoň", category: "quirk" },
     { headword: "spíš", category: "quirk" },
     { headword: "copak", category: "quirk" },
-    // Batch 2 — pub, office and cottage vocabulary plus the colloquial Czech
-    // (obecná čeština) that textbooks leave out and every real conversation
-    // runs on.
     { headword: "chalupa", category: "untranslatable" },
     { headword: "svačina", category: "untranslatable" },
     { headword: "knedlík", category: "untranslatable" },
@@ -256,6 +289,20 @@ export const HOOK_WORDS: Readonly<Record<string, readonly HookWord[]>> = {
     { headword: "mít hlad jako vlk", category: "idiom" },
     { headword: "teda", category: "quirk" },
     { headword: "přece", category: "quirk" },
+    { headword: "nosit dříví do lesa", category: "idiom" },
+    { headword: "je to nad slunce jasnější", category: "idiom" },
+    { headword: "koupit zajíce v pytli", category: "idiom" },
+    { headword: "trapas", category: "slang" },
+    { headword: "tahat za kratší konec", category: "idiom" },
+    { headword: "pařit", category: "slang" },
+    { headword: "vzít nohy na ramena", category: "idiom" },
+    { headword: "šprt", category: "slang" },
+    { headword: "chytat lelky", category: "idiom" },
+    { headword: "kecat", category: "slang" },
+    { headword: "je to pro mě španělská vesnice", category: "idiom" },
+    { headword: "frajer", category: "slang" },
+    { headword: "mega", category: "slang" },
+    { headword: "mít knedlík v krku", category: "idiom" },
   ],
 
   // German — the spec's three: a compound noun for "a face badly in need of a
@@ -292,9 +339,6 @@ export const HOOK_WORDS: Readonly<Record<string, readonly HookWord[]>> = {
     { headword: "wohl", category: "quirk" },
     { headword: "denn", category: "quirk" },
     { headword: "ja", category: "quirk" },
-    // Batch 2 — the compound nouns for situations rather than things, the
-    // Kaffee-und-Kuchen layer of daily life, and the Umgangssprache a learner
-    // meets in a Berlin group chat on day one.
     { headword: "Fremdschämen", category: "untranslatable" },
     { headword: "Brotzeit", category: "untranslatable" },
     { headword: "Kaffeeklatsch", category: "untranslatable" },
@@ -325,6 +369,23 @@ export const HOOK_WORDS: Readonly<Record<string, readonly HookWord[]>> = {
     { headword: "Es gießt wie aus Kübeln", category: "idiom" },
     { headword: "etwa", category: "quirk" },
     { headword: "doch mal", category: "quirk" },
+    { headword: "krass", category: "slang" },
+    { headword: "Digga", category: "slang" },
+    { headword: "die Katze im Sack kaufen", category: "idiom" },
+    { headword: "chillen", category: "slang" },
+    { headword: "jemandem einen Bären aufbinden", category: "idiom" },
+    { headword: "da steppt der Bär", category: "idiom" },
+    { headword: "lost", category: "slang" },
+    { headword: "sich zum Affen machen", category: "idiom" },
+    { headword: "ich glaub, mein Schwein pfeift", category: "idiom" },
+    { headword: "cringe", category: "slang" },
+    { headword: "auf dem Holzweg sein", category: "idiom" },
+    { headword: "Ehrenmann", category: "slang" },
+    { headword: "das ist nicht mein Bier", category: "idiom" },
+    { headword: "gönn dir", category: "slang" },
+    { headword: "Hals- und Beinbruch", category: "idiom" },
+    { headword: "Kohle", category: "slang" },
+    { headword: "die Kirche im Dorf lassen", category: "idiom" },
   ],
 
   // French — the feeling of being out of your own element, the spec's
@@ -361,9 +422,6 @@ export const HOOK_WORDS: Readonly<Record<string, readonly HookWord[]>> = {
     { headword: "on", category: "quirk" },
     { headword: "y", category: "quirk" },
     { headword: "en", category: "quirk" },
-    // Batch 2 — the apéro-and-terrasse layer of daily life, plus the familiar
-    // register (including verlan) that runs every real conversation and no
-    // textbook prints.
     { headword: "apéro", category: "untranslatable" },
     { headword: "goûter", category: "untranslatable" },
     { headword: "gourmandise", category: "untranslatable" },
@@ -394,6 +452,19 @@ export const HOOK_WORDS: Readonly<Record<string, readonly HookWord[]>> = {
     { headword: "avoir un poil dans la main", category: "idiom" },
     { headword: "bref", category: "quirk" },
     { headword: "carrément", category: "quirk" },
+    { headword: "stylé", category: "slang" },
+    { headword: "coûter les yeux de la tête", category: "idiom" },
+    { headword: "ouf", category: "slang" },
+    { headword: "quand les poules auront des dents", category: "idiom" },
+    { headword: "raconter des salades", category: "idiom" },
+    { headword: "avoir le seum", category: "slang" },
+    { headword: "c'est la fin des haricots", category: "idiom" },
+    { headword: "appeler un chat un chat", category: "idiom" },
+    { headword: "bouffer", category: "slang" },
+    { headword: "fringues", category: "slang" },
+    { headword: "tomber des nues", category: "idiom" },
+    { headword: "frangin", category: "slang" },
+    { headword: "se prendre un râteau", category: "idiom" },
   ],
 
   // Spanish — the spec's `sobremesa` (the conversation that outlives the meal),
@@ -430,9 +501,6 @@ export const HOOK_WORDS: Readonly<Record<string, readonly HookWord[]>> = {
     { headword: "venga", category: "quirk" },
     { headword: "hombre", category: "quirk" },
     { headword: "que", category: "quirk" },
-    // Batch 2 — the tapas-and-siesta layer of daily life, verbs Spanish packs
-    // into one word, and the colloquial register (Spain and Latin America) a
-    // learner meets before any grammar book catches up.
     { headword: "tapear", category: "untranslatable" },
     { headword: "madrugón", category: "untranslatable" },
     { headword: "siesta", category: "untranslatable" },
@@ -463,6 +531,20 @@ export const HOOK_WORDS: Readonly<Record<string, readonly HookWord[]>> = {
     { headword: "hablar por los codos", category: "idiom" },
     { headword: "o sea", category: "quirk" },
     { headword: "a ver", category: "quirk" },
+    { headword: "dar gato por liebre", category: "idiom" },
+    { headword: "mola", category: "slang" },
+    { headword: "dar calabazas", category: "idiom" },
+    { headword: "tío", category: "slang" },
+    { headword: "no hay tu tía", category: "idiom" },
+    { headword: "chaval", category: "slang" },
+    { headword: "estar como pez en el agua", category: "idiom" },
+    { headword: "pasta", category: "slang" },
+    { headword: "buscarle tres pies al gato", category: "idiom" },
+    { headword: "chévere", category: "slang" },
+    { headword: "a otro perro con ese hueso", category: "idiom" },
+    { headword: "¿qué onda?", category: "slang" },
+    { headword: "postureo", category: "slang" },
+    { headword: "estar en el ajo", category: "idiom" },
   ],
 
   // Italian — the post-lunch drowsiness that has no one-word equivalent, the
@@ -499,9 +581,6 @@ export const HOOK_WORDS: Readonly<Record<string, readonly HookWord[]>> = {
     { headword: "dai", category: "quirk" },
     { headword: "beh", category: "quirk" },
     { headword: "proprio", category: "quirk" },
-    // Batch 2 — the bar-and-passeggiata layer of daily life, the nouns Italian
-    // has for social rituals, and the parlato a learner meets in the first
-    // real conversation.
     { headword: "passeggiata", category: "untranslatable" },
     { headword: "aperitivo", category: "untranslatable" },
     { headword: "dolce far niente", category: "untranslatable" },
@@ -532,6 +611,21 @@ export const HOOK_WORDS: Readonly<Record<string, readonly HookWord[]>> = {
     { headword: "saltare di palo in frasca", category: "idiom" },
     { headword: "insomma", category: "quirk" },
     { headword: "comunque", category: "quirk" },
+    { headword: "costare un occhio della testa", category: "idiom" },
+    { headword: "che ansia", category: "slang" },
+    { headword: "essere come il prezzemolo", category: "idiom" },
+    { headword: "gasato", category: "slang" },
+    { headword: "fare un buco nell'acqua", category: "idiom" },
+    { headword: "spaccare", category: "slang" },
+    { headword: "piove a catinelle", category: "idiom" },
+    { headword: "stare in fissa", category: "slang" },
+    { headword: "sputare il rospo", category: "idiom" },
+    { headword: "essere una buona forchetta", category: "idiom" },
+    { headword: "non avere peli sulla lingua", category: "idiom" },
+    { headword: "svoltare", category: "slang" },
+    { headword: "cercare il pelo nell'uovo", category: "idiom" },
+    { headword: "bella", category: "slang" },
+    { headword: "acqua passata", category: "idiom" },
   ],
 
   // Portuguese — the canonical untranslatable noun, an idiom that literally
@@ -568,9 +662,6 @@ export const HOOK_WORDS: Readonly<Record<string, readonly HookWord[]>> = {
     { headword: "mesmo", category: "quirk" },
     { headword: "ficar", category: "quirk" },
     { headword: "tomara", category: "quirk" },
-    // Batch 2 — the churrasco-and-praia layer of daily life, the Brazilian
-    // diminutives that name a whole situation, and the gíria a learner meets in
-    // any group chat.
     { headword: "churrasco", category: "untranslatable" },
     { headword: "caipirinha", category: "untranslatable" },
     { headword: "feijoada", category: "untranslatable" },
@@ -601,6 +692,21 @@ export const HOOK_WORDS: Readonly<Record<string, readonly HookWord[]>> = {
     { headword: "falar pelos cotovelos", category: "idiom" },
     { headword: "tipo assim", category: "quirk" },
     { headword: "aí", category: "quirk" },
+    { headword: "mano", category: "slang" },
+    { headword: "cara", category: "slang" },
+    { headword: "ficar a ver navios", category: "idiom" },
+    { headword: "quem não tem cão caça com gato", category: "idiom" },
+    { headword: "da hora", category: "slang" },
+    { headword: "enfiar o pé na jaca", category: "idiom" },
+    { headword: "custar os olhos da cara", category: "idiom" },
+    { headword: "chorar pitangas", category: "idiom" },
+    { headword: "segurar vela", category: "idiom" },
+    { headword: "top", category: "slang" },
+    { headword: "estar com a faca e o queijo na mão", category: "idiom" },
+    { headword: "fixe", category: "slang" },
+    { headword: "arregaçar as mangas", category: "idiom" },
+    { headword: "bué", category: "slang" },
+    { headword: "ter macaquinhos no sótão", category: "idiom" },
   ],
 
   // Ukrainian — the warm land birds fly to for the winter (one noun, no
@@ -638,9 +744,6 @@ export const HOOK_WORDS: Readonly<Record<string, readonly HookWord[]>> = {
     { headword: "мабуть", category: "quirk" },
     { headword: "нехай", category: "quirk" },
     { headword: "ото", category: "quirk" },
-    // Batch 2 — the kitchen-and-village layer with no one-word equivalent, the
-    // colloquial Ukrainian of any group chat, and idioms about weather, sleep
-    // and time.
     { headword: "вечорниці", category: "untranslatable" },
     { headword: "вареники", category: "untranslatable" },
     { headword: "паляниця", category: "untranslatable" },
@@ -671,6 +774,26 @@ export const HOOK_WORDS: Readonly<Record<string, readonly HookWord[]>> = {
     { headword: "вилами по воді писано", category: "idiom" },
     { headword: "власне", category: "quirk" },
     { headword: "отож", category: "quirk" },
+    { headword: "топчик", category: "slang" },
+    { headword: "замилювати очі", category: "idiom" },
+    { headword: "лайкати", category: "slang" },
+    { headword: "коли рак на горі свисне", category: "idiom" },
+    { headword: "чілити", category: "slang" },
+    { headword: "ні пава ні ґава", category: "idiom" },
+    { headword: "хейтити", category: "slang" },
+    { headword: "накивати п'ятами", category: "idiom" },
+    { headword: "зависати", category: "slang" },
+    { headword: "собаку з'їсти", category: "idiom" },
+    { headword: "бро", category: "slang" },
+    { headword: "з голочки", category: "idiom" },
+    { headword: "го", category: "slang" },
+    { headword: "товкти воду в ступі", category: "idiom" },
+    { headword: "кринж", category: "slang" },
+    { headword: "як горох об стіну", category: "idiom" },
+    { headword: "краш", category: "slang" },
+    { headword: "ловити гав", category: "idiom" },
+    { headword: "вайб", category: "slang" },
+    { headword: "не мати клепки в голові", category: "idiom" },
   ],
 
   // Polish — the verb for improvising a way around a problem, an idiom that
@@ -707,9 +830,6 @@ export const HOOK_WORDS: Readonly<Record<string, readonly HookWord[]>> = {
     { headword: "trochę", category: "quirk" },
     { headword: "też", category: "quirk" },
     { headword: "no dobra", category: "quirk" },
-    // Batch 2 — the pierogi-and-działka layer of daily life, the nouns Polish
-    // has for a whole social situation, and the potoczny register a learner
-    // meets in the first real conversation.
     { headword: "pierogi", category: "untranslatable" },
     { headword: "działka", category: "untranslatable" },
     { headword: "majówka", category: "untranslatable" },
@@ -740,6 +860,19 @@ export const HOOK_WORDS: Readonly<Record<string, readonly HookWord[]>> = {
     { headword: "mieć zielono w głowie", category: "idiom" },
     { headword: "przecież tak", category: "quirk" },
     { headword: "jakoś", category: "quirk" },
+    { headword: "to nie moja bajka", category: "idiom" },
+    { headword: "nie mój cyrk, nie moje małpy", category: "idiom" },
+    { headword: "masakra", category: "slang" },
+    { headword: "wpuścić kogoś w maliny", category: "idiom" },
+    { headword: "czaić", category: "slang" },
+    { headword: "siema", category: "slang" },
+    { headword: "kupić kota w worku", category: "idiom" },
+    { headword: "wyjść jak Zabłocki na mydle", category: "idiom" },
+    { headword: "luz", category: "slang" },
+    { headword: "mieć nosa", category: "idiom" },
+    { headword: "z motyką na słońce", category: "idiom" },
+    { headword: "essa", category: "slang" },
+    { headword: "wziąć nogi za pas", category: "idiom" },
   ],
 
   // Kazakh — the spread table that stands for hospitality itself, an idiom of
@@ -777,9 +910,6 @@ export const HOOK_WORDS: Readonly<Record<string, readonly HookWord[]>> = {
     { headword: "әрине", category: "quirk" },
     { headword: "жарайды", category: "quirk" },
     { headword: "әйтеуір", category: "quirk" },
-    // Batch 2 — the dastarkhan-and-steppe layer: food and kinship nouns with no
-    // one-word equivalent, plus the colloquial Kazakh of everyday speech and
-    // idioms built on body parts.
     { headword: "бауырсақ", category: "untranslatable" },
     { headword: "қымыз", category: "untranslatable" },
     { headword: "наурыз көже", category: "untranslatable" },
@@ -810,6 +940,19 @@ export const HOOK_WORDS: Readonly<Record<string, readonly HookWord[]>> = {
     { headword: "көз майын тауысу", category: "idiom" },
     { headword: "шіркін", category: "quirk" },
     { headword: "бәсе", category: "quirk" },
+    { headword: "ойбай", category: "quirk" },
+    { headword: "ит пен мысықтай", category: "idiom" },
+    { headword: "бәрекелді", category: "quirk" },
+    { headword: "қас пен көздің арасында", category: "idiom" },
+    { headword: "аузын ашса, жүрегі көрінеді", category: "idiom" },
+    { headword: "сұмдық", category: "slang" },
+    { headword: "жаны мұрнының ұшында", category: "idiom" },
+    { headword: "қолы қолына жұқпайды", category: "idiom" },
+    { headword: "аяғы жерге тимеді", category: "idiom" },
+    { headword: "тілі ащы", category: "idiom" },
+    { headword: "қоян жүрек", category: "idiom" },
+    { headword: "тас бауыр", category: "idiom" },
+    { headword: "жер-көкке сыйғызбады", category: "idiom" },
   ],
 };
 

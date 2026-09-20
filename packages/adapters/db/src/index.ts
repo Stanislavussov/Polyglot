@@ -95,6 +95,12 @@ export type {
 export { productEventRepository } from "./repositories/product-event.repository.js";
 export type { RateLimitPlan } from "./repositories/rate-limit-plan.repository.js";
 export { rateLimitPlanRepository } from "./repositories/rate-limit-plan.repository.js";
+export type {
+  EnqueueReleaseAnnouncementInput,
+  ReleaseAnnouncementJob,
+  ReleaseAnnouncementJobNote,
+} from "./repositories/release-announcement-job.repository.js";
+export { releaseAnnouncementJobRepository } from "./repositories/release-announcement-job.repository.js";
 export { reportedIssueRepository } from "./repositories/reported-issue.repository.js";
 export type {
   RecordRequestTimingInput,

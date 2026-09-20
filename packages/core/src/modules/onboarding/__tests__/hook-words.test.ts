@@ -5,10 +5,18 @@
  * re-engagement notification's preset layer, so what matters is not the literal
  * words but the guarantees both rely on: every supported learning language can
  * fill the onboarding keyboard and then keep a daily notification unique for two
- * months, the pool spreads across all four categories, no entry is a duplicate,
+ * months, the pool spreads across all four categories — including the livelier
+ * idiom and slang ones a lapsed user is here for — no entry is a duplicate,
  * every entry carries a category the copy can key off, the first three keep
  * their positions (live callbacks address a word by index), and an unknown
  * language degrades to "no hook words" rather than throwing.
+ *
+ * There is deliberately no assertion about *where* in the list a category sits.
+ * An earlier revision pinned idioms and slang to positions 6-18 so a lapsed user
+ * would reach them "within weeks, not months", which was true while the preset
+ * picker walked this list in order. It now serves a per-user permutation of the
+ * whole pool, so every entry is equally reachable from the first send and the
+ * position rule would assert a mechanism that no longer exists.
  */
 import { describe, expect, it } from "vitest";
 import type { HookWordCategory } from "../hook-words.js";
@@ -28,16 +36,27 @@ describe("hook words", () => {
     // The preset layer sends one a day to a user with no dictionary, and its
     // de-dup memory now spans the full retained history — so the pool, not the
     // window, is what decides how long it takes to come back around.
-    expect(getHookWords(lang).length).toBeGreaterThanOrEqual(60);
+    expect(getHookWords(lang).length).toBeGreaterThanOrEqual(70);
   });
 
   it.each(SUPPORTED_LANGS)("spreads across every category for '%s'", (lang) => {
     // A pool that is all earnest untranslatable nouns reads as one note however
     // long it is, and these notifications go to users who have already seen the
-    // first batch. Current slang is the half no dictionary covers.
+    // opening set. Current slang is the half no dictionary covers.
     const present = new Set(getHookWords(lang).map((hook) => hook.category));
 
     expect([...present].sort()).toEqual([...CATEGORIES].sort());
+  });
+
+  it.each(SUPPORTED_LANGS)("carries a real share of idioms and slang for '%s'", (lang) => {
+    // Presence of a category is not enough: one token slang entry in eighty
+    // leaves the pool reading as the earnest original set. Kazakh keeps a lower
+    // slang floor — there is no curated set we can verify further.
+    const words = getHookWords(lang);
+    const count = (category: string) => words.filter((hook) => hook.category === category).length;
+
+    expect(count("idiom")).toBeGreaterThanOrEqual(20);
+    expect(count("slang")).toBeGreaterThanOrEqual(lang === "kk" ? 6 : 10);
   });
 
   it.each(SUPPORTED_LANGS)("keeps the first three demo picks at their index for '%s'", (lang) => {

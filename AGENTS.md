@@ -8,15 +8,18 @@ Harness entrypoint. The hard rules below bind every change; the stable detail li
 
 ### 1. Quality Gate After Every Change
 
-After any source change, add a user-facing or operational entry to `CHANGELOG.md` under
-`## [Unreleased]` and run:
+After any source change, add a release note — one short, friendly line written **to a
+customer, never to a developer or tester**, in every required language, under
+`@docs/releases/unreleased/` (format and rules: `@docs/releases/README.md`) — and run:
 
 ```bash
-pnpm build && pnpm lint && pnpm lint:deps && pnpm lint:knip && pnpm test && pnpm db:push
+pnpm build && pnpm lint && pnpm lint:deps && pnpm lint:knip && pnpm lint:release-notes && pnpm test && pnpm db:push
 ```
 
 Fix every failure before moving on — a deferred fix is an unfinished change. `pnpm db:push`
-stays last. Markdown-only changes skip the gate; verify the rendering instead.
+stays last. Markdown-only changes skip the gate; verify the rendering instead. A change no
+user could notice (refactor, test, tooling) carries `[skip notes]` in its commit message
+instead of a note — never a note written to satisfy the gate.
 
 ### 2. No `any` Types
 

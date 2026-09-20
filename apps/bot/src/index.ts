@@ -10,6 +10,7 @@ import { setRunnerHandle } from "./liveness-state.js";
 import { closeMetricsServer, startMetricsServer } from "./metrics.js";
 import { wireNotificationScheduler } from "./notifications/notification.wiring.js";
 import { stopActivationNudge, wireActivationNudge } from "./onboarding/activation-nudge.wiring.js";
+import { stopReleaseAnnouncements, wireReleaseAnnouncements } from "./release-announcement.wiring.js";
 import { stopTelemetryRetention, wireTelemetryRetention } from "./retention.wiring.js";
 import { createPostgresSessionStorage } from "./session-storage.js";
 import { createGracefulShutdown } from "./shutdown.js";
@@ -53,6 +54,7 @@ function setupGracefulShutdown(): void {
       { name: "activationNudge", run: () => stopActivationNudge() },
       { name: "trialLifecycle", run: () => stopTrialLifecycle() },
       { name: "aiCreditPoll", run: () => stopAiCreditPoll() },
+      { name: "releaseAnnouncements", run: () => stopReleaseAnnouncements() },
       {
         name: "runner",
         run: async () => {
@@ -97,6 +99,7 @@ async function main(): Promise<void> {
   wireActivationNudge(bot.api);
   wireTrialLifecycle(bot.api);
   wireAiCreditPoll();
+  wireReleaseAnnouncements(bot.api);
   metricsServer = startMetricsServer();
 
   logger.info({ sessionStorage: "postgres", languageCacheReady: true, pollingMode: "long-polling" }, "Starting bot");

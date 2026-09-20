@@ -53,8 +53,9 @@ COPY packages/adapters/youtube/package.json packages/adapters/youtube/
 
 RUN pnpm install --frozen-lockfile --prod
 
-# Runtime bot command reads delivered changes from the changelog.
-COPY CHANGELOG.md ./
+# The release-announcement CLI and /changes read the pending notes from the image
+# itself, so what a release announces is exactly what that commit carried.
+COPY ["@docs/releases", "@docs/releases"]
 
 # Copy built artifacts from build stage
 COPY --from=build /app/apps/bot/dist apps/bot/dist
