@@ -223,6 +223,36 @@ describe("Cards on spaced repetition (integration)", () => {
     expect(lastScreen(harness.sent).text).toContain(t("flashcardProgress", "en", { current: 1, total: 1 }));
   });
 
+  it("C12: a translation stored in the word's own language is neither a card nor an answer on one", async () => {
+    // What the notification's just-in-time translation used to write: a German
+    // word "translated" into German, due tomorrow, i.e. a card asking the learner
+    // to recall the word from itself.
+    const harness = createBotHarness();
+    const { telegramId, userId } = await arrangeLearner();
+    const entry = await vocabularyRepository.create(userId, word("Rücken", ["en", "de"]));
+    for (const translation of entry.translations) {
+      await vocabularyRepository.updateSrsState(translation.id, {
+        easeFactor: 2.5,
+        interval: 1,
+        dueDate: PAST,
+        reviewCount: 1,
+      });
+    }
+    const real = entry.translations.find((tr) => tr.targetLangId === langId("en"))!;
+    const selfLanguage = entry.translations.find((tr) => tr.targetLangId === langId("de"))!;
+
+    await send(harness, telegramId, "/flashcard");
+
+    expect(lastScreen(harness.sent).text).toContain(t("flashcardProgress", "en", { current: 1, total: 1 }));
+    await tap(harness, telegramId, "fc:reveal");
+    const revealed = lastScreen(harness.sent);
+    expect(revealed.buttons).toContain(`fc:rate:good:${real.id}`);
+    expect(revealed.buttons).not.toContain(`fc:rate:good:${selfLanguage.id}`);
+    // ...and the answer side does not print the word as its own translation.
+    expect(revealed.text).toContain("Rücken-en");
+    expect(revealed.text).not.toContain("Rücken-de");
+  });
+
   it("C10: a revealed card answers in every saved language, carries a card's own actions, and one rating reschedules every row", async () => {
     const harness = createBotHarness();
     const { telegramId, userId } = await arrangeLearner();

@@ -469,3 +469,56 @@ describe("renderWordCard — invariants", () => {
     expect(rendered).not.toContain("blockquote");
   });
 });
+
+/**
+ * The card showed a Czech word with `🇨🇿 CS: Povzdech úlevy` directly under the
+ * headword `🇨🇿 CS: Povzdech ulevy` — the word offered as its own translation,
+ * with the Russian the reader needed nowhere in sight. The live translate card
+ * has always dropped its own language; the saved-word card had no such guard.
+ */
+describe("renderWordCard — never the same language twice", () => {
+  it("drops a same-language block promoted into the answer slot", () => {
+    const rendered = renderWordCard(
+      {
+        original: "Povzdech ulevy",
+        sourceLang: "cs",
+        langs: [
+          { code: "cs", text: "Povzdech úlevy", synonyms: [{ text: "Oddech úlevy" }] },
+          { code: "ru", text: "вздох облегчения" },
+        ],
+        answerLang: "cs",
+      },
+      "ru",
+    );
+
+    expect(rendered).not.toContain("Povzdech úlevy");
+    expect(rendered).toContain("🇷🇺 RU: <b>вздох облегчения</b>");
+  });
+
+  it("drops a same-language block sitting among the others", () => {
+    const rendered = renderWordCard(
+      {
+        original: "Povzdech ulevy",
+        sourceLang: "cs",
+        langs: [
+          { code: "ru", text: "вздох облегчения" },
+          { code: "cs", text: "Povzdech úlevy" },
+        ],
+        answerLang: "ru",
+      },
+      "ru",
+    );
+
+    expect(rendered).not.toContain("Povzdech úlevy");
+    expect(rendered).toContain("🇷🇺 RU: <b>вздох облегчения</b>");
+  });
+
+  it("keeps a block whose language no longer resolves — it duplicates nothing provable", () => {
+    const rendered = renderWordCard(
+      { original: "Povzdech ulevy", sourceLang: "cs", langs: [{ text: "вздох облегчения" }] },
+      "ru",
+    );
+
+    expect(rendered).toContain("вздох облегчения");
+  });
+});

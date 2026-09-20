@@ -137,6 +137,26 @@ describe("toVocabularyInput", () => {
     );
   });
 
+  it("skips a translation into the entry's own language and logs a warning", () => {
+    // A Czech word answered in Czech: stored, the paraphrase became its own
+    // review card asking the learner to recall the word from itself.
+    const outputWithSourceLang: TranslateOutput = {
+      ...sampleOutput,
+      translations: {
+        ...sampleOutput.translations,
+        en: { text: "hello (a greeting)", synonyms: [], examples: [] },
+      },
+    };
+
+    const result = toVocabularyInput(outputWithSourceLang, 1, "word", langResolver);
+
+    expect(result.translations.map((t) => t.targetLangId)).toEqual([3, 4]);
+    expect(mockLogger.warn).toHaveBeenCalledWith(
+      expect.objectContaining({ code: "en" }),
+      expect.stringContaining("source language"),
+    );
+  });
+
   it("does not mutate the input TranslateOutput object", () => {
     const original = JSON.parse(JSON.stringify(sampleOutput));
     toVocabularyInput(sampleOutput, 1, "word", langResolver);

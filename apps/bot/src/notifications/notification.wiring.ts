@@ -30,6 +30,7 @@ import {
   localDayKey,
   logEvent,
   logger,
+  resolveDirectionFromSource,
   type ServiceContainer,
   SettingsService,
   type SupportedLang,
@@ -58,6 +59,28 @@ const jitTranslationSchema = z.object({
     }),
   ),
 });
+
+/**
+ * The languages a just-in-time translation may ask for, resolved by the same rule
+ * as the translate path (`resolveDirectionFromSource`).
+ *
+ * Asking for the user's learning languages flat asked for the entry's own language
+ * whenever the word was saved in one of them: the model answered with a
+ * same-language paraphrase, `updateTranslation` stored it as a new row, and the
+ * reader got a Czech word offered as the translation of itself. An empty list
+ * means there is nothing legitimate left to ask for — translate nothing.
+ */
+export function jitTargetLangs(
+  sourceLang: string,
+  settings: { nativeLang: string; learningLangs: string[] },
+): string[] {
+  const direction = resolveDirectionFromSource({
+    sourceLang,
+    nativeLang: settings.nativeLang,
+    learningLangs: settings.learningLangs,
+  });
+  return direction?.targetLangs ?? [];
+}
 
 /**
  * Resolve the Telegram chat id for a neutral userId on the outbound path
@@ -282,11 +305,11 @@ export async function buildNotificationScheduling(
       const userSettings = await userRepository.getSettings(userId);
       if (!userSettings) return null;
 
-      const targetLangs = userSettings.learningLangs;
-      if (targetLangs.length === 0) return null;
-
       const sourceLang = getAllLangs().find((l) => l.id === entry.sourceLangId);
       if (!sourceLang) return null;
+
+      const targetLangs = jitTargetLangs(sourceLang.code, userSettings);
+      if (targetLangs.length === 0) return null;
 
       const model = contextualModel;
       if (!model) return null;

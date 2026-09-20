@@ -294,6 +294,14 @@ jobs:
             # the CLI once dev and prod have both run it.
             docker compose run --rm --no-deps bot node apps/bot/dist/repair-native-translations.cli.js
 
+            # One-off data repair (see repair-self-language-translations.cli.ts):
+            # removes the same-language "translations" the notification's
+            # just-in-time call used to store, each of which became its own review
+            # card. Runs on both environments; a repaired database makes it a
+            # no-op. Remove this step, the CLI and its repository module once dev
+            # and prod have both run it.
+            docker compose run --rm --no-deps bot node apps/bot/dist/repair-self-language-translations.cli.js
+
             # Dev only: wipe the configured tester accounts from the freshly
             # branched production data. The CLI itself refuses to run unless
             # POLYGLOT_ENV=development, so a stray call on prod is a no-op error.

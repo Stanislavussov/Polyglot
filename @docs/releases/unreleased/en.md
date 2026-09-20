@@ -4,4 +4,5 @@
 - Release notes are now short, human and in your language — this is the first one written that way.
 - New learners get a word of the day even with an empty dictionary — now with fun idioms and real street slang like “no cap” and “кринж”.
 - The word of the day stopped repeating itself: with an empty dictionary you now get a different one every day for months, picked in your own order rather than everyone's.
+- Cards and reminders no longer show a word as its own translation — the translation you actually need is there instead.
 - Flip a card and you now see the word in every language you saved it in, with the same buttons a fresh translation has.

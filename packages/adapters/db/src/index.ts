@@ -108,6 +108,7 @@ export type {
   RequestTimingSegmentSummary,
 } from "./repositories/request-timing.repository.js";
 export { requestTimingRepository } from "./repositories/request-timing.repository.js";
+export { deleteSelfLanguageTranslations } from "./repositories/self-language-translation-repair.js";
 export type { AdminOverviewStats } from "./repositories/stats.repository.js";
 export { statsRepository } from "./repositories/stats.repository.js";
 export type {

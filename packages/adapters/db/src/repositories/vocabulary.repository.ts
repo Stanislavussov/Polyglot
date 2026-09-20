@@ -26,6 +26,7 @@ import {
   inArray,
   isNull,
   lte,
+  ne,
   notInArray,
   or,
   type SQL,
@@ -108,6 +109,10 @@ function liveTranslationsOf(userId: number): SQL | undefined {
     eq(vocabularyEntries.userId, userId),
     eq(vocabularyEntries.isActive, true),
     eq(vocabularyTranslations.isActive, true),
+    // A row in the entry's own language is a same-language paraphrase the model
+    // once produced (see `repair-self-language-translations.cli.ts`); as a review
+    // card it asks the learner to recall the word from itself.
+    ne(vocabularyTranslations.targetLangId, vocabularyEntries.sourceLangId),
   );
 }
 

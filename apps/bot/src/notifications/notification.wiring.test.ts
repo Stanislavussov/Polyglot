@@ -11,7 +11,7 @@
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createServicesStub } from "../test-helpers/services-stub.js";
-import { resolveTelegramChatId } from "./notification.wiring.js";
+import { jitTargetLangs, resolveTelegramChatId } from "./notification.wiring.js";
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -53,5 +53,37 @@ describe("resolveTelegramChatId", () => {
 
     expect(chatId).toBeNull();
     expect(services.identityRepository.linkIdentity).not.toHaveBeenCalled();
+  });
+});
+
+/**
+ * The just-in-time translation a notification runs when a saved word has no
+ * answer stored yet. It used to ask for the learning languages flat, so a Czech
+ * word saved by a learner of Czech was sent off to be "translated" into Czech —
+ * and the same-language paraphrase that came back was stored as a new card.
+ */
+describe("jitTargetLangs", () => {
+  it("never asks for the language the word is already in", () => {
+    const targets = jitTargetLangs("cs", { nativeLang: "ru", learningLangs: ["cs", "en"] });
+
+    expect(targets).not.toContain("cs");
+  });
+
+  it("puts the reader's own language first — that is the answer they were missing", () => {
+    const targets = jitTargetLangs("cs", { nativeLang: "ru", learningLangs: ["cs", "en"] });
+
+    expect(targets).toEqual(["ru", "en"]);
+  });
+
+  it("asks for the learning languages when the word is in the reader's own language", () => {
+    const targets = jitTargetLangs("ru", { nativeLang: "ru", learningLangs: ["cs", "en"] });
+
+    expect(targets).toEqual(["cs", "en"]);
+  });
+
+  it("asks for nothing when filtering leaves nothing to ask for", () => {
+    expect(jitTargetLangs("cs", { nativeLang: "cs", learningLangs: [] })).toEqual([]);
+    // A word saved in a language the reader has since dropped: no direction to resolve.
+    expect(jitTargetLangs("de", { nativeLang: "ru", learningLangs: ["cs"] })).toEqual([]);
   });
 });
