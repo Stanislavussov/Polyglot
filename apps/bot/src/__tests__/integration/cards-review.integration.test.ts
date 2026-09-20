@@ -11,7 +11,7 @@
  * session moving on.
  */
 import { getDb, getLang, vocabularyRepository } from "@polyglot/adapter-db";
-import { type CreateVocabularyInput, t } from "@polyglot/core";
+import { type AIPort, type CreateVocabularyInput, t } from "@polyglot/core";
 import { describe, expect, it } from "vitest";
 import { arrangeOnboardedTranslator } from "../../test-helpers/integration/arrange.js";
 import {
@@ -137,6 +137,18 @@ async function rate(
   const entryId = shownEntryId(lastScreen(harness.sent).buttons);
   await tap(harness, chatId, `fc:rate:${rating}:${translationIdOf(entryId)}`);
   return entryId;
+}
+
+/** The one on-demand section this file drives; any other schema asked for is a test bug. */
+const ETYMOLOGY = "Aus dem altnordischen «akkeri», das selbst auf das lateinische «ancora» zurückgeht.";
+
+function etymologyAi(): Partial<AIPort> {
+  const generateObject: AIPort["generateObject"] = async (_prompt, schema) => {
+    const parsed = schema.safeParse({ etymology: ETYMOLOGY });
+    if (!parsed.success) throw new Error("cards-review: an unexpected schema reached the AI stub");
+    return parsed.data;
+  };
+  return { generateObject };
 }
 
 async function arrangeLearner(): Promise<{ telegramId: number; userId: number }> {
@@ -330,6 +342,46 @@ describe("Cards on spaced repetition (integration)", () => {
     // The action list did open — this is not a keyboard that simply never changed.
     expect(buttons).toContain(`tr:altmeaning:${CARD_MESSAGE_ID}`);
 
+    await tap(harness, telegramId, `fc:rate:good:${due.translationId}`);
+    expect(await srsOf(due.entryId)).toMatchObject({ difficulty: "normal", interval: 15 });
+  });
+
+  it("C13: a section generated on a revealed card leaves the deck's screen standing", async () => {
+    // `tr:etymology` rewrites the TEXT of the message it is tapped on, and that
+    // message is the card being rated — a rewrite that dropped the deck's chrome
+    // would take the progress line and the question the ratings answer out from
+    // under the reader mid-review, leaving four unexplained buttons.
+    const harness = createBotHarness({ ai: etymologyAi() });
+    const telegramId = uniqueTelegramId();
+    // Etymology is a paid aid: a Free tap would be answered with the upgrade screen.
+    const userId = await arrangeOnboardedTranslator(telegramId, {
+      nativeLang: "ru",
+      learningLangs: ["de", "en"],
+      plan: "pro",
+    });
+    const due = await seed(userId, "Anker", { easeFactor: 2.5, interval: 6, dueDate: PAST, reviewCount: 2 });
+
+    await send(harness, telegramId, "/review");
+    await tap(harness, telegramId, "fc:reveal");
+    await tap(harness, telegramId, `tr:more:${CARD_MESSAGE_ID}`);
+    await tap(harness, telegramId, `tr:etymology:${CARD_MESSAGE_ID}`);
+
+    const screen = lastScreen(harness.sent);
+    // The section the tap promised did arrive — this is not a card that never changed.
+    expect(screen.text).toContain(ETYMOLOGY);
+    expect(screen.text).toContain(t("flashcardProgress", "en", { current: 1, total: 1 }));
+    expect(screen.text.trimEnd().endsWith(t("srsChooseRating", "en"))).toBe(true);
+    // A word being reviewed is in the dictionary by definition, so the "saved"
+    // confirmation would be noise between the card and the question.
+    expect(screen.text).not.toContain(t("savedToDict", "en"));
+    expect(screen.buttons.slice(0, 4)).toEqual([
+      `fc:rate:again:${due.translationId}`,
+      `fc:rate:hard:${due.translationId}`,
+      `fc:rate:good:${due.translationId}`,
+      `fc:rate:easy:${due.translationId}`,
+    ]);
+
+    // And the deck still works from there.
     await tap(harness, telegramId, `fc:rate:good:${due.translationId}`);
     expect(await srsOf(due.entryId)).toMatchObject({ difficulty: "normal", interval: 15 });
   });

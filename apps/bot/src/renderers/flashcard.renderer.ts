@@ -41,7 +41,15 @@ export function renderFlashCardFront(
   return [...chrome, "", front].join("\n");
 }
 
-function backScreen(body: string, current: number, total: number, lang: SupportedLang): string {
+/**
+ * The deck's chrome around a revealed card's body: where the reader is in the
+ * deck, and the question the rating buttons answer.
+ *
+ * Exported because a revealed card can be rewritten by an ordinary `tr:*` action
+ * (`buildCardView`), and that rewrite has to put the reader back on the same
+ * screen rather than assemble a lookalike of these lines.
+ */
+export function renderFlashCardBackScreen(body: string, current: number, total: number, lang: SupportedLang): string {
   return [progressLine(current, total, lang), "", body, "", esc(t("srsChooseRating", lang))].join("\n");
 }
 
@@ -62,7 +70,7 @@ export function renderFlashCardBack(
   lang: SupportedLang,
   order: LanguageOrderContext,
 ): string {
-  return backScreen(renderDictionaryEntry(entry, langResolver, lang, order), current, total, lang);
+  return renderFlashCardBackScreen(renderDictionaryEntry(entry, langResolver, lang, order), current, total, lang);
 }
 
 /**
@@ -99,7 +107,7 @@ export function renderFlashCardBackFromCard(
     },
     lang,
   );
-  return backScreen(back, current, total, lang);
+  return renderFlashCardBackScreen(back, current, total, lang);
 }
 
 export function renderFlashCardDone(lang: SupportedLang, counts: { cards: number; recalled: number }): string {

@@ -11,7 +11,7 @@
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createServicesStub } from "../test-helpers/services-stub.js";
-import { jitTargetLangs, resolveTelegramChatId } from "./notification.wiring.js";
+import { jitRowsToStore, jitTargetLangs, resolveTelegramChatId } from "./notification.wiring.js";
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -85,5 +85,51 @@ describe("jitTargetLangs", () => {
     expect(jitTargetLangs("cs", { nativeLang: "cs", learningLangs: [] })).toEqual([]);
     // A word saved in a language the reader has since dropped: no direction to resolve.
     expect(jitTargetLangs("de", { nativeLang: "ru", learningLangs: ["cs"] })).toEqual([]);
+  });
+});
+
+/**
+ * What the answer is allowed to leave behind. Filtering the *request* only holds
+ * for a model that obeys it; the row is what survives a model that does not.
+ */
+describe("jitRowsToStore", () => {
+  const LANGS: Record<string, { id: number }> = { cs: { id: 1 }, ru: { id: 2 }, en: { id: 3 } };
+  const resolveLang = (code: string) => LANGS[code];
+  const CS = LANGS.cs!.id;
+
+  it("keeps the blocks in the languages that were actually missing", () => {
+    const rows = jitRowsToStore(
+      [
+        { languageCode: "ru", text: "мост" },
+        { languageCode: "en", text: "bridge" },
+      ],
+      CS,
+      resolveLang,
+    );
+
+    expect(rows).toEqual([
+      { targetLangId: 2, text: "мост" },
+      { targetLangId: 3, text: "bridge" },
+    ]);
+  });
+
+  it("refuses a block in the entry's own language, whatever the model was asked for", () => {
+    const rows = jitRowsToStore(
+      [
+        { languageCode: "cs", text: "most" },
+        { languageCode: "ru", text: "мост" },
+      ],
+      CS,
+      resolveLang,
+    );
+
+    // The same-language block never becomes a row — not a dead one either.
+    expect(rows).toEqual([{ targetLangId: 2, text: "мост" }]);
+  });
+
+  it("drops a block in a language the cache does not know", () => {
+    const rows = jitRowsToStore([{ languageCode: "xx", text: "???" }], CS, resolveLang);
+
+    expect(rows).toEqual([]);
   });
 });
