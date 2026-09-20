@@ -102,6 +102,7 @@ export type {
   CreateVocabularyInput,
   DictionaryListOptions,
   DictionaryListSort,
+  EntrySrsRow,
   SrsDueVocabularyCard,
   UpdateSrsStateInput,
   UpdateTranslationData,

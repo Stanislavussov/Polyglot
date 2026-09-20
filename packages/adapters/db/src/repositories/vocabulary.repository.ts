@@ -2,6 +2,7 @@ import type {
   CreateVocabularyInput,
   DictionaryListOptions,
   DictionaryListSort,
+  EntrySrsRow,
   SourceUsage,
   SrsDueVocabularyCard,
   UpdateSrsStateInput,
@@ -38,6 +39,7 @@ export type {
   CreateVocabularyInput,
   DictionaryListOptions,
   DictionaryListSort,
+  EntrySrsRow,
   SourceUsage,
   SrsDueVocabularyCard,
   UpdateSrsStateInput,
@@ -604,6 +606,27 @@ export const vocabularyRepository = {
       .where(and(liveTranslationsOf(userId), gte(vocabularyTranslations.srsInterval, minInterval)));
 
     return result[0]?.value ?? 0;
+  },
+
+  /**
+   * Every live translation row of one entry, owner-scoped on the same join the
+   * due/ahead queries use — so a rating cannot reach a row `/review` would never
+   * have shown (another user's, a soft-deleted one).
+   */
+  async findEntrySrsRows(userId: number, entryId: number): Promise<EntrySrsRow[]> {
+    const db = getDb();
+    return db
+      .select({
+        translationId: vocabularyTranslations.id,
+        srsEaseFactor: vocabularyTranslations.srsEaseFactor,
+        srsInterval: vocabularyTranslations.srsInterval,
+        srsDueDate: vocabularyTranslations.srsDueDate,
+        srsReviewCount: vocabularyTranslations.srsReviewCount,
+      })
+      .from(vocabularyTranslations)
+      .innerJoin(vocabularyEntries, eq(vocabularyTranslations.entryId, vocabularyEntries.id))
+      .where(and(liveTranslationsOf(userId), eq(vocabularyTranslations.entryId, entryId)))
+      .orderBy(asc(vocabularyTranslations.id));
   },
 
   async updateSrsState(translationId: number, state: UpdateSrsStateInput): Promise<void> {

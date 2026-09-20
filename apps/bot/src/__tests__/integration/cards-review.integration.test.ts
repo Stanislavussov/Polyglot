@@ -99,6 +99,17 @@ function toasts(sent: CapturedCall[]): string[] {
     .map((call) => String((call.payload as { text?: string }).text ?? ""));
 }
 
+/** The buttons of the last message the bot touched, including a keyboard-only edit. */
+function lastMarkup(sent: CapturedCall[]): string[] {
+  const call = sent.filter((c) => (c.payload as { reply_markup?: unknown }).reply_markup !== undefined).at(-1);
+  if (!call) throw new Error("no message carried an inline keyboard");
+  const markup = call.payload.reply_markup as { inline_keyboard?: Array<Array<{ callback_data?: string }>> };
+  return (markup.inline_keyboard ?? [])
+    .flat()
+    .map((button) => button.callback_data)
+    .filter((data): data is string => typeof data === "string");
+}
+
 function shownEntryId(buttons: string[]): number {
   const data = buttons.find((button) => button.startsWith("fc:del:"));
   if (!data) throw new Error(`no fc:del button on screen: ${buttons.join(", ")}`);
@@ -210,6 +221,87 @@ describe("Cards on spaced repetition (integration)", () => {
     await send(harness, telegramId, "/flashcard");
 
     expect(lastScreen(harness.sent).text).toContain(t("flashcardProgress", "en", { current: 1, total: 1 }));
+  });
+
+  it("C10: a revealed card answers in every saved language, carries a card's own actions, and one rating reschedules every row", async () => {
+    const harness = createBotHarness();
+    const { telegramId, userId } = await arrangeLearner();
+    const entry = await vocabularyRepository.create(userId, word("Brücke", ["en", "ru"]));
+    const [first, second] = entry.translations;
+    if (!first || !second) throw new Error("expected the word to be saved in two languages");
+    // Deliberately different SM-2 states: a rating that copied one row's numbers
+    // onto the other would land on identical intervals below.
+    await vocabularyRepository.updateSrsState(first.id, {
+      easeFactor: 2.5,
+      interval: 6,
+      dueDate: PAST,
+      reviewCount: 2,
+    });
+    await vocabularyRepository.updateSrsState(second.id, {
+      easeFactor: 1.9,
+      interval: 2,
+      dueDate: PAST,
+      reviewCount: 5,
+    });
+
+    await send(harness, telegramId, "/review");
+    await tap(harness, telegramId, "fc:reveal");
+    const revealed = lastScreen(harness.sent);
+
+    expect(revealed.text).toContain("Brücke-en");
+    expect(revealed.text).toContain("Brücke-ru");
+    // The reviewed word offers what a freshly translated one offers, ratings first.
+    expect(revealed.buttons.slice(0, 4)).toEqual([
+      `fc:rate:again:${first.id}`,
+      `fc:rate:hard:${first.id}`,
+      `fc:rate:good:${first.id}`,
+      `fc:rate:easy:${first.id}`,
+    ]);
+    expect(revealed.buttons).toContain(`tr:save:${CARD_MESSAGE_ID}`);
+    expect(revealed.buttons).toContain(`tr:more:${CARD_MESSAGE_ID}`);
+    expect(revealed.buttons).toContain(`fc:del:${entry.id}`);
+
+    await tap(harness, telegramId, `fc:rate:good:${first.id}`);
+
+    const rows = await vocabularyRepository.findEntrySrsRows(userId, entry.id);
+    expect(rows).toEqual([
+      expect.objectContaining({ translationId: first.id, srsInterval: 15, srsEaseFactor: 2.5, srsReviewCount: 3 }),
+      expect.objectContaining({ translationId: second.id, srsInterval: 4, srsEaseFactor: 1.9, srsReviewCount: 6 }),
+    ]);
+    for (const row of rows) {
+      expect(row.srsDueDate!.getTime()).toBeGreaterThan(Date.now());
+    }
+    // One word, one review: the log still counts a single card.
+    expect(await reviewLog(entry.id)).toEqual(["flashcard"]);
+    expect(lastScreen(harness.sent).text).toContain(t("cardsDone", "en", { cards: 1, recalled: 1 }));
+  });
+
+  it("C11: opening the action list on a revealed card keeps the ratings under the reader's thumb", async () => {
+    // `tr:more` rebuilds the whole keyboard of the message it is tapped on, and
+    // that message is the card being rated — a rebuild that forgot the deck's own
+    // buttons would strand the reader mid-deck with no way to answer the card.
+    const harness = createBotHarness();
+    const { telegramId, userId } = await arrangeLearner();
+    const due = await seed(userId, "Anker", { easeFactor: 2.5, interval: 6, dueDate: PAST, reviewCount: 2 });
+
+    await send(harness, telegramId, "/review");
+    await tap(harness, telegramId, "fc:reveal");
+    await tap(harness, telegramId, `tr:more:${CARD_MESSAGE_ID}`);
+
+    const buttons = lastMarkup(harness.sent);
+    expect(buttons.slice(0, 4)).toEqual([
+      `fc:rate:again:${due.translationId}`,
+      `fc:rate:hard:${due.translationId}`,
+      `fc:rate:good:${due.translationId}`,
+      `fc:rate:easy:${due.translationId}`,
+    ]);
+    expect(buttons).toContain(`fc:del:${due.entryId}`);
+    expect(buttons).toContain("fc:quit");
+    // The action list did open — this is not a keyboard that simply never changed.
+    expect(buttons).toContain(`tr:altmeaning:${CARD_MESSAGE_ID}`);
+
+    await tap(harness, telegramId, `fc:rate:good:${due.translationId}`);
+    expect(await srsOf(due.entryId)).toMatchObject({ difficulty: "normal", interval: 15 });
   });
 
   it("C5: /review and a legacy srs:restart open the same deck; a legacy fc:next answers expired", async () => {
