@@ -6,3 +6,5 @@
 - The word of the day stopped repeating itself: with an empty dictionary you now get a different one every day for months, picked in your own order rather than everyone's.
 - Cards and reminders no longer show a word as its own translation — the translation you actually need is there instead.
 - Flip a card and you now see the word in every language you saved it in, with the same buttons a fresh translation has.
+- Your dictionary now has search: tap 🔍, type a word or a piece of it, and find it by the word itself or by any of its translations.
+- Sort your dictionary A–Z or newest first with one tap.
