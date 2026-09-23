@@ -9,3 +9,4 @@
 - Your dictionary now has search: tap 🔍, type a word or a piece of it, and find it by the word itself or by any of its translations.
 - Sort your dictionary A–Z or newest first with one tap.
 - Saved a word you don't actually need? Remove it right from its card, a reminder, a review card or the dictionary — and bring it straight back with one tap if you change your mind.
+- If the mentor took too long to answer a question about a card, 🔄 Try again now really tries again instead of complaining that your message is too long.
