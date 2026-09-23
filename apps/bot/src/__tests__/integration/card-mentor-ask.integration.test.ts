@@ -15,13 +15,18 @@
  *   synonyms and usage note), which is the whole point of asking from a card;
  * - both rows of the new thread are persisted, so a reply continues this topic;
  * - a prompt left unanswered past the mentor idle window gives the message back
- *   to the translator instead of spending a paid turn on it.
+ *   to the translator instead of spending a paid turn on it;
+ * - a timed-out card question can be retried from its notice even when the
+ *   card the bot attached pushes the composed turn past the typed-input limit
+ *   (2026-09-23 dev-stand regression: "taking longer" → 🔄 → "keep it under
+ *   1000 characters").
  */
 import { botSessionRepository, mentorMessageRepository, userRepository } from "@polyglot/adapter-db";
-import { t } from "@polyglot/core";
+import { AITimeoutError, t } from "@polyglot/core";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { CARD_MENTOR_CANCEL_CALLBACK, CARD_MENTOR_EXPLAIN_CALLBACK } from "../../scenes/helpers/card-mentor.js";
 import { MENTOR_EXIT_CALLBACK, MENTOR_NEW_TOPIC_CALLBACK } from "../../scenes/helpers/mentor-exit.helper.js";
+import { MENTOR_MAX_INPUT_LENGTH } from "../../scenes/helpers/mentor-mode.helper.js";
 import { arrangeOnboardedTranslator } from "../../test-helpers/integration/arrange.js";
 import {
   type BotHarness,
@@ -35,6 +40,7 @@ import {
 import { uniqueTelegramId } from "../../test-helpers/integration/id-factory.js";
 import { deterministicTranslateAi } from "../../test-helpers/integration/translate-ai-mock.js";
 import type { SessionData } from "../../types.js";
+import { RETRY_CALLBACK } from "../../utils/retry-action.js";
 
 const WORD = "hello";
 const QUESTION = "when is it too informal?";
@@ -66,9 +72,16 @@ async function readSession(chatId: number): Promise<SessionData> {
   return row.data as SessionData;
 }
 
+/** The captured `sendMessage` carrying the "🔄 Try again" button, if one went out. */
+function retryNotice(harness: BotHarness): CapturedCall | undefined {
+  return sends(harness).find((call) => callbackData(call).includes(RETRY_CALLBACK));
+}
+
 /** A translated card with its "Ask the mentor" prompt open. */
-async function arrangeOpenPrompt(plan: "plus" | "free" = "plus") {
-  const generateChat = vi.fn().mockResolvedValue(MENTOR_ANSWER);
+async function arrangeOpenPrompt(
+  plan: "plus" | "free" = "plus",
+  generateChat = vi.fn().mockResolvedValue(MENTOR_ANSWER),
+) {
   const harness = createBotHarness({ ai: { ...deterministicTranslateAi(), generateChat } });
   const telegramId = uniqueTelegramId();
   const userId = await arrangeOnboardedTranslator(telegramId, { plan });
@@ -86,6 +99,7 @@ async function arrangeOpenPrompt(plan: "plus" | "free" = "plus") {
 
 afterEach(() => {
   vi.useRealTimers();
+  vi.restoreAllMocks();
 });
 
 describe("asking the mentor about a card (integration)", () => {
@@ -185,6 +199,70 @@ describe("asking the mentor about a card (integration)", () => {
     expect(lastRenderedCard(harness.sent).messageId).toBeGreaterThan(0);
     expect((await userRepository.getSettings(userId))?.activeMode).toBe("translate");
     expect((await readSession(telegramId)).pendingCardMentorAsk).toBeUndefined();
+  });
+
+  it("retries a timed-out card question even when the attached card pushes the turn past the typed limit", async () => {
+    // The mentor times out until the test says otherwise — however many attempts
+    // one turn makes on its own, the user ends up with the 🔄 notice.
+    let mentorDown = true;
+    const generateChat = vi.fn(async (_messages: Array<{ role: string; content: string }>) => {
+      if (mentorDown) throw new AITimeoutError(1);
+      return MENTOR_ANSWER;
+    });
+    // A question just under the limit: legal to type, but with the card the bot
+    // attaches the composed turn is far over it.
+    const longQuestion = "why is it informal? "
+      .repeat(60)
+      .trim()
+      .slice(0, MENTOR_MAX_INPUT_LENGTH - 10);
+    // The automatic in-turn retry pauses for a jittered 1–5 s; pin it to the floor.
+    vi.spyOn(Math, "random").mockReturnValue(0);
+    const { harness, telegramId, userId } = await arrangeOpenPrompt("plus", generateChat);
+
+    // Act — the question, which times out.
+    harness.reset();
+    await harness.dispatch(
+      messageUpdate({ chatId: telegramId, fromId: telegramId, text: longQuestion, messageId: 15 }),
+    );
+
+    // Assert — the turn the model saw is over the typed limit only because of the card.
+    const firstTurn = generateChat.mock.calls[0]![0].at(-1)!.content;
+    expect(firstTurn.length).toBeGreaterThan(MENTOR_MAX_INPUT_LENGTH);
+    expect(firstTurn.endsWith(longQuestion)).toBe(true);
+    const notice = retryNotice(harness);
+    expect(notice?.payload.text).toBe(t("loadingTimeout", "en"));
+    expect(sends(harness).map((call) => call.payload.text)).not.toContain(
+      t("mentorInputTooLong", "en", { max: MENTOR_MAX_INPUT_LENGTH }),
+    );
+    expect(await mentorMessageRepository.findLatestThreadId(telegramId)).toBeNull();
+
+    // Act — the mentor is back; the user taps 🔄.
+    mentorDown = false;
+    const attemptsBefore = generateChat.mock.calls.length;
+    harness.reset();
+    await tap(harness, telegramId, notice!.messageId!, RETRY_CALLBACK);
+
+    // Assert — the same composed turn went out again and was answered, not
+    // bounced as "too long".
+    expect(generateChat.mock.calls.length).toBe(attemptsBefore + 1);
+    const retriedTurn = generateChat.mock.calls.at(-1)![0].at(-1)!.content;
+    expect(retriedTurn).toBe(firstTurn);
+    const texts = sends(harness).map((call) => call.payload.text);
+    expect(texts).not.toContain(t("mentorInputTooLong", "en", { max: MENTOR_MAX_INPUT_LENGTH }));
+    const answer = sends(harness).find((call) => call.payload.text === MENTOR_ANSWER);
+    expect(callbackData(answer)).toEqual([MENTOR_NEW_TOPIC_CALLBACK, MENTOR_EXIT_CALLBACK]);
+    expect((await userRepository.getSettings(userId))?.activeMode).toBe("mentor");
+
+    // Assert — the retried turn is the thread's first exchange, question included.
+    const threadId = await mentorMessageRepository.findThreadByMessage(telegramId, answer!.messageId!);
+    expect(threadId).toBeTruthy();
+    const history = await mentorMessageRepository.getRecentMessages(threadId!, 10);
+    expect(history.map((row) => row.role)).toEqual(["user", "assistant"]);
+    expect(history[0]!.content).toContain(longQuestion);
+
+    const session = await readSession(telegramId);
+    expect(session.mentor?.threadId).toBe(threadId);
+    expect(session.pendingRetries?.[String(notice!.messageId)]).toBeUndefined();
   });
 
   it("turns a Free user's tap into the upgrade screen, with no prompt to answer", async () => {

@@ -264,6 +264,14 @@ export interface SessionData {
        * the answer with no question.
        */
       userMessageId?: number;
+      /**
+       * Mentor only: what the user typed, when `text` is a composed turn (a card
+       * question carries the whole card). The length guard measures this, so a
+       * retry of a composed turn must carry it too — without it the retry
+       * measured the card and bounced a legal question as "too long"
+       * (2026-09-23 dev-stand regression).
+       */
+      userInput?: string;
       /** Monotonic insertion stamp used for recency-based eviction. */
       addedAt?: number;
     }
