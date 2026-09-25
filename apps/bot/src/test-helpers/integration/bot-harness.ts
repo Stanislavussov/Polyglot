@@ -28,6 +28,7 @@ import type { Bot } from "grammy";
 import type { Message, MessageEntity, Update } from "grammy/types";
 import { createPolyglotBot } from "../../bot-factory.js";
 import { createContainer } from "../../container.js";
+import { mockPaymentAdapter } from "../../payment.js";
 import { createPostgresSessionStorage } from "../../session-storage.js";
 import type { BotContext } from "../../types.js";
 
@@ -56,6 +57,12 @@ export interface HarnessOptions {
    * switch changes what every concurrently running test sees.
    */
   settings?: Partial<SettingsPort>;
+  /**
+   * Whether the test checkout is open (default true). The container reads
+   * `MOCK_PAYMENTS`, which this lane never sets, so without this every purchase
+   * test would see production's closed checkout. False is production.
+   */
+  testPayments?: boolean;
 }
 
 export interface BotHarness {
@@ -196,6 +203,7 @@ export function createBotHarness(options: HarnessOptions = {}): BotHarness {
 
   const services = createContainer();
   services.ai = { ...rejectingAi(), ...options.ai };
+  services.paymentPort = options.testPayments === false ? undefined : mockPaymentAdapter;
   if (options.settings) {
     // `services.settings` is a SettingsService INSTANCE — spreading it would keep
     // only own fields and drop every prototype method, so the first unmocked call

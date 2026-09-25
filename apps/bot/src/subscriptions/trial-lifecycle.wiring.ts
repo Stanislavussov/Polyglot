@@ -57,7 +57,7 @@ import type { Api, RawApi } from "grammy";
 import cron from "node-cron";
 import { notificationCounter } from "../metrics.js";
 import { logDelivery, type NotificationDeliveryLog } from "../notifications/delivery-log.js";
-import { mockPaymentAdapter } from "../payment.js";
+import { renewalPaymentPort } from "../payment.js";
 import { buildUpgradeKeyboard } from "../scenes/helpers/subscription.helper.js";
 import { isPermanentDeliveryFailure } from "../utils/telegram-errors.js";
 
@@ -359,7 +359,7 @@ export async function runTrialLifecycleSweep(
   // One service for the whole sweep: `endTrial` is the only method used and it
   // never touches the payment port, which is why the port is not a sweep dep.
   const { endTrial } = createSubscriptionService({
-    payment: mockPaymentAdapter,
+    payment: renewalPaymentPort(),
     subscriptions: services.subscriptionRepository,
     users: services.userRepository,
   });

@@ -420,6 +420,7 @@
   "upgradeFeatureLocked": "{feature} — функція тарифу <b>{plan}</b>.",
   "upgradeTopPlan": "✨ У вас максимальний тариф — усі функції відкриті.",
   "upgradeComingSoon": "Ця функція незабаром з'явиться в платних тарифах.",
+  "purchasesClosed": "Придбати тариф поки не можна — оплата скоро з'явиться.",
   "purchaseConfirmPrompt": "Активувати <b>{plan}</b> за {price}/міс?\n\nТестова оплата — кошти не спишуться.",
   "purchaseConfirmYes": "✅ Активувати",
   "purchaseConfirmNo": "Скасувати",
