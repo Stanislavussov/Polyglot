@@ -61,6 +61,25 @@ describe("handleRetryCallback", () => {
     expect(handleTranslateText).not.toHaveBeenCalled();
   });
 
+  it("re-runs a composed mentor turn with the typed part the length guard measures", async () => {
+    const ctx = createMockCtx();
+    setRetryAction(ctx.session, NOTICE_MSG_ID, {
+      kind: "mentor",
+      text: "--- CARD ---\n…\n--- END OF CARD ---\nwhy?",
+      threadId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+      userMessageId: 55,
+      userInput: "why?",
+    });
+
+    await handleRetryCallback(ctx);
+
+    expect(handleMentorText).toHaveBeenCalledWith(ctx, "--- CARD ---\n…\n--- END OF CARD ---\nwhy?", {
+      threadId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+      userMessageId: 55,
+      userInput: "why?",
+    });
+  });
+
   it("acks the callback and deletes the notice before re-running", async () => {
     const ctx = createMockCtx();
     setRetryAction(ctx.session, NOTICE_MSG_ID, { kind: "translate", text: "Haus" });

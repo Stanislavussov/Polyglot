@@ -11,7 +11,7 @@
  * session moving on.
  */
 import { getDb, getLang, vocabularyRepository } from "@polyglot/adapter-db";
-import { type CreateVocabularyInput, t } from "@polyglot/core";
+import { type AIPort, type CreateVocabularyInput, t } from "@polyglot/core";
 import { describe, expect, it } from "vitest";
 import { arrangeOnboardedTranslator } from "../../test-helpers/integration/arrange.js";
 import {
@@ -99,6 +99,17 @@ function toasts(sent: CapturedCall[]): string[] {
     .map((call) => String((call.payload as { text?: string }).text ?? ""));
 }
 
+/** The buttons of the last message the bot touched, including a keyboard-only edit. */
+function lastMarkup(sent: CapturedCall[]): string[] {
+  const call = sent.filter((c) => (c.payload as { reply_markup?: unknown }).reply_markup !== undefined).at(-1);
+  if (!call) throw new Error("no message carried an inline keyboard");
+  const markup = call.payload.reply_markup as { inline_keyboard?: Array<Array<{ callback_data?: string }>> };
+  return (markup.inline_keyboard ?? [])
+    .flat()
+    .map((button) => button.callback_data)
+    .filter((data): data is string => typeof data === "string");
+}
+
 function shownEntryId(buttons: string[]): number {
   const data = buttons.find((button) => button.startsWith("fc:del:"));
   if (!data) throw new Error(`no fc:del button on screen: ${buttons.join(", ")}`);
@@ -126,6 +137,18 @@ async function rate(
   const entryId = shownEntryId(lastScreen(harness.sent).buttons);
   await tap(harness, chatId, `fc:rate:${rating}:${translationIdOf(entryId)}`);
   return entryId;
+}
+
+/** The one on-demand section this file drives; any other schema asked for is a test bug. */
+const ETYMOLOGY = "Aus dem altnordischen «akkeri», das selbst auf das lateinische «ancora» zurückgeht.";
+
+function etymologyAi(): Partial<AIPort> {
+  const generateObject: AIPort["generateObject"] = async (_prompt, schema) => {
+    const parsed = schema.safeParse({ etymology: ETYMOLOGY });
+    if (!parsed.success) throw new Error("cards-review: an unexpected schema reached the AI stub");
+    return parsed.data;
+  };
+  return { generateObject };
 }
 
 async function arrangeLearner(): Promise<{ telegramId: number; userId: number }> {
@@ -210,6 +233,158 @@ describe("Cards on spaced repetition (integration)", () => {
     await send(harness, telegramId, "/flashcard");
 
     expect(lastScreen(harness.sent).text).toContain(t("flashcardProgress", "en", { current: 1, total: 1 }));
+  });
+
+  it("C12: a translation stored in the word's own language is neither a card nor an answer on one", async () => {
+    // What the notification's just-in-time translation used to write: a German
+    // word "translated" into German, due tomorrow, i.e. a card asking the learner
+    // to recall the word from itself.
+    const harness = createBotHarness();
+    const { telegramId, userId } = await arrangeLearner();
+    const entry = await vocabularyRepository.create(userId, word("Rücken", ["en", "de"]));
+    for (const translation of entry.translations) {
+      await vocabularyRepository.updateSrsState(translation.id, {
+        easeFactor: 2.5,
+        interval: 1,
+        dueDate: PAST,
+        reviewCount: 1,
+      });
+    }
+    const real = entry.translations.find((tr) => tr.targetLangId === langId("en"))!;
+    const selfLanguage = entry.translations.find((tr) => tr.targetLangId === langId("de"))!;
+
+    await send(harness, telegramId, "/flashcard");
+
+    expect(lastScreen(harness.sent).text).toContain(t("flashcardProgress", "en", { current: 1, total: 1 }));
+    await tap(harness, telegramId, "fc:reveal");
+    const revealed = lastScreen(harness.sent);
+    expect(revealed.buttons).toContain(`fc:rate:good:${real.id}`);
+    expect(revealed.buttons).not.toContain(`fc:rate:good:${selfLanguage.id}`);
+    // ...and the answer side does not print the word as its own translation.
+    expect(revealed.text).toContain("Rücken-en");
+    expect(revealed.text).not.toContain("Rücken-de");
+  });
+
+  it("C10: a revealed card answers in every saved language, carries a card's own actions, and one rating reschedules every row", async () => {
+    const harness = createBotHarness();
+    const { telegramId, userId } = await arrangeLearner();
+    const entry = await vocabularyRepository.create(userId, word("Brücke", ["en", "ru"]));
+    const [first, second] = entry.translations;
+    if (!first || !second) throw new Error("expected the word to be saved in two languages");
+    // Deliberately different SM-2 states: a rating that copied one row's numbers
+    // onto the other would land on identical intervals below.
+    await vocabularyRepository.updateSrsState(first.id, {
+      easeFactor: 2.5,
+      interval: 6,
+      dueDate: PAST,
+      reviewCount: 2,
+    });
+    await vocabularyRepository.updateSrsState(second.id, {
+      easeFactor: 1.9,
+      interval: 2,
+      dueDate: PAST,
+      reviewCount: 5,
+    });
+
+    await send(harness, telegramId, "/review");
+    await tap(harness, telegramId, "fc:reveal");
+    const revealed = lastScreen(harness.sent);
+
+    expect(revealed.text).toContain("Brücke-en");
+    expect(revealed.text).toContain("Brücke-ru");
+    // The reviewed word offers what a freshly translated one offers, ratings first.
+    expect(revealed.buttons.slice(0, 4)).toEqual([
+      `fc:rate:again:${first.id}`,
+      `fc:rate:hard:${first.id}`,
+      `fc:rate:good:${first.id}`,
+      `fc:rate:easy:${first.id}`,
+    ]);
+    expect(revealed.buttons).toContain(`tr:more:${CARD_MESSAGE_ID}`);
+    // One way out of the dictionary, and it is the deck's: it moves on to the next card.
+    expect(revealed.buttons).toContain(`fc:del:${entry.id}`);
+    expect(revealed.buttons.some((data) => data.startsWith("tr:save:") || data.startsWith("tr:remove:"))).toBe(false);
+
+    await tap(harness, telegramId, `fc:rate:good:${first.id}`);
+
+    const rows = await vocabularyRepository.findEntrySrsRows(userId, entry.id);
+    expect(rows).toEqual([
+      expect.objectContaining({ translationId: first.id, srsInterval: 15, srsEaseFactor: 2.5, srsReviewCount: 3 }),
+      expect.objectContaining({ translationId: second.id, srsInterval: 4, srsEaseFactor: 1.9, srsReviewCount: 6 }),
+    ]);
+    for (const row of rows) {
+      expect(row.srsDueDate!.getTime()).toBeGreaterThan(Date.now());
+    }
+    // One word, one review: the log still counts a single card.
+    expect(await reviewLog(entry.id)).toEqual(["flashcard"]);
+    expect(lastScreen(harness.sent).text).toContain(t("cardsDone", "en", { cards: 1, recalled: 1 }));
+  });
+
+  it("C11: opening the action list on a revealed card keeps the ratings under the reader's thumb", async () => {
+    // `tr:more` rebuilds the whole keyboard of the message it is tapped on, and
+    // that message is the card being rated — a rebuild that forgot the deck's own
+    // buttons would strand the reader mid-deck with no way to answer the card.
+    const harness = createBotHarness();
+    const { telegramId, userId } = await arrangeLearner();
+    const due = await seed(userId, "Anker", { easeFactor: 2.5, interval: 6, dueDate: PAST, reviewCount: 2 });
+
+    await send(harness, telegramId, "/review");
+    await tap(harness, telegramId, "fc:reveal");
+    await tap(harness, telegramId, `tr:more:${CARD_MESSAGE_ID}`);
+
+    const buttons = lastMarkup(harness.sent);
+    expect(buttons.slice(0, 4)).toEqual([
+      `fc:rate:again:${due.translationId}`,
+      `fc:rate:hard:${due.translationId}`,
+      `fc:rate:good:${due.translationId}`,
+      `fc:rate:easy:${due.translationId}`,
+    ]);
+    expect(buttons).toContain(`fc:del:${due.entryId}`);
+    expect(buttons).toContain("fc:quit");
+    // The action list did open — this is not a keyboard that simply never changed.
+    expect(buttons).toContain(`tr:altmeaning:${CARD_MESSAGE_ID}`);
+
+    await tap(harness, telegramId, `fc:rate:good:${due.translationId}`);
+    expect(await srsOf(due.entryId)).toMatchObject({ difficulty: "normal", interval: 15 });
+  });
+
+  it("C13: a section generated on a revealed card leaves the deck's screen standing", async () => {
+    // `tr:etymology` rewrites the TEXT of the message it is tapped on, and that
+    // message is the card being rated — a rewrite that dropped the deck's chrome
+    // would take the progress line and the question the ratings answer out from
+    // under the reader mid-review, leaving four unexplained buttons.
+    const harness = createBotHarness({ ai: etymologyAi() });
+    const telegramId = uniqueTelegramId();
+    // Etymology is a paid aid: a Free tap would be answered with the upgrade screen.
+    const userId = await arrangeOnboardedTranslator(telegramId, {
+      nativeLang: "ru",
+      learningLangs: ["de", "en"],
+      plan: "pro",
+    });
+    const due = await seed(userId, "Anker", { easeFactor: 2.5, interval: 6, dueDate: PAST, reviewCount: 2 });
+
+    await send(harness, telegramId, "/review");
+    await tap(harness, telegramId, "fc:reveal");
+    await tap(harness, telegramId, `tr:more:${CARD_MESSAGE_ID}`);
+    await tap(harness, telegramId, `tr:etymology:${CARD_MESSAGE_ID}`);
+
+    const screen = lastScreen(harness.sent);
+    // The section the tap promised did arrive — this is not a card that never changed.
+    expect(screen.text).toContain(ETYMOLOGY);
+    expect(screen.text).toContain(t("flashcardProgress", "en", { current: 1, total: 1 }));
+    expect(screen.text.trimEnd().endsWith(t("srsChooseRating", "en"))).toBe(true);
+    // A word being reviewed is in the dictionary by definition, so the "saved"
+    // confirmation would be noise between the card and the question.
+    expect(screen.text).not.toContain(t("savedToDict", "en"));
+    expect(screen.buttons.slice(0, 4)).toEqual([
+      `fc:rate:again:${due.translationId}`,
+      `fc:rate:hard:${due.translationId}`,
+      `fc:rate:good:${due.translationId}`,
+      `fc:rate:easy:${due.translationId}`,
+    ]);
+
+    // And the deck still works from there.
+    await tap(harness, telegramId, `fc:rate:good:${due.translationId}`);
+    expect(await srsOf(due.entryId)).toMatchObject({ difficulty: "normal", interval: 15 });
   });
 
   it("C5: /review and a legacy srs:restart open the same deck; a legacy fc:next answers expired", async () => {

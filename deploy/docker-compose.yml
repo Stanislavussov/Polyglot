@@ -14,10 +14,10 @@ services:
       - BOT_TOKEN=${BOT_TOKEN:?BOT_TOKEN is required}
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:?OPENROUTER_API_KEY is required}
       # Consumed by the release-announcement CLI (`docker compose run bot …`) on
-      # deploy; empty when a release has no changelog notes.
+      # deploy. The notes themselves ship inside the image (@docs/releases), so
+      # only the release identity travels through the environment.
       - RELEASE_ID=${RELEASE_ID:-}
       - RELEASE_AUDIENCE_GROUPS=${RELEASE_AUDIENCE_GROUPS:-}
-      - RELEASE_ANNOUNCEMENT_BASE64=${RELEASE_ANNOUNCEMENT_BASE64:-}
     ports:
       - "127.0.0.1:${METRICS_PORT:-9090}:9090"
     # Healthcheck is baked into the image (deploy/Dockerfile HEALTHCHECK), single
@@ -118,11 +118,12 @@ services:
     image: wollomatic/socket-proxy:1.12.2
     container_name: polyglot_docker_socket_proxy
     restart: unless-stopped
-    # Distroless nonroot image (USER 65534). GID 999 is the `docker` group on
-    # the Ubuntu docker-ce host (provisioned by deploy/ansible/site.yml) and is
-    # required to READ the root:docker-owned socket. If `getent group docker`
-    # on the host ever reports a different GID, update this value.
-    user: "65534:999"
+    # Distroless nonroot image (USER 65534). The group must be the host's
+    # `docker` GID to READ the root:docker-owned socket. That GID differs per
+    # host (987 on the 26.04 dev VPS, not the 999 once hardcoded here — which
+    # crash-looped the proxy with "permission denied"), so deploy.yml writes
+    # DOCKER_GID into .env from `getent group docker` on every deploy.
+    user: "65534:${DOCKER_GID:-999}"
     read_only: true
     cap_drop:
       - ALL
@@ -157,7 +158,10 @@ services:
         max-file: "3"
 
   autoheal:
-    image: willfarrell/autoheal:1.2.0
+    # Digest-pinned `latest`: the newest tag, 1.2.0 (2021), only starts when
+    # DOCKER_SOCK is a socket *file* and maps tcp:// to https://, so behind the
+    # plain-tcp proxy it fell through to `exec autoheal` -> "not found", exit 127.
+    image: willfarrell/autoheal@sha256:d926d8bda96f5882ce7d937732d7e06ef04607b46914b875885d45f131576042
     container_name: polyglot_autoheal
     restart: unless-stopped
     # Defense-in-depth (symmetry with the proxy's hardening): autoheal holds no

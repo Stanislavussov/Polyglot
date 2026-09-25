@@ -23,6 +23,7 @@ import {
   buildDeleteConfirmKeyboard,
   buildDictionaryEntryKeyboard,
   buildDictionaryListKeyboard,
+  buildDictionaryRemovedKeyboard,
   DICTIONARY_PAGE_SIZE,
   renderDictionaryEntry as renderDictionaryEntryRaw,
   renderDictionaryList as renderDictionaryListRaw,
@@ -364,10 +365,26 @@ describe("buildDictionaryListKeyboard", () => {
   it("no navigation row when 1 page", () => {
     const kb = buildDictionaryListKeyboard(sampleEntries, 1, 1, "en", 7);
     const rows = kb.inline_keyboard;
-    // 3 entry rows + switch row + close row = 5 total (no nav row)
-    expect(rows.length).toBe(5);
+    // 3 entry rows + search/sort row + switch row + close row = 6 total (no nav row)
+    expect(rows.length).toBe(6);
     // Last row is close
-    expect(cbData(rows[4]![0])).toBe("dict:close");
+    expect(cbData(rows[5]![0])).toBe("dict:close");
+  });
+
+  it("offers search and the sort you are not in; reset only while a search is active", () => {
+    const plain = buildDictionaryListKeyboard(sampleEntries, 1, 1, "en", 7).inline_keyboard.flat().map(cbData);
+    expect(plain).toEqual(expect.arrayContaining(["dict:search:7", "dict:sort:7:alpha"]));
+    expect(plain).not.toContain("dict:search-clear:7");
+
+    const filtered = buildDictionaryListKeyboard(sampleEntries, 1, 1, "en", 7, { search: "ap", sort: "alpha" })
+      .inline_keyboard.flat()
+      .map(cbData);
+    expect(filtered).toEqual(expect.arrayContaining(["dict:search:7", "dict:sort:7:recent", "dict:search-clear:7"]));
+  });
+
+  it("an empty dictionary has nothing to search or sort", () => {
+    const empty = buildDictionaryListKeyboard([], 1, 1, "en", 7).inline_keyboard.flat().map(cbData);
+    expect(empty).toEqual(["dict:list", "dict:close"]);
   });
 
   it("has close button", () => {
@@ -419,6 +436,15 @@ describe("buildDeleteConfirmKeyboard", () => {
     const kb = buildDeleteConfirmKeyboard(1, 1, "en", 7);
     expect(kb.inline_keyboard[0]![0]!.text).toContain("Yes");
     expect(kb.inline_keyboard[1]![0]!.text).toContain("Cancel");
+  });
+});
+
+/* ── buildDictionaryRemovedKeyboard ────────────────────────────── */
+
+describe("buildDictionaryRemovedKeyboard", () => {
+  it("offers the word back first, then the list it was removed from", () => {
+    const rows = buildDictionaryRemovedKeyboard(42, 2, "en", 7).inline_keyboard;
+    expect(rows.map((row) => row.map(cbData))).toEqual([["dict:restore:7:42:2"], ["dict:page:7:2"]]);
   });
 });
 

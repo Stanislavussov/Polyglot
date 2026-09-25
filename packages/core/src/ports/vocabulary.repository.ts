@@ -129,6 +129,15 @@ export interface SrsDueVocabularyCard {
   srsReviewCount: number;
 }
 
+/** One live translation row's SM-2 state — what a rating needs to reschedule it from. */
+export interface EntrySrsRow {
+  translationId: number;
+  srsEaseFactor: number;
+  srsInterval: number;
+  srsDueDate: Date | null;
+  srsReviewCount: number;
+}
+
 export interface UpdateSrsStateInput {
   easeFactor: number;
   interval: number;
@@ -143,7 +152,7 @@ export type DictionaryListSort = "recent" | "alpha";
 export interface DictionaryListOptions {
   /** Ordering: "recent" = newest first (default), "alpha" = A→Z by original. */
   sort?: DictionaryListSort;
-  /** Case-insensitive substring filter on the original term. Empty/whitespace = no filter. */
+  /** Case-insensitive substring filter on the original term or any translation. Empty/whitespace = no filter. */
   search?: string;
 }
 
@@ -180,8 +189,6 @@ export interface VocabularyRepository {
       details: VocabTranslationDetails;
     }>,
   ): Promise<VocabularyTranslation[]>;
-  /** Permanently delete an entry (used after the last dictionary membership is removed). */
-  hardDelete(entryId: number): Promise<void>;
   findDueForSrs(userId: number, now: Date, limit: number): Promise<SrsDueVocabularyCard[]>;
   /** Not-yet-due live cards, weakest first: entry graded hard, then lowest ease, then soonest due. */
   findAheadForSrs(userId: number, now: Date, limit: number): Promise<SrsDueVocabularyCard[]>;
@@ -190,6 +197,8 @@ export interface VocabularyRepository {
   /** `findDueForSrs`'s predicate without materialising the cards. */
   countDueForSrs(userId: number, now: Date): Promise<number>;
   updateSrsState(translationId: number, state: UpdateSrsStateInput): Promise<void>;
+  /** Live SRS rows of one owned entry — a rating grades the word, so every language row is rescheduled. */
+  findEntrySrsRows(userId: number, entryId: number): Promise<EntrySrsRow[]>;
   search(userId: number, query: string): Promise<VocabularyEntryWithTranslations[]>;
   countByUser(userId: number, dictionaryId?: number, search?: string): Promise<number>;
   findByUserPaginated(
@@ -201,6 +210,8 @@ export interface VocabularyRepository {
   ): Promise<VocabularyEntryWithTranslations[]>;
   /** Soft-delete the user's own active entry. Owner-scoped; returns false when no row matched. */
   delete(entryId: number, userId: number): Promise<boolean>;
+  /** Undo a soft-delete of the user's own entry. Owner-scoped; returns false when there was nothing removed to restore. */
+  restore(entryId: number, userId: number): Promise<boolean>;
   /** Persist the user's notification feedback grade. Owner-scoped; returns false when no row matched. */
   setDifficulty(entryId: number, userId: number, difficulty: VocabDifficulty): Promise<boolean>;
 }

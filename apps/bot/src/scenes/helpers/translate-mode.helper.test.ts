@@ -141,6 +141,7 @@ import { inputCorrectionCounter } from "../../metrics.js";
 import { getRequestSettings } from "../../middlewares/request-settings.js";
 import { createSettingsStub } from "../../test-helpers/services-stub.js";
 import type { BotContext, SessionData } from "../../types.js";
+import { LONG_OP_TIMEOUT_MS } from "../../utils/long-op.js";
 import { handleEtymologyCallback, handleRegenCallback } from "./card-actions.js";
 import { handleTranslationClarificationCallback, handleTranslationClarificationContextText } from "./clarification.js";
 import { handleOutOfSetCallback } from "./out-of-set.js";
@@ -1515,7 +1516,7 @@ describe("handleEtymologyCallback — loading feedback on the card", () => {
       );
 
       const flow = handleEtymologyCallback(ctx);
-      await vi.advanceTimersByTimeAsync(20_000);
+      await vi.advanceTimersByTimeAsync(LONG_OP_TIMEOUT_MS);
       await flow;
 
       expect(ctx.api.editMessageText).toHaveBeenCalled();

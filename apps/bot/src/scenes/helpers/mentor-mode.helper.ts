@@ -233,6 +233,7 @@ export async function handleMentorText(ctx: BotContext, text: string, opts?: Men
         text,
         threadId,
         userMessageId: opts?.userMessageId,
+        userInput: opts?.userInput,
       });
       return;
     }

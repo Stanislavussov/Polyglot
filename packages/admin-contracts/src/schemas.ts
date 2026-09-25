@@ -191,12 +191,14 @@ export const aiDefaultsSchema = z.object({
     .min(0, "Frequency penalty cannot be negative")
     .max(2, "Frequency penalty cannot exceed 2"),
   maxRetries: z.coerce.number().int("Max retries must be an integer").min(0).max(10),
-  // Capped below the bot's 20 s loader guard so the adapter aborts first.
+  // Capped at the bot's loader guard (`LONG_OP_TIMEOUT_MS`), which clamps the
+  // budget strictly below itself so the adapter aborts first. Must match the
+  // read-side max in `@polyglot/core`'s `ai-defaults.schema.ts`.
   requestTimeoutMs: z.coerce
     .number()
     .int("Request timeout must be an integer")
     .min(1_000, "Request timeout must be at least 1000 ms")
-    .max(20_000, "Request timeout cannot exceed 20000 ms"),
+    .max(90_000, "Request timeout cannot exceed 90000 ms"),
 });
 
 // ── Settings: notifications ────────────────────────────────────────────────────
@@ -295,6 +297,29 @@ export const videoVocabularySettingsSchema = z
     message: "maxPhrases must be greater than or equal to minPhrases",
     path: ["maxPhrases"],
   });
+
+/**
+ * One release note as the sender approved it: the id ties the send back to the
+ * repository queue (and to what a reader already received), while `texts` carries
+ * the wording actually sent — the panel may edit it before pressing send, and an
+ * edit never travels back into the repository.
+ *
+ * The audience is deliberately not a field: release notes go to `admin` and
+ * `tester`, and widening that is a decision for the product, not for one form.
+ */
+export const releaseNoteSendSchema = z.object({
+  notes: z
+    .array(
+      z.object({
+        id: z.string().min(1, "Note id is required").max(64),
+        texts: z.record(
+          z.string().min(2).max(8),
+          z.string().min(1, "A note cannot be empty").max(3500, "A note must fit one Telegram message"),
+        ),
+      }),
+    )
+    .min(1, "Pick at least one note to send"),
+});
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 

@@ -23,7 +23,7 @@ export interface VocabularyDictionaryRepository {
   addEntryToDefault(userId: number, entryId: number): Promise<VocabularyDictionary>;
   entryBelongsToDictionary(entryId: number, dictionaryId: number): Promise<boolean>;
   entryBelongsToDefault(userId: number, entryId: number): Promise<boolean>;
-  removeEntry(dictionaryId: number, entryId: number): Promise<number>;
+  removeEntry(dictionaryId: number, entryId: number): Promise<void>;
   moveEntry(userId: number, fromDictionaryId: number, toDictionaryId: number, entryId: number): Promise<boolean>;
   listEntryDictionaries(userId: number, entryId: number): Promise<VocabularyDictionary[]>;
   listOtherDictionaries(userId: number, entryId: number): Promise<VocabularyDictionaryWithCount[]>;

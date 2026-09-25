@@ -707,11 +707,11 @@ describe("buildTranslationKeyboard", () => {
       }
     });
 
-    it("shows disabled save button when isAlreadySaved is true", () => {
-      const kb = buildTranslationKeyboard({ interfaceLang: "en", msgId: 0, isAlreadySaved: true });
-      const saveBtn = saveButton(kb)!;
-      expect(saveBtn.text).toContain("Saved");
-      expect(cbData(saveBtn)).toBe("tr:save:0");
+    it("offers Remove in the Save slot once the word is saved", () => {
+      const kb = buildTranslationKeyboard({ interfaceLang: "en", msgId: 7, isAlreadySaved: true });
+      expect(saveButton(kb)).toBeUndefined();
+      expect(rows(kb).at(-1)).toEqual(["tr:remove:7"]);
+      expect(kb.inline_keyboard.flat().at(-1)?.text).toContain("Remove");
     });
 
     it("shows active save button when isAlreadySaved is false", () => {

@@ -48,6 +48,7 @@ import { notificationCounter } from "../../metrics.js";
 import { buildNotificationScheduling } from "../../notifications/notification.wiring.js";
 import type { NotifiableUser, NotifiableUserOptions } from "../../test-helpers/integration/arrange.js";
 import {
+  arrangeCuratedPresets,
   arrangeNotifiableUser,
   DELIVERY_TEST_SLOT_TIME,
   DELIVERY_TEST_SLOT_UTC,
@@ -83,8 +84,18 @@ function createAiTripwire(): AiTripwire {
   return { fn, wasCalled: () => called };
 }
 
-/** The real scheduling pipeline, pinned to this lane's slot with both AI paths closed. */
-async function buildDelivery(harness: BotHarness): Promise<{
+/**
+ * The real scheduling pipeline, pinned to this lane's slot with both AI paths
+ * closed.
+ *
+ * The preset layer is nulled by default so every other test here asserts about
+ * the dictionary lane alone; `withPresets` hands back the real picker for the
+ * one test that is about presets.
+ */
+async function buildDelivery(
+  harness: BotHarness,
+  { withPresets = false }: { withPresets?: boolean } = {},
+): Promise<{
   sendFn: (userId: number, payload: NotificationPayload) => Promise<void>;
   deps: SchedulerDeps;
   ai: AiTripwire;
@@ -101,7 +112,7 @@ async function buildDelivery(harness: BotHarness): Promise<{
     deps: {
       ...deps,
       now: () => DELIVERY_TEST_SLOT_UTC,
-      pickPresetWord: async () => null,
+      ...(withPresets ? {} : { pickPresetWord: async () => null }),
     },
   };
 }
@@ -268,6 +279,36 @@ describe("scheduled notification delivery (integration)", () => {
     expect((await journalFor(userId)).map((row) => [row.kind, row.text])).toEqual([
       ["dictionary_empty", textOf(mine[0]!)],
     ]);
+    expect(ai.wasCalled()).toBe(false);
+  });
+
+  it("C19: an empty dictionary gets a curated word, and never the same one twice", async () => {
+    // The bug this closes was invisible to every mocked test: the daily lane read
+    // its de-dup memory from a 24-hour window, which at one notification a day
+    // holds a single send, so the preset queue came straight back around and the
+    // logs showed the same few headwords forever. The fix is a second query with
+    // its own horizon, filtered to preset sends — real SQL, so only a real
+    // database can say whether it selects and orders what the picker needs.
+    const harness = createBotHarness();
+    const telegramId = uniqueTelegramId();
+    await arrangeCuratedPresets("cs", "en");
+    const { userId } = await arrangeTracked(telegramId, { withVocabulary: false });
+    const { sendFn, deps, ai } = await buildDelivery(harness, { withPresets: true });
+    const since = new Date(Date.now() - HOUR_MS);
+    harness.reset();
+
+    // Act — two consecutive ticks, with the first tick's history left standing.
+    await checkAndSend(sendFn, deps);
+    await checkAndSend(sendFn, deps);
+
+    // Assert — two cards, two different curated words, both filed as presets.
+    const mine = messagesTo(harness.sent, telegramId);
+    expect(mine).toHaveLength(2);
+    expect(textOf(mine[0]!)).not.toEqual(textOf(mine[1]!));
+    const sent = await notificationRepository.getSentWordsSince(userId, since);
+    expect(new Set(sent).size).toBe(2);
+    expect(await notificationRepository.getSentWordsFromSourceSince(userId, "preset", since)).toHaveLength(2);
+    // The free path covers every seeded pair, so the JIT translation is never billed.
     expect(ai.wasCalled()).toBe(false);
   });
 
@@ -588,11 +629,11 @@ describe("scheduled notification delivery (integration)", () => {
       .map((button) => button.callback_data);
 
     // A fresh card ships collapsed, so what proves this is the card's keyboard is
-    // the pair a collapsed card always carries — ⋯ More and Save — both addressed
-    // to this message. Expanding it is `tr:more`'s job and is covered where that
-    // behaviour lives.
+    // the pair a collapsed card always carries — ⋯ More and the Save slot, which
+    // offers Remove because a nudged word is a saved one — both addressed to this
+    // message. Expanding it is `tr:more`'s job and is covered where that behaviour lives.
     expect(buttons).toContain(`tr:more:${nudgeMsgId}`);
-    expect(buttons).toContain(`tr:save:${nudgeMsgId}`);
+    expect(buttons).toContain(`tr:remove:${nudgeMsgId}`);
     // The card owns the message now: apart from the recall grades, which address
     // the entry, every button is the card's own. Reveal and Remove do not survive.
     const entryId = entries[0]?.id;
@@ -625,8 +666,8 @@ describe("scheduled notification delivery (integration)", () => {
       }),
     );
 
-    // Act — tap Pronounce's neighbour: "save" is the one button that needs no AI
-    // and reports what it found through the toast.
+    // Act — tap the Save button a card revealed before Remove took that slot still
+    // carries: it needs no AI and reports what it found through the toast.
     harness.reset();
     await harness.dispatch(
       callbackQueryUpdate({

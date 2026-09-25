@@ -2,6 +2,7 @@ import type {
   CreateVocabularyInput,
   DictionaryListOptions,
   DictionaryListSort,
+  EntrySrsRow,
   SourceUsage,
   SrsDueVocabularyCard,
   UpdateSrsStateInput,
@@ -19,12 +20,14 @@ import {
   count,
   desc,
   eq,
+  exists,
   gt,
   gte,
   ilike,
   inArray,
   isNull,
   lte,
+  ne,
   notInArray,
   or,
   type SQL,
@@ -38,6 +41,7 @@ export type {
   CreateVocabularyInput,
   DictionaryListOptions,
   DictionaryListSort,
+  EntrySrsRow,
   SourceUsage,
   SrsDueVocabularyCard,
   UpdateSrsStateInput,
@@ -88,14 +92,37 @@ function tomorrow(): Date {
   return date;
 }
 
-/** Build a case-insensitive substring filter on the original term, or undefined when no query. */
-function originalSearchFilter(search?: string): SQL | undefined {
+/**
+ * Case-insensitive substring filter on the original term or any live translation,
+ * or undefined when no query. Translations are matched through EXISTS rather than
+ * a join so a word with several matching languages is still one row per page slot.
+ */
+function entrySearchFilter(search?: string): SQL | undefined {
   const trimmed = search?.trim();
   if (!trimmed) return undefined;
-  return ilike(vocabularyEntries.original, `%${escapeLikePattern(trimmed)}%`);
+  const pattern = `%${escapeLikePattern(trimmed)}%`;
+  return or(
+    ilike(vocabularyEntries.original, pattern),
+    exists(
+      getDb()
+        .select({ one: sql`1` })
+        .from(vocabularyTranslations)
+        .where(
+          and(
+            eq(vocabularyTranslations.entryId, vocabularyEntries.id),
+            eq(vocabularyTranslations.isActive, true),
+            ilike(vocabularyTranslations.text, pattern),
+          ),
+        ),
+    ),
+  );
 }
 
-/** Resolve the ORDER BY clause for the dictionary browse list. */
+/**
+ * Resolve the ORDER BY clause for the dictionary browse list. Callers add the id as a
+ * tiebreaker: equal originals (one word saved from two source languages) would otherwise
+ * have a plan-dependent order, and OFFSET paging could repeat or skip one of them.
+ */
 function dictionaryListOrder(sort: DictionaryListSort | undefined): SQL {
   return sort === "alpha" ? asc(vocabularyEntries.original) : desc(vocabularyEntries.createdAt);
 }
@@ -106,6 +133,10 @@ function liveTranslationsOf(userId: number): SQL | undefined {
     eq(vocabularyEntries.userId, userId),
     eq(vocabularyEntries.isActive, true),
     eq(vocabularyTranslations.isActive, true),
+    // A row in the entry's own language is a same-language paraphrase the model
+    // once produced (see `repair-self-language-translations.cli.ts`); as a review
+    // card it asks the learner to recall the word from itself.
+    ne(vocabularyTranslations.targetLangId, vocabularyEntries.sourceLangId),
   );
 }
 
@@ -522,7 +553,7 @@ export const vocabularyRepository = {
    */
   async countByUser(userId: number, dictionaryId?: number, search?: string): Promise<number> {
     const db = getDb();
-    const searchFilter = originalSearchFilter(search);
+    const searchFilter = entrySearchFilter(search);
     if (dictionaryId !== undefined) {
       const result = await db
         .select({ value: count() })
@@ -606,6 +637,27 @@ export const vocabularyRepository = {
     return result[0]?.value ?? 0;
   },
 
+  /**
+   * Every live translation row of one entry, owner-scoped on the same join the
+   * due/ahead queries use — so a rating cannot reach a row `/review` would never
+   * have shown (another user's, a soft-deleted one).
+   */
+  async findEntrySrsRows(userId: number, entryId: number): Promise<EntrySrsRow[]> {
+    const db = getDb();
+    return db
+      .select({
+        translationId: vocabularyTranslations.id,
+        srsEaseFactor: vocabularyTranslations.srsEaseFactor,
+        srsInterval: vocabularyTranslations.srsInterval,
+        srsDueDate: vocabularyTranslations.srsDueDate,
+        srsReviewCount: vocabularyTranslations.srsReviewCount,
+      })
+      .from(vocabularyTranslations)
+      .innerJoin(vocabularyEntries, eq(vocabularyTranslations.entryId, vocabularyEntries.id))
+      .where(and(liveTranslationsOf(userId), eq(vocabularyTranslations.entryId, entryId)))
+      .orderBy(asc(vocabularyTranslations.id));
+  },
+
   async updateSrsState(translationId: number, state: UpdateSrsStateInput): Promise<void> {
     const db = getDb();
     await db
@@ -633,14 +685,14 @@ export const vocabularyRepository = {
   ): Promise<VocabularyEntryWithTranslations[]> {
     const db = getDb();
     const order = dictionaryListOrder(options?.sort);
-    const searchFilter = originalSearchFilter(options?.search);
+    const searchFilter = entrySearchFilter(options?.search);
     const entries =
       dictionaryId === undefined
         ? await db
             .select()
             .from(vocabularyEntries)
             .where(and(eq(vocabularyEntries.userId, userId), eq(vocabularyEntries.isActive, true), searchFilter))
-            .orderBy(order)
+            .orderBy(order, asc(vocabularyEntries.id))
             .limit(limit)
             .offset(offset)
         : await db
@@ -670,7 +722,7 @@ export const vocabularyRepository = {
                 searchFilter,
               ),
             )
-            .orderBy(order)
+            .orderBy(order, asc(vocabularyEntries.id))
             .limit(limit)
             .offset(offset);
 
@@ -684,15 +736,6 @@ export const vocabularyRepository = {
       .orderBy(asc(vocabularyTranslations.targetLangId));
 
     return assembleEntriesWithTranslations(entries, translations);
-  },
-
-  /**
-   * Hard delete: permanently removes the entry and all its translations from the DB.
-   * CASCADE on vocabulary_translations handles child rows.
-   */
-  async hardDelete(entryId: number): Promise<void> {
-    const db = getDb();
-    await db.delete(vocabularyEntries).where(eq(vocabularyEntries.id, entryId));
   },
 
   /**
@@ -716,10 +759,62 @@ export const vocabularyRepository = {
         )
         .returning({ id: vocabularyEntries.id });
       if (removed.length === 0) return false;
+      // Live translations only, stamped with the entry's own timestamp: that pair is
+      // how `restore` tells what this removal turned off from what was already off.
       await tx
         .update(vocabularyTranslations)
         .set({ isActive: false, updatedAt: now })
-        .where(eq(vocabularyTranslations.entryId, entryId));
+        .where(and(eq(vocabularyTranslations.entryId, entryId), eq(vocabularyTranslations.isActive, true)));
+      return true;
+    });
+  },
+
+  /**
+   * Undo of {@link delete}: a flag flip and nothing else, so the grade, the review
+   * schedule and the dictionary memberships come back exactly as they were —
+   * re-saving through `create` would overwrite the stored translations instead.
+   *
+   * Only the translations that removal turned off come back, matched by the
+   * timestamp `delete` stamps on the entry and on them alike. A translation can be
+   * off for another reason — `create` reactivates only the languages a re-save
+   * carries — and flipping it on here would resurrect a language the word had lost.
+   */
+  async restore(entryId: number, userId: number): Promise<boolean> {
+    const db = getDb();
+    const now = new Date();
+    return db.transaction(async (tx) => {
+      const removedEntry = and(
+        eq(vocabularyEntries.id, entryId),
+        eq(vocabularyEntries.userId, userId),
+        eq(vocabularyEntries.isActive, false),
+      );
+      const [removed] = await tx
+        .select({ removedAt: vocabularyEntries.updatedAt })
+        .from(vocabularyEntries)
+        .where(removedEntry)
+        .for("update");
+      if (!removed) return false;
+
+      await tx.update(vocabularyEntries).set({ isActive: true, updatedAt: now }).where(removedEntry);
+      const reactivated = await tx
+        .update(vocabularyTranslations)
+        .set({ isActive: true, updatedAt: now })
+        .where(
+          and(
+            eq(vocabularyTranslations.entryId, entryId),
+            eq(vocabularyTranslations.isActive, false),
+            eq(vocabularyTranslations.updatedAt, removed.removedAt),
+          ),
+        )
+        .returning({ id: vocabularyTranslations.id });
+      // Nothing carries the stamp when the entry was touched after its removal. A word
+      // back with no translations is the worse outcome, so bring them all back then.
+      if (reactivated.length === 0) {
+        await tx
+          .update(vocabularyTranslations)
+          .set({ isActive: true, updatedAt: now })
+          .where(eq(vocabularyTranslations.entryId, entryId));
+      }
       return true;
     });
   },

@@ -44,8 +44,8 @@ retention is the control bounding it — check it before widening what is logged
 | AI | `ai.request.completed`, `.failed` (`budgetMs`, `timedOut`) |
 | AI credit | `ai.credit.polled`, `.unlimited`, `.poll_failed`, `.poll_disabled`, `.scheduled`, `.schedule_duplicate_ignored`, `.poll_stopped` |
 | Callbacks | `callback.stale` (`action`, `recovered`) — for every stale-state guard |
-| Vocabulary | `vocabulary.saved`, `.save_skipped`, `.save_failed` |
-| Dictionary | `dictionary.created`, `.renamed`, `.deleted`, `.entry_added`, `.entry_moved`, `.entry_removed`, `.translate_failed` |
+| Vocabulary | `vocabulary.saved`, `.save_skipped`, `.save_failed`, `.removed`, `.restored` (`surface`: `card` \| `notification` \| `flashcard` \| `dictionary`) |
+| Dictionary | `dictionary.created`, `.renamed`, `.deleted`, `.entry_added`, `.entry_moved`, `.entry_removed`, `.searched`, `.translate_failed` |
 | Onboarding | `onboarding.started`, `.screen_rendered`, `.native_lang_selected`, `.learning_lang_confirmed`, `.languages_done`, `.completed`, `.demo_failed`, `.gate_redirected` (`kind`) |
 | Settings | `settings.native_lang_changed`, `.interface_lang_changed`, `.learning_lang_added`/`_removed`, `.notifications_toggled`, `.notification_*_changed`, `.timezone_changed` |
 | Cards | `cards.session_started`, `.card_rated`, `.session_finished`, `.rating_persist_failed` |

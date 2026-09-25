@@ -28,11 +28,14 @@ export async function handleDictionaryCommand(ctx: BotContext): Promise<void> {
   const dictionary = await ctx.services.vocabularyDictionaryRepository.getOrCreateDefault(ctx.user.id);
   const total = await ctx.services.vocabularyRepository.countByUser(ctx.user.id, dictionary.id);
 
+  // A fresh open drops any search but keeps the sort: the order is a preference, the query is not.
+  const sort = ctx.session.dictionary?.sort;
   const entries = await ctx.services.vocabularyRepository.findByUserPaginated(
     ctx.user.id,
     0,
     DICTIONARY_PAGE_SIZE,
     dictionary.id,
+    { sort },
   );
   const totalPages = Math.max(1, Math.ceil(total / DICTIONARY_PAGE_SIZE));
 
@@ -46,7 +49,7 @@ export async function handleDictionaryCommand(ctx: BotContext): Promise<void> {
     await resolveLanguageOrder(ctx),
     dictionary.name,
   );
-  const kb = buildDictionaryListKeyboard(entries, 1, totalPages, lang, dictionary.id);
+  const kb = buildDictionaryListKeyboard(entries, 1, totalPages, lang, dictionary.id, { sort });
 
   const msg = await ctx.reply(text, { parse_mode: "HTML", reply_markup: kb });
 
@@ -54,5 +57,6 @@ export async function handleDictionaryCommand(ctx: BotContext): Promise<void> {
     currentPage: 1,
     dictionaryId: dictionary.id,
     msgId: msg.message_id,
+    sort,
   };
 }

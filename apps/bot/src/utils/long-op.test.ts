@@ -32,9 +32,9 @@ describe("withTimeout", () => {
       /* pending forever */
     });
 
-    const result = withTimeout(never, 20_000);
+    const result = withTimeout(never, LONG_OP_TIMEOUT_MS);
     const assertion = expect(result).rejects.toBeInstanceOf(OperationTimeoutError);
-    await vi.advanceTimersByTimeAsync(20_000);
+    await vi.advanceTimersByTimeAsync(LONG_OP_TIMEOUT_MS);
 
     await assertion;
   });
@@ -50,14 +50,14 @@ describe("clampAiBudgetToOpGuard (B8: two-layer timeout invariant)", () => {
   });
 
   it("clamps a budget that meets or exceeds the outer guard below it", () => {
-    const clamped = clampAiBudgetToOpGuard(30_000);
+    const clamped = clampAiBudgetToOpGuard(LONG_OP_TIMEOUT_MS + 10_000);
     expect(clamped).toBe(LONG_OP_TIMEOUT_MS - AI_BUDGET_SAFETY_MARGIN_MS);
     expect(clamped).toBeLessThan(LONG_OP_TIMEOUT_MS);
   });
 
   it("guarantees the AI budget is always strictly below the outer op guard", () => {
-    // Spans the adapter default (15_000) and values at/above the outer guard.
-    for (const budget of [1_000, 15_000, 20_000, 25_000, 60_000]) {
+    // Spans the adapter default (60_000) and values at/above the outer guard.
+    for (const budget of [1_000, 15_000, 60_000, LONG_OP_TIMEOUT_MS, LONG_OP_TIMEOUT_MS + 5_000, 600_000]) {
       expect(clampAiBudgetToOpGuard(budget)).toBeLessThan(LONG_OP_TIMEOUT_MS);
     }
   });

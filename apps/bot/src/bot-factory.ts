@@ -30,6 +30,7 @@ import {
 import {
   handleNotifFeedbackCallback,
   handleNotifLearnedCallback,
+  handleNotifRestoreCallback,
   handleNotifRevealCallback,
   handleNotifTranslateCallback,
 } from "./notifications/notification.callbacks.js";
@@ -53,6 +54,7 @@ import {
   handleAltMeaningCallback,
   handleEtymologyCallback,
   handleRegenCallback,
+  handleRemoveCallback,
   handleSaveCallback,
   handleSkipCallback,
 } from "./scenes/helpers/card-actions.js";
@@ -81,18 +83,24 @@ import {
   handleDictOpen,
   handleDictPage,
   handleDictRename,
+  handleDictRestore,
+  handleDictSearch,
+  handleDictSearchClear,
+  handleDictSort,
   handleDictTranslate,
   handleDictView,
 } from "./scenes/helpers/dictionary.helper.js";
 import {
   FLASHCARD_DELETE_PATTERN,
   FLASHCARD_RATE_PATTERN,
+  FLASHCARD_UNDO_PATTERN,
   handleFcClose,
   handleFcDelete,
   handleFcQuit,
   handleFcRate,
   handleFcRestart,
   handleFcReveal,
+  handleFcUndo,
   handleLegacyCardCallback,
   LEGACY_CARD_CALLBACK_PATTERN,
 } from "./scenes/helpers/flashcard.helper.js";
@@ -381,6 +389,16 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   // together with the response to the very message they just sent.
   bot.use(mainKeyboardMiddleware);
 
+  // A typed command or a tap on any button abandons a pending dictionary text prompt
+  // (search query, dictionary name). Left armed, the user's next word is swallowed by it
+  // instead of being translated. dict:search / dict:create / dict:rename re-arm it themselves.
+  bot.use((ctx, next) => {
+    if (ctx.chat && (ctx.callbackQuery || ctx.message?.text?.startsWith("/"))) {
+      ctx.session.dictionaryWizard = undefined;
+    }
+    return next();
+  });
+
   onCommand("start", startCommand);
   onCommand("translate", handleTranslateCommand);
   onCommand("mentor", handleMentorCommand);
@@ -507,8 +525,10 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   onCallback(/^notif:tr$/, handleNotifTranslateCallback);
   onCallback(/^notif:fb:/, handleNotifFeedbackCallback);
   onCallback(/^notif:learned:/, handleNotifLearnedCallback);
+  onCallback(/^notif:restore:/, handleNotifRestoreCallback);
 
   onCallback(/^tr:save:/, handleSaveCallback);
+  onCallback(/^tr:remove:/, handleRemoveCallback);
   onCallback(/^tr:skip:/, handleSkipCallback);
   onCallback(/^tr:regen:/, handleRegenCallback);
   onCallback(/^tr:clarifypost:/, handleClarifyPostCallback);
@@ -537,6 +557,7 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
 
   onCallback(FLASHCARD_RATE_PATTERN, handleFcRate);
   onCallback(FLASHCARD_DELETE_PATTERN, handleFcDelete);
+  onCallback(FLASHCARD_UNDO_PATTERN, handleFcUndo);
   onCallback("fc:reveal", handleFcReveal);
   onCallback("fc:restart", handleFcRestart);
   onCallback("fc:quit", handleFcQuit);
@@ -552,6 +573,7 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   onCallback(/^dict:view:/, handleDictView);
   onCallback(/^dict:delete:/, handleDictDelete);
   onCallback(/^dict:confirm-delete:/, handleDictConfirmDelete);
+  onCallback(/^dict:restore:/, handleDictRestore);
   onCallback("dict:list", handleDictList);
   onCallback(/^dict:open:/, handleDictOpen);
   onCallback("dict:create", handleDictCreate);
@@ -563,6 +585,9 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   onCallback(/^dict:add:/, handleDictAdd);
   onCallback(/^dict:move:/, handleDictMove);
   onCallback(/^dict:translate:/, handleDictTranslate);
+  onCallback(/^dict:search-clear:/, handleDictSearchClear);
+  onCallback(/^dict:search:/, handleDictSearch);
+  onCallback(/^dict:sort:/, handleDictSort);
   onCallback("dict:close", handleDictClose);
   onCallback("dict:noop", handleDictNoop);
 

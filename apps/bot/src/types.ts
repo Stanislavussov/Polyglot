@@ -2,6 +2,7 @@ import { type ConversationFlavor } from "@grammyjs/conversations";
 import type { UserMode } from "@polyglot/adapter-db";
 import type {
   CardsDeckCard,
+  DictionaryListSort,
   InputType,
   ServiceContainer,
   TemplateFields,
@@ -57,6 +58,11 @@ export interface SessionData {
       inputType: InputType;
       contextHint?: string;
       savedWordId?: number;
+      /**
+       * The entry this card's Remove soft-deleted. Save then restores that row as it
+       * was instead of re-saving the card's output over its stored translations.
+       */
+      removedWordId?: number;
       /** Accumulated negative constraints for "Other meaning" button */
       previousTranslations?: Record<string, string[]>;
       /** Cached on-demand etymology prose for the original term */
@@ -80,6 +86,13 @@ export interface SessionData {
        * file marked.
        */
       recallGrade?: { entryId: number; selected?: VocabDifficulty | null };
+      /**
+       * Set on a revealed review card: which card of the deck this message is
+       * showing. `tr:more` and friends rebuild the whole keyboard, so without it
+       * on the card the four ratings would vanish from under the reader's thumb
+       * the moment they opened the action list.
+       */
+      reviewCard?: { entryId: number; translationId: number };
       /**
        * Monotonic insertion stamp used for recency-based eviction. Set by
        * {@link setTranslationEntry}; Telegram message ids are not a safe proxy
@@ -164,10 +177,13 @@ export interface SessionData {
     dictionaryId?: number;
     /** Message ID of the dictionary message (for in-place editing) */
     msgId?: number;
+    /** Active search query. Lives here because 64-byte callback data cannot carry free text. */
+    search?: string;
+    sort?: DictionaryListSort;
   };
-  /** Pending dictionary create/rename text input. */
+  /** Pending dictionary text input: a new name, or a search query. */
   dictionaryWizard?: {
-    action: "create" | "rename";
+    action: "create" | "rename" | "search";
     dictionaryId?: number;
     msgId?: number;
   };
@@ -248,6 +264,14 @@ export interface SessionData {
        * the answer with no question.
        */
       userMessageId?: number;
+      /**
+       * Mentor only: what the user typed, when `text` is a composed turn (a card
+       * question carries the whole card). The length guard measures this, so a
+       * retry of a composed turn must carry it too — without it the retry
+       * measured the card and bounced a legal question as "too long"
+       * (2026-09-23 dev-stand regression).
+       */
+      userInput?: string;
       /** Monotonic insertion stamp used for recency-based eviction. */
       addedAt?: number;
     }
@@ -281,6 +305,8 @@ export interface SessionData {
     maturedTranslationId?: number;
     /** A card the user had graded "hard" was answered good or easy in this session. */
     hardRecalled?: boolean;
+    /** The card the previous tap removed, kept for the one screen that offers it back. */
+    lastRemoved?: CardsDeckCard;
   };
   /**
    * Mentor mode state (Task 66, reply-threads MVP).

@@ -24,20 +24,22 @@ export const AI_GENERATION_DEFAULTS: AIGenerationDefaults = {
   temperature: 0.3,
   frequencyPenalty: 0.5,
   maxRetries: 2,
-  requestTimeoutMs: 15_000,
+  requestTimeoutMs: 60_000,
 };
 
 /**
  * Field constraints for a stored `ai.defaults` blob. `requestTimeoutMs` is capped
- * at 20_000 (below the bot's 20 s loader guard) and floored at 1_000, matching the
- * admin panel's write-side schema (`@polyglot/admin-contracts`).
+ * at 90_000 (the bot's loader guard, which then clamps it strictly below itself —
+ * `clampAiBudgetToOpGuard`) and floored at 1_000, matching the admin panel's
+ * write-side schema (`@polyglot/admin-contracts`); the two must stay in step, or the
+ * panel stores a blob this reader rejects and silently reverts to the defaults.
  */
 const aiGenerationDefaultsSchema = z.object({
   maxTokens: z.number().int().positive(),
   temperature: z.number().min(0).max(2),
   frequencyPenalty: z.number().min(0).max(2),
   maxRetries: z.number().int().min(0).max(10),
-  requestTimeoutMs: z.number().int().min(1_000).max(20_000),
+  requestTimeoutMs: z.number().int().min(1_000).max(90_000),
 });
 
 /**

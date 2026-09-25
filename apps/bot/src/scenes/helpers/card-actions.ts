@@ -1,6 +1,6 @@
 /**
  * Translation card actions (Fable T22/B2 slice (e)) — the callback handlers for
- * the buttons on a rendered translation card: Save, the deprecated Skip/Regen,
+ * the buttons on a rendered translation card: Save, Remove, the deprecated Skip/Regen,
  * "Other meaning" and etymology. Each re-renders or extends the card in place.
  */
 import {
@@ -17,6 +17,7 @@ import {
 } from "@polyglot/core";
 import type { InlineKeyboard } from "grammy";
 import { recordEffort } from "../../momentum/momentum.wiring.js";
+import { renderFlashCardBackScreen } from "../../renderers/flashcard.renderer.js";
 import { renderSentenceTranslation, renderTranslation } from "../../renderers/translation.renderer.js";
 import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
@@ -28,6 +29,7 @@ import { editMessageReplyMarkupOrIgnore, editMessageTextOrReply } from "./edit-m
 import { ensurePaidFeature } from "./paid-feature.helper.js";
 import { answerStaleCallback } from "./stale-callback.helper.js";
 import { setTranslationEntry } from "./translation-map.helper.js";
+import { removeWord, restoreWord } from "./word-removal.js";
 
 /** Per-message translation state kept in the session, keyed by the card's message id. */
 type TranslationEntry = NonNullable<BotContext["session"]["translationMap"]>[string];
@@ -53,6 +55,19 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
   const iLang = settings?.interfaceLang ?? "en";
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
   const nativeLang = settings?.nativeLang ?? "en";
+
+  // This card's own Remove took the word out: bring that row back as it was. A false
+  // means it came back some other way meanwhile, which the regular flow below handles.
+  if (entry.removedWordId !== undefined) {
+    const removedWordId = entry.removedWordId;
+    entry.removedWordId = undefined;
+    if (await restoreWord(ctx, removedWordId, "card")) {
+      entry.savedWordId = removedWordId;
+      await showCardState(ctx, entry, msgId, lang, nativeLang);
+      await ctx.answerCallbackQuery();
+      return;
+    }
+  }
 
   // Step 2 — FK resolution
   const sourceLangEntry = ctx.services.languageCache.getLang(output.sourceLang);
@@ -83,7 +98,7 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
       // banked from another card or from the dictionary itself). Bring the card to
       // the saved state so the button stops lying, then say so.
       entry.savedWordId = existing.id;
-      await showSavedCard(ctx, entry, msgId, lang, nativeLang);
+      await showCardState(ctx, entry, msgId, lang, nativeLang);
       await ctx.answerCallbackQuery({
         text: t("alreadySaved", lang),
         show_alert: true,
@@ -108,7 +123,7 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
       kind: "save",
       dedupeKey: `save:${existing.id}`,
     });
-    await showSavedCard(ctx, entry, msgId, lang, nativeLang);
+    await showCardState(ctx, entry, msgId, lang, nativeLang);
     await ctx.answerCallbackQuery();
     return;
   }
@@ -141,17 +156,56 @@ export async function handleSaveCallback(ctx: BotContext): Promise<void> {
   // Step 6 — Update this entry in the map
   entry.savedWordId = newEntry.id;
 
-  await showSavedCard(ctx, entry, msgId, lang, nativeLang);
+  await showCardState(ctx, entry, msgId, lang, nativeLang);
   await ctx.answerCallbackQuery();
 }
 
 /**
- * Re-render the card after a save. The keyboard is rebuilt and passed along:
- * `editMessageText` with no `reply_markup` STRIPS the inline keyboard, which is
- * what used to leave a saved card with no buttons and force the user into the
+ * tr:remove:{msgId} — take the card's saved word out of the dictionary. The card
+ * stays and offers Save again, so a removal is one tap from undone.
+ */
+export async function handleRemoveCallback(ctx: BotContext): Promise<void> {
+  const data = ctx.callbackQuery?.data ?? "";
+  const msgId = parseInt(data.split(":")[2] ?? "0", 10);
+  const entry = ctx.session.translationMap?.[String(msgId)];
+
+  if (!entry) {
+    await answerStaleCallback(ctx, { action: "tr:remove", msgId });
+    return;
+  }
+
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
+  const iLang = settings?.interfaceLang ?? "en";
+  const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
+  const nativeLang = settings?.nativeLang ?? "en";
+
+  const savedWordId = entry.savedWordId;
+  if (savedWordId !== undefined) {
+    // Taken out from a deck, a nudge or the dictionary meanwhile, the row is just as
+    // inactive — and Save must still restore it rather than re-create the word over it.
+    const isOut = (await removeWord(ctx, savedWordId, "card")) || (await isOwnRemovedWord(ctx, savedWordId));
+    entry.savedWordId = undefined;
+    if (isOut) entry.removedWordId = savedWordId;
+  }
+  // No saved word at all is a repeated tap: past 48h the edit becomes a re-send, and
+  // the old message keeps its Remove. What the first tap recorded stays as it is.
+
+  await showCardState(ctx, entry, msgId, lang, nativeLang);
+  await ctx.answerCallbackQuery({ text: t(entry.removedWordId !== undefined ? "wordDeleted" : "noResults", lang) });
+}
+
+async function isOwnRemovedWord(ctx: BotContext, entryId: number): Promise<boolean> {
+  const word = await ctx.services.vocabularyRepository.findById(entryId);
+  return word !== null && word.userId === ctx.user.id && !word.isActive;
+}
+
+/**
+ * Re-render the card after a save or a removal. The keyboard is rebuilt and passed
+ * along: `editMessageText` with no `reply_markup` STRIPS the inline keyboard, which
+ * is what used to leave a saved card with no buttons and force the user into the
  * dictionary to keep working on the word.
  */
-async function showSavedCard(
+async function showCardState(
   ctx: BotContext,
   entry: TranslationEntry,
   msgId: number,
@@ -407,9 +461,33 @@ async function buildCardView(
     : renderTranslation(entry.output, order, lang, effectiveTemplate.fields, nativeLang, false, entry.etymology);
 
   const keyboard = await buildCardKeyboard(ctx, entry, msgId, lang, nativeLang);
-  const isSaved = entry.savedWordId !== undefined;
+  // A word under review is in the dictionary by definition, so the confirmation
+  // tells the reader nothing and lands between the card and the question the
+  // ratings answer.
+  const status =
+    entry.reviewCard !== undefined
+      ? null
+      : entry.savedWordId !== undefined
+        ? "savedToDict"
+        : entry.removedWordId !== undefined
+          ? "removedFromDict"
+          : null;
+  const cardText = status ? `${body}\n\n${t(status, lang)}` : body;
 
-  return { text: isSaved ? `${body}\n\n${t("savedToDict", lang)}` : body, keyboard };
+  // A revealed review card is an ordinary card inside the deck's screen, so a
+  // rewrite has to put the chrome back — otherwise the progress line and the
+  // question the ratings answer vanish from under the reader mid-review. Applied
+  // here for the same reason the deck's buttons are applied in `buildCardKeyboard`:
+  // every later rewrite of this message comes through this one function. Without
+  // the deck session there are no honest numbers for the progress line, so the
+  // card renders bare rather than inventing them.
+  const cards = ctx.session.cards;
+  const text =
+    entry.reviewCard && cards
+      ? renderFlashCardBackScreen(cardText, cards.currentIndex + 1, cards.deck.length, lang)
+      : cardText;
+
+  return { text, keyboard };
 }
 
 /** Redraw a card in place after an on-demand section was generated. */

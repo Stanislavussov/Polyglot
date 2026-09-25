@@ -34,10 +34,14 @@ vi.mock("./notification.formatter.js", () => ({
   buildNotificationKeyboard: vi.fn().mockReturnValue({
     inline_keyboard: [[{ text: "👀 Show translation", callback_data: "notif:reveal:42" }]],
   }),
+  buildNotificationRestoreKeyboard: vi.fn().mockReturnValue({
+    inline_keyboard: [[{ text: "↩️ Bring the removed word back", callback_data: "notif:restore:42" }]],
+  }),
 }));
 
 import type { ServiceContainer } from "@polyglot/core";
 import { createServicesStub } from "../test-helpers/services-stub.js";
+import { LONG_OP_TIMEOUT_MS } from "../utils/long-op.js";
 import {
   handleNotifFeedbackCallback,
   handleNotifLearnedCallback,
@@ -220,7 +224,7 @@ describe("handleNotifRevealCallback", () => {
       );
 
       const flow = handleNotifRevealCallback(ctx);
-      await vi.advanceTimersByTimeAsync(20_000);
+      await vi.advanceTimersByTimeAsync(LONG_OP_TIMEOUT_MS);
       await flow;
 
       expect(ctx.answerCallbackQuery).toHaveBeenCalledWith(

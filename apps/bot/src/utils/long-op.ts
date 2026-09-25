@@ -18,8 +18,16 @@ import {
 import type { InlineKeyboardMarkup } from "grammy/types";
 import type { BotContext } from "../types.js";
 
-/** How long a user-facing operation may run before we give up and say so. */
-export const LONG_OP_TIMEOUT_MS = 20_000;
+/**
+ * How long a user-facing operation may run before we give up and say so.
+ *
+ * Raised from 20 s on 2026-09-25: the dev stand kept showing "taking longer"
+ * on requests that were still making progress — slow-but-alive provider tails,
+ * not hangs. A hung provider is bounded well below this by the AI adapter's own
+ * abort budget (`requestTimeoutMs`, clamped by {@link clampAiBudgetToOpGuard}),
+ * so the long guard buys the slow case without letting a dead socket linger.
+ */
+export const LONG_OP_TIMEOUT_MS = 90_000;
 
 /**
  * Wall-clock budget handed to the translation pipeline, which the caller turns

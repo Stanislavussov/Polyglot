@@ -107,6 +107,32 @@ describe("vocabularyRepository (integration)", () => {
     expect(underscore.map((e) => e.original)).toEqual(["abc_def"]);
   });
 
+  it("filters the browse list by translation text too, one row per entry, with a matching count", async () => {
+    const userId = await freshUserId();
+    const es = await langId("es");
+    const en = await langId("en");
+    const de = await langId("de");
+
+    // "casa" matches through BOTH of its translations — it must still be a single row.
+    await vocabularyRepository.create(userId, {
+      ...entryInput("casa", es, en, "house"),
+      translations: [
+        { targetLangId: en, text: "house", details: { synonyms: [], examples: [] } },
+        { targetLangId: de, text: "Haus", details: { synonyms: [], examples: [] } },
+      ],
+    });
+    await vocabularyRepository.create(userId, entryInput("perro", es, en, "dog"));
+    await vocabularyRepository.create(userId, entryInput("hausa", es, en, "a language"));
+
+    const found = await vocabularyRepository.findByUserPaginated(userId, 0, 10, undefined, {
+      search: "HAUS",
+      sort: "alpha",
+    });
+
+    expect(found.map((e) => e.original)).toEqual(["casa", "hausa"]);
+    expect(await vocabularyRepository.countByUser(userId, undefined, "HAUS")).toBe(2);
+  });
+
   it("soft-deletes then reactivates the same row on re-save (entity-scoped retention)", async () => {
     const userId = await freshUserId();
     const es = await langId("es");
@@ -128,6 +154,72 @@ describe("vocabularyRepository (integration)", () => {
       .where(and(eq(vocabularyEntries.userId, userId), eq(vocabularyEntries.original, "gato")));
     expect(rows).toHaveLength(1);
     expect(rows[0]?.isActive).toBe(true);
+  });
+
+  it("restores a removed entry as it was — translations, grade and review schedule intact", async () => {
+    const userId = await freshUserId();
+    const es = await langId("es");
+    const en = await langId("en");
+
+    const created = await vocabularyRepository.create(userId, entryInput("luna", es, en, "moon"));
+    const translationId = created.translations[0]!.id;
+    await vocabularyRepository.setDifficulty(created.id, userId, "hard");
+    const dueDate = new Date("2030-01-01T00:00:00Z");
+    await vocabularyRepository.updateSrsState(translationId, {
+      easeFactor: 2.1,
+      interval: 12,
+      reviewCount: 4,
+      dueDate,
+    });
+    await vocabularyRepository.delete(created.id, userId);
+
+    expect(await vocabularyRepository.restore(created.id, userId)).toBe(true);
+
+    const restored = await vocabularyRepository.findByOriginalAndSource(userId, "luna", es);
+    expect(restored?.id).toBe(created.id);
+    expect(restored?.difficulty).toBe("hard");
+    expect(restored?.translations.map((tr) => tr.text)).toEqual(["moon"]);
+    expect(restored?.translations[0]).toMatchObject({ srsInterval: 12, srsReviewCount: 4, srsDueDate: dueDate });
+  });
+
+  it("restores only what the removal turned off — a translation dropped by an earlier re-save stays dropped", async () => {
+    const userId = await freshUserId();
+    const es = await langId("es");
+    const en = await langId("en");
+    const ru = await langId("ru");
+
+    const both: CreateVocabularyInput = {
+      ...entryInput("casa", es, en, "house"),
+      translations: [
+        { targetLangId: en, text: "house", details: { synonyms: [], examples: [] } },
+        { targetLangId: ru, text: "дом", details: { synonyms: [], examples: [] } },
+      ],
+    };
+    const created = await vocabularyRepository.create(userId, both);
+    await vocabularyRepository.delete(created.id, userId);
+    // Re-saved from a card that no longer translates into Russian: only English comes back.
+    await vocabularyRepository.create(userId, entryInput("casa", es, en, "house"));
+    await vocabularyRepository.delete(created.id, userId);
+
+    expect(await vocabularyRepository.restore(created.id, userId)).toBe(true);
+
+    const restored = await vocabularyRepository.findByOriginalAndSource(userId, "casa", es);
+    expect(restored?.translations.map((tr) => tr.text)).toEqual(["house"]);
+  });
+
+  it("refuses to restore another user's entry, and reports nothing to restore for a live or unknown one", async () => {
+    const ownerId = await freshUserId();
+    const strangerId = await freshUserId();
+    const es = await langId("es");
+    const en = await langId("en");
+
+    const created = await vocabularyRepository.create(ownerId, entryInput("mar", es, en, "sea"));
+    expect(await vocabularyRepository.restore(created.id, ownerId)).toBe(false);
+
+    await vocabularyRepository.delete(created.id, ownerId);
+    expect(await vocabularyRepository.restore(created.id, strangerId)).toBe(false);
+    expect(await vocabularyRepository.findByUser(ownerId)).toHaveLength(0);
+    expect(await vocabularyRepository.restore(999_999_999, ownerId)).toBe(false);
   });
 
   it("upserts a duplicate (userId, original, sourceLang) without creating a second row", async () => {
@@ -182,5 +274,45 @@ describe("vocabularyRepository (integration)", () => {
     expect(await vocabularyRepository.delete(created.id, ownerId)).toBe(true);
     expect(await vocabularyRepository.delete(created.id, ownerId)).toBe(false);
     expect(await vocabularyRepository.setDifficulty(created.id, ownerId, "hard")).toBe(false);
+  });
+
+  it("hands a rating every live SRS row of an owned entry, and none of a stranger's or a removed word's", async () => {
+    const ownerId = await freshUserId();
+    const strangerId = await freshUserId();
+    const es = await langId("es");
+    const en = await langId("en");
+    const ru = await langId("ru");
+
+    const created = await vocabularyRepository.create(ownerId, {
+      original: "luna",
+      sourceLangId: es,
+      inputType: "word",
+      translations: [
+        { targetLangId: en, text: "moon", details: { synonyms: [], examples: [] } },
+        { targetLangId: ru, text: "луна", details: { synonyms: [], examples: [] } },
+      ],
+    });
+    const rated = created.translations[0]!;
+    await vocabularyRepository.updateSrsState(rated.id, {
+      easeFactor: 2.1,
+      interval: 4,
+      dueDate: new Date("2026-05-05T00:00:00.000Z"),
+      reviewCount: 3,
+    });
+
+    const rows = await vocabularyRepository.findEntrySrsRows(ownerId, created.id);
+    expect(rows.map((row) => row.translationId).sort()).toEqual(
+      created.translations.map((translation) => translation.id).sort(),
+    );
+    expect(rows.find((row) => row.translationId === rated.id)).toMatchObject({
+      srsEaseFactor: 2.1,
+      srsInterval: 4,
+      srsReviewCount: 3,
+    });
+
+    // A forged rating from another chat, and one left on a word since removed.
+    expect(await vocabularyRepository.findEntrySrsRows(strangerId, created.id)).toEqual([]);
+    await vocabularyRepository.delete(created.id, ownerId);
+    expect(await vocabularyRepository.findEntrySrsRows(ownerId, created.id)).toEqual([]);
   });
 });

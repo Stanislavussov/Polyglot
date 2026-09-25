@@ -376,6 +376,22 @@ describe("handleMentorText", () => {
     });
   });
 
+  it("keeps what the user typed on the retry action, so a composed card turn is not re-measured as input", async () => {
+    mockAi.generateChat.mockRejectedValueOnce(new AITimeoutError(15_000));
+    const ctx = createMockCtx({ mentor: { threadId: THREAD_A } });
+    const composedTurn = `--- CARD ---\n${"x".repeat(1200)}\n--- END OF CARD ---\nwhy?`;
+
+    await handleMentorText(ctx, composedTurn, { userInput: "why?", userMessageId: 55 });
+
+    expect(mockAi.generateChat).toHaveBeenCalledTimes(1);
+    expect(takeRetryAction(ctx.session, 100)).toMatchObject({
+      kind: "mentor",
+      text: composedTurn,
+      userInput: "why?",
+      userMessageId: 55,
+    });
+  });
+
   it("does not offer a retry button on a hard AI failure", async () => {
     mockAi.generateChat.mockRejectedValueOnce(new Error("API down"));
     const ctx = createMockCtx();
