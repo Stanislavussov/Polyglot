@@ -41,6 +41,7 @@ vi.mock("./notification.formatter.js", () => ({
 
 import type { ServiceContainer } from "@polyglot/core";
 import { createServicesStub } from "../test-helpers/services-stub.js";
+import { LONG_OP_TIMEOUT_MS } from "../utils/long-op.js";
 import {
   handleNotifFeedbackCallback,
   handleNotifLearnedCallback,
@@ -223,7 +224,7 @@ describe("handleNotifRevealCallback", () => {
       );
 
       const flow = handleNotifRevealCallback(ctx);
-      await vi.advanceTimersByTimeAsync(20_000);
+      await vi.advanceTimersByTimeAsync(LONG_OP_TIMEOUT_MS);
       await flow;
 
       expect(ctx.answerCallbackQuery).toHaveBeenCalledWith(

@@ -137,7 +137,7 @@ const fieldDescriptions: FieldDescriptionMap = {
     temperature: "Controls randomness in AI output from 0 to 2. Lower values are more consistent; higher values are more creative.",
     frequencyPenalty: "Reduces repeated words and phrases in AI output. Use higher values when responses become repetitive.",
     maxRetries: "How many times Polyglot retries an AI request after validation or provider failures before returning an error.",
-    requestTimeoutMs: "Wall-clock budget in milliseconds for a single AI call (including retries) before it is aborted and the user sees a 'taking longer' message. Keep below 20000 (the bot's loader timeout) so the request is truly cancelled instead of abandoned.",
+    requestTimeoutMs: "Wall-clock budget in milliseconds for a single AI call (including retries) before it is aborted and the user sees a 'taking longer' message. Keep below 90000 (the bot's loader timeout) so the request is truly cancelled instead of abandoned.",
   },
   notifications: {
     defaultTime:

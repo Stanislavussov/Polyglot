@@ -191,12 +191,14 @@ export const aiDefaultsSchema = z.object({
     .min(0, "Frequency penalty cannot be negative")
     .max(2, "Frequency penalty cannot exceed 2"),
   maxRetries: z.coerce.number().int("Max retries must be an integer").min(0).max(10),
-  // Capped below the bot's 20 s loader guard so the adapter aborts first.
+  // Capped at the bot's loader guard (`LONG_OP_TIMEOUT_MS`), which clamps the
+  // budget strictly below itself so the adapter aborts first. Must match the
+  // read-side max in `@polyglot/core`'s `ai-defaults.schema.ts`.
   requestTimeoutMs: z.coerce
     .number()
     .int("Request timeout must be an integer")
     .min(1_000, "Request timeout must be at least 1000 ms")
-    .max(20_000, "Request timeout cannot exceed 20000 ms"),
+    .max(90_000, "Request timeout cannot exceed 90000 ms"),
 });
 
 // ── Settings: notifications ────────────────────────────────────────────────────

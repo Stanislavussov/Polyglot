@@ -10,3 +10,4 @@
 - Sort your dictionary A–Z or newest first with one tap.
 - Saved a word you don't actually need? Remove it right from its card, a reminder, a review card or the dictionary — and bring it straight back with one tap if you change your mind.
 - If the mentor took too long to answer a question about a card, 🔄 Try again now really tries again instead of complaining that your message is too long.
+- The bot now waits much longer for a slow answer before giving up, so a translation or a mentor reply that is simply taking its time arrives instead of turning into “this is taking longer than expected”.

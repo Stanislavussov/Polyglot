@@ -18,6 +18,7 @@ vi.mock("../repositories/ai-model.repository.js", () => ({ aiModelRepository: {}
 vi.mock("../repositories/rate-limit-plan.repository.js", () => ({ rateLimitPlanRepository: {} }));
 vi.mock("../repositories/translation-preset.repository.js", () => ({ translationPresetRepository: {} }));
 
+import { AI_GENERATION_DEFAULTS } from "@polyglot/core";
 import { settingsAdapter } from "../settings-adapter.js";
 
 describe("settingsAdapter.getAIGenerationDefaults — partial-blob merge", () => {
@@ -31,7 +32,7 @@ describe("settingsAdapter.getAIGenerationDefaults — partial-blob merge", () =>
 
     const defaults = await settingsAdapter.getAIGenerationDefaults();
 
-    expect(defaults.requestTimeoutMs).toBe(15_000); // backfilled from defaults
+    expect(defaults.requestTimeoutMs).toBe(AI_GENERATION_DEFAULTS.requestTimeoutMs); // backfilled from defaults
     expect(defaults.maxTokens).toBe(8192); // admin-set value preserved, not clobbered
   });
 
@@ -53,7 +54,7 @@ describe("settingsAdapter.getAIGenerationDefaults — partial-blob merge", () =>
 
     const defaults = await settingsAdapter.getAIGenerationDefaults();
 
-    expect(defaults.requestTimeoutMs).toBe(15_000);
+    expect(defaults.requestTimeoutMs).toBe(AI_GENERATION_DEFAULTS.requestTimeoutMs);
     expect(defaults.maxTokens).toBe(4096);
   });
 
@@ -70,7 +71,7 @@ describe("settingsAdapter.getAIGenerationDefaults — partial-blob merge", () =>
     const defaults = await settingsAdapter.getAIGenerationDefaults();
 
     // Boundary validation guarantees a finite, in-range budget — never null/NaN.
-    expect(defaults.requestTimeoutMs).toBe(15_000);
+    expect(defaults.requestTimeoutMs).toBe(AI_GENERATION_DEFAULTS.requestTimeoutMs);
     expect(Number.isFinite(defaults.requestTimeoutMs)).toBe(true);
     // Whole-object fallback: an invalid blob is not limped along field-by-field.
     expect(defaults.maxTokens).toBe(4096);

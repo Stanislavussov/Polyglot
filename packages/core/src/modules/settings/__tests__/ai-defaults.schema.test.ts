@@ -20,12 +20,12 @@ describe("parseAIGenerationDefaults", () => {
       frequencyPenalty: 0.5,
       maxRetries: 2,
     });
-    expect(result.requestTimeoutMs).toBe(AI_GENERATION_DEFAULTS.requestTimeoutMs); // 15_000
+    expect(result.requestTimeoutMs).toBe(AI_GENERATION_DEFAULTS.requestTimeoutMs); // 60_000
     expect(result.maxTokens).toBe(8192);
   });
 
   it("falls back to safe defaults for a present-but-invalid field (the outage shape)", () => {
-    for (const bad of [null, Number.NaN, "15000", 500, 25_000, -1]) {
+    for (const bad of [null, Number.NaN, "15000", 500, 95_000, -1]) {
       const result = parseAIGenerationDefaults({
         maxTokens: 8192,
         temperature: 0.3,
@@ -48,7 +48,7 @@ describe("parseAIGenerationDefaults", () => {
       const { requestTimeoutMs } = parseAIGenerationDefaults(raw);
       expect(Number.isFinite(requestTimeoutMs)).toBe(true);
       expect(requestTimeoutMs).toBeGreaterThanOrEqual(1_000);
-      expect(requestTimeoutMs).toBeLessThanOrEqual(20_000);
+      expect(requestTimeoutMs).toBeLessThanOrEqual(90_000);
     }
   });
 });
