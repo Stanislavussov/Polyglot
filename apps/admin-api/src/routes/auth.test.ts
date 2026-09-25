@@ -22,6 +22,7 @@ vi.mock("bcryptjs", () => ({
 }));
 
 const { authRoutes } = await import("./auth.js");
+const { TRUSTED_PROXY_HOPS } = await import("../proxy-trust.js");
 
 const ACTIVE_ADMIN = {
   id: 1,
@@ -38,7 +39,10 @@ const ACTIVE_ADMIN = {
  * pino output for the "no password leak" assertion.
  */
 async function buildApp(logStream?: Writable) {
-  const app = Fastify(logStream ? { logger: { level: "warn", stream: logStream } } : { logger: false });
+  const app = Fastify({
+    trustProxy: TRUSTED_PROXY_HOPS,
+    logger: logStream ? { level: "warn", stream: logStream } : false,
+  });
   await app.register(import("@fastify/rate-limit"), { global: true, max: 200, timeWindow: "1 minute" });
   await app.register(import("@fastify/jwt"), { secret: "test-secret" });
   await app.register(authRoutes, { prefix: "/api/auth" });
@@ -71,6 +75,29 @@ describe("admin login rate limiting (T05)", () => {
     // First five reach the handler (401 on bad password); the sixth is throttled.
     expect(statuses.slice(0, 5)).toEqual([401, 401, 401, 401, 401]);
     expect(statuses[5]).toBe(429);
+  });
+
+  it("keys the limit on the address nginx saw, not on a forged X-Forwarded-For", async () => {
+    const app = await buildApp();
+    // nginx appends the real peer (203.0.113.7) after whatever the client sent.
+    const attempt = (forged: string, real = "203.0.113.7") =>
+      app.inject({
+        method: "POST",
+        url: "/api/auth/login",
+        headers: { "x-forwarded-for": `${forged}, ${real}` },
+        payload: loginPayload(),
+      });
+
+    const statuses: number[] = [];
+    for (let i = 0; i < 6; i++) {
+      statuses.push((await attempt(`198.51.100.${i}`)).statusCode);
+    }
+    const otherClient = await attempt("198.51.100.99", "203.0.113.8");
+
+    // A fresh forged address per attempt no longer buys a fresh bucket...
+    expect(statuses[5]).toBe(429);
+    // ...while a genuinely different client still has its own.
+    expect(otherClient.statusCode).toBe(401);
   });
 
   it("lets a legitimate login through within the limit", async () => {

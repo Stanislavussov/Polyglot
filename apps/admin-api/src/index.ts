@@ -8,6 +8,7 @@ dotenvConfig({ path: resolve(__dirname, "../../../.env") });
 
 import { installErrorHandler } from "./error-handler.js";
 import { authPlugin } from "./plugins/auth.js";
+import { TRUSTED_PROXY_HOPS } from "./proxy-trust.js";
 import { aiDefaultRoutes } from "./routes/ai-defaults.js";
 import { aiModelRoutes } from "./routes/ai-models.js";
 import { authRoutes } from "./routes/auth.js";
@@ -54,9 +55,9 @@ export function resolveCorsOrigins(env: NodeJS.ProcessEnv = process.env): string
 }
 
 export async function buildAdminApiApp() {
-  // trustProxy: the admin-API is only reachable through the nginx reverse proxy,
-  // so honour X-Forwarded-For to rate-limit by the real client IP, not nginx's.
-  const app = Fastify({ logger: true, trustProxy: true });
+  // The admin-API is only reachable through the nginx reverse proxy, so the
+  // client IP the rate limit keys on comes from X-Forwarded-For — see proxy-trust.
+  const app = Fastify({ logger: true, trustProxy: TRUSTED_PROXY_HOPS });
 
   await app.register(import("@fastify/cors"), {
     origin: resolveCorsOrigins(),
