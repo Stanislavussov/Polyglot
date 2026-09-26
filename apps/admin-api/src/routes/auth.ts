@@ -2,6 +2,7 @@ import { adminUserRepository } from "@polyglot/adapter-db";
 import { loginSchema } from "@polyglot/admin-contracts";
 import bcrypt from "bcryptjs";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import { clearedSessionCookie, SESSION_TTL_SECONDS, sessionCookie } from "../session-cookie.js";
 
 export async function authRoutes(app: FastifyInstance) {
   app.post(
@@ -32,13 +33,26 @@ export async function authRoutes(app: FastifyInstance) {
         return reply.status(401).send({ error: "Invalid credentials" });
       }
 
-      const token = app.jwt.sign({ adminId: admin.id, email: admin.email, role: admin.role }, { expiresIn: "24h" });
+      const token = app.jwt.sign(
+        { adminId: admin.id, email: admin.email, role: admin.role },
+        {
+          expiresIn: SESSION_TTL_SECONDS,
+        },
+      );
 
       await adminUserRepository.updateLastLogin(admin.id);
+
+      reply.header("set-cookie", sessionCookie(token));
 
       return { token, admin: { id: admin.id, email: admin.email, role: admin.role } };
     },
   );
+
+  app.post("/logout", async (_request: FastifyRequest, reply: FastifyReply) => {
+    // A stateless JWT cannot be revoked here; dropping the cookie is what ends
+    // the browser session.
+    return reply.header("set-cookie", clearedSessionCookie()).status(204).send();
+  });
 
   app.get("/me", async (request: FastifyRequest, reply: FastifyReply) => {
     // Auth is enforced globally by the unified hook (plugins/auth.ts), which has

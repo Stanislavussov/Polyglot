@@ -135,3 +135,69 @@ describe("admin login rate limiting (T05)", () => {
     expect(logged).not.toContain("sup3r-s3cret-pw");
   });
 });
+
+/**
+ * Spec: the session travels in an httpOnly cookie, so a script injected into the
+ * panel cannot read the token. It lives exactly as long as the token itself, is
+ * only sent to this API from the same site, and `Secure` in production.
+ */
+describe("admin session cookie", () => {
+  const originalNodeEnv = process.env.NODE_ENV;
+
+  beforeEach(() => {
+    mocks.findByEmail.mockResolvedValue(ACTIVE_ADMIN);
+    mocks.bcryptCompare.mockResolvedValue(true);
+  });
+
+  afterEach(() => {
+    process.env.NODE_ENV = originalNodeEnv;
+  });
+
+  it("hands the token over in an httpOnly, same-site cookie on login", async () => {
+    process.env.NODE_ENV = "production";
+    const app = await buildApp();
+
+    const res = await app.inject({ method: "POST", url: "/api/auth/login", payload: loginPayload() });
+
+    const cookie = String(res.headers["set-cookie"]);
+    // __Host- makes the browser refuse the cookie from any other subdomain, so a
+    // sibling site cannot plant its own admin_token to shadow this one.
+    expect(cookie).toContain(`__Host-admin_token=${res.json().token}`);
+    expect(cookie).toMatch(/; HttpOnly/);
+    expect(cookie).toMatch(/; SameSite=Strict/);
+    expect(cookie).toMatch(/; Secure/);
+    expect(cookie).toMatch(/; Path=\//);
+    expect(cookie).toMatch(/; Max-Age=86400/);
+  });
+
+  it("leaves Secure off outside production, where the panel runs on plain http://localhost", async () => {
+    process.env.NODE_ENV = "development";
+    const app = await buildApp();
+
+    const res = await app.inject({ method: "POST", url: "/api/auth/login", payload: loginPayload() });
+
+    expect(String(res.headers["set-cookie"])).not.toMatch(/Secure/);
+  });
+
+  it("sets no cookie when the password is wrong", async () => {
+    mocks.bcryptCompare.mockResolvedValue(false);
+    const app = await buildApp();
+
+    const res = await app.inject({ method: "POST", url: "/api/auth/login", payload: loginPayload() });
+
+    expect(res.statusCode).toBe(401);
+    expect(res.headers["set-cookie"]).toBeUndefined();
+  });
+
+  it("clears the cookie on logout", async () => {
+    const app = await buildApp();
+
+    const res = await app.inject({ method: "POST", url: "/api/auth/logout" });
+
+    expect(res.statusCode).toBe(204);
+    const cookie = String(res.headers["set-cookie"]);
+    expect(cookie).toMatch(/^admin_token=;/);
+    expect(cookie).toMatch(/; Max-Age=0/);
+    expect(cookie).toMatch(/; HttpOnly/);
+  });
+});
