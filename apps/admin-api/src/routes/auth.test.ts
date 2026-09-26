@@ -22,7 +22,7 @@ vi.mock("bcryptjs", () => ({
 }));
 
 const { authRoutes } = await import("./auth.js");
-const { TRUSTED_PROXY_HOPS } = await import("../proxy-trust.js");
+const { trustNginxHop } = await import("../proxy-trust.js");
 
 const ACTIVE_ADMIN = {
   id: 1,
@@ -40,7 +40,7 @@ const ACTIVE_ADMIN = {
  */
 async function buildApp(logStream?: Writable) {
   const app = Fastify({
-    trustProxy: TRUSTED_PROXY_HOPS,
+    trustProxy: trustNginxHop,
     logger: logStream ? { level: "warn", stream: logStream } : false,
   });
   await app.register(import("@fastify/rate-limit"), { global: true, max: 200, timeWindow: "1 minute" });

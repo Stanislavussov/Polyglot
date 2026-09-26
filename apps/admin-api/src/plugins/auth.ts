@@ -66,7 +66,9 @@ export const authPlugin = fp(async (app: FastifyInstance) => {
 
   await app.register(fastifyJwt, {
     secret,
-    verify: { extractToken: sessionToken },
+    // routes/auth.ts signs HS256 only; pinning it shuts the algorithm-confusion
+    // class fast-jwt keeps re-fixing (GHSA-mvf2-f6gm-w987) out of our verify path.
+    verify: { algorithms: ["HS256"], extractToken: sessionToken },
     // Runs on every jwtVerify() after the signature checks out: a deactivated or
     // deleted admin is rejected (401) here instead of keeping full access until
     // the token expires. This closes finding S4 across all routes at one point.

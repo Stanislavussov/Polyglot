@@ -156,3 +156,37 @@ describe("authPlugin runtime revocation (T06)", () => {
     await app.close();
   });
 });
+
+describe("authPlugin token hardening", () => {
+  beforeEach(() => {
+    clearAdminActiveCache();
+    repo.findById.mockResolvedValue({ id: 1, isActive: true });
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("rejects a token signed with the right secret under another algorithm", async () => {
+    const app = await buildApp();
+    const token = app.jwt.sign({ adminId: 1, email: "a@example.com", role: "admin" }, { algorithm: "HS512" });
+
+    const res = await callProtected(app, token);
+
+    expect(res.statusCode).toBe(401);
+    await app.close();
+  });
+
+  it("rejects a token carrying a critical header extension it does not understand", async () => {
+    const app = await buildApp();
+    const token = app.jwt.sign(
+      { adminId: 1, email: "a@example.com", role: "admin" },
+      { header: { alg: "HS256", crit: ["x-policy"], "x-policy": "require-mfa" } },
+    );
+
+    const res = await callProtected(app, token);
+
+    expect(res.statusCode).toBe(401);
+    await app.close();
+  });
+});
