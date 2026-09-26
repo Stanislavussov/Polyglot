@@ -300,6 +300,22 @@
             # Login rate-limit zone (Fable T20/T05) — 5 req/min per client IP,
             # edge-level defense-in-depth in front of the app's own limiter.
             limit_req_zone $binary_remote_addr zone=polyglot_login:10m rate=5r/m;
+        - dest: /etc/nginx/conf.d/polyglot-default.conf
+          content: |
+            server_tokens off;
+
+            # Catch-all for requests naming none of our hosts. Without it nginx fell
+            # back to the first 443 vhost, so a scan of the bare IP got the admin
+            # login, and its certificate named the admin and API domains. 444 drops
+            # the connection; the TLS handshake is refused before any certificate
+            # is sent. IPv4 only, like every vhost here.
+            server {
+                listen 80 default_server;
+                listen 443 ssl default_server;
+                server_name _;
+                ssl_reject_handshake on;
+                return 444;
+            }
         - dest: /etc/nginx/snippets/polyglot-hardening.conf
           content: |
             # TLS protocol/cipher hardening + security headers + request/proxy
@@ -394,6 +410,18 @@
               ssl_certificate_key /etc/letsencrypt/live/{{ admin_panel_domain }}/privkey.pem;
 
               include /etc/nginx/snippets/polyglot-hardening.conf;
+
+              # Every hit makes the panel server verify a token with the admin API,
+              # so an unthrottled /session is a lever on that API's rate limit.
+              location = /session {
+                  limit_req zone=polyglot_login burst=5 nodelay;
+                  proxy_pass http://localhost:4321;
+                  proxy_http_version 1.1;
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto $scheme;
+              }
 
               location / {
                   proxy_pass http://localhost:4321;
@@ -491,11 +519,13 @@
       when: configure_public_routing | bool
       notify: Reload nginx
 
+    # The stock site also claims default_server, which collides with the catch-all
+    # in conf.d on any host that writes it, landing-only ones included.
     - name: Remove default nginx site
       ansible.builtin.file:
         path: /etc/nginx/sites-enabled/default
         state: absent
-      when: configure_public_routing | bool
+      when: configure_public_routing | bool or configure_landing_routing | bool
       notify: Reload nginx
 
     - name: Validate nginx config
@@ -587,6 +617,8 @@
 
               ssl_certificate /etc/letsencrypt/live/{{ landing_domain }}/fullchain.pem;
               ssl_certificate_key /etc/letsencrypt/live/{{ landing_domain }}/privkey.pem;
+
+              include /etc/nginx/snippets/polyglot-hardening.conf;
 
               return 301 https://{{ landing_domain }}$request_uri;
           }
