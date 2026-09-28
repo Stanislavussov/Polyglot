@@ -79,4 +79,19 @@ describe("review deck picker", () => {
 
     expect(await pick(7, 3, ["pes"])).toEqual([]);
   });
+
+  it("keeps widening the search when one word's language rows fill the first page", async () => {
+    // Four languages per word, two words recently sent: the first page (2 × 4 + 2 = 10 rows)
+    // is almost all theirs and holds one fresh word.
+    const rowsOf = (entryId: number, original: string) =>
+      [1, 2, 3, 4].map((lang) => row(entryId, original, { translationId: entryId * 10 + lang, targetLangId: lang }));
+    const all = [...rowsOf(1, "pes"), ...rowsOf(2, "kočka"), ...rowsOf(3, "dům"), ...rowsOf(4, "strom")];
+    const findDueForSrs = vi.fn(async (_userId: number, _now: Date, limit: number) => all.slice(0, limit));
+    const pick = createReviewDeckPicker({ findDueForSrs, findAheadForSrs: vi.fn().mockResolvedValue([]) });
+
+    const deck = await pick(7, 2, ["pes", "kočka"]);
+
+    expect(deck.map((card) => card.original)).toEqual(["dům", "strom"]);
+    expect(findDueForSrs.mock.calls.length).toBeGreaterThan(1);
+  });
 });

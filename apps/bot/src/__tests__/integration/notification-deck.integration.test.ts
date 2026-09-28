@@ -16,6 +16,7 @@
  */
 import {
   botSessionRepository,
+  cardTemplateRepository,
   getDb,
   getLang,
   notificationRepository,
@@ -302,8 +303,17 @@ describe("several cards per notification (integration)", () => {
     // Assert — a fresh message with the screen; nothing edited the notification.
     const screen = messagesTo(harness.sent, telegramId).find((call) => buttonsOf(call).includes("set:notif:toggle"));
     expect(textOf(screen)).toContain("Cards per notification — 3");
-    expect(buttonsOf(screen)).toEqual(expect.arrayContaining(["set:notif:batch", "set:card"]));
+    expect(buttonsOf(screen)).toEqual(expect.arrayContaining(["set:notif:batch", "set:card:n"]));
     expect(harness.sent.some((call) => call.method.startsWith("editMessage"))).toBe(false);
+
+    // Act — the card template from here, then one of its toggles.
+    const settingsMessageId = screen!.messageId!;
+    await tap(harness, telegramId, settingsMessageId, "set:card:n");
+    await tap(harness, telegramId, settingsMessageId, "set:card:t:synonyms:n");
+
+    // Assert — the toggle landed, and Back still leads to the notification settings.
+    expect(buttonsOf(lastScreen(harness.sent)).at(-1)).toBe("set:notif");
+    expect((await cardTemplateRepository.getFields(userId)).synonyms).toBe(false);
   });
 
   it("D6: choosing a size stores it, and a size the screen never offered writes nothing", async () => {

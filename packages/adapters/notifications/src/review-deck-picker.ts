@@ -5,11 +5,32 @@ export interface ReviewDeckPickerDeps {
   findAheadForSrs(userId: number, now: Date, limit: number): Promise<SrsDueVocabularyCard[]>;
 }
 
-/** Rows fetched per card wanted: one card per entry and the de-dup window both discard rows. */
+/** Rows fetched per card wanted, and the factor each further page grows by. */
 const CANDIDATE_OVERSHOOT = 4;
+/** Where the widening stops: a dictionary this deep has plenty of distinct words by then. */
+const MAX_CANDIDATES = 1000;
+
+type FetchRows = (limit: number) => Promise<SrsDueVocabularyCard[]>;
 
 /**
- * The deck a multi-card notification opens on — the `/review` deck's own order
+ * Rows not recently sent, widened until they hold `size` distinct words or the pool runs
+ * out. The limit counts translation rows while the deck wants words, and a learner of
+ * several languages gets several rows per word — a fixed limit could fill up with them
+ * and underfill the deck even though more eligible words exist.
+ */
+async function freshCandidates(fetch: FetchRows, size: number, recent: ReadonlySet<string>) {
+  let limit = size * CANDIDATE_OVERSHOOT + recent.size;
+  for (;;) {
+    const rows = await fetch(limit);
+    const fresh = rows.filter((row) => !recent.has(row.original));
+    const exhausted = rows.length < limit || limit >= MAX_CANDIDATES;
+    if (exhausted || new Set(fresh.map((row) => row.entryId)).size >= size) return fresh;
+    limit = Math.min(limit * CANDIDATE_OVERSHOOT, MAX_CANDIDATES);
+  }
+}
+
+/**
+ * The deck a card notification opens on — the `/review` deck's own order
  * (`buildCardsDeck`: due first, then practice-ahead, one card per entry), minus the
  * words a recent notification already carried.
  */
@@ -20,13 +41,15 @@ export function createReviewDeckPicker(deps: ReviewDeckPickerDeps) {
     recentWords: string[],
     now: Date = new Date(),
   ): Promise<CardsDeckCard[]> {
-    const limit = size * CANDIDATE_OVERSHOOT + recentWords.length;
     const recent = new Set(recentWords);
-    const fresh = (rows: SrsDueVocabularyCard[]) => rows.filter((row) => !recent.has(row.original));
-
-    const due = fresh(await deps.findDueForSrs(userId, now, limit));
+    const due = await freshCandidates((limit) => deps.findDueForSrs(userId, now, limit), size, recent);
     const deck = buildCardsDeck(due, [], size);
     if (deck.length >= size) return deck;
-    return buildCardsDeck(due, fresh(await deps.findAheadForSrs(userId, now, limit)), size);
+    const ahead = await freshCandidates(
+      (limit) => deps.findAheadForSrs(userId, now, limit),
+      size - deck.length,
+      recent,
+    );
+    return buildCardsDeck(due, ahead, size);
   };
 }

@@ -24,6 +24,7 @@ import type { ServiceContainer } from "@polyglot/core";
 import { createServicesStub } from "../test-helpers/services-stub.js";
 import { LONG_OP_TIMEOUT_MS } from "../utils/long-op.js";
 import {
+  handleNotifDeckCallback,
   handleNotifFeedbackCallback,
   handleNotifLearnedCallback,
   handleNotifTranslateCallback,
@@ -219,5 +220,20 @@ describe("handleNotifLearnedCallback", () => {
 
     expect(ctx.answerCallbackQuery).toHaveBeenCalled();
     expect(vocabularyRepository.delete).not.toHaveBeenCalled();
+  });
+});
+
+describe("handleNotifDeckCallback", () => {
+  it("leaves a running /review deck alone when the notification fails to open", async () => {
+    const runningDeck = { deck: [], currentIndex: 2, revealed: true, recalled: 1 };
+    const ctx = createMockCtx("notif:deck:42");
+    ctx.session.cards = runningDeck;
+    ctx.match = ["notif:deck:42", "42"];
+    ctx.services.userRepository.getSettings = vi.fn().mockRejectedValue(new Error("db down"));
+
+    await handleNotifDeckCallback(ctx);
+
+    expect(ctx.session.cards).toBe(runningDeck);
+    expect(ctx.answerCallbackQuery).toHaveBeenCalledWith(expect.objectContaining({ show_alert: true }));
   });
 });

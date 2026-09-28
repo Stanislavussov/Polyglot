@@ -158,12 +158,27 @@ export function buildCardTemplateText(lang: SupportedLang, preview?: string): st
   return `${t("cardTemplateTitle", lang)}\n\n${body}`;
 }
 
-export function buildCardTemplateKeyboard(lang: SupportedLang, fields: CardFrontFields): InlineKeyboard {
+/** Which menu opened the card template — its Back returns there. */
+export type CardTemplateOrigin = "templates" | "notifications";
+
+/**
+ * The notification settings open the same card template (a word notification is a card),
+ * so the origin rides every callback on the screen as a `:n` suffix: a toggle re-renders
+ * the screen, and its Back must still lead back to where the reader came from.
+ */
+export const CARD_TEMPLATE_FROM_NOTIFICATIONS = ":n";
+
+export function buildCardTemplateKeyboard(
+  lang: SupportedLang,
+  fields: CardFrontFields,
+  origin: CardTemplateOrigin = "templates",
+): InlineKeyboard {
+  const suffix = origin === "notifications" ? CARD_TEMPLATE_FROM_NOTIFICATIONS : "";
   const kb = new InlineKeyboard();
   for (const key of CARD_FRONT_FIELD_KEYS) {
-    kb.text(`${fields[key] ? "✅" : "▫️"} ${t(CARD_FIELD_LABELS[key], lang)}`, `set:card:t:${key}`).row();
+    kb.text(`${fields[key] ? "✅" : "▫️"} ${t(CARD_FIELD_LABELS[key], lang)}`, `set:card:t:${key}${suffix}`).row();
   }
-  kb.text(`⬅️ ${t("back", lang)}`, "set:tpls").row();
+  kb.text(`⬅️ ${t("back", lang)}`, origin === "notifications" ? "set:notif" : "set:tpls").row();
   return kb;
 }
 
@@ -217,7 +232,7 @@ export function buildNotifSubKeyboard(lang: SupportedLang, notifEnabled: boolean
     if (notifType === "contextual") {
       kb.text(t("settingsNotifChooseContext", lang), "set:notif:context").row();
     }
-    kb.text(t("settingsNotifChooseTemplate", lang), "set:card").row();
+    kb.text(t("settingsNotifChooseTemplate", lang), `set:card${CARD_TEMPLATE_FROM_NOTIFICATIONS}`).row();
   }
   kb.text(`⬅️ ${t("back", lang)}`, "set:notif:back").row();
   return kb;

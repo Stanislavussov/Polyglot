@@ -242,7 +242,7 @@ describe("buildNotifSubKeyboard", () => {
     expect(cbData).toContain("set:notif:type");
     expect(cbData).toContain("set:notif:tz");
     expect(cbData).toContain("set:notif:batch");
-    expect(cbData).toContain("set:card");
+    expect(cbData).toContain("set:card:n");
     expect(cbData).toContain("set:notif:back");
   });
 

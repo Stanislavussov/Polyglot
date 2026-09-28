@@ -62,3 +62,39 @@ describe("vocabularyRepository.findAheadForSrs (integration)", () => {
     expect(await vocabularyRepository.findAheadForSrs(userId, NOW, 2)).toHaveLength(2);
   });
 });
+
+describe("review card queries skip unverified words (integration)", () => {
+  it("never offers a word translated as written — due, ahead, or pinned by id", async () => {
+    const userId = await freshUserId();
+    const de = await langId("de");
+    const ru = await langId("ru");
+    const seed = async (original: string, unverified: boolean, dueInDays: number) => {
+      const entry = await vocabularyRepository.create(userId, {
+        original,
+        sourceLangId: de,
+        inputType: "word",
+        unverified,
+        translations: [{ targetLangId: ru, text: `${original}-ru`, details: { synonyms: [], examples: [] } }],
+      });
+      await vocabularyRepository.updateSrsState(entry.translations[0]!.id, {
+        easeFactor: 2.5,
+        interval: 1,
+        dueDate: new Date(NOW.getTime() + dueInDays * DAY_MS),
+        reviewCount: 1,
+      });
+      return entry.id;
+    };
+
+    await seed("Echt", false, -1);
+    const dueGuess = await seed("Blarg", true, -1);
+    await seed("Später", false, 3);
+    await seed("Florp", true, 3);
+
+    expect((await vocabularyRepository.findDueForSrs(userId, NOW, 10)).map((card) => card.original)).toEqual(["Echt"]);
+    expect(await vocabularyRepository.countDueForSrs(userId, NOW)).toBe(1);
+    expect((await vocabularyRepository.findAheadForSrs(userId, NOW, 10)).map((card) => card.original)).toEqual([
+      "Später",
+    ]);
+    expect(await vocabularyRepository.findEntrySrsCard(userId, dueGuess)).toBeNull();
+  });
+});

@@ -278,6 +278,8 @@ export const NOTIF_DECK_PATTERN = /^notif:(?:deck|reveal):(\d+)$/;
  */
 export async function handleNotifDeckCallback(ctx: BotContext): Promise<void> {
   const entryId = Number(ctx.match?.[1]);
+  // A running /review deck survives a failed open: only a deck this tap installed is undone.
+  const previous = ctx.session.cards;
   let lang: SupportedLang = "en";
   try {
     const [, settings] = await withTimeout(
@@ -302,8 +304,7 @@ export async function handleNotifDeckCallback(ctx: BotContext): Promise<void> {
     await handleFcReveal(ctx);
   } catch (err) {
     logger.error({ err, entryId }, "Failed to open the notification deck");
-    // A half-opened deck would answer the next /review tap with a card this message never showed.
-    ctx.session.cards = undefined;
+    ctx.session.cards = previous;
     try {
       await editMessageReplyMarkupOrIgnore(ctx, { reply_markup: buildNotificationKeyboard(lang, entryId) });
     } catch {

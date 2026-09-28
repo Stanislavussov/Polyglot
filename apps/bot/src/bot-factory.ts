@@ -126,6 +126,7 @@ import {
 import { handlePronounceCallback } from "./scenes/helpers/pronunciation.js";
 import { handleRetryCallback } from "./scenes/helpers/retry.helper.js";
 import {
+  CARD_TEMPLATE_PATTERN,
   CARD_TOGGLE_PATTERN,
   handleNotifSettingsCallback,
   handleSetBackCallback,
@@ -515,7 +516,7 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   onCallback("set:notif:back", handleSetNotifBackCallback);
   onCallback("set:tpls", handleSetTemplatesCallback);
   onCallback("set:tpl", handleSetTemplateCallback);
-  onCallback("set:card", handleSetCardCallback);
+  onCallback(CARD_TEMPLATE_PATTERN, handleSetCardCallback);
   onCallback(CARD_TOGGLE_PATTERN, handleSetCardToggleCallback);
   onCallback(/^set:ntpl(?::t:\w+)?$/, handleSetCardCallback);
   onCallback("set:plan", handleSetPlanCallback);

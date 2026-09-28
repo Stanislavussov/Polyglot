@@ -32,6 +32,8 @@ import {
   buildNotifSubKeyboard,
   buildNotifSubText,
   buildTemplatesKeyboard,
+  CARD_TEMPLATE_FROM_NOTIFICATIONS,
+  type CardTemplateOrigin,
   notifTypeLabel,
   renderSettingsInPlace,
 } from "../settings.scene.js";
@@ -620,6 +622,10 @@ export async function handleSetRootCallback(ctx: BotContext): Promise<void> {
  * The card-front screen. The preview is the user's own latest word rather than a
  * fixture: a stock example cannot show whether *their* words carry a hint yet.
  */
+function cardTemplateOrigin(ctx: BotContext): CardTemplateOrigin {
+  return ctx.callbackQuery?.data?.endsWith(CARD_TEMPLATE_FROM_NOTIFICATIONS) ? "notifications" : "templates";
+}
+
 async function showCardTemplateMenu(ctx: BotContext, fields: CardFrontFields): Promise<void> {
   const lang = await getLang(ctx);
   const [latest] = await ctx.services.vocabularyRepository.findByUserPaginated(ctx.user.id, 0, 1);
@@ -635,7 +641,7 @@ async function showCardTemplateMenu(ctx: BotContext, fields: CardFrontFields): P
       )
     : undefined;
   await editMessageTextOrReply(ctx, buildCardTemplateText(lang, preview), {
-    reply_markup: buildCardTemplateKeyboard(lang, fields),
+    reply_markup: buildCardTemplateKeyboard(lang, fields, cardTemplateOrigin(ctx)),
     parse_mode: "HTML",
   });
 }
@@ -650,7 +656,9 @@ export async function handleSetCardCallback(ctx: BotContext): Promise<void> {
   await ctx.answerCallbackQuery();
 }
 
-export const CARD_TOGGLE_PATTERN = /^set:card:t:(\w+)$/;
+export const CARD_TEMPLATE_PATTERN = /^set:card(?::n)?$/;
+
+export const CARD_TOGGLE_PATTERN = /^set:card:t:(\w+)(?::n)?$/;
 
 /** set:card:t:{field} — flip one front option; stateless, so an old screen's tap still lands */
 export async function handleSetCardToggleCallback(ctx: BotContext): Promise<void> {

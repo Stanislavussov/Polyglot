@@ -140,10 +140,19 @@ function liveTranslationsOf(userId: number): SQL | undefined {
   );
 }
 
+/**
+ * The live rows a review may offer. An unverified word was translated as written for an
+ * unrecognized input (Task 70); drilling it would teach a guess. A rating still reaches
+ * such a row through `liveTranslationsOf`, so a card already dealt stays ratable.
+ */
+function reviewableTranslationsOf(userId: number): SQL | undefined {
+  return and(liveTranslationsOf(userId), eq(vocabularyEntries.unverified, false));
+}
+
 /** Shared by `findDueForSrs` and its COUNT twin so the two can never drift apart. */
 function dueForSrsFilter(userId: number, now: Date): SQL | undefined {
   return and(
-    liveTranslationsOf(userId),
+    reviewableTranslationsOf(userId),
     or(isNull(vocabularyTranslations.srsDueDate), lte(vocabularyTranslations.srsDueDate, now)),
   );
 }
@@ -603,7 +612,7 @@ export const vocabularyRepository = {
       .select(srsCardColumns)
       .from(vocabularyTranslations)
       .innerJoin(vocabularyEntries, eq(vocabularyTranslations.entryId, vocabularyEntries.id))
-      .where(and(liveTranslationsOf(userId), gt(vocabularyTranslations.srsDueDate, now)))
+      .where(and(reviewableTranslationsOf(userId), gt(vocabularyTranslations.srsDueDate, now)))
       .orderBy(
         sql`case when ${vocabularyEntries.difficulty} = 'hard' then 0 else 1 end`,
         asc(vocabularyTranslations.srsEaseFactor),
@@ -664,7 +673,7 @@ export const vocabularyRepository = {
       .select(srsCardColumns)
       .from(vocabularyTranslations)
       .innerJoin(vocabularyEntries, eq(vocabularyTranslations.entryId, vocabularyEntries.id))
-      .where(and(liveTranslationsOf(userId), eq(vocabularyTranslations.entryId, entryId)))
+      .where(and(reviewableTranslationsOf(userId), eq(vocabularyTranslations.entryId, entryId)))
       // NULL (never reviewed) is due, so it must lead — plain ASC would sort it after a future date.
       .orderBy(sql`${vocabularyTranslations.srsDueDate} asc nulls first`, asc(vocabularyTranslations.createdAt))
       .limit(1);

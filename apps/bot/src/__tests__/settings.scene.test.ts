@@ -172,6 +172,18 @@ describe("handleSettingsCommand", () => {
     expect(data(buildCardTemplateKeyboard("en", DEFAULT_CARD_FRONT_FIELDS)).at(-1)).toBe("set:tpls");
   });
 
+  it("returns the card template opened from the notification settings to them, through every toggle", () => {
+    const data = (kb: InlineKeyboard): Array<string | undefined> =>
+      kb.inline_keyboard.flat().map((button) => ("callback_data" in button ? button.callback_data : undefined));
+
+    expect(data(buildCardTemplateKeyboard("en", DEFAULT_CARD_FRONT_FIELDS, "notifications"))).toEqual([
+      "set:card:t:hint:n",
+      "set:card:t:synonyms:n",
+      "set:card:t:example:n",
+      "set:notif",
+    ]);
+  });
+
   it("hides the changelog from anyone who is not an admin or tester", async () => {
     const ctx = createMockCtx();
     ctx.user.audienceGroup = "product";
