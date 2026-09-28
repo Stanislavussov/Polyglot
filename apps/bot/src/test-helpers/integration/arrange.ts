@@ -226,11 +226,15 @@ export interface LapsedUser {
  *
  * Being lapsed also makes these users invisible to the delivery lane — they are
  * past the reachability ceiling, so `getUsersForWindow` cannot return them at any
- * hour and the two lanes need no slot arrangement between them.
+ * hour and the two lanes need no slot arrangement between them — provided the
+ * user is never enabled before the lapse is written. Enabling first left a window
+ * in which a delivery-lane test in the other worker could send the saved word as
+ * an ordinary card, which then de-duped it out of the sweep (R1 got a preset
+ * instead, master CI 2026-09-28).
  */
 export async function arrangeLapsedUser(telegramId: number, options: LapsedUserOptions = {}): Promise<LapsedUser> {
   const { pingsAlreadySent = 0, withVocabulary = false } = options;
-  const { userId, headword } = await arrangeNotifiableUser(telegramId, { withVocabulary });
+  const { userId, headword } = await arrangeNotifiableUser(telegramId, { withVocabulary, notificationEnabled: false });
   await setLapseState(userId, {
     lastInteractionAt: new Date(Date.now() - LAPSED_DAYS * DAY_MS),
     reengagementCount: pingsAlreadySent,
@@ -238,6 +242,7 @@ export async function arrangeLapsedUser(telegramId: number, options: LapsedUserO
     // the episode has produced no card yet.
     lastReengagementAt: pingsAlreadySent > 0 ? new Date(Date.now() - 30 * DAY_MS) : null,
   });
+  await notificationRepository.updatePrefs(userId, { notificationEnabled: true });
   return { userId, telegramId, headword };
 }
 
