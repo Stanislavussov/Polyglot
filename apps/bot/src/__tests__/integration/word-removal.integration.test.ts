@@ -209,7 +209,7 @@ describe("remove a word and bring it back (integration)", () => {
   });
 
   describe("notification", () => {
-    it("R4: a removed nudge offers the word back, and restoring returns the full menu", async () => {
+    it("R4: a removed notification offers the word back, and restoring returns the card's buttons", async () => {
       // Arrange
       const harness = createBotHarness();
       const { telegramId, userId, entryId, headword } = await arrangeNudgedUser();
@@ -226,44 +226,35 @@ describe("remove a word and bring it back (integration)", () => {
       // Act — bring it back.
       await tap(harness, telegramId, `notif:restore:${entryId}`);
 
-      // Assert — live again, and every action the nudge had is on offer again.
+      // Assert — live again, and the message is a card once more: Reveal, Remove, the settings.
       expect((await vocabularyRepository.findByUser(userId)).map((row) => row.id)).toEqual([entryId]);
       const restored = lastScreen(harness.sent);
       expect(restored.text).toContain(headword);
-      expect(restored.buttons).toEqual(
-        expect.arrayContaining([
-          `notif:reveal:${entryId}`,
-          `notif:fb:hard:${entryId}`,
-          `notif:fb:normal:${entryId}`,
-          `notif:fb:easy:${entryId}`,
-          `notif:learned:${entryId}`,
-        ]),
-      );
+      expect(restored.buttons).toEqual([`notif:deck:${entryId}`, `notif:learned:${entryId}`, "notif:settings"]);
     });
 
-    it("R5: the card a nudge is revealed into removes and restores without ever calling a model", async () => {
+    it("R5: the deck a notification is revealed into removes and restores the word without ever calling a model", async () => {
       // Arrange — the default harness AI throws, so any model call fails this test.
       const harness = createBotHarness();
       const { telegramId, userId, entryId } = await arrangeNudgedUser();
       await vocabularyRepository.updateEntry(entryId, { source: VIDEO_SOURCE });
       const before = await vocabularyRepository.findById(entryId);
-      await tap(harness, telegramId, `notif:reveal:${entryId}`);
-      const { messageId: card, buttons } = lastRenderedCard(harness.sent);
-      expect(buttons).toEqual(expect.arrayContaining([`tr:remove:${card}`, `notif:fb:hard:${entryId}`]));
+      await tap(harness, telegramId, `notif:deck:${entryId}`);
+      expect(lastScreen(harness.sent).buttons).toContain(`fc:del:${entryId}`);
 
       // Act — remove from the revealed card.
-      await tap(harness, telegramId, `tr:remove:${card}`, card);
+      await tap(harness, telegramId, `fc:del:${entryId}`);
 
-      // Assert — gone, and nothing is left offering to grade a word that is not there.
+      // Assert — gone, and the deck's last screen offers it back instead of rating a word that is not there.
       expect(await vocabularyRepository.findByUser(userId)).toHaveLength(0);
       const removed = lastScreen(harness.sent);
-      expect(removed.buttons).toContain(`tr:save:${card}`);
-      expect(removed.buttons.some((data) => data.startsWith("notif:fb:"))).toBe(false);
+      expect(removed.buttons).toContain(`fc:undo:${entryId}`);
+      expect(removed.buttons.some((data) => data.startsWith("fc:rate:"))).toBe(false);
 
-      // Act — save it back.
-      await tap(harness, telegramId, `tr:save:${card}`, card);
+      // Act — bring it back.
+      await tap(harness, telegramId, `fc:undo:${entryId}`);
 
-      // Assert — the stored word itself, untouched, with its grades on offer again.
+      // Assert — the stored word itself, untouched.
       const after = await vocabularyRepository.findById(entryId);
       expect(after?.isActive).toBe(true);
       // Re-creating the word from the card would have erased its provenance.
@@ -271,9 +262,7 @@ describe("remove a word and bring it back (integration)", () => {
       expect(after?.translations).toEqual(
         before?.translations.map((tr) => ({ ...tr, updatedAt: expect.any(Date) as Date })),
       );
-      expect(lastScreen(harness.sent).buttons).toEqual(
-        expect.arrayContaining([`tr:remove:${card}`, `notif:fb:hard:${entryId}`]),
-      );
+      expect(toasts(harness.sent)).toEqual([t("wordRestored", "en")]);
     });
 
     it("R6: a forged restore cannot bring back another user's word", async () => {
@@ -299,40 +288,42 @@ describe("remove a word and bring it back (integration)", () => {
     });
 
     it("R6b: a forged Reveal cannot read another user's word", async () => {
-      // Arrange
+      // Arrange — two users with the same headword, so only the ids can tell their cards apart.
       const harness = createBotHarness();
       const owner = await arrangeNudgedUser();
       const stranger = await arrangeNudgedUser();
 
       // Act
-      await tap(harness, stranger.telegramId, `notif:reveal:${owner.entryId}`);
+      await tap(harness, stranger.telegramId, `notif:deck:${owner.entryId}`);
 
-      // Assert — answered, and no card was drawn from the owner's entry.
-      expect(harness.sent.some((call) => call.method === "editMessageText" || call.method === "sendMessage")).toBe(
-        false,
-      );
-      expect(toasts(harness.sent)).toEqual([t("noResults", "en")]);
+      // Assert — the deck is drawn from the stranger's own dictionary alone.
+      const deck = (await readSession(stranger.telegramId)).cards?.deck ?? [];
+      expect(deck.map((card) => card.entryId)).toEqual([stranger.entryId]);
+      const screen = lastScreen(harness.sent);
+      expect(screen.buttons).toContain(`fc:del:${stranger.entryId}`);
+      expect(screen.buttons.some((data) => data.endsWith(`:${owner.entryId}`))).toBe(false);
+      const ownerTranslationIds = (await vocabularyRepository.findById(owner.entryId))?.translations.map((tr) => tr.id);
+      expect(ownerTranslationIds?.some((id) => screen.buttons.includes(`fc:rate:good:${id}`))).toBe(false);
     });
 
-    it("R6c: revealing a nudge whose word was removed since opens its card ready to take the word back", async () => {
-      // Arrange — the nudge outlived the word.
+    it("R6c: revealing a notification whose word was removed since answers, and never brings the word back", async () => {
+      // Arrange — the notification outlived the word, and nothing else is left to review.
       const harness = createBotHarness();
       const { telegramId, userId, entryId } = await arrangeNudgedUser();
       await vocabularyRepository.delete(entryId, userId);
 
-      // Act
+      // Act — the Reveal of a notification sent before they became cards.
       await tap(harness, telegramId, `notif:reveal:${entryId}`);
-      const { messageId: card, buttons } = lastRenderedCard(harness.sent);
 
-      // Assert — Save, not Remove, and no grades for a word that is not there.
-      expect(buttons).toContain(`tr:save:${card}`);
-      expect(buttons.some((data) => data.startsWith("notif:fb:") || data.startsWith("tr:remove:"))).toBe(false);
-
-      // Act
-      await tap(harness, telegramId, `tr:save:${card}`, card);
-
-      // Assert
-      expect((await vocabularyRepository.findByUser(userId)).map((row) => row.id)).toEqual([entryId]);
+      // Assert — answered, no card drawn, the dead buttons cleared, and the word still removed.
+      expect(toasts(harness.sent)).toEqual([t("noResults", "en")]);
+      expect(harness.sent.some((call) => call.method === "editMessageText" || call.method === "sendMessage")).toBe(
+        false,
+      );
+      const markup = harness.sent.filter((call) => call.method === "editMessageReplyMarkup").at(-1);
+      expect(markup?.payload.reply_markup).toEqual({ inline_keyboard: [] });
+      expect(await vocabularyRepository.findByUser(userId)).toHaveLength(0);
+      expect((await readSession(telegramId)).cards).toBeUndefined();
     });
   });
 

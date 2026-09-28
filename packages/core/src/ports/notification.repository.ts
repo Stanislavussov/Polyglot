@@ -13,6 +13,8 @@ export interface NotificationUser {
   notificationTimes: string[];
   notificationType: NotificationType;
   notificationContext: string | null;
+  /** Cards per notification; above 1 the scheduler sends a review deck instead of one word. */
+  notificationBatchSize: number;
   /** Re-engagement pings already sent in the current lapse episode (0 while active). */
   reengagementCount: number;
 }
@@ -57,6 +59,7 @@ export interface NotificationRepository {
       notificationTimes?: string[];
       notificationType?: NotificationType;
       notificationContext?: string | null;
+      notificationBatchSize?: number;
     },
   ): Promise<void>;
 }

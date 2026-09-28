@@ -35,6 +35,7 @@ function settingsWithInterfaceLang(interfaceLang: string): UserLanguageSettings 
     notificationTimes: [],
     notificationType: "word",
     notificationContext: null,
+    notificationBatchSize: 1,
     lastInteractionAt: null,
     lastReengagementAt: null,
     reengagementCount: 0,

@@ -40,6 +40,7 @@ export interface UserLanguageSettings {
   notificationTimes: string[];
   notificationType: string;
   notificationContext: string | null;
+  notificationBatchSize: number;
   lastInteractionAt: Date | null;
   /** Last re-engagement ping of the current lapse episode; NULL once the user returns. */
   lastReengagementAt: Date | null;

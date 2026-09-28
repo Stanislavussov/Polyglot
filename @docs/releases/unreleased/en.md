@@ -12,3 +12,6 @@
 - If the mentor took too long to answer a question about a card, 🔄 Try again now really tries again instead of complaining that your message is too long.
 - The bot now waits much longer for a slow answer before giving up, so a translation or a mentor reply that is simply taking its time arrives instead of turning into “this is taking longer than expected”.
 - Tapping a paid plan now tells you straight that payments are coming soon, instead of running a test checkout.
+- A word notification is now a real card: tap 👁 Reveal and rate it Again, Hard, Good or Easy, exactly like in 🎴 Cards — and your card template decides what it shows.
+- A notification can now bring 3, 5 or 10 cards at once, and you go through them and rate each one right there — pick how many in 🔔 Notifications.
+- Every notification now has a ⚙️ button that opens the notification settings straight away, so turning them off, changing the time or the number of cards is one tap away.

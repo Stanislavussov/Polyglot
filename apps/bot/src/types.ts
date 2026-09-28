@@ -9,7 +9,6 @@ import type {
   TranslateOutput,
   User,
   UserLanguageSettings,
-  VocabDifficulty,
 } from "@polyglot/core";
 import { Context, SessionFlavor } from "grammy";
 
@@ -80,12 +79,6 @@ export interface SessionData {
        * closed independently.
        */
       actionsExpanded?: boolean;
-      /**
-       * Set on a card revealed from a notification nudge: the grades the nudge
-       * carried stay on the card through every keyboard rebuild, with the grade on
-       * file marked.
-       */
-      recallGrade?: { entryId: number; selected?: VocabDifficulty | null };
       /**
        * Set on a revealed review card: which card of the deck this message is
        * showing. `tr:more` and friends rebuild the whole keyboard, so without it

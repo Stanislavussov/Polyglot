@@ -28,12 +28,14 @@ import {
   PROGRESS_CALLBACK_PATTERN,
 } from "./momentum/progress.command.js";
 import {
+  handleNotifDeckCallback,
   handleNotifFeedbackCallback,
   handleNotifLearnedCallback,
   handleNotifRestoreCallback,
-  handleNotifRevealCallback,
   handleNotifTranslateCallback,
+  NOTIF_DECK_PATTERN,
 } from "./notifications/notification.callbacks.js";
+import { NOTIF_SETTINGS_CALLBACK } from "./notifications/notification.formatter.js";
 import { notificationInteractionMiddleware } from "./notifications/notification-interaction.middleware.js";
 import { createApiLogTransformer } from "./observability/api-log.js";
 import { handlerName, withHandlerLog } from "./observability/handler-log.js";
@@ -124,7 +126,9 @@ import {
 import { handlePronounceCallback } from "./scenes/helpers/pronunciation.js";
 import { handleRetryCallback } from "./scenes/helpers/retry.helper.js";
 import {
+  CARD_TEMPLATE_PATTERN,
   CARD_TOGGLE_PATTERN,
+  handleNotifSettingsCallback,
   handleSetBackCallback,
   handleSetCardCallback,
   handleSetCardToggleCallback,
@@ -139,11 +143,11 @@ import {
   handleSetNativeCallback,
   handleSetNativeSelectCallback,
   handleSetNotifBackCallback,
+  handleSetNotifBatchCallback,
+  handleSetNotifBatchSelectCallback,
   handleSetNotifCallback,
   handleSetNotifContextCallback,
   handleSetNotifContextCancelCallback,
-  handleSetNotifTemplateCallback,
-  handleSetNotifTemplateToggleCallback,
   handleSetNotifTimeCallback,
   handleSetNotifTimeSelectCallback,
   handleSetNotifToggleCallback,
@@ -155,7 +159,6 @@ import {
   handleSetRootCallback,
   handleSetTemplateCallback,
   handleSetTemplatesCallback,
-  NOTIF_TEMPLATE_TOGGLE_PATTERN,
 } from "./scenes/helpers/settings.helper.js";
 import {
   handleBuyPlanCallback,
@@ -503,6 +506,8 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   onCallback("set:notif:time", handleSetNotifTimeCallback);
   onCallback(/^set:notif:time:/, handleSetNotifTimeSelectCallback);
   onCallback("set:notif:type", handleSetNotifTypeCallback);
+  onCallback("set:notif:batch", handleSetNotifBatchCallback);
+  onCallback(/^set:notif:batch:/, handleSetNotifBatchSelectCallback);
   onCallback(/^set:notif:type:/, handleSetNotifTypeSelectCallback);
   onCallback("set:notif:tz", handleSetNotifTzCallback);
   onCallback(/^set:notif:tz:/, handleSetNotifTzSelectCallback);
@@ -511,21 +516,21 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   onCallback("set:notif:back", handleSetNotifBackCallback);
   onCallback("set:tpls", handleSetTemplatesCallback);
   onCallback("set:tpl", handleSetTemplateCallback);
-  onCallback("set:card", handleSetCardCallback);
+  onCallback(CARD_TEMPLATE_PATTERN, handleSetCardCallback);
   onCallback(CARD_TOGGLE_PATTERN, handleSetCardToggleCallback);
-  onCallback("set:ntpl", handleSetNotifTemplateCallback);
-  onCallback(NOTIF_TEMPLATE_TOGGLE_PATTERN, handleSetNotifTemplateToggleCallback);
+  onCallback(/^set:ntpl(?::t:\w+)?$/, handleSetCardCallback);
   onCallback("set:plan", handleSetPlanCallback);
   onCallback("set:changes", handleSetChangesCallback);
   onCallback("set:back", handleSetBackCallback);
   onCallback("set:root", handleSetRootCallback);
   onCallback("set:close", handleSetCloseCallback);
 
-  onCallback(/^notif:reveal:/, handleNotifRevealCallback);
   onCallback(/^notif:tr$/, handleNotifTranslateCallback);
   onCallback(/^notif:fb:/, handleNotifFeedbackCallback);
   onCallback(/^notif:learned:/, handleNotifLearnedCallback);
   onCallback(/^notif:restore:/, handleNotifRestoreCallback);
+  onCallback(NOTIF_DECK_PATTERN, handleNotifDeckCallback);
+  onCallback(NOTIF_SETTINGS_CALLBACK, handleNotifSettingsCallback);
 
   onCallback(/^tr:save:/, handleSaveCallback);
   onCallback(/^tr:remove:/, handleRemoveCallback);

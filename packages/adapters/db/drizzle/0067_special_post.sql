@@ -1,0 +1,1 @@
+ALTER TABLE "user_language_settings" ADD COLUMN "notification_batch_size" integer DEFAULT 1 NOT NULL;
