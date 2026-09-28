@@ -1,13 +1,12 @@
 /**
  * Notification feedback — e2e (real dispatcher, real Postgres, fake `fetch`).
  *
- * The 4-button feedback menu (Hard / OK / Easy / Remove) is the user's
- * lever over what the scheduler sends: `hard` weights the word up, `easy` parks
- * it until everything else is exhausted, Remove soft-deletes the entry. The
- * unit lane proves each half in isolation; only this file proves the chain —
- * the delivered card actually carries the `notif:fb:*` buttons, and a tap on
- * them lands in `vocabulary_entries.difficulty` through the real middleware
- * stack.
+ * A word notification is a card (Task 86): Reveal opens it as a Cards deck, rated with
+ * the four SM-2 ratings, and Remove soft-deletes the entry. The Hard / OK / Easy grades
+ * (`notif:fb:*`) are no longer sent, but the buttons already in chat history still land:
+ * the grade is stored in `vocabulary_entries.difficulty`, which the single-word picker
+ * weighs, and the old message is upgraded to the card's buttons. This file proves that
+ * chain through the real middleware stack; the deck itself is `notification-deck`'s.
  *
  * **Assertion triad, adapted** (as in the delivery lane): a notification
  * callback has no session/FSM leg, so the third leg is the persisted
@@ -75,7 +74,7 @@ afterEach(async () => {
 });
 
 describe("notification feedback (integration)", () => {
-  it("F1: the delivered card carries the feedback menu, and tapping Hard persists the grade", async () => {
+  it("F1: the delivered card carries the card's buttons, and a grade from an old nudge still lands and upgrades it", async () => {
     // Arrange — a real subscriber; the card must arrive through the real sendFn.
     const harness = createBotHarness();
     const telegramId = uniqueTelegramId();
@@ -91,19 +90,16 @@ describe("notification feedback (integration)", () => {
       pickPresetWord: async () => null,
     });
 
-    // Assert — the wire: this chat's card offers all four feedback actions.
+    // Assert — the wire: this chat's card offers Reveal, Remove and the settings — no grade row.
     const card = harness.sent.find(
       (call) => call.method === "sendMessage" && Number((call.payload as { chat_id?: number }).chat_id) === telegramId,
     );
     expect(card).toBeDefined();
     const markup = card?.payload.reply_markup as { inline_keyboard: Array<Array<{ callback_data?: string }>> };
-    const buttons = markup.inline_keyboard.flat().map((b) => b.callback_data);
-    expect(buttons).toContain(`notif:fb:hard:${entryId}`);
-    expect(buttons).toContain(`notif:fb:normal:${entryId}`);
-    expect(buttons).toContain(`notif:fb:easy:${entryId}`);
-    expect(buttons).toContain(`notif:learned:${entryId}`);
+    const cardButtons = [`notif:deck:${entryId}`, `notif:learned:${entryId}`, "notif:settings"];
+    expect(markup.inline_keyboard.flat().map((b) => b.callback_data)).toEqual(cardButtons);
 
-    // Act — tap "Hard" on the delivered card, through the real dispatcher.
+    // Act — tap "Hard" on a nudge sent before notifications became cards.
     harness.reset();
     await harness.dispatch(
       callbackQueryUpdate({ chatId: telegramId, fromId: telegramId, messageId: 700, data: `notif:fb:hard:${entryId}` }),
@@ -113,15 +109,14 @@ describe("notification feedback (integration)", () => {
     const entries = await vocabularyRepository.findByUser(userId);
     expect(entries[0]?.difficulty).toBe("hard");
 
-    // Assert — the wire: keyboard re-rendered with the choice marked, toast confirms.
-    const edits = markupEdits(harness.sent);
-    expect(edits.at(-1)).toContain(`notif:fb:hard:${entryId}`);
+    // Assert — the wire: the old nudge now carries the card's buttons, and the toast confirms.
+    expect(markupEdits(harness.sent).at(-1)).toEqual(cardButtons);
     const answers = answersOf(harness.sent);
     expect(answers).toHaveLength(1);
     expect(String(answers[0]?.text)).toContain("more often");
   });
 
-  it("F2: re-grading overwrites — Hard then I-know-it ends at easy", async () => {
+  it("F2: re-grading from an old nudge overwrites — Hard then I-know-it ends at easy", async () => {
     // Arrange
     const harness = createBotHarness();
     const telegramId = uniqueTelegramId();
@@ -167,7 +162,7 @@ describe("notification feedback (integration)", () => {
     expect(String((edited?.payload as { text?: string })?.text)).toContain(headword);
   });
 
-  it("F4: a forged callback cannot grade another user's entry", async () => {
+  it("F4: a forged old-nudge grade cannot touch another user's entry", async () => {
     // Arrange — the owner's entry, and a separate onboarded stranger.
     const harness = createBotHarness();
     const ownerTelegramId = uniqueTelegramId();
@@ -194,7 +189,7 @@ describe("notification feedback (integration)", () => {
     expect(answersOf(harness.sent)).toHaveLength(1);
   });
 
-  it("F5: grading an already-removed entry answers without resurrecting anything", async () => {
+  it("F5: an old nudge's grade on an already-removed entry answers without resurrecting anything", async () => {
     // Arrange — remove first, then tap a stale feedback button on the old card.
     const harness = createBotHarness();
     const telegramId = uniqueTelegramId();

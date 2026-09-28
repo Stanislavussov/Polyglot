@@ -7,10 +7,9 @@
  * 3. No DB access — uses pre-built payload
  */
 import type { NotificationPayload } from "@polyglot/adapter-notifications";
-import { type I18nKey, type SourceUsage, type SupportedLang, t, type VocabDifficulty } from "@polyglot/core";
+import { type I18nKey, type SupportedLang, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import { assembleCard, emptySections, esc, headwordLine } from "../renderers/card-sections.js";
-import { appendGradeRow, notifGradeCallback } from "../renderers/grade-row.js";
 
 /**
  * The recall questions a notification rotates through. One fixed sentence under a
@@ -32,36 +31,19 @@ export const SELF_CHECK_KEYS = [
   "notifSelfCheck12",
 ] as const satisfies readonly I18nKey[];
 
-/** A stored word's source-language synonyms as plain text, blanks dropped. */
-export function sourceSynonymTexts(usage: SourceUsage | null | undefined): string[] {
-  return (usage?.synonyms ?? []).map((synonym) => synonym.text.trim()).filter((text) => text !== "");
-}
-
 export interface NotificationMessageOptions {
   footer?: string;
   /** Index into `SELF_CHECK_KEYS`, wrapped; absent renders the first question. */
   selfCheckVariant?: number;
-  /** Source-language synonyms, when the user's notification template switched them on. */
-  synonyms?: readonly string[];
 }
 
 /**
- * Format a notification payload as a Telegram HTML message.
+ * A word that is not in the reader's dictionary (a curated preset, an AI suggestion,
+ * a contextual sentence): the headword and a recall question. There is nothing to
+ * schedule, so Reveal translates it (`notif:tr`) — a word from the dictionary is a
+ * card instead (`formatCardNotification`).
  *
- * **A notification is a recall prompt, not a card.** It is the headword and one
- * line asking whether the reader still knows it — no translation, no stored
- * meaning, no secondary languages, no label saying where the word came from. The
- * reader tries to remember, then taps Reveal, and what opens is the card the word
- * was translated on, buttons and all (`notification.callbacks.ts`). Everything
- * this message used to inline is there, and reading it there is the moment of
- * recall the daily word exists to create.
- *
- * The headword is the citation form when one was stored, with its source flag, so
- * the nudge and the card behind it introduce the same word the same way.
- *
- * Synonyms go below the question, never beside the word: a phone's push preview
- * shows only the first lines, and there the word and the question must survive.
- * They are source-language synonyms, so they help recall without answering it.
+ * The headword is the citation form when one was stored, with its source flag.
  *
  * `footer` arrives already rendered so this stays pure: the motivation layer's
  * weekly line (Task 81, S4) needs a database read and a kill-switch check, and
@@ -74,76 +56,76 @@ export function formatNotificationMessage(
   options: NotificationMessageOptions = {},
 ): string {
   const { word } = payload;
-  const count = SELF_CHECK_KEYS.length;
-  const variant = options.selfCheckVariant ?? 0;
-  const question = SELF_CHECK_KEYS[((variant % count) + count) % count]!;
-  const synonyms = options.synonyms ?? [];
+  const question = selfCheckQuestion(options.selfCheckVariant);
 
   return assembleCard({
     ...emptySections(),
     headword: [
       headwordLine(word.headword?.trim() || word.original, { emoji: word.emoji, sourceLang: word.sourceLang }),
     ],
-    // Blank separators: glued to the word the prompt would read as a second line
-    // of it, and glued to the prompt the synonyms would read as its answer.
-    aids: [
-      "",
-      `<i>${esc(t(question, lang))}</i>`,
-      ...(synonyms.length > 0 ? ["", t("notifSynonymsLine", lang, { synonyms: synonyms.map(esc).join(", ") })] : []),
-    ],
+    // Blank separator: glued to the word the prompt would read as a second line of it.
+    aids: ["", `<i>${esc(t(question, lang))}</i>`],
     // Blank separator first: glued to the prompt the weekly line would read as
     // part of it rather than as the week's own tally.
     footer: options.footer ? ["", options.footer] : [],
   });
 }
 
-/** Feedback grade a user can give a notification word. Drives pick frequency. */
-export type NotifFeedbackGrade = VocabDifficulty;
-
-/**
- * Append the feedback menu: one row of grades (the chosen one marked with a
- * leading check so a later tap can still re-grade), then the remove row.
- *
- * Remove deliberately keeps the legacy `notif:learned` callback so buttons on
- * already-sent messages keep hitting a registered handler.
- */
-function appendFeedbackMenu(
-  kb: InlineKeyboard,
-  lang: SupportedLang,
-  entryId: number,
-  selected?: NotifFeedbackGrade,
-): InlineKeyboard {
-  appendGradeRow(kb, lang, (grade) => notifGradeCallback(grade, entryId), selected);
-  return kb.row().text(t("notifFbDelete", lang), `notif:learned:${entryId}`);
+function selfCheckQuestion(variant: number | undefined): (typeof SELF_CHECK_KEYS)[number] {
+  const count = SELF_CHECK_KEYS.length;
+  return SELF_CHECK_KEYS[(((variant ?? 0) % count) + count) % count]!;
 }
 
 /**
- * Build the inline keyboard for a notification message.
- *
- * Buttons:
- * - "🔍 Reveal" → notif:reveal:{entryId}, or `notif:tr` for a word with no entry
- * - grade row "Hard | OK | Easy" → notif:fb:{grade}:{entryId}
- * - "🗑 Remove from dictionary" → notif:learned:{entryId}
- *
- * The grades are here before the reveal and on the revealed card after it (the
- * card's `recallGrade` state): a reader who only knows how hard the word was once
- * the answer is in front of them must still be able to say so.
- *
- * A pick with no dictionary entry (a curated preset, an AI suggestion, a
- * contextual sentence) has nothing to grade or remove, so it gets the Reveal
- * button alone — pointed at `notif:tr`, which translates the word instead of
- * opening a row that does not exist.
+ * A word from the reader's dictionary is a card (Task 86): the front exactly as `/review`
+ * shows it (`front` arrives rendered with the reader's card settings), then the recall
+ * question. Reveal opens it as a Cards deck, so it is rated with the same four ratings.
+ * With more than one card the count leads, because it is what a push preview shows.
  */
-export function buildNotificationKeyboard(
+export function formatCardNotification(
+  front: string,
+  size: number,
   lang: SupportedLang,
-  entryId?: number,
-  selected?: NotifFeedbackGrade,
-): InlineKeyboard {
+  options: NotificationMessageOptions = {},
+): string {
+  return assembleCard({
+    ...emptySections(),
+    chrome: size > 1 ? [esc(t("notifDeckTitle", lang, { count: size })), ""] : [],
+    headword: [front],
+    aids: ["", `<i>${esc(t(selfCheckQuestion(options.selfCheckVariant), lang))}</i>`],
+    footer: options.footer ? ["", options.footer] : [],
+  });
+}
+
+/** Opens the notification settings screen as a message of its own; the notification stays as it was. */
+export const NOTIF_SETTINGS_CALLBACK = "notif:settings";
+
+function appendSettingsRow(kb: InlineKeyboard, lang: SupportedLang): InlineKeyboard {
+  return kb.row().text(t("notifSettingsButton", lang), NOTIF_SETTINGS_CALLBACK);
+}
+
+/** For a notification with nothing else to tap — the lapsed-user message, the empty-dictionary prompt. */
+export function buildNotificationSettingsKeyboard(lang: SupportedLang): InlineKeyboard {
+  return new InlineKeyboard().text(t("notifSettingsButton", lang), NOTIF_SETTINGS_CALLBACK);
+}
+
+/**
+ * Build the inline keyboard for a notification message, last row always the settings.
+ *
+ * A dictionary word is a card, so it gets the `/review` front's buttons: Reveal
+ * (`notif:deck`, which opens the deck) and Remove (`notif:learned`, kept from the
+ * old nudge so its restore flow and the buttons already in chat history still land).
+ * A word with no entry has nothing to rate or remove, so Reveal translates it.
+ */
+export function buildNotificationKeyboard(lang: SupportedLang, entryId?: number): InlineKeyboard {
   if (entryId == null) {
-    return new InlineKeyboard().text(t("notifReveal", lang), "notif:tr");
+    return appendSettingsRow(new InlineKeyboard().text(t("notifReveal", lang), "notif:tr"), lang);
   }
-  const kb = new InlineKeyboard().text(t("notifReveal", lang), `notif:reveal:${entryId}`).row();
-  return appendFeedbackMenu(kb, lang, entryId, selected);
+  const kb = new InlineKeyboard()
+    .text(t("flashcardReveal", lang), `notif:deck:${entryId}`)
+    .row()
+    .text(t("notifFbDelete", lang), `notif:learned:${entryId}`);
+  return appendSettingsRow(kb, lang);
 }
 
 /** The one button a removal confirmation carries: the way back. */

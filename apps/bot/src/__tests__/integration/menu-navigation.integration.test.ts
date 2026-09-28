@@ -239,7 +239,7 @@ describe("menu navigation (integration)", () => {
     expect(lastEdit(harness.sent).buttons).toContain("set:notif");
   });
 
-  it("leads from the settings root into the templates group, through the notification template and back", async () => {
+  it("leads from the settings root into the templates group, through the card template and back", async () => {
     const harness = createBotHarness({ ai: deterministicTranslateAi() });
     const id = uniqueTelegramId();
     await arrangeOnboardedTranslator(id);
@@ -248,17 +248,37 @@ describe("menu navigation (integration)", () => {
 
     harness.reset();
     await harness.dispatch(callbackQueryUpdate({ chatId: id, fromId: id, messageId: menuId, data: "set:tpls" }));
-    expect(lastEdit(harness.sent).buttons).toEqual(["set:tpl", "set:card", "set:ntpl", "set:root"]);
+    expect(lastEdit(harness.sent).buttons).toEqual(["set:tpl", "set:card", "set:root"]);
 
+    // A word notification is a card, so the card template is the one that shapes it.
     harness.reset();
-    await harness.dispatch(callbackQueryUpdate({ chatId: id, fromId: id, messageId: menuId, data: "set:ntpl" }));
-    expect(lastEdit(harness.sent).text).toContain("Word notification");
-    expect(lastEdit(harness.sent).buttons).toEqual(["set:ntpl:t:synonyms", "set:tpls"]);
+    await harness.dispatch(callbackQueryUpdate({ chatId: id, fromId: id, messageId: menuId, data: "set:card" }));
+    expect(lastEdit(harness.sent).text).toContain("Card front");
+    expect(lastEdit(harness.sent).buttons).toEqual([
+      "set:card:t:hint",
+      "set:card:t:synonyms",
+      "set:card:t:example",
+      "set:tpls",
+    ]);
 
     // Back from a template screen returns to the group, not past it to the root.
     harness.reset();
     await harness.dispatch(callbackQueryUpdate({ chatId: id, fromId: id, messageId: menuId, data: "set:tpls" }));
-    expect(lastEdit(harness.sent).buttons).toContain("set:ntpl");
+    expect(lastEdit(harness.sent).buttons).toContain("set:card");
     expect(sentMessages(harness.sent)).toEqual([]);
+  });
+
+  it("opens the card template from a notification-template button left in chat history", async () => {
+    const harness = createBotHarness({ ai: deterministicTranslateAi() });
+    const id = uniqueTelegramId();
+    await arrangeOnboardedTranslator(id);
+    const menuId = await openMenu(harness, id);
+
+    for (const data of ["set:ntpl", "set:ntpl:t:synonyms"]) {
+      harness.reset();
+      await harness.dispatch(callbackQueryUpdate({ chatId: id, fromId: id, messageId: menuId, data }));
+      expect(lastEdit(harness.sent).text).toContain("Card front");
+      expect(lastEdit(harness.sent).buttons).toContain("set:card:t:synonyms");
+    }
   });
 });

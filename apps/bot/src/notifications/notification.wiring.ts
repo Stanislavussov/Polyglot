@@ -1,12 +1,12 @@
 import { generateObject } from "@polyglot/adapter-ai";
 import {
+  cardTemplateRepository,
   getAllLangs,
   getLang,
   identityRepository,
   momentumRepository,
   notificationDeliveryRepository,
   notificationRepository,
-  notificationTemplateRepository,
   onboardingDemoCardRepository,
   settingsAdapter,
   subscriptionRepository,
@@ -16,6 +16,7 @@ import {
 import {
   createNotificationService,
   createPresetWordPicker,
+  createReviewDeckPicker,
   type NotificationPayload,
   type SchedulerDeps,
   startScheduler,
@@ -23,6 +24,7 @@ import {
 } from "@polyglot/adapter-notifications";
 import {
   type AIFailover,
+  type CardsDeckCard,
   createSubscriptionService,
   errorFields,
   type GenerateObjectFn,
@@ -40,15 +42,17 @@ import { type Api, type RawApi } from "grammy";
 import { z } from "zod";
 import { notificationCounter } from "../metrics.js";
 import { renewalPaymentPort } from "../payment.js";
+import { renderCardFront } from "../renderers/word-card.js";
 import { buildAiFailover, resolveDefaultAIModel, resolveFallbackAIModel } from "../utils/ai-model.js";
 import { clampAiBudgetToOpGuard } from "../utils/long-op.js";
 import { isUserBlocked } from "../utils/telegram-errors.js";
 import { logDelivery } from "./delivery-log.js";
 import {
   buildNotificationKeyboard,
+  buildNotificationSettingsKeyboard,
+  formatCardNotification,
   formatNotificationMessage,
   SELF_CHECK_KEYS,
-  sourceSynonymTexts,
 } from "./notification.formatter.js";
 
 const jitTranslationSchema = z.object({
@@ -209,15 +213,6 @@ export async function buildNotificationScheduling(
   const pickSelfCheckVariant =
     overrides.pickSelfCheckVariant ?? ((): number => Math.floor(Math.random() * SELF_CHECK_KEYS.length));
 
-  /** Only a dictionary pick has a stored row to take synonyms from; a preset or AI suggestion shows none. */
-  const loadTemplateSynonyms = async (userId: number, entryId: number | undefined): Promise<string[]> => {
-    if (entryId == null) return [];
-    const fields = await notificationTemplateRepository.getFields(userId);
-    if (!fields.synonyms) return [];
-    const entry = await vocabularyRepository.findById(entryId);
-    return sourceSynonymTexts(entry?.sourceUsage);
-  };
-
   /**
    * The motivation layer's only outbound surface (Task 81, §2.2 S4): one line
    * inside an already-subscribed notification, at most once every 7 days.
@@ -360,6 +355,37 @@ Return translations as JSON array.`;
     },
   });
 
+  /** A card's front as `/review` would show it: the reader's own card-front settings decide what it reveals. */
+  const renderFront = async (
+    userId: number,
+    card: Pick<CardsDeckCard, "original" | "emoji" | "sourceLangId" | "sourceUsage">,
+  ): Promise<string> => {
+    const fields = await cardTemplateRepository.getFields(userId);
+    const sourceLang = getAllLangs().find((l) => l.id === card.sourceLangId)?.code ?? "unknown";
+    return renderCardFront(
+      { original: card.original, emoji: card.emoji, sourceLang, sourceUsage: card.sourceUsage },
+      fields,
+    );
+  };
+
+  /**
+   * What a dictionary word is shown as: the deck's first card, or — for a word the
+   * single-word pickers chose (a lapsed user's, a contextual fallback's) — the entry
+   * itself as a deck of one. Null only for a word with no entry, which stays a nudge.
+   */
+  const cardOf = async (
+    userId: number,
+    payload: NotificationPayload,
+  ): Promise<{ entryId: number; front: string; size: number } | null> => {
+    const lead = payload.deck?.[0];
+    if (lead) return { entryId: lead.entryId, front: await renderFront(userId, lead), size: payload.deck!.length };
+    const entryId = payload.word.entryId;
+    const entry = entryId == null ? null : await vocabularyRepository.findById(entryId);
+    return entry ? { entryId: entry.id, front: await renderFront(userId, entry), size: 1 } : null;
+  };
+
+  const reviewDeckPicker = createReviewDeckPicker(vocabularyRepository);
+
   // The scheduler now hands us the neutral userId (Fable T24/A1); this channel
   // adapter resolves the Telegram chat id via the identity port (with a legacy
   // telegram_id fallback) before sending — see resolveTelegramChatId.
@@ -412,13 +438,13 @@ Return translations as JSON array.`;
       lang = settings.interfaceLang as SupportedLang;
     }
 
-    const kb = buildNotificationKeyboard(lang, payload.word.entryId);
     const weeklyProof = await prepareWeeklyProof(userId, lang, settings?.timezone ?? "UTC");
-    const message = formatNotificationMessage(payload, lang, {
-      ...(weeklyProof ? { footer: weeklyProof.line } : {}),
-      selfCheckVariant: pickSelfCheckVariant(),
-      synonyms: await loadTemplateSynonyms(userId, payload.word.entryId),
-    });
+    const options = { ...(weeklyProof ? { footer: weeklyProof.line } : {}), selfCheckVariant: pickSelfCheckVariant() };
+    const card = await cardOf(userId, payload);
+    const message = card
+      ? formatCardNotification(card.front, card.size, lang, options)
+      : formatNotificationMessage(payload, lang, options);
+    const kb = buildNotificationKeyboard(lang, card?.entryId);
     const sent = await withDeliveryMetrics(() =>
       api.sendMessage(telegramId, message, {
         parse_mode: "HTML",
@@ -435,6 +461,7 @@ Return translations as JSON array.`;
         word: payload.word.headword ?? payload.word.original,
         source: payload.word.source ?? null,
         entryId: payload.word.entryId ?? null,
+        deckSize: card?.size ?? null,
       },
     });
     await weeklyProof?.commit();
@@ -446,7 +473,14 @@ Return translations as JSON array.`;
       countDelivery("delivery_skipped");
       return;
     }
-    const sent = await withDeliveryMetrics(() => api.sendMessage(telegramId, message, { parse_mode: "HTML" }));
+    const interfaceLang = (await userRepository.getSettings(userId))?.interfaceLang;
+    const lang: SupportedLang = interfaceLang && isSupported(interfaceLang) ? interfaceLang : "en";
+    const sent = await withDeliveryMetrics(() =>
+      api.sendMessage(telegramId, message, {
+        parse_mode: "HTML",
+        reply_markup: buildNotificationSettingsKeyboard(lang),
+      }),
+    );
     await logDelivery(notificationDeliveryRepository, {
       userId,
       kind: "re_engagement",
@@ -512,11 +546,16 @@ Return translations as JSON array.`;
     pickDictionaryWord: (userId: number, recentWords) => notifService.pickDictionaryWord(userId, recentWords),
     pickContextualWord: (userId: number, context: string, langs, recentWords) =>
       notifService.pickContextualWord(userId, context, langs, recentWords),
+    pickReviewDeck: (userId: number, size: number, recentWords: string[]) =>
+      reviewDeckPicker(userId, size, recentWords),
     sendDictionaryEmptyPrompt: async (userId: number, lang: string) => {
       const telegramId = await resolveTelegramId(userId);
       if (telegramId === null) return;
-      const text = t("notifNoDictionary" as never, (isSupported(lang) ? lang : "en") as SupportedLang);
-      const sent = await api.sendMessage(telegramId, text);
+      const userLang = (isSupported(lang) ? lang : "en") as SupportedLang;
+      const text = t("notifNoDictionary" as never, userLang);
+      const sent = await api.sendMessage(telegramId, text, {
+        reply_markup: buildNotificationSettingsKeyboard(userLang),
+      });
       await logDelivery(notificationDeliveryRepository, {
         userId,
         kind: "dictionary_empty",

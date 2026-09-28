@@ -4,13 +4,14 @@
  */
 import {
   type CardFrontFields,
+  DEFAULT_NOTIFICATION_BATCH_SIZE,
   formatNotificationTime,
   isCardFrontField,
-  isNotificationTemplateField,
+  isNotificationBatchSize,
   isSupported,
   logEvent,
+  NOTIFICATION_BATCH_SIZES,
   NOTIFICATION_TYPES,
-  type NotificationTemplateFields,
   type NotificationType,
   parseNotificationMinutes,
   type SupportedLang,
@@ -20,7 +21,6 @@ import { InlineKeyboard } from "grammy";
 import { changesCommand } from "../../commands/changes.js";
 import { setUserCommands } from "../../commands/commands.js";
 import { MAX_LEARNING_LANGS, MAX_NOTIFICATION_TIMES } from "../../constants.js";
-import { formatNotificationMessage, sourceSynonymTexts } from "../../notifications/notification.formatter.js";
 import { trackProductEvent } from "../../observability/product-events.js";
 import { renderCardFront } from "../../renderers/word-card.js";
 import type { BotContext } from "../../types.js";
@@ -29,8 +29,6 @@ import {
   buildCardTemplateKeyboard,
   buildCardTemplateText,
   buildLangGroupKeyboard,
-  buildNotificationTemplateKeyboard,
-  buildNotificationTemplateText,
   buildNotifSubKeyboard,
   buildNotifSubText,
   buildTemplatesKeyboard,
@@ -57,7 +55,7 @@ async function showLangGroupMenu(ctx: BotContext): Promise<void> {
 }
 
 /** Re-render the notification sub-menu */
-async function showNotifSubMenu(ctx: BotContext): Promise<void> {
+async function buildNotifSubScreen(ctx: BotContext): Promise<{ text: string; keyboard: InlineKeyboard }> {
   const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
   const iLang = settings?.interfaceLang ?? "en";
   const lang = (isSupported(iLang) ? iLang : "en") as SupportedLang;
@@ -66,10 +64,28 @@ async function showNotifSubMenu(ctx: BotContext): Promise<void> {
   const notifType = settings?.notificationType ?? "srs";
   const timezone = settings?.timezone ?? "UTC";
   const notifContext = settings?.notificationContext ?? null;
+  const batchSize = settings?.notificationBatchSize ?? DEFAULT_NOTIFICATION_BATCH_SIZE;
 
-  const text = buildNotifSubText(lang, notifEnabled, notifTimes, notifType, timezone, notifContext);
-  const kb = buildNotifSubKeyboard(lang, notifEnabled, notifType);
-  await editMessageTextOrReply(ctx, text, { reply_markup: kb, parse_mode: "HTML" });
+  return {
+    text: buildNotifSubText(lang, notifEnabled, notifTimes, notifType, timezone, notifContext, batchSize),
+    keyboard: buildNotifSubKeyboard(lang, notifEnabled, notifType),
+  };
+}
+
+async function showNotifSubMenu(ctx: BotContext): Promise<void> {
+  const { text, keyboard } = await buildNotifSubScreen(ctx);
+  await editMessageTextOrReply(ctx, text, { reply_markup: keyboard, parse_mode: "HTML" });
+}
+
+/**
+ * notif:settings — the button every notification carries. The screen arrives as a
+ * message of its own: editing it into the notification would throw away the word
+ * the reader was just shown.
+ */
+export async function handleNotifSettingsCallback(ctx: BotContext): Promise<void> {
+  await ctx.answerCallbackQuery();
+  const { text, keyboard } = await buildNotifSubScreen(ctx);
+  await ctx.reply(text, { reply_markup: keyboard, parse_mode: "HTML" });
 }
 
 /** set:native — show native language picker */
@@ -436,6 +452,41 @@ export async function handleSetNotifTypeSelectCallback(ctx: BotContext): Promise
   await showNotifSubMenu(ctx);
 }
 
+/** set:notif:batch — how many cards one notification brings */
+export async function handleSetNotifBatchCallback(ctx: BotContext): Promise<void> {
+  const lang = await getLang(ctx);
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
+  const current = settings?.notificationBatchSize ?? DEFAULT_NOTIFICATION_BATCH_SIZE;
+  const kb = new InlineKeyboard();
+  for (const size of NOTIFICATION_BATCH_SIZES) {
+    kb.text(size === current ? `✅ ${size}` : String(size), `set:notif:batch:${size}`);
+  }
+  kb.row()
+    .text(`⬅️ ${t("back", lang)}`, "set:notif")
+    .row();
+
+  await editMessageTextOrReply(ctx, t("settingsNotifBatchPrompt", lang), { reply_markup: kb, parse_mode: "HTML" });
+  await ctx.answerCallbackQuery();
+}
+
+/** set:notif:batch:{size} — only an offered size is stored; a forged one just re-shows the screen. */
+export async function handleSetNotifBatchSelectCallback(ctx: BotContext): Promise<void> {
+  const size = Number((ctx.callbackQuery?.data ?? "").replace("set:notif:batch:", ""));
+  if (!isNotificationBatchSize(size)) {
+    await ctx.answerCallbackQuery();
+    await showNotifSubMenu(ctx);
+    return;
+  }
+
+  const previous = (await ctx.services.userRepository.getSettings(ctx.user.id))?.notificationBatchSize ?? null;
+  await ctx.services.notificationRepository.updatePrefs(ctx.user.id, { notificationBatchSize: size });
+  logEvent("settings.notification_batch_size_changed", { from: previous, to: size });
+
+  const lang = await getLang(ctx);
+  await ctx.answerCallbackQuery({ text: t("settingsNotifBatch", lang, { count: size }) });
+  await showNotifSubMenu(ctx);
+}
+
 /** set:notif:tz — prompt for timezone input */
 export async function handleSetNotifTzCallback(ctx: BotContext): Promise<void> {
   const lang = await getLang(ctx);
@@ -589,7 +640,11 @@ async function showCardTemplateMenu(ctx: BotContext, fields: CardFrontFields): P
   });
 }
 
-/** set:card — what a review card's front shows */
+/**
+ * set:card — what a card's front shows, in `/review` and in a word notification alike.
+ * Also answers `set:ntpl` and its toggles, the notification template's buttons still in
+ * chat history from before notifications became cards.
+ */
 export async function handleSetCardCallback(ctx: BotContext): Promise<void> {
   await showCardTemplateMenu(ctx, await ctx.services.cardTemplateRepository.getFields(ctx.user.id));
   await ctx.answerCallbackQuery();
@@ -610,61 +665,13 @@ export async function handleSetCardToggleCallback(ctx: BotContext): Promise<void
   await ctx.answerCallbackQuery();
 }
 
-/** set:tpls — the templates sub-menu: translation, review card, notification */
+/** set:tpls — the templates sub-menu: translation and card */
 export async function handleSetTemplatesCallback(ctx: BotContext): Promise<void> {
   const lang = await getLang(ctx);
   await editMessageTextOrReply(ctx, t("settingsTemplatesTitle", lang), {
     reply_markup: buildTemplatesKeyboard(lang),
     parse_mode: "HTML",
   });
-  await ctx.answerCallbackQuery();
-}
-
-/** The notification-template screen, previewed on the user's latest word like the card screen. */
-async function showNotificationTemplateMenu(ctx: BotContext, fields: NotificationTemplateFields): Promise<void> {
-  const lang = await getLang(ctx);
-  const [latest] = await ctx.services.vocabularyRepository.findByUserPaginated(ctx.user.id, 0, 1);
-  const headword = latest?.sourceUsage?.headword?.trim();
-  const preview = latest
-    ? formatNotificationMessage(
-        {
-          hour: 0,
-          word: {
-            original: latest.original,
-            ...(headword ? { headword } : {}),
-            emoji: latest.emoji ?? "",
-            sourceLang: makeLangCodeResolver(ctx)(latest.sourceLangId),
-            translations: {},
-          },
-        },
-        lang,
-        { synonyms: fields.synonyms ? sourceSynonymTexts(latest.sourceUsage) : [] },
-      )
-    : undefined;
-  await editMessageTextOrReply(ctx, buildNotificationTemplateText(lang, preview), {
-    reply_markup: buildNotificationTemplateKeyboard(lang, fields),
-    parse_mode: "HTML",
-  });
-}
-
-/** set:ntpl — what an opened word notification shows */
-export async function handleSetNotifTemplateCallback(ctx: BotContext): Promise<void> {
-  await showNotificationTemplateMenu(ctx, await ctx.services.notificationTemplateRepository.getFields(ctx.user.id));
-  await ctx.answerCallbackQuery();
-}
-
-export const NOTIF_TEMPLATE_TOGGLE_PATTERN = /^set:ntpl:t:(\w+)$/;
-
-/** set:ntpl:t:{field} — flip one notification option; stateless, so an old screen's tap still lands */
-export async function handleSetNotifTemplateToggleCallback(ctx: BotContext): Promise<void> {
-  const field = ctx.match?.[1];
-  if (!field || !isNotificationTemplateField(field)) {
-    await ctx.answerCallbackQuery();
-    return;
-  }
-  const current = await ctx.services.notificationTemplateRepository.getFields(ctx.user.id);
-  const fields = await ctx.services.notificationTemplateRepository.setField(ctx.user.id, field, !current[field]);
-  await showNotificationTemplateMenu(ctx, fields);
   await ctx.answerCallbackQuery();
 }
 

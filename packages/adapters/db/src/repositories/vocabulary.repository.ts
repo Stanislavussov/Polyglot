@@ -658,6 +658,19 @@ export const vocabularyRepository = {
       .orderBy(asc(vocabularyTranslations.id));
   },
 
+  async findEntrySrsCard(userId: number, entryId: number): Promise<SrsDueVocabularyCard | null> {
+    const db = getDb();
+    const [card] = await db
+      .select(srsCardColumns)
+      .from(vocabularyTranslations)
+      .innerJoin(vocabularyEntries, eq(vocabularyTranslations.entryId, vocabularyEntries.id))
+      .where(and(liveTranslationsOf(userId), eq(vocabularyTranslations.entryId, entryId)))
+      // NULL (never reviewed) is due, so it must lead — plain ASC would sort it after a future date.
+      .orderBy(sql`${vocabularyTranslations.srsDueDate} asc nulls first`, asc(vocabularyTranslations.createdAt))
+      .limit(1);
+    return card ?? null;
+  },
+
   async updateSrsState(translationId: number, state: UpdateSrsStateInput): Promise<void> {
     const db = getDb();
     await db

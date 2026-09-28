@@ -85,6 +85,39 @@ export async function buildCardsSession(ctx: BotContext): Promise<CardsSession |
 }
 
 /**
+ * The deck a multi-card notification opens into (Task 86), built on the tap rather than
+ * at send time: a notification can sit unread for a day, and a deck frozen then would
+ * re-rate words reviewed in Cards since. The word the notification showed leads — the
+ * reader has just tried to recall it — and the rest is `buildCardsSession`'s order.
+ */
+export async function buildNotificationDeck(
+  ctx: BotContext,
+  shownEntryId: number,
+  size: number,
+): Promise<CardsSession | null> {
+  const now = new Date();
+  const candidates = size * CANDIDATE_OVERSHOOT;
+  const repo = ctx.services.vocabularyRepository;
+  const [shown, due, ahead] = await Promise.all([
+    repo.findEntrySrsCard(ctx.user.id, shownEntryId),
+    repo.findDueForSrs(ctx.user.id, now, candidates),
+    repo.findAheadForSrs(ctx.user.id, now, candidates),
+  ]);
+  const shownIsAhead = shown?.srsDueDate != null && shown.srsDueDate.getTime() > now.getTime();
+  const head = shown ? buildCardsDeck(shownIsAhead ? [] : [shown], shownIsAhead ? [shown] : [], 1) : [];
+  const others = (rows: typeof due) => rows.filter((row) => row.entryId !== shownEntryId);
+  const deck = [...head, ...buildCardsDeck(others(due), others(ahead), size - head.length)];
+  if (deck.length === 0) return null;
+
+  logEvent("cards.session_started", {
+    deckSize: deck.length,
+    ahead: deck.filter((card) => card.ahead).length,
+    source: "notification",
+  });
+  return { deck, currentIndex: 0, revealed: false, recalled: 0 };
+}
+
+/**
  * Rendered with the user's card settings as they are now, so a toggle changed mid-deck applies from the next card.
  * `undoEntryId` is the word the previous tap removed: the screen that follows a removal is the one that offers it back.
  */

@@ -11,6 +11,9 @@ export {
 // Preset (curated hook word) layer
 export { createPresetWordPicker, presetCandidates } from "./preset-picker.js";
 
+// Several cards per notification (Task 86)
+export { createReviewDeckPicker, type ReviewDeckPickerDeps } from "./review-deck-picker.js";
+
 // Scheduler
 export {
   buildNotificationPayload,

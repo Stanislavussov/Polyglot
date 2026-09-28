@@ -33,9 +33,10 @@
  * This deviation is deliberate.
  */
 import {
+  botSessionRepository,
+  cardTemplateRepository,
   notificationDeliveryRepository,
   notificationRepository,
-  notificationTemplateRepository,
   systemSettingsRepository,
   translationRequestRepository,
   userRepository,
@@ -56,6 +57,7 @@ import {
 import type { BotHarness, CapturedCall } from "../../test-helpers/integration/bot-harness.js";
 import { callbackQueryUpdate, createBotHarness } from "../../test-helpers/integration/bot-harness.js";
 import { uniqueTelegramId } from "../../test-helpers/integration/id-factory.js";
+import type { SessionData } from "../../types.js";
 
 const HOUR_MS = 60 * 60 * 1000;
 
@@ -153,6 +155,31 @@ function textOf(call: CapturedCall): string {
 async function journalFor(userId: number) {
   const { deliveries } = await notificationDeliveryRepository.list({ page: 1, limit: 10, userId });
   return deliveries;
+}
+
+function buttonsOf(call: CapturedCall | undefined): string[] {
+  const markup = call?.payload.reply_markup as
+    | { inline_keyboard?: Array<Array<{ callback_data?: string }>> }
+    | undefined;
+  return (markup?.inline_keyboard ?? [])
+    .flat()
+    .map((button) => button.callback_data)
+    .filter((data): data is string => typeof data === "string");
+}
+
+/** The last text the chat was shown, sent or edited in place. */
+function lastScreen(sent: CapturedCall[]): CapturedCall | undefined {
+  return sent.filter((call) => call.method === "sendMessage" || call.method === "editMessageText").at(-1);
+}
+
+async function readSession(chatId: number): Promise<SessionData | undefined> {
+  return (await botSessionRepository.get(String(chatId)))?.data as SessionData | undefined;
+}
+
+/** Tap a button on one message, through the real dispatcher, with the capture buffer cleared first. */
+async function tap(harness: BotHarness, chatId: number, messageId: number, data: string): Promise<void> {
+  harness.reset();
+  await harness.dispatch(callbackQueryUpdate({ chatId, fromId: chatId, messageId, data }));
 }
 
 /** Users the current test created. Drained unconditionally in `afterEach`. */
@@ -374,22 +401,16 @@ describe("scheduled notification delivery (integration)", () => {
     await checkAndSend(sendFn, deps);
 
     const delivered = messagesTo(harness.sent, telegramId)[0];
-    const markup = delivered?.payload.reply_markup as { inline_keyboard: Array<Array<{ callback_data?: string }>> };
-    const reveal = markup.inline_keyboard.flat().find((b) => b.callback_data?.startsWith("notif:reveal:"));
+    const reveal = buttonsOf(delivered).find((data) => data.startsWith("notif:deck:"));
     expect(delivered?.messageId).toBeDefined();
+    expect(reveal).toBeDefined();
     expect((await journalFor(userId))[0]).toMatchObject({ openedAt: null, interactionCount: 0 });
 
     // Act — through the real dispatcher.
-    await harness.dispatch(
-      callbackQueryUpdate({
-        chatId: telegramId,
-        fromId: telegramId,
-        messageId: delivered!.messageId!,
-        data: reveal!.callback_data!,
-      }),
-    );
+    await tap(harness, telegramId, delivered!.messageId!, reveal!);
 
-    // Assert — the journal row the admin panel reads now carries the tap.
+    // Assert — the tap opened the card in that message, and the journal row the admin panel reads carries it.
+    expect((lastScreen(harness.sent)?.payload as { message_id?: number }).message_id).toBe(delivered!.messageId);
     const journal = await journalFor(userId);
     expect(journal).toHaveLength(1);
     expect(journal[0]?.interactionCount).toBe(1);
@@ -517,68 +538,47 @@ describe("scheduled notification delivery (integration)", () => {
     expect(ai.wasCalled()).toBe(false);
   });
 
-  it("C19: synonyms switched on in the notification template arrive below the question, never beside the word", async () => {
-    // Arrange — the toggle goes through the real settings callback, so the row the
+  it("C19: the card-front template's synonyms toggle decides whether a notification shows them beside the word", async () => {
+    // Arrange — two readers of the same word: one on the default front (synonyms on),
+    // one who switched them off through the real settings callback, so the row the
     // delivery reads is the one a user's tap writes.
     const harness = createBotHarness();
-    const telegramId = uniqueTelegramId();
-    const { userId, headword } = await arrangeTracked(telegramId, { sourceSynonyms: ["span", "viaduct"] });
+    const shownId = uniqueTelegramId();
+    const hiddenId = uniqueTelegramId();
+    const { headword } = await arrangeTracked(shownId, { sourceSynonyms: ["span", "viaduct"] });
+    const { userId: hiddenUserId } = await arrangeTracked(hiddenId, { sourceSynonyms: ["span", "viaduct"] });
     const { sendFn, deps, ai } = await buildDelivery(harness);
-    await harness.dispatch(
-      callbackQueryUpdate({ chatId: telegramId, fromId: telegramId, messageId: 1, data: "set:ntpl:t:synonyms" }),
-    );
-    expect(await notificationTemplateRepository.getFields(userId)).toEqual({ synonyms: true });
-    const synonymsLine = t("notifSynonymsLine", "en", { synonyms: "span, viaduct" });
-    // The settings screen previews the choice on the user's own latest word.
-    expect(
-      harness.sent.some((call) => String((call.payload as { text?: string }).text ?? "").includes(synonymsLine)),
-    ).toBe(true);
+    await tap(harness, hiddenId, 1, "set:card:t:synonyms");
+    expect((await cardTemplateRepository.getFields(hiddenUserId)).synonyms).toBe(false);
     harness.reset();
 
     // Act
     await checkAndSend(sendFn, deps);
 
-    // Assert — the first two lines are what a phone's push preview shows: word and question.
-    const mine = messagesTo(harness.sent, telegramId);
-    expect(mine).toHaveLength(1);
-    const lines = textOf(mine[0]!)
-      .split("\n")
-      .filter((line) => line.trim() !== "");
-    expect(lines).toHaveLength(3);
-    expect(lines[0]).toContain(headword);
-    expect(lines[0]).not.toContain("span");
-    expect(lines[1]).toContain(t("notifSelfCheck", "en"));
-    expect(lines[2]).toBe(synonymsLine);
-    expect(ai.wasCalled()).toBe(false);
-  });
-
-  it("C20: an entry with synonyms still arrives as the bare prompt while the template leaves them off", async () => {
-    // Arrange
-    const harness = createBotHarness();
-    const telegramId = uniqueTelegramId();
-    await arrangeTracked(telegramId, { sourceSynonyms: ["span", "viaduct"] });
-    const { sendFn, deps, ai } = await buildDelivery(harness);
-    harness.reset();
-
-    // Act
-    await checkAndSend(sendFn, deps);
-
-    // Assert
-    const mine = messagesTo(harness.sent, telegramId);
-    expect(mine).toHaveLength(1);
-    expect(textOf(mine[0]!)).not.toContain("span");
-    expect(
-      textOf(mine[0]!)
+    // Assert — the first two lines are what a phone's push preview shows: the front, then the question.
+    const lines = (chatId: number): string[] => {
+      const mine = messagesTo(harness.sent, chatId);
+      expect(mine).toHaveLength(1);
+      return textOf(mine[0]!)
         .split("\n")
-        .filter((line) => line.trim() !== ""),
-    ).toHaveLength(2);
+        .filter((line) => line.trim() !== "");
+    };
+    const shown = lines(shownId);
+    expect(shown).toHaveLength(2);
+    expect(shown[0]).toContain(headword);
+    expect(shown[0]).toContain("span, viaduct");
+    expect(shown[1]).toContain(t("notifSelfCheck", "en"));
+    const hidden = lines(hiddenId);
+    expect(hidden).toHaveLength(2);
+    expect(hidden[0]).toContain(headword);
+    expect(hidden.join("\n")).not.toContain("span");
     expect(ai.wasCalled()).toBe(false);
   });
 
-  it("C14: tapping Reveal opens the translation card, with the buttons a translation card has", async () => {
-    // Arrange — deliver first, then tap the button the delivery actually carried:
-    // the entry id travels from the picker into the callback data, and a card
-    // revealed by a hand-built id would not prove that leg.
+  it("C14: tapping Reveal turns the notification into the /review card back, with the four ratings", async () => {
+    // Arrange — deliver first, then tap the button the delivery actually carried on the
+    // message it arrived in: the entry id travels from the picker into the callback
+    // data, and a card revealed by a hand-built id would not prove that leg.
     const harness = createBotHarness();
     const telegramId = uniqueTelegramId();
     const { userId, headword, nativeTranslation, otherTranslation } = await arrangeTracked(telegramId, {
@@ -589,143 +589,113 @@ describe("scheduled notification delivery (integration)", () => {
     await checkAndSend(sendFn, deps);
 
     const delivered = messagesTo(harness.sent, telegramId)[0];
-    const markup = delivered?.payload.reply_markup as { inline_keyboard: Array<Array<{ callback_data?: string }>> };
-    const reveal = markup.inline_keyboard.flat().find((b) => b.callback_data?.startsWith("notif:reveal:"));
-    const entries = await vocabularyRepository.findByUser(userId);
-    expect(reveal?.callback_data).toBe(`notif:reveal:${entries[0]?.id}`);
+    const [entry] = await vocabularyRepository.findByUser(userId);
+    const entryId = entry!.id;
+    expect(buttonsOf(delivered)).toEqual([`notif:deck:${entryId}`, `notif:learned:${entryId}`, "notif:settings"]);
+    const messageId = delivered!.messageId!;
 
     // Act — through the real dispatcher, as the tap arrives.
-    const nudgeMsgId = 800;
-    harness.reset();
-    await harness.dispatch(
-      callbackQueryUpdate({
-        chatId: telegramId,
-        fromId: telegramId,
-        messageId: nudgeMsgId,
-        data: reveal!.callback_data!,
-      }),
+    await tap(harness, telegramId, messageId, `notif:deck:${entryId}`);
+
+    // Assert — the wire: the same message now shows the answer, every saved language, and the rating question.
+    const back = lastScreen(harness.sent);
+    expect(back?.method).toBe("editMessageText");
+    expect((back?.payload as { message_id?: number }).message_id).toBe(messageId);
+    expect(textOf(back!)).toContain("Card 1 of 1");
+    expect(textOf(back!)).toContain(headword);
+    expect(textOf(back!)).toContain(nativeTranslation!);
+    expect(textOf(back!)).toContain(otherTranslation!);
+    expect(textOf(back!)).toContain(t("srsChooseRating", "en"));
+
+    // Assert — the session: a Cards deck of this one word, revealed.
+    const cards = (await readSession(telegramId))?.cards;
+    expect(cards?.deck.map((card) => card.entryId)).toEqual([entryId]);
+    expect(cards?.revealed).toBe(true);
+    const translationId = cards!.deck[0]!.translationId;
+    expect(entry!.translations.map((tr) => tr.id)).toContain(translationId);
+
+    // Assert — the deck's keyboard: the four SM-2 ratings, the card's own actions
+    // addressed to this message, the deck's remove and quit. No old grade row, no Reveal.
+    const buttons = buttonsOf(back);
+    expect(buttons).toEqual(
+      expect.arrayContaining([
+        ...(["again", "hard", "good", "easy"] as const).map((rating) => `fc:rate:${rating}:${translationId}`),
+        `tr:more:${messageId}`,
+        `fc:del:${entryId}`,
+        "fc:quit",
+      ]),
     );
-
-    // Assert — the card: the reader's own language, the second learning language,
-    // and the answer directly under the headword, as every other card renders it.
-    const revealed = harness.sent
-      .filter((call) => call.method === "editMessageText")
-      .map((call) => String((call.payload as { text?: string }).text ?? ""))
-      .at(-1);
-    expect(revealed).toBeDefined();
-    const lines = revealed!.split("\n").filter((line) => line.trim() !== "");
-
-    expect(lines[0]).toContain(headword);
-    expect(lines[1]).toContain(nativeTranslation!);
-    expect(revealed).toContain(otherTranslation!);
-
-    // Assert — the keyboard is the translation card's, addressed to this message,
-    // and it says the word is already saved rather than offering to save it twice.
-    const buttons = harness.sent
-      .filter((call) => call.method === "editMessageReplyMarkup")
-      .map((call) => call.payload as { reply_markup?: { inline_keyboard?: Array<Array<{ callback_data?: string }>> } })
-      .at(-1)
-      ?.reply_markup?.inline_keyboard?.flat()
-      .map((button) => button.callback_data);
-
-    // A fresh card ships collapsed, so what proves this is the card's keyboard is
-    // the pair a collapsed card always carries — ⋯ More and the Save slot, which
-    // offers Remove because a nudged word is a saved one — both addressed to this
-    // message. Expanding it is `tr:more`'s job and is covered where that behaviour lives.
-    expect(buttons).toContain(`tr:more:${nudgeMsgId}`);
-    expect(buttons).toContain(`tr:remove:${nudgeMsgId}`);
-    // The card owns the message now: apart from the recall grades, which address
-    // the entry, every button is the card's own. Reveal and Remove do not survive.
-    const entryId = entries[0]?.id;
-    const grades = [`notif:fb:hard:${entryId}`, `notif:fb:normal:${entryId}`, `notif:fb:easy:${entryId}`];
-    expect(buttons?.slice(0, 3)).toEqual(grades);
-    expect(buttons?.slice(3).every((data) => data?.endsWith(`:${nudgeMsgId}`))).toBe(true);
+    expect(buttons.some((data) => data.startsWith("notif:"))).toBe(false);
     expect(ai.wasCalled()).toBe(false);
   });
 
-  it("C15: the revealed card's buttons still work — the session entry travels with it", async () => {
-    // The card addresses its own state by message id. Without that entry every
-    // button on the freshly revealed card answers "this card has expired", which
-    // is invisible to any assertion about the card's text.
-    const harness = createBotHarness();
-    const telegramId = uniqueTelegramId();
-    const { headword } = await arrangeTracked(telegramId, { richCard: true });
-    const { sendFn, deps } = await buildDelivery(harness);
-    await checkAndSend(sendFn, deps);
-
-    const delivered = messagesTo(harness.sent, telegramId)[0];
-    const markup = delivered?.payload.reply_markup as { inline_keyboard: Array<Array<{ callback_data?: string }>> };
-    const reveal = markup.inline_keyboard.flat().find((b) => b.callback_data?.startsWith("notif:reveal:"));
-    const nudgeMsgId = 810;
-    await harness.dispatch(
-      callbackQueryUpdate({
-        chatId: telegramId,
-        fromId: telegramId,
-        messageId: nudgeMsgId,
-        data: reveal!.callback_data!,
-      }),
-    );
-
-    // Act — tap the Save button a card revealed before Remove took that slot still
-    // carries: it needs no AI and reports what it found through the toast.
-    harness.reset();
-    await harness.dispatch(
-      callbackQueryUpdate({
-        chatId: telegramId,
-        fromId: telegramId,
-        messageId: nudgeMsgId,
-        data: `tr:save:${nudgeMsgId}`,
-      }),
-    );
-
-    // Assert — the word was recognised as this card's, not answered as expired.
-    const answers = harness.sent
-      .filter((call) => call.method === "answerCallbackQuery")
-      .map((call) => String((call.payload as { text?: string }).text ?? ""));
-    expect(answers.join(" ")).not.toMatch(/expired|устарел/i);
-    expect(headword.length).toBeGreaterThan(0);
-  });
-
-  it("C16: a word can be graded after the reveal, and the grade survives the card's own taps", async () => {
+  it("C15b: the revealed card's actions still work — the card's state is filed under the notification's message", async () => {
+    // The card's `tr:*` buttons address their state by message id. Without that entry
+    // every one of them on the freshly revealed card answers "this card has expired",
+    // which is invisible to any assertion about the card's text.
     const harness = createBotHarness();
     const telegramId = uniqueTelegramId();
     const { userId } = await arrangeTracked(telegramId, { richCard: true });
     const { sendFn, deps } = await buildDelivery(harness);
     await checkAndSend(sendFn, deps);
+    const delivered = messagesTo(harness.sent, telegramId)[0];
+    const messageId = delivered!.messageId!;
+    const [entry] = await vocabularyRepository.findByUser(userId);
+    await tap(harness, telegramId, messageId, `notif:deck:${entry!.id}`);
+
+    // Act — open the card's action list.
+    await tap(harness, telegramId, messageId, `tr:more:${messageId}`);
+
+    // Assert — the list opened on this message, with the deck's controls kept, and nothing expired.
+    const answers = harness.sent
+      .filter((call) => call.method === "answerCallbackQuery")
+      .map((call) => String((call.payload as { text?: string }).text ?? ""));
+    expect(answers.join(" ")).not.toMatch(/expired|устарел/i);
+    const expanded = harness.sent.filter((call) => call.method === "editMessageReplyMarkup").at(-1);
+    expect((expanded?.payload as { message_id?: number }).message_id).toBe(messageId);
+    expect(buttonsOf(expanded)).toEqual(expect.arrayContaining([`tr:less:${messageId}`, `fc:del:${entry!.id}`]));
+    expect(buttonsOf(expanded).some((data) => data.startsWith("fc:rate:good:"))).toBe(true);
+  });
+
+  it("C16: a rating after the reveal schedules the word by SM-2", async () => {
+    // Arrange — a delivered, revealed notification of a word that is due. A freshly
+    // saved word is due tomorrow, and a practice-ahead good rating writes nothing by
+    // design (cards-deck.ts), so the schedule is moved into the past first.
+    const harness = createBotHarness();
+    const telegramId = uniqueTelegramId();
+    const { userId } = await arrangeTracked(telegramId, { richCard: true });
+    const [seeded] = await vocabularyRepository.findByUser(userId);
+    for (const tr of seeded!.translations) {
+      await vocabularyRepository.updateSrsState(tr.id, {
+        easeFactor: 2.5,
+        interval: 1,
+        dueDate: new Date("2020-01-01T00:00:00Z"),
+        reviewCount: 1,
+      });
+    }
+    const { sendFn, deps, ai } = await buildDelivery(harness);
+    await checkAndSend(sendFn, deps);
+    const messageId = messagesTo(harness.sent, telegramId)[0]!.messageId!;
     const [entry] = await vocabularyRepository.findByUser(userId);
     const entryId = entry!.id;
-    const cardMsgId = 820;
-    const tapCard = async (data: string): Promise<void> => {
-      harness.reset();
-      await harness.dispatch(
-        callbackQueryUpdate({ chatId: telegramId, fromId: telegramId, messageId: cardMsgId, data }),
-      );
-    };
-    const lastButtons = (): Array<string | undefined> =>
-      harness.sent
-        .filter((call) => call.method === "editMessageReplyMarkup")
-        .map(
-          (call) =>
-            call.payload as {
-              reply_markup?: { inline_keyboard?: Array<Array<{ text: string; callback_data?: string }>> };
-            },
-        )
-        .at(-1)
-        ?.reply_markup?.inline_keyboard?.flat()
-        .map((button) => (button.text.startsWith("✓") ? `✓${button.callback_data}` : button.callback_data)) ?? [];
+    await tap(harness, telegramId, messageId, `notif:deck:${entryId}`);
+    const translationId = (await readSession(telegramId))!.cards!.deck[0]!.translationId;
+    const before = entry!.translations.find((tr) => tr.id === translationId);
 
-    await tapCard(`notif:reveal:${entryId}`);
-    await tapCard(`notif:fb:hard:${entryId}`);
+    // Act
+    await tap(harness, telegramId, messageId, `fc:rate:good:${translationId}`);
 
-    // DB: the grade landed. Wire: the card kept its buttons, with the grade marked.
-    expect((await vocabularyRepository.findById(entryId))?.difficulty).toBe("hard");
-    expect(lastButtons()).toContain(`✓notif:fb:hard:${entryId}`);
-    expect(lastButtons()).toContain(`tr:more:${cardMsgId}`);
-
-    // Opening the action list rebuilds the keyboard; the grades and the mark stay.
-    await tapCard(`tr:more:${cardMsgId}`);
-    expect(lastButtons()).toContain(`✓notif:fb:hard:${entryId}`);
-    expect(lastButtons()).toContain(`tr:less:${cardMsgId}`);
+    // Assert — DB: the rating moved the word's schedule, as any Cards rating does.
+    const after = (await vocabularyRepository.findById(entryId))?.translations.find((tr) => tr.id === translationId);
+    expect(after?.srsReviewCount).toBe((before?.srsReviewCount ?? 0) + 1);
+    expect(after?.srsDueDate?.getTime()).toBeGreaterThan(Date.now());
+    // Assert — the wire: a deck of one ends on the /review finish screen, in the same message.
+    const done = lastScreen(harness.sent);
+    expect((done?.payload as { message_id?: number }).message_id).toBe(messageId);
+    expect(buttonsOf(done)).toContain("fc:restart");
+    // Assert — the session: the finished deck no longer holds the chat's one cards slot.
+    expect((await readSession(telegramId))?.cards).toBeUndefined();
+    expect(ai.wasCalled()).toBe(false);
   });
 });
 

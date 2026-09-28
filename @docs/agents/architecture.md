@@ -51,6 +51,11 @@ Behavioral invariants, not API surface — read source for signatures.
   dictionary is empty or exhausted) → empty-dictionary prompt. A picker with nothing new
   returns `null`. Presets come from the reviewed demo-card cache, else translated
   just-in-time.
+- **A dictionary word is a card** (Task 86): the review-deck picker (due first, one card per
+  entry, `notification_batch_size` of them) goes ahead of those layers for every type but
+  `contextual`, and every card's word is recorded in the history. Reveal builds the deck on
+  the tap and hands the message to the Cards (`fc:*`) handlers — never a second rating flow,
+  never a second template. Only a word with no entry stays a prompt that Reveal translates.
 
 ### Core — `packages/core`
 

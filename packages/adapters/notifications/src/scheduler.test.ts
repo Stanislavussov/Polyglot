@@ -1,6 +1,8 @@
 /**
  * Tests for notification scheduler — cron-based, timezone-aware delivery.
  */
+
+import type { CardsDeckCard } from "@polyglot/core";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { NotificationUser, ReEngagementSendFn, SchedulerDeps, SendFn, SuggestedWord } from "./types.js";
 
@@ -72,6 +74,7 @@ const mockUser: NotificationUser = {
   notificationTimes: ["08:00"],
   notificationType: "srs",
   notificationContext: null,
+  notificationBatchSize: 1,
   reengagementCount: 0,
 };
 
@@ -107,6 +110,7 @@ function buildSchedulerDeps(overrides: Partial<SchedulerDeps> = {}): SchedulerDe
     pickDictionaryWord: vi.fn().mockResolvedValue(mockDictWord),
     pickPresetWord: vi.fn().mockResolvedValue(null),
     pickContextualWord: vi.fn().mockResolvedValue(mockDictWord),
+    pickReviewDeck: vi.fn().mockResolvedValue([]),
     sendDictionaryEmptyPrompt: vi.fn().mockResolvedValue(undefined),
     t: mockT,
     ...overrides,
@@ -282,6 +286,145 @@ describe("layered word selection", () => {
     await checkAndSend(mockSendFn, deps);
 
     expect(deps.recordSentWord).toHaveBeenCalledWith(1, "sobremesa", "preset");
+  });
+});
+
+// ─────────────────────────────────────────────
+// Tests: several cards per notification (Task 86)
+// ─────────────────────────────────────────────
+
+function deckCard(entryId: number, original: string): CardsDeckCard {
+  return {
+    translationId: entryId * 10,
+    entryId,
+    original,
+    sourceLangId: 1,
+    targetLangId: 2,
+    inputType: "word",
+    emoji: "📘",
+    nativeMeaning: null,
+    sourceUsage: null,
+    text: `${original}-tr`,
+    expressionType: null,
+    equivalentNote: null,
+    usageNote: null,
+    connotationWarning: null,
+    details: null,
+    difficulty: null,
+    srsEaseFactor: 2.5,
+    srsInterval: 0,
+    srsReviewCount: 0,
+    ahead: false,
+  };
+}
+
+describe("review deck notifications", () => {
+  const batchUser: NotificationUser = { ...mockUser, notificationBatchSize: 3 };
+  const deck = [deckCard(1, "pes"), deckCard(2, "kočka"), deckCard(3, "dům")];
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("sends one notification carrying the whole deck when the user asked for several cards", async () => {
+    const sendFn = vi.fn().mockResolvedValue(undefined);
+    const deps = buildSchedulerDeps({
+      getUsersForWindow: vi.fn().mockResolvedValue([batchUser]),
+      pickReviewDeck: vi.fn().mockResolvedValue(deck),
+    });
+
+    const result = await checkAndSend(sendFn, deps);
+
+    expect(result).toEqual({ sent: 1, errors: 0 });
+    expect(sendFn).toHaveBeenCalledTimes(1);
+    const payload = sendFn.mock.calls[0]![1];
+    expect(payload.deck).toEqual(deck);
+    expect(payload.word).toMatchObject({ original: "pes", entryId: 1, source: "srs" });
+    expect(deps.pickDictionaryWord).not.toHaveBeenCalled();
+  });
+
+  it("records every card of the deck in the de-dup history, not only the one on screen", async () => {
+    const deps = buildSchedulerDeps({
+      getUsersForWindow: vi.fn().mockResolvedValue([batchUser]),
+      pickReviewDeck: vi.fn().mockResolvedValue(deck),
+    });
+
+    await checkAndSend(vi.fn().mockResolvedValue(undefined), deps);
+
+    const recorded = vi.mocked(deps.recordSentWord).mock.calls.map(([, original, source]) => [original, source]);
+    // The card on screen goes in last, so "the last word sent" is the one the reader saw.
+    expect(recorded).toEqual([
+      ["dům", "srs"],
+      ["kočka", "srs"],
+      ["pes", "srs"],
+    ]);
+  });
+
+  it("keeps a contextual subscriber on the sentences they asked for", async () => {
+    const contextualUser: NotificationUser = {
+      ...batchUser,
+      notificationType: "contextual",
+      notificationContext: "job interview",
+    };
+    const deps = buildSchedulerDeps({
+      getUsersForWindow: vi.fn().mockResolvedValue([contextualUser]),
+      pickReviewDeck: vi.fn().mockResolvedValue(deck),
+    });
+
+    await checkAndSend(vi.fn().mockResolvedValue(undefined), deps);
+
+    expect(deps.pickReviewDeck).not.toHaveBeenCalled();
+    expect(deps.pickContextualWord).toHaveBeenCalled();
+  });
+
+  it("asks the deck picker for the user's size and skips the words sent recently", async () => {
+    const deps = buildSchedulerDeps({
+      getUsersForWindow: vi.fn().mockResolvedValue([batchUser]),
+      getSentWordsSince: vi.fn().mockResolvedValue(["kůň"]),
+      getLastSentWord: vi.fn().mockResolvedValue("myš"),
+      pickReviewDeck: vi.fn().mockResolvedValue(deck),
+    });
+
+    await checkAndSend(vi.fn().mockResolvedValue(undefined), deps);
+
+    expect(deps.pickReviewDeck).toHaveBeenCalledWith(batchUser.userId, 3, ["myš", "kůň"]);
+  });
+
+  it("sends a user on one card per notification a deck of one", async () => {
+    const sendFn = vi.fn().mockResolvedValue(undefined);
+    const deps = buildSchedulerDeps({ pickReviewDeck: vi.fn().mockResolvedValue([deck[0]]) });
+
+    await checkAndSend(sendFn, deps);
+
+    expect(deps.pickReviewDeck).toHaveBeenCalledWith(mockUser.userId, 1, []);
+    expect(sendFn.mock.calls[0]![1].deck).toEqual([deck[0]]);
+    expect(deps.pickDictionaryWord).not.toHaveBeenCalled();
+  });
+
+  it("falls back to the single-word layers when there is nothing to review", async () => {
+    const sendFn = vi.fn().mockResolvedValue(undefined);
+    const deps = buildSchedulerDeps({
+      getUsersForWindow: vi.fn().mockResolvedValue([batchUser]),
+      pickReviewDeck: vi.fn().mockResolvedValue([]),
+    });
+
+    await checkAndSend(sendFn, deps);
+
+    expect(deps.pickDictionaryWord).toHaveBeenCalled();
+    expect(sendFn.mock.calls[0]![1]).toEqual({ hour: 8, word: mockDictWord });
+  });
+
+  it("still sends one word to a lapsed user who asked for several cards", async () => {
+    const send = vi.fn().mockResolvedValue(undefined);
+    const deps = buildSchedulerDeps({
+      getUsersForReEngagement: vi.fn().mockResolvedValue([batchUser]),
+      pickReviewDeck: vi.fn().mockResolvedValue(deck),
+    });
+
+    await processLapsedUsers(send, vi.fn().mockResolvedValue(undefined), deps);
+
+    expect(deps.pickReviewDeck).not.toHaveBeenCalled();
+    expect(send.mock.calls[0]![1].deck).toBeUndefined();
   });
 });
 

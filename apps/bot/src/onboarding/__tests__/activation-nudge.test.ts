@@ -178,6 +178,7 @@ function createCallbackContext(data: string) {
     notificationTimes: [],
     notificationType: "srs",
     notificationContext: null,
+    notificationBatchSize: 1,
     lastInteractionAt: null,
     lastReengagementAt: null,
     reengagementCount: 0,
