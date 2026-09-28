@@ -94,4 +94,20 @@ describe("review deck picker", () => {
     expect(deck.map((card) => card.original)).toEqual(["dům", "strom"]);
     expect(findDueForSrs.mock.calls.length).toBeGreaterThan(1);
   });
+
+  it("does not count a word already in the deck when topping up with words not due yet", async () => {
+    // "pes" is due in one language and ahead in seven others; those rows fill the first
+    // ahead page, and counting "pes" again would stop the search before "dům".
+    const aheadRows = [
+      ...[2, 3, 4, 5, 6, 7, 8].map((lang) => row(1, "pes", { translationId: 10 + lang, targetLangId: lang })),
+      row(2, "kočka"),
+      row(3, "dům"),
+    ];
+    const findAheadForSrs = vi.fn(async (_userId: number, _now: Date, limit: number) => aheadRows.slice(0, limit));
+    const pick = createReviewDeckPicker({ findDueForSrs: vi.fn().mockResolvedValue([row(1, "pes")]), findAheadForSrs });
+
+    const deck = await pick(7, 3, []);
+
+    expect(deck.map((card) => card.original)).toEqual(["pes", "kočka", "dům"]);
+  });
 });
