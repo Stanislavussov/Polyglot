@@ -229,12 +229,28 @@ describe("admin session", () => {
     expect(location.href).toBe("/login");
   });
 
-  it("still leaves for the login page when the API cannot be reached on logout", async () => {
+  // Both cookies hold a JWT that stays valid until it expires, so reaching the
+  // login page while one survives would claim a sign-out that never happened.
+  it("stays on the page when the panel server does not end its session", async () => {
+    const { location } = stubBrowser();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo | URL) =>
+        input === "/session" ? new Response(null, { status: 403 }) : new Response(null, { status: 204 }),
+      ),
+    );
+
+    await expect(auth.logout()).rejects.toThrow();
+
+    expect(location.href).toBe("/");
+  });
+
+  it("stays on the page when a server cannot be reached on logout", async () => {
     const { location } = stubBrowser();
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new TypeError("Failed to fetch")));
 
-    await auth.logout();
+    await expect(auth.logout()).rejects.toThrow();
 
-    expect(location.href).toBe("/login");
+    expect(location.href).toBe("/");
   });
 });

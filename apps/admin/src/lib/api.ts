@@ -99,6 +99,14 @@ async function openPanelSession(token: string): Promise<void> {
   }
 }
 
+async function closePanelSession(): Promise<void> {
+  // Astro's origin check refuses a bodyless DELETE; a JSON type passes it.
+  const response = await fetch("/session", { method: "DELETE", headers: { "Content-Type": "application/json" } });
+  if (!response.ok) {
+    throw new ApiError(response.status, "Could not end the admin session");
+  }
+}
+
 export const auth = {
   login: async (email: string, password: string): Promise<LoginResponse> => {
     forgetStoredToken();
@@ -108,14 +116,18 @@ export const auth = {
   },
   me: () => get<AdminInfo>("/api/auth/me"),
   logout: async (): Promise<void> => {
-    // Leaving must not hinge on either server answering: at worst a cookie
-    // outlives the page until the token expires.
-    await Promise.allSettled([
+    // Each cookie holds a JWT that stays valid until it expires and only its own
+    // server can clear it, so the page leaves only once both are gone — a login
+    // screen in front of still-open reports would claim a sign-out that failed.
+    const results = await Promise.allSettled([
       request<void>("/api/auth/logout", { method: "POST" }),
-      // Astro's origin check refuses a bodyless DELETE; a JSON type passes it.
-      fetch("/session", { method: "DELETE", headers: { "Content-Type": "application/json" } }),
+      closePanelSession(),
     ]);
     forgetStoredToken();
+    const failure = results.find((result): result is PromiseRejectedResult => result.status === "rejected");
+    if (failure) {
+      throw failure.reason;
+    }
     if (typeof window !== "undefined") {
       window.location.href = "/login";
     }
