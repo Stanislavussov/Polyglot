@@ -2,29 +2,28 @@
  * Notification callback handlers — notif:* callbacks.
  *
  * Handles:
- * - notif:reveal:{entryId} → replace the nudge with the saved word's translation card
  * - notif:tr → translate the nudged word that has no saved entry to open
- * - notif:fb:{grade}:{entryId} → persist difficulty feedback (hard/normal/easy)
+ * - notif:fb:{grade}:{entryId} → legacy difficulty grade from notifications sent before cards
  * - notif:learned:{entryId} → soft-delete entry from vocabulary
  * - notif:restore:{entryId} → bring a removed entry back
+ * - notif:deck:{entryId} (and legacy notif:reveal:{entryId}) → open the notification as a Cards deck
  */
-import { isSupported, logger, resolveTemplate, type SupportedLang, t } from "@polyglot/core";
+import {
+  DEFAULT_NOTIFICATION_BATCH_SIZE,
+  isSupported,
+  logger,
+  type SupportedLang,
+  t,
+  type VocabDifficulty,
+} from "@polyglot/core";
 import { esc } from "../renderers/card-sections.js";
-import { renderTranslation } from "../renderers/translation.renderer.js";
-import { buildCardKeyboard } from "../scenes/helpers/card-keyboard.js";
 import { editMessageReplyMarkupOrIgnore, editMessageTextOrReply } from "../scenes/helpers/edit-message.helper.js";
+import { buildNotificationDeck, handleFcReveal } from "../scenes/helpers/flashcard.helper.js";
 import { handleTranslateText } from "../scenes/helpers/translate-flow.js";
-import { setTranslationEntry } from "../scenes/helpers/translation-map.helper.js";
 import { removeWord, restoreWord } from "../scenes/helpers/word-removal.js";
 import type { BotContext } from "../types.js";
-import { makeLangCodeResolver, resolveLanguageOrder } from "../utils/language-order.js";
 import { isUserFacingTimeout, LONG_OP_TIMEOUT_MS, loadingKeyboard, withTimeout } from "../utils/long-op.js";
-import { toTranslateOutput } from "../utils/vocabulary-mapper.js";
-import {
-  buildNotificationKeyboard,
-  buildNotificationRestoreKeyboard,
-  type NotifFeedbackGrade,
-} from "./notification.formatter.js";
+import { buildNotificationKeyboard, buildNotificationRestoreKeyboard } from "./notification.formatter.js";
 
 function parseEntryId(data: string | undefined): number | null {
   if (!data) return null;
@@ -74,92 +73,6 @@ function nudgedWord(ctx: BotContext): string | null {
 }
 
 /**
- * notif:reveal:{entryId} — hand over the answer.
- *
- * The nudge becomes the very card the word was translated on: the same renderer
- * and the same keyboard, so clarification, another meaning, grammar, etymology,
- * pronunciation and save all work here exactly as they do after a translation.
- * Rendering the stored entry a second way is what made this surface drift before.
- *
- * Those buttons address their card by message id, so the session entry is written
- * under the id the card actually landed on — past Telegram's 48-hour edit limit
- * the in-place edit is impossible and `editMessageTextOrReply` sends a fresh
- * message instead, which then owns the card.
- */
-export async function handleNotifRevealCallback(ctx: BotContext): Promise<void> {
-  const entryId = parseEntryId(ctx.callbackQuery?.data);
-  if (entryId == null) {
-    await ctx.answerCallbackQuery();
-    return;
-  }
-
-  let lang: SupportedLang = "en";
-  try {
-    // The loading swap runs in parallel with the two independent DB reads.
-    const [, userLang, entry] = await withTimeout(
-      Promise.all([showLoadingKeyboard(ctx), getUserLang(ctx), ctx.services.vocabularyRepository.findById(entryId)]),
-      LONG_OP_TIMEOUT_MS,
-    );
-    lang = userLang;
-
-    // `findById` is scoped by neither owner nor activity, and the id rides in callback data a client can forge.
-    const own = entry && entry.userId === ctx.user.id ? entry : null;
-    const output = own ? toTranslateOutput(own, makeLangCodeResolver(ctx)) : null;
-    if (!own || !output) {
-      await ctx.answerCallbackQuery({ text: t("noResults", lang) });
-      try {
-        await editMessageReplyMarkupOrIgnore(ctx, { reply_markup: { inline_keyboard: [] } });
-      } catch {
-        // Message might be too old
-      }
-      return;
-    }
-
-    const order = await resolveLanguageOrder(ctx);
-    const savedTemplate = await ctx.services.translationTemplateRepository.getByUserId(ctx.user.id);
-    const template = resolveTemplate(savedTemplate ? { name: savedTemplate.name, fields: savedTemplate.fields } : null);
-    const text = renderTranslation(output, order, lang, template.fields, order.nativeLang);
-
-    const resent = await editMessageTextOrReply(ctx, text, { parse_mode: "HTML" });
-    const cardMsgId = resent?.message_id ?? ctx.callbackQuery?.message?.message_id;
-    if (cardMsgId === undefined) {
-      await ctx.answerCallbackQuery();
-      return;
-    }
-
-    // The session entry first: the keyboard is derived from the card's own state,
-    // which is what keeps this card's buttons identical to every other rebuild of
-    // one (`card-keyboard.ts`) instead of a second hand-assembled guess at them.
-    // A nudge can outlive its word. Removed since, it opens as a card that offers the
-    // word back: Save there restores the row, exactly as after the card's own Remove.
-    const cardEntry = {
-      output,
-      inputType: own.inputType,
-      ...(own.isActive ? { savedWordId: own.id } : { removedWordId: own.id }),
-      recallGrade: { entryId: own.id, selected: own.difficulty },
-    };
-    setTranslationEntry(ctx.session, cardMsgId, cardEntry);
-    ctx.session.pendingCardMsgId = cardMsgId;
-
-    // No native language on file leaves nothing to compare the source against,
-    // which is the question the etymology and pronunciation rules ask.
-    const keyboard = await buildCardKeyboard(ctx, cardEntry, cardMsgId, lang, order.nativeLang ?? output.sourceLang);
-    await ctx.api.editMessageReplyMarkup(ctx.chat!.id, cardMsgId, { reply_markup: keyboard });
-  } catch (err) {
-    logger.error({ err, entryId }, "Failed to reveal notification card");
-    try {
-      await editMessageReplyMarkupOrIgnore(ctx, { reply_markup: buildNotificationKeyboard(lang, entryId) });
-    } catch {
-      // Restore is best-effort; the alert below explains the failure.
-    }
-    await ctx.answerCallbackQuery({ text: failureAlertText(err, lang), show_alert: true });
-    return;
-  }
-
-  await ctx.answerCallbackQuery();
-}
-
-/**
  * notif:tr — reveal a nudged word that was never saved (a curated pick, an AI
  * suggestion, a contextual sentence): there is no entry to open, so the word is
  * translated, which lands the reader on the same card with the same buttons —
@@ -181,13 +94,13 @@ export async function handleNotifTranslateCallback(ctx: BotContext): Promise<voi
   await handleTranslateText(ctx, word);
 }
 
-const FEEDBACK_TOASTS: Record<NotifFeedbackGrade, "notifFbHardDone" | "notifFbNormalDone" | "notifFbEasyDone"> = {
+const FEEDBACK_TOASTS: Record<VocabDifficulty, "notifFbHardDone" | "notifFbNormalDone" | "notifFbEasyDone"> = {
   hard: "notifFbHardDone",
   normal: "notifFbNormalDone",
   easy: "notifFbEasyDone",
 };
 
-function parseFeedback(data: string | undefined): { grade: NotifFeedbackGrade; entryId: number } | null {
+function parseFeedback(data: string | undefined): { grade: VocabDifficulty; entryId: number } | null {
   const parts = data?.split(":") ?? [];
   const grade = parts[2];
   if (grade !== "hard" && grade !== "normal" && grade !== "easy") return null;
@@ -196,37 +109,19 @@ function parseFeedback(data: string | undefined): { grade: NotifFeedbackGrade; e
 }
 
 /**
- * Mark the new grade on whichever keyboard the grade was tapped on: the nudge's,
- * or the translation card it was revealed into.
- *
- * A card whose session state was evicted still carries `tr:` buttons; rebuilding
- * the nudge keyboard there would throw the card's buttons away, so it keeps its
- * keyboard and the toast alone confirms the grade.
+ * An old nudge's grade buttons, tapped after notifications became cards: the tap is
+ * honoured, and the message is upgraded to the card's buttons so it offers the four
+ * ratings from here on. A revealed card (`tr:` buttons) keeps its own keyboard.
  */
-async function remarkGrade(
-  ctx: BotContext,
-  lang: SupportedLang,
-  entryId: number,
-  grade: NotifFeedbackGrade,
-): Promise<void> {
-  const msgId = ctx.callbackQuery?.message?.message_id;
-  const card = msgId === undefined ? undefined : ctx.session.translationMap?.[String(msgId)];
-  if (msgId !== undefined && card?.recallGrade) {
-    card.recallGrade = { entryId, selected: grade };
-    const nativeLang = (await resolveLanguageOrder(ctx)).nativeLang ?? card.output.sourceLang;
-    const keyboard = await buildCardKeyboard(ctx, card, msgId, lang, nativeLang);
-    await editMessageReplyMarkupOrIgnore(ctx, { reply_markup: keyboard });
-    return;
-  }
+async function upgradeGradedNudge(ctx: BotContext, lang: SupportedLang, entryId: number): Promise<void> {
   const buttons = ctx.callbackQuery?.message?.reply_markup?.inline_keyboard.flat() ?? [];
   if (buttons.some((button) => "callback_data" in button && button.callback_data?.startsWith("tr:"))) return;
-  await editMessageReplyMarkupOrIgnore(ctx, { reply_markup: buildNotificationKeyboard(lang, entryId, grade) });
+  await editMessageReplyMarkupOrIgnore(ctx, { reply_markup: buildNotificationKeyboard(lang, entryId) });
 }
 
 /**
- * notif:fb:{grade}:{entryId} — persist the user's difficulty feedback.
- * The grade drives how often the word returns in notifications (hard → often,
- * easy → almost never). Answers with a toast and marks the chosen button.
+ * notif:fb:{grade}:{entryId} — the three grades notifications carried before they became
+ * cards. Only buttons already in chat history send it; the grade is still stored.
  */
 export async function handleNotifFeedbackCallback(ctx: BotContext): Promise<void> {
   const parsed = parseFeedback(ctx.callbackQuery?.data);
@@ -251,7 +146,7 @@ export async function handleNotifFeedbackCallback(ctx: BotContext): Promise<void
     }
 
     try {
-      await remarkGrade(ctx, lang, entryId, grade);
+      await upgradeGradedNudge(ctx, lang, entryId);
     } catch {
       // >48h-old messages can't be edited — the toast still confirms the save.
     }
@@ -315,8 +210,8 @@ export async function handleNotifLearnedCallback(ctx: BotContext): Promise<void>
 
 /**
  * notif:restore:{entryId} — undo a removal from the confirmation it left behind.
- * The nudge's question is gone with the message it replaced, so the word comes back
- * under the nudge's full menu: open it, grade it, or remove it again.
+ * The question is gone with the message it replaced, so the word comes back under the
+ * card's own buttons: reveal it, or remove it again.
  */
 export async function handleNotifRestoreCallback(ctx: BotContext): Promise<void> {
   const entryId = parseEntryId(ctx.callbackQuery?.data);
@@ -349,7 +244,7 @@ export async function handleNotifRestoreCallback(ctx: BotContext): Promise<void>
     const entry = await withTimeout(ctx.services.vocabularyRepository.findById(entryId), LONG_OP_TIMEOUT_MS);
     await editMessageTextOrReply(ctx, t("notifRestored", lang, { word: esc(entry?.original ?? "?") }), {
       parse_mode: "HTML",
-      reply_markup: buildNotificationKeyboard(lang, entryId, entry?.difficulty ?? undefined),
+      reply_markup: buildNotificationKeyboard(lang, entryId),
     });
   } catch (err) {
     logger.error({ err, entryId }, "Failed to restore vocabulary entry from notification");
@@ -367,4 +262,58 @@ export async function handleNotifRestoreCallback(ctx: BotContext): Promise<void>
   }
 
   await ctx.answerCallbackQuery();
+}
+
+/** `notif:reveal` is the Reveal of notifications sent before they became cards; it opens the same deck. */
+export const NOTIF_DECK_PATTERN = /^notif:(?:deck|reveal):(\d+)$/;
+
+/**
+ * notif:deck:{entryId} — Reveal on a word notification, which is a card (one or several).
+ *
+ * From here the message *is* the Cards deck: the deck goes into the chat's one
+ * `cards` slot and `handleFcReveal` answers the tap, so the ratings, the progress
+ * line and the finish screen are the `/review` ones rather than a lookalike.
+ * A running `/review` deck is replaced, exactly as a new deck from its own finish
+ * screen would replace it.
+ */
+export async function handleNotifDeckCallback(ctx: BotContext): Promise<void> {
+  const entryId = Number(ctx.match?.[1]);
+  // A running /review deck survives a failed open: only a deck this tap installed is undone.
+  const previous = ctx.session.cards;
+  let lang: SupportedLang = "en";
+  try {
+    const [, settings] = await withTimeout(
+      Promise.all([showLoadingKeyboard(ctx), ctx.services.userRepository.getSettings(ctx.user.id)]),
+      LONG_OP_TIMEOUT_MS,
+    );
+    const interfaceLang = settings?.interfaceLang;
+    lang = interfaceLang && isSupported(interfaceLang) ? interfaceLang : "en";
+    // The size as it is now: a reader who just turned it down should get the smaller deck.
+    const size = settings?.notificationBatchSize ?? DEFAULT_NOTIFICATION_BATCH_SIZE;
+    const cards = await withTimeout(buildNotificationDeck(ctx, entryId, size), LONG_OP_TIMEOUT_MS);
+    if (!cards) {
+      await ctx.answerCallbackQuery({ text: t("noResults", lang) });
+      try {
+        await editMessageReplyMarkupOrIgnore(ctx, { reply_markup: { inline_keyboard: [] } });
+      } catch {
+        // Too old to edit — the toast already answered the tap.
+      }
+      return;
+    }
+    ctx.session.cards = cards;
+    await handleFcReveal(ctx);
+  } catch (err) {
+    logger.error({ err, entryId }, "Failed to open the notification deck");
+    ctx.session.cards = previous;
+    try {
+      await editMessageReplyMarkupOrIgnore(ctx, { reply_markup: buildNotificationKeyboard(lang, entryId) });
+    } catch {
+      // Restore is best-effort; the alert below explains the failure.
+    }
+    try {
+      await ctx.answerCallbackQuery({ text: failureAlertText(err, lang), show_alert: true });
+    } catch {
+      // The reveal may already have answered the tap before it failed.
+    }
+  }
 }

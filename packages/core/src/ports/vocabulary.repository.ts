@@ -199,6 +199,8 @@ export interface VocabularyRepository {
   updateSrsState(translationId: number, state: UpdateSrsStateInput): Promise<void>;
   /** Live SRS rows of one owned entry — a rating grades the word, so every language row is rescheduled. */
   findEntrySrsRows(userId: number, entryId: number): Promise<EntrySrsRow[]>;
+  /** One owned entry as the review card the deck would draw for it — its soonest-due live row; null when it has none. */
+  findEntrySrsCard(userId: number, entryId: number): Promise<SrsDueVocabularyCard | null>;
   search(userId: number, query: string): Promise<VocabularyEntryWithTranslations[]>;
   countByUser(userId: number, dictionaryId?: number, search?: string): Promise<number>;
   findByUserPaginated(

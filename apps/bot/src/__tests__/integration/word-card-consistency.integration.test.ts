@@ -258,10 +258,11 @@ describe("word card consistency (integration)", () => {
   it("W5: a Reveal button that outlived its word answers instead of rendering an empty card", async () => {
     // The failure branch behind every notification button: the entry was removed
     // (from the dictionary, or by retention) while the message stayed in the chat.
+    // A reader with other words would get a deck of those instead, so this one has none.
     const harness = createBotHarness({ ai: deterministicTranslateAi() });
     const id = uniqueTelegramId();
-    const { entryId, lastMessageId } = await arrangeSavedWord(harness, id);
-    const goneEntryId = entryId + 10_000_000;
+    const { userId, entryId, lastMessageId } = await arrangeSavedWord(harness, id);
+    await vocabularyRepository.delete(entryId, userId);
 
     harness.reset();
     await harness.dispatch(
@@ -269,7 +270,7 @@ describe("word card consistency (integration)", () => {
         chatId: id,
         fromId: id,
         messageId: lastMessageId + 1,
-        data: `notif:reveal:${goneEntryId}`,
+        data: `notif:deck:${entryId}`,
       }),
     );
 

@@ -20,13 +20,11 @@ import type {
   SupportedLang,
   TemplateFields,
   TranslateOutput,
-  VocabDifficulty,
 } from "@polyglot/core";
 import { FEATURE_KEYS, getLangFlag, isSupported, orderRecordEntries, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import { NOOP_CALLBACK } from "../utils/long-op.js";
 import { answerLine, esc, exampleLine, expandableSection, headwordLine, meaningLine } from "./card-sections.js";
-import { appendGradeRow, notifGradeCallback } from "./grade-row.js";
 
 const EXPLORE_LABEL: Record<InputType, I18nKey> = {
   word: "cardExploreWord",
@@ -56,8 +54,6 @@ export interface TranslationKeyboardOptions {
    * tap opens — a screen that then offers exactly the tier the glyph named.
    */
   locked?: ReadonlyMap<string, string>;
-  /** Recall grades for a card opened from a notification nudge — the entry they grade and the grade on file. */
-  grades?: { entryId: number; selected?: VocabDifficulty | null };
 }
 
 /** Resolve a string to SupportedLang with "en" fallback */
@@ -403,17 +399,11 @@ export function buildTranslationKeyboard(options: TranslationKeyboardOptions = {
     sourceOverrideLangs,
     pronounceLangs,
     locked,
-    grades,
     inputType,
   } = options;
   const lang = toLang(interfaceLang);
   const kb = new InlineKeyboard();
   const mid = msgId ?? 0;
-  // First row in both states: the grade answers the question the nudge asked, and
-  // opening the action list must not move it out from under the reader's thumb.
-  if (grades) {
-    appendGradeRow(kb, lang, (grade) => notifGradeCallback(grade, grades.entryId), grades.selected);
-  }
   /** Label + the badge of the plan that sells it, when this viewer's plan does not. */
   const label = (text: string, feature: FeatureKey): string => {
     const badge = locked?.get(feature);

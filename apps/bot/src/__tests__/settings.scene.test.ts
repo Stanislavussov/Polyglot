@@ -54,7 +54,7 @@ vi.mock("../commands/commands.js", () => ({
   setUserCommands: vi.fn().mockResolvedValue(undefined),
 }));
 
-import { DEFAULT_CARD_FRONT_FIELDS, DEFAULT_NOTIFICATION_TEMPLATE_FIELDS } from "@polyglot/core";
+import { DEFAULT_CARD_FRONT_FIELDS } from "@polyglot/core";
 import type { InlineKeyboard } from "grammy";
 import { setUserCommands } from "../commands/commands.js";
 import {
@@ -72,7 +72,6 @@ import {
 } from "../scenes/helpers/settings.helper.js";
 import {
   buildCardTemplateKeyboard,
-  buildNotificationTemplateKeyboard,
   buildTemplatesKeyboard,
   formatNotificationTimes,
   handleSettingsCommand,
@@ -165,15 +164,23 @@ describe("handleSettingsCommand", () => {
     ]);
   });
 
-  it("gathers the translation, card and notification templates in one sub-menu that their screens return to", () => {
+  it("gathers the translation and card templates in one sub-menu — a word notification is a card, so it has none of its own", () => {
     const data = (kb: InlineKeyboard): Array<string | undefined> =>
       kb.inline_keyboard.flat().map((button) => ("callback_data" in button ? button.callback_data : undefined));
 
-    expect(data(buildTemplatesKeyboard("en"))).toEqual(["set:tpl", "set:card", "set:ntpl", "set:root"]);
+    expect(data(buildTemplatesKeyboard("en"))).toEqual(["set:tpl", "set:card", "set:root"]);
     expect(data(buildCardTemplateKeyboard("en", DEFAULT_CARD_FRONT_FIELDS)).at(-1)).toBe("set:tpls");
-    expect(data(buildNotificationTemplateKeyboard("en", DEFAULT_NOTIFICATION_TEMPLATE_FIELDS))).toEqual([
-      "set:ntpl:t:synonyms",
-      "set:tpls",
+  });
+
+  it("returns the card template opened from the notification settings to them, through every toggle", () => {
+    const data = (kb: InlineKeyboard): Array<string | undefined> =>
+      kb.inline_keyboard.flat().map((button) => ("callback_data" in button ? button.callback_data : undefined));
+
+    expect(data(buildCardTemplateKeyboard("en", DEFAULT_CARD_FRONT_FIELDS, "notifications"))).toEqual([
+      "set:card:t:hint:n",
+      "set:card:t:synonyms:n",
+      "set:card:t:example:n",
+      "set:notif",
     ]);
   });
 

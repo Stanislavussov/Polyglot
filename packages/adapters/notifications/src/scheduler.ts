@@ -9,7 +9,7 @@
  * 5. Uses core's getLogger() — logger injected at composition root
  */
 
-import { getLogger, getTraceContext, logEvent, newTraceId, runWithTrace } from "@polyglot/core";
+import { type CardsDeckCard, getLogger, getTraceContext, logEvent, newTraceId, runWithTrace } from "@polyglot/core";
 import cron from "node-cron";
 import { logNotificationSent } from "./log.js";
 import type {
@@ -162,6 +162,46 @@ async function pickWordForUser(
   );
 }
 
+/**
+ * Every dictionary notification is a card deck, one card or several (Task 86). A
+ * contextual subscriber asked for AI sentences about their own context instead, and
+ * a deck would silently replace them.
+ */
+function wantsReviewDeck(user: NotificationUser): boolean {
+  return user.notificationType !== "contextual";
+}
+
+/**
+ * The user's deck, or none. A failing
+ * deck read must not cost the user their notification, so it degrades to the
+ * single-word layers rather than to an error.
+ */
+async function pickDeckForUser(
+  user: NotificationUser,
+  deps: SchedulerDeps,
+  recentWords: string[],
+): Promise<CardsDeckCard[]> {
+  try {
+    return await deps.pickReviewDeck(user.userId, Math.max(1, user.notificationBatchSize), recentWords);
+  } catch (err) {
+    getLogger().error({ err, userId: user.userId }, "Failed to pick a review deck — falling back to one word");
+    return [];
+  }
+}
+
+/** The deck's first card as the word the history and the logs know a notification by. */
+function deckLeadWord(card: CardsDeckCard): SuggestedWord {
+  const headword = card.sourceUsage?.headword?.trim();
+  return {
+    original: card.original,
+    ...(headword ? { headword } : {}),
+    emoji: card.emoji ?? "📖",
+    translations: {},
+    source: "srs",
+    entryId: card.entryId,
+  };
+}
+
 function dedupe(words: readonly string[]): string[] {
   return [...new Set(words)];
 }
@@ -274,23 +314,38 @@ async function runNotificationBatch(sendFn: SendFn, deps: SchedulerDeps): Promis
           // and rank staleness by position, so the latest word must lead it.
           const lastSent = await deps.getLastSentWord(user.userId).catch(() => null);
           const recentWords = lastSent ? dedupe([lastSent, ...windowWords]) : windowWords;
-          const word = await pickWordForUser(user, deps, recentWords);
+          const deck = wantsReviewDeck(user) ? await pickDeckForUser(user, deps, recentWords) : [];
+          const word = deck.length > 0 ? deckLeadWord(deck[0]!) : await pickWordForUser(user, deps, recentWords);
           if (!word) {
             logger.info({ userId: user.userId }, "No word picked — sending empty dictionary prompt");
             await deps.sendDictionaryEmptyPrompt(user.userId, user.interfaceLang);
             return "skipped";
           }
 
-          logger.info({ userId: user.userId, word: word.original }, "Word picked, sending notification");
-          const payload = buildNotificationPayload(user, word);
-          await sendWithRetry(sendFn, user.userId, payload, deps.isUserBlocked);
-
-          await retryWithBackoff(
-            () => deps.recordSentWord(user.userId, word.original, word.source ?? "suggested"),
-            2,
-            500,
-            "recordSentWord",
+          logger.info(
+            { userId: user.userId, word: word.original, deckSize: deck.length },
+            "Word picked, sending notification",
           );
+          const payload = buildNotificationPayload(user, word);
+          await sendWithRetry(
+            sendFn,
+            user.userId,
+            deck.length > 0 ? { ...payload, deck } : payload,
+            deps.isUserBlocked,
+          );
+
+          // Every card of a deck counts as sent: the next slot must not open on a word
+          // this message already carried, whether or not the reader got that far.
+          // Lead card written last: `getLastSentWord` must name the word the reader saw.
+          const sentWords = deck.length > 0 ? deck.map((card) => card.original).reverse() : [word.original];
+          for (const original of sentWords) {
+            await retryWithBackoff(
+              () => deps.recordSentWord(user.userId, original, word.source ?? "suggested"),
+              2,
+              500,
+              "recordSentWord",
+            );
+          }
           logNotificationSent({
             userId: user.userId,
             type: word.source ?? "suggested",

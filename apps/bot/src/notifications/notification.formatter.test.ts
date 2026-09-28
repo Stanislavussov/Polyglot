@@ -19,9 +19,9 @@ import { type SupportedLang, t } from "@polyglot/core";
 import {
   buildNotificationKeyboard,
   buildNotificationRestoreKeyboard,
+  formatCardNotification,
   formatNotificationMessage,
   SELF_CHECK_KEYS,
-  sourceSynonymTexts,
 } from "./notification.formatter.js";
 
 const INTERFACE_LANGS: readonly SupportedLang[] = ["en", "ru", "cs", "de", "fr", "es", "it", "pt", "uk", "pl", "kk"];
@@ -152,55 +152,6 @@ describe("formatNotificationMessage", () => {
       }
     }
   });
-
-  // ── Synonyms (notification template) ───────────────────────────
-  // A phone's push preview shows only the first lines, so the word and the question
-  // must keep them; synonyms come after.
-
-  it("puts synonyms below the question, keeping the word and the question on top", () => {
-    const lines = contentLines(formatNotificationMessage(srsPayload, "en", { synonyms: ["home", "dwelling"] }));
-
-    expect(lines).toEqual([
-      expect.stringContaining("<b>house</b>"),
-      `<i>${t("notifSelfCheck", "en")}</i>`,
-      t("notifSynonymsLine", "en", { synonyms: "home, dwelling" }),
-    ]);
-    expect(lines[0]).not.toContain("home");
-  });
-
-  it("escapes HTML in synonyms", () => {
-    const msg = formatNotificationMessage(srsPayload, "en", { synonyms: ["a <b> & c"] });
-
-    expect(msg).toContain("a &lt;b&gt; &amp; c");
-  });
-
-  it("renders the bare prompt when there are no synonyms to show", () => {
-    expect(formatNotificationMessage(srsPayload, "en", { synonyms: [] })).toBe(
-      formatNotificationMessage(srsPayload, "en"),
-    );
-  });
-
-  it("keeps the footer last, after the synonyms", () => {
-    const footer = "This week — in long-term memory: 3, reviews: 14.";
-    const msg = formatNotificationMessage(srsPayload, "en", { synonyms: ["home"], footer });
-
-    expect(msg.endsWith(`${t("notifSynonymsLine", "en", { synonyms: "home" })}\n\n${footer}`)).toBe(true);
-  });
-});
-
-describe("sourceSynonymTexts", () => {
-  it("takes each stored synonym's text and drops blank ones", () => {
-    const usage = {
-      explanation: "",
-      synonyms: [{ text: " home " }, { text: "  " }, { text: "dwelling" }],
-      examples: [],
-    };
-    expect(sourceSynonymTexts(usage)).toEqual(["home", "dwelling"]);
-  });
-
-  it("returns nothing for a word saved without source usage", () => {
-    expect(sourceSynonymTexts(null)).toEqual([]);
-  });
 });
 
 function callbackData(kb: ReturnType<typeof buildNotificationKeyboard>): Array<string | undefined> {
@@ -208,36 +159,53 @@ function callbackData(kb: ReturnType<typeof buildNotificationKeyboard>): Array<s
 }
 
 describe("buildNotificationKeyboard", () => {
-  it("shows Reveal, the three feedback grades, and Remove", () => {
+  it("gives a dictionary word the card's buttons — Reveal and Remove — then the notification settings", () => {
     expect(callbackData(buildNotificationKeyboard("en", 42))).toEqual([
-      "notif:reveal:42",
-      "notif:fb:hard:42",
-      "notif:fb:normal:42",
-      "notif:fb:easy:42",
+      "notif:deck:42",
       "notif:learned:42",
+      "notif:settings",
     ]);
+  });
+
+  it("carries no grades before the card is revealed — ratings belong to the revealed card", () => {
+    expect(callbackData(buildNotificationKeyboard("en", 42)).some((data) => data?.startsWith("notif:fb:"))).toBe(false);
   });
 
   it("leaves a removal confirmation with the way back and nothing else", () => {
     expect(callbackData(buildNotificationRestoreKeyboard("en", 42))).toEqual(["notif:restore:42"]);
   });
 
-  it("keeps the grade row together and Remove on its own row", () => {
-    expect(buildNotificationKeyboard("en", 42).inline_keyboard.map((row) => row.length)).toEqual([1, 3, 1]);
-  });
-
-  it("marks the selected grade with a check while keeping all buttons tappable", () => {
-    const buttons = buildNotificationKeyboard("en", 42, "hard").inline_keyboard.flat();
-    const hard = buttons.find((b) => "callback_data" in b && b.callback_data === "notif:fb:hard:42");
-    const normal = buttons.find((b) => "callback_data" in b && b.callback_data === "notif:fb:normal:42");
-
-    expect(hard?.text.startsWith("✓ ")).toBe(true);
-    expect(normal?.text.startsWith("✓ ")).toBe(false);
-  });
-
   it("offers a word with no saved entry the one button it can honour", () => {
-    // Nothing to grade and nothing to remove — but the reader still gets the
+    // Nothing to rate and nothing to remove — but the reader still gets the
     // answer, by translating the word rather than opening an entry that is not there.
-    expect(callbackData(buildNotificationKeyboard("en"))).toEqual(["notif:tr"]);
+    expect(callbackData(buildNotificationKeyboard("en"))).toEqual(["notif:tr", "notif:settings"]);
+  });
+});
+
+describe("card notification", () => {
+  const front = "<b>pes</b> 🇨🇿";
+
+  it("shows one card as just its front and the recall question", () => {
+    const text = formatCardNotification(front, 1, "en", { selfCheckVariant: 0 });
+
+    expect(text).toBe(`${front}\n\n<i>${t("notifSelfCheck", "en")}</i>`);
+  });
+
+  it("says how many cards the notification brings before the first card", () => {
+    const text = formatCardNotification(front, 5, "en");
+
+    expect(text.split("\n")[0]).toBe("🃏 Cards to review: 5");
+    expect(text).toContain(front);
+  });
+
+  it("asks the recall question under the card, never above it", () => {
+    const text = formatCardNotification(front, 3, "en", { selfCheckVariant: 0 });
+
+    expect(text.indexOf(front)).toBeLessThan(text.indexOf("<i>"));
+  });
+
+  it("puts the weekly line last, and leaves no trace of it when there is none", () => {
+    expect(formatCardNotification(front, 3, "en", { footer: "📈 week" }).endsWith("\n\n📈 week")).toBe(true);
+    expect(formatCardNotification(front, 3, "en")).not.toMatch(/\n$/);
   });
 });
