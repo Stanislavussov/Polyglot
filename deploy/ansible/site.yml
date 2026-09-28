@@ -300,6 +300,10 @@
             # Login rate-limit zone (Fable T20/T05) — 5 req/min per client IP,
             # edge-level defense-in-depth in front of the app's own limiter.
             limit_req_zone $binary_remote_addr zone=polyglot_login:10m rate=5r/m;
+            # The panel's /session gets its own bucket: every sign-in also hits
+            # /api/auth/login, and sharing one let nginx refuse the second request
+            # after the API had already accepted the password.
+            limit_req_zone $binary_remote_addr zone=polyglot_session:10m rate=10r/m;
         - dest: /etc/nginx/conf.d/polyglot-default.conf
           content: |
             server_tokens off;
@@ -414,7 +418,7 @@
               # Every hit makes the panel server verify a token with the admin API,
               # so an unthrottled /session is a lever on that API's rate limit.
               location = /session {
-                  limit_req zone=polyglot_login burst=5 nodelay;
+                  limit_req zone=polyglot_session burst=10 nodelay;
                   proxy_pass http://localhost:4321;
                   proxy_http_version 1.1;
                   proxy_set_header Host $host;
