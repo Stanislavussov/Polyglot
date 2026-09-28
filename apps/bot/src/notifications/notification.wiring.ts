@@ -39,7 +39,7 @@ import {
 import { type Api, type RawApi } from "grammy";
 import { z } from "zod";
 import { notificationCounter } from "../metrics.js";
-import { mockPaymentAdapter } from "../payment.js";
+import { renewalPaymentPort } from "../payment.js";
 import { buildAiFailover, resolveDefaultAIModel, resolveFallbackAIModel } from "../utils/ai-model.js";
 import { clampAiBudgetToOpGuard } from "../utils/long-op.js";
 import { isUserBlocked } from "../utils/telegram-errors.js";
@@ -528,7 +528,7 @@ Return translations as JSON array.`;
       t(key as never, (isSupported(lang) ? lang : "en") as SupportedLang, params),
     processSubscriptionRenewals: () =>
       createSubscriptionService({
-        payment: mockPaymentAdapter,
+        payment: renewalPaymentPort(),
         subscriptions: subscriptionRepository,
         users: userRepository,
       }).processRenewals(),

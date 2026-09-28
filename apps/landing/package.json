@@ -10,8 +10,9 @@
     "clean": "rm -rf dist .astro node_modules/.astro"
   },
   "dependencies": {
-    "@astrojs/tailwind": "^6.0.2",
-    "astro": "^5.10.0",
+    "astro": "^7.3.5",
+    "autoprefixer": "^10.6.1",
+    "postcss": "^8.5.28",
     "tailwindcss": "^3.4.17"
   }
 }

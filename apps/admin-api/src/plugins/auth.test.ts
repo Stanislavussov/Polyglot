@@ -15,6 +15,7 @@ async function buildApp() {
   // per-route auth wiring — exactly the T07 consolidation under test.
   await app.register(authPlugin);
   app.get("/protected", async () => ({ ok: true }));
+  app.post("/api/auth/logout", async () => ({ ok: true }));
   await app.ready();
   return app;
 }
@@ -41,6 +42,60 @@ describe("authPlugin runtime revocation (T06)", () => {
     const token = app.jwt.sign({ adminId: 1, email: "a@example.com", role: "admin" });
 
     const res = await callProtected(app, token);
+
+    expect(res.statusCode).toBe(200);
+    await app.close();
+  });
+
+  it("accepts the session cookie the login set, with no Authorization header", async () => {
+    repo.findById.mockResolvedValue({ id: 1, isActive: true });
+    const app = await buildApp();
+    const token = app.jwt.sign({ adminId: 1, email: "a@example.com", role: "admin" });
+
+    const res = await app.inject({
+      method: "GET",
+      url: "/protected",
+      headers: { cookie: `theme=dark; admin_token=${token}` },
+    });
+
+    expect(res.statusCode).toBe(200);
+    await app.close();
+  });
+
+  it("reads the __Host- cookie in production", async () => {
+    const original = process.env.NODE_ENV;
+    process.env.NODE_ENV = "production";
+    repo.findById.mockResolvedValue({ id: 1, isActive: true });
+    const app = await buildApp();
+    const token = app.jwt.sign({ adminId: 1, email: "a@example.com", role: "admin" });
+
+    const planted = await app.inject({ method: "GET", url: "/protected", headers: { cookie: `admin_token=${token}` } });
+    const own = await app.inject({
+      method: "GET",
+      url: "/protected",
+      headers: { cookie: `__Host-admin_token=${token}` },
+    });
+
+    process.env.NODE_ENV = original;
+    expect(planted.statusCode).toBe(401);
+    expect(own.statusCode).toBe(200);
+    await app.close();
+  });
+
+  it("rejects a forged session cookie", async () => {
+    repo.findById.mockResolvedValue({ id: 1, isActive: true });
+    const app = await buildApp();
+
+    const res = await app.inject({ method: "GET", url: "/protected", headers: { cookie: "admin_token=forged" } });
+
+    expect(res.statusCode).toBe(401);
+    await app.close();
+  });
+
+  it("lets logout through without a session, so an expired one can still be cleared", async () => {
+    const app = await buildApp();
+
+    const res = await app.inject({ method: "POST", url: "/api/auth/logout" });
 
     expect(res.statusCode).toBe(200);
     await app.close();
@@ -94,6 +149,40 @@ describe("authPlugin runtime revocation (T06)", () => {
     repo.findById.mockResolvedValue(null);
     const app = await buildApp();
     const token = app.jwt.sign({ adminId: 999, email: "gone@example.com", role: "admin" });
+
+    const res = await callProtected(app, token);
+
+    expect(res.statusCode).toBe(401);
+    await app.close();
+  });
+});
+
+describe("authPlugin token hardening", () => {
+  beforeEach(() => {
+    clearAdminActiveCache();
+    repo.findById.mockResolvedValue({ id: 1, isActive: true });
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("rejects a token signed with the right secret under another algorithm", async () => {
+    const app = await buildApp();
+    const token = app.jwt.sign({ adminId: 1, email: "a@example.com", role: "admin" }, { algorithm: "HS512" });
+
+    const res = await callProtected(app, token);
+
+    expect(res.statusCode).toBe(401);
+    await app.close();
+  });
+
+  it("rejects a token carrying a critical header extension it does not understand", async () => {
+    const app = await buildApp();
+    const token = app.jwt.sign(
+      { adminId: 1, email: "a@example.com", role: "admin" },
+      { header: { alg: "HS256", crit: ["x-policy"], "x-policy": "require-mfa" } },
+    );
 
     const res = await callProtected(app, token);
 

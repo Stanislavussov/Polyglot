@@ -10,40 +10,19 @@ class ApiError extends Error {
   }
 }
 
-function getToken(): string | null {
-  if (typeof localStorage === "undefined") {
-    return null;
+// Builds before the httpOnly session kept the token in localStorage and in a
+// script-readable cookie. Both are wiped so an old copy cannot outlive the move.
+function forgetStoredToken(): void {
+  if (typeof localStorage !== "undefined") {
+    localStorage.removeItem("admin_token");
   }
-  return localStorage.getItem("admin_token");
-}
-
-function setToken(token: string): void {
-  if (typeof localStorage === "undefined") {
-    return;
-  }
-  localStorage.setItem("admin_token", token);
-  // Mirror the token into a same-origin cookie so the SSR /reports/* endpoint
-  // can authenticate direct/iframe report requests, which don't carry the
-  // Authorization header (T09). Same JS-readable exposure as localStorage.
   if (typeof document !== "undefined") {
-    // biome-ignore lint/suspicious/noDocumentCookie: document.cookie is the universally-supported API; the async CookieStore is not available in all target browsers.
-    document.cookie = `admin_token=${token}; path=/; SameSite=Strict`;
-  }
-}
-
-function clearToken(): void {
-  if (typeof localStorage === "undefined") {
-    return;
-  }
-  localStorage.removeItem("admin_token");
-  if (typeof document !== "undefined") {
-    // biome-ignore lint/suspicious/noDocumentCookie: document.cookie is the universally-supported API; the async CookieStore is not available in all target browsers.
+    // biome-ignore lint/suspicious/noDocumentCookie: expiring a legacy cookie; the async CookieStore is not available in all target browsers.
     document.cookie = "admin_token=; path=/; Max-Age=0; SameSite=Strict";
   }
 }
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const token = getToken();
   const headers: Record<string, string> = {
     ...(options.headers as Record<string, string> | undefined),
   };
@@ -52,17 +31,16 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     headers["Content-Type"] = "application/json";
   }
 
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
-  }
-
+  // The session is the API's httpOnly cookie, which only `include` sends
+  // across to the API's subdomain.
   const response = await fetch(`${BASE_URL}${path}`, {
     ...options,
     headers,
+    credentials: "include",
   });
 
   if (response.status === 401) {
-    clearToken();
+    forgetStoredToken();
     if (typeof window !== "undefined") {
       window.location.href = "/login";
     }
@@ -108,17 +86,48 @@ export interface AdminInfo {
   email: string;
 }
 
+// The panel's own server needs the token too: reports are served there and
+// checked against its httpOnly cookie, which only that server can set.
+async function openPanelSession(token: string): Promise<void> {
+  const response = await fetch("/session", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token }),
+  });
+  if (!response.ok) {
+    throw new ApiError(response.status, "Could not start the admin session");
+  }
+}
+
+async function closePanelSession(): Promise<void> {
+  // Astro's origin check refuses a bodyless DELETE; a JSON type passes it.
+  const response = await fetch("/session", { method: "DELETE", headers: { "Content-Type": "application/json" } });
+  if (!response.ok) {
+    throw new ApiError(response.status, "Could not end the admin session");
+  }
+}
+
 export const auth = {
-  login: (email: string, password: string): Promise<LoginResponse> => {
-    clearToken();
-    return post<LoginResponse>("/api/auth/login", { email, password }).then((res) => {
-      setToken(res.token);
-      return res;
-    });
+  login: async (email: string, password: string): Promise<LoginResponse> => {
+    forgetStoredToken();
+    const res = await post<LoginResponse>("/api/auth/login", { email, password });
+    await openPanelSession(res.token);
+    return res;
   },
   me: () => get<AdminInfo>("/api/auth/me"),
-  logout: () => {
-    clearToken();
+  logout: async (): Promise<void> => {
+    // Each cookie holds a JWT that stays valid until it expires and only its own
+    // server can clear it, so the page leaves only once both are gone — a login
+    // screen in front of still-open reports would claim a sign-out that failed.
+    const results = await Promise.allSettled([
+      request<void>("/api/auth/logout", { method: "POST" }),
+      closePanelSession(),
+    ]);
+    forgetStoredToken();
+    const failure = results.find((result): result is PromiseRejectedResult => result.status === "rejected");
+    if (failure) {
+      throw failure.reason;
+    }
     if (typeof window !== "undefined") {
       window.location.href = "/login";
     }
@@ -760,4 +769,4 @@ export const reportedIssues = {
     put<ReportedIssue>(`/api/reported-issues/${id}/status`, { status }),
 };
 
-export { ApiError, clearToken, getToken };
+export { ApiError };

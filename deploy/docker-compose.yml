@@ -18,6 +18,8 @@ services:
       # only the release identity travels through the environment.
       - RELEASE_ID=${RELEASE_ID:-}
       - RELEASE_AUDIENCE_GROUPS=${RELEASE_AUDIENCE_GROUPS:-}
+      # "on" only on the dev stack (deploy.yml): the mock checkout grants paid plans for free.
+      - MOCK_PAYMENTS=${MOCK_PAYMENTS:-off}
     ports:
       - "127.0.0.1:${METRICS_PORT:-9090}:9090"
     # Healthcheck is baked into the image (deploy/Dockerfile HEALTHCHECK), single

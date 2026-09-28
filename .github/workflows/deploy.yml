@@ -220,6 +220,7 @@ jobs:
           echo "REPOSITORY=${{ secrets.REPOSITORY }}" >> .env
           echo "RELEASE_ID=${{ github.sha }}" >> .env
           echo "RELEASE_AUDIENCE_GROUPS=admin,tester" >> .env
+          echo "MOCK_PAYMENTS=${{ env.DEPLOY_ENV == 'production' && 'off' || 'on' }}" >> .env
 
       - name: Copy Compose and Env to VPS
         # Pinned to the commit SHA of v1.0.0 (Fable T30, F8): this third-party

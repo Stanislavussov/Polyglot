@@ -75,7 +75,7 @@ import type { ZodSchema } from "zod";
 import { createFeatureAccess } from "./feature-access.js";
 import { aiCircuitStateGauge, aiCircuitTransitionsCounter, aiFallbackCounter } from "./metrics.js";
 import { withReviewRecording } from "./momentum/momentum.wiring.js";
-import { mockPaymentAdapter } from "./payment.js";
+import { purchasePaymentPort } from "./payment.js";
 import { buildAiFailover, resolveFallbackAIModel } from "./utils/ai-model.js";
 import { clampAiBudgetToOpGuard } from "./utils/long-op.js";
 
@@ -270,7 +270,7 @@ export function createContainer(): ServiceContainer {
     wordPickerRunRepository,
     ttsCacheRepository,
     featureAccess: createFeatureAccess({ settings, planFeatureAccess: planFeatureAccessRepository }),
-    paymentPort: mockPaymentAdapter,
+    paymentPort: purchasePaymentPort(),
     subscriptionRepository,
   };
   return container;

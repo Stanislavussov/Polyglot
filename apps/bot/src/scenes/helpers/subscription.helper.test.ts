@@ -15,9 +15,10 @@
  */
 import { type PlanLimitConfig, type Subscription, TRIAL_PLAN, TRIAL_PROVIDER } from "@polyglot/core";
 import { describe, expect, it, vi } from "vitest";
+import { mockPaymentAdapter } from "../../payment.js";
 import { createServicesStub, createSettingsStub } from "../../test-helpers/services-stub.js";
 import type { BotContext } from "../../types.js";
-import { handleBuyPlanCallback, sendUpgradeScreen } from "./subscription.helper.js";
+import { handleBuyPlanCallback, handleConfirmPlanCallback, sendUpgradeScreen } from "./subscription.helper.js";
 
 const PLANS: PlanLimitConfig[] = [
   {
@@ -73,16 +74,29 @@ function subscription(overrides: Partial<Subscription>): Subscription {
   };
 }
 
-function createCtx(options: { plan: string; active: Subscription | null; buy?: string }) {
+function createCtx(options: {
+  plan: string;
+  active: Subscription | null;
+  buy?: string;
+  confirm?: string;
+  /** False = production, where the test checkout is closed and no payment port is wired. */
+  purchasesOpen?: boolean;
+}) {
   const settings = createSettingsStub();
   settings.getPlanLimits = vi.fn().mockResolvedValue(PLANS);
   settings.getPlanLimit = vi.fn(async (name: string) => PLANS.find((plan) => plan.name === name) ?? null);
 
   const reply = vi.fn().mockResolvedValue({ message_id: 1 });
+  const createSubscription = vi.fn();
+  const callbackData = options.buy
+    ? `plan:buy:${options.buy}`
+    : options.confirm
+      ? `plan:confirm:${options.confirm}`
+      : undefined;
 
   const ctx = {
     user: { id: 42, audienceGroup: "product", subscriptionPlan: options.plan },
-    callbackQuery: options.buy ? { data: `plan:buy:${options.buy}` } : undefined,
+    callbackQuery: callbackData ? { data: callbackData } : undefined,
     answerCallbackQuery: vi.fn().mockResolvedValue(true),
     reply,
     services: createServicesStub({
@@ -92,8 +106,9 @@ function createCtx(options: { plan: string; active: Subscription | null; buy?: s
         listFeatures: vi.fn().mockResolvedValue(new Set<string>()),
         listPlanFeatures: vi.fn().mockResolvedValue(new Set<string>()),
       },
+      paymentPort: options.purchasesOpen === false ? undefined : mockPaymentAdapter,
       subscriptionRepository: {
-        create: vi.fn(),
+        create: createSubscription,
         findActiveByUser: vi.fn(async () => options.active),
         findTrialByUser: vi.fn(async () => null),
         findTrialsEndingBetween: vi.fn(async () => []),
@@ -107,7 +122,7 @@ function createCtx(options: { plan: string; active: Subscription | null; buy?: s
     }),
   } as unknown as BotContext;
 
-  return { ctx, reply };
+  return { ctx, reply, createSubscription };
 }
 
 function replyText(reply: ReturnType<typeof vi.fn>): string {
@@ -168,5 +183,52 @@ describe("upgrade offer during an onboarding trial", () => {
     await handleBuyPlanCallback(ctx);
 
     expect(replyText(reply)).toContain("$5");
+  });
+});
+
+/**
+ * Spec: in production the test checkout is closed (no payment port). The plans
+ * and prices stay on screen, so demand is still visible, but buying says plainly
+ * that payments are not open yet: no price confirmation, no subscription. A
+ * confirm button left in the chat from before the switch grants nothing either.
+ */
+describe("upgrade offer while buying is closed", () => {
+  it("still shows the plans, noting that payments are not open yet", async () => {
+    const { ctx, reply } = createCtx({ plan: "free", active: null, purchasesOpen: false });
+
+    await sendUpgradeScreen(ctx);
+
+    expect(offeredPlans(reply)).toEqual(["plus", "pro"]);
+    expect(replyText(reply)).toContain("payments are coming soon");
+    expect(replyText(reply)).not.toContain("Test payment");
+  });
+
+  it("answers a tap on a plan with the coming-soon notice instead of a price confirmation", async () => {
+    const { ctx, reply, createSubscription } = createCtx({
+      plan: "free",
+      active: null,
+      buy: "plus",
+      purchasesOpen: false,
+    });
+
+    await handleBuyPlanCallback(ctx);
+
+    expect(replyText(reply)).toContain("payments are coming soon");
+    expect(replyText(reply)).not.toContain("$5");
+    expect(createSubscription).not.toHaveBeenCalled();
+  });
+
+  it("grants nothing through a confirm button left over from the test checkout", async () => {
+    const { ctx, reply, createSubscription } = createCtx({
+      plan: "free",
+      active: null,
+      confirm: "pro",
+      purchasesOpen: false,
+    });
+
+    await handleConfirmPlanCallback(ctx);
+
+    expect(replyText(reply)).toContain("payments are coming soon");
+    expect(createSubscription).not.toHaveBeenCalled();
   });
 });

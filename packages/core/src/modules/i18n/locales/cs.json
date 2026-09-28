@@ -420,6 +420,7 @@
   "upgradeFeatureLocked": "{feature} je funkce tarifu <b>{plan}</b>.",
   "upgradeTopPlan": "✨ Máte nejvyšší tarif — vše je odemčené.",
   "upgradeComingSoon": "Tato funkce se brzy objeví v placených tarifech.",
+  "purchasesClosed": "Tarif si zatím koupit nejde — platby brzy spustíme.",
   "purchaseConfirmPrompt": "Aktivovat <b>{plan}</b> za {price}/měs?\n\nTestovací platba — nic se nestrhne.",
   "purchaseConfirmYes": "✅ Aktivovat",
   "purchaseConfirmNo": "Zrušit",

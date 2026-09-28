@@ -420,6 +420,7 @@
   "upgradeFeatureLocked": "{feature} — <b>{plan}</b> тарифінің мүмкіндігі.",
   "upgradeTopPlan": "✨ Сізде ең жоғары тариф — барлық мүмкіндіктер ашық.",
   "upgradeComingSoon": "Бұл мүмкіндік жақында ақылы тарифтерде пайда болады.",
+  "purchasesClosed": "Тарифті әзірге сатып алу мүмкін емес — төлем жақында қосылады.",
   "purchaseConfirmPrompt": "<b>{plan}</b> тарифін {price}/ай бағасымен қосу керек пе?\n\nСынақ төлемі — ақша алынбайды.",
   "purchaseConfirmYes": "✅ Қосу",
   "purchaseConfirmNo": "Бас тарту",

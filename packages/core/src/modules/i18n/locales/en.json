@@ -420,6 +420,7 @@
   "upgradeFeatureLocked": "{feature} is a <b>{plan}</b> feature.",
   "upgradeTopPlan": "✨ You're already on the top plan — everything is unlocked.",
   "upgradeComingSoon": "This feature is coming to the paid plans soon.",
+  "purchasesClosed": "Buying a plan isn't open yet — payments are coming soon.",
   "purchaseConfirmPrompt": "Activate <b>{plan}</b> for {price}/mo?\n\nTest payment — no money will be charged.",
   "purchaseConfirmYes": "✅ Activate",
   "purchaseConfirmNo": "Cancel",

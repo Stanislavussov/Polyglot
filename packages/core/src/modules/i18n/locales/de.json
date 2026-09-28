@@ -420,6 +420,7 @@
   "upgradeFeatureLocked": "{feature} ist eine Funktion von <b>{plan}</b>.",
   "upgradeTopPlan": "✨ Du hast bereits den höchsten Tarif — alles ist freigeschaltet.",
   "upgradeComingSoon": "Diese Funktion kommt bald in die kostenpflichtigen Tarife.",
+  "purchasesClosed": "Ein Tarif lässt sich noch nicht kaufen – Zahlungen kommen bald.",
   "purchaseConfirmPrompt": "<b>{plan}</b> für {price}/Mon. aktivieren?\n\nTestzahlung — es wird kein Geld abgebucht.",
   "purchaseConfirmYes": "✅ Aktivieren",
   "purchaseConfirmNo": "Abbrechen",

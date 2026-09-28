@@ -2,6 +2,7 @@ import fastifyJwt from "@fastify/jwt";
 import { adminUserRepository } from "@polyglot/adapter-db";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import fp from "fastify-plugin";
+import { sessionToken } from "../session-cookie.js";
 
 declare module "fastify" {
   interface FastifyRequest {
@@ -42,7 +43,7 @@ async function isAdminActive(adminId: number): Promise<boolean> {
 }
 
 /** Routes reachable without a valid admin token. Everything else requires auth. */
-const PUBLIC_ROUTES = new Set(["/healthz", "/api/auth/login"]);
+const PUBLIC_ROUTES = new Set(["/healthz", "/api/auth/login", "/api/auth/logout"]);
 
 /**
  * A per-route `preHandler` that enforces a minimum role (Fable T07, finding S8).
@@ -65,6 +66,9 @@ export const authPlugin = fp(async (app: FastifyInstance) => {
 
   await app.register(fastifyJwt, {
     secret,
+    // routes/auth.ts signs HS256 only; pinning it shuts the algorithm-confusion
+    // class fast-jwt keeps re-fixing (GHSA-mvf2-f6gm-w987) out of our verify path.
+    verify: { algorithms: ["HS256"], extractToken: sessionToken },
     // Runs on every jwtVerify() after the signature checks out: a deactivated or
     // deleted admin is rejected (401) here instead of keeping full access until
     // the token expires. This closes finding S4 across all routes at one point.
