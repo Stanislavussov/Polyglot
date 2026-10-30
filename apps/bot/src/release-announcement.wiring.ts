@@ -11,8 +11,10 @@ import type { AudienceGroup } from "@polyglot/core";
 import { errorFields, logEvent, newTraceId, runWithTrace } from "@polyglot/core";
 import { announceNotes, type TelegramMessenger } from "./release-announcement.js";
 
-/** A person is waiting on the panel for this, so the queue is checked often. */
-const POLL_INTERVAL_MS = 10_000;
+// Each check is a query that keeps Neon awake for five minutes. The old 10s
+// interval kept both databases awake around the clock and used up the free
+// compute quota (prod outage 2026-10-30), so a sent note may now wait hours.
+const POLL_INTERVAL_MS = 3 * 60 * 60 * 1000;
 
 let pollTimer: NodeJS.Timeout | null = null;
 let draining = false;
@@ -83,6 +85,8 @@ export function wireReleaseAnnouncements(messenger: TelegramMessenger): void {
   }, POLL_INTERVAL_MS);
   // Never hold the process open for a queue that is almost always empty.
   pollTimer.unref();
+  // Every deploy restarts the bot, so a note queued before it goes out now.
+  void runPendingAnnouncements(messenger);
   logEvent("release.announcement_poll_started", { intervalMs: POLL_INTERVAL_MS });
 }
 

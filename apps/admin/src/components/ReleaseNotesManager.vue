@@ -153,7 +153,7 @@ async function send(): Promise<void> {
       .map((note) => ({ id: note.id, texts: { ...drafts[note.id] } }));
 
     await releaseNotes.send(payload);
-    sentMessage.value = "Queued — the bot sends it within a few seconds. Refresh to see the result.";
+    sentMessage.value = "Queued — the bot sends it within 3 hours, or right after the next deploy. Refresh later to see the result.";
     selected.value = new Set();
     confirming.value = false;
     await load();
