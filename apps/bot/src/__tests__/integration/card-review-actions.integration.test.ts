@@ -112,13 +112,13 @@ describe("review-card actions (integration)", () => {
     expect(lastScreen(harness.sent).buttons).toEqual(
       expect.arrayContaining([
         `fc:rate:again:${translation}`,
-        `fc:rate:hard:${translation}`,
         `fc:rate:good:${translation}`,
         `fc:rate:easy:${translation}`,
         `fc:del:${first}`,
       ]),
     );
 
+    // A message from before the three-button row still sends Hard, and it still lands.
     await tap(harness, telegramId, `fc:rate:hard:${translation}`);
 
     expect((await vocabularyRepository.findById(first))?.difficulty).toBe("hard");

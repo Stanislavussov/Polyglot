@@ -575,7 +575,7 @@ describe("scheduled notification delivery (integration)", () => {
     expect(ai.wasCalled()).toBe(false);
   });
 
-  it("C14: tapping Reveal turns the notification into the /review card back, with the four ratings", async () => {
+  it("C14: tapping Reveal turns the notification into the /review card back, with the three ratings", async () => {
     // Arrange — deliver first, then tap the button the delivery actually carried on the
     // message it arrived in: the entry id travels from the picker into the callback
     // data, and a card revealed by a hand-built id would not prove that leg.
@@ -614,12 +614,12 @@ describe("scheduled notification delivery (integration)", () => {
     const translationId = cards!.deck[0]!.translationId;
     expect(entry!.translations.map((tr) => tr.id)).toContain(translationId);
 
-    // Assert — the deck's keyboard: the four SM-2 ratings, the card's own actions
+    // Assert — the deck's keyboard: the three ratings, the card's own actions
     // addressed to this message, the deck's remove and quit. No old grade row, no Reveal.
     const buttons = buttonsOf(back);
     expect(buttons).toEqual(
       expect.arrayContaining([
-        ...(["again", "hard", "good", "easy"] as const).map((rating) => `fc:rate:${rating}:${translationId}`),
+        ...(["again", "good", "easy"] as const).map((rating) => `fc:rate:${rating}:${translationId}`),
         `tr:more:${messageId}`,
         `fc:del:${entryId}`,
         "fc:quit",

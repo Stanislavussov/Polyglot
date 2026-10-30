@@ -82,7 +82,7 @@ export interface SessionData {
       /**
        * Set on a revealed review card: which card of the deck this message is
        * showing. `tr:more` and friends rebuild the whole keyboard, so without it
-       * on the card the four ratings would vanish from under the reader's thumb
+       * on the card the ratings would vanish from under the reader's thumb
        * the moment they opened the action list.
        */
       reviewCard?: { entryId: number; translationId: number };
