@@ -210,7 +210,7 @@ describe("several cards per notification (integration)", () => {
     // Act — Show answer.
     await tap(harness, telegramId, messageId, `notif:deck:${words.pes.entryId}`);
 
-    // Assert — the notification became the revealed card with the four SM-2 ratings.
+    // Assert — the notification became the revealed card with the three ratings.
     const back = lastScreen(harness.sent);
     expect(back?.method).toBe("editMessageText");
     expect((back?.payload as { message_id?: number }).message_id).toBe(messageId);
@@ -256,7 +256,7 @@ describe("several cards per notification (integration)", () => {
     ]);
   });
 
-  it("D4: one card per notification is still a card, rated with the same four ratings", async () => {
+  it("D4: one card per notification is still a card, rated with the same three ratings", async () => {
     // Arrange
     const harness = createBotHarness();
     const telegramId = uniqueTelegramId();
@@ -278,11 +278,11 @@ describe("several cards per notification (integration)", () => {
     // Act — Reveal.
     await tap(harness, telegramId, delivered.messageId!, `notif:deck:${words.pes.entryId}`);
 
-    // Assert — the four ratings of Cards, on a deck of one.
+    // Assert — the three ratings of Cards, on a deck of one.
     const back = lastScreen(harness.sent);
     expect(buttonsOf(back)).toEqual(
       expect.arrayContaining(
-        (["again", "hard", "good", "easy"] as const).map((rating) => `fc:rate:${rating}:${words.pes.translationId}`),
+        (["again", "good", "easy"] as const).map((rating) => `fc:rate:${rating}:${words.pes.translationId}`),
       ),
     );
     expect(buttonsOf(back).some((data) => data.startsWith("notif:fb:"))).toBe(false);

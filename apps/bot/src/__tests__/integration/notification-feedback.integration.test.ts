@@ -2,7 +2,7 @@
  * Notification feedback — e2e (real dispatcher, real Postgres, fake `fetch`).
  *
  * A word notification is a card (Task 86): Reveal opens it as a Cards deck, rated with
- * the four SM-2 ratings, and Remove soft-deletes the entry. The Hard / OK / Easy grades
+ * the Cards ratings, and Remove soft-deletes the entry. The Hard / OK / Easy grades
  * (`notif:fb:*`) are no longer sent, but the buttons already in chat history still land:
  * the grade is stored in `vocabulary_entries.difficulty`, which the single-word picker
  * weighs, and the old message is upgraded to the card's buttons. This file proves that
