@@ -2,7 +2,11 @@ name: Deploy to VPS
 
 on:
   push:
-    branches: [master, develop]
+    # Dev environment is paused: its bot and Neon branch ate half the free
+    # Neon compute quota and took production down on 2026-10-30.
+    # Restore `develop` here to bring dev deploys back.
+    # branches: [master, develop]
+    branches: [master]
   workflow_dispatch:
 
 # Branch selects the target: master → production, anything else → development.
@@ -22,6 +26,8 @@ permissions:
 
 jobs:
   ci:
+    # A manual dispatch from any other branch would still target development.
+    if: github.ref == 'refs/heads/master'
     uses: ./.github/workflows/ci.yml
     # Explicit pass-through (not `secrets: inherit`) for auditability — repo
     # secrets do NOT flow through workflow_call automatically. The integration
