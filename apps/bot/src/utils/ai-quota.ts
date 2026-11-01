@@ -26,6 +26,7 @@ export const AI_CALL_WEIGHTS = {
   video: 5,
   wordPick: 3,
   etymology: 1,
+  grammarCheck: 2,
 } as const;
 
 export type AiCallType = keyof typeof AI_CALL_WEIGHTS;
@@ -191,6 +192,46 @@ export async function ensureMentorDailyQuota(
   await ctx.reply(t("mentorDailyLimitReached", lang, { limit: String(limit) }), {
     reply_markup: buildUpgradeKeyboard(lang),
   });
+  return false;
+}
+
+/**
+ * Per-plan cap on grammar checks per UTC day — the only gate the check has: every
+ * tier includes it, so the limit stands in for a feature key and `0` is how a
+ * plan goes without. Counted from the shared ledger's "[grammarCheck]" rows, so a
+ * failed check (never recorded) does not burn the allowance. Returns true when the
+ * check may proceed; otherwise replies with the limit notice + upgrade offer.
+ */
+export async function ensureGrammarCheckDailyQuota(
+  ctx: BotContext,
+  plan: SubscriptionPlan,
+  lang: SupportedLang,
+): Promise<boolean> {
+  if (isUnlimitedRole(ctx.user.audienceGroup)) {
+    return true;
+  }
+  const limit = (await resolvePlanLimit(ctx.services.settings, plan)).grammarCheckDailyLimit;
+  if (limit === null) {
+    return true;
+  }
+  // A negative value is the column's "never configured" sentinel, which the deploy
+  // backfills before the bot starts; should one slip through, refusing is the
+  // cheap mistake — reading it as a number would never refuse anyone.
+  const used =
+    limit > 0
+      ? await ctx.services.translationRequestRepository.countRequestsInWindow(
+          ctx.user.id,
+          "[grammarCheck]",
+          getDailyWindowStart(),
+        )
+      : 0;
+  if (limit > 0 && used < limit) {
+    return true;
+  }
+  trackProductEvent(ctx, "limit.reached", "grammar_check");
+  const text =
+    limit > 0 ? t("grammarCheckDailyLimitReached", lang, { limit: String(limit) }) : t("grammarCheckNotInPlan", lang);
+  await ctx.reply(text, { reply_markup: buildUpgradeKeyboard(lang) });
   return false;
 }
 

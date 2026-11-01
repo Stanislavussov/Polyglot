@@ -150,7 +150,7 @@ export async function modeRouterMiddleware(ctx: BotContext, next: NextFunction):
 
   logEvent("mode_router.routed", { mode, textLength: text.length });
 
-  const isKnownMode = mode === "translate" || mode === "mentor";
+  const isKnownMode = mode === "translate" || mode === "mentor" || mode === "grammar";
   if (!isKnownMode && !ctx.user?.onboarded) {
     // Non-onboarded user with no mode — hint to start onboarding.
     markHandled(ctx, "modeRouter:welcomeHint");

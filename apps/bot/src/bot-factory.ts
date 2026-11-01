@@ -50,6 +50,7 @@ import {
 } from "./onboarding/onboarding-handlers.js";
 import { handleDictionaryCommand } from "./scenes/dictionary.scene.js";
 import { handleFlashcardCommand } from "./scenes/flashcard.scene.js";
+import { handleGrammarCheckCommand } from "./scenes/grammar-check.scene.js";
 import {
   handleAltMeaningCallback,
   handleEtymologyCallback,
@@ -104,6 +105,7 @@ import {
   handleLegacyCardCallback,
   LEGACY_CARD_CALLBACK_PATTERN,
 } from "./scenes/helpers/flashcard.helper.js";
+import { GRAMMAR_EXIT_CALLBACK, handleGrammarExitCallback } from "./scenes/helpers/grammar-check.helper.js";
 import {
   handleMentorExitCallback,
   handleMentorNewTopicCallback,
@@ -402,6 +404,7 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   onCommand("start", startCommand);
   onCommand("translate", handleTranslateCommand);
   onCommand("mentor", handleMentorCommand);
+  onCommand("check", handleGrammarCheckCommand);
   onCommand("template", handleTemplateCommand);
   onCommand("dictionary", handleDictionaryCommand);
   onCommand("learn", handleLearnCommand);
@@ -447,6 +450,8 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
           return handleMentorCommand(ctx);
         case "dictionary":
           return handleDictionaryCommand(ctx);
+        case "grammar":
+          return handleGrammarCheckCommand(ctx);
         case "pick":
           return handlePickWordsCommand(ctx);
         case "videos":
@@ -465,6 +470,9 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
 
   // "↩️ Back to translation" on mentor answers — one-tap exit from mentor mode.
   onCallback(MENTOR_EXIT_CALLBACK, handleMentorExitCallback);
+
+  // "↩️ Back to translation" on grammar-check answers — one-tap exit from the mode.
+  onCallback(GRAMMAR_EXIT_CALLBACK, handleGrammarExitCallback);
 
   // "🆕 New topic" on mentor answers — fresh mentor thread (one topic per session).
   onCallback(MENTOR_NEW_TOPIC_CALLBACK, handleMentorNewTopicCallback);

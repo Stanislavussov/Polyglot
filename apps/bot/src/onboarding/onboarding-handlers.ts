@@ -437,6 +437,7 @@ export async function onboardingTextMiddleware(ctx: BotContext, next: NextFuncti
   // — the bug class this module exists to remove.
   if (
     ctx.session?.activeMode === "mentor" ||
+    ctx.session?.activeMode === "grammar" ||
     ctx.session?.awaitingNotifContext ||
     ctx.session?.dictionaryWizard ||
     ctx.session?.awaitingTranslationClarificationContext

@@ -133,6 +133,18 @@ export const mentorDuration = new Histogram({
   buckets: [0.5, 1, 2, 5, 10, 30],
 });
 
+export const grammarCheckCounter = new Counter({
+  name: "bot_grammar_check_requests_total",
+  help: "Total grammar check requests",
+  labelNames: ["status"] as const,
+});
+
+export const grammarCheckDuration = new Histogram({
+  name: "bot_grammar_check_duration_seconds",
+  help: "Grammar check request duration in seconds",
+  buckets: [0.5, 1, 2, 5, 10, 30],
+});
+
 export const mentorIdlePromptCounter = new Counter({
   name: "bot_mentor_idle_prompts_total",
   help: "Total mentor idle-timeout prompts and their resolutions",

@@ -11,6 +11,9 @@ export const MODE_POLICIES: Record<UserMode, ModePolicy> = {
   idle: { idleTimeoutMs: null },
   translate: { idleTimeoutMs: null },
   mentor: { idleTimeoutMs: 15 * 60_000 },
+  // No re-confirm: a check is one self-contained text with no thread to lose, and
+  // the exit button rides on every answer.
+  grammar: { idleTimeoutMs: null },
 };
 
 /**

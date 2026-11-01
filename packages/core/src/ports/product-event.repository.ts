@@ -37,7 +37,7 @@ export const PRODUCT_EVENTS = [
   "feature.used",
   /** A paid feature was refused for want of a plan. `context`: feature key. */
   "feature.locked",
-  /** A usage ceiling was hit. `context`: `translation` or `video`. */
+  /** A usage ceiling was hit. `context`: `translation`, `video`, `mentor`, `grammar_check` or `daily_ceiling`. */
   "limit.reached",
   /** A slash command ran. `context`: command name, without the slash. */
   "command.used",

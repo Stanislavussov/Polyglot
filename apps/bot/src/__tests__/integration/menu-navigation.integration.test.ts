@@ -16,6 +16,7 @@
  * prefix would pass for either and prove no routing at all.
  */
 import { userRepository, wordPickerPresetRepository } from "@polyglot/adapter-db";
+import { t } from "@polyglot/core";
 import { describe, expect, it } from "vitest";
 import { arrangeOnboardedTranslator } from "../../test-helpers/integration/arrange.js";
 import {
@@ -64,7 +65,7 @@ function lastEdit(sent: CapturedCall[]): { text: string; buttons: string[] } {
 
 /** Hot-button labels read off the keyboard itself, so a relabelling cannot pass silently. */
 function hotButton(index: number): string {
-  const button = buildMainKeyboard("en").keyboard[0]?.[index];
+  const button = buildMainKeyboard("en").keyboard.flat()[index];
   if (!button || typeof button === "string") throw new Error(`no hot button at ${index}`);
   return button.text;
 }
@@ -91,7 +92,7 @@ async function openMenu(harness: ReturnType<typeof createBotHarness>, id: number
 }
 
 describe("menu navigation (integration)", () => {
-  it("reaches the deck, the mentor and the dictionary in one tap each", async () => {
+  it("reaches the deck, the mentor, the dictionary and the grammar check in one tap each", async () => {
     const harness = createBotHarness({ ai: deterministicTranslateAi() });
     const id = uniqueTelegramId();
     // Pro, because mentor is a paid mode on `develop` (`ensurePaidFeatureForMessage` in
@@ -112,6 +113,11 @@ describe("menu navigation (integration)", () => {
     harness.reset();
     await harness.dispatch(messageUpdate({ chatId: id, fromId: id, text: hotButton(2), messageId: 3 }));
     expect(said(harness.sent, ONLY_DICTIONARY)).toBe(true);
+
+    harness.reset();
+    await harness.dispatch(messageUpdate({ chatId: id, fromId: id, text: hotButton(3), messageId: 4 }));
+    expect(said(harness.sent, t("grammarCheckModeOn", "en"))).toBe(true);
+    expect((await userRepository.getSettings(userId))?.activeMode).toBe("grammar");
   });
 
   it("opens /menu as its own message listing the four categories", async () => {
