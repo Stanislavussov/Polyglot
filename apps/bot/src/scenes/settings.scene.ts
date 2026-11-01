@@ -55,6 +55,8 @@ export function notifTypeLabel(type: string, lang: SupportedLang): string {
       return t("notifTypeSuggested", lang);
     case "contextual":
       return t("notifTypeContextual", lang);
+    case "expressions":
+      return t("notifTypeExpressions", lang);
     default:
       return type;
   }
@@ -202,7 +204,7 @@ export function buildNotifSubText(
     statusLine,
     t("settingsNotifTimes", lang, { times: formatNotificationTimes(notifTimes) }),
     t("settingsNotifType", lang, { type: notifTypeLabel(notifType, lang) }),
-    ...(notifType === "contextual" ? [] : [t("settingsNotifBatch", lang, { count: batchSize })]),
+    ...(sendsAiContent(notifType) ? [] : [t("settingsNotifBatch", lang, { count: batchSize })]),
     t("settingsNotifTimezone", lang, { timezone }),
   ];
 
@@ -217,6 +219,11 @@ export function buildNotifSubText(
   return lines.join("\n");
 }
 
+/** Contextual and expressions subscribers get AI content, never a deck, so the deck size does nothing for them. */
+function sendsAiContent(notifType: string): boolean {
+  return notifType === "contextual" || notifType === "expressions";
+}
+
 /**
  * Build the notification sub-menu keyboard.
  */
@@ -226,8 +233,7 @@ export function buildNotifSubKeyboard(lang: SupportedLang, notifEnabled: boolean
   if (notifEnabled) {
     kb.text(t("settingsNotifChooseTimes", lang), "set:notif:time").row();
     kb.text(t("settingsNotifChooseType", lang), "set:notif:type").row();
-    // Contextual subscribers get AI sentences, never a deck, so the size would do nothing for them.
-    if (notifType !== "contextual") kb.text(t("settingsNotifChooseBatch", lang), "set:notif:batch").row();
+    if (!sendsAiContent(notifType)) kb.text(t("settingsNotifChooseBatch", lang), "set:notif:batch").row();
     kb.text(t("settingsNotifChooseTimezone", lang), "set:notif:tz").row();
     if (notifType === "contextual") {
       kb.text(t("settingsNotifChooseContext", lang), "set:notif:context").row();

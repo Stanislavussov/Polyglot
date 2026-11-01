@@ -16,6 +16,7 @@ import {
   t,
   type VocabDifficulty,
 } from "@polyglot/core";
+import type { InlineKeyboardButton } from "grammy/types";
 import { esc } from "../renderers/card-sections.js";
 import { editMessageReplyMarkupOrIgnore, editMessageTextOrReply } from "../scenes/helpers/edit-message.helper.js";
 import { buildNotificationDeck, handleFcReveal } from "../scenes/helpers/flashcard.helper.js";
@@ -64,12 +65,24 @@ function failureAlertText(err: unknown, lang: SupportedLang): string {
  * headword — so the entity is an exact handle on it, offsets and all (Telegram
  * counts UTF-16 code units, which is what `String.slice` indexes by).
  */
-function nudgedWord(ctx: BotContext): string | null {
+export function nudgedWord(ctx: BotContext): string | null {
   const message = ctx.callbackQuery?.message;
   const text = message && "text" in message ? message.text : undefined;
   const bold = message?.entities?.find((entity) => entity.type === "bold");
   if (!text || !bold) return null;
   return text.slice(bold.offset, bold.offset + bold.length).trim() || null;
+}
+
+/**
+ * The tapped message's keyboard minus the tapped button, so a one-shot action
+ * cannot bill twice while the card's other buttons (an expression's 🔁) stay usable.
+ */
+export function keyboardWithoutTappedButton(ctx: BotContext): InlineKeyboardButton[][] {
+  const tapped = ctx.callbackQuery?.data;
+  const rows = ctx.callbackQuery?.message?.reply_markup?.inline_keyboard ?? [];
+  return rows
+    .map((row) => row.filter((button) => !("callback_data" in button && button.callback_data === tapped)))
+    .filter((row) => row.length > 0);
 }
 
 /**
@@ -87,7 +100,7 @@ export async function handleNotifTranslateCallback(ctx: BotContext): Promise<voi
   if (!word) return;
 
   try {
-    await editMessageReplyMarkupOrIgnore(ctx, { reply_markup: { inline_keyboard: [] } });
+    await editMessageReplyMarkupOrIgnore(ctx, { reply_markup: { inline_keyboard: keyboardWithoutTappedButton(ctx) } });
   } catch {
     // Too old to edit — the translation below is what the tap was for.
   }

@@ -166,7 +166,7 @@ function makeNotifUser(overrides: Record<string, unknown> = {}) {
 
 describe("domain constants", () => {
   it("NOTIFICATION_TYPES contains valid type strategies", () => {
-    expect(NOTIFICATION_TYPES).toEqual(["suggested", "srs", "contextual"]);
+    expect(NOTIFICATION_TYPES).toEqual(["suggested", "srs", "contextual", "expressions"]);
   });
 
   it("DEFAULT_NOTIFICATION_TIME is 19:00", () => {

@@ -1,20 +1,15 @@
-// Log helper
+export { createExpressionPicker } from "./expression-picker.js";
 export { logNotificationSent } from "./log.js";
-
-// Service factories
 export {
   createContextualWordPicker,
   createDictionaryWordPicker,
   createNotificationService,
 } from "./notification.service.js";
 
-// Preset (curated hook word) layer
 export { createPresetWordPicker, presetCandidates } from "./preset-picker.js";
 
-// Several cards per notification (Task 86)
 export { createReviewDeckPicker, type ReviewDeckPickerDeps } from "./review-deck-picker.js";
 
-// Scheduler
 export {
   buildNotificationPayload,
   checkAndSend,
@@ -23,10 +18,10 @@ export {
   stopScheduler,
 } from "./scheduler.js";
 
-// Types
 export type {
   ContextualWordPickerDeps,
   DictionaryWordPickerDeps,
+  ExpressionPickerDeps,
   NotificationPayload,
   NotificationServiceDeps,
   NotificationType,

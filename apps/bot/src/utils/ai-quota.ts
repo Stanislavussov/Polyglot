@@ -26,6 +26,7 @@ export const AI_CALL_WEIGHTS = {
   video: 5,
   wordPick: 3,
   etymology: 1,
+  expression: 1,
 } as const;
 
 export type AiCallType = keyof typeof AI_CALL_WEIGHTS;

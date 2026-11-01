@@ -110,6 +110,7 @@ function buildSchedulerDeps(overrides: Partial<SchedulerDeps> = {}): SchedulerDe
     pickDictionaryWord: vi.fn().mockResolvedValue(mockDictWord),
     pickPresetWord: vi.fn().mockResolvedValue(null),
     pickContextualWord: vi.fn().mockResolvedValue(mockDictWord),
+    pickExpression: vi.fn().mockResolvedValue(null),
     pickReviewDeck: vi.fn().mockResolvedValue([]),
     sendDictionaryEmptyPrompt: vi.fn().mockResolvedValue(undefined),
     t: mockT,
@@ -377,6 +378,20 @@ describe("review deck notifications", () => {
     expect(deps.pickContextualWord).toHaveBeenCalled();
   });
 
+  it("keeps an expressions subscriber on expressions instead of a deck", async () => {
+    const expressionsUser: NotificationUser = { ...batchUser, notificationType: "expressions" };
+    const deps = buildSchedulerDeps({
+      getUsersForWindow: vi.fn().mockResolvedValue([expressionsUser]),
+      pickReviewDeck: vi.fn().mockResolvedValue(deck),
+      pickExpression: vi.fn().mockResolvedValue({ ...mockDictWord, source: "expressions" }),
+    });
+
+    await checkAndSend(vi.fn().mockResolvedValue(undefined), deps);
+
+    expect(deps.pickReviewDeck).not.toHaveBeenCalled();
+    expect(deps.pickExpression).toHaveBeenCalled();
+  });
+
   it("asks the deck picker for the user's size and skips the words sent recently", async () => {
     const deps = buildSchedulerDeps({
       getUsersForWindow: vi.fn().mockResolvedValue([batchUser]),
@@ -601,6 +616,41 @@ describe("checkAndSend", () => {
         [],
       );
       expect(deps.pickDictionaryWord).not.toHaveBeenCalled();
+    });
+
+    it("routes an expressions user to the expression picker with the recent words", async () => {
+      const expressionsUser: NotificationUser = { ...mockUser, notificationType: "expressions" };
+      const expression: SuggestedWord = {
+        original: "Be a goldfish",
+        emoji: "💬",
+        translations: {},
+        source: "expressions",
+      };
+      const sendFn = vi.fn().mockResolvedValue(undefined);
+      const deps = buildSchedulerDeps({
+        getUsersForWindow: vi.fn().mockResolvedValue([expressionsUser]),
+        getSentWordsSince: vi.fn().mockResolvedValue(["Carpe diem"]),
+        pickExpression: vi.fn().mockResolvedValue(expression),
+      });
+
+      await checkAndSend(sendFn, deps);
+
+      expect(deps.pickExpression).toHaveBeenCalledWith({ userId: 1, nativeLang: "en", learningLangs: ["cs", "de"] }, [
+        "Carpe diem",
+      ]);
+      expect(deps.pickDictionaryWord).not.toHaveBeenCalled();
+      expect(sendFn).toHaveBeenCalledWith(1, expect.objectContaining({ word: expression }));
+      expect(deps.recordSentWord).toHaveBeenCalledWith(1, "Be a goldfish", "expressions");
+    });
+
+    it("falls back to a dictionary word when no expression could be generated", async () => {
+      const expressionsUser: NotificationUser = { ...mockUser, notificationType: "expressions" };
+      const deps = buildSchedulerDeps({ getUsersForWindow: vi.fn().mockResolvedValue([expressionsUser]) });
+
+      await checkAndSend(mockSendFn, deps);
+
+      expect(deps.pickExpression).toHaveBeenCalled();
+      expect(deps.pickDictionaryWord).toHaveBeenCalledWith(1, []);
     });
 
     it("falls back to the dictionary picker for a contextual user with no context", async () => {

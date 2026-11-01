@@ -195,7 +195,10 @@ export const userLanguageSettings = pgTable("user_language_settings", {
    */
   notificationTimes: text("notification_times").array().notNull().default([]),
   /** Notification word source: 'suggested' (AI) | 'srs' (dictionary review) | 'contextual' (AI + user context) */
-  notificationType: text("notification_type").$type<"suggested" | "srs" | "contextual">().default("srs").notNull(),
+  notificationType: text("notification_type")
+    .$type<"suggested" | "srs" | "contextual" | "expressions">()
+    .default("srs")
+    .notNull(),
   /** User-provided context for AI-generated contextual notifications (e.g., "preparing for job interview") */
   notificationContext: text("notification_context"),
   /** Cards one scheduled notification carries (1/3/5/10); above 1 the notification opens a review deck. */
@@ -589,6 +592,7 @@ export const NOTIFICATION_DELIVERY_KINDS = [
   "activation_nudge",
   "trial",
   "release_announcement",
+  "expression",
 ] as const;
 
 export type NotificationDeliveryKind = (typeof NOTIFICATION_DELIVERY_KINDS)[number];

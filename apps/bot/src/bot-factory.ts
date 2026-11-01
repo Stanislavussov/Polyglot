@@ -92,6 +92,7 @@ import {
   handleDictTranslate,
   handleDictView,
 } from "./scenes/helpers/dictionary.helper.js";
+import { handleExpressionMoreCallback } from "./scenes/helpers/expressions.helper.js";
 import {
   FLASHCARD_DELETE_PATTERN,
   FLASHCARD_RATE_PATTERN,
@@ -491,6 +492,7 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   onCallback(NUDGE_CALLBACK_PATTERN, handleNudgeCardCallback);
 
   onCallback(LEARN_CALLBACK_PATTERN, handleLearnModeCallback);
+  onCallback(/^expr:more$/, handleExpressionMoreCallback);
   onCallback(MENU_CALLBACK_PATTERN, handleMenuCallback);
 
   onCallback("set:lang", handleSetLangGroupCallback);
