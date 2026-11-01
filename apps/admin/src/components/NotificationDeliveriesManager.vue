@@ -164,6 +164,7 @@ const kindOptions = [
   { value: "activation_nudge", label: "Activation nudge" },
   { value: "trial", label: "Trial" },
   { value: "release_announcement", label: "Release announcement" },
+  { value: "expression", label: "Expression" },
 ] as const satisfies readonly { value: NotificationDeliveryKind; label: string }[];
 
 const totalPages = computed(() => Math.max(1, Math.ceil(total.value / PAGE_SIZE)));

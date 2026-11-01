@@ -142,7 +142,7 @@ const fieldDescriptions: FieldDescriptionMap = {
   notifications: {
     defaultTime:
       "Local time seeded into a user's schedule the first time they enable notifications without having picked a time. Existing users keep the time they already have — changing this value does not move anyone, and has no observable effect at all until the next user opts in. 24-hour HH:MM format.",
-    defaultType: "Default notification source for users who have not chosen one: suggested words, SRS reviews, or contextual prompts.",
+    defaultType: "Default notification source for users who have not chosen one: suggested words, SRS reviews, contextual prompts, or expressions (idioms, quotes, references).",
     inactivityDays: "Number of inactive days after which notification handling treats a user as inactive.",
   },
   srs: {

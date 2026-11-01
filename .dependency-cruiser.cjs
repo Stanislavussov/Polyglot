@@ -165,7 +165,7 @@ module.exports = {
         path: "^packages/core/src/modules/([^/]+)/",
         // Modules with an explicit allow rule below are exempt from the default.
         pathNot:
-          "^packages/core/src/modules/(validation|translation|context-enrichment|notifications|tts)/",
+          "^packages/core/src/modules/(validation|translation|context-enrichment|notifications|expressions|tts)/",
       },
       to: {
         path: "^packages/core/src/modules/",
@@ -210,6 +210,16 @@ module.exports = {
       to: {
         path: "^packages/core/src/modules/",
         pathNot: "^packages/core/src/modules/(notifications|i18n)/",
+      },
+    },
+    {
+      name: "core-expressions-allowlist",
+      comment: "expressions may import only i18n among core modules (language names in the prompt)",
+      severity: "error",
+      from: { path: "^packages/core/src/modules/expressions/" },
+      to: {
+        path: "^packages/core/src/modules/",
+        pathNot: "^packages/core/src/modules/(expressions|i18n)/",
       },
     },
     {

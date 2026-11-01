@@ -14,6 +14,7 @@ import {
   vocabularyRepository,
 } from "@polyglot/adapter-db";
 import {
+  createExpressionPicker,
   createNotificationService,
   createPresetWordPicker,
   createReviewDeckPicker,
@@ -42,12 +43,14 @@ import { type Api, type RawApi } from "grammy";
 import { z } from "zod";
 import { notificationCounter } from "../metrics.js";
 import { renewalPaymentPort } from "../payment.js";
+import { formatExpressionCard } from "../renderers/expression.renderer.js";
 import { renderCardFront } from "../renderers/word-card.js";
 import { buildAiFailover, resolveDefaultAIModel, resolveFallbackAIModel } from "../utils/ai-model.js";
 import { clampAiBudgetToOpGuard } from "../utils/long-op.js";
 import { isUserBlocked } from "../utils/telegram-errors.js";
 import { logDelivery } from "./delivery-log.js";
 import {
+  buildExpressionNotificationKeyboard,
   buildNotificationKeyboard,
   buildNotificationSettingsKeyboard,
   formatCardNotification,
@@ -291,6 +294,10 @@ export async function buildNotificationScheduling(
 
   // Single AI entry point for both JIT paths — see NotificationSchedulingOverrides.
   const callAI: GenerateObjectFn = overrides.generateObject ?? generateObject;
+  const callAIWithFailover: GenerateObjectFn = async (prompt, schema, model, options) =>
+    callAI(prompt, schema, model, { ...options, failover: await resolveFailover() });
+
+  const expressionPicker = createExpressionPicker({ generateObject: callAIWithFailover, model: contextualModel, now });
 
   const notifService = createNotificationService({
     getUserVocabulary: async (userId: number) => {
@@ -316,9 +323,7 @@ export async function buildNotificationScheduling(
       const all = getAllLangs();
       return all.find((l) => l.id === langId)?.code;
     },
-    generateObject: (async (prompt, schema, model, options) => {
-      return callAI(prompt, schema, model, { ...options, failover: await resolveFailover() });
-    }) satisfies GenerateObjectFn,
+    generateObject: callAIWithFailover,
     contextualModel,
     translateEntry: async (userId: number, entryId: number) => {
       const entry = await vocabularyRepository.findById(entryId);
@@ -440,6 +445,33 @@ Return translations as JSON array.`;
 
     const weeklyProof = await prepareWeeklyProof(userId, lang, settings?.timezone ?? "UTC");
     const options = { ...(weeklyProof ? { footer: weeklyProof.line } : {}), selfCheckVariant: pickSelfCheckVariant() };
+
+    const { expression } = payload.word;
+    if (expression) {
+      const text = formatExpressionCard(expression, lang, options);
+      const sent = await withDeliveryMetrics(() =>
+        api.sendMessage(telegramId, text, {
+          parse_mode: "HTML",
+          reply_markup: buildExpressionNotificationKeyboard(lang),
+        }),
+      );
+      await logDelivery(notificationDeliveryRepository, {
+        userId,
+        kind: "expression",
+        text,
+        parseMode: "HTML",
+        telegramMessageId: sent.message_id,
+        meta: {
+          word: expression.expression,
+          lang: expression.lang,
+          sourceKind: expression.sourceKind,
+          sourceTitle: expression.sourceTitle ?? null,
+        },
+      });
+      await weeklyProof?.commit();
+      return;
+    }
+
     const card = await cardOf(userId, payload);
     const message = card
       ? formatCardNotification(card.front, card.size, lang, options)
@@ -546,6 +578,7 @@ Return translations as JSON array.`;
     pickDictionaryWord: (userId: number, recentWords) => notifService.pickDictionaryWord(userId, recentWords),
     pickContextualWord: (userId: number, context: string, langs, recentWords) =>
       notifService.pickContextualWord(userId, context, langs, recentWords),
+    pickExpression: (user, recentWords) => expressionPicker.pickExpression(user, recentWords),
     pickReviewDeck: (userId: number, size: number, recentWords: string[]) =>
       reviewDeckPicker(userId, size, recentWords),
     sendDictionaryEmptyPrompt: async (userId: number, lang: string) => {

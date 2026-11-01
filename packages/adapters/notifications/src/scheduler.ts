@@ -121,6 +121,11 @@ const WORD_PICKERS: Record<NotificationType, WordPicker> = {
           recentWords,
         )
       : deps.pickDictionaryWord(user.userId, recentWords),
+  expressions: async (user, deps, recentWords) =>
+    (await deps.pickExpression(
+      { userId: user.userId, nativeLang: user.nativeLang, learningLangs: user.learningLangs },
+      recentWords,
+    )) ?? deps.pickDictionaryWord(user.userId, recentWords),
 };
 
 /**
@@ -164,11 +169,11 @@ async function pickWordForUser(
 
 /**
  * Every dictionary notification is a card deck, one card or several (Task 86). A
- * contextual subscriber asked for AI sentences about their own context instead, and
- * a deck would silently replace them.
+ * contextual or expressions subscriber asked for AI content instead, and a deck
+ * would silently replace it.
  */
 function wantsReviewDeck(user: NotificationUser): boolean {
-  return user.notificationType !== "contextual";
+  return user.notificationType !== "contextual" && user.notificationType !== "expressions";
 }
 
 /**

@@ -17,6 +17,7 @@ vi.mock("@polyglot/core", async () => {
 import type { NotificationPayload } from "@polyglot/adapter-notifications";
 import { type SupportedLang, t } from "@polyglot/core";
 import {
+  buildExpressionNotificationKeyboard,
   buildNotificationKeyboard,
   buildNotificationRestoreKeyboard,
   formatCardNotification,
@@ -179,6 +180,12 @@ describe("buildNotificationKeyboard", () => {
     // Nothing to rate and nothing to remove — but the reader still gets the
     // answer, by translating the word rather than opening an entry that is not there.
     expect(callbackData(buildNotificationKeyboard("en"))).toEqual(["notif:tr", "notif:settings"]);
+  });
+});
+
+describe("buildExpressionNotificationKeyboard", () => {
+  it("offers to save the expression, then the settings", () => {
+    expect(callbackData(buildExpressionNotificationKeyboard("en"))).toEqual(["notif:tr", "notif:settings"]);
   });
 });
 

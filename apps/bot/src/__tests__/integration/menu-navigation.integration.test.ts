@@ -135,7 +135,14 @@ describe("menu navigation (integration)", () => {
     // Into the learning hub…
     harness.reset();
     await harness.dispatch(callbackQueryUpdate({ chatId: id, fromId: id, messageId: menuId, data: "menu:learn" }));
-    expect(lastEdit(harness.sent).buttons).toEqual(["lrn:pick", "lrn:cards", "lrn:videos", "lrn:mentor", "menu:root"]);
+    expect(lastEdit(harness.sent).buttons).toEqual([
+      "lrn:pick",
+      "lrn:cards",
+      "lrn:videos",
+      "lrn:mentor",
+      "lrn:expr",
+      "menu:root",
+    ]);
     expect(sentMessages(harness.sent)).toEqual([]);
 
     // …and back out, still the same message.

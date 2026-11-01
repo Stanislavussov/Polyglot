@@ -25,7 +25,7 @@
  */
 import type { AIPort, ServiceContainer, SettingsPort } from "@polyglot/core";
 import type { Bot } from "grammy";
-import type { Message, MessageEntity, Update } from "grammy/types";
+import type { InlineKeyboardMarkup, Message, MessageEntity, Update } from "grammy/types";
 import { createPolyglotBot } from "../../bot-factory.js";
 import { createContainer } from "../../container.js";
 import { mockPaymentAdapter } from "../../payment.js";
@@ -498,6 +498,12 @@ export function callbackQueryUpdate(opts: {
   data: string;
   /** Telegram client locale (`from.language_code`). */
   languageCode?: string;
+  /** Text of the message the button sits on, for handlers that read it back. */
+  messageText?: string;
+  /** Entities of that text — e.g. the bold headword `notif:tr` reads. */
+  messageEntities?: MessageEntity[];
+  /** The keyboard the message carries, for handlers that edit it rather than replace it. */
+  messageReplyMarkup?: InlineKeyboardMarkup;
 }): Update {
   return {
     update_id: ++updateSeq,
@@ -516,7 +522,9 @@ export function callbackQueryUpdate(opts: {
         date: 0,
         chat: { id: opts.chatId, type: "private", first_name: "Test" },
         from: BOT_INFO,
-        text: "card",
+        text: opts.messageText ?? "card",
+        ...(opts.messageEntities ? { entities: opts.messageEntities } : {}),
+        ...(opts.messageReplyMarkup ? { reply_markup: opts.messageReplyMarkup } : {}),
       },
     },
   };

@@ -38,6 +38,8 @@ export interface GenerateOptions {
   maxRetries?: number;
   userId?: number;
   frequencyPenalty?: number;
+  /** Overrides the admin-wide sampling temperature for this one call. */
+  temperature?: number;
   /** Maximum output tokens. When omitted, the adapter uses its default cap. */
   maxTokens?: number;
   /**

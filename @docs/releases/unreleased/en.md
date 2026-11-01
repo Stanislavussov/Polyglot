@@ -16,3 +16,4 @@
 - A notification can now bring 3, 5 or 10 cards at once, and you go through them and rate each one right there — pick how many in 🔔 Notifications.
 - Every notification now has a ⚙️ button that opens the notification settings straight away, so turning them off, changing the time or the number of cards is one tap away.
 - Rating a word now takes three buttons with icons on one line instead of four on two: 😅 Hard, 👌 OK, 😎 Easy — leaving more room under the card.
+- New in 🎓 Learning: 💬 Expressions — idioms, lines from films and books, witty comparisons with famous people, in your own language and the ones you learn, each with its meaning, where it comes from and an example; choose “Expressions & quotes” in 🔔 Notifications to get one on schedule.
