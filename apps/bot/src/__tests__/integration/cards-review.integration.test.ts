@@ -293,9 +293,8 @@ describe("Cards on spaced repetition (integration)", () => {
     expect(revealed.text).toContain("Brücke-en");
     expect(revealed.text).toContain("Brücke-ru");
     // The reviewed word offers what a freshly translated one offers, ratings first.
-    expect(revealed.buttons.slice(0, 4)).toEqual([
+    expect(revealed.buttons.slice(0, 3)).toEqual([
       `fc:rate:again:${first.id}`,
-      `fc:rate:hard:${first.id}`,
       `fc:rate:good:${first.id}`,
       `fc:rate:easy:${first.id}`,
     ]);
@@ -332,9 +331,8 @@ describe("Cards on spaced repetition (integration)", () => {
     await tap(harness, telegramId, `tr:more:${CARD_MESSAGE_ID}`);
 
     const buttons = lastMarkup(harness.sent);
-    expect(buttons.slice(0, 4)).toEqual([
+    expect(buttons.slice(0, 3)).toEqual([
       `fc:rate:again:${due.translationId}`,
-      `fc:rate:hard:${due.translationId}`,
       `fc:rate:good:${due.translationId}`,
       `fc:rate:easy:${due.translationId}`,
     ]);
@@ -375,9 +373,8 @@ describe("Cards on spaced repetition (integration)", () => {
     // A word being reviewed is in the dictionary by definition, so the "saved"
     // confirmation would be noise between the card and the question.
     expect(screen.text).not.toContain(t("savedToDict", "en"));
-    expect(screen.buttons.slice(0, 4)).toEqual([
+    expect(screen.buttons.slice(0, 3)).toEqual([
       `fc:rate:again:${due.translationId}`,
-      `fc:rate:hard:${due.translationId}`,
       `fc:rate:good:${due.translationId}`,
       `fc:rate:easy:${due.translationId}`,
     ]);

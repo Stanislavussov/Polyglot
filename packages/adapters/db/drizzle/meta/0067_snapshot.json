@@ -1,5 +1,5 @@
 {
-  "id": "6c9f1a74-9b84-43ba-91cd-a8828e82fd53",
+  "id": "b407d167-2722-497c-b753-a21b36388bad",
   "prevId": "4efe3bce-b0aa-4bbc-a9f5-7d257fdc9dba",
   "version": "7",
   "dialect": "postgresql",
@@ -1673,13 +1673,6 @@
           "primaryKey": false,
           "notNull": false
         },
-        "grammar_check_daily_limit": {
-          "name": "grammar_check_daily_limit",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "default": -1
-        },
         "daily_credit_ceiling": {
           "name": "daily_credit_ceiling",
           "type": "integer",
@@ -3103,6 +3096,13 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false
+        },
+        "notification_batch_size": {
+          "name": "notification_batch_size",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
         },
         "last_interaction_at": {
           "name": "last_interaction_at",

@@ -4,7 +4,13 @@
  * Defines public types for notification scheduling, delivery,
  * and word suggestion payloads.
  */
-import type { DictionaryContext, GenerateObjectFn, NotificationType, NotificationUser } from "@polyglot/core";
+import type {
+  CardsDeckCard,
+  DictionaryContext,
+  GenerateObjectFn,
+  NotificationType,
+  NotificationUser,
+} from "@polyglot/core";
 
 export type { NotificationType, NotificationUser };
 
@@ -19,7 +25,10 @@ export type SendFn = (userId: number, payload: NotificationPayload) => Promise<v
 export interface NotificationPayload {
   /** The hour (0-23) at which this notification was scheduled in user's local time. */
   hour: number;
+  /** The word on screen — the deck's first card when there is a deck. */
   word: SuggestedWord;
+  /** Several cards to review from this one message (Task 86); absent for the single-word nudge. */
+  deck?: CardsDeckCard[];
 }
 
 /**
@@ -237,6 +246,13 @@ export interface SchedulerDeps {
 
   /** Pick a word from user's dictionary (SRS review). */
   pickDictionaryWord: (userId: number, recentWords?: string[]) => Promise<SuggestedWord | null>;
+
+  /**
+   * The cards one notification offers a user who asked for several: due first,
+   * then practice-ahead, one per entry, none of `recentWords`, at most `size`.
+   * Empty means the single-word layers take over.
+   */
+  pickReviewDeck: (userId: number, size: number, recentWords: string[]) => Promise<CardsDeckCard[]>;
 
   /** Generate a contextual sentence with translations (for 'contextual' type). */
   pickContextualWord: (

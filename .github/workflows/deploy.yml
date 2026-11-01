@@ -2,7 +2,11 @@ name: Deploy to VPS
 
 on:
   push:
-    branches: [master, develop]
+    # Dev environment is paused: its bot and Neon branch ate half the free
+    # Neon compute quota and took production down on 2026-10-30.
+    # Restore `develop` here to bring dev deploys back.
+    # branches: [master, develop]
+    branches: [master]
   workflow_dispatch:
 
 # Branch selects the target: master → production, anything else → development.
@@ -22,6 +26,8 @@ permissions:
 
 jobs:
   ci:
+    # A manual dispatch from any other branch would still target development.
+    if: github.ref == 'refs/heads/master'
     uses: ./.github/workflows/ci.yml
     # Explicit pass-through (not `secrets: inherit`) for auditability — repo
     # secrets do NOT flow through workflow_call automatically. The integration
@@ -220,6 +226,7 @@ jobs:
           echo "REPOSITORY=${{ secrets.REPOSITORY }}" >> .env
           echo "RELEASE_ID=${{ github.sha }}" >> .env
           echo "RELEASE_AUDIENCE_GROUPS=admin,tester" >> .env
+          echo "MOCK_PAYMENTS=${{ env.DEPLOY_ENV == 'production' && 'off' || 'on' }}" >> .env
 
       - name: Copy Compose and Env to VPS
         # Pinned to the commit SHA of v1.0.0 (Fable T30, F8): this third-party

@@ -1,29 +1,10 @@
 /**
- * Tests for notification callback handlers (notif:reveal, notif:fb, notif:learned).
+ * Tests for notification callback handlers (notif:tr, notif:fb, notif:learned, notif:restore).
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@polyglot/infra", () => ({
   logger: { debug: vi.fn(), error: vi.fn(), info: vi.fn(), warn: vi.fn() },
-}));
-
-// Reveal opens the translation card, so the card's own renderer and keyboard are
-// the collaborators here — the handler's job is to feed them the saved entry and
-// to leave the session entry their buttons address.
-vi.mock("../renderers/translation.renderer.js", () => ({
-  renderTranslation: vi.fn().mockReturnValue("🍎 🇬🇧 <b>apple</b>\n🇷🇺 RU: <b>яблоко</b>"),
-  buildTranslationKeyboard: vi.fn().mockReturnValue({
-    inline_keyboard: [[{ text: "🎯 Clarify", callback_data: "tr:clarifypost:100" }]],
-  }),
-}));
-
-vi.mock("../scenes/helpers/translate-mode.shared.js", () => ({
-  isEtymologyEligible: vi.fn().mockReturnValue(false),
-  resolvePronounceLangs: vi.fn().mockResolvedValue([]),
-}));
-
-vi.mock("../scenes/helpers/paid-feature.helper.js", () => ({
-  resolveLockedBadges: vi.fn().mockResolvedValue(new Map()),
 }));
 
 vi.mock("../scenes/helpers/translate-flow.js", () => ({
@@ -43,9 +24,9 @@ import type { ServiceContainer } from "@polyglot/core";
 import { createServicesStub } from "../test-helpers/services-stub.js";
 import { LONG_OP_TIMEOUT_MS } from "../utils/long-op.js";
 import {
+  handleNotifDeckCallback,
   handleNotifFeedbackCallback,
   handleNotifLearnedCallback,
-  handleNotifRevealCallback,
   handleNotifTranslateCallback,
 } from "./notification.callbacks.js";
 
@@ -98,144 +79,6 @@ beforeEach(() => {
   vocabularyRepository.findById.mockReset();
   vocabularyRepository.setDifficulty.mockResolvedValue(true);
   vocabularyRepository.delete.mockResolvedValue(true);
-});
-
-/** A saved entry as `findById` returns it, with one resolvable translation. */
-function savedEntry(over: Record<string, unknown> = {}) {
-  return {
-    id: 42,
-    userId: 1,
-    original: "apple",
-    emoji: "🍎",
-    nativeMeaning: null,
-    sourceLangId: 1,
-    inputType: "word",
-    isActive: true,
-    sourceUsage: null,
-    unverified: false,
-    difficulty: null,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    translations: [
-      {
-        id: 1,
-        entryId: 42,
-        targetLangId: 3,
-        text: "яблоко",
-        expressionType: null,
-        equivalentNote: null,
-        usageNote: null,
-        connotationWarning: null,
-        details: null,
-      },
-    ],
-    ...over,
-  };
-}
-
-describe("handleNotifRevealCallback", () => {
-  it("replaces the nudge with the translation card and its own keyboard", async () => {
-    const { buildTranslationKeyboard } = await import("../renderers/translation.renderer.js");
-    const ctx = createMockCtx("notif:reveal:42");
-    vi.mocked(vocabularyRepository.findById).mockResolvedValue(savedEntry() as never);
-
-    await handleNotifRevealCallback(ctx);
-
-    expect(vocabularyRepository.findById).toHaveBeenCalledWith(42);
-    expect(ctx.editMessageText).toHaveBeenCalled();
-    // The word is in the dictionary already — the card must say so, not offer to
-    // save it a second time.
-    expect(vi.mocked(buildTranslationKeyboard)).toHaveBeenCalledWith(
-      expect.objectContaining({ msgId: 100, isAlreadySaved: true }),
-    );
-    expect(ctx.api.editMessageReplyMarkup).toHaveBeenCalled();
-    expect(ctx.answerCallbackQuery).toHaveBeenCalled();
-  });
-
-  it("leaves the session entry the card's buttons address", async () => {
-    // Clarify, another meaning, pronounce and save all look their card up by
-    // message id. Without this entry the card would render with dead buttons.
-    const ctx = createMockCtx("notif:reveal:42");
-    vi.mocked(vocabularyRepository.findById).mockResolvedValue(savedEntry() as never);
-
-    await handleNotifRevealCallback(ctx);
-
-    const entry = ctx.session.translationMap?.["100"];
-    expect(entry?.output.original).toBe("apple");
-    expect(entry?.output.translations.ru?.text).toBe("яблоко");
-    expect(entry?.savedWordId).toBe(42);
-    expect(ctx.session.pendingCardMsgId).toBe(100);
-  });
-
-  it("carries the recall grades onto the revealed card, marking the grade already stored", async () => {
-    // Grading after seeing the answer is the common case: the nudge's grades must
-    // not vanish with it.
-    const { buildTranslationKeyboard } = await import("../renderers/translation.renderer.js");
-    const ctx = createMockCtx("notif:reveal:42");
-    vi.mocked(vocabularyRepository.findById).mockResolvedValue(savedEntry({ difficulty: "hard" }) as never);
-
-    await handleNotifRevealCallback(ctx);
-
-    expect(ctx.session.translationMap?.["100"]?.recallGrade).toEqual({ entryId: 42, selected: "hard" });
-    expect(vi.mocked(buildTranslationKeyboard)).toHaveBeenCalledWith(
-      expect.objectContaining({ grades: { entryId: 42, selected: "hard" } }),
-    );
-  });
-
-  it("handles missing entry gracefully", async () => {
-    const ctx = createMockCtx("notif:reveal:999");
-    vi.mocked(vocabularyRepository.findById).mockResolvedValue(null);
-
-    await handleNotifRevealCallback(ctx);
-
-    expect(ctx.answerCallbackQuery).toHaveBeenCalled();
-    expect(ctx.editMessageReplyMarkup).toHaveBeenCalledWith({
-      reply_markup: { inline_keyboard: [] },
-    });
-  });
-
-  it("handles invalid entryId gracefully", async () => {
-    const ctx = createMockCtx("notif:reveal:");
-
-    await handleNotifRevealCallback(ctx);
-
-    expect(ctx.answerCallbackQuery).toHaveBeenCalled();
-    expect(vocabularyRepository.findById).not.toHaveBeenCalled();
-  });
-
-  it("shows a persistent loading button on the notification while the card loads", async () => {
-    const ctx = createMockCtx("notif:reveal:42");
-    vi.mocked(vocabularyRepository.findById).mockResolvedValue(savedEntry() as never);
-
-    await handleNotifRevealCallback(ctx);
-
-    const firstMarkup = ctx.editMessageReplyMarkup.mock.calls[0]?.[0]?.reply_markup;
-    expect(firstMarkup?.inline_keyboard?.[0]?.[0]).toMatchObject({ callback_data: "noop" });
-  });
-
-  it("restores the buttons and tells the user when loading takes too long", async () => {
-    vi.useFakeTimers();
-    try {
-      const ctx = createMockCtx("notif:reveal:42");
-      vi.mocked(vocabularyRepository.findById).mockReturnValue(
-        new Promise(() => {
-          /* Neon never answers */
-        }) as never,
-      );
-
-      const flow = handleNotifRevealCallback(ctx);
-      await vi.advanceTimersByTimeAsync(LONG_OP_TIMEOUT_MS);
-      await flow;
-
-      expect(ctx.answerCallbackQuery).toHaveBeenCalledWith(
-        expect.objectContaining({ show_alert: true, text: expect.stringContaining("⌛") }),
-      );
-      const lastMarkup = ctx.editMessageReplyMarkup.mock.calls.at(-1)?.[0]?.reply_markup;
-      expect(lastMarkup?.inline_keyboard?.[0]?.[0]).toMatchObject({ callback_data: "notif:reveal:42" });
-    } finally {
-      vi.useRealTimers();
-    }
-  });
 });
 
 describe("handleNotifTranslateCallback", () => {
@@ -292,44 +135,18 @@ describe("handleNotifFeedbackCallback", () => {
     expect(ctx.answerCallbackQuery).toHaveBeenCalledWith({ text: expect.stringContaining("more often") });
   });
 
-  it("marks the chosen grade on the nudge's own keyboard", async () => {
-    // The grades live on the nudge only — a revealed card carries the translation
-    // keyboard — so there is one keyboard to re-render.
+  it("upgrades an old nudge to the card's buttons, so it offers the four ratings from here on", async () => {
     const { buildNotificationKeyboard } = await import("./notification.formatter.js");
     const withReveal = { inline_keyboard: [[{ text: "🔍", callback_data: "notif:reveal:42" }]] };
     const ctx = createMockCtx("notif:fb:easy:42", withReveal);
 
     await handleNotifFeedbackCallback(ctx);
 
-    expect(vi.mocked(buildNotificationKeyboard)).toHaveBeenCalledWith("en", 42, "easy");
-  });
-
-  it("re-grades on a revealed card by rebuilding the card's own keyboard, not the nudge's", async () => {
-    const { buildNotificationKeyboard } = await import("./notification.formatter.js");
-    const { buildTranslationKeyboard } = await import("../renderers/translation.renderer.js");
-    const cardMarkup = { inline_keyboard: [[{ text: "⋯", callback_data: "tr:more:100" }]] };
-    const ctx = createMockCtx("notif:fb:easy:42", cardMarkup);
-    ctx.session.translationMap = {
-      "100": {
-        output: { original: "apple", sourceLang: "en", translations: {} },
-        inputType: "word",
-        savedWordId: 42,
-        recallGrade: { entryId: 42, selected: "hard" },
-      },
-    };
-
-    await handleNotifFeedbackCallback(ctx);
-
-    expect(vocabularyRepository.setDifficulty).toHaveBeenCalledWith(42, 1, "easy");
-    expect(ctx.session.translationMap["100"].recallGrade).toEqual({ entryId: 42, selected: "easy" });
-    expect(vi.mocked(buildTranslationKeyboard)).toHaveBeenCalledWith(
-      expect.objectContaining({ msgId: 100, grades: { entryId: 42, selected: "easy" } }),
-    );
-    expect(vi.mocked(buildNotificationKeyboard)).not.toHaveBeenCalled();
+    expect(vi.mocked(buildNotificationKeyboard)).toHaveBeenCalledWith("en", 42);
     expect(ctx.editMessageReplyMarkup).toHaveBeenCalled();
   });
 
-  it("saves a grade from a card whose session state is gone without swapping its buttons for the nudge's", async () => {
+  it("saves a grade tapped on a revealed card without swapping the card's buttons", async () => {
     const { buildNotificationKeyboard } = await import("./notification.formatter.js");
     const cardMarkup = { inline_keyboard: [[{ text: "⋯", callback_data: "tr:more:100" }]] };
     const ctx = createMockCtx("notif:fb:easy:42", cardMarkup);
@@ -403,5 +220,20 @@ describe("handleNotifLearnedCallback", () => {
 
     expect(ctx.answerCallbackQuery).toHaveBeenCalled();
     expect(vocabularyRepository.delete).not.toHaveBeenCalled();
+  });
+});
+
+describe("handleNotifDeckCallback", () => {
+  it("leaves a running /review deck alone when the notification fails to open", async () => {
+    const runningDeck = { deck: [], currentIndex: 2, revealed: true, recalled: 1 };
+    const ctx = createMockCtx("notif:deck:42");
+    ctx.session.cards = runningDeck;
+    ctx.match = ["notif:deck:42", "42"];
+    ctx.services.userRepository.getSettings = vi.fn().mockRejectedValue(new Error("db down"));
+
+    await handleNotifDeckCallback(ctx);
+
+    expect(ctx.session.cards).toBe(runningDeck);
+    expect(ctx.answerCallbackQuery).toHaveBeenCalledWith(expect.objectContaining({ show_alert: true }));
   });
 });

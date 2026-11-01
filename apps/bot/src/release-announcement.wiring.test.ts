@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   claimNext: vi.fn(),
@@ -13,7 +13,9 @@ vi.mock("@polyglot/adapter-db", () => ({
 
 vi.mock("./release-announcement.js", () => ({ announceNotes: mocks.announceNotes }));
 
-const { runPendingAnnouncements } = await import("./release-announcement.wiring.js");
+const { runPendingAnnouncements, stopReleaseAnnouncements, wireReleaseAnnouncements } = await import(
+  "./release-announcement.wiring.js"
+);
 
 const messenger = { sendMessage: vi.fn() };
 
@@ -85,5 +87,35 @@ describe("runPendingAnnouncements", () => {
       expect.objectContaining({ audienceGroups: ["tester"] }),
       messenger,
     );
+  });
+});
+
+describe("wireReleaseAnnouncements", () => {
+  const HOUR_MS = 60 * 60 * 1000;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.useFakeTimers();
+    mocks.claimNext.mockResolvedValue(null);
+  });
+
+  afterEach(() => {
+    stopReleaseAnnouncements();
+    vi.useRealTimers();
+    mocks.claimNext.mockReset();
+  });
+
+  // Every check is a query, and Neon bills each one by waking the database
+  // for five minutes: a short interval kept it awake around the clock.
+  it("checks the queue once at start, then only every three hours", async () => {
+    wireReleaseAnnouncements(messenger);
+    await vi.advanceTimersByTimeAsync(0);
+    expect(mocks.claimNext).toHaveBeenCalledTimes(1);
+
+    await vi.advanceTimersByTimeAsync(3 * HOUR_MS - 1);
+    expect(mocks.claimNext).toHaveBeenCalledTimes(1);
+
+    await vi.advanceTimersByTimeAsync(1);
+    expect(mocks.claimNext).toHaveBeenCalledTimes(2);
   });
 });

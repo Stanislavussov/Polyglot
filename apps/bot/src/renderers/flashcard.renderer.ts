@@ -114,16 +114,23 @@ export function renderFlashCardDone(lang: SupportedLang, counts: { cards: number
   return t("cardsDone", lang, counts);
 }
 
-const RATING_LABELS: Record<SrsRating, I18nKey> = {
-  again: "srsAgain",
-  hard: "srsHard",
-  good: "srsGood",
-  easy: "srsEasy",
-};
+/**
+ * Three ratings, not SM-2's four: four buttons took two rows under the card.
+ * 😅 rates `again`, not `hard`, so a forgotten word still comes back this
+ * session and restarts at one day. Old messages still send `fc:rate:hard`.
+ */
+const RATING_BUTTONS: ReadonlyArray<{ rating: SrsRating; labelKey: I18nKey }> = [
+  { rating: "again", labelKey: "notifFbHard" },
+  { rating: "good", labelKey: "notifFbNormal" },
+  { rating: "easy", labelKey: "notifFbEasy" },
+];
 
 /** The translation id rides in the data so a button left on an older card cannot rate the card now on screen. */
-function rateButton(kb: InlineKeyboard, lang: SupportedLang, rating: SrsRating, translationId: number): InlineKeyboard {
-  return kb.text(t(RATING_LABELS[rating], lang), `fc:rate:${rating}:${translationId}`);
+function appendRatingRow(kb: InlineKeyboard, lang: SupportedLang, translationId: number): InlineKeyboard {
+  for (const { rating, labelKey } of RATING_BUTTONS) {
+    kb.text(t(labelKey, lang), `fc:rate:${rating}:${translationId}`);
+  }
+  return kb.row();
 }
 
 function deleteCallback(entryId: number): string {
@@ -159,10 +166,7 @@ export function buildFlashCardBackKeyboard(
   cardActions: InlineKeyboardButton[][] = [],
 ): InlineKeyboard {
   const kb = new InlineKeyboard();
-  rateButton(kb, lang, "again", card.translationId);
-  rateButton(kb, lang, "hard", card.translationId).row();
-  rateButton(kb, lang, "good", card.translationId);
-  rateButton(kb, lang, "easy", card.translationId).row();
+  appendRatingRow(kb, lang, card.translationId);
   for (const row of cardActions) {
     kb.add(...row).row();
   }

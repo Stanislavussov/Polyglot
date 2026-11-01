@@ -3,7 +3,8 @@
  *
  * Everything here is provider-agnostic on purpose: the plans, their prices and
  * their feature lists come from the database, and buying goes through
- * `PaymentPort` (a mock that always succeeds today). The confirmation step below
+ * `PaymentPort` (a mock that always succeeds, wired only where `MOCK_PAYMENTS`
+ * opens it; with no port, buying is closed). The confirmation step below
  * is the placeholder for the future Telegram Stars invoice — when Stars land,
  * `plan:confirm` opens an invoice instead of calling `activate` directly and the
  * rest of this file is unchanged (see `@docs/tech-reqs/16-payments-architecture.md`).
@@ -245,6 +246,7 @@ function renderUpgradeScreen(
   ladder: PurchasablePlan[],
   from: number,
   lang: SupportedLang,
+  purchasesOpen: boolean,
   feature?: FeatureKey,
 ): string {
   const wantedBullet = feature ? FEATURE_BULLET[feature] : undefined;
@@ -266,7 +268,7 @@ function renderUpgradeScreen(
   return [
     offerHeadline(ladder.slice(from), lang, feature),
     ...blocks,
-    `<i>${t("upgradeTestPaymentNote", lang)}</i>`,
+    `<i>${t(purchasesOpen ? "upgradeTestPaymentNote" : "purchasesClosed", lang)}</i>`,
   ].join("\n\n");
 }
 
@@ -318,7 +320,7 @@ export async function sendUpgradeScreen(ctx: BotContext, lang?: SupportedLang, f
     await ctx.reply(t(ladder.length > 0 ? "upgradeTopPlan" : "upgradeComingSoon", iLang));
     return;
   }
-  await ctx.reply(renderUpgradeScreen(ladder, from, iLang, feature), {
+  await ctx.reply(renderUpgradeScreen(ladder, from, iLang, Boolean(ctx.services.paymentPort), feature), {
     parse_mode: "HTML",
     reply_markup: buildPlanChoiceKeyboard(ladder.slice(from), iLang),
   });
@@ -351,6 +353,10 @@ export async function handleBuyPlanCallback(ctx: BotContext): Promise<void> {
     return;
   }
   trackProductEvent(ctx, "plan.selected", plan.name);
+  if (!ctx.services.paymentPort) {
+    await ctx.reply(t("purchasesClosed", lang));
+    return;
+  }
 
   const keyboard = new InlineKeyboard()
     .text(t("purchaseConfirmYes", lang), `plan:confirm:${plan.name}`)
@@ -368,11 +374,17 @@ export async function handleConfirmPlanCallback(ctx: BotContext): Promise<void> 
   const { lang, timeZone } = await resolveDisplaySettings(ctx);
 
   const name = (ctx.callbackQuery?.data ?? "").split(":")[2];
+  const { paymentPort, subscriptionRepository } = ctx.services;
+  // Ahead of the plan checks: a confirm button from the test-checkout days stays
+  // in the chat, and while buying is closed it must say so, not "checkout failed".
+  if (!paymentPort) {
+    await ctx.reply(t("purchasesClosed", lang));
+    return;
+  }
   // Re-validated against the catalog, not trusted from the callback data: the
   // button is forwardable and the plan could have been unpublished meanwhile.
   const plan = (await loadPurchasablePlans(ctx)).find((candidate) => candidate.name === name);
-  const { paymentPort, subscriptionRepository } = ctx.services;
-  if (!plan || !paymentPort || !subscriptionRepository) {
+  if (!plan || !subscriptionRepository) {
     await ctx.reply(t("checkoutFailed", lang));
     return;
   }

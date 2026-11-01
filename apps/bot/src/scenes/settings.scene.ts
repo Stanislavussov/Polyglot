@@ -7,6 +7,7 @@
 import {
   CARD_FRONT_FIELD_KEYS,
   type CardFrontFields,
+  DEFAULT_NOTIFICATION_BATCH_SIZE,
   DEFAULT_NOTIFICATION_TIME,
   evaluatePlanRateLimit,
   formatNotificationTime,
@@ -15,8 +16,6 @@ import {
   getMonthlyWindowStart,
   type I18nKey,
   isSupported,
-  NOTIFICATION_TEMPLATE_FIELD_KEYS,
-  type NotificationTemplateFields,
   type PlanLimitConfig,
   parseNotificationMinutes,
   type SupportedLang,
@@ -135,15 +134,14 @@ export function buildLangGroupKeyboard(lang: SupportedLang): InlineKeyboard {
 }
 
 /**
- * Build the templates sub-menu keyboard. Translation, review card and notification each
- * shape what one surface shows, so they share one root row instead of taking three.
- * Their screens' Back returns here.
+ * Build the templates sub-menu keyboard. Translation and card each shape what one surface
+ * shows — a word notification is a card, so the card template shapes it too — and they
+ * share one root row. Their screens' Back returns here.
  */
 export function buildTemplatesKeyboard(lang: SupportedLang): InlineKeyboard {
   const kb = new InlineKeyboard();
   kb.text(t("templatesTranslation", lang), "set:tpl").row();
   kb.text(t("templatesCard", lang), "set:card").row();
-  kb.text(t("templatesNotification", lang), "set:ntpl").row();
   kb.text(`⬅️ ${t("back", lang)}`, "set:root").row();
   return kb;
 }
@@ -160,34 +158,27 @@ export function buildCardTemplateText(lang: SupportedLang, preview?: string): st
   return `${t("cardTemplateTitle", lang)}\n\n${body}`;
 }
 
-export function buildCardTemplateKeyboard(lang: SupportedLang, fields: CardFrontFields): InlineKeyboard {
+/** Which menu opened the card template — its Back returns there. */
+export type CardTemplateOrigin = "templates" | "notifications";
+
+/**
+ * The notification settings open the same card template (a word notification is a card),
+ * so the origin rides every callback on the screen as a `:n` suffix: a toggle re-renders
+ * the screen, and its Back must still lead back to where the reader came from.
+ */
+export const CARD_TEMPLATE_FROM_NOTIFICATIONS = ":n";
+
+export function buildCardTemplateKeyboard(
+  lang: SupportedLang,
+  fields: CardFrontFields,
+  origin: CardTemplateOrigin = "templates",
+): InlineKeyboard {
+  const suffix = origin === "notifications" ? CARD_TEMPLATE_FROM_NOTIFICATIONS : "";
   const kb = new InlineKeyboard();
   for (const key of CARD_FRONT_FIELD_KEYS) {
-    kb.text(`${fields[key] ? "✅" : "▫️"} ${t(CARD_FIELD_LABELS[key], lang)}`, `set:card:t:${key}`).row();
+    kb.text(`${fields[key] ? "✅" : "▫️"} ${t(CARD_FIELD_LABELS[key], lang)}`, `set:card:t:${key}${suffix}`).row();
   }
-  kb.text(`⬅️ ${t("back", lang)}`, "set:tpls").row();
-  return kb;
-}
-
-const NOTIFICATION_FIELD_LABELS: Record<keyof NotificationTemplateFields, I18nKey> = {
-  synonyms: "cardFieldSynonyms",
-};
-
-/** `preview` is the user's latest saved word as a notification, already rendered; absent for an empty dictionary. */
-export function buildNotificationTemplateText(lang: SupportedLang, preview?: string): string {
-  const body = preview ? `${t("cardTemplatePreview", lang)}\n\n${preview}` : t("cardTemplateNoPreview", lang);
-  return `${t("notifTemplateTitle", lang)}\n\n${body}`;
-}
-
-export function buildNotificationTemplateKeyboard(
-  lang: SupportedLang,
-  fields: NotificationTemplateFields,
-): InlineKeyboard {
-  const kb = new InlineKeyboard();
-  for (const key of NOTIFICATION_TEMPLATE_FIELD_KEYS) {
-    kb.text(`${fields[key] ? "✅" : "▫️"} ${t(NOTIFICATION_FIELD_LABELS[key], lang)}`, `set:ntpl:t:${key}`).row();
-  }
-  kb.text(`⬅️ ${t("back", lang)}`, "set:tpls").row();
+  kb.text(`⬅️ ${t("back", lang)}`, origin === "notifications" ? "set:notif" : "set:tpls").row();
   return kb;
 }
 
@@ -201,6 +192,7 @@ export function buildNotifSubText(
   notifType: string,
   timezone: string,
   notifContext: string | null,
+  batchSize: number = DEFAULT_NOTIFICATION_BATCH_SIZE,
 ): string {
   const statusLine = notifEnabled ? t("settingsNotifStatusOn", lang) : t("settingsNotifStatusOff", lang);
 
@@ -210,6 +202,7 @@ export function buildNotifSubText(
     statusLine,
     t("settingsNotifTimes", lang, { times: formatNotificationTimes(notifTimes) }),
     t("settingsNotifType", lang, { type: notifTypeLabel(notifType, lang) }),
+    ...(notifType === "contextual" ? [] : [t("settingsNotifBatch", lang, { count: batchSize })]),
     t("settingsNotifTimezone", lang, { timezone }),
   ];
 
@@ -233,10 +226,13 @@ export function buildNotifSubKeyboard(lang: SupportedLang, notifEnabled: boolean
   if (notifEnabled) {
     kb.text(t("settingsNotifChooseTimes", lang), "set:notif:time").row();
     kb.text(t("settingsNotifChooseType", lang), "set:notif:type").row();
+    // Contextual subscribers get AI sentences, never a deck, so the size would do nothing for them.
+    if (notifType !== "contextual") kb.text(t("settingsNotifChooseBatch", lang), "set:notif:batch").row();
     kb.text(t("settingsNotifChooseTimezone", lang), "set:notif:tz").row();
     if (notifType === "contextual") {
       kb.text(t("settingsNotifChooseContext", lang), "set:notif:context").row();
     }
+    kb.text(t("settingsNotifChooseTemplate", lang), `set:card${CARD_TEMPLATE_FROM_NOTIFICATIONS}`).row();
   }
   kb.text(`⬅️ ${t("back", lang)}`, "set:notif:back").row();
   return kb;

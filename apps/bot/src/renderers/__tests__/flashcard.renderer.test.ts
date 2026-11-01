@@ -174,21 +174,24 @@ describe("card keyboards", () => {
     expect(callbacksOf(buildFlashCardFrontKeyboard("en", 1))).toEqual([["fc:reveal", "fc:quit"], ["fc:del:1"]]);
   });
 
-  it("back offers the four ratings addressed to this translation, removal and quit", () => {
+  it("back offers three ratings in one row addressed to this translation, removal and quit", () => {
     expect(callbacksOf(buildFlashCardBackKeyboard("en", { translationId: 10, entryId: 1 }))).toEqual([
-      ["fc:rate:again:10", "fc:rate:hard:10"],
-      ["fc:rate:good:10", "fc:rate:easy:10"],
+      ["fc:rate:again:10", "fc:rate:good:10", "fc:rate:easy:10"],
       ["fc:del:1"],
       ["fc:quit"],
     ]);
+  });
+
+  it("back labels the ratings like the notification grades, so a word reads one way everywhere", () => {
+    const [row] = buildFlashCardBackKeyboard("en", { translationId: 10, entryId: 1 }).inline_keyboard;
+    expect(row?.map((button) => button.text)).toEqual(["😅 Hard", "👌 OK", "😎 Easy"]);
   });
 
   it("back puts the ordinary card's actions under the ratings, above removal and quit", () => {
     const actions = [[{ text: "⋯", callback_data: "tr:more:5" }], [{ text: "Save", callback_data: "tr:save:5" }]];
 
     expect(callbacksOf(buildFlashCardBackKeyboard("en", { translationId: 10, entryId: 1 }, actions))).toEqual([
-      ["fc:rate:again:10", "fc:rate:hard:10"],
-      ["fc:rate:good:10", "fc:rate:easy:10"],
+      ["fc:rate:again:10", "fc:rate:good:10", "fc:rate:easy:10"],
       ["tr:more:5"],
       ["tr:save:5"],
       ["fc:del:1"],

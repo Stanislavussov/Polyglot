@@ -491,30 +491,7 @@ describe("buildTranslationKeyboard", () => {
     });
   });
 
-  describe("recall grades — a card opened from a notification", () => {
-    const grades = { entryId: 7 };
-
-    it("puts the grades on the first row of the collapsed card", () => {
-      const kb = buildTranslationKeyboard({ interfaceLang: "en", msgId: 42, grades });
-      expect(rows(kb)).toEqual([
-        ["notif:fb:hard:7", "notif:fb:normal:7", "notif:fb:easy:7"],
-        ["tr:more:42"],
-        ["tr:save:42"],
-      ]);
-    });
-
-    it("keeps the grades while the action list is open", () => {
-      const kb = expanded({ interfaceLang: "en", msgId: 42, grades });
-      expect(rows(kb)[0]).toEqual(["notif:fb:hard:7", "notif:fb:normal:7", "notif:fb:easy:7"]);
-      expect(rows(kb).at(-1)).toEqual(["tr:less:42"]);
-    });
-
-    it("marks the grade already given", () => {
-      const kb = buildTranslationKeyboard({ interfaceLang: "en", msgId: 42, grades: { entryId: 7, selected: "hard" } });
-      const marked = kb.inline_keyboard[0]!.filter((b) => b.text.startsWith("✓"));
-      expect(marked.map(cbData)).toEqual(["notif:fb:hard:7"]);
-    });
-
+  describe("recall grades — rated only as a card now (Task 86)", () => {
     it("offers no grades on an ordinary translation card", () => {
       expect(
         allData(buildTranslationKeyboard({ interfaceLang: "en", msgId: 42 })).some((d) => d?.startsWith("notif:")),

@@ -198,6 +198,8 @@ export const userLanguageSettings = pgTable("user_language_settings", {
   notificationType: text("notification_type").$type<"suggested" | "srs" | "contextual">().default("srs").notNull(),
   /** User-provided context for AI-generated contextual notifications (e.g., "preparing for job interview") */
   notificationContext: text("notification_context"),
+  /** Cards one scheduled notification carries (1/3/5/10); above 1 the notification opens a review deck. */
+  notificationBatchSize: integer("notification_batch_size").default(1).notNull(),
   /** Last bot interaction timestamp — used for 14-day inactivity pause */
   lastInteractionAt: timestamp("last_interaction_at", { withTimezone: true }),
   /**

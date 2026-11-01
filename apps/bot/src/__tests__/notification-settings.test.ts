@@ -102,6 +102,7 @@ const DEFAULT_SETTINGS: UserLanguageSettings = {
   notificationTimes: ["08:00"],
   notificationType: "srs",
   notificationContext: null,
+  notificationBatchSize: 1,
   lastInteractionAt: null,
   lastReengagementAt: null,
   reengagementCount: 0,
@@ -224,6 +225,11 @@ describe("buildNotifSubText", () => {
     const text = buildNotifSubText("en", true, ["08:00"], "contextual", "UTC", "job interview");
     expect(text).toContain("job interview");
   });
+
+  it("shows how many cards one notification brings", () => {
+    const text = buildNotifSubText("en", true, ["08:00"], "srs", "UTC", null, 5);
+    expect(text).toContain("Cards per notification — 5");
+  });
 });
 
 describe("buildNotifSubKeyboard", () => {
@@ -235,6 +241,8 @@ describe("buildNotifSubKeyboard", () => {
     expect(cbData).toContain("set:notif:time");
     expect(cbData).toContain("set:notif:type");
     expect(cbData).toContain("set:notif:tz");
+    expect(cbData).toContain("set:notif:batch");
+    expect(cbData).toContain("set:card:n");
     expect(cbData).toContain("set:notif:back");
   });
 
@@ -246,6 +254,7 @@ describe("buildNotifSubKeyboard", () => {
     const kbCtx = buildNotifSubKeyboard("en", true, "contextual");
     const cbDataCtx = kbCtx.inline_keyboard.flat().map((b: any) => b.callback_data);
     expect(cbDataCtx).toContain("set:notif:context");
+    expect(cbDataCtx).not.toContain("set:notif:batch");
   });
 
   it("hides settings buttons when disabled", () => {
@@ -255,6 +264,7 @@ describe("buildNotifSubKeyboard", () => {
     expect(cbData).not.toContain("set:notif:time");
     expect(cbData).not.toContain("set:notif:type");
     expect(cbData).not.toContain("set:notif:tz");
+    expect(cbData).not.toContain("set:notif:batch");
   });
 });
 

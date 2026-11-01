@@ -81,6 +81,7 @@ const notificationUserSelect = {
   notificationTimes: userLanguageSettings.notificationTimes,
   notificationType: userLanguageSettings.notificationType,
   notificationContext: userLanguageSettings.notificationContext,
+  notificationBatchSize: userLanguageSettings.notificationBatchSize,
   reengagementCount: userLanguageSettings.reengagementCount,
 } as const;
 
@@ -208,6 +209,7 @@ export const notificationRepository = {
       notificationTimes?: string[];
       notificationType?: NotificationType;
       notificationContext?: string | null;
+      notificationBatchSize?: number;
     },
   ): Promise<void> {
     const db = getDb();
@@ -216,6 +218,7 @@ export const notificationRepository = {
     if (prefs.notificationTimes !== undefined) set.notificationTimes = prefs.notificationTimes;
     if (prefs.notificationType !== undefined) set.notificationType = prefs.notificationType;
     if (prefs.notificationContext !== undefined) set.notificationContext = prefs.notificationContext;
+    if (prefs.notificationBatchSize !== undefined) set.notificationBatchSize = prefs.notificationBatchSize;
     set.updatedAt = new Date();
 
     await db.update(userLanguageSettings).set(set).where(eq(userLanguageSettings.userId, userId));

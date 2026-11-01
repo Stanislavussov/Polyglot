@@ -38,10 +38,11 @@ import { deterministicTranslateAi } from "../../test-helpers/integration/transla
 const AUDIO = new Uint8Array([0x49, 0x44, 0x33, 0x04]);
 
 /** `tts_cache` is global and shared by both workers, so every harness gets its own model id. */
-function arrangeHarness() {
+function arrangeHarness(options: { testPayments?: boolean } = {}) {
   const modelId = `test/tts-paid-${process.pid}-${uniqueTelegramId()}`;
   const generateSpeech = vi.fn().mockResolvedValue({ bytes: AUDIO, generationId: "gen-paid-test" });
   const harness = createBotHarness({
+    testPayments: options.testPayments,
     ai: { ...deterministicTranslateAi(), generateSpeech },
     settings: {
       getTtsConfig: vi.fn().mockResolvedValue({ enabled: true, modelId, voice: "Kore", maxChars: 200 }),
@@ -327,6 +328,41 @@ describe("paid features on a translation card (integration)", () => {
     await tap(harness, id, cardMsgId, "plan:confirm:unlimited");
 
     // Assert — refused, and nothing granted.
+    expect(await subscriptionRepository.findActiveByUser(userId)).toBeNull();
+    expect((await userRepository.findById(userId))?.subscriptionPlan).toBe("free");
+  });
+
+  it("keeps the user on Free while buying is closed, however they reach the checkout", async () => {
+    // Arrange — production: no test checkout.
+    const { harness } = arrangeHarness({ testPayments: false });
+    const id = uniqueTelegramId();
+    const userId = await arrangeOnboardedTranslator(id);
+    const { messageId: cardMsgId } = await renderCard(harness, id, "hello");
+
+    // Act — a locked button still opens the offer.
+    harness.reset();
+    await tap(harness, id, cardMsgId, `tr:clarifypost:${cardMsgId}`);
+
+    // Assert — plans and prices stay visible, with the honest note under them.
+    expect(lastMessageButtons(harness)).toEqual(["plan:buy:plus", "plan:buy:pro"]);
+    expect(lastMessageText(harness)).toContain("payments are coming soon");
+    expect(lastMessageText(harness)).not.toContain("Test payment");
+
+    // Act — pick a plan.
+    harness.reset();
+    await tap(harness, id, cardMsgId, "plan:buy:plus");
+
+    // Assert — told it cannot be bought yet: no price confirmation, nothing written.
+    expect(lastMessageText(harness)).toContain("payments are coming soon");
+    expect(lastMessageButtons(harness)).toEqual([]);
+    expect(await subscriptionRepository.findActiveByUser(userId)).toBeNull();
+
+    // Act — a confirm button left in the chat from the test-checkout days.
+    harness.reset();
+    await tap(harness, id, cardMsgId, "plan:confirm:pro");
+
+    // Assert — same answer, and still Free.
+    expect(lastMessageText(harness)).toContain("payments are coming soon");
     expect(await subscriptionRepository.findActiveByUser(userId)).toBeNull();
     expect((await userRepository.findById(userId))?.subscriptionPlan).toBe("free");
   });
