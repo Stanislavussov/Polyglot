@@ -22,7 +22,6 @@ vi.mock("./notification.formatter.js", () => ({
 
 import type { ServiceContainer } from "@polyglot/core";
 import { createServicesStub } from "../test-helpers/services-stub.js";
-import { LONG_OP_TIMEOUT_MS } from "../utils/long-op.js";
 import {
   handleNotifDeckCallback,
   handleNotifFeedbackCallback,
@@ -110,6 +109,19 @@ describe("handleNotifTranslateCallback", () => {
     await handleNotifTranslateCallback(ctx);
 
     expect(ctx.editMessageReplyMarkup).toHaveBeenCalledWith({ reply_markup: { inline_keyboard: [] } });
+  });
+
+  it("drops only its own button and keeps the others on the message", async () => {
+    const save = { text: "📥 To dictionary", callback_data: "notif:tr" };
+    const more = { text: "🔁 Another one", callback_data: "expr:more" };
+    const settings = { text: "⚙️", callback_data: "notif:settings" };
+    const ctx = createMockCtx("notif:tr", { inline_keyboard: [[save, more], [settings]] }, nudge);
+
+    await handleNotifTranslateCallback(ctx);
+
+    expect(ctx.editMessageReplyMarkup).toHaveBeenCalledWith({
+      reply_markup: { inline_keyboard: [[more], [settings]] },
+    });
   });
 
   it("does nothing when the message has no word to read", async () => {

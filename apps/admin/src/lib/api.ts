@@ -658,7 +658,8 @@ export type NotificationDeliveryKind =
   | "dictionary_empty"
   | "activation_nudge"
   | "trial"
-  | "release_announcement";
+  | "release_announcement"
+  | "expression";
 
 export interface NotificationDelivery {
   id: number;

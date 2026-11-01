@@ -52,7 +52,7 @@ export interface SrsConfig {
 
 export interface NotificationDefaults {
   defaultTime: string;
-  defaultType: "suggested" | "srs" | "contextual";
+  defaultType: "suggested" | "srs" | "contextual" | "expressions";
   inactivityDays: number;
   /** Max number of daily notification times a user can configure. */
   notificationTimesLimit: number;

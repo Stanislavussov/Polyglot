@@ -216,7 +216,7 @@ export const aiDefaultsSchema = z.object({
 
 export const notificationSettingsSchema = z.object({
   defaultTime: z.string().regex(/^\d{2}:\d{2}$/, "Use HH:MM format"),
-  defaultType: z.enum(["suggested", "srs", "contextual"]),
+  defaultType: z.enum(["suggested", "srs", "contextual", "expressions"]),
   inactivityDays: z.coerce.number().int("Inactivity days must be an integer").min(1),
   notificationTimesLimit: z.coerce
     .number()

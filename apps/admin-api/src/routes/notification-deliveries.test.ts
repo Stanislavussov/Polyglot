@@ -33,6 +33,7 @@ vi.mock("@polyglot/adapter-db", () => ({
     "activation_nudge",
     "trial",
     "release_announcement",
+    "expression",
   ],
   notificationDeliveryRepository: { list: mocks.list },
 }));

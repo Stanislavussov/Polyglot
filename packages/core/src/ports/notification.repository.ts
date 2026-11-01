@@ -1,7 +1,7 @@
 /**
  * Notification Repository Port.
  */
-export type NotificationType = "srs" | "suggested" | "contextual";
+export type NotificationType = "srs" | "suggested" | "contextual" | "expressions";
 
 export interface NotificationUser {
   userId: number;

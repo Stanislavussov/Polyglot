@@ -31,6 +31,7 @@ export const AI_CALL_WEIGHTS = {
   // check, but its own ledger tag: the daily allowance counts "[grammarCheck]" rows
   // only, so a mistaken language spends credits, never one of the day's checks.
   grammarCheckOutOfSet: 2,
+  expression: 1,
 } as const;
 
 export type AiCallType = keyof typeof AI_CALL_WEIGHTS;
