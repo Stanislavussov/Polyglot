@@ -146,6 +146,7 @@ export { enrichTrace, getTraceContext, newTraceId, runWithTrace } from "./observ
 
 export * from "./modules/context-enrichment/index.js";
 export * from "./modules/entitlements/index.js";
+export * from "./modules/grammar-check/index.js";
 export * from "./modules/i18n/index.js";
 export * from "./modules/idiom-analysis/index.js";
 export * from "./modules/input-analysis/index.js";

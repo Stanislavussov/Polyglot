@@ -165,7 +165,7 @@ module.exports = {
         path: "^packages/core/src/modules/([^/]+)/",
         // Modules with an explicit allow rule below are exempt from the default.
         pathNot:
-          "^packages/core/src/modules/(validation|translation|context-enrichment|notifications|tts)/",
+          "^packages/core/src/modules/(validation|translation|context-enrichment|notifications|tts|grammar-check)/",
       },
       to: {
         path: "^packages/core/src/modules/",
@@ -180,6 +180,16 @@ module.exports = {
       to: {
         path: "^packages/core/src/modules/",
         pathNot: "^packages/core/src/modules/(validation|i18n)/",
+      },
+    },
+    {
+      name: "core-grammar-check-allowlist",
+      comment: "grammar-check may import only i18n (language names, code normalization) among core modules",
+      severity: "error",
+      from: { path: "^packages/core/src/modules/grammar-check/" },
+      to: {
+        path: "^packages/core/src/modules/",
+        pathNot: "^packages/core/src/modules/(grammar-check|i18n)/",
       },
     },
     {
