@@ -495,5 +495,6 @@
   "grammarCategoryTense": "Час",
   "grammarCategorySpelling": "Орфографія",
   "grammarCategoryPunctuation": "Пунктуація",
-  "grammarCategoryOther": "Інше"
+  "grammarCategoryOther": "Інше",
+  "grammarCheckInputTooLong": "⚠️ Для однієї перевірки це задовго — надсилайте до {max} символів за раз."
 }

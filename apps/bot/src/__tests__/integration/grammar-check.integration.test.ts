@@ -132,11 +132,11 @@ describe("grammar check mode (integration)", () => {
     expect(generateObject).not.toHaveBeenCalled();
   });
 
-  it("allows the free plan five checks a day and refuses the sixth with the upgrade offer", async () => {
+  it("allows the free plan five checks a day, then refuses the sixth with the upgrade offer and hands the chat back to translation", async () => {
     // Arrange — the real free plan row, not an override: this is the seeded limit.
     const id = uniqueTelegramId();
     const userId = await arrangeOnboardedTranslator(id);
-    const { harness, checkCalls } = arrangeHarness();
+    const { harness, checkCalls, generateObject } = arrangeHarness();
     await harness.dispatch(messageUpdate({ chatId: id, fromId: id, text: "/check" }));
 
     // Act
@@ -148,21 +148,33 @@ describe("grammar check mode (integration)", () => {
 
     // Assert — refused before any AI call, with the limit named and the CTA attached
     expect(checkCalls).toHaveLength(5);
-    const refusal = sends(harness).at(-1);
-    expect(refusal?.payload.text).toBe(t("grammarCheckDailyLimitReached", "en", { limit: "5" }));
+    const limitText = t("grammarCheckDailyLimitReached", "en", { limit: "5" });
+    const refusal = sends(harness).find((call) => call.payload.text === limitText);
     expect(buttonsOf(refusal)).toContain("plan:upgrade");
     expect(await checksToday(userId)).toBe(5);
+    // Not trapped: a spent mode would answer every later message with the same refusal.
+    expect(String(sends(harness).at(-1)?.payload.text)).toContain("translation mode");
+    expect((await userRepository.getSettings(userId))?.activeMode).toBe("translate");
+    expect((await readSession(id)).activeMode).toBe("translate");
+
+    // The seventh message is translated.
+    const aiCallsBefore = vi.mocked(generateObject).mock.calls.length;
+    harness.reset();
+    await harness.dispatch(messageUpdate({ chatId: id, fromId: id, text: "hello" }));
+    expect(checkCalls).toHaveLength(5);
+    expect(vi.mocked(generateObject).mock.calls.length).toBeGreaterThan(aiCallsBefore);
 
     // A spent day also refuses re-entry, instead of opening a mode that only refuses.
     harness.reset();
     await harness.dispatch(messageUpdate({ chatId: id, fromId: id, text: "/check" }));
-    expect(sends(harness).at(-1)?.payload.text).toBe(t("grammarCheckDailyLimitReached", "en", { limit: "5" }));
+    expect(sends(harness).at(-1)?.payload.text).toBe(limitText);
+    expect((await userRepository.getSettings(userId))?.activeMode).toBe("translate");
   });
 
-  it("lists the checkable languages for a text in another language", async () => {
+  it("lists the checkable languages for a text in another language, without spending a daily check", async () => {
     // Arrange
     const id = uniqueTelegramId();
-    await arrangeOnboardedTranslator(id, { nativeLang: "en", learningLangs: ["cs"] });
+    const userId = await arrangeOnboardedTranslator(id, { nativeLang: "en", learningLangs: ["cs"] });
     const { harness } = arrangeHarness("fr");
     await harness.dispatch(messageUpdate({ chatId: id, fromId: id, text: "/check" }));
     harness.reset();
@@ -177,6 +189,11 @@ describe("grammar check mode (integration)", () => {
       t("grammarCheckUnsupportedLanguage", "en", { languages: `${getLangDisplay("en")}, ${getLangDisplay("cs")}` }),
     );
     expect(reply).not.toContain("<s>");
+    // The AI call is still billed to the credit meter, under its own ledger tag.
+    expect(await checksToday(userId)).toBe(0);
+    expect(
+      await translationRequestRepository.countRequestsInWindow(userId, "[grammarCheckOutOfSet]", getDailyWindowStart()),
+    ).toBe(1);
   });
 
   it("exits back to translation on the exit button, and the next word is translated", async () => {

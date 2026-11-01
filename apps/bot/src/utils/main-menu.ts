@@ -42,9 +42,9 @@ interface MenuItem {
  * The keyboard, in render order.
  *
  * Two rows of two. A fourth button on one line would leave each ~78dp on a 360dp chat, so
- * the grid trades height for width: ~160dp per button, and the width budget a `menuBtn*`
- * translation is cut to is now 2 per row — short single words (≤ 9 characters, cs
- * `Kartičky`/`Kontrola` are the widest) so all four read at a glance in every locale.
+ * the grid trades height for width: ~160dp per button. Labels are still kept to short
+ * single words (≤ 9 characters; cs `Kartičky`/`Kontrola` are the widest) so all four read
+ * at a glance in every locale.
  */
 const MAIN_MENU_ROWS: ReadonlyArray<readonly MenuItem[]> = [
   [

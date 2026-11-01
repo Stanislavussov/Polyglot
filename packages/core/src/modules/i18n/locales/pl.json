@@ -495,5 +495,6 @@
   "grammarCategoryTense": "Czas",
   "grammarCategorySpelling": "Pisownia",
   "grammarCategoryPunctuation": "Interpunkcja",
-  "grammarCategoryOther": "Inne"
+  "grammarCategoryOther": "Inne",
+  "grammarCheckInputTooLong": "⚠️ To trochę za długie na jedno sprawdzenie — wysyłaj maksymalnie {max} znaków naraz."
 }

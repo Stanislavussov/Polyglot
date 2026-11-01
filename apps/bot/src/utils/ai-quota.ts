@@ -27,6 +27,10 @@ export const AI_CALL_WEIGHTS = {
   wordPick: 3,
   etymology: 1,
   grammarCheck: 2,
+  // A check the service refused as outside the user's languages. Same cost as a
+  // check, but its own ledger tag: the daily allowance counts "[grammarCheck]" rows
+  // only, so a mistaken language spends credits, never one of the day's checks.
+  grammarCheckOutOfSet: 2,
 } as const;
 
 export type AiCallType = keyof typeof AI_CALL_WEIGHTS;

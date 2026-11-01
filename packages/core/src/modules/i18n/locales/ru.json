@@ -495,5 +495,6 @@
   "grammarCategoryTense": "Время",
   "grammarCategorySpelling": "Орфография",
   "grammarCategoryPunctuation": "Пунктуация",
-  "grammarCategoryOther": "Другое"
+  "grammarCategoryOther": "Другое",
+  "grammarCheckInputTooLong": "⚠️ Для одной проверки это длинновато — отправляйте до {max} символов за раз."
 }

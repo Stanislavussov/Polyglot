@@ -495,5 +495,6 @@
   "grammarCategoryTense": "Шақ",
   "grammarCategorySpelling": "Емле",
   "grammarCategoryPunctuation": "Тыныс белгілері",
-  "grammarCategoryOther": "Басқа"
+  "grammarCategoryOther": "Басқа",
+  "grammarCheckInputTooLong": "⚠️ Бір тексеру үшін бұл тым ұзын — бір жолы {max} таңбаға дейін жіберіңіз."
 }

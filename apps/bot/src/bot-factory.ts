@@ -206,6 +206,7 @@ import { handleSettingsCommand } from "./scenes/settings.scene.js";
 import { handleTemplateCommand } from "./scenes/template.scene.js";
 import { handleTranslateCommand } from "./scenes/translate.scene.js";
 import type { BotContext, ConversationContext, SessionData } from "./types.js";
+import { disarmPendingPrompts } from "./utils/disarm-prompts.js";
 import { NOOP_CALLBACK } from "./utils/long-op.js";
 import { mainMenuLabels, matchMenuTap } from "./utils/main-menu.js";
 import { RETRY_CALLBACK } from "./utils/retry-action.js";
@@ -432,17 +433,8 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
       // Counts taps on labels a previous keyboard version put on screen. When this
       // stops firing, LEGACY_MENU_LABELS in utils/main-menu.ts can be deleted.
       if (tap.legacy) logEvent("menu.legacy_tap", { action: tap.action });
-      // A hot button reaches its mode without passing through modeRouterMiddleware, which
-      // is where every "waiting for your next message" flag is consumed. Left armed,
-      // the user's next word is swallowed by a flow they walked away from — filed as a
-      // notification context, as the name of a new dictionary, as clarification context
-      // for the previous card, or as a question to the mentor about it — instead of being
-      // translated. Tapping a button is an explicit abandonment of the prompt, so they are
-      // all disarmed together.
-      ctx.session.awaitingNotifContext = false;
-      ctx.session.dictionaryWizard = undefined;
-      ctx.session.awaitingTranslationClarificationContext = undefined;
-      ctx.session.pendingCardMentorAsk = undefined;
+      // Tapping a button is an explicit abandonment of any prompt waiting for text.
+      disarmPendingPrompts(ctx.session);
       switch (tap.action) {
         case "flashcard":
           return handleFlashcardCommand(ctx);

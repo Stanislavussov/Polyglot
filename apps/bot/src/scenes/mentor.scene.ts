@@ -8,6 +8,7 @@ import { FEATURE_KEYS, isSupported, type SupportedLang, t } from "@polyglot/core
 import { startMentorThread } from "../modes/mode-policy.js";
 import { trackProductEvent } from "../observability/product-events.js";
 import type { BotContext } from "../types.js";
+import { disarmPendingPrompts } from "../utils/disarm-prompts.js";
 import { mentorExitKeyboard } from "./helpers/mentor-exit.helper.js";
 import { ensurePaidFeatureForMessage } from "./helpers/paid-feature.helper.js";
 
@@ -25,6 +26,7 @@ export async function handleMentorCommand(ctx: BotContext): Promise<void> {
     return;
   }
 
+  disarmPendingPrompts(ctx.session);
   // Set active mode to mentor (session + DB)
   ctx.session.activeMode = "mentor";
   await ctx.services.userRepository.updateActiveMode(ctx.user.id, "mentor");

@@ -9,6 +9,7 @@ import { getRequestSettings } from "../middlewares/request-settings.js";
 import { trackProductEvent } from "../observability/product-events.js";
 import type { BotContext } from "../types.js";
 import { ensureGrammarCheckDailyQuota } from "../utils/ai-quota.js";
+import { disarmPendingPrompts } from "../utils/disarm-prompts.js";
 import { grammarExitKeyboard } from "./helpers/grammar-check.helper.js";
 
 export async function handleGrammarCheckCommand(ctx: BotContext): Promise<void> {
@@ -22,6 +23,7 @@ export async function handleGrammarCheckCommand(ctx: BotContext): Promise<void> 
     return;
   }
 
+  disarmPendingPrompts(ctx.session);
   ctx.session.activeMode = "grammar";
   await ctx.services.userRepository.updateActiveMode(ctx.user.id, "grammar");
   trackProductEvent(ctx, "mode.switched", "grammar");

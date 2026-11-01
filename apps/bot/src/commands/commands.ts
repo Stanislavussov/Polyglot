@@ -37,8 +37,8 @@ const COMMAND_ICONS = {
  *
  * `/menu` is deliberately absent, and this list is why: the hub behind it holds the
  * dictionary, the learning modes, the settings and the bug report, which are all entries
- * already here (`/check` is the one entry the hub does not carry). A menu command inside the menu is one tap to reach the list the
- * user is already looking at.
+ * already here (`/check` is the one entry the hub does not carry). A menu command inside
+ * the menu is one tap to reach the list the user is already looking at.
  *
  * `/start` is absent for a different reason: Telegram offers its own START button on an
  * empty chat, and for everyone past onboarding the entry is only a way to lose their

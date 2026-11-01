@@ -495,5 +495,6 @@
   "grammarCategoryTense": "Temps",
   "grammarCategorySpelling": "Orthographe",
   "grammarCategoryPunctuation": "Ponctuation",
-  "grammarCategoryOther": "Autre"
+  "grammarCategoryOther": "Autre",
+  "grammarCheckInputTooLong": "⚠️ C'est un peu long pour une vérification — envoyez au maximum {max} caractères à la fois."
 }

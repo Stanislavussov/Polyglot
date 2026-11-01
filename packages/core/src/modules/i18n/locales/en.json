@@ -495,5 +495,6 @@
   "grammarCategoryTense": "Tense",
   "grammarCategorySpelling": "Spelling",
   "grammarCategoryPunctuation": "Punctuation",
-  "grammarCategoryOther": "Other"
+  "grammarCategoryOther": "Other",
+  "grammarCheckInputTooLong": "⚠️ That's a bit long for one check — please send up to {max} characters at a time."
 }

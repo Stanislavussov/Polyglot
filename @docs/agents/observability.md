@@ -37,7 +37,7 @@ retention is the control bounding it — check it before widening what is logged
 | Handlers | `handler.started` (debug), `.finished`, `.failed` |
 | Routing | `mode_router.routed`, `.rejected`, `.idle_fallback` |
 | Mentor | `mentor.idle_prompt_shown` (`idleMs`), `.idle_prompt_choice` (`stay` \| `translate` \| `stale`) |
-| Grammar check | `grammar_check.completed` (`language`, `issues`), `.unsupported_language` (`detectedLanguage`), `.failed` |
+| Grammar check | `grammar_check.completed` (`language`, `issues`), `.unsupported_language` (`detectedLanguage`), `.failed`, `.reply_failed` |
 | Telegram | `telegram.api.call`, `.body` (debug), `.failed` |
 | Session | `session.loaded`/`.saved`/`.miss` (debug), `.repaired`, `.reset`, `.deleted` |
 | Translation | `translation.language_detected`, `.direction_resolved`, `.completed`, `.failed`, `.clarification_requested` |

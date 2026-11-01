@@ -495,5 +495,6 @@
   "grammarCategoryTense": "Zeitform",
   "grammarCategorySpelling": "Rechtschreibung",
   "grammarCategoryPunctuation": "Zeichensetzung",
-  "grammarCategoryOther": "Sonstiges"
+  "grammarCategoryOther": "Sonstiges",
+  "grammarCheckInputTooLong": "⚠️ Das ist für eine Prüfung etwas lang — schick bitte höchstens {max} Zeichen auf einmal."
 }

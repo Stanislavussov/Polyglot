@@ -335,8 +335,28 @@ function closeForm(): void {
   formError.value = "";
 }
 
+/**
+ * Daily caps where an empty field means "unlimited". A typo must not reach the
+ * schema as NaN: it serialises to JSON `null`, which the API reads as unlimited.
+ */
+const DAILY_CAP_FIELDS = [
+  ["mentorDailyLimit", "Mentor turns / day"],
+  ["grammarCheckDailyLimit", "Grammar checks / day"],
+] as const;
+
+function invalidDailyCap(value: PlanForm): string | null {
+  for (const [field, label] of DAILY_CAP_FIELDS) {
+    const raw = value[field].trim();
+    if (raw !== "" && !Number.isInteger(Number(raw))) {
+      return `${label} must be a whole number — leave it empty for unlimited`;
+    }
+  }
+  return null;
+}
+
 async function save(): Promise<void> {
-  formError.value = "";
+  formError.value = invalidDailyCap(form.value) ?? "";
+  if (formError.value) return;
   const parsed = rateLimitPlanSchema.safeParse(toPlan(form.value));
   if (!parsed.success) {
     formError.value = zodErrorMessage(parsed.error);

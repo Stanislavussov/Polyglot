@@ -27,7 +27,9 @@ vi.mock("../../metrics.js", () => ({
 }));
 
 import { AITimeoutError, type GrammarCheckOutcome, t } from "@polyglot/core";
+import { GrammyError } from "grammy";
 import type { InlineKeyboardMarkup } from "grammy/types";
+import { grammarCheckCounter } from "../../metrics.js";
 import type { BotContext, SessionData } from "../../types.js";
 import { RETRY_CALLBACK, takeRetryAction } from "../../utils/retry-action.js";
 import { GRAMMAR_EXIT_CALLBACK, handleGrammarCheckText, renderGrammarCheck } from "./grammar-check.helper.js";
@@ -176,7 +178,7 @@ describe("handleGrammarCheckText", () => {
     await handleGrammarCheckText(ctx, "a".repeat(1001));
 
     expect(mockAi.generateObject).not.toHaveBeenCalled();
-    expect(answers(ctx)[0]?.[0]).toBe(t("mentorInputTooLong", "en", { max: 1000 }));
+    expect(answers(ctx)[0]?.[0]).toBe(t("grammarCheckInputTooLong", "en", { max: 1000 }));
   });
 
   it("refuses the sixth check of the day on a five-a-day plan, with the upgrade offer", async () => {
@@ -244,5 +246,75 @@ describe("handleGrammarCheckText", () => {
     expect(JSON.stringify(options?.reply_markup)).toContain(RETRY_CALLBACK);
     expect(takeRetryAction(ctx.session, 100)).toMatchObject({ kind: "grammar", text: "Ich habe gefahren." });
     expect(mockTranslationRequestRepository.logTranslationRequest).not.toHaveBeenCalled();
+  });
+  it("records an out-of-set language under its own ledger tag, so it costs credits but no daily check", async () => {
+    mockAi.generateObject.mockResolvedValue({
+      detectedLanguage: "fr",
+      errors: [],
+      correctedText: "",
+      naturalAlternative: null,
+    });
+    const ctx = createMockCtx();
+
+    await handleGrammarCheckText(ctx, "Je suis allé.");
+
+    expect(mockTranslationRequestRepository.logTranslationRequest).toHaveBeenCalledWith(
+      1,
+      "[grammarCheckOutOfSet]",
+      null,
+      [],
+      2,
+    );
+  });
+
+  it("hands a refused turn back to translation mode instead of trapping the user in a spent mode", async () => {
+    mockTranslationRequestRepository.countRequestsInWindow.mockResolvedValue(5);
+    const ctx = createMockCtx();
+
+    await handleGrammarCheckText(ctx, "Ich habe gefahren.");
+
+    expect(ctx.session.activeMode).toBe("translate");
+    expect(mockUserRepository.updateActiveMode).toHaveBeenCalledWith(1, "translate");
+    const replies = answers(ctx);
+    expect(JSON.stringify(replies[0]?.[1]?.reply_markup)).toContain("plan:upgrade");
+    expect(replies.at(-1)?.[0]).toContain("translation mode");
+  });
+
+  it("resends as plain text only when Telegram cannot parse the HTML, and never reports the delivered check as failed", async () => {
+    const parseError = new GrammyError(
+      "Call to 'sendMessage' failed!",
+      { ok: false, error_code: 400, description: "Bad Request: can't parse entities: unclosed tag" },
+      "sendMessage",
+      {},
+    );
+    const ctx = createMockCtx();
+    vi.mocked(ctx.reply).mockImplementation((async (_text: string, options?: { parse_mode?: string }) => {
+      if (options?.parse_mode === "HTML") throw parseError;
+      return { message_id: 100 };
+    }) as unknown as BotContext["reply"]);
+
+    await handleGrammarCheckText(ctx, "Ich habe gefahren.");
+
+    const [plain, options] = answers(ctx).at(-1) ?? [];
+    expect(options?.parse_mode).toBeUndefined();
+    expect(plain).toContain("1. habe gefahren → bin gefahren");
+    expect(plain).toContain("Movement verbs take <sein>.");
+    expect(plain).not.toContain("<b>");
+    expect(vi.mocked(grammarCheckCounter.inc).mock.calls).toEqual([[{ status: "success" }]]);
+  });
+
+  it("does not resend or show an error when the HTML send fails for any other reason", async () => {
+    const ctx = createMockCtx();
+    vi.mocked(ctx.reply).mockImplementation((async (_text: string, options?: { parse_mode?: string }) => {
+      if (options?.parse_mode === "HTML") throw new Error("network down");
+      return { message_id: 100 };
+    }) as unknown as BotContext["reply"]);
+
+    await handleGrammarCheckText(ctx, "Ich habe gefahren.");
+
+    const texts = answers(ctx).map(([text]) => text);
+    expect(texts.filter((text) => text.includes("habe gefahren"))).toHaveLength(1);
+    expect(texts).not.toContain(t("grammarCheckError", "en"));
+    expect(vi.mocked(grammarCheckCounter.inc).mock.calls).toEqual([[{ status: "success" }]]);
   });
 });
