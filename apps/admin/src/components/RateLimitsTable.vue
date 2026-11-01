@@ -17,6 +17,9 @@
       <template #cell-mentorDailyLimit="{ value }">
         <span>{{ value == null ? "Unlimited" : value }}</span>
       </template>
+      <template #cell-grammarCheckDailyLimit="{ value }">
+        <span>{{ value == null ? "Unlimited" : value }}</span>
+      </template>
       <template #cell-dailyCreditCeiling="{ value }">
         <span>{{ value == null ? "Default" : value }}</span>
       </template>
@@ -97,6 +100,13 @@
           placeholder="Leave empty for unlimited"
         />
         <FormField
+          id="plan-grammar-check-daily-limit"
+          v-model="form.grammarCheckDailyLimit"
+          label="Grammar checks / day"
+          name="grammarCheckDailyLimit"
+          placeholder="Leave empty for unlimited, 0 to turn it off"
+        />
+        <FormField
           id="plan-daily-ceiling"
           v-model="form.dailyCreditCeiling"
           label="Daily credit ceiling"
@@ -173,6 +183,7 @@ interface PlanForm {
   videoLimit: string;
   videoWindow: "none" | "lifetime" | "monthly";
   mentorDailyLimit: string;
+  grammarCheckDailyLimit: string;
   dailyCreditCeiling: string;
   /** Entered in cents so the stored value is exact; empty means "not for sale". */
   priceUsdCents: string;
@@ -197,6 +208,7 @@ const columns: Column[] = [
   { key: "videoLimit", label: "Videos" },
   { key: "videoWindow", label: "Video window" },
   { key: "mentorDailyLimit", label: "Mentor/day" },
+  { key: "grammarCheckDailyLimit", label: "Checks/day" },
   { key: "dailyCreditCeiling", label: "Ceiling/day" },
   { key: "price", label: "Price" },
   { key: "features", label: "Unlocks" },
@@ -233,6 +245,7 @@ function emptyForm(): PlanForm {
     videoLimit: "",
     videoWindow: "none",
     mentorDailyLimit: "",
+    grammarCheckDailyLimit: "",
     dailyCreditCeiling: "",
     priceUsdCents: "",
     isActive: true,
@@ -261,6 +274,7 @@ function toForm(plan: PlanLimitConfig): PlanForm {
     videoLimit: plan.videoLimit === null ? "" : String(plan.videoLimit),
     videoWindow: plan.videoWindow,
     mentorDailyLimit: plan.mentorDailyLimit === null ? "" : String(plan.mentorDailyLimit),
+    grammarCheckDailyLimit: plan.grammarCheckDailyLimit === null ? "" : String(plan.grammarCheckDailyLimit),
     dailyCreditCeiling: plan.dailyCreditCeiling === null ? "" : String(plan.dailyCreditCeiling),
     priceUsdCents: plan.priceUsdCents === null ? "" : String(plan.priceUsdCents),
     isActive: plan.isActive,
@@ -281,6 +295,8 @@ function toPlan(value: PlanForm): PlanLimitConfig {
     videoLimit: value.videoLimit.trim() === "" ? null : Number(value.videoLimit),
     videoWindow: value.videoWindow,
     mentorDailyLimit: value.mentorDailyLimit.trim() === "" ? null : Number(value.mentorDailyLimit),
+    grammarCheckDailyLimit:
+      value.grammarCheckDailyLimit.trim() === "" ? null : Number(value.grammarCheckDailyLimit),
     dailyCreditCeiling: value.dailyCreditCeiling.trim() === "" ? null : Number(value.dailyCreditCeiling),
     priceUsdCents: value.priceUsdCents.trim() === "" ? null : Number(value.priceUsdCents),
     isActive: value.isActive,

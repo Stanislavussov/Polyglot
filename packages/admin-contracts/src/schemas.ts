@@ -58,6 +58,17 @@ export const rateLimitPlanSchema = z.object({
     .nullable()
     .default(null),
   /**
+   * Max grammar checks per UTC day. `null` = unlimited, `0` = not in the plan.
+   * Required, unlike its neighbours: an absent field must not default to `null`,
+   * because here that silently uncaps a plan — and negatives are refused because
+   * `-1` is the column's "never configured" sentinel the deploy backfill replaces.
+   */
+  grammarCheckDailyLimit: z.coerce
+    .number()
+    .int("Grammar check daily limit must be an integer")
+    .min(0, "Grammar check daily limit cannot be negative")
+    .nullable(),
+  /**
    * Daily credit ceiling — the operational guard every account obeys, internal
    * roles included. Empty means the built-in default, never "no ceiling", so the
    * form cannot express an uncapped plan. `0` is rejected for the same reason a

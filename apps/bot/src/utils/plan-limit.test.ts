@@ -10,6 +10,7 @@ const free: PlanLimitConfig = {
   videoLimit: 3,
   videoWindow: "lifetime",
   mentorDailyLimit: null,
+  grammarCheckDailyLimit: null,
   priceUsdCents: null,
   isActive: true,
   isDefault: true,

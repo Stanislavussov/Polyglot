@@ -12,6 +12,8 @@ export interface PlanCatalogEntry {
   videoLimit: number | null;
   videoWindow: "none" | "lifetime" | "monthly";
   mentorDailyLimit: number | null;
+  /** Grammar checks per UTC day; null = unlimited, 0 = not in the plan. */
+  grammarCheckDailyLimit: number | null;
   /** Daily credit ceiling; null = the built-in default, never "no ceiling". */
   dailyCreditCeiling: number | null;
   priceUsdCents: number | null;
@@ -32,6 +34,9 @@ export interface PlanCatalogEntry {
 // translations a month, not 10. It holds no card feature — for one week it held
 // the grammar breakdown, and then that button left the card altogether (the
 // mentor answers grammar now), so the tier is back to translation alone.
+//
+// The grammar check is in every tier, so it has no feature key: its daily limit is
+// the gate (5 free, 50 Plus, unlimited above), and `0` would take it off a plan.
 const GRAMMAR_FEATURES: FeatureKey[] = ["grammarBreakdown", "etymology", "grammarDetail"];
 const PLUS_FEATURES: FeatureKey[] = [...GRAMMAR_FEATURES, "clarification", "mentor"];
 const PRO_FEATURES: FeatureKey[] = [...PLUS_FEATURES, "pronunciation", "voiceInput"];
@@ -45,6 +50,7 @@ export const DEFAULT_PLAN_CATALOG: PlanCatalogEntry[] = [
     videoLimit: 0,
     videoWindow: "none",
     mentorDailyLimit: 0,
+    grammarCheckDailyLimit: 5,
     dailyCreditCeiling: null,
     priceUsdCents: null,
     isActive: true,
@@ -61,6 +67,7 @@ export const DEFAULT_PLAN_CATALOG: PlanCatalogEntry[] = [
     // The mentor model is priced above the translate default, so unmetered
     // Plus still caps the expensive calls; unlimited mentor is Pro's pitch.
     mentorDailyLimit: 30,
+    grammarCheckDailyLimit: 50,
     dailyCreditCeiling: null,
     priceUsdCents: 500,
     isActive: true,
@@ -75,6 +82,7 @@ export const DEFAULT_PLAN_CATALOG: PlanCatalogEntry[] = [
     videoLimit: null,
     videoWindow: "monthly",
     mentorDailyLimit: null,
+    grammarCheckDailyLimit: null,
     dailyCreditCeiling: null,
     priceUsdCents: 1000,
     isActive: true,
@@ -89,6 +97,7 @@ export const DEFAULT_PLAN_CATALOG: PlanCatalogEntry[] = [
     videoLimit: null,
     videoWindow: "monthly",
     mentorDailyLimit: null,
+    grammarCheckDailyLimit: null,
     dailyCreditCeiling: null,
     priceUsdCents: null,
     isActive: true,

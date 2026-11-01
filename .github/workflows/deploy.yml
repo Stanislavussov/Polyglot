@@ -305,6 +305,14 @@ jobs:
             # and prod have both run it.
             docker compose run --rm --no-deps bot node apps/bot/dist/repair-self-language-translations.cli.js
 
+            # One-off backfill (see backfill-grammar-check-limits.cli.ts): the
+            # grammar-check limit column arrived with a -1 "never configured"
+            # sentinel, because NULL means unlimited. This gives those plans their
+            # default before the new bot starts; admin-saved values are never
+            # touched, so re-runs are no-ops. Remove this step, the CLI and its
+            # repository module once dev and prod have both run it.
+            docker compose run --rm --no-deps bot node apps/bot/dist/backfill-grammar-check-limits.cli.js
+
             # Dev only: wipe the configured tester accounts from the freshly
             # branched production data. The CLI itself refuses to run unless
             # POLYGLOT_ENV=development, so a stray call on prod is a no-op error.

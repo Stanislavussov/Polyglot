@@ -32,6 +32,7 @@ function plan(overrides: Record<string, unknown> = {}) {
     videoLimit: 20,
     videoWindow: "monthly",
     mentorDailyLimit: 30,
+    grammarCheckDailyLimit: null,
     priceUsdCents: 500,
     isActive: true,
     isDefault: false,

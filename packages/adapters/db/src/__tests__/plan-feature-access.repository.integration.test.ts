@@ -25,6 +25,7 @@ async function arrangePlan(): Promise<void> {
     videoLimit: null,
     videoWindow: "none",
     mentorDailyLimit: null,
+    grammarCheckDailyLimit: null,
     // Not for sale and inactive: invisible to upgrade screens rendered by
     // other integration tests sharing this database.
     priceUsdCents: null,

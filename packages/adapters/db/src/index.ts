@@ -43,6 +43,11 @@ export type {
   RecordDictionaryLookupLogInput,
 } from "./repositories/dictionary-lookup-log.repository.js";
 export { dictionaryLookupLogRepository } from "./repositories/dictionary-lookup-log.repository.js";
+export {
+  backfillGrammarCheckLimits,
+  GRAMMAR_CHECK_LIMIT_UNSET,
+  type GrammarCheckLimitBackfill,
+} from "./repositories/grammar-check-limit-backfill.js";
 export { identityRepository } from "./repositories/identity.repository.js";
 export type {
   Language,

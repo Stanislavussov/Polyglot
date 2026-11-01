@@ -1,0 +1,1 @@
+ALTER TABLE "rate_limit_plans" ADD COLUMN "grammar_check_daily_limit" integer DEFAULT -1;

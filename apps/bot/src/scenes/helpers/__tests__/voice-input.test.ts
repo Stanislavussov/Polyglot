@@ -31,6 +31,7 @@ const PRO_PLAN: PlanLimitConfig = {
   videoLimit: null,
   videoWindow: "monthly",
   mentorDailyLimit: null,
+  grammarCheckDailyLimit: null,
   priceUsdCents: 1000,
   isActive: true,
   isDefault: false,

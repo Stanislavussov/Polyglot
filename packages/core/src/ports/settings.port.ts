@@ -16,6 +16,8 @@ export interface PlanLimitConfig {
   videoWindow: VideoWindow;
   /** Max mentor turns per day (UTC window). null = unlimited */
   mentorDailyLimit: number | null;
+  /** Max grammar checks per day (UTC window). null = unlimited, 0 = not in the plan. */
+  grammarCheckDailyLimit: number | null;
   /**
    * Daily credit ceiling — the safety guard every account obeys. `null` means the
    * built-in default (`DEFAULT_DAILY_CREDIT_CEILING`), never "no ceiling", and so

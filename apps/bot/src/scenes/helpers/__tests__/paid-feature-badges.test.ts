@@ -33,6 +33,7 @@ function plan(name: string, priceUsdCents: number | null): PlanLimitConfig {
     videoLimit: name === "free" ? 0 : null,
     videoWindow: name === "free" ? "none" : "monthly",
     mentorDailyLimit: null,
+    grammarCheckDailyLimit: null,
     priceUsdCents,
     isActive: true,
     isDefault: name === "free",

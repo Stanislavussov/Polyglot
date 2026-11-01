@@ -779,6 +779,15 @@ export const rateLimitPlans = pgTable("rate_limit_plans", {
    */
   mentorDailyLimit: integer("mentor_daily_limit"),
   /**
+   * Max grammar checks per UTC day. `null` = unlimited, `0` = not in the plan.
+   * The `-1` default is the "never configured" sentinel: NULL already means
+   * unlimited, so a plain nullable ADD COLUMN would have made every existing plan
+   * (free included) unlimited. The deploy's backfill
+   * (`grammar-check-limit-backfill.ts`) replaces -1 with the plan's default; no
+   * write path ever stores -1, so the backfill can never undo an admin's choice.
+   */
+  grammarCheckDailyLimit: integer("grammar_check_daily_limit").default(-1),
+  /**
    * Credits per UTC day this plan's users can never exceed — the operational
    * guard on the AI bill, not a product limit. NULL means "use the built-in
    * default", never "no ceiling": an unlimited plan still has to have a norm,
