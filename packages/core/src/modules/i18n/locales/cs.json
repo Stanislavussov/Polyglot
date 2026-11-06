@@ -504,5 +504,10 @@
   "grammarCategorySpelling": "Pravopis",
   "grammarCategoryPunctuation": "Interpunkce",
   "grammarCategoryOther": "Jiné",
-  "grammarCheckInputTooLong": "⚠️ Na jednu kontrolu je to trochu dlouhé — posílejte prosím nejvýš {max} znaků najednou."
+  "grammarCheckInputTooLong": "⚠️ Na jednu kontrolu je to trochu dlouhé — posílejte prosím nejvýš {max} znaků najednou.",
+  "wordPackPublishButton": "📦 Udělat z toho sadu",
+  "wordPackPublishing": "📦 Sestavuji sadu ze slovníku „{name}“…",
+  "wordPackPublished": "📦 Sada „{name}“ je hotová: {kept} slov teď chodí těm, kdo přestali chodit. Příliš snadná, vynechaná: {tooEasy}.",
+  "wordPackNothing": "📦 Ve slovníku „{name}“ není žádné dost těžké slovo — do sady patří jen slova od B2.",
+  "wordPackFailed": "📦 Sadu se nepodařilo sestavit. Zkuste to za minutu."
 }

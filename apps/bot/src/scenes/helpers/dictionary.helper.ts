@@ -32,6 +32,7 @@ import { ensureAiQuota, recordAiUsage } from "../../utils/ai-quota.js";
 import { languageOrderFromSettings, makeLangCodeResolver, resolveLanguageOrder } from "../../utils/language-order.js";
 import { isUserFacingTimeout, LONG_OP_TIMEOUT_MS, withTimeout } from "../../utils/long-op.js";
 import { editMessageTextOrReply } from "./edit-message.helper.js";
+import { canPublishWordPack } from "./word-pack.helper.js";
 import { removeWord, restoreWord } from "./word-removal.js";
 
 const MAX_DICTIONARY_NAME_LENGTH = 32;
@@ -118,7 +119,15 @@ async function showDictionaryList(ctx: BotContext, dictionaryId: number, page: n
     dictionary.name,
     view.search,
   );
-  const kb = buildDictionaryListKeyboard(entries, safePage, totalPages, lang, dictionary.id, view);
+  const kb = buildDictionaryListKeyboard(
+    entries,
+    safePage,
+    totalPages,
+    lang,
+    dictionary.id,
+    view,
+    canPublishWordPack(ctx.user.audienceGroup),
+  );
 
   // A text message has no callback message to edit, so search results arrive as a new message.
   if (ctx.callbackQuery) {

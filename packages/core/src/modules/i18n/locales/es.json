@@ -504,5 +504,10 @@
   "grammarCategorySpelling": "Ortografía",
   "grammarCategoryPunctuation": "Puntuación",
   "grammarCategoryOther": "Otro",
-  "grammarCheckInputTooLong": "⚠️ Es demasiado largo para una revisión: envía hasta {max} caracteres cada vez."
+  "grammarCheckInputTooLong": "⚠️ Es demasiado largo para una revisión: envía hasta {max} caracteres cada vez.",
+  "wordPackPublishButton": "📦 Convertir en paquete",
+  "wordPackPublishing": "📦 Preparando un paquete con «{name}»…",
+  "wordPackPublished": "📦 El paquete «{name}» ya está activo: {kept} palabras llegan ahora a quienes dejaron de venir. Demasiado fáciles, fuera: {tooEasy}.",
+  "wordPackNothing": "📦 Ninguna palabra de «{name}» es lo bastante difícil para un paquete: solo entran palabras desde B2.",
+  "wordPackFailed": "📦 No se pudo crear el paquete. Inténtalo en un minuto."
 }

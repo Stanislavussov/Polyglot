@@ -504,5 +504,10 @@
   "grammarCategorySpelling": "Орфография",
   "grammarCategoryPunctuation": "Пунктуация",
   "grammarCategoryOther": "Другое",
-  "grammarCheckInputTooLong": "⚠️ Для одной проверки это длинновато — отправляйте до {max} символов за раз."
+  "grammarCheckInputTooLong": "⚠️ Для одной проверки это длинновато — отправляйте до {max} символов за раз.",
+  "wordPackPublishButton": "📦 Сделать набором",
+  "wordPackPublishing": "📦 Собираю набор из «{name}»…",
+  "wordPackPublished": "📦 Набор «{name}» готов: {kept} слов теперь уходят тем, кто перестал заходить. Слишком простых, не вошли: {tooEasy}.",
+  "wordPackNothing": "📦 В «{name}» нет достаточно сложных слов для набора — входят только слова от B2.",
+  "wordPackFailed": "📦 Не получилось собрать набор. Попробуйте через минуту."
 }

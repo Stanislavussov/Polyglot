@@ -174,6 +174,7 @@ export {
   vocabularyDictionaryRepository,
 } from "./repositories/vocabulary-dictionary.repository.js";
 export { wordContextRepository } from "./repositories/word-context.repository.js";
+export { wordPackRepository } from "./repositories/word-pack.repository.js";
 export type { WordPickerPreset, WordPickerPresetInput } from "./repositories/word-picker-preset.repository.js";
 export { wordPickerPresetRepository } from "./repositories/word-picker-preset.repository.js";
 export type {

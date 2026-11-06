@@ -504,5 +504,10 @@
   "grammarCategorySpelling": "Pisownia",
   "grammarCategoryPunctuation": "Interpunkcja",
   "grammarCategoryOther": "Inne",
-  "grammarCheckInputTooLong": "⚠️ To trochę za długie na jedno sprawdzenie — wysyłaj maksymalnie {max} znaków naraz."
+  "grammarCheckInputTooLong": "⚠️ To trochę za długie na jedno sprawdzenie — wysyłaj maksymalnie {max} znaków naraz.",
+  "wordPackPublishButton": "📦 Zrób z tego zestaw",
+  "wordPackPublishing": "📦 Tworzę zestaw ze słownika „{name}”…",
+  "wordPackPublished": "📦 Zestaw „{name}” działa: {kept} słów trafia teraz do osób, które przestały zaglądać. Zbyt łatwe, pominięte: {tooEasy}.",
+  "wordPackNothing": "📦 W „{name}” nie ma wystarczająco trudnych słów na zestaw — wchodzą tylko słowa od B2.",
+  "wordPackFailed": "📦 Nie udało się utworzyć zestawu. Spróbuj za minutę."
 }

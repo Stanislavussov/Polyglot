@@ -88,6 +88,7 @@ describe("notification feedback (integration)", () => {
       ...deps,
       now: () => DELIVERY_TEST_SLOT_UTC,
       pickPresetWord: async () => null,
+      pickPackWord: async () => null,
     });
 
     // Assert — the wire: this chat's card offers Reveal, Remove and the settings — no grade row.

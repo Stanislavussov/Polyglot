@@ -132,8 +132,8 @@ const WORD_PICKERS: Record<NotificationType, WordPicker> = {
  * Choose what to send, in layers.
  *
  * 1. the user's own vocabulary — always the most relevant thing we have;
- * 2. a curated preset, when the dictionary is empty or every word in it has
- *    already been sent inside the de-dup window;
+ * 2. a word from an editor's pack, then a curated hook word, when the dictionary
+ *    is empty or every word in it has already been sent inside the de-dup window;
  * 3. nothing, and the caller shows the empty-dictionary prompt.
  *
  * `recentWords` carries the rolling de-dup window plus the single last-sent
@@ -151,6 +151,13 @@ async function pickWordForUser(
   if (fromDictionary) return fromDictionary;
 
   logEvent("notification.dictionary_exhausted", { recentWordCount: recentWords.length });
+
+  const langs = { userId: user.userId, nativeLang: user.nativeLang, learningLangs: user.learningLangs };
+  const packHistory = await deps
+    .getSentWordsFromSourceSince(user.userId, "pack", new Date(Date.now() - PRESET_DEDUP_WINDOW_MS))
+    .catch(() => []);
+  const fromPack = await deps.pickPackWord(langs, dedupe([...recentWords, ...packHistory]));
+  if (fromPack) return fromPack;
 
   // Queried only on this path, so the common case — the dictionary had a word —
   // still costs one history read per user per tick.
@@ -399,8 +406,8 @@ async function runNotificationBatch(sendFn: SendFn, deps: SchedulerDeps): Promis
 const LAPSE_DEDUP_WINDOW_MS = PRESET_DEDUP_WINDOW_MS;
 
 /**
- * Pick the word a lapsed subscriber gets: their own vocabulary first, the
- * curated presets when it has nothing left.
+ * Pick the word a lapsed subscriber gets: a pack word they have not seen, then
+ * their own vocabulary, then the curated presets.
  *
  * Deliberately NOT `pickWordForUser`: that one honours `notificationType`, and
  * the `contextual` branch bills an AI generation per card. Spending that every
@@ -420,6 +427,11 @@ async function pickLapsedWord(
   lastSent: string | null,
 ): Promise<SuggestedWord | null> {
   const presetUser = { userId: user.userId, nativeLang: user.nativeLang, learningLangs: user.learningLangs };
+
+  // A pack word leads: this card exists to surprise someone who stopped coming,
+  // and their own dictionary is the thing that did not hold them.
+  const fromPack = await deps.pickPackWord(presetUser, seenWords);
+  if (fromPack) return fromPack;
 
   const fromDictionary = await deps.pickDictionaryWord(user.userId, seenWords);
   if (fromDictionary) return fromDictionary;

@@ -47,10 +47,11 @@ Behavioral invariants, not API surface — read source for signatures.
   `notification_times` — an enabled user with an empty schedule never receives anything.
   `userRepository.updateNotificationPrefs` has no production callers and must not become a
   second enable path (knip won't warn: `exports` is off).
-- **Word selection is layered and never repeats:** dictionary → curated preset (when the
-  dictionary is empty or exhausted) → empty-dictionary prompt. A picker with nothing new
-  returns `null`. Presets come from the reviewed demo-card cache, else translated
-  just-in-time.
+- **Word selection is layered and never repeats:** dictionary → editor's word pack → curated
+  preset (when the dictionary is empty or exhausted) → empty-dictionary prompt. A lapsed
+  user's card puts the pack first (Task 87). A picker with nothing new returns `null`; the
+  pack layer never recycles a word. Pack and preset words come from the reviewed demo-card
+  cache, else translated just-in-time.
 - **A dictionary word is a card** (Task 86): the review-deck picker (due first, one card per
   entry, `notification_batch_size` of them) goes ahead of those layers for every type but
   `contextual`, and every card's word is recorded in the history. Reveal builds the deck on

@@ -192,6 +192,7 @@ import {
   handleVideoTryCallback,
   VIDEO_TRY_PATTERN,
 } from "./scenes/helpers/video-vocabulary.helper.js";
+import { handleDictPack } from "./scenes/helpers/word-pack.helper.js";
 import {
   handlePickCloseCallback,
   handlePickLangCallback,
@@ -595,6 +596,7 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   onCallback(/^dict:search-clear:/, handleDictSearchClear);
   onCallback(/^dict:search:/, handleDictSearch);
   onCallback(/^dict:sort:/, handleDictSort);
+  onCallback(/^dict:pack:/, handleDictPack);
   onCallback("dict:close", handleDictClose);
   onCallback("dict:noop", handleDictNoop);
 

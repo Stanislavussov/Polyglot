@@ -261,6 +261,15 @@ export const callbackContracts = [
   },
   {
     family: "dictionary",
+    prefix: "dict:pack",
+    restartSafety: "stateless-restorable",
+    durableLookupKey: "dictionary id",
+    dbSource: "vocabulary_dictionaries scoped by user id; publishes into word_packs",
+    expiryBehavior: "admin-only; republishing refreshes the same pack",
+    maxExampleData: "dict:pack:2147483647",
+  },
+  {
+    family: "dictionary",
     prefix: "dict:close",
     restartSafety: "stateless-restorable",
     durableLookupKey: "none",

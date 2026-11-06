@@ -27,6 +27,7 @@ import type { UserRepository } from "./user.repository.js";
 import type { VideoVocabularyRepository } from "./video-vocabulary.repository.js";
 import type { VocabularyRepository } from "./vocabulary.repository.js";
 import type { VocabularyDictionaryRepository } from "./vocabulary-dictionary.repository.js";
+import type { WordPackRepository } from "./word-pack.repository.js";
 import type { WordPickerPresetRepository, WordPickerRunRepository } from "./word-picker.repository.js";
 import type { WordReviewRepository } from "./word-review.repository.js";
 
@@ -75,6 +76,8 @@ export interface ServiceContainer {
   wordPickerPresetRepository: WordPickerPresetRepository;
   /** Generated word-picker sets and the items in them. */
   wordPickerRunRepository: WordPickerRunRepository;
+  /** Curated words a lapsed learner is won back with (Task 87). */
+  wordPackRepository: WordPackRepository;
   paymentPort?: PaymentPort;
   subscriptionRepository?: SubscriptionRepository;
 }

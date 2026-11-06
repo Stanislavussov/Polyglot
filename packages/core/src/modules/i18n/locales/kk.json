@@ -504,5 +504,10 @@
   "grammarCategorySpelling": "Емле",
   "grammarCategoryPunctuation": "Тыныс белгілері",
   "grammarCategoryOther": "Басқа",
-  "grammarCheckInputTooLong": "⚠️ Бір тексеру үшін бұл тым ұзын — бір жолы {max} таңбаға дейін жіберіңіз."
+  "grammarCheckInputTooLong": "⚠️ Бір тексеру үшін бұл тым ұзын — бір жолы {max} таңбаға дейін жіберіңіз.",
+  "wordPackPublishButton": "📦 Жинақ ету",
+  "wordPackPublishing": "📦 «{name}» сөздігінен жинақ құрастырып жатырмын…",
+  "wordPackPublished": "📦 «{name}» жинағы іске қосылды: {kept} сөз енді кіруді доғарғандарға жіберіледі. Тым оңай, енбеді: {tooEasy}.",
+  "wordPackNothing": "📦 «{name}» ішінде жинаққа жететін күрделі сөз жоқ — тек B2 деңгейінен бастап сөздер енеді.",
+  "wordPackFailed": "📦 Жинақ құрастыру мүмкін болмады. Бір минуттан соң қайталап көріңіз."
 }

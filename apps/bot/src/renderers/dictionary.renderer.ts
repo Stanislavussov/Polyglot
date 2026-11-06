@@ -170,6 +170,7 @@ export function buildDictionaryListKeyboard(
   lang: SupportedLang,
   dictionaryId: number,
   view: DictionaryListOptions = {},
+  canPublishPack = false,
 ): InlineKeyboard {
   const l = toLang(lang);
   const kb = new InlineKeyboard();
@@ -206,6 +207,10 @@ export function buildDictionaryListKeyboard(
   }
   if (view.search) {
     kb.text(t("dictionarySearchClear", l), `dict:search-clear:${dictionaryId}`).row();
+  }
+
+  if (canPublishPack && entries.length > 0) {
+    kb.text(t("wordPackPublishButton", l), `dict:pack:${dictionaryId}`).row();
   }
 
   // Close row

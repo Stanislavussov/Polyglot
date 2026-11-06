@@ -165,11 +165,21 @@ module.exports = {
         path: "^packages/core/src/modules/([^/]+)/",
         // Modules with an explicit allow rule below are exempt from the default.
         pathNot:
-          "^packages/core/src/modules/(validation|translation|context-enrichment|notifications|expressions|tts|grammar-check)/",
+          "^packages/core/src/modules/(validation|translation|context-enrichment|notifications|expressions|tts|grammar-check|word-packs)/",
       },
       to: {
         path: "^packages/core/src/modules/",
         pathNot: "^packages/core/src/modules/$1/",
+      },
+    },
+    {
+      name: "core-word-packs-allowlist",
+      comment: "word-packs may import only word-picker (CEFR levels, word normalization) among core modules",
+      severity: "error",
+      from: { path: "^packages/core/src/modules/word-packs/" },
+      to: {
+        path: "^packages/core/src/modules/",
+        pathNot: "^packages/core/src/modules/(word-packs|word-picker)/",
       },
     },
     {

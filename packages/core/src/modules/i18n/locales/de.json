@@ -504,5 +504,10 @@
   "grammarCategorySpelling": "Rechtschreibung",
   "grammarCategoryPunctuation": "Zeichensetzung",
   "grammarCategoryOther": "Sonstiges",
-  "grammarCheckInputTooLong": "⚠️ Das ist für eine Prüfung etwas lang — schick bitte höchstens {max} Zeichen auf einmal."
+  "grammarCheckInputTooLong": "⚠️ Das ist für eine Prüfung etwas lang — schick bitte höchstens {max} Zeichen auf einmal.",
+  "wordPackPublishButton": "📦 Als Paket veröffentlichen",
+  "wordPackPublishing": "📦 Stelle ein Paket aus „{name}“ zusammen…",
+  "wordPackPublished": "📦 Paket „{name}“ ist live: {kept} Wörter gehen jetzt an Lernende, die nicht mehr vorbeikommen. Zu leicht, weggelassen: {tooEasy}.",
+  "wordPackNothing": "📦 In „{name}“ ist kein Wort schwer genug für ein Paket — nur Wörter ab B2 kommen hinein.",
+  "wordPackFailed": "📦 Das Paket konnte nicht erstellt werden. Versuch es in einer Minute noch einmal."
 }

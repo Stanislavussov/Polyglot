@@ -1274,6 +1274,58 @@ export const wordPickerItems = pgTable(
 export type WordPickerItem = typeof wordPickerItems.$inferSelect;
 
 // ─────────────────────────────────────────────
+// Word packs — an author's saved words, localized so a lapsed learner can be won
+// back with one in the language they study (Task 87)
+// ─────────────────────────────────────────────
+export const wordPacks = pgTable(
+  "word_packs",
+  {
+    id: serial("id").primaryKey(),
+    /** Stable key; a pack published from a dictionary is `dict-<dictionaryId>`. */
+    slug: varchar("slug", { length: 64 }).notNull(),
+    emoji: varchar("emoji", { length: 16 }).default("📦").notNull(),
+    title: varchar("title", { length: 120 }).notNull(),
+    /** Interface-language code → title. Partial by design; missing codes fall back to `title`. */
+    titleI18n: jsonb("title_i18n").$type<Record<string, string>>().default({}).notNull(),
+    isActive: boolean("is_active").default(true).notNull(),
+    /** `set null`: deleting the author's dictionary must not take a pack users are receiving. */
+    sourceDictionaryId: integer("source_dictionary_id").references(() => vocabularyDictionaries.id, {
+      onDelete: "set null",
+    }),
+    createdByUserId: integer("created_by_user_id").references(() => users.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [uniqueIndex("wpk_slug_idx").on(t.slug)],
+);
+
+export type WordPackRow = typeof wordPacks.$inferSelect;
+
+export const wordPackItems = pgTable(
+  "word_pack_items",
+  {
+    id: serial("id").primaryKey(),
+    packId: integer("pack_id")
+      .references(() => wordPacks.id, { onDelete: "cascade" })
+      .notNull(),
+    /** The word as the author saved it, and its language (ISO 639-1). */
+    sourceLang: text("source_lang").notNull(),
+    sourceHeadword: text("source_headword").notNull(),
+    /** CEFR level of the source word. */
+    level: varchar("level", { length: 8 }).notNull(),
+    emoji: varchar("emoji", { length: 16 }),
+    /** Language code → the word in that language; a language with no real equivalent is absent. */
+    headwords: jsonb("headwords").$type<Record<string, string>>().notNull(),
+    isActive: boolean("is_active").default(true).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [uniqueIndex("wpki_pack_source_idx").on(t.packId, t.sourceLang, t.sourceHeadword)],
+);
+
+export type WordPackItemRow = typeof wordPackItems.$inferSelect;
+
+// ─────────────────────────────────────────────
 // Momentum — effort journal + per-user snapshot (Task 81)
 // ─────────────────────────────────────────────
 

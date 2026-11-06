@@ -504,5 +504,10 @@
   "grammarCategorySpelling": "Spelling",
   "grammarCategoryPunctuation": "Punctuation",
   "grammarCategoryOther": "Other",
-  "grammarCheckInputTooLong": "⚠️ That's a bit long for one check — please send up to {max} characters at a time."
+  "grammarCheckInputTooLong": "⚠️ That's a bit long for one check — please send up to {max} characters at a time.",
+  "wordPackPublishButton": "📦 Make it a pack",
+  "wordPackPublishing": "📦 Building a pack from “{name}”…",
+  "wordPackPublished": "📦 Pack “{name}” is live: {kept} words now go out to learners who stopped coming. Too easy, left out: {tooEasy}.",
+  "wordPackNothing": "📦 No word in “{name}” is hard enough for a pack — only words from B2 up make it in.",
+  "wordPackFailed": "📦 Couldn't build the pack. Try again in a minute."
 }
