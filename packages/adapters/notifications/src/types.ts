@@ -7,6 +7,7 @@
 import type {
   CardsDeckCard,
   DictionaryContext,
+  GeneratedExpression,
   GenerateObjectFn,
   NotificationType,
   NotificationUser,
@@ -67,6 +68,8 @@ export interface SuggestedWord {
   dictionaryContext?: DictionaryContext;
   /** Vocabulary entry ID (for reveal/delete actions in notifications). */
   entryId?: number;
+  /** Present when `source` is `expressions`: meaning, source and example for the card. */
+  expression?: GeneratedExpression;
 }
 
 /** Brief translation context for notification display. */
@@ -157,6 +160,15 @@ export interface ContextualWordPickerDeps {
 
   /** AI model to use for contextual generation. When unset, contextual picks are skipped. */
   contextualModel?: string;
+}
+
+/** Dependencies for the expressions picker. */
+export interface ExpressionPickerDeps {
+  generateObject: GenerateObjectFn;
+  /** When unset, expression picks are skipped and the scheduler falls back to words. */
+  model?: string;
+  /** Clock for the per-slot seed. */
+  now?: () => Date;
 }
 
 /**
@@ -259,6 +271,12 @@ export interface SchedulerDeps {
     userId: number,
     context: string,
     langs: { nativeLang: string; learningLangs: string[] },
+    recentWords?: string[],
+  ) => Promise<SuggestedWord | null>;
+
+  /** Generate an idiom, quote or reference (for 'expressions' type). Null = fall back to words. */
+  pickExpression: (
+    user: { userId: number; nativeLang: string; learningLangs: string[] },
     recentWords?: string[],
   ) => Promise<SuggestedWord | null>;
 

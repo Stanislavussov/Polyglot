@@ -244,8 +244,8 @@ export interface SessionData {
   pendingRetries?: Record<
     string,
     {
-      /** Which flow to re-run: the translate text flow or a mentor turn. */
-      kind: "translate" | "mentor";
+      /** Which flow to re-run: the translate text flow, a mentor turn, or a grammar check. */
+      kind: "translate" | "mentor" | "grammar";
       /** The original user input, verbatim as the flow's entry point takes it. */
       text: string;
       /** Mentor only: the thread the timed-out turn belonged to, so a retried reply-continuation lands in the same thread. */

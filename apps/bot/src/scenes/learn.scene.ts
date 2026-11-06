@@ -13,6 +13,7 @@ import { InlineKeyboard } from "grammy";
 import type { BotContext } from "../types.js";
 import { handleFlashcardCommand } from "./flashcard.scene.js";
 import { dismissMenuMessage } from "./helpers/edit-message.helper.js";
+import { handleExpressionsCommand } from "./helpers/expressions.helper.js";
 import { handleVideosCommand } from "./helpers/video-vocabulary.helper.js";
 import { handlePickWordsCommand } from "./helpers/word-picker.helper.js";
 import { handleMentorCommand } from "./mentor.scene.js";
@@ -26,13 +27,14 @@ interface LearnMode {
 
 /**
  * Modes in render order: what to do with words you do not have yet, then the drill
- * over words you do, then the two open-ended sources.
+ * over words you do, then the open-ended sources.
  */
 const LEARN_MODES: readonly LearnMode[] = [
   { callback: "lrn:pick", icon: "✨", labelKey: "menuBtnPickWords", run: handlePickWordsCommand },
   { callback: "lrn:cards", icon: "🎴", labelKey: "menuBtnFlashcards", run: handleFlashcardCommand },
   { callback: "lrn:videos", icon: "🎬", labelKey: "menuBtnVideos", run: handleVideosCommand },
   { callback: "lrn:mentor", icon: "🧑‍🏫", labelKey: "menuBtnMentor", run: handleMentorCommand },
+  { callback: "lrn:expr", icon: "💬", labelKey: "menuBtnExpressions", run: handleExpressionsCommand },
 ];
 
 /** The hub's 🔁 Review entry was merged into Cards (Task 85); its buttons still sit in chat history. */

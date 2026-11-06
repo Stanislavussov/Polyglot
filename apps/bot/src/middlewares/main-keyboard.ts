@@ -17,7 +17,7 @@ import { buildMainKeyboard } from "../utils/main-menu.js";
 import { getRequestSettings } from "./request-settings.js";
 
 /** Bump when the keyboard's layout or markup changes, to re-send it to every user once. */
-export const MAIN_KEYBOARD_VERSION = 7;
+export const MAIN_KEYBOARD_VERSION = 8;
 
 /**
  * Sends `text` with the main-menu keyboard attached.

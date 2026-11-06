@@ -1,9 +1,9 @@
 /**
  * Hot buttons — the reply keyboard behind the keyboard icon next to the input field.
  *
- * Three buttons, and deliberately not a menu: the deck, the mentor and the dictionary are
- * what a learner reaches for several times a session, so they are one tap with nothing in
- * front of them. Everything else — the other practice modes, settings, the bug report —
+ * Four buttons, and deliberately not a menu: the deck, the mentor, the dictionary and the
+ * grammar check are what a learner reaches for several times a session, so they are one tap
+ * with nothing in front of them. Everything else — the other practice modes, settings, the bug report —
  * lives behind `/menu`, which arrives as its own message (see `menu.scene.ts`).
  *
  * The command list (`commands.ts`) carries the same entry points, because a reply keyboard
@@ -15,7 +15,7 @@ import { getSupportedLangs, type I18nKey, type SupportedLang, t } from "@polyglo
 import { Keyboard } from "grammy";
 
 /** A hot button — one tap, no menu in front of it. */
-export type MainMenuAction = "flashcard" | "mentor" | "dictionary";
+export type MainMenuAction = "flashcard" | "mentor" | "dictionary" | "grammar";
 
 /**
  * Entry points that used to have their own keyboard button and now live inside `/menu`.
@@ -41,16 +41,19 @@ interface MenuItem {
 /**
  * The keyboard, in render order.
  *
- * One row of three, which is the density Telegram renders on a single line. That is the
- * width budget the labels are cut to: a 360dp chat leaves roughly 104dp per button, so a
- * `menuBtn*` translation here should stay near 9–10 characters — es `Diccionario` (11) is
- * the widest and wraps rather than truncating.
+ * Two rows of two. A fourth button on one line would leave each ~78dp on a 360dp chat, so
+ * the grid trades height for width: ~160dp per button. Labels are still kept to short
+ * single words (≤ 9 characters; cs `Kartičky`/`Kontrola` are the widest) so all four read
+ * at a glance in every locale.
  */
 const MAIN_MENU_ROWS: ReadonlyArray<readonly MenuItem[]> = [
   [
     { action: "flashcard", icon: "🎴", labelKey: "menuBtnFlashcards" },
     { action: "mentor", icon: "🧑‍🏫", labelKey: "menuBtnMentor" },
+  ],
+  [
     { action: "dictionary", icon: "📖", labelKey: "menuBtnDictionary" },
+    { action: "grammar", icon: "✍️", labelKey: "menuBtnGrammarCheck" },
   ],
 ];
 
@@ -64,8 +67,9 @@ const MAIN_MENU_ROWS: ReadonlyArray<readonly MenuItem[]> = [
  * would send the tap past `bot.hears` into the mode router, and the bot would *translate
  * the word "Подбор"* instead of opening the picker.
  *
- * Only `pick` and `videos` need entries: they left the keyboard for `/menu`. The three
- * live hot buttons keep their shipped labels, so those are already indexed as current.
+ * `pick` and `videos` left the keyboard for `/menu`. `flashcard` and `dictionary` stayed
+ * but were shortened when the grid went to 2×2 (keyboard v8); their pre-v8 labels are the
+ * ones listed below. A label that did not change is already indexed as current.
  *
  * The strings are literals rather than `t()` lookups on purpose. The keys are still live —
  * `menuBtnPickWords` labels the button inside the learning hub — and a translator improving
@@ -107,6 +111,9 @@ const LEGACY_MENU_LABELS: ReadonlyArray<readonly [MenuTapAction, readonly string
     "videos",
     ["🎬 Videos", "🎬 Видео", "🎬 Videa", "🎬 Vídeos", "🎬 Vidéos", "🎬 Video", "🎬 Бейнелер", "🎬 Filmy", "🎬 Відео"],
   ],
+  // Shortened for the 2×2 grid (v8).
+  ["flashcard", ["🎴 Карталар"]],
+  ["dictionary", ["📖 Dictionary", "📖 Wörterbuch", "📖 Diccionario", "📖 Dizionario", "📖 Dicionário"]],
 ];
 
 function buttonLabel(item: MenuItem, lang: SupportedLang): string {

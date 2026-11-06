@@ -21,6 +21,7 @@ export interface BotCommand {
 const COMMAND_ICONS = {
   learn: "🎓",
   dictionary: "📖",
+  check: "✍️",
   settings: "⚙️",
   report: "🐛",
 } as const;
@@ -35,9 +36,9 @@ const COMMAND_ICONS = {
  * menu into a wall of text.
  *
  * `/menu` is deliberately absent, and this list is why: the hub behind it holds the
- * dictionary, the learning modes, the settings and the bug report, which are the four
- * entries already here. A menu command inside the menu is one tap to reach the list the
- * user is already looking at.
+ * dictionary, the learning modes, the settings and the bug report, which are all entries
+ * already here (`/check` is the one entry the hub does not carry). A menu command inside
+ * the menu is one tap to reach the list the user is already looking at.
  *
  * `/start` is absent for a different reason: Telegram offers its own START button on an
  * empty chat, and for everyone past onboarding the entry is only a way to lose their
@@ -52,6 +53,7 @@ export function getLocalizedCommands(lang: SupportedLang): BotCommand[] {
   return [
     { command: "learn", description: `${COMMAND_ICONS.learn} ${t("cmdDescLearn", lang)}` },
     { command: "dictionary", description: `${COMMAND_ICONS.dictionary} ${t("cmdDescDictionary", lang)}` },
+    { command: "check", description: `${COMMAND_ICONS.check} ${t("cmdDescCheck", lang)}` },
     { command: "settings", description: `${COMMAND_ICONS.settings} ${t("cmdDescSettings", lang)}` },
     { command: "report", description: `${COMMAND_ICONS.report} ${t("cmdDescReport", lang)}` },
   ];

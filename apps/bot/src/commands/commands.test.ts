@@ -5,7 +5,7 @@ describe("bot commands", () => {
   it("leads with the practice entries and trails with configuration", () => {
     const listed = getLocalizedCommands("en").map((command) => command.command);
 
-    expect(listed).toEqual(["learn", "dictionary", "settings", "report"]);
+    expect(listed).toEqual(["learn", "dictionary", "check", "settings", "report"]);
   });
 
   it("keeps the retired entry points out of the list", () => {
@@ -14,7 +14,7 @@ describe("bot commands", () => {
     // They stay registered in bot-factory so typing them still works; only the
     // advertisement is gone, which is what keeps the list short. /start is in this
     // set too (Telegram shows its own START button on an empty chat), and so is
-    // /menu — its hub holds exactly the four entries this list already carries.
+    // /menu — every entry its hub holds is already on this list.
     for (const retired of [
       "start",
       "menu",
@@ -50,6 +50,7 @@ describe("bot commands", () => {
     expect((commands as ReturnType<typeof getLocalizedCommands>).map((c) => c.command)).toEqual([
       "learn",
       "dictionary",
+      "check",
       "settings",
       "report",
     ]);

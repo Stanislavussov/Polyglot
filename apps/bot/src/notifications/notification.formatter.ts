@@ -10,6 +10,7 @@ import type { NotificationPayload } from "@polyglot/adapter-notifications";
 import { type I18nKey, type SupportedLang, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import { assembleCard, emptySections, esc, headwordLine } from "../renderers/card-sections.js";
+import { EXPRESSION_SAVE_CALLBACK } from "../renderers/expression.renderer.js";
 
 /**
  * The recall questions a notification rotates through. One fixed sentence under a
@@ -102,6 +103,11 @@ export const NOTIF_SETTINGS_CALLBACK = "notif:settings";
 
 function appendSettingsRow(kb: InlineKeyboard, lang: SupportedLang): InlineKeyboard {
   return kb.row().text(t("notifSettingsButton", lang), NOTIF_SETTINGS_CALLBACK);
+}
+
+/** An expression has no entry yet; saving it goes through the same translate-then-save path as Reveal. */
+export function buildExpressionNotificationKeyboard(lang: SupportedLang): InlineKeyboard {
+  return appendSettingsRow(new InlineKeyboard().text(t("exprSaveButton", lang), EXPRESSION_SAVE_CALLBACK), lang);
 }
 
 /** For a notification with nothing else to tap — the lapsed-user message, the empty-dictionary prompt. */

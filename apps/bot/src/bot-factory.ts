@@ -52,6 +52,7 @@ import {
 } from "./onboarding/onboarding-handlers.js";
 import { handleDictionaryCommand } from "./scenes/dictionary.scene.js";
 import { handleFlashcardCommand } from "./scenes/flashcard.scene.js";
+import { handleGrammarCheckCommand } from "./scenes/grammar-check.scene.js";
 import {
   handleAltMeaningCallback,
   handleEtymologyCallback,
@@ -92,6 +93,7 @@ import {
   handleDictTranslate,
   handleDictView,
 } from "./scenes/helpers/dictionary.helper.js";
+import { handleExpressionMoreCallback } from "./scenes/helpers/expressions.helper.js";
 import {
   FLASHCARD_DELETE_PATTERN,
   FLASHCARD_RATE_PATTERN,
@@ -106,6 +108,7 @@ import {
   handleLegacyCardCallback,
   LEGACY_CARD_CALLBACK_PATTERN,
 } from "./scenes/helpers/flashcard.helper.js";
+import { GRAMMAR_EXIT_CALLBACK, handleGrammarExitCallback } from "./scenes/helpers/grammar-check.helper.js";
 import {
   handleMentorExitCallback,
   handleMentorNewTopicCallback,
@@ -207,6 +210,7 @@ import { handleSettingsCommand } from "./scenes/settings.scene.js";
 import { handleTemplateCommand } from "./scenes/template.scene.js";
 import { handleTranslateCommand } from "./scenes/translate.scene.js";
 import type { BotContext, ConversationContext, SessionData } from "./types.js";
+import { disarmPendingPrompts } from "./utils/disarm-prompts.js";
 import { NOOP_CALLBACK } from "./utils/long-op.js";
 import { mainMenuLabels, matchMenuTap } from "./utils/main-menu.js";
 import { RETRY_CALLBACK } from "./utils/retry-action.js";
@@ -405,6 +409,7 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   onCommand("start", startCommand);
   onCommand("translate", handleTranslateCommand);
   onCommand("mentor", handleMentorCommand);
+  onCommand("check", handleGrammarCheckCommand);
   onCommand("template", handleTemplateCommand);
   onCommand("dictionary", handleDictionaryCommand);
   onCommand("learn", handleLearnCommand);
@@ -432,17 +437,8 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
       // Counts taps on labels a previous keyboard version put on screen. When this
       // stops firing, LEGACY_MENU_LABELS in utils/main-menu.ts can be deleted.
       if (tap.legacy) logEvent("menu.legacy_tap", { action: tap.action });
-      // A hot button reaches its mode without passing through modeRouterMiddleware, which
-      // is where every "waiting for your next message" flag is consumed. Left armed,
-      // the user's next word is swallowed by a flow they walked away from — filed as a
-      // notification context, as the name of a new dictionary, as clarification context
-      // for the previous card, or as a question to the mentor about it — instead of being
-      // translated. Tapping a button is an explicit abandonment of the prompt, so they are
-      // all disarmed together.
-      ctx.session.awaitingNotifContext = false;
-      ctx.session.dictionaryWizard = undefined;
-      ctx.session.awaitingTranslationClarificationContext = undefined;
-      ctx.session.pendingCardMentorAsk = undefined;
+      // Tapping a button is an explicit abandonment of any prompt waiting for text.
+      disarmPendingPrompts(ctx.session);
       switch (tap.action) {
         case "flashcard":
           return handleFlashcardCommand(ctx);
@@ -450,6 +446,8 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
           return handleMentorCommand(ctx);
         case "dictionary":
           return handleDictionaryCommand(ctx);
+        case "grammar":
+          return handleGrammarCheckCommand(ctx);
         case "pick":
           return handlePickWordsCommand(ctx);
         case "videos":
@@ -468,6 +466,9 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
 
   // "↩️ Back to translation" on mentor answers — one-tap exit from mentor mode.
   onCallback(MENTOR_EXIT_CALLBACK, handleMentorExitCallback);
+
+  // "↩️ Back to translation" on grammar-check answers — one-tap exit from the mode.
+  onCallback(GRAMMAR_EXIT_CALLBACK, handleGrammarExitCallback);
 
   // "🆕 New topic" on mentor answers — fresh mentor thread (one topic per session).
   onCallback(MENTOR_NEW_TOPIC_CALLBACK, handleMentorNewTopicCallback);
@@ -491,6 +492,7 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   onCallback(NUDGE_CALLBACK_PATTERN, handleNudgeCardCallback);
 
   onCallback(LEARN_CALLBACK_PATTERN, handleLearnModeCallback);
+  onCallback(/^expr:more$/, handleExpressionMoreCallback);
   onCallback(MENU_CALLBACK_PATTERN, handleMenuCallback);
 
   onCallback("set:lang", handleSetLangGroupCallback);

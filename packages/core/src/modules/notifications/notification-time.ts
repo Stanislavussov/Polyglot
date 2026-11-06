@@ -5,7 +5,7 @@
  */
 
 /** Valid notification type strategies */
-export const NOTIFICATION_TYPES = ["suggested", "srs", "contextual"] as const;
+export const NOTIFICATION_TYPES = ["suggested", "srs", "contextual", "expressions"] as const;
 /**
  * The notification time a user gets when they have not chosen one (19:00 local),
  * stored as an "HH:MM" string.

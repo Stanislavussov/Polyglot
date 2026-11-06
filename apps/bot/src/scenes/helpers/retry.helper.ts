@@ -5,6 +5,7 @@
 import { logger } from "@polyglot/core";
 import type { BotContext } from "../../types.js";
 import { takeRetryAction } from "../../utils/retry-action.js";
+import { handleGrammarCheckText } from "./grammar-check.helper.js";
 import { handleMentorText } from "./mentor-mode.helper.js";
 import { answerStaleCallback } from "./stale-callback.helper.js";
 import { handleTranslateText } from "./translate-flow.js";
@@ -42,6 +43,10 @@ export async function handleRetryCallback(ctx: BotContext): Promise<void> {
 
   logger.debug({ userId: ctx.user.id, kind: action.kind }, "Retrying timed-out operation");
 
+  if (action.kind === "grammar") {
+    await handleGrammarCheckText(ctx, action.text);
+    return;
+  }
   if (action.kind === "mentor") {
     await handleMentorText(ctx, action.text, {
       threadId: action.threadId,

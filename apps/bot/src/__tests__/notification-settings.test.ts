@@ -226,6 +226,12 @@ describe("buildNotifSubText", () => {
     expect(text).toContain("job interview");
   });
 
+  it("names the expressions type and leaves out the deck size it does not use", () => {
+    const text = buildNotifSubText("en", true, ["08:00"], "expressions", "UTC", null, 5);
+    expect(text).toContain("Expressions & quotes");
+    expect(text).not.toContain("Cards per notification");
+  });
+
   it("shows how many cards one notification brings", () => {
     const text = buildNotifSubText("en", true, ["08:00"], "srs", "UTC", null, 5);
     expect(text).toContain("Cards per notification — 5");
@@ -255,6 +261,14 @@ describe("buildNotifSubKeyboard", () => {
     const cbDataCtx = kbCtx.inline_keyboard.flat().map((b: any) => b.callback_data);
     expect(cbDataCtx).toContain("set:notif:context");
     expect(cbDataCtx).not.toContain("set:notif:batch");
+  });
+
+  it("offers neither a deck size nor a context to an expressions subscriber", () => {
+    const callbacks = buildNotifSubKeyboard("en", true, "expressions")
+      .inline_keyboard.flat()
+      .map((button) => ("callback_data" in button ? button.callback_data : undefined));
+    expect(callbacks).not.toContain("set:notif:batch");
+    expect(callbacks).not.toContain("set:notif:context");
   });
 
   it("hides settings buttons when disabled", () => {
@@ -435,6 +449,7 @@ describe("handleSetNotifTypeCallback", () => {
     expect(cbData).toContain("set:notif:type:suggested");
     expect(cbData).toContain("set:notif:type:srs");
     expect(cbData).toContain("set:notif:type:contextual");
+    expect(cbData).toContain("set:notif:type:expressions");
     expect(cbData).toContain("set:notif:back");
   });
 });

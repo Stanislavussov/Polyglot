@@ -7,6 +7,7 @@
 import { logEvent } from "@polyglot/core";
 import { markHandled } from "../../observability/handler-log.js";
 import type { BotContext } from "../../types.js";
+import { handleGrammarCheckText } from "./grammar-check.helper.js";
 import { maybePromptMentorIdle } from "./mentor-idle.helper.js";
 import { handleMentorText } from "./mentor-mode.helper.js";
 import { handleTranslateText } from "./translate-flow.js";
@@ -24,6 +25,12 @@ export async function dispatchByActiveMode(ctx: BotContext, text: string): Promi
     }
     markHandled(ctx, "modeRouter:mentor");
     await handleMentorText(ctx, text);
+    return;
+  }
+
+  if (mode === "grammar") {
+    markHandled(ctx, "modeRouter:grammar");
+    await handleGrammarCheckText(ctx, text);
     return;
   }
 

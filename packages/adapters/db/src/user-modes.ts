@@ -4,7 +4,7 @@
  * derived from this array, so a newly added mode cannot be silently omitted
  * from session validation (adding one here updates the type and all guards).
  */
-export const USER_MODES = ["idle", "translate", "mentor"] as const;
+export const USER_MODES = ["idle", "translate", "mentor", "grammar"] as const;
 
 /**
  * Active mode for the bot — determines how plain text messages are routed.

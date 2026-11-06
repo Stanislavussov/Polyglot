@@ -59,6 +59,17 @@ describe("generateObject", () => {
     });
   });
 
+  it("lets one call override the default temperature", async () => {
+    mockAiGenerateObject.mockResolvedValueOnce({
+      object: { text: "hello" },
+      usage: { inputTokens: 50, outputTokens: 20 },
+    });
+
+    await generateObject("test prompt", schema, "openai/gpt-4o", { temperature: 0.9 });
+
+    expect(mockAiGenerateObject).toHaveBeenCalledWith(expect.objectContaining({ temperature: 0.9 }));
+  });
+
   it("uses default maxRetries of 2", async () => {
     mockAiGenerateObject.mockResolvedValueOnce({
       object: { text: "hello" },

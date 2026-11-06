@@ -7,16 +7,19 @@ import { describe, expect, it } from "vitest";
 import { MAIN_KEYBOARD_VERSION } from "../middlewares/main-keyboard.js";
 import { buildMainKeyboard, mainMenuLabels, matchMenuTap } from "./main-menu.js";
 
-/** Widest label Telegram fits on one line at three buttons per row (~360dp chat). */
-const LABEL_BUDGET = 11;
+/** Width budget at two buttons per row: short single words keep the 2×2 grid readable at a glance. */
+const LABEL_BUDGET = 9;
 
 describe("hot-button keyboard", () => {
-  it("carries the three everyday actions on one row", () => {
+  it("carries the four everyday actions as a 2×2 grid", () => {
     const rows = buildMainKeyboard("ru")
       .build()
       .map((row) => row.map((button) => (typeof button === "string" ? button : button.text)));
 
-    expect(rows).toEqual([["🎴 Карточки", "🧑‍🏫 Ментор", "📖 Словарь"]]);
+    expect(rows).toEqual([
+      ["🎴 Карточки", "🧑‍🏫 Ментор"],
+      ["📖 Словарь", "✍️ Проверка"],
+    ]);
   });
 
   it("leaves the keyboard collapsible but never asks the client to retire it", () => {
@@ -32,7 +35,7 @@ describe("hot-button keyboard", () => {
 
   it("keeps every hot-button label inside the one-line width budget", () => {
     const overBudget = getSupportedLangs().flatMap((lang) =>
-      (["menuBtnFlashcards", "menuBtnMentor", "menuBtnDictionary"] as const)
+      (["menuBtnFlashcards", "menuBtnMentor", "menuBtnDictionary", "menuBtnGrammarCheck"] as const)
         .map((key) => `${lang}/${key}: ${t(key, lang)}`)
         .filter((entry) => (entry.split(": ")[1] ?? "").length > LABEL_BUDGET),
     );
@@ -45,7 +48,17 @@ describe("hot-button keyboard", () => {
       expect(matchMenuTap(`🎴 ${t("menuBtnFlashcards", lang)}`)).toEqual({ action: "flashcard", legacy: false });
       expect(matchMenuTap(`🧑‍🏫 ${t("menuBtnMentor", lang)}`)).toEqual({ action: "mentor", legacy: false });
       expect(matchMenuTap(`📖 ${t("menuBtnDictionary", lang)}`)).toEqual({ action: "dictionary", legacy: false });
+      expect(matchMenuTap(`✍️ ${t("menuBtnGrammarCheck", lang)}`)).toEqual({ action: "grammar", legacy: false });
     }
+  });
+
+  it("still routes the long labels the 2×2 grid shortened, from keyboards sent before it", () => {
+    // Until a user's next message re-delivers the keyboard, their screen shows the v7
+    // labels; an unmatched one would be translated as a word instead of opening its screen.
+    for (const label of ["📖 Dictionary", "📖 Wörterbuch", "📖 Diccionario", "📖 Dizionario", "📖 Dicionário"]) {
+      expect(matchMenuTap(label)).toEqual({ action: "dictionary", legacy: true });
+    }
+    expect(matchMenuTap("🎴 Карталар")).toEqual({ action: "flashcard", legacy: true });
   });
 
   it("still runs the modes whose buttons moved into /menu", () => {
@@ -76,7 +89,7 @@ describe("hot-button keyboard", () => {
     // The keyboard Telegram shows is whatever was last sent, so a Russian label can
     // arrive while the interface is already English.
     expect(matchMenuTap("📖 Словарь")?.action).toBe("dictionary");
-    expect(matchMenuTap("📖 Dictionary")?.action).toBe("dictionary");
+    expect(matchMenuTap("📖 Words")?.action).toBe("dictionary");
   });
 
   it("does not match an ordinary word the user wants translated", () => {
@@ -99,6 +112,6 @@ describe("hot-button keyboard", () => {
     // Every other test reads the constant, so a layout change shipped without bumping it
     // would leave every existing user on the old keyboard and fail nothing. Update this
     // number deliberately, in the same commit as the layout.
-    expect(MAIN_KEYBOARD_VERSION).toBe(7);
+    expect(MAIN_KEYBOARD_VERSION).toBe(8);
   });
 });

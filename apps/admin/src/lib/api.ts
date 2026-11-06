@@ -367,6 +367,8 @@ export interface PlanLimitConfig {
   creditCost: number;
   videoLimit: number | null;
   mentorDailyLimit: number | null;
+  /** Grammar checks per UTC day. null = unlimited, 0 = not in the plan. */
+  grammarCheckDailyLimit: number | null;
   dailyCreditCeiling: number | null;
   videoWindow: "none" | "lifetime" | "monthly";
   /** Display price in US cents (500 = $5/mo). null = not for sale. */
@@ -656,7 +658,8 @@ export type NotificationDeliveryKind =
   | "dictionary_empty"
   | "activation_nudge"
   | "trial"
-  | "release_announcement";
+  | "release_announcement"
+  | "expression";
 
 export interface NotificationDelivery {
   id: number;

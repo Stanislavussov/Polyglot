@@ -100,7 +100,12 @@ describe("startCommand", () => {
     const [, options] = vi.mocked(ctx.reply).mock.calls[0] ?? [];
     const markup = options?.reply_markup as ReplyKeyboardMarkup;
     const labels = markup.keyboard.flat().map((button) => (typeof button === "string" ? button : button.text));
-    expect(labels).toEqual(["🎴 [menuBtnFlashcards]", "🧑‍🏫 [menuBtnMentor]", "📖 [menuBtnDictionary]"]);
+    expect(labels).toEqual([
+      "🎴 [menuBtnFlashcards]",
+      "🧑‍🏫 [menuBtnMentor]",
+      "📖 [menuBtnDictionary]",
+      "✍️ [menuBtnGrammarCheck]",
+    ]);
     // /start is the recovery path for a lost keyboard, so it must not hand back one
     // that collapses itself again on the next tap.
     expect(markup).not.toHaveProperty("one_time_keyboard");

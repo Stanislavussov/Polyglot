@@ -172,7 +172,7 @@ export async function generateObject<T>(
       prompt,
       maxRetries,
       maxTokens: options?.maxTokens ?? defaults.maxTokens,
-      temperature: defaults.temperature,
+      temperature: options?.temperature ?? defaults.temperature,
       frequencyPenalty: options?.frequencyPenalty ?? defaults.frequencyPenalty,
       abortSignal: signal,
     });
