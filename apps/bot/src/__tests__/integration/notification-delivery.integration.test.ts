@@ -601,7 +601,7 @@ describe("scheduled notification delivery (integration)", () => {
     const back = lastScreen(harness.sent);
     expect(back?.method).toBe("editMessageText");
     expect((back?.payload as { message_id?: number }).message_id).toBe(messageId);
-    expect(textOf(back!)).toContain("Card 1 of 1");
+    expect(textOf(back!)).not.toContain("Card 1 of");
     expect(textOf(back!)).toContain(headword);
     expect(textOf(back!)).toContain(nativeTranslation!);
     expect(textOf(back!)).toContain(otherTranslation!);

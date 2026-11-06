@@ -348,7 +348,7 @@ describe("remove a word and bring it back (integration)", () => {
       const next = lastScreen(harness.sent);
       expect(next.buttons).toContain(`fc:undo:${removed}`);
       expect(next.buttons).not.toContain(`fc:del:${removed}`);
-      expect(next.text).toContain("Card 1 of 1");
+      expect(next.text).not.toContain("Card 1 of");
       expect(await vocabularyRepository.findByUser(userId)).toHaveLength(1);
 
       // Act — bring it back.

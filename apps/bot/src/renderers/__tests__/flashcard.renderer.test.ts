@@ -114,6 +114,13 @@ describe("renderFlashCardFront", () => {
     expect(html).toContain("📝 🇷🇺 RU: <b>Обрисовать проблему</b>");
   });
 
+  it("drops the progress line for a one-card deck — '1 of 1' says nothing", () => {
+    const html = renderFlashCardFront(CARD, "ru", 1, 1, "ru", ALL_OFF);
+
+    expect(html).not.toContain("Карточка");
+    expect(html.startsWith("📝")).toBe(true);
+  });
+
   it("does not name a recall direction — the answer is every language the word is saved in", () => {
     expect(renderFlashCardFront(CARD, "ru", 2, 10, "ru", ALL_OFF)).not.toMatch(/<i>→/u);
   });
@@ -143,6 +150,13 @@ describe("renderFlashCardBack", () => {
     expect(html).toContain("Карточка 2 из 10");
     expect(html).not.toMatch(/<i>→/u);
     expect(html.endsWith("Насколько хорошо вы это вспомнили?")).toBe(true);
+  });
+
+  it("drops the progress line on the back of a one-card deck", () => {
+    const html = renderFlashCardBack(ENTRY, RESOLVE_CODE, 1, 1, "ru", ORDER);
+
+    expect(html).not.toContain("Карточка");
+    expect(html.startsWith(renderDictionaryEntry(ENTRY, RESOLVE_CODE, "ru", ORDER))).toBe(true);
   });
 
   it("keeps the answer and its example on the card", () => {
