@@ -10,7 +10,7 @@
  * persisted rows (translation SRS columns, entry difficulty, `word_review_log`), and the
  * session moving on.
  */
-import { getDb, getLang, vocabularyRepository } from "@polyglot/adapter-db";
+import { botSessionRepository, getDb, getLang, vocabularyRepository } from "@polyglot/adapter-db";
 import { type AIPort, type CreateVocabularyInput, t } from "@polyglot/core";
 import { describe, expect, it } from "vitest";
 import { arrangeOnboardedTranslator } from "../../test-helpers/integration/arrange.js";
@@ -22,6 +22,7 @@ import {
   messageUpdate,
 } from "../../test-helpers/integration/bot-harness.js";
 import { uniqueTelegramId } from "../../test-helpers/integration/id-factory.js";
+import type { SessionData } from "../../types.js";
 
 const CARD_MESSAGE_ID = 900;
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -78,6 +79,12 @@ async function reviewLog(entryId: number): Promise<string[]> {
     select session_type from word_review_log where entry_id = ${entryId}
   `;
   return rows.map((row) => row.session_type);
+}
+
+/** Entry ids of the deck the session holds, in deck order. */
+async function deckEntryIds(chatId: number): Promise<number[]> {
+  const session = (await botSessionRepository.get(String(chatId)))?.data as SessionData | undefined;
+  return (session?.cards?.deck ?? []).map((card) => card.entryId);
 }
 
 function lastScreen(sent: CapturedCall[]): { text: string; buttons: string[] } {
@@ -232,7 +239,7 @@ describe("Cards on spaced repetition (integration)", () => {
 
     await send(harness, telegramId, "/flashcard");
 
-    expect(lastScreen(harness.sent).text).toContain(t("flashcardProgress", "en", { current: 1, total: 1 }));
+    expect(await deckEntryIds(telegramId)).toEqual([entry.id]);
   });
 
   it("C12: a translation stored in the word's own language is neither a card nor an answer on one", async () => {
@@ -255,7 +262,7 @@ describe("Cards on spaced repetition (integration)", () => {
 
     await send(harness, telegramId, "/flashcard");
 
-    expect(lastScreen(harness.sent).text).toContain(t("flashcardProgress", "en", { current: 1, total: 1 }));
+    expect(await deckEntryIds(telegramId)).toEqual([entry.id]);
     await tap(harness, telegramId, "fc:reveal");
     const revealed = lastScreen(harness.sent);
     expect(revealed.buttons).toContain(`fc:rate:good:${real.id}`);
@@ -368,7 +375,7 @@ describe("Cards on spaced repetition (integration)", () => {
     const screen = lastScreen(harness.sent);
     // The section the tap promised did arrive — this is not a card that never changed.
     expect(screen.text).toContain(ETYMOLOGY);
-    expect(screen.text).toContain(t("flashcardProgress", "en", { current: 1, total: 1 }));
+    expect(screen.text).not.toContain(t("flashcardProgress", "en", { current: 1, total: 1 }));
     expect(screen.text.trimEnd().endsWith(t("srsChooseRating", "en"))).toBe(true);
     // A word being reviewed is in the dictionary by definition, so the "saved"
     // confirmation would be noise between the card and the question.

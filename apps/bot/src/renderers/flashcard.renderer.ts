@@ -19,8 +19,14 @@ import { esc } from "./card-sections.js";
 import { renderDictionaryEntry } from "./dictionary.renderer.js";
 import { renderCardFront, renderWordCard } from "./word-card.js";
 
-function progressLine(current: number, total: number, lang: SupportedLang): string {
-  return esc(t("flashcardProgress", lang, { current, total }));
+// "Card 1 of 1" tells a reader of a single-card deck nothing, so it is dropped.
+function progressLines(current: number, total: number, lang: SupportedLang): string[] {
+  return total > 1 ? [esc(t("flashcardProgress", lang, { current, total }))] : [];
+}
+
+/** Deck chrome above the card body, separated from it by a blank line when there is any. */
+function withChrome(chrome: string[], body: string[]): string {
+  return (chrome.length > 0 ? [...chrome, "", ...body] : body).join("\n");
 }
 
 /** The word plus what the user's card settings allow — see `renderCardFront` for why nothing else may appear. */
@@ -36,9 +42,9 @@ export function renderFlashCardFront(
     { original: card.original, emoji: card.emoji, sourceLang: sourceLangCode, sourceUsage: card.sourceUsage },
     fields,
   );
-  const chrome = [progressLine(current, total, lang)];
+  const chrome = progressLines(current, total, lang);
   if (card.ahead) chrome.push(esc(t("cardsAheadNote", lang)));
-  return [...chrome, "", front].join("\n");
+  return withChrome(chrome, [front]);
 }
 
 /**
@@ -50,7 +56,7 @@ export function renderFlashCardFront(
  * screen rather than assemble a lookalike of these lines.
  */
 export function renderFlashCardBackScreen(body: string, current: number, total: number, lang: SupportedLang): string {
-  return [progressLine(current, total, lang), "", body, "", esc(t("srsChooseRating", lang))].join("\n");
+  return withChrome(progressLines(current, total, lang), [body, "", esc(t("srsChooseRating", lang))]);
 }
 
 /**

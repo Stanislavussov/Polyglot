@@ -24,6 +24,7 @@
 | 72  | [Onboarding Conversion Redesign](./72-onboarding-conversion-redesign.md) | ✅ Done (supersedes 38, overlaps 36) |
 | 77  | [Word Pronunciation (TTS)](./77-word-pronunciation-tts.md) | ✅ Done (on by default; model configurable at `/settings` → Pronunciation) |
 | 78  | [Cut alert noise to signal only](./78-alert-noise-cleanup.md) | 🔲 To Do |
+| 87  | [Re-engagement Word Packs](./87-reengagement-word-packs.md) | 🔲 To Do (spec) |
 | 84  | [Onboarding Reverse Trial](./84-onboarding-reverse-trial.md) | ✅ Done (free tier limits still need the admin Rate Limits page on prod/dev) |
 
 ## Architecture — Debt Reduction
