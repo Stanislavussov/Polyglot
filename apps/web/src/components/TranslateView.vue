@@ -181,10 +181,18 @@
         </div>
         <p v-if="history.length === 0" class="mt-2 text-sm text-ink-muted">{{ t("web.translate.recentEmpty") }}</p>
         <ul v-else class="mt-2 divide-y divide-line">
-          <li v-for="item in history" :key="historyKey(item)">
-            <button type="button" class="flex min-h-11 w-full items-center justify-between gap-3 py-2 text-left hover:text-primary" @click="openHistory(item)">
+          <li v-for="item in history" :key="historyKey(item)" class="flex items-center gap-2">
+            <button type="button" class="flex min-h-11 min-w-0 flex-1 items-center py-2 text-left hover:text-primary" @click="openHistory(item)">
               <span class="min-w-0 truncate font-medium"><span v-if="item.emoji" class="mr-2" aria-hidden="true">{{ item.emoji }}</span>{{ item.original }}</span>
-              <span class="min-w-0 truncate text-sm text-ink-muted">{{ item.translations[0]?.text }}</span>
+            </button>
+            <button
+              type="button"
+              class="inline-flex size-11 shrink-0 items-center justify-center text-ink-muted hover:text-danger"
+              :aria-label="t('web.translate.removeFromHistory', { word: item.original })"
+              :title="t('web.translate.removeFromHistory', { word: item.original })"
+              @click="forget(item)"
+            >
+              <Trash2 class="size-4" aria-hidden="true" />
             </button>
           </li>
         </ul>
@@ -257,6 +265,12 @@ function historyKey(item: TranslateResult): string {
 function remember(entry: TranslateResult): void {
   const key = historyKey(entry);
   history.value = [entry, ...history.value.filter((item) => historyKey(item) !== key)].slice(0, HISTORY_SIZE);
+  persistHistory();
+}
+
+function forget(entry: TranslateResult): void {
+  const key = historyKey(entry);
+  history.value = history.value.filter((item) => historyKey(item) !== key);
   persistHistory();
 }
 

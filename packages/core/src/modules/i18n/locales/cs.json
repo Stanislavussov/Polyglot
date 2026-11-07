@@ -549,6 +549,7 @@
   "web.translate.recent": "Nedávné překlady",
   "web.translate.recentEmpty": "Zde se zobrazí vaše poslední překlady.",
   "web.translate.clearHistory": "Smazat historii",
+  "web.translate.removeFromHistory": "Odebrat „{word}“ z historie",
   "web.translate.showMore": "Zobrazit více",
   "web.translate.showLess": "Zobrazit méně",
   "web.translate.loading": "Překládám. Může to trvat několik sekund.",

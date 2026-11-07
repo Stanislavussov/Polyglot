@@ -549,6 +549,7 @@
   "web.translate.recent": "Recent translations",
   "web.translate.recentEmpty": "Your latest translations will appear here.",
   "web.translate.clearHistory": "Clear history",
+  "web.translate.removeFromHistory": "Remove “{word}” from history",
   "web.translate.showMore": "Show more",
   "web.translate.showLess": "Show less",
   "web.translate.loading": "Translating. This can take a few seconds.",
