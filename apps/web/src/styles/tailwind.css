@@ -25,7 +25,8 @@
   }
 
   .btn-primary {
-    @apply btn bg-primary text-primary-fg hover:bg-primary-hover;
+    /* Solid pale fill when disabled: the phone button floats over the page, so opacity let the text behind it show through. */
+    @apply btn bg-primary text-primary-fg hover:bg-primary-hover disabled:bg-primary-soft disabled:text-primary-soft-fg disabled:opacity-100;
   }
 
   .btn-secondary {
