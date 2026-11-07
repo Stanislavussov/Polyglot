@@ -549,6 +549,7 @@
   "web.translate.recent": "Ostatnie tłumaczenia",
   "web.translate.recentEmpty": "Tutaj pojawią się Twoje ostatnie tłumaczenia.",
   "web.translate.clearHistory": "Wyczyść historię",
+  "web.translate.removeFromHistory": "Usuń „{word}” z historii",
   "web.translate.showMore": "Pokaż więcej",
   "web.translate.showLess": "Pokaż mniej",
   "web.translate.loading": "Tłumaczę. Może to potrwać kilka sekund.",

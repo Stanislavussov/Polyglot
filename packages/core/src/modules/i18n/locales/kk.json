@@ -549,6 +549,7 @@
   "web.translate.recent": "Соңғы аудармалар",
   "web.translate.recentEmpty": "Соңғы аудармаларыңыз осы жерде көрсетіледі.",
   "web.translate.clearHistory": "Тарихты тазалау",
+  "web.translate.removeFromHistory": "«{word}» сөзін тарихтан жою",
   "web.translate.showMore": "Көбірек көрсету",
   "web.translate.showLess": "Азырақ көрсету",
   "web.translate.loading": "Аударылуда. Бірнеше секунд кетуі мүмкін.",
