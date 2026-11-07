@@ -137,3 +137,8 @@ export interface ReviewState {
 
 export type Rating = "again" | "hard" | "good" | "easy";
 export type PageName = "translate" | "dictionary" | "review" | "settings";
+
+export interface LoaderPhrases {
+  emoji: string[];
+  stages: string[][];
+}

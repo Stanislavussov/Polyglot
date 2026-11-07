@@ -6,6 +6,7 @@ import { SESSION_TTL_SECONDS } from "./auth/session-cookie.js";
 import type { WebApiConfig } from "./config.js";
 import { authRoutes } from "./routes/auth.js";
 import { dictionaryRoutes } from "./routes/dictionary.js";
+import { loaderRoutes } from "./routes/loader.js";
 import { meRoutes } from "./routes/me.js";
 import { reviewRoutes } from "./routes/review.js";
 import { settingsRoutes } from "./routes/settings.js";
@@ -79,6 +80,7 @@ export async function buildWebApiApp(
   dictionaryRoutes(app, services);
   translateRoutes(app, services);
   reviewRoutes(app, services);
+  loaderRoutes(app, services);
 
   if (config.staticDir) {
     await app.register(import("@fastify/static"), { root: config.staticDir, wildcard: false });

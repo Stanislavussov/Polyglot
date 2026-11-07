@@ -3,6 +3,7 @@ import type {
   DictionaryPage,
   DictionarySort,
   EntryDetail,
+  LoaderPhrases,
   Me,
   Rating,
   ReviewState,
@@ -72,6 +73,7 @@ export const api = {
     }
     return request<DictionaryPage>("GET", `/dictionary?${params}`);
   },
+  loaderPhrases: (kind: "translate") => request<LoaderPhrases>("GET", `/loader/${kind}`),
   translate: (text: string) => request<TranslateResult>("POST", "/translate", { text }),
   entry: (entryId: number) => request<EntryDetail>("GET", `/dictionary/${entryId}`),
   removeEntry: (entryId: number) => request<void>("DELETE", `/dictionary/${entryId}`),
