@@ -309,7 +309,8 @@
             limit_req_zone $binary_remote_addr zone=polyglot_session:10m rate=10r/m;
         - dest: /etc/nginx/conf.d/polyglot-default.conf
           content: |
-            server_tokens off;
+            # No server_tokens here: the host's nginx.conf already sets it, and a
+            # second copy fails `nginx -t` as a duplicate directive.
 
             # Catch-all for requests naming none of our hosts. Without it nginx fell
             # back to the first 443 vhost, so a scan of the bare IP got the admin
