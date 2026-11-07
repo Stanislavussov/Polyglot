@@ -165,7 +165,7 @@ module.exports = {
         path: "^packages/core/src/modules/([^/]+)/",
         // Modules with an explicit allow rule below are exempt from the default.
         pathNot:
-          "^packages/core/src/modules/(validation|translation|context-enrichment|notifications|expressions|tts|grammar-check|entitlements)/",
+          "^packages/core/src/modules/(validation|translation|context-enrichment|notifications|expressions|tts|grammar-check|entitlements|translate-flow)/",
       },
       to: {
         path: "^packages/core/src/modules/",
@@ -186,6 +186,18 @@ module.exports = {
       severity: "error",
       from: { path: "^apps/web-api/src/" },
       to: { path: "^apps/bot/src/", pathNot: "^apps/bot/src/test-helpers/" },
+    },
+    {
+      name: "core-translate-flow-allowlist",
+      comment:
+        "translate-flow is the channel-neutral translation use case: it composes detection, quota, enrichment and the pipeline",
+      severity: "error",
+      from: { path: "^packages/core/src/modules/translate-flow/" },
+      to: {
+        path: "^packages/core/src/modules/",
+        pathNot:
+          "^packages/core/src/modules/(translate-flow|translation|context-enrichment|language-detect|entitlements|input-analysis|i18n|vocabulary)/",
+      },
     },
     {
       name: "core-entitlements-allowlist",

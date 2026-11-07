@@ -13,10 +13,12 @@ export type WebServices = Pick<
   | "vocabularyDictionaryRepository"
   | "wordReviewRepository"
   | "translationRequestRepository"
+  | "languageDetectionRepository"
   | "translationTemplateRepository"
   | "subscriptionRepository"
   | "settings"
   | "languageCache"
   | "contextLookup"
+  | "wordLanguageSweep"
   | "ai"
 >;

@@ -11,20 +11,25 @@
  * `clarification` depend on this module without a cycle.
  */
 import {
+  clarificationReasonText,
   type DetectionResult,
   detectLanguageWithConfidence,
   detectLanguageWithConfidenceAsync,
   detectOutOfSetByAlphabet,
   detectOutOfSetLanguage,
   errorFields,
+  fallbackLanguageChoices,
   getLangFlag,
   getLanguageName,
+  hasActionableLanguageAmbiguity,
   type InputType,
   isSupported,
   isSupportedLanguage,
   logEvent,
   needsAiArbitration,
   needsDictionaryVerification,
+  outOfSetLanguageFromCorrection,
+  parseTranslateInput,
   resolveDirectionFromSource,
   resolveOutputConfig,
   resolveTemplate,
@@ -34,6 +39,7 @@ import {
   type TranslationAmbiguity,
   t,
   translateWithContext,
+  validateTranslatableText,
 } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import {
@@ -65,9 +71,7 @@ import {
   TRANSLATION_BUDGET_MS,
   withTimeout,
 } from "../../utils/long-op.js";
-import { parseTranslateInput } from "../../utils/parse-translate-input.js";
 import { encodeTranslateRetryText, replyWithRetry } from "../../utils/retry-action.js";
-import { validateTranslatableText } from "../../utils/validate-text-input.js";
 import { buildCardKeyboard } from "./card-keyboard.js";
 import { answerStaleCallback } from "./stale-callback.helper.js";
 import {
@@ -77,75 +81,6 @@ import {
   showAddLanguagePrompt,
 } from "./translate-mode.shared.js";
 import { setTranslationEntry } from "./translation-map.helper.js";
-
-/**
- * Task 70 cross-language guard. A `needs_clarification` of reason
- * `unrecognized_word` carries the AI's spelling correction; when that correction
- * is written in the exclusive alphabet of a SUPPORTED language the user does not
- * study, the "unrecognized word" is really an out-of-set language the closed-set
- * detector coerced to a studied one — e.g. Russian-lettered Kazakh "кыздарай",
- * corrected to "қыздар-ай" whose "қ" exists only in Kazakh. Returns that
- * language so the flow can offer "add and translate" instead of a nonsensical
- * spelling fix. Returns undefined for genuine same-alphabet typos (Slovak vs
- * Czech share their alphabet and cannot be told apart by letters alone — those
- * need a dictionary/AI signal the alphabet check deliberately does not fake).
- */
-function outOfSetLanguageFromCorrection(
-  ambiguity: TranslationAmbiguity,
-  nativeLang: string,
-  learningLangs: string[],
-): string | undefined {
-  // Both correction-bearing reasons: the metadata existence guard answers
-  // "unrecognized_word", the spelling preflight "possible_typo", and either can
-  // be the coerced out-of-set language rather than a typo.
-  if (ambiguity.reason !== "unrecognized_word" && ambiguity.reason !== "possible_typo") {
-    return undefined;
-  }
-  const correction = (ambiguity.options ?? []).find((option) => option.kind === "typo_correction")?.correctedText;
-  if (!correction) {
-    return undefined;
-  }
-  const outOfSetLang = detectOutOfSetByAlphabet(correction, [nativeLang, ...learningLangs]);
-  return outOfSetLang && isSupportedLanguage(outOfSetLang) ? outOfSetLang : undefined;
-}
-
-function hasActionableLanguageAmbiguity(detection: DetectionResult): boolean {
-  const candidates = detection.ambiguousCandidates ?? [];
-  if (candidates.length < 2) {
-    return false;
-  }
-
-  const wiktionaryCandidates = new Set(
-    detection.evidence.filter((entry) => entry.strategy === "wiktionary").map((entry) => entry.candidate),
-  );
-  return candidates.filter((candidate) => wiktionaryCandidates.has(candidate)).length >= 2;
-}
-
-function clarificationReasonText(ambiguity: TranslationAmbiguity, lang: SupportedLang): string {
-  // Core returns structured reason + params (Fable T23/A13); the channel
-  // localizes here via t(). `params.lang` is a source-language CODE — localize
-  // its display name locally.
-  const params = ambiguity.params ?? {};
-  const fallbackByReason: Record<TranslationAmbiguity["reason"], string> = {
-    source_language: t("translationClarifyReasonLanguage", lang),
-    word_sense: t("translationClarifyReasonMeaning", lang),
-    possible_typo: t("translationClarifyReasonMeaning", lang),
-    date_or_time: t("translationClarifyReasonFormat", lang),
-    placeholder_grammar: t("translationClarifyReasonFormat", lang),
-    mixed_or_transliterated_input: t("translationClarifyReasonFormat", lang),
-    unsupported_input: t("translationClarifyReasonFormat", lang),
-    unrecognized_word: t("translationClarifyReasonUnrecognized", lang, {
-      word: params.word ?? "",
-      lang: params.lang ? getLanguageName(params.lang, lang) : "",
-    }),
-  };
-  const technicalPattern = /\b(sourceLang|targetLangs|JSON|schema|pipeline|validation|fieldPath)\b/i;
-  const message = ambiguity.message?.trim();
-  if (message && !technicalPattern.test(message)) {
-    return message;
-  }
-  return fallbackByReason[ambiguity.reason];
-}
 
 async function showTranslationClarification(
   ctx: BotContext,
@@ -233,10 +168,11 @@ async function showTranslationClarification(
 
   // No model-supplied language options but we still need a language choice —
   // offer the user's configured languages as flag + code buttons.
-  const showFallbackLanguages = params.ambiguity.reason === "source_language" && languageOptions.length === 0;
+  const fallbackLanguages = fallbackLanguageChoices(params.ambiguity, params.nativeLang, params.learningLangs);
+  const showFallbackLanguages = fallbackLanguages.length > 0;
   if (showFallbackLanguages) {
     addFlagRows(
-      getUserLanguageGroup(params.nativeLang, params.learningLangs).map((code) => ({
+      fallbackLanguages.map((code) => ({
         label: `${getLangFlag(code) ?? "🔤"} ${code.toUpperCase()}`,
         data: `tr:clarify:lang:${code}`,
       })),

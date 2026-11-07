@@ -7,7 +7,7 @@
  */
 
 import { isVideoUrl, isYouTubeUrl } from "@polyglot/adapter-youtube";
-import { isSupported, logEvent, type SupportedLang, t } from "@polyglot/core";
+import { isEmojiOnly, isSupported, logEvent, type SupportedLang, t } from "@polyglot/core";
 import type { NextFunction } from "grammy";
 import { markHandled } from "../observability/handler-log.js";
 import { dispatchByActiveMode } from "../scenes/helpers/active-mode-dispatch.js";
@@ -19,7 +19,7 @@ import { handleNotifContextTextInput } from "../scenes/helpers/settings.helper.j
 import { handleVideoVocabularyUrl } from "../scenes/helpers/video-vocabulary.helper.js";
 import { handleVoiceMessage } from "../scenes/helpers/voice-input.js";
 import type { BotContext } from "../types.js";
-import { detectNonTextContent, isEmojiOnly, type NonTextType } from "../utils/validate-text-input.js";
+import { detectNonTextContent, type NonTextType } from "../utils/validate-text-input.js";
 import { getRequestSettings } from "./request-settings.js";
 
 /**

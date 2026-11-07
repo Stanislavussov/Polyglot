@@ -220,6 +220,7 @@ export * from "./modules/srs/index.js";
 export * from "./modules/subscriptions/index.js";
 export * from "./modules/subscriptions/trial.js";
 export * from "./modules/topics/index.js";
+export * from "./modules/translate-flow/index.js";
 export * from "./modules/translation/index.js";
 export type { SpeakableCard } from "./modules/tts/pronounceable-langs.js";
 export { resolvePronounceableText, selectPronounceableLangs } from "./modules/tts/pronounceable-langs.js";
@@ -288,6 +289,7 @@ export {
 export type { CircuitBreakerConfig, CircuitState } from "./resilience/circuit-breaker.js";
 // Resilience — per-model circuit breaker (Phase 3)
 export { CircuitBreaker } from "./resilience/circuit-breaker.js";
+export { AIModelNotConfiguredError, resolveDefaultAIModel } from "./shared/ai-model.js";
 // Shared
 export type { CardFrontFields } from "./shared/card-template.types.js";
 export {

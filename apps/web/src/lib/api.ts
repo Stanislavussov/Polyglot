@@ -1,4 +1,5 @@
 import type {
+  ClarificationOption,
   DictionaryFilterState,
   DictionaryPage,
   DictionarySort,
@@ -9,14 +10,26 @@ import type {
   ReviewState,
   Settings,
   SettingsPatch,
+  TranslateAnswer,
   TranslateResult,
 } from "./types";
 
 interface ErrorBody {
   code?: string;
   message?: string;
-  reason?: "plan" | "daily_ceiling";
+  // limit: "plan" | "daily_ceiling"; rejected: why the text cannot be translated
+  reason?: string;
   resetAt?: string;
+  maxLength?: number;
+  // needs_clarification, needs_language
+  sourceLang?: string;
+  options?: ClarificationOption[];
+  languages?: string[];
+  kind?: "ambiguous" | "unrecognized";
+  text?: string;
+  // add_language
+  lang?: string;
+  supported?: boolean;
 }
 
 export class ApiError extends Error {
@@ -74,7 +87,8 @@ export const api = {
     return request<DictionaryPage>("GET", `/dictionary?${params}`);
   },
   loaderPhrases: (kind: "translate") => request<LoaderPhrases>("GET", `/loader/${kind}`),
-  translate: (text: string) => request<TranslateResult>("POST", "/translate", { text }),
+  translate: (text: string, answer: TranslateAnswer = {}) =>
+    request<TranslateResult>("POST", "/translate", { text, ...answer }),
   entry: (entryId: number) => request<EntryDetail>("GET", `/dictionary/${entryId}`),
   removeEntry: (entryId: number) => request<void>("DELETE", `/dictionary/${entryId}`),
   restoreEntry: (entryId: number) => request<void>("POST", `/dictionary/${entryId}/restore`),

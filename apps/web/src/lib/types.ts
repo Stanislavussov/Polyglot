@@ -142,3 +142,25 @@ export interface LoaderPhrases {
   emoji: string[];
   stages: string[][];
 }
+
+export interface ClarificationOption {
+  kind: "source_language" | "meaning" | "typo_correction" | "format" | "translate_as_written";
+  label: string | null;
+  value: string;
+  langCode: string | null;
+  correctedText: string | null;
+}
+
+/** What the server asks before it can translate, and the answers it accepts. */
+export interface Clarification {
+  message: string;
+  sourceLang: string;
+  options: ClarificationOption[];
+  languages: string[];
+}
+
+export interface TranslateAnswer {
+  sourceLang?: string;
+  asWritten?: boolean;
+  context?: string;
+}

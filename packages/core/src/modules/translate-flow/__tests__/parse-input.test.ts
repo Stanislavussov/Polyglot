@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseTranslateInput, type TranslateInputEntity } from "./parse-translate-input.js";
+import { parseTranslateInput, type TranslateInputEntity } from "../parse-input.js";
 
 function hashtagEntity(text: string, token: string): TranslateInputEntity {
   const offset = text.indexOf(token);

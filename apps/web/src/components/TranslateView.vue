@@ -36,8 +36,57 @@
 
       <div class="min-w-0 xl:col-start-1 xl:row-start-2" aria-live="polite">
         <LimitNotice v-if="limit" :reason="limit.reason" :reset-at="limit.resetAt" />
+        <div v-else-if="clarification" class="card space-y-4" role="alert">
+          <p class="text-sm">{{ clarification.view.message }}</p>
+          <div v-if="languageChoices.length > 0" class="flex flex-wrap gap-2">
+            <button
+              v-for="code in languageChoices"
+              :key="code"
+              type="button"
+              class="btn-secondary"
+              @click="answer(clarification.text, { sourceLang: code })"
+            >
+              <span aria-hidden="true">{{ languageFlag(code) }}</span>{{ languageName(code) }}
+            </button>
+          </div>
+          <div class="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+            <button
+              v-for="option in answerOptions"
+              :key="option.kind + option.value"
+              type="button"
+              :class="option.kind === 'typo_correction' ? 'btn-primary' : 'btn-secondary'"
+              @click="pick(option)"
+            >
+              {{ option.kind === "translate_as_written" ? t("web.translate.asWritten") : option.label }}
+            </button>
+          </div>
+        </div>
+        <div v-else-if="languageQuestion" class="card space-y-4" role="alert">
+          <p class="text-sm">
+            {{ t(languageQuestion.kind === "ambiguous" ? "web.translate.whichLanguage" : "web.translate.unknownLanguage", { word: languageQuestion.text }) }}
+          </p>
+          <div class="flex flex-wrap gap-2">
+            <button
+              v-for="code in languageQuestion.languages"
+              :key="code"
+              type="button"
+              class="btn-secondary"
+              @click="answer(languageQuestion.text, { sourceLang: code })"
+            >
+              <span aria-hidden="true">{{ languageFlag(code) }}</span>{{ languageName(code) }}
+            </button>
+          </div>
+        </div>
+        <div v-else-if="otherLanguage" role="alert" class="space-y-2 rounded-xl bg-warning-soft px-4 py-3 text-sm text-warning-fg">
+          <p>
+            {{ t(otherLanguage.supported ? "web.translate.addLanguage" : "web.translate.languageUnsupported", { lang: languageName(otherLanguage.lang) }) }}
+          </p>
+          <a v-if="otherLanguage.supported" href="/settings/" class="inline-flex min-h-11 items-center font-semibold underline">
+            {{ t("web.translate.openSettings") }}
+          </a>
+        </div>
         <p v-else-if="errorKey" role="alert" class="rounded-xl bg-danger-soft px-4 py-3 text-sm text-danger">
-          {{ t(errorKey) }}
+          {{ t(errorKey, errorParams) }}
         </p>
 
         <div v-if="busy" class="card space-y-4" aria-busy="true">
@@ -69,7 +118,7 @@
 
             <div v-if="result.correction" class="rounded-xl bg-warning-soft px-4 py-3 text-sm text-warning-fg">
               <p class="font-semibold">{{ t("web.translate.corrected", { corrected: result.correction.corrected }) }}</p>
-              <p v-if="result.correction.explanation" class="mt-1">{{ result.correction.explanation }}</p>
+              <p class="mt-1">{{ result.correction.explanation || t("web.translate.typoFixed", { word: result.correction.original }) }}</p>
             </div>
             <p v-if="result.unverified" class="flex items-start gap-2 rounded-xl bg-warning-soft px-4 py-3 text-sm text-warning-fg">
               <TriangleAlert class="mt-0.5 size-4 shrink-0" aria-hidden="true" />
@@ -209,11 +258,11 @@ import { useMainInput } from "../lib/use-main-input";
 import { ApiError, api } from "../lib/api";
 import { t } from "../lib/i18n";
 import { languageFlag, languageName } from "../lib/settings-store";
-import type { TranslateResult, TranslateTarget } from "../lib/types";
+import type { Clarification, ClarificationOption, TranslateAnswer, TranslateResult, TranslateTarget } from "../lib/types";
 import ExampleList from "./ExampleList.vue";
 import LimitNotice from "./LimitNotice.vue";
 
-const MAX_LENGTH = 200;
+const MAX_LENGTH = 500;
 const HISTORY_SIZE = 10;
 const HISTORY_KEY = "polyglot.translate.history";
 const COPIED_MS = 1800;
@@ -226,6 +275,19 @@ const loaderText = useLoaderText(busy);
 const result = ref<TranslateResult | null>(null);
 const fromHistory = ref(false);
 const errorKey = ref<string | null>(null);
+const errorParams = ref<Record<string, string | number>>({});
+const languageQuestion = ref<{ text: string; kind: "ambiguous" | "unrecognized"; languages: string[] } | null>(null);
+const otherLanguage = ref<{ lang: string; supported: boolean } | null>(null);
+const clarification = ref<{ text: string; view: Clarification } | null>(null);
+const languageChoices = computed(() => {
+  const view = clarification.value?.view;
+  if (!view) return [];
+  const offered = view.options.flatMap((option) => (option.kind === "source_language" && option.langCode ? [option.langCode] : []));
+  return offered.length > 0 ? offered : view.languages;
+});
+const answerOptions = computed(() =>
+  (clarification.value?.view.options ?? []).filter((option) => !(option.kind === "source_language" && option.langCode)),
+);
 const limit = ref<{ reason?: "plan" | "daily_ceiling"; resetAt?: string } | null>(null);
 const history = ref<TranslateResult[]>([]);
 const expanded = ref(new Set<string>());
@@ -288,9 +350,26 @@ function show(entry: TranslateResult, stored: boolean): void {
   expanded.value = new Set();
 }
 
-function openHistory(entry: TranslateResult): void {
+const REJECT_KEYS: Record<string, string> = {
+  empty: "web.translate.rejected.empty",
+  needs_text: "web.translate.rejected.needsText",
+  emoji: "web.translate.rejected.emoji",
+  command: "web.translate.rejected.command",
+  digits: "web.translate.rejected.digits",
+  tooLong: "web.translate.rejected.tooLong",
+};
+
+function resetNotices(): void {
   errorKey.value = null;
+  errorParams.value = {};
+  clarification.value = null;
+  languageQuestion.value = null;
+  otherLanguage.value = null;
   limit.value = null;
+}
+
+function openHistory(entry: TranslateResult): void {
+  resetNotices();
   show(entry, true);
   focusInput();
 }
@@ -348,19 +427,59 @@ function onKeydown(event: KeyboardEvent): void {
 }
 
 async function submit(): Promise<void> {
-  const value = text.value.trim();
+  await answer(text.value.trim(), {});
+}
+
+/** Mirrors the bot's clarify buttons: each answer re-runs the translation with what the user chose. */
+function pick(option: ClarificationOption): void {
+  const pending = clarification.value;
+  if (!pending) return;
+  const sourceLang = option.langCode ?? pending.view.sourceLang;
+  if (option.kind === "typo_correction" && option.correctedText) {
+    text.value = option.correctedText;
+    void answer(option.correctedText, { sourceLang, asWritten: true });
+  } else if (option.kind === "translate_as_written") {
+    void answer(pending.text, { sourceLang, asWritten: true });
+  } else {
+    void answer(pending.text, { sourceLang, context: `${option.label ?? option.value}: ${option.value}` });
+  }
+}
+
+async function answer(value: string, choice: TranslateAnswer): Promise<void> {
   if (busy.value || value === "") return;
   busy.value = true;
-  errorKey.value = null;
-  limit.value = null;
+  resetNotices();
   try {
-    const fresh = await api.translate(value);
+    const fresh = await api.translate(value, choice);
     show(fresh, false);
     remember(fresh);
   } catch (error) {
     result.value = null;
     if (error instanceof ApiError && error.status === 429 && error.code === "limit") {
-      limit.value = { reason: error.body.reason, resetAt: error.body.resetAt };
+      limit.value = { reason: error.body.reason === "daily_ceiling" ? "daily_ceiling" : "plan", resetAt: error.body.resetAt };
+    } else if (error instanceof ApiError && error.code === "needs_language" && error.body.languages?.length) {
+      languageQuestion.value = {
+        text: error.body.text ?? value,
+        kind: error.body.kind ?? "ambiguous",
+        languages: error.body.languages,
+      };
+    } else if (error instanceof ApiError && error.code === "add_language" && error.body.lang) {
+      otherLanguage.value = { lang: error.body.lang, supported: error.body.supported === true };
+    } else if (error instanceof ApiError && error.code === "rejected") {
+      errorKey.value = REJECT_KEYS[error.body.reason ?? ""] ?? "web.common.error";
+      errorParams.value = { max: error.body.maxLength ?? MAX_LENGTH };
+    } else if (error instanceof ApiError && error.code === "no_languages") {
+      errorKey.value = "web.translate.noLanguages";
+    } else if (error instanceof ApiError && error.code === "needs_clarification" && error.body.message) {
+      clarification.value = {
+        text: value,
+        view: {
+          message: error.body.message,
+          sourceLang: error.body.sourceLang ?? "",
+          options: error.body.options ?? [],
+          languages: error.body.languages ?? [],
+        },
+      };
     } else if (error instanceof ApiError && error.code === "needs_clarification") {
       errorKey.value = "web.translate.clarify";
     } else if (error instanceof ApiError && error.code === "timeout") {

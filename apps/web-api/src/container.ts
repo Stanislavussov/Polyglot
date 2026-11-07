@@ -9,6 +9,7 @@ import {
 } from "@polyglot/adapter-ai";
 import {
   createContextLookup,
+  createWordLanguageSweep,
   getAllLangs,
   getLang,
   getLangDisplay,
@@ -19,6 +20,7 @@ import {
   identityRepository,
   isKnownLang,
   isLanguageCacheLoaded,
+  languageDetectionRepository,
   loadLanguageCache,
   normalizeToIso1,
   settingsAdapter,
@@ -46,10 +48,12 @@ export function createWebServices(): WebServices {
     vocabularyDictionaryRepository,
     wordReviewRepository,
     translationRequestRepository,
+    languageDetectionRepository,
     translationTemplateRepository,
     subscriptionRepository,
     settings,
     contextLookup: createContextLookup(),
+    wordLanguageSweep: createWordLanguageSweep(),
     languageCache: {
       loadLanguageCache,
       isLanguageCacheLoaded,
