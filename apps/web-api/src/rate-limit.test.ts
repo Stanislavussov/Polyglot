@@ -14,7 +14,6 @@ describe("rate limit", () => {
       host: "127.0.0.1",
       production: false,
       botToken: "1:x",
-      botUsername: "b",
       jwtSecret: "s".repeat(32),
       appOrigin: "http://x",
       staticDir: dir,

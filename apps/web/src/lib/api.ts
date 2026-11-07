@@ -58,7 +58,7 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
 }
 
 export const api = {
-  authConfig: () => request<{ botUsername: string; botId: number; devLogin: boolean }>("GET", "/auth/config"),
+  authConfig: () => request<{ botId: number; devLogin: boolean }>("GET", "/auth/config"),
   devLogin: () => request<Me>("POST", "/auth/dev"),
   loginWithTelegram: (user: TelegramLoginUser) => request<Me>("POST", "/auth/telegram", user),
   logout: () => request<void>("POST", "/auth/logout"),

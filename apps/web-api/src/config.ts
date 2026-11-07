@@ -3,8 +3,6 @@ export interface WebApiConfig {
   host: string;
   production: boolean;
   botToken: string;
-  /** Shown to the Telegram Login Widget; must be the bot whose token signs the login. */
-  botUsername: string;
   jwtSecret: string;
   /** The only Origin a state-changing request may come from, e.g. https://learn.polyglot.monster. */
   appOrigin: string;
@@ -34,7 +32,6 @@ export function loadConfig(env: NodeJS.ProcessEnv): WebApiConfig {
     host: env.HOST ?? "0.0.0.0",
     production,
     botToken: required(env, "BOT_TOKEN"),
-    botUsername: required(env, "BOT_USERNAME"),
     jwtSecret,
     appOrigin: production ? required(env, "WEB_APP_ORIGIN") : (env.WEB_APP_ORIGIN ?? "http://localhost:4322"),
     staticDir: env.WEB_STATIC_DIR?.trim() || null,

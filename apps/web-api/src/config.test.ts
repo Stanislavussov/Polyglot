@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { loadConfig } from "./config.js";
 
-const base = { BOT_TOKEN: "1:x", BOT_USERNAME: "polyglot_bot", WEB_JWT_SECRET: "s".repeat(32) };
+const base = { BOT_TOKEN: "1:x", WEB_JWT_SECRET: "s".repeat(32) };
 
 describe("loadConfig", () => {
   it("refuses to boot without WEB_JWT_SECRET", () => {

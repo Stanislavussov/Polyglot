@@ -46,7 +46,6 @@ export async function createWebHarness(options: HarnessOptions = {}): Promise<We
     host: "127.0.0.1",
     production: false,
     botToken: BOT_TOKEN,
-    botUsername: "polyglot_test_bot",
     jwtSecret: "integration-test-secret-integration-test",
     appOrigin: WEB_ORIGIN,
     staticDir: null,

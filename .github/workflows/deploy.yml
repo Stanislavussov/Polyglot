@@ -231,7 +231,6 @@ jobs:
           # Learner web app (dormant): empty unless the repo/environment sets these.
           # COMPOSE_PROFILES=learn turns web-api on; see @docs/agents/deployment.md.
           echo "COMPOSE_PROFILES=${{ vars.COMPOSE_PROFILES }}" >> .env
-          echo "BOT_USERNAME=${{ vars.BOT_USERNAME }}" >> .env
           echo "WEB_APP_ORIGIN=${{ vars.WEB_APP_ORIGIN }}" >> .env
           echo "WEB_JWT_SECRET=${{ secrets.WEB_JWT_SECRET }}" >> .env
           echo "BOT_TOKEN=${{ secrets.BOT_TOKEN }}" >> .env

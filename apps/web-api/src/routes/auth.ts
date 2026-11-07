@@ -25,13 +25,12 @@ async function resolveLearner(services: WebServices, telegramId: number, usernam
 export function authRoutes(
   app: FastifyInstance,
   services: WebServices,
-  config: Pick<WebApiConfig, "botToken" | "botUsername" | "production" | "devUserId">,
+  config: Pick<WebApiConfig, "botToken" | "production" | "devUserId">,
   now: () => number = () => Math.floor(Date.now() / 1000),
 ): void {
   // The bot id is the token's public half (before ":"), never the secret part.
   const botId = Number(config.botToken.split(":")[0]);
   app.get("/api/auth/config", async () => ({
-    botUsername: config.botUsername,
     botId,
     devLogin: config.devUserId !== null,
   }));

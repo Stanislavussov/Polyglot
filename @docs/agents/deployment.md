@@ -97,6 +97,6 @@ without anyone running anything.
   `LANDING_WWW_DOMAIN`, `LEARN_DOMAIN`.
 - Learner web app (dormant): `deploy.yml` always builds `polyglot-web-api`; the `web-api`
   service runs only with `COMPOSE_PROFILES=learn`. Set GitHub vars `COMPOSE_PROFILES`,
-  `BOT_USERNAME`, `WEB_APP_ORIGIN` and secret `WEB_JWT_SECRET` (per environment) to turn it on.
+  `WEB_APP_ORIGIN` and secret `WEB_JWT_SECRET` (per environment) to turn it on.
 - `VPS_SSH_KEY` holds key contents in GitHub but a path in `.env.prod` — set it manually:
   `gh secret set VPS_SSH_KEY < ~/.ssh/<deploy_key>`.
