@@ -2,9 +2,9 @@
   <section class="min-w-0">
     <h1 class="text-2xl font-bold tracking-tight">{{ t("web.dictionary.title") }}</h1>
 
-    <div ref="toolbar" class="mt-6 flex scroll-mt-20 flex-col gap-3 sm:flex-row md:scroll-mt-6">
+    <div ref="toolbar" class="mt-6 flex scroll-mt-20 gap-2 sm:gap-3 md:scroll-mt-6">
       <label class="sr-only" for="dictionary-search">{{ t("web.dictionary.search") }}</label>
-      <div class="relative flex-1">
+      <div class="relative min-w-0 flex-1">
         <Search class="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-ink-muted" aria-hidden="true" />
         <input
           id="dictionary-search"
@@ -20,10 +20,10 @@
           aria-hidden="true"
         >/</kbd>
       </div>
-      <div class="flex flex-wrap gap-3">
+      <div class="flex shrink-0 gap-2 sm:gap-3">
       <PopoverRoot v-model:open="filtersOpen">
-        <PopoverTrigger class="btn-secondary relative shrink-0 gap-2" :aria-label="filterButtonLabel">
-          <SlidersHorizontal class="size-4" aria-hidden="true" />{{ t("web.dictionary.filters") }}
+        <PopoverTrigger class="btn-secondary relative shrink-0 gap-2 px-3 sm:px-4" :aria-label="filterButtonLabel">
+          <SlidersHorizontal class="size-5 sm:size-4" aria-hidden="true" /><span class="hidden sm:inline">{{ t("web.dictionary.filters") }}</span>
           <span
             v-if="activeCount > 0"
             class="grid min-w-5 place-items-center rounded-full bg-primary px-1.5 text-xs font-semibold text-primary-fg"
@@ -40,21 +40,14 @@
           </PopoverContent>
         </PopoverPortal>
       </PopoverRoot>
-      <div role="group" :aria-label="t('web.dictionary.sort')" class="flex min-w-[14rem] flex-1 rounded-xl border border-line bg-surface p-1">
-        <button
-          v-for="option in sorts"
-          :key="option.value"
-          type="button"
-          :aria-pressed="sort === option.value"
-          :class="[
-            'min-h-9 flex-1 whitespace-nowrap rounded-lg px-3 text-sm font-medium transition-colors',
-            sort === option.value ? 'bg-primary text-primary-fg' : 'text-ink-muted hover:bg-surface-muted',
-          ]"
-          @click="sort = option.value"
-        >
-          {{ t(option.label) }}
-        </button>
-      </div>
+      <button
+        type="button"
+        class="btn-secondary shrink-0 gap-2 px-3 sm:px-4"
+        :aria-label="`${t('web.dictionary.sort')}: ${t(currentSort.label)}`"
+        @click="toggleSort"
+      >
+        <component :is="currentSort.icon" class="size-5 sm:size-4" aria-hidden="true" /><span class="hidden sm:inline">{{ t(currentSort.label) }}</span>
+      </button>
       </div>
     </div>
 
@@ -136,7 +129,7 @@
 </template>
 
 <script setup lang="ts">
-import { ChevronLeft, ChevronRight, Search, SlidersHorizontal, X } from "lucide-vue-next";
+import { ArrowDownAZ, ChevronLeft, ChevronRight, Clock, Search, SlidersHorizontal, X } from "lucide-vue-next";
 import { PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from "reka-ui";
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { api } from "../lib/api";
@@ -154,8 +147,8 @@ const UNDO_WINDOW_MS = 6000;
 const COPIED_MS = 1800;
 
 const sorts = [
-  { value: "recent", label: "web.dictionary.sortRecent" },
-  { value: "alpha", label: "web.dictionary.sortAlpha" },
+  { value: "recent", label: "web.dictionary.sortRecent", icon: Clock },
+  { value: "alpha", label: "web.dictionary.sortAlpha", icon: ArrowDownAZ },
 ] as const;
 
 const TYPES = ["word", "phrase", "sentence"];
@@ -172,6 +165,11 @@ const initial = new URLSearchParams(window.location.search);
 
 const query = ref(initial.get("q") ?? "");
 const sort = ref<DictionarySort>(initial.get("sort") === "alpha" ? "alpha" : "recent");
+const currentSort = computed(() => (sort.value === "alpha" ? sorts[1] : sorts[0]));
+
+function toggleSort(): void {
+  sort.value = sort.value === "alpha" ? "recent" : "alpha";
+}
 const page = ref(Math.max(1, Number.parseInt(initial.get("page") ?? "1", 10) || 1));
 const filters = ref<DictionaryFilterState>({
   lang: initial.get("lang") ?? "",

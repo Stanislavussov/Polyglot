@@ -21,3 +21,4 @@
 - A single card no longer says “Card 1 of 1” — the counter only shows up when there are several cards to go through.
 - Recent translations on the website are now a tidy list of words, and each one has a 🗑 button to remove it.
 - While the website translates, it now keeps you company with the same little “one moment” phrases as the bot, in the languages you learn — and the button just turns pale instead of see-through.
+- Pages in the web app now open with a friendly monster placeholder instead of a blank screen, and on your phone you can swipe the menu open from the left edge.
