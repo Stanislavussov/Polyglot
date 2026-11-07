@@ -549,6 +549,7 @@
   "web.translate.recent": "Traduzioni recenti",
   "web.translate.recentEmpty": "Qui compariranno le tue ultime traduzioni.",
   "web.translate.clearHistory": "Cancella cronologia",
+  "web.translate.removeFromHistory": "Rimuovi «{word}» dalla cronologia",
   "web.translate.showMore": "Mostra altro",
   "web.translate.showLess": "Mostra meno",
   "web.translate.loading": "Traduzione in corso. Possono volerci alcuni secondi.",

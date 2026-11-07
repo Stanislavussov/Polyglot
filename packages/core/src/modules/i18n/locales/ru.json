@@ -549,6 +549,7 @@
   "web.translate.recent": "Недавние переводы",
   "web.translate.recentEmpty": "Здесь появятся ваши последние переводы.",
   "web.translate.clearHistory": "Очистить историю",
+  "web.translate.removeFromHistory": "Удалить «{word}» из истории",
   "web.translate.showMore": "Показать больше",
   "web.translate.showLess": "Показать меньше",
   "web.translate.loading": "Перевожу. Это может занять несколько секунд.",
