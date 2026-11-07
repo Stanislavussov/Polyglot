@@ -47,7 +47,7 @@ export async function createWebHarness(options: HarnessOptions = {}): Promise<We
     production: false,
     botToken: BOT_TOKEN,
     jwtSecret: "integration-test-secret-integration-test",
-    appOrigin: WEB_ORIGIN,
+    appOrigins: [WEB_ORIGIN],
     staticDir: null,
     devUserId: null,
   };

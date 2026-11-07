@@ -21,7 +21,12 @@ describe("loadConfig", () => {
   });
 
   it("defaults the dev origin to the local web server", () => {
-    expect(loadConfig(base).appOrigin).toBe("http://localhost:4322");
+    expect(loadConfig(base).appOrigins).toEqual(["http://localhost:4322"]);
+  });
+
+  it("reads a comma-separated WEB_APP_ORIGIN list", () => {
+    const env = { ...base, NODE_ENV: "production", WEB_APP_ORIGIN: "https://a.example, https://b.example/" };
+    expect(loadConfig(env).appOrigins).toEqual(["https://a.example", "https://b.example"]);
   });
 
   it("ignores WEB_DEV_USER_ID in production", () => {

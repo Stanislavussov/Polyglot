@@ -59,7 +59,7 @@ export async function buildWebApiApp(
     reply.header("x-content-type-options", "nosniff");
     reply.header("referrer-policy", "same-origin");
   });
-  app.addHook("preHandler", originGuard(config.appOrigin));
+  app.addHook("preHandler", originGuard(config.appOrigins, !config.production));
   installSessionGuard(app, services, config.production);
 
   app.setErrorHandler((error: FastifyError, request, reply) => {

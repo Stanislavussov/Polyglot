@@ -13,8 +13,9 @@ export default defineConfig({
   integrations: [vue()],
   vite: {
     server: {
-      // In production the API shares the origin; in dev web-api listens on its own port.
-      proxy: { "/api": "http://localhost:3002" },
+      // In production the API shares the origin; in dev web-api listens on its own port,
+      // which a parallel worktree may already hold — hence the same env var web-api reads.
+      proxy: { "/api": `http://localhost:${process.env.WEB_API_PORT ?? "3002"}` },
     },
   },
 });

@@ -15,7 +15,7 @@ describe("rate limit", () => {
       production: false,
       botToken: "1:x",
       jwtSecret: "s".repeat(32),
-      appOrigin: "http://x",
+      appOrigins: ["http://x"],
       staticDir: dir,
       devUserId: null,
     });
