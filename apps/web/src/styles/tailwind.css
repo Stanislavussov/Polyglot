@@ -1,0 +1,49 @@
+@import "./tokens.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-canvas font-sans text-ink antialiased;
+    /* A long word or URL from a translation wraps instead of widening the page on phones. */
+    overflow-wrap: anywhere;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-ring;
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-2xl border border-line bg-surface p-4 shadow-sm sm:p-6;
+  }
+
+  .btn {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-xl px-4 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .btn-primary {
+    @apply btn bg-primary text-primary-fg hover:bg-primary-hover;
+  }
+
+  .btn-secondary {
+    @apply btn border border-line bg-surface text-ink hover:bg-surface-muted;
+  }
+
+  .field {
+    @apply min-h-11 w-full rounded-xl border border-line bg-surface px-3 py-2 text-base text-ink placeholder:text-ink-muted;
+  }
+}
+
+@layer utilities {
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}

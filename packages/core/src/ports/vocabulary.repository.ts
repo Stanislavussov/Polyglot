@@ -148,8 +148,19 @@ export interface UpdateSrsStateInput {
 /** Sort order for the dictionary browse list. */
 export type DictionaryListSort = "recent" | "alpha";
 
+/** Narrowing filters for the dictionary browse list; every field is optional and they combine with AND. */
+export interface DictionaryFilters {
+  /** Only words written in this language (the entry's source language). */
+  langId?: number;
+  inputType?: "word" | "phrase" | "sentence";
+  /** The notification/review grade; "normal" also matches a word never graded. */
+  difficulty?: VocabDifficulty;
+  /** due = a language is due now; new = never reviewed; learned = every language past the mature interval. */
+  review?: "due" | "new" | "learned";
+}
+
 /** Optional filters/ordering for the paginated dictionary browse list. */
-export interface DictionaryListOptions {
+export interface DictionaryListOptions extends DictionaryFilters {
   /** Ordering: "recent" = newest first (default), "alpha" = A→Z by original. */
   sort?: DictionaryListSort;
   /** Case-insensitive substring filter on the original term or any translation. Empty/whitespace = no filter. */
@@ -202,7 +213,7 @@ export interface VocabularyRepository {
   /** One owned entry as the review card the deck would draw for it — its soonest-due live row; null when it has none. */
   findEntrySrsCard(userId: number, entryId: number): Promise<SrsDueVocabularyCard | null>;
   search(userId: number, query: string): Promise<VocabularyEntryWithTranslations[]>;
-  countByUser(userId: number, dictionaryId?: number, search?: string): Promise<number>;
+  countByUser(userId: number, dictionaryId?: number, search?: string, filters?: DictionaryFilters): Promise<number>;
   findByUserPaginated(
     userId: number,
     offset: number,

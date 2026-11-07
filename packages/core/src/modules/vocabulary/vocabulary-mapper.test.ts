@@ -1,16 +1,12 @@
-import type { TranslateOutput } from "@polyglot/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { TranslateOutput } from "../translation/types.js";
 
 // Mock logger (hoisted to avoid TDZ issues)
 const { mockLogger } = vi.hoisted(() => ({
   mockLogger: { warn: vi.fn(), error: vi.fn(), info: vi.fn(), debug: vi.fn() },
 }));
 
-vi.mock("@polyglot/core", () => ({
-  logger: mockLogger,
-}));
-
-vi.mock("@polyglot/infra", () => ({
+vi.mock("../../logger.js", () => ({
   logger: mockLogger,
 }));
 

@@ -18,13 +18,13 @@ import {
   isSupported,
   type PlanLimitConfig,
   parseNotificationMinutes,
+  resolvePlanLimit,
   type SupportedLang,
   t,
 } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import { canUseChangesCommand } from "../commands/changes.js";
 import type { BotContext } from "../types.js";
-import { resolvePlanLimit } from "../utils/plan-limit.js";
 import { editMessageTextOrReply } from "./helpers/edit-message.helper.js";
 
 /** Format a list of "HH:MM" times as a sorted, normalized, comma-separated string ("—" when empty). */

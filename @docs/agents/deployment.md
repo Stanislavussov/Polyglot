@@ -77,7 +77,8 @@ without anyone running anything.
   `VPS_USER`, `VPS_SSH_KEY` (a path). Read the printed `[env] user@host` — the env file is
   the only thing selecting the host.
 - Configures UFW, Docker, nginx, certbot. Each vhost is gated by its domain var (admin needs
-  both `ADMIN_PANEL_DOMAIN` and `ADMIN_API_DOMAIN`; TLS needs `ACME_EMAIL`).
+  both `ADMIN_PANEL_DOMAIN` and `ADMIN_API_DOMAIN`; the learner web app needs `LEARN_DOMAIN`;
+  TLS needs `ACME_EMAIL`).
 - Apply to dev first. Production only on an explicit, separate user request. Confirm DNS
   resolves first — certbot failures burn Let's Encrypt quota.
 - Changed `deploy/ansible/**` or nginx → dormant until re-applied; say so. App-only changes
@@ -93,6 +94,9 @@ without anyone running anything.
 - Infra vars from `.env.prod` that Ansible or the workflow consumes must be pushed, or CI
   runs stale: `VPS_HOST`, `VPS_USER`, `VPS_SSH_PORT`, `DEPLOY_USER_SSH_KEY`, `ACME_EMAIL`,
   `ADMIN_PANEL_DOMAIN`, `ADMIN_API_DOMAIN`, `GRAFANA_DOMAIN`, `LANDING_DOMAIN`,
-  `LANDING_WWW_DOMAIN`.
+  `LANDING_WWW_DOMAIN`, `LEARN_DOMAIN`.
+- Learner web app (dormant): `deploy.yml` always builds `polyglot-web-api`; the `web-api`
+  service runs only with `COMPOSE_PROFILES=learn`. Set GitHub vars `COMPOSE_PROFILES`,
+  `BOT_USERNAME`, `WEB_APP_ORIGIN` and secret `WEB_JWT_SECRET` (per environment) to turn it on.
 - `VPS_SSH_KEY` holds key contents in GitHub but a path in `.env.prod` — set it manually:
   `gh secret set VPS_SSH_KEY < ~/.ssh/<deploy_key>`.

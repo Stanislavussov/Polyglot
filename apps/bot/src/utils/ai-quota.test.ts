@@ -1,7 +1,7 @@
-import { DEFAULT_DAILY_CREDIT_CEILING } from "@polyglot/core";
+import { AI_CALL_WEIGHTS, DEFAULT_DAILY_CREDIT_CEILING } from "@polyglot/core";
 import { describe, expect, it, vi } from "vitest";
 import type { BotContext } from "../types.js";
-import { AI_CALL_WEIGHTS, type AiCallType, ensureAiQuota, recordAiUsage } from "./ai-quota.js";
+import { type AiCallType, ensureAiQuota, recordAiUsage } from "./ai-quota.js";
 
 interface CtxOptions {
   /** Plan limits as the admin panel would have them. `translationLimit: null` = an unlimited tier. */

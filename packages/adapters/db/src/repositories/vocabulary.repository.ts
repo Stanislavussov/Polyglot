@@ -1,5 +1,6 @@
 import type {
   CreateVocabularyInput,
+  DictionaryFilters,
   DictionaryListOptions,
   DictionaryListSort,
   EntrySrsRow,
@@ -14,6 +15,7 @@ import type {
   VocabularySource,
   VocabularyTranslation,
 } from "@polyglot/core";
+import { MATURE_INTERVAL_DAYS } from "@polyglot/core";
 import {
   and,
   asc,
@@ -26,8 +28,10 @@ import {
   ilike,
   inArray,
   isNull,
+  lt,
   lte,
   ne,
+  not,
   notInArray,
   or,
   type SQL,
@@ -39,6 +43,7 @@ import { vocabularyDictionaryEntries, vocabularyEntries, vocabularyTranslations 
 
 export type {
   CreateVocabularyInput,
+  DictionaryFilters,
   DictionaryListOptions,
   DictionaryListSort,
   EntrySrsRow,
@@ -115,6 +120,45 @@ function entrySearchFilter(search?: string): SQL | undefined {
           ),
         ),
     ),
+  );
+}
+
+/** A live translation row of the outer entry matching `condition`. */
+function liveTranslationWhere(condition: SQL | undefined) {
+  return exists(
+    getDb()
+      .select({ one: sql`1` })
+      .from(vocabularyTranslations)
+      .where(
+        and(
+          eq(vocabularyTranslations.entryId, vocabularyEntries.id),
+          eq(vocabularyTranslations.isActive, true),
+          condition,
+        ),
+      ),
+  );
+}
+
+/** The browse-list filters (language, type, grade, review state) as one AND-ed clause; undefined = none. */
+function entryFilters(filters: DictionaryFilters | undefined, now: Date = new Date()): SQL | undefined {
+  if (!filters) return undefined;
+  const { langId, inputType, difficulty, review } = filters;
+  return and(
+    langId === undefined ? undefined : eq(vocabularyEntries.sourceLangId, langId),
+    inputType === undefined ? undefined : eq(vocabularyEntries.inputType, inputType),
+    difficulty === undefined
+      ? undefined
+      : difficulty === "normal"
+        ? or(eq(vocabularyEntries.difficulty, "normal"), isNull(vocabularyEntries.difficulty))
+        : eq(vocabularyEntries.difficulty, difficulty),
+    review === "due" ? liveTranslationWhere(lte(vocabularyTranslations.srsDueDate, now)) : undefined,
+    review === "new" ? not(liveTranslationWhere(gt(vocabularyTranslations.srsReviewCount, 0))) : undefined,
+    review === "learned"
+      ? and(
+          liveTranslationWhere(undefined),
+          not(liveTranslationWhere(lt(vocabularyTranslations.srsInterval, MATURE_INTERVAL_DAYS))),
+        )
+      : undefined,
   );
 }
 
@@ -560,9 +604,14 @@ export const vocabularyRepository = {
    * Count active vocabulary entries for a user.
    * Returns 0 for users with no entries.
    */
-  async countByUser(userId: number, dictionaryId?: number, search?: string): Promise<number> {
+  async countByUser(
+    userId: number,
+    dictionaryId?: number,
+    search?: string,
+    filters?: DictionaryFilters,
+  ): Promise<number> {
     const db = getDb();
-    const searchFilter = entrySearchFilter(search);
+    const searchFilter = and(entrySearchFilter(search), entryFilters(filters));
     if (dictionaryId !== undefined) {
       const result = await db
         .select({ value: count() })
@@ -707,7 +756,7 @@ export const vocabularyRepository = {
   ): Promise<VocabularyEntryWithTranslations[]> {
     const db = getDb();
     const order = dictionaryListOrder(options?.sort);
-    const searchFilter = entrySearchFilter(options?.search);
+    const searchFilter = and(entrySearchFilter(options?.search), entryFilters(options));
     const entries =
       dictionaryId === undefined
         ? await db

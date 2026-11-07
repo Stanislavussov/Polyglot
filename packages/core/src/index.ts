@@ -100,6 +100,7 @@ export type {
 } from "./ports/video-vocabulary.repository.js";
 export type {
   CreateVocabularyInput,
+  DictionaryFilters,
   DictionaryListOptions,
   DictionaryListSort,
   EntrySrsRow,
@@ -213,6 +214,7 @@ export {
 export * from "./modules/rate-limit/index.js";
 export * from "./modules/release-notes/index.js";
 export { AI_GENERATION_DEFAULTS, parseAIGenerationDefaults } from "./modules/settings/ai-defaults.schema.js";
+export { MAX_LEARNING_LANGS } from "./modules/settings/learning-langs.js";
 export * from "./modules/settings/settings.service.js";
 export * from "./modules/srs/index.js";
 export * from "./modules/subscriptions/index.js";
@@ -259,6 +261,7 @@ export {
   orderRecordEntries,
   orderTranslations,
 } from "./modules/vocabulary/translation-order.js";
+export { type LangResolver, toTranslateOutput, toVocabularyInput } from "./modules/vocabulary/vocabulary-mapper.js";
 export type {
   CefrLevel,
   DefaultWordPickerPreset,

@@ -19,7 +19,6 @@ import {
   errorFields,
   getLangFlag,
   getLanguageName,
-  getMonthlyWindowStart,
   type InputType,
   isSupported,
   isSupportedLanguage,
@@ -27,12 +26,9 @@ import {
   needsAiArbitration,
   needsDictionaryVerification,
   resolveDirectionFromSource,
-  resolveEntitlements,
-  resolveMeteredWindowStart,
   resolveOutputConfig,
   resolveTemplate,
   resolveTranslationDirection,
-  type SubscriptionPlan,
   type SupportedLang,
   type TranslateOutput,
   type TranslationAmbiguity,
@@ -52,11 +48,10 @@ import { getRequestSettings } from "../../middlewares/request-settings.js";
 import { recordEffort } from "../../momentum/momentum.wiring.js";
 import { resolvePraiseLine } from "../../momentum/praise.footer.js";
 import { commitRecovery, resolveRecoveryPrefix } from "../../momentum/recovery.helper.js";
-import { trackProductEvent } from "../../observability/product-events.js";
 import { renderSentenceTranslation, renderTranslation } from "../../renderers/translation.renderer.js";
 import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
-import { ensureTranslationDailyCeiling } from "../../utils/ai-quota.js";
+import { ensureTranslationQuota } from "../../utils/ai-quota.js";
 import { classifyInput } from "../../utils/classify-input.js";
 import { resolveLanguageOrder } from "../../utils/language-order.js";
 import {
@@ -75,7 +70,6 @@ import { encodeTranslateRetryText, replyWithRetry } from "../../utils/retry-acti
 import { validateTranslatableText } from "../../utils/validate-text-input.js";
 import { buildCardKeyboard } from "./card-keyboard.js";
 import { answerStaleCallback } from "./stale-callback.helper.js";
-import { buildUpgradeKeyboard } from "./subscription.helper.js";
 import {
   clearPendingClarification,
   getUserLanguageGroup,
@@ -83,65 +77,6 @@ import {
   showAddLanguagePrompt,
 } from "./translate-mode.shared.js";
 import { setTranslationEntry } from "./translation-map.helper.js";
-
-/**
- * Translation quota — a monthly (calendar-UTC) window, distinct from the daily
- * credit meter (`ensureAiQuota`) that governs the other paid AI calls. Free plans
- * allow N translations per calendar month; unlimited plans and admin/tester roles
- * skip the ledger entirely. Returns the credit cost to log on success, or null
- * when the quota is exhausted (after replying with the limit notice + upgrade
- * CTA — the caller must then abort).
- */
-async function ensureTranslationQuota(
-  ctx: BotContext,
-  plan: SubscriptionPlan,
-  lang: SupportedLang,
-): Promise<number | null> {
-  const creditCost = 1;
-  const planConfig = await ctx.services.settings.getPlanLimit(plan);
-  const entitlements = resolveEntitlements({
-    audienceGroup: ctx.user.audienceGroup,
-    plan,
-    planConfig,
-    planFeatures: [],
-  });
-
-  if (entitlements.translationsPerMonth !== null) {
-    const usedCredits = await ctx.services.translationRequestRepository.getUserCreditsInWindow(
-      ctx.user.id,
-      await resolveQuotaWindowStart(ctx),
-    );
-    if (usedCredits + creditCost > entitlements.translationsPerMonth) {
-      trackProductEvent(ctx, "limit.reached", "translation");
-      await ctx.reply(t("rateLimitExceeded", lang), { reply_markup: buildUpgradeKeyboard(lang) });
-      return null;
-    }
-  }
-
-  // The safety ceiling runs even when the plan said yes, and especially then: an
-  // unlimited plan and an internal role are exactly the accounts the monthly
-  // window above returns early for, so this is the only thing standing between a
-  // stuck client and an unbounded AI bill.
-  if (!(await ensureTranslationDailyCeiling(ctx, plan, lang, creditCost))) {
-    return null;
-  }
-
-  return creditCost;
-}
-
-/**
- * The billing window for a metered plan, rebased on a trial that ended inside
- * this month (see `resolveMeteredWindowStart` for why). Only the monthly
- * translation window is rebased; the daily credit meter is left alone, where the
- * same overlap can cost at most the remainder of one day.
- *
- * Reached only by a metered plan — an unlimited one returns above this call, so
- * the extra lookup never touches a paying user's hot path.
- */
-async function resolveQuotaWindowStart(ctx: BotContext): Promise<Date> {
-  const trial = await ctx.services.subscriptionRepository?.findTrialByUser(ctx.user.id);
-  return resolveMeteredWindowStart(getMonthlyWindowStart(), trial?.currentPeriodEnd);
-}
 
 /**
  * Task 70 cross-language guard. A `needs_clarification` of reason

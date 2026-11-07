@@ -1,0 +1,83 @@
+/*
+ * Provisional palette: the Figma Make file "Green Language Learning System" was not
+ * reachable yet. This is the only file that holds colour values; replace them here.
+ * Light is the default; dark applies by [data-theme=dark] or, with no explicit choice,
+ * by the system preference.
+ */
+:root {
+  color-scheme: light dark;
+  --font-sans: "Avenir Next", "Nunito", "Segoe UI Variable", "Segoe UI", ui-rounded, system-ui, sans-serif;
+
+  --color-canvas: #f4f8f3;
+  --color-surface: #ffffff;
+  --color-surface-muted: #e9f1e8;
+  --color-line: #cfdccd;
+  --color-ink: #17291f;
+  --color-ink-muted: #4f6256;
+  --color-primary: #1d7448;
+  --color-primary-hover: #155c38;
+  --color-primary-fg: #ffffff;
+  --color-primary-soft: #d9efe1;
+  --color-primary-soft-fg: #124b2c;
+  --color-danger: #b3261e;
+  --color-danger-soft: #fbe6e3;
+  --color-warning-soft: #fff1cf;
+  --color-warning-fg: #6a4700;
+  --color-ring: #2a9962;
+  --color-sidebar: #12301f;
+  --color-sidebar-fg: #d3e6d9;
+  --color-sidebar-muted: #a9c2b1;
+  --color-sidebar-hover: #1b4630;
+  --color-sidebar-active: #25593e;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --color-canvas: #0e1611;
+  --color-surface: #16211a;
+  --color-surface-muted: #1e2b23;
+  --color-line: #2c3b32;
+  --color-ink: #e3eee7;
+  --color-ink-muted: #9db1a3;
+  --color-primary: #4cc38a;
+  --color-primary-hover: #6dd5a2;
+  --color-primary-fg: #06200f;
+  --color-primary-soft: #1b3a29;
+  --color-primary-soft-fg: #a9e7c6;
+  --color-danger: #ff8d83;
+  --color-danger-soft: #3b1d1b;
+  --color-warning-soft: #3a2f10;
+  --color-warning-fg: #f2d58a;
+  --color-ring: #4cc38a;
+  --color-sidebar: #0a110d;
+  --color-sidebar-fg: #bed1c5;
+  --color-sidebar-muted: #8ea597;
+  --color-sidebar-hover: #14211a;
+  --color-sidebar-active: #1b3a29;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-canvas: #0e1611;
+    --color-surface: #16211a;
+    --color-surface-muted: #1e2b23;
+    --color-line: #2c3b32;
+    --color-ink: #e3eee7;
+    --color-ink-muted: #9db1a3;
+    --color-primary: #4cc38a;
+    --color-primary-hover: #6dd5a2;
+    --color-primary-fg: #06200f;
+    --color-primary-soft: #1b3a29;
+    --color-primary-soft-fg: #a9e7c6;
+    --color-danger: #ff8d83;
+    --color-danger-soft: #3b1d1b;
+    --color-warning-soft: #3a2f10;
+    --color-warning-fg: #f2d58a;
+    --color-ring: #4cc38a;
+    --color-sidebar: #0a110d;
+    --color-sidebar-fg: #bed1c5;
+    --color-sidebar-muted: #8ea597;
+    --color-sidebar-hover: #14211a;
+    --color-sidebar-active: #1b3a29;
+  }
+}

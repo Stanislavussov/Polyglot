@@ -1,0 +1,8 @@
+---
+import AppShell from "../components/AppShell.vue";
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Translate">
+  <AppShell client:only="vue" page="translate" />
+</BaseLayout>

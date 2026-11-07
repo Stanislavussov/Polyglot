@@ -1,0 +1,8 @@
+---
+import AppShell from "../components/AppShell.vue";
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Dictionary">
+  <AppShell client:only="vue" page="dictionary" />
+</BaseLayout>

@@ -1,21 +1,18 @@
 /**
  * Maps TranslateOutput → CreateVocabularyInput for the normalized vocabulary schema.
  *
- * This mapper lives in the bot layer because it bridges two types:
- *   - TranslateOutput (from @polyglot/core — translation result)
- *   - CreateVocabularyInput (from @polyglot/adapter-db — storage input)
+ * Shared by every channel that saves a word (bot, web), so a saved entry has one shape.
  *
  * Replaces the old sanitizeForStorage() which produced a monolithic JSONB blob.
  * Now produces a normalized parent + per-language children structure.
  */
+import { logger } from "../../logger.js";
 import type {
   CreateVocabularyInput,
-  LanguageTranslation,
-  TranslateOutput,
   VocabTranslationDetails,
   VocabularyEntryWithTranslations,
-} from "@polyglot/core";
-import { logger } from "@polyglot/core";
+} from "../../ports/vocabulary.repository.js";
+import type { LanguageTranslation, TranslateOutput } from "../translation/types.js";
 
 /**
  * Resolves a language code to its database ID.

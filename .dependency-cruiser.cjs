@@ -165,11 +165,36 @@ module.exports = {
         path: "^packages/core/src/modules/([^/]+)/",
         // Modules with an explicit allow rule below are exempt from the default.
         pathNot:
-          "^packages/core/src/modules/(validation|translation|context-enrichment|notifications|expressions|tts|grammar-check)/",
+          "^packages/core/src/modules/(validation|translation|context-enrichment|notifications|expressions|tts|grammar-check|entitlements)/",
       },
       to: {
         path: "^packages/core/src/modules/",
         pathNot: "^packages/core/src/modules/$1/",
+      },
+    },
+    {
+      name: "web-api-no-other-app",
+      comment:
+        "web-api is its own channel: it shares logic through packages/core, never by importing the bot or admin-api. " +
+        "Only its integration tests may reach the bot's test harness, so bot and web run over one container.",
+      severity: "error",
+      from: { path: "^apps/web-api/src/", pathNot: "\\.integration\\.test\\.ts$|^apps/web-api/src/test-helpers/" },
+      to: { path: "^apps/(bot|admin-api|admin|web)/" },
+    },
+    {
+      name: "web-api-tests-only-bot-test-helpers",
+      severity: "error",
+      from: { path: "^apps/web-api/src/" },
+      to: { path: "^apps/bot/src/", pathNot: "^apps/bot/src/test-helpers/" },
+    },
+    {
+      name: "core-entitlements-allowlist",
+      comment: "entitlements may import only rate-limit and subscriptions among core modules (quota decisions)",
+      severity: "error",
+      from: { path: "^packages/core/src/modules/entitlements/" },
+      to: {
+        path: "^packages/core/src/modules/",
+        pathNot: "^packages/core/src/modules/(entitlements|rate-limit|subscriptions)/",
       },
     },
     {

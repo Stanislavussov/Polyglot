@@ -1,0 +1,22 @@
+import type { ServiceContainer } from "@polyglot/core";
+
+/**
+ * The slice of the bot's service container the web app uses. Typed as a Pick so
+ * an integration test can hand in the bot harness's container and both channels
+ * run against the same repositories, settings and AI mock.
+ */
+export type WebServices = Pick<
+  ServiceContainer,
+  | "userRepository"
+  | "identityRepository"
+  | "vocabularyRepository"
+  | "vocabularyDictionaryRepository"
+  | "wordReviewRepository"
+  | "translationRequestRepository"
+  | "translationTemplateRepository"
+  | "subscriptionRepository"
+  | "settings"
+  | "languageCache"
+  | "contextLookup"
+  | "ai"
+>;
