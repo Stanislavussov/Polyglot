@@ -20,3 +20,4 @@
 - New ✍️ Check button and /check: send a sentence in a language you're learning (or your own) and get every mistake fixed, with the rule behind it and an example.
 - A single card no longer says “Card 1 of 1” — the counter only shows up when there are several cards to go through.
 - Recent translations on the website are now a tidy list of words, and each one has a 🗑 button to remove it.
+- While the website translates, it now keeps you company with the same little “one moment” phrases as the bot, in the languages you learn — and the button just turns pale instead of see-through.

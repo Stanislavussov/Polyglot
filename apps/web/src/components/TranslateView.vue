@@ -41,7 +41,7 @@
         </p>
 
         <div v-if="busy" class="card space-y-4" aria-busy="true">
-          <p class="sr-only">{{ t("web.translate.loading") }}</p>
+          <p class="text-sm font-medium text-ink-muted" role="status">{{ loaderText || t("web.translate.loading") }}</p>
           <div class="h-4 w-24 animate-pulse rounded bg-surface-muted" />
           <div class="h-7 w-2/3 animate-pulse rounded bg-surface-muted" />
           <div class="space-y-3 border-t border-line pt-4">
@@ -204,6 +204,7 @@
 <script setup lang="ts">
 import { Check, ChevronDown, Copy, Trash2, TriangleAlert, Undo2 } from "lucide-vue-next";
 import { computed, onMounted, ref } from "vue";
+import { useLoaderText } from "../lib/use-loader-text";
 import { useMainInput } from "../lib/use-main-input";
 import { ApiError, api } from "../lib/api";
 import { t } from "../lib/i18n";
@@ -221,6 +222,7 @@ const input = ref<HTMLTextAreaElement | null>(null);
 const text = ref("");
 const { focus: focusInput } = useMainInput(() => input.value);
 const busy = ref(false);
+const loaderText = useLoaderText(busy);
 const result = ref<TranslateResult | null>(null);
 const fromHistory = ref(false);
 const errorKey = ref<string | null>(null);
