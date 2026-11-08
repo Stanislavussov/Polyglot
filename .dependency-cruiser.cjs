@@ -165,7 +165,7 @@ module.exports = {
         path: "^packages/core/src/modules/([^/]+)/",
         // Modules with an explicit allow rule below are exempt from the default.
         pathNot:
-          "^packages/core/src/modules/(validation|translation|context-enrichment|notifications|expressions|tts|grammar-check|entitlements|translate-flow)/",
+          "^packages/core/src/modules/(validation|translation|context-enrichment|notifications|expressions|tts|grammar-check|entitlements|translate-flow|word-picker|video-vocabulary|vocabulary)/",
       },
       to: {
         path: "^packages/core/src/modules/",
@@ -197,6 +197,27 @@ module.exports = {
         path: "^packages/core/src/modules/",
         pathNot:
           "^packages/core/src/modules/(translate-flow|translation|context-enrichment|language-detect|entitlements|input-analysis|i18n|vocabulary)/",
+      },
+    },
+    {
+      name: "core-learn-flows-allowlist",
+      comment:
+        "word-picker and video-vocabulary are channel-neutral use cases (bot + web): they meter through entitlements and save through vocabulary",
+      severity: "error",
+      from: { path: "^packages/core/src/modules/(word-picker|video-vocabulary)/" },
+      to: {
+        path: "^packages/core/src/modules/",
+        pathNot: "^packages/core/src/modules/($1|entitlements|vocabulary)/",
+      },
+    },
+    {
+      name: "core-vocabulary-allowlist",
+      comment: "vocabulary may import only context-enrichment among core modules (enriching a saved entry)",
+      severity: "error",
+      from: { path: "^packages/core/src/modules/vocabulary/" },
+      to: {
+        path: "^packages/core/src/modules/",
+        pathNot: "^packages/core/src/modules/(vocabulary|context-enrichment)/",
       },
     },
     {

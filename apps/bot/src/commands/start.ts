@@ -1,8 +1,12 @@
 import { isSupported, logger, type SupportedLang, t } from "@polyglot/core";
 import { installMainKeyboard } from "../middlewares/main-keyboard.js";
 import { startOnboarding } from "../onboarding/onboarding-handlers.js";
+import { sendUpgradeScreen } from "../scenes/helpers/subscription.helper.js";
 import type { BotContext } from "../types.js";
 import { setUserCommands } from "./commands.js";
+
+/** `t.me/<bot>?start=plan` — the deep link the web plan page opens. */
+const START_PAYLOAD_PLAN = "plan";
 
 /**
  * /start command handler.
@@ -35,6 +39,8 @@ export async function startCommand(ctx: BotContext): Promise<void> {
     // keyboard's carrier message and therefore stays in the chat — see
     // `installMainKeyboard` for why deleting it would take the menu with it.
     await installMainKeyboard(ctx, t("welcomeBack", lang), lang);
+    // The web app's "upgrade" link lands here: buying is Telegram-bound, so the web sends people to this screen.
+    if (ctx.match === START_PAYLOAD_PLAN) await sendUpgradeScreen(ctx, lang);
   } else {
     // Onboarding is stateless (Task 72): resume on the furthest screen reached,
     // never restart from screen 0.

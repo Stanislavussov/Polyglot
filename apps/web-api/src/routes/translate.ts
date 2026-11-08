@@ -1,17 +1,24 @@
 import {
+  applyTemplateFields,
+  creditEffort,
   type Example,
   errorFields,
   FEATURE_KEYS,
   isEtymologyEligible,
+  isSupportedLanguage,
   logEvent,
+  MAX_LEARNING_LANGS,
+  resolveTemplate,
   runTranslation,
   saveTranslationToDictionary,
+  type TemplateFields,
   type TranslateOutput,
 } from "@polyglot/core";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import type { WebServices } from "../services.js";
-import { cardFeatures, featureLocked, hasFeature } from "./card-explore.js";
+import { cardFeatures } from "./card-explore.js";
+import { featureLocked, hasFeature } from "./learn-shared.js";
 
 const bodySchema = z.object({
   // Generous on purpose: the length rule (and its message) belongs to core's input validation.
@@ -25,6 +32,8 @@ const bodySchema = z.object({
   clarify: z.boolean().optional(),
   // "Other meaning": every translation shown so far, per target language, for the new card to avoid.
   negativeConstraints: z.record(z.string().min(2).max(8), z.array(z.string().max(500)).max(20)).optional(),
+  // The bot's tr:oos:add "Add and translate": join the learning set, then translate from it.
+  addLanguage: z.string().min(2).max(8).optional(),
 });
 
 const texts = (items: { text: string }[] | null | undefined) => (items ?? []).map((item) => item.text);
@@ -77,12 +86,32 @@ export function toTranslateResult(
   };
 }
 
+/** The fields the user's cards show: their saved template, or the default one. */
+async function templateFields(services: WebServices, userId: number): Promise<TemplateFields> {
+  const saved = await services.translationTemplateRepository.getByUserId(userId);
+  return resolveTemplate(saved ? { name: saved.name, fields: saved.fields } : null).fields;
+}
+
 export function translateRoutes(app: FastifyInstance, services: WebServices): void {
   app.post("/api/translate", async (request, reply) => {
     const parsed = bodySchema.safeParse(request.body);
     if (!parsed.success) return reply.status(400).send({ code: "invalid_text" });
-    const { text, clarify, ...answer } = parsed.data;
+    const { text, clarify, addLanguage, ...answer } = parsed.data;
     const user = request.learner;
+    if (addLanguage !== undefined) {
+      if (!isSupportedLanguage(addLanguage)) return reply.status(400).send({ code: "invalid_language" });
+      const settings = await services.userRepository.getSettings(user.id);
+      const nativeLang = settings?.nativeLang ?? "en";
+      const learning = (settings?.learningLangs ?? []).filter((code) => code !== nativeLang);
+      if (addLanguage !== nativeLang && !learning.includes(addLanguage)) {
+        if (learning.length >= MAX_LEARNING_LANGS) {
+          return reply.status(422).send({ code: "max_languages", limit: MAX_LEARNING_LANGS });
+        }
+        await services.userRepository.updateLearningLangs(user.id, [...learning, addLanguage]);
+        logEvent("language.added_from_out_of_set", { sourceLang: addLanguage, surface: "web" });
+      }
+      answer.sourceLang = addLanguage;
+    }
     if (
       (clarify === true || answer.negativeConstraints) &&
       !(await hasFeature(services, user, FEATURE_KEYS.clarification))
@@ -150,10 +179,25 @@ export function translateRoutes(app: FastifyInstance, services: WebServices): vo
                 outcome.inputType,
                 "web",
               );
+        // The bot's credits for the same two efforts, under the same dedupe keys.
+        await creditEffort(services.momentumService, {
+          userId: user.id,
+          kind: "translate",
+          dedupeKey: `translate:${outcome.translationRequestId}`,
+        });
+        if (savedEntryId !== null) {
+          await creditEffort(services.momentumService, {
+            userId: user.id,
+            kind: "save",
+            dedupeKey: `save:${savedEntryId}`,
+          });
+        }
         const settings = await services.userRepository.getSettings(user.id);
+        // The dictionary keeps the whole card; only the shown card drops what the template turns off, as the bot's does.
+        const shown = applyTemplateFields(outcome.output, await templateFields(services, user.id));
         return {
           ...toTranslateResult(
-            outcome.output,
+            shown,
             outcome.targetLangs,
             savedEntryId,
             outcome.inputType === "sentence",

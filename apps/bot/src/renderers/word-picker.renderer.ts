@@ -3,7 +3,7 @@
  */
 
 import type { SupportedLang, WordPickerItem, WordPickerPreset, WordPickerRun } from "@polyglot/core";
-import { t } from "@polyglot/core";
+import { presetTitle, t } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import { answerLine, esc as escapeHtml, exampleLine, headwordLine, meaningLine } from "./card-sections.js";
 
@@ -14,11 +14,6 @@ export const PICK_SAVE_ALL_PREFIX = "wp:sa:";
 export const PICK_MORE_PREFIX = "wp:m:";
 export const PICK_CLOSE = "wp:close";
 export const PICK_NOOP = "wp:noop";
-
-/** The title an admin wrote for this interface language, or the default one. */
-export function presetTitle(preset: WordPickerPreset, lang: SupportedLang): string {
-  return preset.titleI18n[lang]?.trim() || preset.title;
-}
 
 export function renderPresetList(lang: SupportedLang): string {
   return t("pickIntro", lang);

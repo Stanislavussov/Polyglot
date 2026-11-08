@@ -19,6 +19,7 @@ const config: Config = {
         },
         danger: { DEFAULT: "var(--color-danger)", soft: "var(--color-danger-soft)" },
         warning: { soft: "var(--color-warning-soft)", fg: "var(--color-warning-fg)" },
+        accent: { DEFAULT: "var(--color-accent)", fg: "var(--color-accent-fg)" },
         ring: "var(--color-ring)",
         sidebar: {
           DEFAULT: "var(--color-sidebar)",
@@ -30,6 +31,12 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["var(--font-sans)"],
+        display: ["var(--font-display)"],
+      },
+      boxShadow: {
+        card: "var(--shadow-card)",
+        soft: "var(--shadow-soft)",
+        primary: "var(--shadow-primary)",
       },
     },
   },

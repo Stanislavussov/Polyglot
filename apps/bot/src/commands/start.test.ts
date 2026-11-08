@@ -37,8 +37,13 @@ vi.mock("../onboarding/onboarding-handlers.js", () => ({
   startOnboarding: vi.fn().mockResolvedValue(undefined),
 }));
 
+vi.mock("../scenes/helpers/subscription.helper.js", () => ({
+  sendUpgradeScreen: vi.fn().mockResolvedValue(undefined),
+}));
+
 import type { ServiceContainer } from "@polyglot/core";
 import { startOnboarding } from "../onboarding/onboarding-handlers.js";
+import { sendUpgradeScreen } from "../scenes/helpers/subscription.helper.js";
 import { createServicesStub } from "../test-helpers/services-stub.js";
 import { setUserCommands } from "./commands.js";
 
@@ -109,6 +114,23 @@ describe("startCommand", () => {
     // /start is the recovery path for a lost keyboard, so it must not hand back one
     // that collapses itself again on the next tap.
     expect(markup).not.toHaveProperty("one_time_keyboard");
+  });
+
+  it("opens the plan comparison when the web plan page's deep link starts the bot", async () => {
+    const ctx = createMockCtx({ onboarded: true });
+    (ctx as unknown as { match: string }).match = "plan";
+
+    await startCommand(ctx);
+
+    expect(sendUpgradeScreen).toHaveBeenCalledWith(ctx, "en");
+  });
+
+  it("does not open the plan comparison on a plain /start", async () => {
+    const ctx = createMockCtx({ onboarded: true });
+
+    await startCommand(ctx);
+
+    expect(sendUpgradeScreen).not.toHaveBeenCalled();
   });
 
   it("persists activeMode to DB for onboarded users", async () => {

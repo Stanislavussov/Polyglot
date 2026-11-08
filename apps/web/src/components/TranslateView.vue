@@ -1,6 +1,6 @@
 <template>
   <section class="pb-24 md:pb-0">
-    <h1 class="text-2xl font-bold tracking-tight">{{ t("web.translate.title") }}</h1>
+    <h1 class="page-title">{{ t("web.translate.title") }}</h1>
 
     <div class="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,20rem)] xl:items-start">
       <form class="card space-y-3 xl:col-start-1 xl:row-start-1" @submit.prevent="submit()">
@@ -18,6 +18,18 @@
         <div class="flex items-center justify-between gap-3">
           <span class="text-xs text-ink-muted" aria-hidden="true">{{ text.length }}/{{ MAX_LENGTH }}</span>
           <div class="flex gap-2">
+            <button
+              v-if="voiceAvailable"
+              type="button"
+              :class="recording ? 'btn-primary' : 'btn-secondary'"
+              :aria-pressed="recording"
+              :aria-label="recording ? t('web.voice.stop') : t('web.voice.record')"
+              :title="recording ? t('web.voice.stop') : t('web.voice.record')"
+              :disabled="busy || transcribing"
+              @click="toggleRecording"
+            >
+              <Square v-if="recording" class="size-4" aria-hidden="true" /><Mic v-else class="size-4" aria-hidden="true" />
+            </button>
             <button v-if="text !== ''" type="button" class="btn-secondary" @click="clearInput">
               {{ t("web.translate.clear") }}
             </button>
@@ -28,6 +40,7 @@
               :disabled="busy || text.trim() === ''"
             >
               {{ busy ? t("web.translate.working") : t("web.translate.submit") }}
+              <span v-if="!busy" class="btn-chip" aria-hidden="true"><ArrowRight class="size-4" /></span>
             </button>
           </div>
         </div>
@@ -82,6 +95,14 @@
           <p>
             {{ t(otherLanguage.supported ? "web.translate.addLanguage" : "web.translate.languageUnsupported", { lang: languageName(otherLanguage.lang) }) }}
           </p>
+          <button
+            v-if="otherLanguage.supported"
+            type="button"
+            class="btn-primary"
+            @click="answer(otherLanguage.text, { addLanguage: otherLanguage.lang })"
+          >
+            {{ t("web.translate.addAndTranslate", { lang: languageName(otherLanguage.lang) }) }}
+          </button>
           <a v-if="otherLanguage.supported" href="/settings/" class="inline-flex min-h-11 items-center font-semibold underline">
             {{ t("web.translate.openSettings") }}
           </a>
@@ -91,20 +112,13 @@
         </p>
 
         <div v-if="busy" class="card space-y-4" aria-busy="true">
-          <p class="text-sm font-medium text-ink-muted" role="status">{{ loaderText || t("web.translate.loading") }}</p>
-          <div class="h-4 w-24 animate-pulse rounded bg-surface-muted" />
-          <div class="h-7 w-2/3 animate-pulse rounded bg-surface-muted" />
-          <div class="space-y-3 border-t border-line pt-4">
-            <div class="h-4 w-20 animate-pulse rounded bg-surface-muted" />
-            <div class="h-6 w-1/2 animate-pulse rounded bg-surface-muted" />
-            <div class="h-4 w-full animate-pulse rounded bg-surface-muted" />
-            <div class="h-4 w-5/6 animate-pulse rounded bg-surface-muted" />
-          </div>
+          <MonsterLoader compact :label="loaderText || t('web.translate.loading')" />
         </div>
 
         <article v-else-if="result" class="card space-y-5">
           <header class="space-y-3">
-            <p class="text-sm text-ink-muted">
+            <div class="flex items-start justify-between gap-3">
+            <p class="min-w-0 text-sm text-ink-muted">
               <span aria-hidden="true">{{ languageFlag(result.sourceLang) }}</span>
               {{ languageName(result.sourceLang) }}
               <span aria-hidden="true">→</span>
@@ -113,6 +127,17 @@
                 <span class="sr-only">{{ languageName(code) }}</span>
               </span>
             </p>
+            <button
+              v-if="result.savedEntryId !== null"
+              type="button"
+              class="-mr-2 -mt-3 inline-flex size-11 shrink-0 items-center justify-center rounded-full text-ink-muted hover:bg-surface-muted hover:text-ink"
+              :title="t('web.dictionary.details')"
+              :aria-label="t('web.dictionary.details')"
+              @click="detailId = result.savedEntryId"
+            >
+              <Maximize2 class="size-4" aria-hidden="true" />
+            </button>
+            </div>
             <h2 class="break-words text-xl font-semibold">
               <span v-if="result.emoji" class="mr-2" aria-hidden="true">{{ result.emoji }}</span>{{ result.sourceUsage?.headword ?? result.original }}
             </h2>
@@ -125,6 +150,16 @@
               <TriangleAlert class="mt-0.5 size-4 shrink-0" aria-hidden="true" />
               {{ t("web.translate.unverified") }}
             </p>
+          </header>
+
+          <TranslationBlock
+            v-if="split.native"
+            :key="`${resultSeq}:${split.native.lang}`"
+            :translation="split.native"
+            id-prefix="translate"
+          />
+
+          <div v-if="result.nativeMeaning || result.sourceUsage" class="space-y-3">
             <p v-if="result.nativeMeaning" class="text-sm">
               <span class="font-semibold text-ink-muted">{{ t("web.translate.nativeMeaning") }}:</span>
               {{ result.nativeMeaning }}
@@ -140,10 +175,10 @@
               </ul>
               <ExampleList :examples="result.sourceUsage.examples" />
             </div>
-          </header>
+          </div>
 
           <TranslationBlock
-            v-for="translation in result.translations"
+            v-for="translation in split.others"
             :key="`${resultSeq}:${translation.lang}`"
             :translation="translation"
             id-prefix="translate"
@@ -172,8 +207,8 @@
 
       <div class="card xl:col-start-2 xl:row-span-2 xl:row-start-1">
         <div class="flex items-center justify-between gap-3">
-          <h2 class="text-sm font-semibold">{{ t("web.translate.recent") }}</h2>
-          <button v-if="history.length > 0" type="button" class="min-h-11 text-sm font-semibold text-primary hover:text-primary-hover" @click="clearHistory">
+          <h2 class="min-w-0 truncate text-sm font-bold">{{ t("web.translate.recent") }}</h2>
+          <button v-if="history.length > 0" type="button" class="-mr-2 min-h-11 shrink-0 whitespace-nowrap rounded-full px-2 text-xs font-semibold text-primary hover:text-primary-hover" @click="clearHistory">
             {{ t("web.translate.clearHistory") }}
           </button>
         </div>
@@ -196,21 +231,26 @@
         </ul>
       </div>
     </div>
+    <EntryDetailDialog :entry-id="detailId" :fallback="null" @close="detailId = null" />
   </section>
 </template>
 
 <script setup lang="ts">
-import { Check, Trash2, TriangleAlert, Undo2 } from "lucide-vue-next";
-import { computed, onMounted, ref } from "vue";
+import { ArrowRight, Check, Maximize2, Mic, Square, Trash2, TriangleAlert, Undo2 } from "lucide-vue-next";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { useLoaderText } from "../lib/use-loader-text";
 import { useMainInput } from "../lib/use-main-input";
 import { ApiError, api } from "../lib/api";
 import { t } from "../lib/i18n";
-import { languageFlag, languageName } from "../lib/settings-store";
+import { splitNative } from "../lib/card-order";
+import { languageFlag, languageName, settings } from "../lib/settings-store";
 import type { Clarification, ClarificationOption, TranslateAnswer, TranslateResult } from "../lib/types";
+import { startWavRecording, type WavRecording } from "../lib/wav-recorder";
 import CardExplore from "./CardExplore.vue";
+import EntryDetailDialog from "./EntryDetailDialog.vue";
 import ExampleList from "./ExampleList.vue";
 import LimitNotice from "./LimitNotice.vue";
+import MonsterLoader from "./MonsterLoader.vue";
 import TranslationBlock from "./TranslationBlock.vue";
 
 const MAX_LENGTH = 500;
@@ -221,13 +261,14 @@ const input = ref<HTMLTextAreaElement | null>(null);
 const text = ref("");
 const { focus: focusInput } = useMainInput(() => input.value);
 const busy = ref(false);
+const detailId = ref<number | null>(null);
 const loaderText = useLoaderText(busy);
 const result = ref<TranslateResult | null>(null);
 const fromHistory = ref(false);
 const errorKey = ref<string | null>(null);
 const errorParams = ref<Record<string, string | number>>({});
 const languageQuestion = ref<{ text: string; kind: "ambiguous" | "unrecognized"; languages: string[] } | null>(null);
-const otherLanguage = ref<{ lang: string; supported: boolean } | null>(null);
+const otherLanguage = ref<{ lang: string; supported: boolean; text: string } | null>(null);
 const clarification = ref<{ text: string; view: Clarification } | null>(null);
 const languageChoices = computed(() => {
   const view = clarification.value?.view;
@@ -246,6 +287,7 @@ const saveState = ref<"saved" | "removed">("saved");
 const savePending = ref(false);
 
 // A stored result has no live connection to the dictionary, so its save controls would act on stale state.
+const split = computed(() => splitNative(result.value?.translations ?? [], settings.value?.nativeLang));
 const saveControls = computed(() => result.value?.savedEntryId != null && !fromHistory.value);
 
 function isStoredResult(value: unknown): value is TranslateResult {
@@ -357,6 +399,48 @@ function onKeydown(event: KeyboardEvent): void {
   }
 }
 
+const voiceAvailable = ref(typeof navigator !== "undefined" && navigator.mediaDevices?.getUserMedia !== undefined);
+const recording = ref(false);
+const transcribing = ref(false);
+let recorder: WavRecording | null = null;
+
+const VOICE_ERRORS: Record<string, string> = {
+  feature_locked: "web.voice.locked",
+  voice_too_long: "web.voice.tooLong",
+};
+
+// Same path as the bot's voice message: the transcript goes through the ordinary translation.
+async function toggleRecording(): Promise<void> {
+  if (!recording.value) {
+    resetNotices();
+    try {
+      recorder = await startWavRecording();
+      recording.value = true;
+    } catch {
+      errorKey.value = "web.voice.denied";
+    }
+    return;
+  }
+  const active = recorder;
+  recorder = null;
+  recording.value = false;
+  if (!active) return;
+  transcribing.value = true;
+  try {
+    const { text: spoken } = await api.transcribe(await active.stop());
+    text.value = spoken;
+    await answer(spoken, {});
+  } catch (error) {
+    if (error instanceof ApiError && error.code === "voice_off") voiceAvailable.value = false;
+    errorKey.value = (error instanceof ApiError && VOICE_ERRORS[error.code ?? ""]) || "web.voice.failed";
+    errorParams.value = { max: error instanceof ApiError ? (error.body.max ?? 0) : 0 };
+  } finally {
+    transcribing.value = false;
+  }
+}
+
+onBeforeUnmount(() => recorder?.cancel());
+
 async function submit(): Promise<void> {
   await answer(text.value.trim(), {});
 }
@@ -397,7 +481,10 @@ async function answer(value: string, choice: TranslateAnswer): Promise<void> {
         languages: error.body.languages,
       };
     } else if (error instanceof ApiError && error.code === "add_language" && error.body.lang) {
-      otherLanguage.value = { lang: error.body.lang, supported: error.body.supported === true };
+      otherLanguage.value = { lang: error.body.lang, supported: error.body.supported === true, text: error.body.text ?? value };
+    } else if (error instanceof ApiError && error.code === "max_languages") {
+      errorKey.value = "web.translate.maxLanguages";
+      errorParams.value = { max: error.body.limit ?? 0 };
     } else if (error instanceof ApiError && error.code === "rejected") {
       errorKey.value = REJECT_KEYS[error.body.reason ?? ""] ?? "web.common.error";
       errorParams.value = { max: error.body.maxLength ?? MAX_LENGTH };
@@ -428,5 +515,11 @@ async function answer(value: string, choice: TranslateAnswer): Promise<void> {
 
 onMounted(() => {
   history.value = loadHistory();
+  // A Learn page hands a phrase over as ?q= (the expression's "to dictionary"), as the bot's notif:tr translates it.
+  const handed = new URLSearchParams(window.location.search).get("q")?.trim();
+  if (handed) {
+    text.value = handed;
+    void submit();
+  }
 });
 </script>

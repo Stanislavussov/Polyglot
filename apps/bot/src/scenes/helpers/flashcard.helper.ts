@@ -8,6 +8,7 @@ import {
   isSupported,
   logEvent,
   rateEntry,
+  recordMatureIfCrossed,
   type SrsRating,
   type SupportedLang,
   t,
@@ -15,7 +16,7 @@ import {
   type VocabularyEntryWithTranslations,
 } from "@polyglot/core";
 import type { InlineKeyboard } from "grammy";
-import { recordMatureIfCrossed } from "../../momentum/momentum.wiring.js";
+
 import { resolvePraiseLine } from "../../momentum/praise.footer.js";
 import {
   buildFlashCardBackKeyboard,

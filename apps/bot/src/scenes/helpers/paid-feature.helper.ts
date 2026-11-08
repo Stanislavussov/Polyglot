@@ -7,7 +7,13 @@
  * Free stays on screen after they upgrade, and vice versa) — which is exactly
  * why no handler may infer access from the keyboard it was tapped on.
  */
-import { ALL_FEATURES, defaultFeatureAccess, type FeatureKey, type SupportedLang } from "@polyglot/core";
+import {
+  ALL_FEATURES,
+  defaultFeatureAccess,
+  type FeatureKey,
+  resolveFeatureStates,
+  type SupportedLang,
+} from "@polyglot/core";
 import { trackProductEvent } from "../../observability/product-events.js";
 import type { BotContext } from "../../types.js";
 import { resolveFeatureBadges, sendUpgradeScreen } from "./subscription.helper.js";
@@ -27,8 +33,8 @@ type EntitledContext = Pick<BotContext, "services" | "user">;
  */
 export async function resolveLockedBadges(ctx: EntitledContext): Promise<ReadonlyMap<string, string>> {
   const access = ctx.services.featureAccess ?? defaultFeatureAccess;
-  const granted = await access.listFeatures(ctx.user);
-  const locked = ALL_FEATURES.filter((key) => !granted.has(key));
+  const states = await resolveFeatureStates(access, ctx.user, ALL_FEATURES);
+  const locked = ALL_FEATURES.filter((key) => states.get(key) === "locked");
   if (locked.length === 0) return new Map();
   return resolveFeatureBadges(ctx, locked);
 }

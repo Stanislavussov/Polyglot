@@ -1,0 +1,11 @@
+---
+import AppShell from "../../components/AppShell.vue";
+import ShellSkeleton from "../../components/ShellSkeleton.vue";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Mentor">
+  <AppShell client:only="vue" page="mentor">
+    <ShellSkeleton slot="fallback" label="Loading…" />
+  </AppShell>
+</BaseLayout>

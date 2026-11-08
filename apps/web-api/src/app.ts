@@ -7,12 +7,23 @@ import type { WebApiConfig } from "./config.js";
 import { authRoutes } from "./routes/auth.js";
 import { cardAudioRoutes } from "./routes/card-audio.js";
 import { cardExploreRoutes } from "./routes/card-explore.js";
+import { changesRoutes } from "./routes/changes.js";
 import { dictionaryRoutes } from "./routes/dictionary.js";
+import { learnPracticeRoutes } from "./routes/learn-practice.js";
 import { loaderRoutes } from "./routes/loader.js";
 import { meRoutes } from "./routes/me.js";
+import { mentorChatRoutes } from "./routes/mentor-chat.js";
+import { onboardingRoutes } from "./routes/onboarding.js";
+import { planRoutes } from "./routes/plan.js";
+import { progressRoutes } from "./routes/progress.js";
+import { reportRoutes } from "./routes/report.js";
 import { reviewRoutes } from "./routes/review.js";
 import { settingsRoutes } from "./routes/settings.js";
+import { templateRoutes } from "./routes/template.js";
 import { translateRoutes } from "./routes/translate.js";
+import { videoRoutes } from "./routes/videos.js";
+import { voiceRoutes } from "./routes/voice.js";
+import { wordPickerRoutes } from "./routes/word-picker.js";
 import type { WebServices } from "./services.js";
 import { inlineScriptHashes } from "./static-csp.js";
 
@@ -87,6 +98,17 @@ export async function buildWebApiApp(
   cardAudioRoutes(app, services);
   cardExploreRoutes(app, services);
   loaderRoutes(app, services);
+  templateRoutes(app, services);
+  planRoutes(app, services, config.botUsername);
+  changesRoutes(app, services);
+  reportRoutes(app, services);
+  mentorChatRoutes(app, services);
+  learnPracticeRoutes(app, services);
+  wordPickerRoutes(app, services);
+  videoRoutes(app, services);
+  progressRoutes(app, services);
+  onboardingRoutes(app, services);
+  voiceRoutes(app, services);
 
   if (config.staticDir) {
     await app.register(import("@fastify/static"), { root: config.staticDir, wildcard: false });

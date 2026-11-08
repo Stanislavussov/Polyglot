@@ -9,11 +9,13 @@
 import {
   checkGrammar,
   errorFields,
+  GRAMMAR_CATEGORY_KEYS,
+  GRAMMAR_CHECK_MAX_TOKENS,
+  GRAMMAR_MAX_INPUT_LENGTH,
   type GrammarCheckOutcome,
-  type GrammarIssueCategory,
-  type I18nKey,
   isSupported,
   logEvent,
+  resolveMentorModels,
   type SupportedLang,
   t,
 } from "@polyglot/core";
@@ -23,7 +25,7 @@ import { grammarCheckCounter, grammarCheckDuration } from "../../metrics.js";
 import { getRequestSettings } from "../../middlewares/request-settings.js";
 import { esc } from "../../renderers/card-sections.js";
 import type { BotContext } from "../../types.js";
-import { buildAiFailover, resolveDefaultAIModel, resolveFallbackAIModel } from "../../utils/ai-model.js";
+import { buildAiFailover } from "../../utils/ai-model.js";
 import { ensureAiQuota, ensureGrammarCheckDailyQuota, recordAiUsage } from "../../utils/ai-quota.js";
 import {
   dismissLoader,
@@ -36,30 +38,10 @@ import {
 import { replyWithRetry } from "../../utils/retry-action.js";
 import { activateTranslateMode } from "../translate.scene.js";
 
-export const GRAMMAR_MAX_INPUT_LENGTH = 1000;
 export const GRAMMAR_EXIT_CALLBACK = "grammar:exit";
-
-/**
- * Output budget for one check: up to eight issues, each with an explanation and
- * an example, plus the corrected text — well past the mentor's 700-token prose cap.
- */
-const GRAMMAR_CHECK_MAX_TOKENS = 2000;
 
 /** Telegram's limit is 4096; the margin absorbs the "and N more" line. */
 const MAX_REPLY_LENGTH = 3900;
-
-const CATEGORY_KEYS: Record<GrammarIssueCategory, I18nKey> = {
-  grammar: "grammarCategoryGrammar",
-  vocabulary: "grammarCategoryVocabulary",
-  preposition: "grammarCategoryPreposition",
-  article: "grammarCategoryArticle",
-  word_order: "grammarCategoryWordOrder",
-  agreement: "grammarCategoryAgreement",
-  tense: "grammarCategoryTense",
-  spelling: "grammarCategorySpelling",
-  punctuation: "grammarCategoryPunctuation",
-  other: "grammarCategoryOther",
-};
 
 export function grammarExitKeyboard(lang: SupportedLang): InlineKeyboardMarkup {
   return { inline_keyboard: [[{ text: t("grammarCheckExitButton", lang), callback_data: GRAMMAR_EXIT_CALLBACK }]] };
@@ -84,7 +66,7 @@ export function renderGrammarCheck(outcome: CheckedOutcome, lang: SupportedLang)
   for (const [index, issue] of outcome.errors.entries()) {
     const block = [
       `${index + 1}. <s>${esc(issue.fragment)}</s> → <b>${esc(issue.correction)}</b>`,
-      `🏷 ${t(CATEGORY_KEYS[issue.category], lang)}`,
+      `🏷 ${t(GRAMMAR_CATEGORY_KEYS[issue.category], lang)}`,
       `${t("grammarCheckWhyLabel", lang)} ${esc(issue.explanation)}`,
       `${t("grammarCheckExampleLabel", lang)} <i>${esc(issue.example)}</i>`,
     ].join("\n");
@@ -173,17 +155,7 @@ export async function handleGrammarCheckText(ctx: BotContext, text: string): Pro
     return;
   }
 
-  // Same model as the mentor: a check is a grammar explanation, which is what the
-  // admin-managed mentor model was chosen for; an empty override follows the
-  // regular plan → default chain.
-  const mentorConfig = await ctx.services.settings.getMentorConfig();
-  const overrideModel = mentorConfig.modelId.trim();
-  const [model, fallbackModel, levelRows] = await Promise.all([
-    overrideModel ? Promise.resolve(overrideModel) : resolveDefaultAIModel(ctx.services.settings, plan),
-    resolveFallbackAIModel(ctx.services.settings),
-    ctx.services.userRepository.getLanguageLevels(ctx.user.id),
-  ]);
-  const levels = Object.fromEntries(levelRows.map((row) => [row.languageCode, row.proficiencyLevel]));
+  const { model, fallbackModel, levels } = await resolveMentorModels(ctx.services, ctx.user.id, plan);
 
   const loader = await sendLoader(ctx, "mentor", lang, learningLangs);
   const stopTimer = grammarCheckDuration.startTimer();
