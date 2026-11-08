@@ -232,6 +232,8 @@ jobs:
           # COMPOSE_PROFILES=learn turns web-api on; see @docs/agents/deployment.md.
           echo "COMPOSE_PROFILES=${{ vars.COMPOSE_PROFILES }}" >> .env
           echo "WEB_APP_ORIGIN=${{ vars.WEB_APP_ORIGIN }}" >> .env
+          # Bot the web's upgrade link opens; empty falls back to the production bot in web-api config.
+          echo "WEB_BOT_USERNAME=${{ vars.WEB_BOT_USERNAME }}" >> .env
           echo "WEB_JWT_SECRET=${{ secrets.WEB_JWT_SECRET }}" >> .env
           echo "BOT_TOKEN=${{ secrets.BOT_TOKEN }}" >> .env
           echo "OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}" >> .env
