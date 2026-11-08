@@ -1,6 +1,6 @@
 <template>
   <section class="min-w-0">
-    <h1 class="text-2xl font-bold tracking-tight">{{ t("web.dictionary.title") }}</h1>
+    <h1 class="page-title">{{ t("web.dictionary.title") }}</h1>
 
     <div ref="toolbar" class="mt-6 flex scroll-mt-20 gap-2 sm:gap-3 md:scroll-mt-6">
       <label class="sr-only" for="dictionary-search">{{ t("web.dictionary.search") }}</label>
@@ -11,8 +11,8 @@
           ref="searchInput"
           v-model="query"
           type="search"
-          class="field pl-10 pr-10 focus:border-primary focus:outline-none focus:ring-[3px] focus:ring-ring"
-          :placeholder="t('web.dictionary.searchHint')"
+          class="field text-ellipsis pl-10 pr-3 placeholder:text-sm sm:placeholder:text-base [@media(hover:hover)_and_(pointer:fine)]:pr-10 focus:border-primary focus:outline-none focus:ring-[3px] focus:ring-ring"
+          :placeholder="t(isDesktop ? 'web.dictionary.searchHint' : 'web.dictionary.search')"
         />
         <kbd
           v-if="query === ''"
@@ -90,7 +90,7 @@
     </ul>
 
     <p v-if="failed" role="alert" class="mt-4 rounded-xl bg-danger-soft px-4 py-3 text-sm text-danger">{{ t("web.common.error") }}</p>
-    <p v-else-if="loading && !data" class="mt-6 text-sm text-ink-muted" role="status">{{ t("web.common.loading") }}</p>
+    <div v-else-if="loading && !data" class="card mt-6"><MonsterLoader :label="t('web.common.loading')" /></div>
     <div v-else-if="data && data.items.length === 0" class="mt-6">
       <p class="text-sm text-ink-muted">{{ filtersActive ? t("web.dictionary.emptyFiltered") : t("web.dictionary.empty") }}</p>
       <button v-if="filtersActive" type="button" class="btn-secondary mt-3" @click="resetFilters">{{ t("web.dictionary.filterReset") }}</button>
@@ -117,18 +117,19 @@
     <EntryDetailDialog :entry-id="openId" :fallback="openItem" @close="openId = null" />
 
     <nav v-if="data && pageCount > 1" class="mt-6 flex items-center justify-between gap-3">
-      <button type="button" class="btn-secondary" :disabled="page <= 1" @click="page -= 1">
-        <ChevronLeft class="size-4" aria-hidden="true" /><span>{{ t("web.dictionary.previous") }}</span>
+      <button type="button" class="btn-secondary px-3 sm:px-5" :disabled="page <= 1" @click="page -= 1">
+        <ChevronLeft class="size-4" aria-hidden="true" /><span class="sr-only sm:not-sr-only">{{ t("web.dictionary.previous") }}</span>
       </button>
-      <span class="min-w-0 truncate text-center text-sm text-ink-muted">{{ t("web.dictionary.page", { page, pages: pageCount }) }}</span>
-      <button type="button" class="btn-secondary" :disabled="page >= pageCount" @click="page += 1">
-        <span>{{ t("web.dictionary.next") }}</span><ChevronRight class="size-4" aria-hidden="true" />
+      <span class="min-w-0 whitespace-nowrap text-center text-sm text-ink-muted">{{ t("web.dictionary.page", { page, pages: pageCount }) }}</span>
+      <button type="button" class="btn-secondary px-3 sm:px-5" :disabled="page >= pageCount" @click="page += 1">
+        <span class="sr-only sm:not-sr-only">{{ t("web.dictionary.next") }}</span><ChevronRight class="size-4" aria-hidden="true" />
       </button>
     </nav>
   </section>
 </template>
 
 <script setup lang="ts">
+import MonsterLoader from "./MonsterLoader.vue";
 import { ArrowDownAZ, ChevronLeft, ChevronRight, Clock, Search, SlidersHorizontal, X } from "lucide-vue-next";
 import { PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from "reka-ui";
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";

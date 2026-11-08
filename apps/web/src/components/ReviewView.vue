@@ -1,12 +1,12 @@
 <template>
   <section>
     <div class="flex items-baseline justify-between gap-3">
-      <h1 class="text-2xl font-bold tracking-tight">{{ t("web.review.title") }}</h1>
+      <h1 class="page-title">{{ t("web.review.title") }}</h1>
       <p v-if="state" class="text-sm text-ink-muted">{{ t("web.review.due", { count: state.dueCount }) }}</p>
     </div>
 
     <p v-if="failed" role="alert" class="mt-6 rounded-xl bg-danger-soft px-4 py-3 text-sm text-danger">{{ t("web.common.error") }}</p>
-    <p v-else-if="!state" class="mt-6 text-sm text-ink-muted" role="status">{{ t("web.common.loading") }}</p>
+    <div v-else-if="!state" class="card mt-6"><MonsterLoader :label="t('web.common.loading')" /></div>
     <p v-else-if="!card" class="card mt-6 text-center text-ink-muted">{{ t("web.review.empty") }}</p>
 
     <article v-else :key="cardSeq" class="card mt-6 space-y-5" aria-live="polite">
@@ -103,6 +103,7 @@
       <div v-else class="text-center">
         <button type="button" class="btn-primary w-full sm:w-auto" @click="revealed = true">
           {{ t("web.review.reveal") }}
+          <span class="btn-chip" aria-hidden="true"><Eye class="size-4" /></span>
         </button>
       </div>
     </article>
@@ -110,6 +111,8 @@
 </template>
 
 <script setup lang="ts">
+import MonsterLoader from "./MonsterLoader.vue";
+import { Eye } from "lucide-vue-next";
 import { computed, onMounted, ref } from "vue";
 import { ApiError, api } from "../lib/api";
 import { t } from "../lib/i18n";

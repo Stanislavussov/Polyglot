@@ -15,7 +15,7 @@
         </p>
         <button
           type="button"
-          class="-mr-2 -mt-2 inline-flex size-11 shrink-0 items-center justify-center rounded-xl text-ink-muted hover:bg-surface-muted hover:text-ink"
+          class="-mr-2 -mt-2 inline-flex size-11 shrink-0 items-center justify-center rounded-full text-ink-muted hover:bg-surface-muted hover:text-ink"
           :title="t('web.dictionary.details')"
           :aria-label="t('web.dictionary.details')"
           @click="emit('details')"
