@@ -124,6 +124,16 @@
               <TriangleAlert class="mt-0.5 size-4 shrink-0" aria-hidden="true" />
               {{ t("web.translate.unverified") }}
             </p>
+          </header>
+
+          <TranslationBlock
+            v-if="split.native"
+            :key="`${resultSeq}:${split.native.lang}`"
+            :translation="split.native"
+            id-prefix="translate"
+          />
+
+          <div v-if="result.nativeMeaning || result.sourceUsage" class="space-y-3">
             <p v-if="result.nativeMeaning" class="text-sm">
               <span class="font-semibold text-ink-muted">{{ t("web.translate.nativeMeaning") }}:</span>
               {{ result.nativeMeaning }}
@@ -139,10 +149,10 @@
               </ul>
               <ExampleList :examples="result.sourceUsage.examples" />
             </div>
-          </header>
+          </div>
 
           <TranslationBlock
-            v-for="translation in result.translations"
+            v-for="translation in split.others"
             :key="`${resultSeq}:${translation.lang}`"
             :translation="translation"
             id-prefix="translate"
@@ -205,7 +215,8 @@ import { useLoaderText } from "../lib/use-loader-text";
 import { useMainInput } from "../lib/use-main-input";
 import { ApiError, api } from "../lib/api";
 import { t } from "../lib/i18n";
-import { languageFlag, languageName } from "../lib/settings-store";
+import { splitNative } from "../lib/card-order";
+import { languageFlag, languageName, settings } from "../lib/settings-store";
 import type { Clarification, ClarificationOption, TranslateAnswer, TranslateResult } from "../lib/types";
 import CardExplore from "./CardExplore.vue";
 import ExampleList from "./ExampleList.vue";
@@ -245,6 +256,7 @@ const saveState = ref<"saved" | "removed">("saved");
 const savePending = ref(false);
 
 // A stored result has no live connection to the dictionary, so its save controls would act on stale state.
+const split = computed(() => splitNative(result.value?.translations ?? [], settings.value?.nativeLang));
 const saveControls = computed(() => result.value?.savedEntryId != null && !fromHistory.value);
 
 function isStoredResult(value: unknown): value is TranslateResult {
