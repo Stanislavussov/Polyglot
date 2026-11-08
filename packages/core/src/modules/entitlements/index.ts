@@ -9,6 +9,8 @@ export {
 } from "./entitlements.js";
 export type { FeatureAccessDeps } from "./feature-access.js";
 export { createFeatureAccess } from "./feature-access.js";
+export type { FeatureState } from "./feature-state.js";
+export { resolveFeatureStates } from "./feature-state.js";
 export type { AiCallType, QuotaDecision, QuotaPorts, QuotaSubject } from "./quota.js";
 export {
   AI_CALL_WEIGHTS,

@@ -23,4 +23,6 @@ export type WebServices = Pick<
   | "ai"
   | "featureAccess"
   | "cardTemplateRepository"
+  | "notificationRepository"
+  | "reportedIssueRepository"
 >;

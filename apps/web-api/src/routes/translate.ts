@@ -1,11 +1,14 @@
 import {
+  applyTemplateFields,
   type Example,
   errorFields,
   FEATURE_KEYS,
   isEtymologyEligible,
   logEvent,
+  resolveTemplate,
   runTranslation,
   saveTranslationToDictionary,
+  type TemplateFields,
   type TranslateOutput,
 } from "@polyglot/core";
 import type { FastifyInstance } from "fastify";
@@ -75,6 +78,12 @@ export function toTranslateResult(
     })),
     savedEntryId,
   };
+}
+
+/** The fields the user's cards show: their saved template, or the default one. */
+async function templateFields(services: WebServices, userId: number): Promise<TemplateFields> {
+  const saved = await services.translationTemplateRepository.getByUserId(userId);
+  return resolveTemplate(saved ? { name: saved.name, fields: saved.fields } : null).fields;
 }
 
 export function translateRoutes(app: FastifyInstance, services: WebServices): void {
@@ -151,9 +160,11 @@ export function translateRoutes(app: FastifyInstance, services: WebServices): vo
                 "web",
               );
         const settings = await services.userRepository.getSettings(user.id);
+        // The dictionary keeps the whole card; only the shown card drops what the template turns off, as the bot's does.
+        const shown = applyTemplateFields(outcome.output, await templateFields(services, user.id));
         return {
           ...toTranslateResult(
-            outcome.output,
+            shown,
             outcome.targetLangs,
             savedEntryId,
             outcome.inputType === "sentence",

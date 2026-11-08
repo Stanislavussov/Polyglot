@@ -10,6 +10,7 @@ export {
 export {
   DEFAULT_NOTIFICATION_TIME,
   formatNotificationTime,
+  MAX_NOTIFICATION_TIMES,
   NOTIFICATION_TYPES,
   parseNotificationMinutes,
 } from "./notification-time.js";

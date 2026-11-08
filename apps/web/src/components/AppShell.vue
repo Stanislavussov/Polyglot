@@ -59,6 +59,7 @@ import { loadSettings } from "../lib/settings-store";
 import type { PageName } from "../lib/types";
 import DictionaryView from "./DictionaryView.vue";
 import NavList from "./NavList.vue";
+import PlanView from "./PlanView.vue";
 import ReviewView from "./ReviewView.vue";
 import SettingsView from "./SettingsView.vue";
 import ShellSkeleton from "./ShellSkeleton.vue";
@@ -72,6 +73,7 @@ const views = {
   dictionary: DictionaryView,
   review: ReviewView,
   settings: SettingsView,
+  plan: PlanView,
 } as const;
 
 const content = computed(() => views[props.page]);

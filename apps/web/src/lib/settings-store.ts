@@ -1,7 +1,7 @@
 import { shallowRef } from "vue";
 import { api } from "./api";
 import { setLang } from "./i18n";
-import type { Settings, SettingsPatch } from "./types";
+import type { NotificationPatch, Settings, SettingsPatch } from "./types";
 
 export const settings = shallowRef<Settings | null>(null);
 
@@ -16,6 +16,10 @@ export async function loadSettings(): Promise<void> {
 
 export async function saveSettings(patch: SettingsPatch): Promise<void> {
   await apply(await api.updateSettings(patch));
+}
+
+export async function saveNotifications(patch: NotificationPatch): Promise<void> {
+  settings.value = await api.updateNotifications(patch);
 }
 
 export function languageName(code: string): string {

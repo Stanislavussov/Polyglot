@@ -2,10 +2,12 @@ import {
   createLanguageOrderContext,
   defaultFeatureAccess,
   FEATURE_KEYS,
+  type FeatureState,
   hashTtsText,
   type LanguageOrderContext,
   logEvent,
   normalizeTtsText,
+  resolveFeatureStates,
   resolvePronounceableText,
   type SpeakableCard,
   selectPronounceableLangs,
@@ -18,7 +20,7 @@ import type { WebServices } from "../services.js";
 import { langCode } from "./dictionary.js";
 
 /** "off" = the admin turned TTS off; "locked" = the plan does not include it (the bot's 💎 badge). */
-export type AudioAccess = "ok" | "locked" | "off";
+export type AudioAccess = FeatureState;
 
 export async function languageOrder(services: WebServices, userId: number): Promise<LanguageOrderContext> {
   const settings = await services.userRepository.getSettings(userId);
@@ -41,10 +43,10 @@ export function speakableCard(services: WebServices, entry: VocabularyEntryWithT
 
 export async function audioAccess(services: WebServices, user: User): Promise<AudioAccess> {
   const config = await services.settings.getTtsConfig();
-  if (!config.enabled || !config.modelId) return "off";
+  const off = !config.enabled || !config.modelId ? new Set([FEATURE_KEYS.pronunciation]) : new Set<string>();
   const access = services.featureAccess ?? defaultFeatureAccess;
-  const { hasAccess } = await access.checkFeatureAccess(user, FEATURE_KEYS.pronunciation);
-  return hasAccess ? "ok" : "locked";
+  const states = await resolveFeatureStates(access, user, [FEATURE_KEYS.pronunciation], off);
+  return states.get(FEATURE_KEYS.pronunciation) ?? "off";
 }
 
 /** The card's speaker buttons: which languages, and whether tapping one plays. */
