@@ -1,4 +1,4 @@
-import type { MomentumEventKind, ProductEvent, TranslateOutput } from "@polyglot/core";
+import type { MomentumEventKind, PlanDays, ProductEvent, TranslateOutput } from "@polyglot/core";
 import { sql } from "drizzle-orm";
 import {
   bigint,
@@ -1297,6 +1297,35 @@ export const momentumEvents = pgTable(
     uniqueIndex("momentum_events_user_dedupe_idx").on(t.userId, t.dedupeKey),
     index("momentum_events_user_time_idx").on(t.userId, t.occurredAt),
   ],
+);
+
+/**
+ * Goal-ladder ledger: one closed month per user. Frozen at close because both of its
+ * sources move after the fact — `momentum_events` is pruned at 90 days and
+ * `subscriptions` rows are rewritten by `extend` — while a reward five months later
+ * must be judged on what the month was. Never pruned.
+ */
+export const progressMonths = pgTable(
+  "progress_months",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    /** "YYYY-MM" in `tz`. */
+    month: varchar("month", { length: 7 }).notNull(),
+    /** The timezone the month was closed in; a later timezone change never rewrites it. */
+    tz: text("tz").notNull(),
+    activeDays: integer("active_days").notNull(),
+    matureGained: integer("mature_gained").notNull(),
+    savedGained: integer("saved_gained").notNull(),
+    counted: boolean("counted").notNull(),
+    planDays: jsonb("plan_days").$type<PlanDays>().notNull(),
+    /** 'backfill' rows were rebuilt from history after the fact and are approximate. */
+    source: text("source").$type<"live" | "backfill">().notNull(),
+    closedAt: timestamp("closed_at", { withTimezone: true }).notNull(),
+  },
+  (t) => [uniqueIndex("progress_months_user_month_idx").on(t.userId, t.month)],
 );
 
 /** Durable snapshot, one row per user; deliberately NOT pruned by retention. */

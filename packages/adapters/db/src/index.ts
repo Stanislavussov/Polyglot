@@ -98,6 +98,7 @@ export type {
   ProductFunnelStep,
 } from "./repositories/product-event.repository.js";
 export { productEventRepository } from "./repositories/product-event.repository.js";
+export { progressRepository } from "./repositories/progress.repository.js";
 export type { RateLimitPlan } from "./repositories/rate-limit-plan.repository.js";
 export { rateLimitPlanRepository } from "./repositories/rate-limit-plan.repository.js";
 export type {
