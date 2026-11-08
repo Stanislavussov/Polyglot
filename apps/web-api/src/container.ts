@@ -24,7 +24,9 @@ import {
   languageDetectionRepository,
   loadLanguageCache,
   normalizeToIso1,
+  notificationRepository,
   planFeatureAccessRepository,
+  reportedIssueRepository,
   settingsAdapter,
   subscriptionRepository,
   translationRequestRepository,
@@ -56,6 +58,8 @@ export function createWebServices(): WebServices {
     settings,
     featureAccess: createFeatureAccess({ settings, planFeatureAccess: planFeatureAccessRepository }),
     cardTemplateRepository,
+    notificationRepository,
+    reportedIssueRepository,
     contextLookup: createContextLookup(),
     wordLanguageSweep: createWordLanguageSweep(),
     languageCache: {

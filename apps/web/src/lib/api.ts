@@ -4,13 +4,18 @@ import type {
   DictionaryPage,
   DictionarySort,
   EntryDetail,
+  IssueType,
   LoaderPhrases,
   Me,
   MentorTurn,
+  NotificationPatch,
+  PlanInfo,
   Rating,
   ReviewState,
   Settings,
   SettingsPatch,
+  TemplateFields,
+  TemplateState,
   TranslateAnswer,
   TranslateResult,
 } from "./types";
@@ -83,6 +88,14 @@ export const api = {
   me: () => request<Me>("GET", "/me"),
   settings: () => request<Settings>("GET", "/settings"),
   updateSettings: (patch: SettingsPatch) => request<Settings>("PATCH", "/settings", patch),
+  updateNotifications: (patch: NotificationPatch) => request<Settings>("PATCH", "/settings/notifications", patch),
+  template: () => request<TemplateState>("GET", "/template"),
+  saveTemplate: (fields: TemplateFields) => request<TemplateState>("PUT", "/template", { fields }),
+  resetTemplate: () => request<TemplateState>("DELETE", "/template"),
+  previewTemplate: (fields: TemplateFields) => request<TranslateResult>("POST", "/template/preview", { fields }),
+  plan: () => request<PlanInfo>("GET", "/plan"),
+  changes: () => request<{ notes: string[] }>("GET", "/changes"),
+  report: (type: IssueType, description: string) => request<void>("POST", "/report", { type, description }),
   dictionary: (query: { q: string; sort: DictionarySort; page: number } & DictionaryFilterState) => {
     const params = new URLSearchParams({ q: query.q, sort: query.sort, page: String(query.page) });
     for (const key of ["lang", "type", "difficulty", "review"] as const) {

@@ -16,6 +16,7 @@ import {
   parseNotificationMinutes,
   type SupportedLang,
   t,
+  validateLanguageSettings,
 } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import { changesCommand } from "../../commands/changes.js";
@@ -46,6 +47,20 @@ async function getLang(ctx: BotContext): Promise<SupportedLang> {
   const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
   const iLang = settings?.interfaceLang ?? "en";
   return (isSupported(iLang) ? iLang : "en") as SupportedLang;
+}
+
+/** A picker callback is forgeable, so a code is checked by the same rules the web settings form uses. */
+async function isValidLanguageWrite(
+  ctx: BotContext,
+  patch: { interfaceLang?: string; nativeLang?: string; learningLangs?: string[] },
+): Promise<boolean> {
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
+  const known = (code: string) => ctx.services.languageCache.getSupportedLangs().some((l) => l.code === code);
+  return validateLanguageSettings(patch, {
+    currentNativeLang: settings?.nativeLang,
+    isKnownLang: known,
+    isInterfaceLang: isSupported,
+  }).ok;
 }
 
 async function showLangGroupMenu(ctx: BotContext): Promise<void> {
@@ -111,6 +126,10 @@ export async function handleSetNativeSelectCallback(ctx: BotContext): Promise<vo
   const data = ctx.callbackQuery?.data ?? "";
   const code = data.replace("set:native:", "");
   const lang = await getLang(ctx);
+  if (!(await isValidLanguageWrite(ctx, { nativeLang: code }))) {
+    await ctx.answerCallbackQuery();
+    return;
+  }
 
   const previousNative = (await ctx.services.userRepository.getSettings(ctx.user.id))?.nativeLang ?? null;
   await ctx.services.userRepository.updateNativeLang(ctx.user.id, code);
@@ -250,6 +269,10 @@ export async function handleSetLearnLevelCallback(ctx: BotContext): Promise<void
       });
       return;
     }
+    if (!(await isValidLanguageWrite(ctx, { learningLangs: [...selected, code] }))) {
+      await ctx.answerCallbackQuery();
+      return;
+    }
     selected.push(code);
     await ctx.services.userRepository.updateLearningLangs(ctx.user.id, selected);
   }
@@ -285,6 +308,10 @@ export async function handleSetInterfaceCallback(ctx: BotContext): Promise<void>
 export async function handleSetIfaceSelectCallback(ctx: BotContext): Promise<void> {
   const data = ctx.callbackQuery?.data ?? "";
   const code = data.replace("set:iface:", "");
+  if (!(await isValidLanguageWrite(ctx, { interfaceLang: code }))) {
+    await ctx.answerCallbackQuery();
+    return;
+  }
 
   await ctx.services.userRepository.updateInterfaceLang(ctx.user.id, code);
   logEvent("settings.interface_lang_changed", { to: code });

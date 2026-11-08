@@ -29,6 +29,11 @@ describe("loadConfig", () => {
     expect(loadConfig(env).devUserId).toBeNull();
   });
 
+  it("links upgrades to the production bot unless WEB_BOT_USERNAME names another", () => {
+    expect(loadConfig(base).botUsername).toBe("polyglot_lang_ai_bot");
+    expect(loadConfig({ ...base, WEB_BOT_USERNAME: "dev_bot" }).botUsername).toBe("dev_bot");
+  });
+
   it("enables the dev login outside production", () => {
     expect(loadConfig({ ...base, WEB_DEV_USER_ID: "1" }).devUserId).toBe(1);
   });

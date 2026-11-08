@@ -238,6 +238,15 @@ describe("handleSetNativeSelectCallback", () => {
     );
     expect(ctx.editMessageText.mock.calls[0][0]).toContain("Languages");
   });
+
+  it("ignores a forged code for a language the picker never offers", async () => {
+    const ctx = createMockCtx("set:native:zz");
+
+    await handleSetNativeSelectCallback(ctx);
+
+    expect(mockUserRepository.updateNativeLang).not.toHaveBeenCalled();
+    expect(ctx.answerCallbackQuery).toHaveBeenCalledWith();
+  });
 });
 
 describe("handleSetLearningCallback", () => {

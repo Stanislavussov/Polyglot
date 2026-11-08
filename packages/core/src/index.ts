@@ -222,6 +222,11 @@ export * from "./modules/release-notes/index.js";
 export { AI_GENERATION_DEFAULTS, parseAIGenerationDefaults } from "./modules/settings/ai-defaults.schema.js";
 export { MAX_LEARNING_LANGS } from "./modules/settings/learning-langs.js";
 export * from "./modules/settings/settings.service.js";
+export type {
+  LanguageSettingsPatch,
+  LanguageSettingsValidation,
+} from "./modules/settings/validate-language-settings.js";
+export { validateLanguageSettings } from "./modules/settings/validate-language-settings.js";
 export * from "./modules/srs/index.js";
 export * from "./modules/subscriptions/index.js";
 export * from "./modules/subscriptions/trial.js";
@@ -319,6 +324,7 @@ export {
   NOTIFICATION_TEMPLATE_FIELD_KEYS,
 } from "./shared/notification-template.types.js";
 export { isFinitePositive } from "./shared/numbers.js";
+export { applyTemplateFields, TEMPLATE_PREVIEW_OUTPUT } from "./shared/template-preview.js";
 export type { InputContext } from "./shared/translation-template.service.js";
 export {
   resolveOutputConfig,

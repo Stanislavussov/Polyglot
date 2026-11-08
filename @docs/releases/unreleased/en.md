@@ -27,3 +27,5 @@
 - After a translation on the website, the input box empties itself, ready for your next word.
 - Review cards on the website now show the whole word — meaning, examples, synonyms and notes — and with Pro you can tap 🔊 to hear it.
 - Under a translation on the site, tap 🔍 Explore to clarify the meaning, see another meaning, read where the word comes from, or ask the mentor about it — just like in the bot.
+- The website's settings now let you set up reminders, choose what a translation card shows with a live preview, and report a problem — and your cards on the site follow that layout, just like in the bot.
+- A new Plans page on the website shows your plan and what each plan includes, with a button that takes you to the bot to upgrade.

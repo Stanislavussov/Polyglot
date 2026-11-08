@@ -7,11 +7,15 @@ import type { WebApiConfig } from "./config.js";
 import { authRoutes } from "./routes/auth.js";
 import { cardAudioRoutes } from "./routes/card-audio.js";
 import { cardExploreRoutes } from "./routes/card-explore.js";
+import { changesRoutes } from "./routes/changes.js";
 import { dictionaryRoutes } from "./routes/dictionary.js";
 import { loaderRoutes } from "./routes/loader.js";
 import { meRoutes } from "./routes/me.js";
+import { planRoutes } from "./routes/plan.js";
+import { reportRoutes } from "./routes/report.js";
 import { reviewRoutes } from "./routes/review.js";
 import { settingsRoutes } from "./routes/settings.js";
+import { templateRoutes } from "./routes/template.js";
 import { translateRoutes } from "./routes/translate.js";
 import type { WebServices } from "./services.js";
 import { inlineScriptHashes } from "./static-csp.js";
@@ -87,6 +91,10 @@ export async function buildWebApiApp(
   cardAudioRoutes(app, services);
   cardExploreRoutes(app, services);
   loaderRoutes(app, services);
+  templateRoutes(app, services);
+  planRoutes(app, services, config.botUsername);
+  changesRoutes(app, services);
+  reportRoutes(app, services);
 
   if (config.staticDir) {
     await app.register(import("@fastify/static"), { root: config.staticDir, wildcard: false });

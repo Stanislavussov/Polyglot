@@ -21,6 +21,7 @@ import {
   recordAiUsage,
   resolveDefaultAIModel,
   resolveFallbackAIModel,
+  resolveFeatureStates,
   TRANSLATION_HARD_TIMEOUT_MS,
   t,
   type User,
@@ -39,12 +40,14 @@ export async function hasFeature(services: WebServices, user: User, feature: Fea
 
 /** The card's paid actions the plan includes; the routes re-check, this only draws the locks. */
 export async function cardFeatures(services: WebServices, user: User) {
-  const [clarification, mentor, etymology] = await Promise.all([
-    hasFeature(services, user, FEATURE_KEYS.clarification),
-    hasFeature(services, user, FEATURE_KEYS.mentor),
-    hasFeature(services, user, FEATURE_KEYS.etymology),
-  ]);
-  return { clarification, mentor, etymology };
+  const access = services.featureAccess ?? defaultFeatureAccess;
+  const { clarification, mentor, etymology } = FEATURE_KEYS;
+  const states = await resolveFeatureStates(access, user, [clarification, mentor, etymology]);
+  return {
+    clarification: states.get(clarification) === "ok",
+    mentor: states.get(mentor) === "ok",
+    etymology: states.get(etymology) === "ok",
+  };
 }
 
 export function featureLocked(reply: FastifyReply, feature: FeatureKey) {

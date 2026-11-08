@@ -18,7 +18,62 @@ export interface Settings {
   learningLangs: string[];
   interfaceLanguages: string[];
   languages: Language[];
+  notifications: NotificationSettings;
 }
+
+export type NotificationType = "suggested" | "srs" | "contextual" | "expressions";
+
+export interface NotificationSettings {
+  enabled: boolean;
+  /** "HH:MM" half-hour slots in the learner's timezone. */
+  times: string[];
+  type: NotificationType;
+  batchSize: number;
+  timezone: string;
+  context: string | null;
+  options: { types: NotificationType[]; batchSizes: number[]; maxTimes: number };
+}
+
+export type NotificationPatch = Partial<
+  Pick<NotificationSettings, "enabled" | "times" | "type" | "batchSize" | "timezone" | "context">
+>;
+
+export interface TemplateFields {
+  synonyms: boolean;
+  examples: boolean;
+  alternatives: boolean;
+  equivalentNote: boolean;
+  connotationWarning: boolean;
+}
+
+export interface TemplateState {
+  fields: TemplateFields;
+  custom: boolean;
+}
+
+export interface PlanOffer {
+  name: string;
+  label: string;
+  priceUsdCents: number;
+  translationLimit: number | null;
+  video: boolean;
+  features: string[];
+}
+
+export interface PlanInfo {
+  current: {
+    name: string;
+    label: string;
+    translationLimit: number | null;
+    features: string[];
+    periodEnd: string | null;
+    trial: boolean;
+  };
+  plans: PlanOffer[];
+  upgradeUrl: string;
+}
+
+export type IssueType = "bug" | "suggestion" | "other";
 
 export type SettingsPatch = Partial<Pick<Settings, "interfaceLang" | "nativeLang" | "learningLangs">>;
 
@@ -163,7 +218,7 @@ export interface ReviewState {
 }
 
 export type Rating = "again" | "hard" | "good" | "easy";
-export type PageName = "translate" | "dictionary" | "review" | "settings";
+export type PageName = "translate" | "dictionary" | "review" | "settings" | "plan";
 
 export interface LoaderPhrases {
   emoji: string[];
