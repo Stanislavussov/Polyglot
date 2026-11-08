@@ -15,6 +15,7 @@ import { progressRoutes } from "./routes/progress.js";
 import { reviewRoutes } from "./routes/review.js";
 import { settingsRoutes } from "./routes/settings.js";
 import { translateRoutes } from "./routes/translate.js";
+import { voiceRoutes } from "./routes/voice.js";
 import type { WebServices } from "./services.js";
 import { inlineScriptHashes } from "./static-csp.js";
 
@@ -91,6 +92,7 @@ export async function buildWebApiApp(
   loaderRoutes(app, services);
   progressRoutes(app, services);
   onboardingRoutes(app, services);
+  voiceRoutes(app, services);
 
   if (config.staticDir) {
     await app.register(import("@fastify/static"), { root: config.staticDir, wildcard: false });

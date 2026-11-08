@@ -32,3 +32,4 @@
 - The website now has a Progress page with your rhythm, words in long-term memory and active days — and everything you do on the site counts toward it, just like in the bot.
 - When you type a word in a language you don't study yet, the website now offers to add that language and translate it in one tap.
 - Signing in to the website for the first time now walks you through choosing your languages and trying a word, just like the bot does.
+- With Pro you can now say a word out loud on the website's translate page instead of typing it.

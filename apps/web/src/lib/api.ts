@@ -36,6 +36,8 @@ interface ErrorBody {
   // feature_locked, mentor_limit
   feature?: string;
   limit?: number;
+  // voice_too_long
+  max?: number;
 }
 
 export class ApiError extends Error {
@@ -136,6 +138,18 @@ export const api = {
   onboardingStep: (step: "native" | "languages" | "demo") => request<void>("POST", "/onboarding/step", { step }),
   completeOnboarding: () =>
     request<{ trial: { days: number; words: number; extraDays: number } | null }>("POST", "/onboarding/complete"),
+  /** The bot's voice message: the server transcribes a WAV recording with the same model and gate. */
+  transcribe: async (audio: Blob): Promise<{ text: string }> => {
+    const response = await fetch("/api/voice/transcribe", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "audio/wav" },
+      body: audio,
+    });
+    const parsed: ErrorBody & { text?: string } = await response.json().catch(() => ({}));
+    if (!response.ok) throw new ApiError(response.status, parsed);
+    return { text: parsed.text ?? "" };
+  },
   progress: () => request<Progress>("GET", "/progress"),
   reviewNext: () => request<ReviewState>("GET", "/review/next"),
   reviewCard: (entryId: number) => request<ReviewState>("GET", `/review/card/${entryId}`),
