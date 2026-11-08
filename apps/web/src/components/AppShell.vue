@@ -58,12 +58,18 @@ import { t } from "../lib/i18n";
 import { loadSettings } from "../lib/settings-store";
 import type { PageName } from "../lib/types";
 import DictionaryView from "./DictionaryView.vue";
+import ExpressionsView from "./ExpressionsView.vue";
+import GrammarCheckView from "./GrammarCheckView.vue";
+import LearnView from "./LearnView.vue";
+import MentorChatView from "./MentorChatView.vue";
 import NavList from "./NavList.vue";
 import ReviewView from "./ReviewView.vue";
 import SettingsView from "./SettingsView.vue";
 import ShellSkeleton from "./ShellSkeleton.vue";
 import SignOutButton from "./SignOutButton.vue";
 import TranslateView from "./TranslateView.vue";
+import VideosView from "./VideosView.vue";
+import WordPickerView from "./WordPickerView.vue";
 
 const props = defineProps<{ page: PageName }>();
 
@@ -72,6 +78,12 @@ const views = {
   dictionary: DictionaryView,
   review: ReviewView,
   settings: SettingsView,
+  learn: LearnView,
+  mentor: MentorChatView,
+  grammar: GrammarCheckView,
+  expressions: ExpressionsView,
+  pick: WordPickerView,
+  videos: VideosView,
 } as const;
 
 const content = computed(() => views[props.page]);

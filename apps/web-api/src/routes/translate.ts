@@ -11,7 +11,8 @@ import {
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import type { WebServices } from "../services.js";
-import { cardFeatures, featureLocked, hasFeature } from "./card-explore.js";
+import { cardFeatures } from "./card-explore.js";
+import { featureLocked, hasFeature } from "./learn-shared.js";
 
 const bodySchema = z.object({
   // Generous on purpose: the length rule (and its message) belongs to core's input validation.

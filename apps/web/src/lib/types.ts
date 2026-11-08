@@ -163,7 +163,8 @@ export interface ReviewState {
 }
 
 export type Rating = "again" | "hard" | "good" | "easy";
-export type PageName = "translate" | "dictionary" | "review" | "settings";
+export type LearnPageName = "learn" | "mentor" | "grammar" | "expressions" | "pick" | "videos";
+export type PageName = "translate" | "dictionary" | "review" | "settings" | LearnPageName;
 
 export interface LoaderPhrases {
   emoji: string[];

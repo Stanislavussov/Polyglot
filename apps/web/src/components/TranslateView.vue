@@ -427,5 +427,11 @@ async function answer(value: string, choice: TranslateAnswer): Promise<void> {
 
 onMounted(() => {
   history.value = loadHistory();
+  // A Learn page hands a phrase over as ?q= (the expression's "to dictionary"), as the bot's notif:tr translates it.
+  const handed = new URLSearchParams(window.location.search).get("q")?.trim();
+  if (handed) {
+    text.value = handed;
+    void submit();
+  }
 });
 </script>

@@ -7,12 +7,13 @@
  * MAX_MENTOR_HISTORY per thread; the session only pins the current thread id.
  */
 import {
-  buildMentorSystemPrompt,
   type ChatMessage,
   FEATURE_KEYS,
   isSupported,
   logger,
   MAX_MENTOR_HISTORY,
+  MENTOR_MAX_INPUT_LENGTH,
+  resolveMentorSetup,
   type SupportedLang,
   t,
 } from "@polyglot/core";
@@ -20,7 +21,7 @@ import { mentorCounter, mentorDuration } from "../../metrics.js";
 import { markMentorActivity } from "../../modes/mode-policy.js";
 import { recordEffort } from "../../momentum/momentum.wiring.js";
 import type { BotContext } from "../../types.js";
-import { buildAiFailover, resolveDefaultAIModel, resolveFallbackAIModel } from "../../utils/ai-model.js";
+import { buildAiFailover } from "../../utils/ai-model.js";
 import { ensureAiQuota, ensureMentorDailyQuota, recordAiUsage } from "../../utils/ai-quota.js";
 import {
   dismissLoader,
@@ -34,8 +35,7 @@ import { replyWithRetry } from "../../utils/retry-action.js";
 import { mentorAnswerKeyboard } from "./mentor-exit.helper.js";
 import { ensurePaidFeatureForMessage } from "./paid-feature.helper.js";
 
-/** Maximum input message length in characters. */
-export const MENTOR_MAX_INPUT_LENGTH = 1000;
+export { MENTOR_MAX_INPUT_LENGTH };
 
 export interface MentorTurnOptions {
   /** Thread to continue (reply-continuation or retry); resolved from session/DB when absent. */
@@ -113,26 +113,12 @@ export async function handleMentorText(ctx: BotContext, text: string, opts?: Men
     return;
   }
 
-  // Resolve the mentor model: the admin-managed mentor override wins; an empty
-  // override follows the regular chain (plan-routed → default → fallback), so a
-  // wiped setting degrades to the default model instead of killing the feature.
-  const mentorConfig = await ctx.services.settings.getMentorConfig();
-  const overrideModel = mentorConfig.modelId.trim();
-  const [model, fallbackModel, levelRows] = await Promise.all([
-    overrideModel ? Promise.resolve(overrideModel) : resolveDefaultAIModel(ctx.services.settings, plan),
-    resolveFallbackAIModel(ctx.services.settings),
-    ctx.services.userRepository.getLanguageLevels(ctx.user.id),
-  ]);
-
-  // Build system prompt from user's language settings, annotated with the CEFR
-  // level they picked per language so answers land at the right difficulty.
-  const levels = Object.fromEntries(levelRows.map((row) => [row.languageCode, row.proficiencyLevel]));
-  const systemPrompt = buildMentorSystemPrompt({
-    nativeLang: settings?.nativeLang ?? "en",
-    learningLangs: settings?.learningLangs ?? [],
-    levels,
-    interfaceLang: lang,
-  });
+  const { model, fallbackModel, maxTokens, systemPrompt } = await resolveMentorSetup(
+    ctx.services,
+    { id: ctx.user.id, subscriptionPlan: plan },
+    settings,
+    lang,
+  );
 
   const threadId = await resolveThreadId(ctx, opts);
   const history = await ctx.services.mentorMessageRepository.getRecentMessages(threadId, MAX_MENTOR_HISTORY);
@@ -149,7 +135,7 @@ export async function handleMentorText(ctx: BotContext, text: string, opts?: Men
   try {
     const response = await withTimeout(
       ctx.services.ai.generateChat(messages, model, {
-        maxTokens: mentorConfig.maxTokens,
+        maxTokens,
         userId: ctx.user.id,
         budgetMs: LONG_OP_TIMEOUT_MS,
         failover: buildAiFailover(LONG_OP_TIMEOUT_MS, fallbackModel),

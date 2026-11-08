@@ -12,19 +12,16 @@
  * not the shape of the request: the request is the mechanism, the surviving
  * native row is the behavior.
  */
-import type { EnrichedTranslateInput, ServiceContainer } from "@polyglot/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { EnrichedTranslateInput } from "../../context-enrichment/types.js";
 
 const translateWithContext = vi.fn();
 
-vi.mock("@polyglot/core", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("@polyglot/core")>()),
+vi.mock("../../context-enrichment/context-enrichment.service.js", () => ({
   translateWithContext: (...args: unknown[]) => translateWithContext(...args),
 }));
 
-import { createServicesStub } from "../../../test-helpers/services-stub.js";
-import type { BotContext } from "../../../types.js";
-import { enrichEntryInBackground } from "../entry-enrichment.helper.js";
+import { type EnrichSavedEntryDeps, enrichSavedEntry } from "../enrich-saved-entry.js";
 
 /** Stable ids so a persisted `targetLangId` maps back to a readable code. */
 const LANG_IDS: Record<string, number> = { ru: 1, cs: 2, en: 3, es: 4, de: 5 };
@@ -32,25 +29,15 @@ const codeOf = (id: number): string => Object.keys(LANG_IDS).find((code) => LANG
 
 const updateAllTranslations = vi.fn();
 
-function createCtx(settings: { nativeLang: string; learningLangs: string[] }): BotContext {
+function createCtx(settings: { nativeLang: string; learningLangs: string[] }): EnrichSavedEntryDeps {
   return {
-    user: { id: 1, subscriptionPlan: "free" },
-    services: createServicesStub({
-      userRepository: {
-        getSettings: vi.fn().mockResolvedValue({ ...settings, interfaceLang: "ru" }),
-      } as unknown as ServiceContainer["userRepository"],
-      translationTemplateRepository: {
-        getByUserId: vi.fn().mockResolvedValue(null),
-      } as unknown as ServiceContainer["translationTemplateRepository"],
-      languageCache: {
-        getLang: (code: string) => (LANG_IDS[code] ? { id: LANG_IDS[code], code } : null),
-      } as unknown as ServiceContainer["languageCache"],
-      vocabularyRepository: {
-        updateEntry: vi.fn().mockResolvedValue(undefined),
-        updateAllTranslations,
-      } as unknown as ServiceContainer["vocabularyRepository"],
-    }),
-  } as unknown as BotContext;
+    userRepository: { getSettings: vi.fn().mockResolvedValue({ ...settings, interfaceLang: "ru" }) },
+    translationTemplateRepository: { getByUserId: vi.fn().mockResolvedValue(null) },
+    languageCache: { getLang: (code: string) => (LANG_IDS[code] ? { id: LANG_IDS[code], code } : null) },
+    vocabularyRepository: { updateEntry: vi.fn().mockResolvedValue(undefined), updateAllTranslations },
+    settings: { getDefaultAIModel: vi.fn().mockResolvedValue("test-model") },
+    ai: { generateObject: vi.fn() },
+  } as unknown as EnrichSavedEntryDeps;
 }
 
 /** The AI boundary as it really behaves: one translation block per requested language. */
@@ -79,8 +66,8 @@ function persistedLangs(): string[] {
   return (written ?? []).map((row) => codeOf(row.targetLangId));
 }
 
-async function enrich(ctx: BotContext, sourceLangCode: string): Promise<void> {
-  await enrichEntryInBackground(ctx, {
+async function enrich(deps: EnrichSavedEntryDeps, sourceLangCode: string): Promise<void> {
+  await enrichSavedEntry(deps, {
     entryId: 763,
     word: "give pause",
     inputType: "phrase",
@@ -94,7 +81,7 @@ beforeEach(() => {
   answerEveryRequestedLanguage();
 });
 
-describe("enrichEntryInBackground — which languages survive", () => {
+describe("enrichSavedEntry — which languages survive", () => {
   it("keeps the native translation when the word is in a learning language", async () => {
     // The reported incident, exactly: ru native, learning cs+en, phrase saved from
     // an English video. Czech alone is what the card was left with.
