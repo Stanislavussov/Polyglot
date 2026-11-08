@@ -23,18 +23,24 @@ import {
   isLanguageCacheLoaded,
   languageDetectionRepository,
   loadLanguageCache,
+  momentumRepository,
   normalizeToIso1,
+  notificationRepository,
   planFeatureAccessRepository,
+  reportedIssueRepository,
   settingsAdapter,
   subscriptionRepository,
   translationRequestRepository,
   translationTemplateRepository,
   userRepository,
+  videoVocabularyRepository,
   vocabularyDictionaryRepository,
   vocabularyRepository,
+  wordPickerPresetRepository,
+  wordPickerRunRepository,
   wordReviewRepository,
 } from "@polyglot/adapter-db";
-import { createFeatureAccess, SettingsService } from "@polyglot/core";
+import { createFeatureAccess, createMomentumService, SettingsService, withReviewRecording } from "@polyglot/core";
 import type { WebServices } from "./services.js";
 
 /** The production wiring: the same adapters the bot's container uses, minus bot-only surfaces. */
@@ -42,13 +48,20 @@ export function createWebServices(): WebServices {
   setAIApiKey(process.env.OPENROUTER_API_KEY ?? null);
   const settings = new SettingsService(settingsAdapter);
   setAIRequestTimeoutProvider(async () => (await settings.getAIGenerationDefaults()).requestTimeoutMs);
+  // Same service the bot builds, so web efforts land in the same journal under the same keys.
+  const momentumService = createMomentumService({
+    momentumRepository,
+    getMotivationConfig: () => settings.getMotivationConfig(),
+    getTimezone: async (userId) => (await userRepository.getSettings(userId))?.timezone ?? "UTC",
+  });
 
   return {
+    momentumService,
     userRepository,
     identityRepository,
     vocabularyRepository,
     vocabularyDictionaryRepository,
-    wordReviewRepository,
+    wordReviewRepository: withReviewRecording(wordReviewRepository, () => momentumService),
     translationRequestRepository,
     languageDetectionRepository,
     translationTemplateRepository,
@@ -56,6 +69,11 @@ export function createWebServices(): WebServices {
     settings,
     featureAccess: createFeatureAccess({ settings, planFeatureAccess: planFeatureAccessRepository }),
     cardTemplateRepository,
+    notificationRepository,
+    reportedIssueRepository,
+    videoVocabularyRepository,
+    wordPickerPresetRepository,
+    wordPickerRunRepository,
     contextLookup: createContextLookup(),
     wordLanguageSweep: createWordLanguageSweep(),
     languageCache: {

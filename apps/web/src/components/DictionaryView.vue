@@ -2,6 +2,14 @@
   <section class="min-w-0">
     <h1 class="text-2xl font-bold tracking-tight">{{ t("web.dictionary.title") }}</h1>
 
+    <DictionarySwitcher
+      v-if="dictionaries.length > 0"
+      :dictionaries="dictionaries"
+      :current-id="data?.dictionary.id ?? dictionaryId"
+      @select="selectDictionary"
+      @changed="onDictionariesChanged"
+    />
+
     <div ref="toolbar" class="mt-6 flex scroll-mt-20 gap-2 sm:gap-3 md:scroll-mt-6">
       <label class="sr-only" for="dictionary-search">{{ t("web.dictionary.search") }}</label>
       <div class="relative min-w-0 flex-1">
@@ -104,13 +112,17 @@
         :removed="removedIds.has(item.id)"
         :copied="copiedId === item.id"
         :busy="busyIds.has(item.id)"
+        :others="otherDictionaries"
         @details="openId = item.id"
         @remove="remove(item)"
         @undo="undo(item)"
         @copy="copy(item)"
         @review="review(item)"
+        @place="(to, move) => place(item, to, move)"
       />
     </ul>
+
+    <p v-if="placedMessage" role="status" class="mt-4 rounded-xl bg-surface-muted px-4 py-3 text-sm">{{ placedMessage }}</p>
 
     <p v-if="actionFailed" role="alert" class="mt-4 rounded-xl bg-danger-soft px-4 py-3 text-sm text-danger">{{ t("web.common.error") }}</p>
 
@@ -132,14 +144,15 @@
 import { ArrowDownAZ, ChevronLeft, ChevronRight, Clock, Search, SlidersHorizontal, X } from "lucide-vue-next";
 import { PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from "reka-ui";
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { api } from "../lib/api";
+import { ApiError, api } from "../lib/api";
 import { t } from "../lib/i18n";
 import { useMainInput } from "../lib/use-main-input";
 import { languageFlag, languageName, settings } from "../lib/settings-store";
-import type { DictionaryFilterState, DictionaryItem, DictionaryPage, DictionarySort } from "../lib/types";
+import type { Dictionary, DictionaryFilterState, DictionaryItem, DictionaryPage, DictionarySort } from "../lib/types";
 import BottomSheet from "./BottomSheet.vue";
 import DictionaryFilters from "./DictionaryFilters.vue";
 import DictionaryRow from "./DictionaryRow.vue";
+import DictionarySwitcher from "./DictionarySwitcher.vue";
 import EntryDetailDialog from "./EntryDetailDialog.vue";
 
 const SEARCH_DEBOUNCE_MS = 300;
@@ -178,6 +191,11 @@ const filters = ref<DictionaryFilterState>({
   review: pick(initial, "review", REVIEWS),
 });
 const filtersOpen = ref(false);
+// No id means the default dictionary, as the bot's /dictionary opens it.
+const initialDictionary = Number.parseInt(initial.get("dict") ?? "", 10);
+const dictionaryId = ref<number | null>(initialDictionary > 0 ? initialDictionary : null);
+const dictionaries = ref<Dictionary[]>([]);
+const placedMessage = ref("");
 const toolbar = ref<HTMLElement | null>(null);
 const searchInput = ref<HTMLInputElement | null>(null);
 const { focus: focusSearch } = useMainInput(() => searchInput.value);
@@ -251,6 +269,7 @@ function syncUrl(): void {
   if (query.value.trim()) params.set("q", query.value.trim());
   if (sort.value !== "recent") params.set("sort", sort.value);
   if (page.value > 1) params.set("page", String(page.value));
+  if (dictionaryId.value !== null) params.set("dict", String(dictionaryId.value));
   for (const key of ["lang", "type", "difficulty", "review"] as const) {
     if (filters.value[key]) params.set(key, filters.value[key]);
   }
@@ -269,6 +288,45 @@ const undoTimers = new Map<number, ReturnType<typeof setTimeout>>();
 let copiedTimer: ReturnType<typeof setTimeout> | undefined;
 
 const pageCount = computed(() => (data.value ? Math.max(1, Math.ceil(data.value.total / data.value.pageSize)) : 1));
+
+const otherDictionaries = computed(() => dictionaries.value.filter((d) => d.id !== data.value?.dictionary.id));
+
+async function loadDictionaries(): Promise<void> {
+  try {
+    dictionaries.value = (await api.dictionaries()).items;
+  } catch {
+    // The list still works without the switcher.
+  }
+}
+
+function selectDictionary(id: number): void {
+  dictionaryId.value = id;
+  placedMessage.value = "";
+  restart();
+}
+
+function onDictionariesChanged(selectId: number | null): void {
+  void loadDictionaries();
+  dictionaryId.value = selectId;
+  placedMessage.value = "";
+  restart();
+}
+
+async function place(item: DictionaryItem, to: number, move: boolean): Promise<void> {
+  if (busyIds.value.has(item.id)) return;
+  actionFailed.value = false;
+  mark(busyIds, item.id, true);
+  try {
+    const target = await api.placeEntry(item.id, to, move ? data.value?.dictionary.id : undefined);
+    placedMessage.value = t(move ? "web.dictionaries.moved" : "web.dictionaries.added", { name: target.name, word: item.original });
+    if (move) finalize(item.id);
+    void loadDictionaries();
+  } catch {
+    actionFailed.value = true;
+  } finally {
+    mark(busyIds, item.id, false);
+  }
+}
 
 const openItem = computed(() => data.value?.items.find((item) => item.id === openId.value) ?? null);
 
@@ -293,7 +351,7 @@ async function remove(item: DictionaryItem): Promise<void> {
   actionFailed.value = false;
   mark(busyIds, item.id, true);
   try {
-    await api.removeEntry(item.id);
+    await api.removeEntry(item.id, data.value?.dictionary.id);
     mark(removedIds, item.id, true);
     undoTimers.set(item.id, setTimeout(() => finalize(item.id), UNDO_WINDOW_MS));
   } catch {
@@ -310,7 +368,7 @@ async function undo(item: DictionaryItem): Promise<void> {
   mark(busyIds, item.id, true);
   clearTimeout(undoTimers.get(item.id));
   try {
-    await api.restoreEntry(item.id);
+    await api.restoreEntry(item.id, data.value?.dictionary.id);
     undoTimers.delete(item.id);
     mark(removedIds, item.id, false);
   } catch {
@@ -348,7 +406,13 @@ async function load(): Promise<void> {
   loading.value = true;
   failed.value = false;
   try {
-    const next = await api.dictionary({ q: query.value.trim(), sort: sort.value, page: page.value, ...filters.value });
+    const next = await api.dictionary({
+      q: query.value.trim(),
+      sort: sort.value,
+      page: page.value,
+      dictionary: dictionaryId.value ?? undefined,
+      ...filters.value,
+    });
     if (id === requestId) {
       data.value = next;
       if (scrollAfterLoad) {
@@ -358,7 +422,13 @@ async function load(): Promise<void> {
         focusSearch();
       }
     }
-  } catch {
+  } catch (error) {
+    // A dictionary deleted in the bot, or a stale link: fall back to the default one.
+    if (id === requestId && error instanceof ApiError && error.status === 404 && dictionaryId.value !== null) {
+      dictionaryId.value = null;
+      void load();
+      return;
+    }
     if (id === requestId) failed.value = true;
   } finally {
     if (id === requestId) loading.value = false;
@@ -390,9 +460,12 @@ watch(page, () => {
   void load();
 });
 
-watch([query, sort, page, filters], syncUrl);
+watch([query, sort, page, filters, dictionaryId], syncUrl);
 
-onMounted(load);
+onMounted(() => {
+  void load();
+  void loadDictionaries();
+});
 onBeforeUnmount(() => {
   clearTimeout(timer);
   clearTimeout(copiedTimer);

@@ -44,6 +44,21 @@ export interface QuotaPorts {
   subscriptions?: Pick<SubscriptionRepository, "findTrialByUser">;
 }
 
+/** The container slice a channel holds; both the bot and the web app meter through this one assembly. */
+export interface QuotaServices {
+  settings: SettingsPort;
+  translationRequestRepository: QuotaPorts["translationRequests"];
+  subscriptionRepository?: QuotaPorts["subscriptions"];
+}
+
+export function buildQuotaPorts(services: QuotaServices): QuotaPorts {
+  return {
+    settings: services.settings,
+    translationRequests: services.translationRequestRepository,
+    ...(services.subscriptionRepository ? { subscriptions: services.subscriptionRepository } : {}),
+  };
+}
+
 export interface QuotaSubject {
   id: number;
   audienceGroup: AudienceGroup;
@@ -181,6 +196,27 @@ export async function checkMentorDailyQuota(
   const limit = (await resolvePlanLimit(ports.settings, user.subscriptionPlan)).mentorDailyLimit ?? null;
   if (limit === null) return { ok: true };
   const used = await ports.translationRequests.countRequestsInWindow(user.id, "[mentor]", getDailyWindowStart());
+  return used < limit ? { ok: true } : { ok: false, limit };
+}
+
+/**
+ * Per-plan cap on grammar checks per UTC day — the only gate the check has: every
+ * tier includes it, so the limit stands in for a feature key and `0` is how a plan
+ * goes without (`limit: 0` in the refusal). Counted from the ledger's
+ * "[grammarCheck]" rows, so a failed check (never recorded) does not burn the allowance.
+ */
+export async function checkGrammarCheckDailyQuota(
+  ports: QuotaPorts,
+  user: QuotaSubject,
+): Promise<{ ok: true } | { ok: false; limit: number }> {
+  if (isUnlimitedRole(user.audienceGroup)) return { ok: true };
+  const limit = (await resolvePlanLimit(ports.settings, user.subscriptionPlan)).grammarCheckDailyLimit;
+  if (limit === null) return { ok: true };
+  // A negative value is the column's "never configured" sentinel, which the deploy
+  // backfills before the bot starts; should one slip through, refusing is the cheap
+  // mistake — reading it as a number would never refuse anyone.
+  if (limit <= 0) return { ok: false, limit: 0 };
+  const used = await ports.translationRequests.countRequestsInWindow(user.id, "[grammarCheck]", getDailyWindowStart());
   return used < limit ? { ok: true } : { ok: false, limit };
 }
 

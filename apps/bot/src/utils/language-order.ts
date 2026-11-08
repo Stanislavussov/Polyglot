@@ -15,30 +15,9 @@
  * conversations perform — fetch the plain settings across that boundary and build
  * the context on this side.
  */
-import { createLanguageOrderContext, type LanguageOrderContext, logEvent } from "@polyglot/core";
+import { type LanguageOrderContext, languageOrderFromSettings, logEvent } from "@polyglot/core";
 import { getRequestSettings } from "../middlewares/request-settings.js";
 import type { BotContext } from "../types.js";
-
-/** Settings shape needed for ordering — a subset of the user's language settings. */
-interface LanguageSettings {
-  nativeLang?: string | null;
-  learningLangs?: string[] | null;
-}
-
-/**
- * Build the ordering context from settings already in hand.
- *
- * A missing settings row yields an empty context, which ranks everything by
- * language code. That is correct for a user who has chosen nothing yet, and it
- * is the same order the bug produced — so surfaces are covered by tests that
- * assert a non-alphabetical result for a user who *has* chosen languages.
- */
-export function languageOrderFromSettings(settings: LanguageSettings | null | undefined): LanguageOrderContext {
-  return createLanguageOrderContext({
-    nativeLang: settings?.nativeLang,
-    learningLangs: settings?.learningLangs ?? [],
-  });
-}
 
 /**
  * Load the user's settings and build the ordering context.

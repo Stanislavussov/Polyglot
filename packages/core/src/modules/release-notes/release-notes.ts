@@ -59,6 +59,11 @@ function findUp(startDir: string, relative: string): string | null {
   }
 }
 
+/** Release notes reach testers and admins only for now — the bot's /changes and the web page alike. */
+export function canReadReleaseNotes(audienceGroup: string): boolean {
+  return audienceGroup === "admin" || audienceGroup === "tester";
+}
+
 /**
  * Walk up from `startDir` for the notes queue. Services run from `/app` in their
  * container and from a package directory in tests, so neither can hard-code it.

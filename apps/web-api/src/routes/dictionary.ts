@@ -1,4 +1,10 @@
-import { type Example, logEvent, type VocabularyEntryWithTranslations } from "@polyglot/core";
+import {
+  acceptDictionaryName,
+  type Example,
+  logEvent,
+  type VocabularyDictionary,
+  type VocabularyEntryWithTranslations,
+} from "@polyglot/core";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import type { WebServices } from "../services.js";
@@ -13,7 +19,14 @@ const querySchema = z.object({
   type: z.enum(["word", "phrase", "sentence"]).optional(),
   difficulty: z.enum(["hard", "normal", "easy"]).optional(),
   review: z.enum(["due", "new", "learned"]).optional(),
+  dictionary: z.coerce.number().int().positive().optional(),
 });
+
+const nameSchema = z.object({ name: z.string().max(200) });
+const dictionaryParams = z.object({ dictionaryId: z.coerce.number().int().positive() });
+const entryParams = z.object({ entryId: z.coerce.number().int().positive() });
+const targetQuery = z.object({ dictionary: z.coerce.number().int().positive().optional() });
+const placeBody = z.object({ to: z.number().int().positive(), from: z.number().int().positive().optional() });
 
 export function langCode(services: WebServices, langId: number): string {
   return services.languageCache.getAllLangs().find((lang) => lang.id === langId)?.code ?? "";
@@ -30,8 +43,68 @@ export function toDictionaryItem(services: WebServices, entry: VocabularyEntryWi
   };
 }
 
+function toDictionaryView(dictionary: VocabularyDictionary & { entryCount?: number }) {
+  return {
+    id: dictionary.id,
+    name: dictionary.name,
+    isDefault: dictionary.isDefault,
+    count: dictionary.entryCount ?? 0,
+  };
+}
+
+async function ownedLiveEntry(services: WebServices, userId: number, entryId: number) {
+  const entry = await services.vocabularyRepository.findById(entryId);
+  return entry && entry.userId === userId && entry.isActive ? entry : null;
+}
+
 export function dictionaryRoutes(app: FastifyInstance, services: WebServices): void {
-  // The default dictionary is the one the bot's /dictionary opens and every save lands in.
+  const repo = services.vocabularyDictionaryRepository;
+
+  // The same collections the bot's dictionary switcher lists, default first.
+  app.get("/api/dictionaries", async (request) => ({
+    items: (await repo.listByUser(request.learner.id)).map(toDictionaryView),
+  }));
+
+  app.post("/api/dictionaries", async (request, reply) => {
+    const body = nameSchema.safeParse(request.body);
+    const userId = request.learner.id;
+    const name = body.success
+      ? acceptDictionaryName(repo.normalizeName(body.data.name), await repo.listByUser(userId))
+      : null;
+    if (!name) return reply.status(400).send({ code: "invalid_name" });
+    const dictionary = await repo.create(userId, name);
+    logEvent("dictionary.created", { dictionaryId: dictionary.id, nameLength: name.length, surface: "web" });
+    return reply.status(201).send(toDictionaryView(dictionary));
+  });
+
+  app.patch("/api/dictionaries/:dictionaryId", async (request, reply) => {
+    const params = dictionaryParams.safeParse(request.params);
+    if (!params.success) return reply.status(400).send({ code: "invalid_dictionary" });
+    const { dictionaryId } = params.data;
+    const userId = request.learner.id;
+    const body = nameSchema.safeParse(request.body);
+    const name = body.success
+      ? acceptDictionaryName(repo.normalizeName(body.data.name), await repo.listByUser(userId), dictionaryId)
+      : null;
+    if (!name) return reply.status(400).send({ code: "invalid_name" });
+    // The repository refuses the default dictionary, as the bot hides Rename on it.
+    const renamed = await repo.rename(userId, dictionaryId, name);
+    if (!renamed) return reply.status(404).send({ code: "not_found" });
+    logEvent("dictionary.renamed", { dictionaryId, nameLength: name.length, surface: "web" });
+    return toDictionaryView(renamed);
+  });
+
+  app.delete("/api/dictionaries/:dictionaryId", async (request, reply) => {
+    const params = dictionaryParams.safeParse(request.params);
+    if (!params.success) return reply.status(400).send({ code: "invalid_dictionary" });
+    const { dictionaryId } = params.data;
+    const deleted = await repo.delete(request.learner.id, dictionaryId);
+    logEvent("dictionary.deleted", { dictionaryId, deleted, surface: "web" });
+    if (!deleted) return reply.status(404).send({ code: "not_found" });
+    return reply.status(204).send();
+  });
+
+  // Without `dictionary`, the default one: what the bot's /dictionary opens and every save lands in.
   app.get("/api/dictionary", async (request, reply) => {
     const parsed = querySchema.safeParse(request.query);
     if (!parsed.success) return reply.status(400).send({ code: "invalid_query" });
@@ -42,7 +115,10 @@ export function dictionaryRoutes(app: FastifyInstance, services: WebServices): v
     if (lang && langId === undefined) return reply.status(400).send({ code: "invalid_query" });
     const filters = { langId, inputType: type, difficulty, review };
 
-    const dictionary = await services.vocabularyDictionaryRepository.getOrCreateDefault(userId);
+    const dictionary = parsed.data.dictionary
+      ? await repo.findOwnedById(userId, parsed.data.dictionary)
+      : await repo.getOrCreateDefault(userId);
+    if (!dictionary) return reply.status(404).send({ code: "not_found" });
     const total = await services.vocabularyRepository.countByUser(userId, dictionary.id, search, filters);
     const entries = await services.vocabularyRepository.findByUserPaginated(
       userId,
@@ -53,44 +129,91 @@ export function dictionaryRoutes(app: FastifyInstance, services: WebServices): v
     );
     return {
       items: entries.map((entry) => toDictionaryItem(services, entry)),
+      dictionary: toDictionaryView(dictionary),
       total,
       page,
       pageSize: DICTIONARY_PAGE_SIZE,
     };
   });
 
-  const entryParams = z.object({ entryId: z.coerce.number().int().positive() });
-
   // Soft delete and its undo, owner-scoped in the repository: the same pair the
   // bot's Remove / Save buttons use, so a word removed here is gone there too.
+  // With `dictionary`, a word that also lives in another dictionary only leaves this
+  // one, as the bot's dictionary delete does.
   app.delete("/api/dictionary/:entryId", async (request, reply) => {
     const params = entryParams.safeParse(request.params);
-    if (!params.success) return reply.status(400).send({ code: "invalid_entry" });
-    if (!(await services.vocabularyRepository.delete(params.data.entryId, request.learner.id))) {
+    const target = targetQuery.safeParse(request.query);
+    if (!params.success || !target.success) return reply.status(400).send({ code: "invalid_entry" });
+    const { entryId } = params.data;
+    const dictionaryId = target.data.dictionary;
+    const userId = request.learner.id;
+    if (dictionaryId !== undefined) {
+      if (!(await ownedLiveEntry(services, userId, entryId)) || !(await repo.findOwnedById(userId, dictionaryId))) {
+        return reply.status(404).send({ code: "not_found" });
+      }
+      const memberships = await repo.listEntryDictionaries(userId, entryId);
+      if (memberships.some((dictionary) => dictionary.id !== dictionaryId)) {
+        await repo.removeEntry(dictionaryId, entryId);
+        logEvent("dictionary.entry_removed", { dictionaryId, entryId, wordRemoved: false, surface: "web" });
+        return reply.status(204).send();
+      }
+    }
+    if (!(await services.vocabularyRepository.delete(entryId, userId))) {
       return reply.status(404).send({ code: "not_found" });
     }
-    logEvent("vocabulary.removed", { entryId: params.data.entryId, surface: "web" });
+    logEvent("vocabulary.removed", { entryId, surface: "web" });
     return reply.status(204).send();
   });
 
   app.post("/api/dictionary/:entryId/restore", async (request, reply) => {
     const params = entryParams.safeParse(request.params);
-    if (!params.success) return reply.status(400).send({ code: "invalid_entry" });
-    if (!(await services.vocabularyRepository.restore(params.data.entryId, request.learner.id))) {
+    const target = targetQuery.safeParse(request.query);
+    if (!params.success || !target.success) return reply.status(400).send({ code: "invalid_entry" });
+    const { entryId } = params.data;
+    const dictionaryId = target.data.dictionary;
+    const userId = request.learner.id;
+    const restored = await services.vocabularyRepository.restore(entryId, userId);
+    if (dictionaryId === undefined) {
+      if (!restored) return reply.status(404).send({ code: "not_found" });
+    } else {
+      // Not restored is fine for a word that only left this dictionary: it stayed live.
+      if (!(await ownedLiveEntry(services, userId, entryId)) || !(await repo.findOwnedById(userId, dictionaryId))) {
+        return reply.status(404).send({ code: "not_found" });
+      }
+      await repo.addEntry(dictionaryId, entryId);
+    }
+    logEvent("vocabulary.restored", { entryId, surface: "web" });
+    return reply.status(204).send();
+  });
+
+  // Add to another dictionary, or move there when `from` is given: the bot's dict:add / dict:move.
+  app.post("/api/dictionary/:entryId/dictionaries", async (request, reply) => {
+    const params = entryParams.safeParse(request.params);
+    const body = placeBody.safeParse(request.body);
+    if (!params.success || !body.success) return reply.status(400).send({ code: "invalid_entry" });
+    const { entryId } = params.data;
+    const { to, from } = body.data;
+    const userId = request.learner.id;
+    const target = await repo.findOwnedById(userId, to);
+    if (!target || !(await ownedLiveEntry(services, userId, entryId))) {
       return reply.status(404).send({ code: "not_found" });
     }
-    logEvent("vocabulary.restored", { entryId: params.data.entryId, surface: "web" });
-    return reply.status(204).send();
+    if (from === undefined) {
+      await repo.addEntry(to, entryId);
+      logEvent("dictionary.entry_added", { toDictionaryId: to, entryId, surface: "web" });
+    } else {
+      if (!(await repo.moveEntry(userId, from, to, entryId))) return reply.status(404).send({ code: "not_found" });
+      logEvent("dictionary.entry_moved", { fromDictionaryId: from, toDictionaryId: to, entryId, surface: "web" });
+    }
+    return toDictionaryView(target);
   });
 
   // The full saved card: everything the bot shows on a saved word, plus its review schedule.
   app.get("/api/dictionary/:entryId", async (request, reply) => {
     const params = entryParams.safeParse(request.params);
     if (!params.success) return reply.status(400).send({ code: "invalid_entry" });
-    const entry = await services.vocabularyRepository.findById(params.data.entryId);
-    if (!entry || entry.userId !== request.learner.id || !entry.isActive) {
-      return reply.status(404).send({ code: "not_found" });
-    }
+    const entry = await ownedLiveEntry(services, request.learner.id, params.data.entryId);
+    if (!entry) return reply.status(404).send({ code: "not_found" });
     return toDictionaryDetail(services, entry);
   });
 }

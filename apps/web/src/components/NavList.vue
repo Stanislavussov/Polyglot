@@ -4,10 +4,10 @@
       v-for="item in items"
       :key="item.page"
       :href="item.href"
-      :aria-current="item.page === page ? 'page' : undefined"
+      :aria-current="active(item.page) ? 'page' : undefined"
       :class="[
         'flex min-h-11 items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors',
-        item.page === page ? 'bg-sidebar-active text-sidebar-fg' : 'text-sidebar-muted hover:bg-sidebar-hover',
+        active(item.page) ? 'bg-sidebar-active text-sidebar-fg' : 'text-sidebar-muted hover:bg-sidebar-hover',
       ]"
     >
       <component :is="item.icon" class="size-5 shrink-0" aria-hidden="true" />
@@ -17,16 +17,26 @@
 </template>
 
 <script setup lang="ts">
-import { BookOpen, GraduationCap, Languages, Settings } from "lucide-vue-next";
+import { BookOpen, Gem, GraduationCap, Languages, Settings, Sparkles, TrendingUp } from "lucide-vue-next";
 import { t } from "../lib/i18n";
 import type { PageName } from "../lib/types";
 
-defineProps<{ page: PageName }>();
+const props = defineProps<{ page: PageName }>();
+
+const LEARN_PAGES: readonly PageName[] = ["learn", "mentor", "grammar", "expressions", "pick", "videos"];
+
+// Every Learn mode sits under the one Learn entry.
+function active(itemPage: PageName): boolean {
+  return itemPage === props.page || (itemPage === "learn" && LEARN_PAGES.includes(props.page));
+}
 
 const items = [
   { page: "translate", href: "/translate/", label: "web.nav.translate", icon: Languages },
   { page: "dictionary", href: "/dictionary/", label: "web.nav.dictionary", icon: BookOpen },
   { page: "review", href: "/review/", label: "web.nav.review", icon: GraduationCap },
+  { page: "learn", href: "/learn/", label: "web.nav.learn", icon: Sparkles },
+  { page: "progress", href: "/progress/", label: "web.nav.progress", icon: TrendingUp },
   { page: "settings", href: "/settings/", label: "web.nav.settings", icon: Settings },
+  { page: "plan", href: "/plan/", label: "web.nav.plan", icon: Gem },
 ] as const;
 </script>

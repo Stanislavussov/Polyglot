@@ -6,6 +6,9 @@
 
 /** Valid notification type strategies */
 export const NOTIFICATION_TYPES = ["suggested", "srs", "contextual", "expressions"] as const;
+
+/** Max number of daily notification times a user can configure — one limit for every channel. */
+export const MAX_NOTIFICATION_TIMES = 12;
 /**
  * The notification time a user gets when they have not chosen one (19:00 local),
  * stored as an "HH:MM" string.

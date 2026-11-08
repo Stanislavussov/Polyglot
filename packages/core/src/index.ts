@@ -159,6 +159,13 @@ export {
   type MentorCard,
   renderCardForMentor,
 } from "./modules/mentor/card-context.js";
+export {
+  MENTOR_MAX_INPUT_LENGTH,
+  type MentorModels,
+  type MentorSetup,
+  resolveMentorModels,
+  resolveMentorSetup,
+} from "./modules/mentor/mentor-setup.js";
 export type { MentorPromptOptions } from "./modules/mentor/prompt.builder.js";
 export { buildMentorSystemPrompt, MAX_MENTOR_HISTORY } from "./modules/mentor/prompt.builder.js";
 export {
@@ -170,6 +177,7 @@ export {
   localDayKey,
   resolveBand,
 } from "./modules/momentum/momentum.math.js";
+export { creditEffort, recordMatureIfCrossed, withReviewRecording } from "./modules/momentum/momentum.recording.js";
 export type {
   MomentumService,
   MomentumServiceDeps,
@@ -222,6 +230,11 @@ export * from "./modules/release-notes/index.js";
 export { AI_GENERATION_DEFAULTS, parseAIGenerationDefaults } from "./modules/settings/ai-defaults.schema.js";
 export { MAX_LEARNING_LANGS } from "./modules/settings/learning-langs.js";
 export * from "./modules/settings/settings.service.js";
+export type {
+  LanguageSettingsPatch,
+  LanguageSettingsValidation,
+} from "./modules/settings/validate-language-settings.js";
+export { validateLanguageSettings } from "./modules/settings/validate-language-settings.js";
 export * from "./modules/srs/index.js";
 export * from "./modules/subscriptions/index.js";
 export * from "./modules/subscriptions/trial.js";
@@ -260,9 +273,27 @@ export {
   extractionResultSchema,
   extractPhrasesFromTranscript,
 } from "./modules/video-vocabulary/index.js";
+export {
+  checkVideoAllowance,
+  processVideo,
+  type SaveVideoPhraseOptions,
+  saveAllVideoPhrases,
+  saveVideoPhrase,
+  type TranscriptSource,
+  type VideoAllowance,
+  type VideoFlowDeps,
+  type VideoProcessOutcome,
+} from "./modules/video-vocabulary/video-flow.js";
+export { acceptDictionaryName, MAX_DICTIONARY_NAME_LENGTH } from "./modules/vocabulary/dictionary-name.js";
+export {
+  type EnrichEntryInput,
+  type EnrichSavedEntryDeps,
+  enrichSavedEntry,
+} from "./modules/vocabulary/enrich-saved-entry.js";
 export type { LanguageOrderContext } from "./modules/vocabulary/translation-order.js";
 export {
   createLanguageOrderContext,
+  languageOrderFromSettings,
   languageRank,
   orderLangCodes,
   orderRecordEntries,
@@ -275,14 +306,22 @@ export type {
   PickedItem,
   PickedItemType,
   PickResult,
+  SavePickedItemOptions,
+  WordPickDeps,
+  WordPickOutcome,
   WordPickRequest,
+  WordPickSetRequest,
 } from "./modules/word-picker/index.js";
 export {
   buildWordPickPrompt,
   DEFAULT_WORD_PICKER_PRESETS,
+  eligiblePresetLangs,
+  generateWordPickSet,
   normalizeWord,
   pickResultSchema,
   pickWords,
+  presetTitle,
+  savePickedItem,
 } from "./modules/word-picker/index.js";
 export {
   type AICircuitEvent,
@@ -319,6 +358,7 @@ export {
   NOTIFICATION_TEMPLATE_FIELD_KEYS,
 } from "./shared/notification-template.types.js";
 export { isFinitePositive } from "./shared/numbers.js";
+export { applyTemplateFields, TEMPLATE_PREVIEW_OUTPUT } from "./shared/template-preview.js";
 export type { InputContext } from "./shared/translation-template.service.js";
 export {
   resolveOutputConfig,

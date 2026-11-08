@@ -3,6 +3,7 @@ import {
   logEvent,
   orderRecordEntries,
   rateEntry,
+  recordMatureIfCrossed,
   type SrsDueVocabularyCard,
   type User,
 } from "@polyglot/core";
@@ -91,6 +92,14 @@ export function reviewRoutes(app: FastifyInstance, services: WebServices): void 
       "web",
     );
     if (!written) return reply.status(404).send({ code: "not_found" });
+    for (const [translationId, result] of written) {
+      await recordMatureIfCrossed(services.momentumService, {
+        userId: user.id,
+        entryId: params.data.entryId,
+        translationId,
+        interval: result.interval,
+      });
+    }
     logEvent("web.card_rated", { entryId: params.data.entryId, rating: body.data.rating, scheduled: written.size });
     return nextCard(services, user);
   });

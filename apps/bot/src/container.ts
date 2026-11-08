@@ -76,10 +76,11 @@ import {
   type ServiceContainer,
   SettingsService,
   setAICircuitObserver,
+  withReviewRecording,
 } from "@polyglot/core";
 import type { ZodSchema } from "zod";
 import { aiCircuitStateGauge, aiCircuitTransitionsCounter, aiFallbackCounter } from "./metrics.js";
-import { withReviewRecording } from "./momentum/momentum.wiring.js";
+
 import { purchasePaymentPort } from "./payment.js";
 import { buildAiFailover, resolveFallbackAIModel } from "./utils/ai-model.js";
 import { clampAiBudgetToOpGuard } from "./utils/long-op.js";

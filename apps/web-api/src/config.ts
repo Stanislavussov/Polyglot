@@ -10,7 +10,11 @@ export interface WebApiConfig {
   staticDir: string | null;
   /** Dev-only one-click login as this user; always null in production. */
   devUserId: number | null;
+  /** The bot the plan page's upgrade link opens; buying happens there. */
+  botUsername: string;
 }
+
+const PRODUCTION_BOT_USERNAME = "polyglot_lang_ai_bot";
 
 const MIN_SECRET_LENGTH = 32;
 
@@ -37,5 +41,6 @@ export function loadConfig(env: NodeJS.ProcessEnv): WebApiConfig {
     staticDir: env.WEB_STATIC_DIR?.trim() || null,
     // Never honoured in production, whatever the env says: it signs in without Telegram.
     devUserId: !production && env.WEB_DEV_USER_ID ? Number.parseInt(env.WEB_DEV_USER_ID, 10) : null,
+    botUsername: env.WEB_BOT_USERNAME?.trim() || PRODUCTION_BOT_USERNAME,
   };
 }

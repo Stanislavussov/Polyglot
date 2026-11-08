@@ -8,29 +8,29 @@
  * with one tap.
  */
 
-import { isSupported, logger, pickWords, type SupportedLang, t, type WordPickerPreset } from "@polyglot/core";
+import {
+  eligiblePresetLangs,
+  generateWordPickSet,
+  isSupported,
+  logger,
+  type SupportedLang,
+  savePickedItem,
+  t,
+  type WordPickerItem,
+  type WordPickerPreset,
+  type WordPickerRun,
+} from "@polyglot/core";
 import { wordPickCounter, wordPickEnrichmentCounter } from "../../metrics.js";
 import {
   buildLangKeyboard,
   buildPickedSetKeyboard,
   buildPresetListKeyboard,
-  presetTitle,
   renderPickedSet,
   renderPresetList,
 } from "../../renderers/word-picker.renderer.js";
 import type { BotContext } from "../../types.js";
-import { resolveDefaultAIModel } from "../../utils/ai-model.js";
-import { ensureAiQuota, recordAiUsage } from "../../utils/ai-quota.js";
+import { ensureAiQuota } from "../../utils/ai-quota.js";
 import { editMessageTextOrReply } from "./edit-message.helper.js";
-import { enrichEntryInBackground } from "./entry-enrichment.helper.js";
-
-/** Items per generated set — one screenful of Telegram message plus its buttons. */
-const ITEMS_PER_SET = 8;
-
-/** Words excluded from a new set: everything already shown for this angle plus the user's dictionary. */
-const MAX_KNOWN_WORDS = 300;
-
-const DEFAULT_LEVEL = "B1";
 
 async function resolveInterfaceLang(ctx: BotContext): Promise<SupportedLang> {
   const userId = ctx.user?.id;
@@ -44,12 +44,6 @@ function langLabel(ctx: BotContext, code: string, lang: SupportedLang): string {
   const flag = ctx.services.languageCache.getLangFlag(code);
   const name = ctx.services.languageCache.getLangName(code, lang);
   return flag ? `${flag} ${name}` : name;
-}
-
-/** Learning languages this angle is offered for — an unscoped preset accepts them all. */
-function eligibleLangs(preset: WordPickerPreset, learningLangs: string[]): string[] {
-  if (preset.learningLangs.length === 0) return learningLangs;
-  return learningLangs.filter((code) => preset.learningLangs.includes(code));
 }
 
 /* ------------------------------------------------------------------ */
@@ -102,7 +96,7 @@ export async function handlePickPresetCallback(ctx: BotContext): Promise<void> {
   }
 
   const settings = await ctx.services.userRepository.getSettings(userId);
-  const langs = eligibleLangs(preset, settings?.learningLangs ?? []);
+  const langs = eligiblePresetLangs(preset, settings?.learningLangs ?? []);
 
   if (langs.length === 0) {
     await editMessageTextOrReply(ctx, t("pickNoLanguage", lang));
@@ -276,30 +270,18 @@ async function generateAndShowSet(
     progressMessageId = notice.message_id;
   }
 
-  const settings = await ctx.services.userRepository.getSettings(userId);
-  const nativeLang = settings?.nativeLang ?? "en";
-  const levels = await ctx.services.userRepository.getLanguageLevels(userId);
-  const level = levels.find((entry) => entry.languageCode === langCode)?.proficiencyLevel ?? DEFAULT_LEVEL;
+  const outcome = await generateWordPickSet(ctx.services, {
+    userId,
+    plan: ctx.user.subscriptionPlan,
+    preset,
+    langCode,
+    interfaceLang: lang,
+    creditCost,
+  });
 
-  const knownWords = await collectKnownWords(ctx, userId, preset.id, langCode);
-  const model = await resolveDefaultAIModel(ctx.services.settings, ctx.user.subscriptionPlan);
-
-  let picked: Awaited<ReturnType<typeof pickWords>>;
-  try {
-    picked = await pickWords(
-      {
-        angleTitle: presetTitle(preset, lang),
-        anglePrompt: preset.prompt,
-        learningLanguage: ctx.services.languageCache.getLangName(langCode, "en"),
-        nativeLanguage: ctx.services.languageCache.getLangName(nativeLang, "en"),
-        level,
-        count: ITEMS_PER_SET,
-        knownWords,
-      },
-      { generateObjectFn: ctx.services.ai.generateObject, modelId: model },
-    );
-  } catch (error) {
+  if (outcome.status === "failed") {
     wordPickCounter.inc({ status: "failed" });
+    const error = outcome.error;
     logger.error(
       { presetId: preset.id, langCode, error: error instanceof Error ? error.message : String(error) },
       "Word pick failed",
@@ -308,37 +290,12 @@ async function generateAndShowSet(
     return;
   }
 
-  // The call happened, so it is billed whether or not the angle had anything new left.
-  await recordAiUsage(ctx, "wordPick", creditCost, langCode, [nativeLang]);
-
-  if (picked.length === 0) {
+  if (outcome.status === "empty") {
     wordPickCounter.inc({ status: "empty" });
     await offerOtherAngles(ctx, userId, preset, lang, options.progressBy, progressMessageId);
     return;
   }
-
-  const run = await ctx.services.wordPickerRunRepository.createRun({
-    userId,
-    presetId: preset.id,
-    presetTitle: presetTitle(preset, lang),
-    presetEmoji: preset.emoji,
-    langCode,
-    nativeLang,
-  });
-
-  const items = await ctx.services.wordPickerRunRepository.saveItems(
-    run.id,
-    picked.map((item) => ({
-      word: item.word,
-      nativeTranslation: item.nativeTranslation,
-      emoji: item.emoji,
-      itemType: item.type,
-      level: item.level,
-      exampleTarget: item.exampleTarget,
-      exampleNative: item.exampleNative,
-      note: item.note,
-    })),
-  );
+  const { run, items } = outcome;
 
   wordPickCounter.inc({ status: "generated" });
 
@@ -393,99 +350,20 @@ async function offerOtherAngles(
   await dropProgressNotice(ctx, progressMessageId);
 }
 
-/**
- * Words this angle must not produce again: everything already shown for it in this
- * language, plus everything the learner has saved in that language. Without this
- * the second tap of "more words" returns the same obvious eight items.
- */
-async function collectKnownWords(
-  ctx: BotContext,
-  userId: number,
-  presetId: number,
-  langCode: string,
-): Promise<string[]> {
-  const sourceLang = ctx.services.languageCache.getLang(langCode);
-  const [shown, saved] = await Promise.all([
-    ctx.services.wordPickerRunRepository.findWordsShownTo(userId, presetId, langCode, MAX_KNOWN_WORDS),
-    sourceLang
-      ? ctx.services.vocabularyRepository.findOriginalsByUserAndSource(userId, sourceLang.id)
-      : Promise.resolve([]),
-  ]);
-  return [...shown, ...saved];
-}
-
 /* ------------------------------------------------------------------ */
 /*  Saving                                                             */
 /* ------------------------------------------------------------------ */
 
-interface SavableRun {
-  id: number;
-  presetTitle: string;
-  langCode: string;
-  nativeLang: string;
-}
-
-interface SavableItem {
-  id: number;
-  word: string;
-  nativeTranslation: string;
-  emoji: string | null;
-  itemType: string | null;
-  exampleTarget: string | null;
-  exampleNative: string | null;
-  note: string | null;
-}
-
-async function saveItem(
+function saveItem(
   ctx: BotContext,
   userId: number,
-  run: SavableRun,
-  item: SavableItem,
+  run: WordPickerRun,
+  item: WordPickerItem,
   sourceLangId: number,
 ): Promise<void> {
-  const existing = await ctx.services.vocabularyRepository.findByOriginalAndSource(userId, item.word, sourceLangId);
-  if (existing) {
-    await ctx.services.wordPickerRunRepository.markItemSaved(item.id, existing.id);
-    return;
-  }
-
-  const inputType = item.itemType === "word" ? ("word" as const) : ("phrase" as const);
-  const examples = item.exampleTarget
-    ? [{ context: item.exampleTarget, target: item.exampleNative ?? item.nativeTranslation }]
-    : [];
-
-  const nativeLang = ctx.services.languageCache.getLang(run.nativeLang);
-  const translations = nativeLang
-    ? [
-        {
-          targetLangId: nativeLang.id,
-          text: item.nativeTranslation,
-          details: { synonyms: [], examples },
-        },
-      ]
-    : [];
-
-  const entry = await ctx.services.vocabularyRepository.create(userId, {
-    original: item.word,
-    sourceLangId,
-    inputType,
-    emoji: item.emoji ?? "",
-    nativeMeaning: item.nativeTranslation,
-    sourceUsage: { explanation: item.note ?? item.nativeTranslation, synonyms: [], examples },
-    source: { type: "wordPicker", runId: run.id, presetTitle: run.presetTitle },
-    translations,
-  });
-
-  await ctx.services.vocabularyDictionaryRepository.addEntryToDefault(userId, entry.id);
-  await ctx.services.wordPickerRunRepository.markItemSaved(item.id, entry.id);
-
-  void enrichEntryInBackground(ctx, {
-    entryId: entry.id,
-    word: item.word,
-    inputType,
-    sourceLangCode: run.langCode,
-    userId,
-    onOutcome: (status) => wordPickEnrichmentCounter.inc({ status }),
+  return savePickedItem(ctx.services, userId, run, item, sourceLangId, {
+    plan: ctx.user.subscriptionPlan,
+    onEnriched: (status) => wordPickEnrichmentCounter.inc({ status }),
   });
 }
 

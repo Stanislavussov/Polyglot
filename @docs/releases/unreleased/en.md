@@ -28,3 +28,12 @@
 - Review cards on the website now show the whole word — meaning, examples, synonyms and notes — and with Pro you can tap 🔊 to hear it.
 - Under a translation on the site, tap 🔍 Explore to clarify the meaning, see another meaning, read where the word comes from, or ask the mentor about it — just like in the bot.
 - On the website, every word card now starts with the translation into your own language, then the meaning, then your other languages — and dictionary cards have an icon in the corner to open the full card.
+- The website's settings now let you set up reminders, choose what a translation card shows with a live preview, and report a problem — and your cards on the site follow that layout, just like in the bot.
+- A new Plans page on the website shows your plan and what each plan includes, with a button that takes you to the bot to upgrade.
+- The website now has a Learning section: chat with the mentor, check your grammar, discover expressions, pick new words and pull phrases out of YouTube videos — just like in the bot.
+- On the website you can now keep several dictionaries, just like in the bot: create, rename and delete them, and add or move a word between them.
+- While reviewing on the website, you can remove a word you no longer need — and bring it back with one tap if you change your mind.
+- The website now has a Progress page with your rhythm, words in long-term memory and active days — and everything you do on the site counts toward it, just like in the bot.
+- When you type a word in a language you don't study yet, the website now offers to add that language and translate it in one tap.
+- Signing in to the website for the first time now walks you through choosing your languages and trying a word, just like the bot does.
+- With Pro you can now say a word out loud on the website's translate page instead of typing it.

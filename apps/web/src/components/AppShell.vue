@@ -53,17 +53,27 @@
 import { DialogClose, DialogContent, DialogOverlay, DialogPortal, DialogRoot, DialogTitle } from "reka-ui";
 import { Menu, X } from "lucide-vue-next";
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { api } from "../lib/api";
 import { drawerSwipeAction, type SwipePoint } from "../lib/drawer-swipe";
 import { t } from "../lib/i18n";
 import { loadSettings } from "../lib/settings-store";
 import type { PageName } from "../lib/types";
 import DictionaryView from "./DictionaryView.vue";
+import ExpressionsView from "./ExpressionsView.vue";
+import GrammarCheckView from "./GrammarCheckView.vue";
+import LearnView from "./LearnView.vue";
+import MentorChatView from "./MentorChatView.vue";
 import NavList from "./NavList.vue";
+import PlanView from "./PlanView.vue";
+import ProgressView from "./ProgressView.vue";
 import ReviewView from "./ReviewView.vue";
 import SettingsView from "./SettingsView.vue";
 import ShellSkeleton from "./ShellSkeleton.vue";
 import SignOutButton from "./SignOutButton.vue";
 import TranslateView from "./TranslateView.vue";
+import VideosView from "./VideosView.vue";
+import WordPickerView from "./WordPickerView.vue";
+import WelcomeView from "./WelcomeView.vue";
 
 const props = defineProps<{ page: PageName }>();
 
@@ -71,7 +81,16 @@ const views = {
   translate: TranslateView,
   dictionary: DictionaryView,
   review: ReviewView,
+  progress: ProgressView,
+  welcome: WelcomeView,
   settings: SettingsView,
+  plan: PlanView,
+  learn: LearnView,
+  mentor: MentorChatView,
+  grammar: GrammarCheckView,
+  expressions: ExpressionsView,
+  pick: WordPickerView,
+  videos: VideosView,
 } as const;
 
 const content = computed(() => views[props.page]);
@@ -81,6 +100,14 @@ const drawerOpen = ref(false);
 onMounted(async () => {
   // A 401 here redirects to the login page inside the api client; any other failure still renders the shell in English.
   await loadSettings().catch(() => undefined);
+  // A learner who never finished the bot's onboarding gets the same first steps here.
+  if (props.page !== "welcome") {
+    const me = await api.me().catch(() => null);
+    if (me && !me.onboarded) {
+      window.location.replace("/welcome/");
+      return;
+    }
+  }
   ready.value = true;
 });
 

@@ -18,6 +18,7 @@ describe("rate limit", () => {
       appOrigin: "http://x",
       staticDir: dir,
       devUserId: null,
+      botUsername: "test_bot",
     });
     const statuses = new Set<number>();
     for (let i = 0; i < 150; i++) statuses.add((await app.inject({ url: "/app.js" })).statusCode);

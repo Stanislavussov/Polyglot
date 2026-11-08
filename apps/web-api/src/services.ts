@@ -23,4 +23,10 @@ export type WebServices = Pick<
   | "ai"
   | "featureAccess"
   | "cardTemplateRepository"
+  | "notificationRepository"
+  | "reportedIssueRepository"
+  | "videoVocabularyRepository"
+  | "wordPickerPresetRepository"
+  | "wordPickerRunRepository"
+  | "momentumService"
 >;
