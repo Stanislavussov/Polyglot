@@ -62,6 +62,22 @@
           </template>
         </TranslationBlock>
 
+        <div class="space-y-2 border-t border-line pt-4 text-center">
+          <p class="text-sm text-ink-muted">{{ t("web.review.how") }}</p>
+          <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <button
+              v-for="rating in ratings"
+              :key="rating.value"
+              type="button"
+              :class="rating.value === 'again' ? 'btn-secondary !text-danger' : 'btn-secondary'"
+              :disabled="busy"
+              @click="rate(rating.value)"
+            >
+              {{ t(rating.label) }}
+            </button>
+          </div>
+        </div>
+
         <p v-if="card.detail.nativeMeaning" class="border-t border-line pt-4 text-sm">
           <span class="font-semibold text-ink-muted">{{ t("web.translate.nativeMeaning") }}:</span>
           {{ card.detail.nativeMeaning }}
@@ -91,21 +107,6 @@
           </template>
         </TranslationBlock>
 
-        <div class="space-y-2 border-t border-line pt-4 text-center">
-          <p class="text-sm text-ink-muted">{{ t("web.review.how") }}</p>
-          <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
-            <button
-              v-for="rating in ratings"
-              :key="rating.value"
-              type="button"
-              :class="rating.value === 'again' ? 'btn-secondary !text-danger' : 'btn-secondary'"
-              :disabled="busy"
-              @click="rate(rating.value)"
-            >
-              {{ t(rating.label) }}
-            </button>
-          </div>
-        </div>
       </template>
       <div v-else class="text-center">
         <button type="button" class="btn-primary w-full sm:w-auto" @click="revealed = true">
