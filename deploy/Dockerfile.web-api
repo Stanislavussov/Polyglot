@@ -62,7 +62,6 @@ RUN pnpm install --frozen-lockfile --prod
 COPY --from=build /app/apps/web-api/dist apps/web-api/dist
 COPY --from=build /app/apps/web/dist apps/web/dist
 COPY --from=build /app/packages/core/dist packages/core/dist
-COPY --from=build /app/packages/infra/dist packages/infra/dist
 COPY --from=build /app/packages/adapters/ai/dist packages/adapters/ai/dist
 COPY --from=build /app/packages/adapters/db/dist packages/adapters/db/dist
 
