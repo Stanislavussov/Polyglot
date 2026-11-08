@@ -172,7 +172,7 @@ describe("progressRepository.closeAndClaim — reward", () => {
     const result = await progressRepository.closeAndClaim({ userId, now: NOW, config, grant: true });
 
     expect(result.granted).toEqual([
-      { cycle: 1, plan: "plus", action: "create", currentPeriodEnd: new Date(NOW.getTime() + 30 * DAY_MS) },
+      { cycle: 1, plan: "plus", action: "create", days: 30, currentPeriodEnd: new Date(NOW.getTime() + 30 * DAY_MS) },
     ]);
     const rows = await rowsOf(userId);
     expect(rows).toHaveLength(1);

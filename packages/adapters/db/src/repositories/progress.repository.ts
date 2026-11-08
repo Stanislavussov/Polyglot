@@ -139,7 +139,7 @@ async function applyGrant(
   if (action === "extend" && active) {
     const currentPeriodEnd = new Date(active.currentPeriodEnd.getTime() + rewardMs);
     await tx.update(subscriptions).set({ currentPeriodEnd, updatedAt: now }).where(eq(subscriptions.id, active.id));
-    return { cycle, plan: active.plan, action, currentPeriodEnd };
+    return { cycle, plan: active.plan, action, days: config.rewardDays, currentPeriodEnd };
   }
 
   let base = now;
@@ -159,7 +159,13 @@ async function applyGrant(
     updatedAt: now,
   });
   await tx.update(users).set({ subscriptionPlan: plan }).where(eq(users.id, userId));
-  return { cycle, plan, action: action === "replace_trial" ? "replace_trial" : "create", currentPeriodEnd };
+  return {
+    cycle,
+    plan,
+    action: action === "replace_trial" ? "replace_trial" : "create",
+    days: config.rewardDays,
+    currentPeriodEnd,
+  };
 }
 
 export const progressRepository: ProgressRepository = {

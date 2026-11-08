@@ -65,7 +65,7 @@ describe("progressService.getProgressView", () => {
   });
 
   it("hands a reward granted by this very call to the screen", async () => {
-    const grant = { cycle: 1, plan: "plus", action: "create" as const, currentPeriodEnd: NOW };
+    const grant = { cycle: 1, plan: "plus", action: "create" as const, days: 30, currentPeriodEnd: NOW };
     const repo = fakeRepo({
       closeAndClaim: vi.fn(async () => ({ ...NOTHING_CLOSED, countedMonths: 5, granted: [grant] })),
     });

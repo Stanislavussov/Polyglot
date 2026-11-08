@@ -1,13 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
 import type { PaymentPort } from "../../ports/payment.port.js";
 import type { Subscription, SubscriptionRepository } from "../../ports/subscription.repository.js";
-import { REWARD_PROVIDER } from "../momentum/progress-goals.js";
 import { addOneMonth, createSubscriptionService } from "./index.js";
 import {
   addDays,
   decideTrialAction,
   grantOnboardingTrial,
   hasBeenExtended,
+  REWARD_PROVIDER,
   resolveMeteredWindowStart,
   TRIAL_DAYS,
   TRIAL_EXTENSION_DAYS,

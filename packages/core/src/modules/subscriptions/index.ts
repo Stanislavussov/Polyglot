@@ -1,8 +1,7 @@
 import type { PaymentPort } from "../../ports/payment.port.js";
 import type { Subscription, SubscriptionRepository } from "../../ports/subscription.repository.js";
 import type { SubscriptionPlan } from "../../ports/user.repository.js";
-import { REWARD_PROVIDER } from "../momentum/progress-goals.js";
-import { TRIAL_PROVIDER } from "./trial.js";
+import { REWARD_PROVIDER, TRIAL_PROVIDER } from "./trial.js";
 
 /** Just the user-mutation the subscription lifecycle needs (kept narrow on purpose). */
 export interface SubscriptionUserUpdater {

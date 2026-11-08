@@ -29,6 +29,7 @@ export interface RewardGrant {
   cycle: number;
   plan: string;
   action: "create" | "extend" | "replace_trial";
+  days: number;
   currentPeriodEnd: Date;
 }
 

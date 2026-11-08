@@ -48,18 +48,24 @@ describe("GET /motivation", () => {
     const app = await buildApp();
 
     expect((await app.inject({ method: "GET", url: "/motivation" })).json()).toEqual({
+      ...DEFAULT_MOTIVATION_CONFIG,
       recordingEnabled: true,
       enabled: true,
       praiseEnabled: false,
-      recoveryEnabled: false,
     });
   });
 });
 
 describe("PUT /motivation", () => {
-  it("persists all four switches under the motivation key", async () => {
+  it("persists every switch and goal-ladder threshold under the motivation key", async () => {
     const app = await buildApp();
-    const payload = { recordingEnabled: true, enabled: true, praiseEnabled: false, recoveryEnabled: true };
+    const payload = {
+      ...DEFAULT_MOTIVATION_CONFIG,
+      enabled: true,
+      recoveryEnabled: true,
+      progressGoalsEnabled: true,
+      progressMinActiveDays: 10,
+    };
 
     const res = await app.inject({ method: "PUT", url: "/motivation", payload });
 
@@ -74,7 +80,20 @@ describe("PUT /motivation", () => {
     const res = await app.inject({
       method: "PUT",
       url: "/motivation",
-      payload: { recordingEnabled: true, enabled: "false", praiseEnabled: false, recoveryEnabled: false },
+      payload: { ...DEFAULT_MOTIVATION_CONFIG, enabled: "false" },
+    });
+
+    expect(res.statusCode).toBeGreaterThanOrEqual(400);
+    expect(mocks.set).not.toHaveBeenCalled();
+  });
+
+  it("rejects a threshold that could never be met", async () => {
+    const app = await buildApp();
+
+    const res = await app.inject({
+      method: "PUT",
+      url: "/motivation",
+      payload: { ...DEFAULT_MOTIVATION_CONFIG, progressRhythmDays: 8 },
     });
 
     expect(res.statusCode).toBeGreaterThanOrEqual(400);

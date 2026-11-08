@@ -290,11 +290,20 @@ export const mentorSettingsSchema = z.object({
  * for a switch whose whole job is turning a surface OFF is the one failure that
  * matters. Every key is required so a partial PUT can never leave a stale switch.
  */
+const progressThreshold = z.number().int().min(1);
+
 export const motivationSettingsSchema = z.object({
   recordingEnabled: z.boolean(),
   enabled: z.boolean(),
   praiseEnabled: z.boolean(),
   recoveryEnabled: z.boolean(),
+  progressGoalsEnabled: z.boolean(),
+  progressMinActiveDays: progressThreshold.max(31),
+  progressMinNewWords: progressThreshold,
+  progressDayTaskReviews: progressThreshold,
+  progressRhythmDays: progressThreshold.max(7),
+  progressMonthsForReward: progressThreshold,
+  progressRewardDays: progressThreshold.max(366),
 });
 
 export const videoVocabularySettingsSchema = z

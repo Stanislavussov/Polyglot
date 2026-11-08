@@ -249,7 +249,6 @@ export {
   PROGRESS_MILESTONES,
   planDaysForMonth,
   progressGoalsConfig,
-  REWARD_PROVIDER,
   rhythmWeek,
   safeTimezone,
 } from "./modules/momentum/progress-goals.js";

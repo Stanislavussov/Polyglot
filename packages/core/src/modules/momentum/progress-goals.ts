@@ -3,7 +3,7 @@
  * months and the reward every N counted months. Pure — the live view, the month
  * close and the backfill all call these, so one month is judged one way everywhere.
  */
-import { TRIAL_PROVIDER } from "../subscriptions/trial.js";
+import { REWARD_PROVIDER, TRIAL_PROVIDER } from "../subscriptions/trial.js";
 import { localDayKey, localMidnight } from "./momentum.math.js";
 import { DEFAULT_MOTIVATION_CONFIG, type MotivationConfig } from "./momentum.types.js";
 
@@ -33,9 +33,6 @@ export const DEFAULT_PROGRESS_GOALS: ProgressGoalsConfig = progressGoalsConfig(D
 
 /** Word milestones on words in long-term memory. */
 export const PROGRESS_MILESTONES = [10, 50, 100, 250, 500] as const;
-
-/** `subscriptions.provider` of a period granted by the goal ladder. */
-export const REWARD_PROVIDER = "reward";
 
 /**
  * Learning, not presence: `translate` is excluded so lookups cannot farm a month,
