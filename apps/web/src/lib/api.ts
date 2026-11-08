@@ -12,6 +12,7 @@ import type {
   NotificationPatch,
   PlanInfo,
   Progress,
+  ProgressGoal,
   Rating,
   ReviewState,
   Settings,
@@ -164,6 +165,7 @@ export const api = {
     return { text: parsed.text ?? "" };
   },
   progress: () => request<Progress>("GET", "/progress"),
+  progressGoal: () => request<ProgressGoal>("GET", "/progress/goal"),
   reviewNext: () => request<ReviewState>("GET", "/review/next"),
   reviewCard: (entryId: number) => request<ReviewState>("GET", `/review/card/${entryId}`),
   rate: (entryId: number, rating: Rating) => request<ReviewState>("POST", `/review/${entryId}`, { rating }),

@@ -29,4 +29,5 @@ export type WebServices = Pick<
   | "wordPickerPresetRepository"
   | "wordPickerRunRepository"
   | "momentumService"
+  | "progressService"
 >;
