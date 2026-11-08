@@ -131,6 +131,11 @@ export const api = {
     }
     return response.blob();
   },
+  onboarding: () =>
+    request<{ onboarded: boolean; step: number; hookWords: Record<string, string[]> }>("GET", "/onboarding"),
+  onboardingStep: (step: "native" | "languages" | "demo") => request<void>("POST", "/onboarding/step", { step }),
+  completeOnboarding: () =>
+    request<{ trial: { days: number; words: number; extraDays: number } | null }>("POST", "/onboarding/complete"),
   progress: () => request<Progress>("GET", "/progress"),
   reviewNext: () => request<ReviewState>("GET", "/review/next"),
   reviewCard: (entryId: number) => request<ReviewState>("GET", `/review/card/${entryId}`),

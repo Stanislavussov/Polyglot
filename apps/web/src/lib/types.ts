@@ -171,7 +171,7 @@ export interface ReviewState {
 }
 
 export type Rating = "again" | "hard" | "good" | "easy";
-export type PageName = "translate" | "dictionary" | "review" | "progress" | "settings";
+export type PageName = "translate" | "dictionary" | "review" | "progress" | "settings" | "welcome";
 
 export type Progress =
   | { enabled: false }

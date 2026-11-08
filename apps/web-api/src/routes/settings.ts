@@ -53,6 +53,16 @@ export function settingsRoutes(app: FastifyInstance, services: WebServices): voi
     }
 
     const userId = request.learner.id;
+    // A web-first learner has no settings row yet, and the per-field updates write
+    // nothing without one; the upsert creates it, as the bot's onboarding does.
+    if (!current) {
+      await services.userRepository.updateSettings(userId, {
+        interfaceLang: patch.interfaceLang ?? "en",
+        nativeLang: nativeLang ?? "en",
+        learningLangs: learningLangs ?? [],
+      });
+      return readSettings(services, userId);
+    }
     if (patch.interfaceLang !== undefined)
       await services.userRepository.updateInterfaceLang(userId, patch.interfaceLang);
     if (patch.nativeLang !== undefined) await services.userRepository.updateNativeLang(userId, patch.nativeLang);
