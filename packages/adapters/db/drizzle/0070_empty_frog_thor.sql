@@ -1,0 +1,1 @@
+CREATE INDEX "momentum_events_kind_time_idx" ON "momentum_events" USING btree ("kind","occurred_at");

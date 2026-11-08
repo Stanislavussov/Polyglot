@@ -19,7 +19,7 @@ import {
   type RewardGrant,
   safeTimezone,
 } from "@polyglot/core";
-import { and, asc, desc, eq, gte, inArray, lt } from "drizzle-orm";
+import { and, asc, desc, eq, gte, inArray, lt, notExists } from "drizzle-orm";
 import { getDb } from "../connection.js";
 import { DEFAULT_RETENTION_DAYS } from "../retention.js";
 import { momentumEvents, progressMonths, subscriptions, userLanguageSettings, users } from "../schema.js";
@@ -138,8 +138,13 @@ async function applyGrant(
 
   if (action === "extend" && active) {
     const currentPeriodEnd = new Date(active.currentPeriodEnd.getTime() + rewardMs);
-    await tx.update(subscriptions).set({ currentPeriodEnd, updatedAt: now }).where(eq(subscriptions.id, active.id));
-    return { cycle, plan: active.plan, action, days: config.rewardDays, currentPeriodEnd };
+    // The user-row lock does not stop the expiry sweep; if it retired the row meanwhile, grant a fresh period instead.
+    const extended = await tx
+      .update(subscriptions)
+      .set({ currentPeriodEnd, updatedAt: now })
+      .where(and(eq(subscriptions.id, active.id), eq(subscriptions.status, "active")))
+      .returning({ id: subscriptions.id });
+    if (extended.length > 0) return { cycle, plan: active.plan, action, days: config.rewardDays, currentPeriodEnd };
   }
 
   let base = now;
@@ -201,6 +206,8 @@ export const progressRepository: ProgressRepository = {
 
       for (const cycle of cyclesToClaim(counted.length, config.monthsForReward)) {
         const active = await findActive(tx, userId);
+        // Deferral claims only `reward_deferred:`, never `reward:`: once the billing row lapses
+        // the same cycle pays out on a later close, which is the intent — the months were earned.
         if (grantAction(active) === "defer") {
           if (await insertClaim(tx, userId, `reward_deferred:cycle:${cycle}`, now)) {
             result.deferredCycles.push(cycle);
@@ -272,6 +279,34 @@ export const progressRepository: ProgressRepository = {
       .from(momentumEvents)
       .where(and(eq(momentumEvents.userId, userId), eq(momentumEvents.kind, "milestone")));
     return rows.map((row) => Number(row.dedupeKey.split(":")[1])).filter(Number.isFinite);
+  },
+
+  async listUsersToClose(month: string, from: Date, to: Date): Promise<number[]> {
+    const db = getDb();
+    const rows = await db
+      .selectDistinct({ userId: momentumEvents.userId })
+      .from(momentumEvents)
+      .where(
+        and(
+          inArray(momentumEvents.kind, [...LEARNING_KINDS]),
+          gte(momentumEvents.occurredAt, from),
+          lt(momentumEvents.occurredAt, to),
+          // A backfilled month was closed without granting, so it is visited until a live close claims for it.
+          notExists(
+            db
+              .select({ id: progressMonths.id })
+              .from(progressMonths)
+              .where(
+                and(
+                  eq(progressMonths.userId, momentumEvents.userId),
+                  eq(progressMonths.month, month),
+                  eq(progressMonths.source, "live"),
+                ),
+              ),
+          ),
+        ),
+      );
+    return rows.map((row) => row.userId);
   },
 
   async listActiveUserIds(from: Date, to: Date): Promise<number[]> {

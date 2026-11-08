@@ -8,7 +8,7 @@
  * token's unique index. Every test owns its user, so parallel workers never meet.
  */
 import { DEFAULT_PROGRESS_GOALS, type PlanDays } from "@polyglot/core";
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { describe, expect, it } from "vitest";
 import { getDb } from "../connection.js";
 import { progressRepository } from "../repositories/progress.repository.js";
@@ -276,6 +276,97 @@ describe("progressRepository.closeAndClaim — reward", () => {
     const rows = await rowsOf(userId);
     expect(rows).toHaveLength(1);
     expect(rows[0]?.currentPeriodEnd).toEqual(new Date(NOW.getTime() + 60 * DAY_MS));
+  });
+});
+
+describe("progressRepository.closeAndClaim — edge cases", () => {
+  it("never lowers the counted total when a month falls short", async () => {
+    const userId = await freshUser();
+    await seedLedger(userId, ["2026-04", "2026-05"], FREE_MONTH);
+    await seedCountedMonth(userId, "2026-10", 5);
+
+    const result = await progressRepository.closeAndClaim({ userId, now: NOW, config, grant: true });
+
+    expect(result).toMatchObject({ closedMonths: ["2026-10"], countedMonths: 2 });
+    expect((await progressRepository.getLedger(userId)).at(-1)).toMatchObject({ month: "2026-10", counted: false });
+  });
+
+  it("pays a deferred cycle out once the billing subscription has lapsed", async () => {
+    const userId = await freshUser();
+    await arrangeFifthMonth(userId);
+    const mollie = await subscriptionRepository.create({
+      userId,
+      plan: "pro",
+      provider: "mollie",
+      currentPeriodEnd: new Date("2026-12-01T00:00:00.000Z"),
+    });
+    await progressRepository.closeAndClaim({ userId, now: NOW, config, grant: true });
+
+    await subscriptionRepository.updateStatus(mollie.id, "expired");
+    const later = await progressRepository.closeAndClaim({ userId, now: NOW, config, grant: true });
+
+    expect(later.granted).toMatchObject([{ cycle: 1, action: "create" }]);
+    expect(await claimTokens(userId)).toEqual(["reward:cycle:1", "reward_deferred:cycle:1"]);
+  });
+
+  it("creates a reward row when the row it meant to extend expired under it", async () => {
+    const userId = await freshUser();
+    await arrangeFifthMonth(userId);
+    const mock = await subscriptionRepository.create({
+      userId,
+      plan: "plus",
+      provider: "mock",
+      currentPeriodEnd: new Date("2026-11-20T00:00:00.000Z"),
+    });
+
+    // The expiry sweep holds the row while the close tries to extend it, then expires it.
+    let closing: ReturnType<typeof progressRepository.closeAndClaim> | undefined;
+    await getDb().transaction(async (sweep) => {
+      await sweep.select().from(subscriptions).where(eq(subscriptions.id, mock.id)).for("update");
+      closing = progressRepository.closeAndClaim({ userId, now: NOW, config, grant: true });
+      for (let attempt = 0; attempt < 100; attempt += 1) {
+        const [row] = await getDb().execute<{ waiting: number }>(
+          sql`select count(*)::int as waiting from pg_locks where not granted`,
+        );
+        if ((row?.waiting ?? 0) > 0) break;
+        await new Promise((resolve) => setTimeout(resolve, 20));
+      }
+      await sweep.update(subscriptions).set({ status: "expired" }).where(eq(subscriptions.id, mock.id));
+    });
+    const result = await closing;
+    if (!result) throw new Error("the close never started");
+
+    expect(result.granted).toMatchObject([{ cycle: 1, action: "create" }]);
+    const rows = await rowsOf(userId);
+    expect(rows.find((row) => row.id === mock.id)?.status).toBe("expired");
+    expect(rows.find((row) => row.provider === "reward")?.status).toBe("active");
+  });
+});
+
+describe("progressRepository.listUsersToClose", () => {
+  it("finds a learner whose just-ended month has no live ledger row, and drops them once closed", async () => {
+    const userId = await freshUser();
+    await seedCountedMonth(userId, "2026-10");
+    const from = new Date("2026-10-01T00:00:00.000Z");
+    const to = new Date("2026-11-01T00:00:00.000Z");
+
+    expect(await progressRepository.listUsersToClose("2026-10", from, to)).toContain(userId);
+    await progressRepository.closeAndClaim({ userId, now: NOW, config, grant: false });
+    expect(await progressRepository.listUsersToClose("2026-10", from, to)).not.toContain(userId);
+  });
+
+  it("still visits a month the backfill closed, so its reward is not left unclaimed", async () => {
+    const userId = await freshUser();
+    await seedCountedMonth(userId, "2026-10");
+    await progressRepository.closeAndClaim({ userId, now: NOW, config, grant: false, source: "backfill" });
+
+    expect(
+      await progressRepository.listUsersToClose(
+        "2026-10",
+        new Date("2026-10-01T00:00:00.000Z"),
+        new Date("2026-11-01T00:00:00.000Z"),
+      ),
+    ).toContain(userId);
   });
 });
 

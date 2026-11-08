@@ -1296,6 +1296,8 @@ export const momentumEvents = pgTable(
   (t) => [
     uniqueIndex("momentum_events_user_dedupe_idx").on(t.userId, t.dedupeKey),
     index("momentum_events_user_time_idx").on(t.userId, t.occurredAt),
+    // The daily progress close and the backfill scan by kind and time across all users.
+    index("momentum_events_kind_time_idx").on(t.kind, t.occurredAt),
   ],
 );
 

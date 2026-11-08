@@ -13,6 +13,7 @@ function fakeRepo(overrides: Partial<ProgressRepository> = {}): ProgressReposito
     listActivityEvents: vi.fn(async () => []),
     claimMilestones: vi.fn(async (_userId, milestones) => [...milestones]),
     listActiveUserIds: vi.fn(async () => []),
+    listUsersToClose: vi.fn(async () => []),
     ...overrides,
   };
 }

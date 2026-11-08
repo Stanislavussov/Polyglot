@@ -4,7 +4,16 @@
  * catch-up, not the only path.
  */
 import { progressRepository } from "@polyglot/adapter-db";
-import { errorFields, logEvent, newTraceId, type ProgressService, runWithTrace } from "@polyglot/core";
+import {
+  errorFields,
+  logEvent,
+  monthBounds,
+  monthKey,
+  newTraceId,
+  type ProgressService,
+  previousMonth,
+  runWithTrace,
+} from "@polyglot/core";
 import cron from "node-cron";
 import { progressRewardDeferredCounter } from "../metrics.js";
 
@@ -16,12 +25,18 @@ let closeTask: cron.ScheduledTask | null = null;
  */
 const PROGRESS_CLOSE_CRON = "30 10 * * *";
 
-/** Wide enough to cover the month that just ended plus a missed tick; the close itself is idempotent. */
-const ACTIVE_WINDOW_MS = 62 * 24 * 60 * 60 * 1000;
+/** Local months start up to 14 h either side of the UTC one, so the scan window is widened by that much. */
+const TZ_SPREAD_MS = 14 * 60 * 60 * 1000;
 
 export async function runProgressClose(progressService: ProgressService, now = new Date()): Promise<void> {
   await runWithTrace({ traceId: newTraceId(), source: "cron", jobName: "progress_close" }, async () => {
-    const userIds = await progressRepository.listActiveUserIds(new Date(now.getTime() - ACTIVE_WINDOW_MS), now);
+    const month = previousMonth(monthKey(now, "UTC"));
+    const { start, end } = monthBounds(month, "UTC");
+    const userIds = await progressRepository.listUsersToClose(
+      month,
+      new Date(start.getTime() - TZ_SPREAD_MS),
+      new Date(end.getTime() + TZ_SPREAD_MS),
+    );
     let closed = 0;
     let granted = 0;
     for (const userId of userIds) {

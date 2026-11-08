@@ -60,6 +60,7 @@ vi.mock("@polyglot/adapter-db", () => ({
     listActivityEvents: vi.fn().mockResolvedValue([]),
     claimMilestones: vi.fn().mockResolvedValue([]),
     listActiveUserIds: vi.fn().mockResolvedValue([]),
+    listUsersToClose: vi.fn().mockResolvedValue([]),
   },
   mentorMessageRepository: {
     record: vi.fn().mockResolvedValue(undefined),

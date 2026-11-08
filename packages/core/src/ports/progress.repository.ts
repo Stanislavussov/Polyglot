@@ -52,6 +52,11 @@ export interface ProgressRepository {
   listActivityEvents(userId: number, from: Date, to: Date): Promise<ActivityEvent[]>;
   /** Claims `milestone:<n>` tokens; returns every milestone this user has ever claimed. */
   claimMilestones(userId: number, milestones: ReadonlyArray<number>, at: Date): Promise<number[]>;
-  /** Users with any learning event in `[from, to)` — the bounded set the daily close visits. */
+  /**
+   * Learners with an event in `[from, to)` and no live ledger row for `month` — the daily
+   * close's set, so a learner already closed costs no transaction at all.
+   */
+  listUsersToClose(month: string, from: Date, to: Date): Promise<number[]>;
+  /** Users with any learning event in `[from, to)` — the backfill's set. */
   listActiveUserIds(from: Date, to: Date): Promise<number[]>;
 }

@@ -248,6 +248,7 @@ export {
   nextMilestone,
   PROGRESS_MILESTONES,
   planDaysForMonth,
+  previousMonth,
   progressGoalsConfig,
   rhythmWeek,
   safeTimezone,

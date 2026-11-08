@@ -57,28 +57,30 @@ export function createProgressService(deps: ProgressServiceDeps) {
     }
   }
 
+  /** The one place that decides whether a close may grant: only a live close, only while the ladder is visible. */
+  async function close(userId: number, now: Date, source: "live" | "backfill") {
+    const config = progressGoalsConfig(await deps.getMotivationConfig());
+    const result = await deps.progressRepository.closeAndClaim({
+      userId,
+      now,
+      config,
+      grant: config.enabled && source === "live",
+      source,
+    });
+    logClose(userId, result);
+    return { config, result };
+  }
+
   return {
     /** Closes ended months and claims due rewards; grants only while the ladder is visible. */
     async closeForUser(userId: number, source: "live" | "backfill" = "live", now = clock()) {
-      const config = progressGoalsConfig(await deps.getMotivationConfig());
-      const result = await deps.progressRepository.closeAndClaim({
-        userId,
-        now,
-        config,
-        grant: config.enabled && source === "live",
-        source,
-      });
-      logClose(userId, result);
-      return result;
+      return (await close(userId, now, source)).result;
     },
 
     /** `null` while the ladder is hidden — the screen then renders exactly what it did before. */
     async getProgressView(userId: number, now = clock()): Promise<ProgressView | null> {
-      const config = progressGoalsConfig(await deps.getMotivationConfig());
-      if (!config.enabled) return null;
-
-      const closed = await deps.progressRepository.closeAndClaim({ userId, now, config, grant: true });
-      logClose(userId, closed);
+      if (!progressGoalsConfig(await deps.getMotivationConfig()).enabled) return null;
+      const { config, result: closed } = await close(userId, now, "live");
 
       const timezone = safeTimezone(await deps.getTimezone(userId));
       const month = monthBounds(monthKey(now, timezone), timezone);
