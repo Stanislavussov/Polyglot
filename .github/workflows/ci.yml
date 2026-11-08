@@ -162,3 +162,38 @@ jobs:
         run: pnpm test:integration
         env:
           TEST_DATABASE_URL: ${{ env.CI_DATABASE_URL }}
+
+  # Builds every deploy image without pushing. Until now only deploy.yml ran
+  # `docker build`, and develop deploys are paused, so a broken Dockerfile first
+  # failed on master (fda35ba0: web-api copied an infra/dist its filtered build
+  # never produces). Skipped inside deploy.yml's workflow_call — there
+  # github.workflow is the caller's name and the deploy builds the images anyway.
+  docker-build:
+    if: github.workflow == 'CI'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: bot, file: deploy/Dockerfile, target: production }
+          - { name: migrate, file: deploy/Dockerfile, target: migrate }
+          - { name: admin-api, file: deploy/Dockerfile.admin-api, target: production }
+          - { name: web-api, file: deploy/Dockerfile.web-api, target: production }
+          - { name: admin, file: deploy/Dockerfile.admin, target: production }
+          - { name: landing, file: deploy/Dockerfile.landing, target: production }
+    name: docker-build (${{ matrix.name }})
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build ${{ matrix.name }}
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ matrix.file }}
+          target: ${{ matrix.target }}
+          push: false
+          cache-from: type=gha,scope=ci-${{ matrix.name }}
+          cache-to: type=gha,mode=max,scope=ci-${{ matrix.name }}
