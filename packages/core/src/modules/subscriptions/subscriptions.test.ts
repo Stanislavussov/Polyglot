@@ -84,6 +84,30 @@ describe("subscription service — activate", () => {
     expect(subscriptions.create).toHaveBeenCalledWith(expect.objectContaining({ userId: 42, plan: "pro" }));
   });
 
+  it("starts a purchase after an active reward ends, so no gift day is lost", async () => {
+    const users = { updateSubscriptionPlan: vi.fn(async () => null) };
+    const reward: Subscription = {
+      id: 5,
+      userId: 42,
+      plan: "plus",
+      status: "active",
+      provider: REWARD_PROVIDER,
+      externalId: null,
+      currentPeriodEnd: new Date("2026-07-20T00:00:00Z"),
+      createdAt: new Date("2026-06-20T00:00:00Z"),
+      updatedAt: new Date("2026-06-20T00:00:00Z"),
+    };
+    const subscriptions = makeSubscriptionRepo({ findActiveByUser: vi.fn(async () => reward) });
+    const service = createSubscriptionService({ payment: paidProvider, subscriptions, users });
+
+    const result = await service.activate(42, "pro", new Date("2026-07-04T00:00:00Z"));
+
+    expect(result.currentPeriodEnd?.toISOString()).toBe("2026-08-20T00:00:00.000Z");
+    expect(subscriptions.create).toHaveBeenCalledWith(
+      expect.objectContaining({ plan: "pro", currentPeriodEnd: new Date("2026-08-20T00:00:00Z") }),
+    );
+  });
+
   it("does not upgrade when checkout fails", async () => {
     const users = { updateSubscriptionPlan: vi.fn(async () => null) };
     const subscriptions = makeSubscriptionRepo();

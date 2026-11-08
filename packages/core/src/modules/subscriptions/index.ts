@@ -64,7 +64,10 @@ export function createSubscriptionService(deps: SubscriptionServiceDeps) {
       if (existing) {
         await deps.subscriptions.updateStatus(existing.id, "canceled");
       }
-      const currentPeriodEnd = addOneMonth(now);
+      // A reward is days already earned: the bought month starts where they end, or buying would forfeit them.
+      const periodStart =
+        existing?.provider === REWARD_PROVIDER && existing.currentPeriodEnd > now ? existing.currentPeriodEnd : now;
+      const currentPeriodEnd = addOneMonth(periodStart);
       await deps.users.updateSubscriptionPlan(userId, plan);
       await deps.subscriptions.create({
         userId,
