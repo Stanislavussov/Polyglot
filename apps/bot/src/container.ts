@@ -70,9 +70,14 @@ import type {
   SpeechOptions,
   TranscribeOptions,
 } from "@polyglot/core";
-import { createMomentumService, type ServiceContainer, SettingsService, setAICircuitObserver } from "@polyglot/core";
+import {
+  createFeatureAccess,
+  createMomentumService,
+  type ServiceContainer,
+  SettingsService,
+  setAICircuitObserver,
+} from "@polyglot/core";
 import type { ZodSchema } from "zod";
-import { createFeatureAccess } from "./feature-access.js";
 import { aiCircuitStateGauge, aiCircuitTransitionsCounter, aiFallbackCounter } from "./metrics.js";
 import { withReviewRecording } from "./momentum/momentum.wiring.js";
 import { purchasePaymentPort } from "./payment.js";

@@ -7,46 +7,104 @@
 
     <p v-if="failed" role="alert" class="mt-6 rounded-xl bg-danger-soft px-4 py-3 text-sm text-danger">{{ t("web.common.error") }}</p>
     <p v-else-if="!state" class="mt-6 text-sm text-ink-muted" role="status">{{ t("web.common.loading") }}</p>
-    <p v-else-if="!state.card" class="card mt-6 text-center text-ink-muted">{{ t("web.review.empty") }}</p>
+    <p v-else-if="!card" class="card mt-6 text-center text-ink-muted">{{ t("web.review.empty") }}</p>
 
-    <article v-else class="card mt-6 text-center" aria-live="polite">
-      <p v-if="picked" class="mb-2 text-xs font-semibold uppercase tracking-wide text-primary">{{ t("web.review.picked") }}</p>
-      <p class="text-sm text-ink-muted">{{ languageFlag(state.card.sourceLang) }} {{ languageName(state.card.sourceLang) }}</p>
-      <p class="mt-3 break-words text-3xl font-bold">
-        <span v-if="state.card.emoji" class="mr-2" aria-hidden="true">{{ state.card.emoji }}</span>{{ state.card.original }}
-      </p>
-
-      <div v-if="revealed" class="mt-6 space-y-2 border-t border-line pt-6">
-        <p v-for="line in state.card.back" :key="line.lang" class="text-xl font-semibold text-primary">
-          <span class="text-base text-ink-muted">{{ languageFlag(line.lang) }}</span> {{ line.text }}
+    <article v-else :key="cardSeq" class="card mt-6 space-y-5" aria-live="polite">
+      <header class="space-y-3">
+        <p v-if="picked" class="text-xs font-semibold uppercase tracking-wide text-primary">{{ t("web.review.picked") }}</p>
+        <p v-else-if="card.ahead" class="text-xs font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.review.ahead") }}</p>
+        <p class="text-sm text-ink-muted">
+          <span aria-hidden="true">{{ languageFlag(card.detail.sourceLang) }}</span> {{ languageName(card.detail.sourceLang) }}
         </p>
-        <p class="pt-4 text-sm text-ink-muted">{{ t("web.review.how") }}</p>
-        <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
-          <button
-            v-for="rating in ratings"
-            :key="rating.value"
-            type="button"
-            :class="rating.value === 'again' ? 'btn-secondary !text-danger' : 'btn-secondary'"
-            :disabled="busy"
-            @click="rate(rating.value)"
-          >
-            {{ t(rating.label) }}
-          </button>
+        <div class="flex items-start justify-between gap-3">
+          <h2 class="min-w-0 break-words text-3xl font-bold">
+            <span v-if="card.detail.emoji" class="mr-2" aria-hidden="true">{{ card.detail.emoji }}</span>{{ card.front.headword }}
+          </h2>
+          <SpeakButton
+            v-if="speaks(card.detail.sourceLang)"
+            class="shrink-0"
+            :entry-id="card.entryId"
+            :lang="card.detail.sourceLang"
+            :text="card.front.headword"
+            :access="card.audio.access"
+            @notice="showNotice"
+          />
         </div>
+        <ul v-if="card.front.synonyms.length > 0" class="flex flex-wrap gap-2" :aria-label="t('web.translate.synonyms')">
+          <li v-for="synonym in card.front.synonyms" :key="synonym" class="rounded-full bg-primary-soft px-3 py-1 text-sm text-primary-soft-fg">
+            {{ synonym }}
+          </li>
+        </ul>
+        <p v-if="card.front.hint" class="text-sm italic text-ink-muted">🔎 {{ card.front.hint }}</p>
+        <p v-if="card.front.example" class="border-l-2 border-line pl-3 text-sm font-medium">{{ card.front.example }}</p>
+      </header>
+
+      <p v-if="notice" role="status" class="rounded-xl bg-warning-soft px-4 py-3 text-sm text-warning-fg">{{ t(notice) }}</p>
+
+      <template v-if="revealed">
+        <p v-if="card.detail.nativeMeaning" class="border-t border-line pt-4 text-sm">
+          <span class="font-semibold text-ink-muted">{{ t("web.translate.nativeMeaning") }}:</span>
+          {{ card.detail.nativeMeaning }}
+        </p>
+
+        <div v-if="card.detail.sourceUsage" class="space-y-2 rounded-xl bg-surface-muted px-4 py-3 text-sm">
+          <h3 class="text-xs font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.translate.aboutSource") }}</h3>
+          <p>{{ card.detail.sourceUsage.explanation }}</p>
+          <ul v-if="card.front.synonyms.length === 0 && card.detail.sourceUsage.synonyms.length > 0" class="flex flex-wrap gap-2">
+            <li v-for="synonym in card.detail.sourceUsage.synonyms" :key="synonym" class="rounded-full bg-primary-soft px-3 py-1 text-primary-soft-fg">
+              {{ synonym }}
+            </li>
+          </ul>
+          <ExampleList :examples="card.detail.sourceUsage.examples" />
+        </div>
+
+        <TranslationBlock v-for="translation in card.detail.details" :key="translation.lang" :translation="translation" id-prefix="review">
+          <template #actions>
+            <SpeakButton
+              v-if="speaks(translation.lang)"
+              :entry-id="card.entryId"
+              :lang="translation.lang"
+              :text="translation.text"
+              :access="card.audio.access"
+              @notice="showNotice"
+            />
+          </template>
+        </TranslationBlock>
+
+        <div class="space-y-2 border-t border-line pt-4 text-center">
+          <p class="text-sm text-ink-muted">{{ t("web.review.how") }}</p>
+          <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <button
+              v-for="rating in ratings"
+              :key="rating.value"
+              type="button"
+              :class="rating.value === 'again' ? 'btn-secondary !text-danger' : 'btn-secondary'"
+              :disabled="busy"
+              @click="rate(rating.value)"
+            >
+              {{ t(rating.label) }}
+            </button>
+          </div>
+        </div>
+      </template>
+      <div v-else class="text-center">
+        <button type="button" class="btn-primary w-full sm:w-auto" @click="revealed = true">
+          {{ t("web.review.reveal") }}
+        </button>
       </div>
-      <button v-else type="button" class="btn-primary mt-8 w-full sm:w-auto" @click="revealed = true">
-        {{ t("web.review.reveal") }}
-      </button>
     </article>
   </section>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { ApiError, api } from "../lib/api";
 import { t } from "../lib/i18n";
 import { languageFlag, languageName } from "../lib/settings-store";
 import type { Rating, ReviewState } from "../lib/types";
+import ExampleList from "./ExampleList.vue";
+import SpeakButton from "./SpeakButton.vue";
+import TranslationBlock from "./TranslationBlock.vue";
 
 const ratings = [
   { value: "again", label: "web.review.again" },
@@ -56,29 +114,44 @@ const ratings = [
 ] as const satisfies readonly { value: Rating; label: string }[];
 
 const state = ref<ReviewState | null>(null);
+const card = computed(() => state.value?.card ?? null);
+// Bumped per card so the next card opens folded, with fresh speaker buttons.
+const cardSeq = ref(0);
 const revealed = ref(false);
 const busy = ref(false);
 const failed = ref(false);
 const picked = ref(false);
+const notice = ref<string | null>(null);
+
+function speaks(lang: string): boolean {
+  const audio = card.value?.audio;
+  return audio != null && audio.access !== "off" && audio.langs.includes(lang);
+}
+
+function showNotice(key: string): void {
+  notice.value = key;
+}
 
 async function show(next: Promise<ReviewState>): Promise<void> {
   failed.value = false;
   try {
     state.value = await next;
     revealed.value = false;
+    notice.value = null;
+    cardSeq.value += 1;
   } catch {
     failed.value = true;
   }
 }
 
 async function rate(rating: Rating): Promise<void> {
-  const card = state.value?.card;
-  if (!card || busy.value) return;
+  const current = card.value;
+  if (!current || busy.value) return;
   busy.value = true;
   picked.value = false;
   try {
     await show(
-      api.rate(card.entryId, rating).catch((error: unknown) => {
+      api.rate(current.entryId, rating).catch((error: unknown) => {
         // The word was deleted elsewhere (e.g. in the bot): skip to the next card instead of failing.
         if (error instanceof ApiError && error.status === 404) return api.reviewNext();
         throw error;
@@ -103,6 +176,6 @@ onMounted(async () => {
   const requested = new URLSearchParams(window.location.search).has("entry");
   await show(requestedCard());
   // Only the first card is the picked word; the card after a rating is the normal deck.
-  picked.value = requested && state.value?.card != null;
+  picked.value = requested && card.value != null;
 });
 </script>

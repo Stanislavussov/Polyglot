@@ -80,7 +80,10 @@ describe("web dictionary", () => {
     const { cookie } = await web.login(telegramId);
 
     const res = await web.call(cookie, "GET", `/api/review/card/${entryId}`);
-    expect(res).toMatchObject({ status: 200, body: { card: { entryId, original: "kůň", back: [{ lang: "en" }] } } });
+    expect(res).toMatchObject({
+      status: 200,
+      body: { card: { entryId, front: { headword: "kůň" }, detail: { details: [{ lang: "en" }] } } },
+    });
   });
 
   it("filters by language, type, grade and review state", async () => {

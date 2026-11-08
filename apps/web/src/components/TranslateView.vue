@@ -141,66 +141,12 @@
             </div>
           </header>
 
-          <div v-for="translation in result.translations" :key="translation.lang" class="border-t border-line pt-4">
-            <p class="text-sm text-ink-muted">
-              <span aria-hidden="true">{{ languageFlag(translation.lang) }}</span> {{ languageName(translation.lang) }}
-            </p>
-            <div class="mt-1 flex items-start justify-between gap-3">
-              <p class="min-w-0 break-words text-lg font-semibold text-primary">
-                {{ translation.text }}
-                <span v-if="translation.expressionType" class="ml-2 inline-block rounded-full bg-primary-soft px-2 py-0.5 align-middle text-xs font-medium text-primary-soft-fg">
-                  {{ translation.expressionType }}
-                </span>
-              </p>
-              <button
-                type="button"
-                class="btn-secondary shrink-0 !px-3"
-                :aria-label="t('web.translate.copyLabel', { text: translation.text })"
-                @click="copy(translation)"
-              >
-                <Check v-if="copiedLang === translation.lang" class="size-4" aria-hidden="true" />
-                <Copy v-else class="size-4" aria-hidden="true" />
-                <span class="hidden sm:inline">{{ copiedLang === translation.lang ? t("web.translate.copied") : t("web.translate.copy") }}</span>
-              </button>
-            </div>
-
-            <p v-if="translation.equivalentNote" class="mt-2 text-sm text-ink-muted">{{ translation.equivalentNote }}</p>
-            <p v-if="translation.connotationWarning" class="mt-2 flex items-start gap-2 rounded-xl bg-warning-soft px-3 py-2 text-sm text-warning-fg">
-              <TriangleAlert class="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-              {{ translation.connotationWarning }}
-            </p>
-            <ul v-if="translation.synonyms.length > 0" class="mt-3 flex flex-wrap gap-2" :aria-label="t('web.translate.synonyms')">
-              <li v-for="synonym in translation.synonyms" :key="synonym" class="rounded-full bg-primary-soft px-3 py-1 text-sm text-primary-soft-fg">
-                {{ synonym }}
-              </li>
-            </ul>
-            <ExampleList class="mt-3" :examples="translation.examples.slice(0, 1)" />
-
-            <template v-if="hasMore(translation)">
-              <div v-if="expanded.has(translation.lang)" :id="`more-${translation.lang}`" class="mt-3 space-y-3">
-                <p v-if="translation.usageNote" class="text-sm">{{ translation.usageNote }}</p>
-                <div v-if="translation.alternatives.length > 0">
-                  <h3 class="text-xs font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.translate.alternatives") }}</h3>
-                  <ul class="mt-1 flex flex-wrap gap-2">
-                    <li v-for="alternative in translation.alternatives" :key="alternative" class="rounded-full border border-line px-3 py-1 text-sm">
-                      {{ alternative }}
-                    </li>
-                  </ul>
-                </div>
-                <ExampleList v-if="translation.examples.length > 1" :examples="translation.examples.slice(1)" />
-              </div>
-              <button
-                type="button"
-                class="mt-3 inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-primary hover:text-primary-hover"
-                :aria-expanded="expanded.has(translation.lang)"
-                :aria-controls="`more-${translation.lang}`"
-                @click="toggle(translation.lang)"
-              >
-                <ChevronDown class="size-4 transition-transform" :class="{ 'rotate-180': expanded.has(translation.lang) }" aria-hidden="true" />
-                {{ expanded.has(translation.lang) ? t("web.translate.showLess") : t("web.translate.showMore") }}
-              </button>
-            </template>
-          </div>
+          <TranslationBlock
+            v-for="translation in result.translations"
+            :key="`${resultSeq}:${translation.lang}`"
+            :translation="translation"
+            id-prefix="translate"
+          />
 
           <div v-if="saveControls" class="flex flex-wrap items-center gap-3 border-t border-line pt-4 text-sm">
             <template v-if="saveState === 'removed'">
@@ -251,21 +197,21 @@
 </template>
 
 <script setup lang="ts">
-import { Check, ChevronDown, Copy, Trash2, TriangleAlert, Undo2 } from "lucide-vue-next";
+import { Check, Trash2, TriangleAlert, Undo2 } from "lucide-vue-next";
 import { computed, onMounted, ref } from "vue";
 import { useLoaderText } from "../lib/use-loader-text";
 import { useMainInput } from "../lib/use-main-input";
 import { ApiError, api } from "../lib/api";
 import { t } from "../lib/i18n";
 import { languageFlag, languageName } from "../lib/settings-store";
-import type { Clarification, ClarificationOption, TranslateAnswer, TranslateResult, TranslateTarget } from "../lib/types";
+import type { Clarification, ClarificationOption, TranslateAnswer, TranslateResult } from "../lib/types";
 import ExampleList from "./ExampleList.vue";
 import LimitNotice from "./LimitNotice.vue";
+import TranslationBlock from "./TranslationBlock.vue";
 
 const MAX_LENGTH = 500;
 const HISTORY_SIZE = 10;
 const HISTORY_KEY = "polyglot.translate.history";
-const COPIED_MS = 1800;
 
 const input = ref<HTMLTextAreaElement | null>(null);
 const text = ref("");
@@ -290,11 +236,10 @@ const answerOptions = computed(() =>
 );
 const limit = ref<{ reason?: "plan" | "daily_ceiling"; resetAt?: string } | null>(null);
 const history = ref<TranslateResult[]>([]);
-const expanded = ref(new Set<string>());
-const copiedLang = ref<string | null>(null);
+// Bumped per shown result so each card opens folded, even when the same word is shown again.
+const resultSeq = ref(0);
 const saveState = ref<"saved" | "removed">("saved");
 const savePending = ref(false);
-let copiedTimer: ReturnType<typeof setTimeout> | undefined;
 
 // A stored result has no live connection to the dictionary, so its save controls would act on stale state.
 const saveControls = computed(() => result.value?.savedEntryId != null && !fromHistory.value);
@@ -347,7 +292,7 @@ function show(entry: TranslateResult, stored: boolean): void {
   result.value = entry;
   fromHistory.value = stored;
   saveState.value = "saved";
-  expanded.value = new Set();
+  resultSeq.value += 1;
 }
 
 const REJECT_KEYS: Record<string, string> = {
@@ -372,29 +317,6 @@ function openHistory(entry: TranslateResult): void {
   resetNotices();
   show(entry, true);
   focusInput();
-}
-
-function hasMore(translation: TranslateTarget): boolean {
-  return Boolean(translation.usageNote) || translation.alternatives.length > 0 || translation.examples.length > 1;
-}
-
-function toggle(lang: string): void {
-  const next = new Set(expanded.value);
-  if (!next.delete(lang)) next.add(lang);
-  expanded.value = next;
-}
-
-async function copy(translation: TranslateTarget): Promise<void> {
-  try {
-    await navigator.clipboard.writeText(translation.text);
-  } catch {
-    return;
-  }
-  copiedLang.value = translation.lang;
-  clearTimeout(copiedTimer);
-  copiedTimer = setTimeout(() => {
-    copiedLang.value = null;
-  }, COPIED_MS);
 }
 
 async function setSaved(saved: boolean): Promise<void> {

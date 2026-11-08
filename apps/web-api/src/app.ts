@@ -5,6 +5,7 @@ import { installSessionGuard } from "./auth/session.js";
 import { SESSION_TTL_SECONDS } from "./auth/session-cookie.js";
 import type { WebApiConfig } from "./config.js";
 import { authRoutes } from "./routes/auth.js";
+import { cardAudioRoutes } from "./routes/card-audio.js";
 import { dictionaryRoutes } from "./routes/dictionary.js";
 import { loaderRoutes } from "./routes/loader.js";
 import { meRoutes } from "./routes/me.js";
@@ -24,6 +25,8 @@ function contentSecurityPolicy(scriptHashes: string[]): string {
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     "connect-src 'self'",
+    // Pronunciation arrives as fetched bytes played from a blob: URL.
+    "media-src 'self' blob:",
     "frame-ancestors 'none'",
   ].join("; ");
 }
@@ -80,6 +83,7 @@ export async function buildWebApiApp(
   dictionaryRoutes(app, services);
   translateRoutes(app, services);
   reviewRoutes(app, services);
+  cardAudioRoutes(app, services);
   loaderRoutes(app, services);
 
   if (config.staticDir) {
