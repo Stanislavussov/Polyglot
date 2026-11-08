@@ -541,6 +541,8 @@
   "web.welcome.trial": "⭐ Pro включён на первые {days} дней. Сохраните {words} слов за эту неделю — и Pro продлится ещё на {extraDays} дня.",
   "web.welcome.start": "Начать переводить",
   "web.progress.off": "Прогресс сейчас недоступен.",
+  "web.progress.barHide": "Скрыть на 3 дня",
+  "web.progress.barShow": "Показать полоску прогресса",
   "web.nav.signOut": "Выйти",
   "web.nav.openMenu": "Открыть меню",
   "web.nav.closeMenu": "Закрыть меню",

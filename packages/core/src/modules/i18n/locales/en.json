@@ -541,6 +541,8 @@
   "web.welcome.trial": "⭐ Pro is on for your first {days} days. Save {words} words this week and Pro stays {extraDays} days longer.",
   "web.welcome.start": "Start translating",
   "web.progress.off": "Progress is not available right now.",
+  "web.progress.barHide": "Hide for 3 days",
+  "web.progress.barShow": "Show the progress bar",
   "web.nav.signOut": "Sign out",
   "web.nav.openMenu": "Open menu",
   "web.nav.closeMenu": "Close menu",

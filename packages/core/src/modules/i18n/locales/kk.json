@@ -541,6 +541,8 @@
   "web.welcome.trial": "⭐ Алғашқы {days} күнге Pro қосулы. Осы аптада {words} сөз сақтаңыз — Pro тағы {extraDays} күнге ұзарады.",
   "web.welcome.start": "Аударуды бастау",
   "web.progress.off": "Прогресс қазір қолжетімсіз.",
+  "web.progress.barHide": "3 күнге жасыру",
+  "web.progress.barShow": "Прогресс жолағын көрсету",
   "web.nav.signOut": "Шығу",
   "web.nav.openMenu": "Мәзірді ашу",
   "web.nav.closeMenu": "Мәзірді жабу",

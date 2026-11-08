@@ -541,6 +541,8 @@
   "web.welcome.trial": "⭐ Pro máte zapnuté na prvních {days} dní. Uložte tento týden {words} slov a Pro vám vydrží o {extraDays} dny déle.",
   "web.welcome.start": "Začít překládat",
   "web.progress.off": "Pokrok teď není k dispozici.",
+  "web.progress.barHide": "Skrýt na 3 dny",
+  "web.progress.barShow": "Zobrazit lištu pokroku",
   "web.nav.signOut": "Odhlásit se",
   "web.nav.openMenu": "Otevřít nabídku",
   "web.nav.closeMenu": "Zavřít nabídku",

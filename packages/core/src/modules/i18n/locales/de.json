@@ -541,6 +541,8 @@
   "web.welcome.trial": "⭐ Pro ist für deine ersten {days} Tage aktiv. Speichere diese Woche {words} Wörter und Pro bleibt {extraDays} Tage länger.",
   "web.welcome.start": "Los geht’s",
   "web.progress.off": "Der Fortschritt ist gerade nicht verfügbar.",
+  "web.progress.barHide": "3 Tage ausblenden",
+  "web.progress.barShow": "Fortschrittsleiste anzeigen",
   "web.nav.signOut": "Abmelden",
   "web.nav.openMenu": "Menü öffnen",
   "web.nav.closeMenu": "Menü schließen",

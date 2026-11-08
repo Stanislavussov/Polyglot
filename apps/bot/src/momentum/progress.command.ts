@@ -14,8 +14,9 @@ import {
   logEvent,
   MATURE_INTERVAL_DAYS,
   type MomentumBand,
-  type ProgressGoalType,
+  type ProgressLadderCopy,
   type ProgressView,
+  renderProgressLadder,
   type SupportedLang,
   t,
 } from "@polyglot/core";
@@ -49,27 +50,6 @@ const BAND_PHRASE_KEY: Record<MomentumBand, I18nKey> = {
   strong: "progressBandStrong",
 };
 
-const GOAL_KEY: Record<ProgressGoalType, Record<MomentumBand, I18nKey>> = {
-  day: {
-    resting: "progressGoalDayResting",
-    warming: "progressGoalDayWarming",
-    steady: "progressGoalDaySteady",
-    strong: "progressGoalDayStrong",
-  },
-  week: {
-    resting: "progressGoalWeekResting",
-    warming: "progressGoalWeekWarming",
-    steady: "progressGoalWeekSteady",
-    strong: "progressGoalWeekStrong",
-  },
-  month: {
-    resting: "progressGoalMonthResting",
-    warming: "progressGoalMonthWarming",
-    steady: "progressGoalMonthSteady",
-    strong: "progressGoalMonthStrong",
-  },
-};
-
 const BAR_CELLS = 5;
 
 /** Filled cells per band, matching the screen mock in §2.2 (`steady` → `▰▰▰▰▱`). */
@@ -85,45 +65,10 @@ function bandBar(band: MomentumBand): string {
   return "▰".repeat(filled) + "▱".repeat(BAR_CELLS - filled);
 }
 
-function planName(plan: string): string {
-  return plan.charAt(0).toUpperCase() + plan.slice(1);
-}
-
-function ladderLines(view: ProgressView, band: MomentumBand, lang: SupportedLang): string[] {
-  const months =
-    view.countedMonths === 0
-      ? t("progressGoalMonthsFirst", lang)
-      : t("progressGoalMonths", lang, { count: view.cycleMonths, total: view.monthsForReward });
-  return [
-    months,
-    t("progressGoalMonth", lang, {
-      days: view.month.activeDays,
-      minDays: view.month.minActiveDays,
-      mature: view.month.matureGained,
-      saved: view.month.savedGained,
-    }),
-    view.milestone
-      ? t("progressGoalMilestone", lang, { target: view.milestone.target, remaining: view.milestone.remaining })
-      : t("progressGoalMilestonesAll", lang),
-    view.day.done
-      ? t("progressGoalDayDone", lang)
-      : t("progressGoalDayTodo", lang, { reviews: view.day.reviews, target: view.day.target }),
-    "",
-    t(GOAL_KEY[view.goal][band], lang, {
-      days: view.week.days,
-      target: view.goal === "week" ? view.week.target : view.day.target,
-    }),
-  ];
-}
-
-async function announceRewards(ctx: BotContext, view: ProgressView, lang: SupportedLang): Promise<void> {
-  for (const grant of view.freshRewards) {
-    const text =
-      grant.action === "extend"
-        ? t("progressRewardExtended", lang, { days: grant.days })
-        : t("progressRewardCreated", lang, { plan: planName(grant.plan) });
+async function announceRewards(ctx: BotContext, view: ProgressView, copy: ProgressLadderCopy): Promise<void> {
+  for (const [index, text] of copy.rewards.entries()) {
     await ctx.reply(text);
-    trackProductEvent(ctx, "progress.reward_granted", grant.plan);
+    trackProductEvent(ctx, "progress.reward_granted", view.freshRewards[index]?.plan);
   }
 }
 
@@ -154,7 +99,8 @@ async function renderProgress(ctx: BotContext, entry: ProgressEntry): Promise<vo
       ctx.services.momentumService.countActiveDays(userId, ACTIVE_DAYS_WINDOW, now),
       ctx.services.progressService.getProgressView(userId, now),
     ]);
-    if (ladder) await announceRewards(ctx, ladder, lang);
+    const ladderCopy = ladder ? renderProgressLadder(ladder, snapshot.band, lang) : null;
+    if (ladder && ladderCopy) await announceRewards(ctx, ladder, ladderCopy);
     const text = [
       t("progressTitle", lang),
       "",
@@ -165,7 +111,7 @@ async function renderProgress(ctx: BotContext, entry: ProgressEntry): Promise<vo
       t("progressMature", lang, { count: mature }),
       t("progressDue", lang, { count: due }),
       t("progressActiveDays", lang, { count: activeDays }),
-      ...(ladder ? ["", ...ladderLines(ladder, snapshot.band, lang)] : []),
+      ...(ladderCopy ? ["", ...ladderCopy.lines, "", ladderCopy.nearest] : []),
     ].join("\n");
     await ctx.reply(text, {
       parse_mode: "HTML",

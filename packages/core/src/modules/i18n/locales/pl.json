@@ -541,6 +541,8 @@
   "web.welcome.trial": "⭐ Pro jest włączone na pierwsze {days} dni. Zapisz w tym tygodniu {words} słów, a Pro potrwa o {extraDays} dni dłużej.",
   "web.welcome.start": "Zacznij tłumaczyć",
   "web.progress.off": "Postępy są teraz niedostępne.",
+  "web.progress.barHide": "Ukryj na 3 dni",
+  "web.progress.barShow": "Pokaż pasek postępu",
   "web.nav.signOut": "Wyloguj się",
   "web.nav.openMenu": "Otwórz menu",
   "web.nav.closeMenu": "Zamknij menu",
