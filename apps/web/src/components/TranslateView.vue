@@ -453,6 +453,8 @@ async function answer(value: string, choice: TranslateAnswer): Promise<void> {
     const fresh = await api.translate(value, choice);
     show(fresh, false);
     remember(fresh);
+    // Only on success: a failed or clarifying answer keeps the text so the user can retry or edit it.
+    text.value = "";
   } catch (error) {
     result.value = null;
     if (error instanceof ApiError && error.status === 429 && error.code === "limit") {
