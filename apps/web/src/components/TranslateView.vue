@@ -31,7 +31,8 @@
             </button>
           </div>
         </div>
-        <p class="text-xs text-ink-muted">{{ t("web.translate.hint") }}</p>
+        <!-- Touch keyboards have no Shift+Enter, so the hint only misleads there. -->
+        <p class="text-xs text-ink-muted [@media(pointer:coarse)]:hidden">{{ t("web.translate.hint") }}</p>
       </form>
 
       <div class="min-w-0 xl:col-start-1 xl:row-start-2" aria-live="polite">
