@@ -260,9 +260,11 @@ export {
   extractionResultSchema,
   extractPhrasesFromTranscript,
 } from "./modules/video-vocabulary/index.js";
+export { acceptDictionaryName, MAX_DICTIONARY_NAME_LENGTH } from "./modules/vocabulary/dictionary-name.js";
 export type { LanguageOrderContext } from "./modules/vocabulary/translation-order.js";
 export {
   createLanguageOrderContext,
+  languageOrderFromSettings,
   languageRank,
   orderLangCodes,
   orderRecordEntries,

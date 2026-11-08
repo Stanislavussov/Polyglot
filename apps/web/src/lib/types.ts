@@ -31,8 +31,16 @@ export interface DictionaryItem {
   translations: { lang: string; text: string }[];
 }
 
+export interface Dictionary {
+  id: number;
+  name: string;
+  isDefault: boolean;
+  count: number;
+}
+
 export interface DictionaryPage {
   items: DictionaryItem[];
+  dictionary: Dictionary;
   total: number;
   page: number;
   pageSize: number;

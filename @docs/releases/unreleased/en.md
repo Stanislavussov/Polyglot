@@ -27,3 +27,5 @@
 - After a translation on the website, the input box empties itself, ready for your next word.
 - Review cards on the website now show the whole word — meaning, examples, synonyms and notes — and with Pro you can tap 🔊 to hear it.
 - Under a translation on the site, tap 🔍 Explore to clarify the meaning, see another meaning, read where the word comes from, or ask the mentor about it — just like in the bot.
+- On the website you can now keep several dictionaries, just like in the bot: create, rename and delete them, and add or move a word between them.
+- While reviewing on the website, you can remove a word you no longer need — and bring it back with one tap if you change your mind.

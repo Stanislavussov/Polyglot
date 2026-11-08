@@ -1,5 +1,6 @@
 import type {
   ClarificationOption,
+  Dictionary,
   DictionaryFilterState,
   DictionaryPage,
   DictionarySort,
@@ -83,8 +84,18 @@ export const api = {
   me: () => request<Me>("GET", "/me"),
   settings: () => request<Settings>("GET", "/settings"),
   updateSettings: (patch: SettingsPatch) => request<Settings>("PATCH", "/settings", patch),
-  dictionary: (query: { q: string; sort: DictionarySort; page: number } & DictionaryFilterState) => {
+  dictionaries: () => request<{ items: Dictionary[] }>("GET", "/dictionaries"),
+  createDictionary: (name: string) => request<Dictionary>("POST", "/dictionaries", { name }),
+  renameDictionary: (id: number, name: string) => request<Dictionary>("PATCH", `/dictionaries/${id}`, { name }),
+  deleteDictionary: (id: number) => request<void>("DELETE", `/dictionaries/${id}`),
+  /** Into another dictionary; with `from`, out of that one too (move). */
+  placeEntry: (entryId: number, to: number, from?: number) =>
+    request<Dictionary>("POST", `/dictionary/${entryId}/dictionaries`, { to, from }),
+  dictionary: (
+    query: { q: string; sort: DictionarySort; page: number; dictionary?: number } & DictionaryFilterState,
+  ) => {
     const params = new URLSearchParams({ q: query.q, sort: query.sort, page: String(query.page) });
+    if (query.dictionary) params.set("dictionary", String(query.dictionary));
     for (const key of ["lang", "type", "difficulty", "review"] as const) {
       if (query[key]) params.set(key, query[key]);
     }
@@ -103,8 +114,11 @@ export const api = {
     history: MentorTurn[];
   }) => request<{ question: string; answer: string }>("POST", "/mentor", body),
   entry: (entryId: number) => request<EntryDetail>("GET", `/dictionary/${entryId}`),
-  removeEntry: (entryId: number) => request<void>("DELETE", `/dictionary/${entryId}`),
-  restoreEntry: (entryId: number) => request<void>("POST", `/dictionary/${entryId}/restore`),
+  // With a dictionary, a word kept in another one only leaves this list (the bot's dictionary delete).
+  removeEntry: (entryId: number, dictionary?: number) =>
+    request<void>("DELETE", `/dictionary/${entryId}${dictionary ? `?dictionary=${dictionary}` : ""}`),
+  restoreEntry: (entryId: number, dictionary?: number) =>
+    request<void>("POST", `/dictionary/${entryId}/restore${dictionary ? `?dictionary=${dictionary}` : ""}`),
   /** The spoken word as audio bytes; the server picks the text from the saved entry. */
   audio: async (entryId: number, lang: string): Promise<Blob> => {
     const response = await fetch(`/api/dictionary/${entryId}/audio/${encodeURIComponent(lang)}`, {
