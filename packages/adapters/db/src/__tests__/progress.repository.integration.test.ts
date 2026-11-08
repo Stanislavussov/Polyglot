@@ -70,9 +70,10 @@ async function seedLedger(userId: number, months: string[], planDays: PlanDays):
 
 const PRO_MONTH: PlanDays = { free: 0, plus: 0, pro: 30, trial: 0 };
 const FREE_MONTH: PlanDays = { free: 30, plus: 0, pro: 0, trial: 0 };
+const PLUS_MONTH: PlanDays = { free: 0, plus: 30, pro: 0, trial: 0 };
 
 /** Three old counted months plus September and October live: the fifth counted month. */
-async function arrangeFifthMonth(userId: number, planDays: PlanDays = FREE_MONTH): Promise<void> {
+async function arrangeFifthMonth(userId: number, planDays: PlanDays = PLUS_MONTH): Promise<void> {
   await seedLedger(userId, ["2026-04", "2026-05", "2026-06"], planDays);
   await seedCountedMonth(userId, "2026-09");
   await seedCountedMonth(userId, "2026-10");
@@ -165,7 +166,19 @@ describe("progressRepository.closeAndClaim — reward", () => {
     expect(await claimTokens(userId)).toEqual([]);
   });
 
-  it("gives a mostly-free learner a Plus month as a new reward row", async () => {
+  it("gives a mostly-free learner no gift, yet closes the cycle so an upgrade never pays it out", async () => {
+    const userId = await freshUser();
+    await arrangeFifthMonth(userId, FREE_MONTH);
+
+    const result = await progressRepository.closeAndClaim({ userId, now: NOW, config, grant: true });
+
+    expect(result.countedMonths).toBe(5);
+    expect(result.granted).toEqual([]);
+    expect(await rowsOf(userId)).toHaveLength(0);
+    expect(await claimTokens(userId)).toEqual(["reward:cycle:1"]);
+  });
+
+  it("gives a mostly-Plus learner with no active row a Plus month as a new reward row", async () => {
     const userId = await freshUser();
     await arrangeFifthMonth(userId);
 
@@ -262,7 +275,7 @@ describe("progressRepository.closeAndClaim — reward", () => {
     await seedLedger(
       userId,
       ["2025-08", "2025-09", "2025-10", "2025-11", "2025-12", "2026-01", "2026-02", "2026-03"],
-      FREE_MONTH,
+      PLUS_MONTH,
     );
     await seedCountedMonth(userId, "2026-09");
     await seedCountedMonth(userId, "2026-10");

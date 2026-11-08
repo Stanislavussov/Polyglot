@@ -197,14 +197,20 @@ export function planDaysForMonth(intervals: ReadonlyArray<PlanInterval>, month: 
   return result;
 }
 
-/** Plan held for the most days across a cycle. Mostly-free or trial-only learners get Plus; a tie goes to Pro. */
-export function longestHeldPlan(months: ReadonlyArray<PlanDays>): "plus" | "pro" {
+/**
+ * Plan held for the most days across a cycle; a tie goes to Pro. The gift rewards paying
+ * learners, so a cycle spent mostly on Free or trial earns none (`null`).
+ */
+export function longestHeldPlan(months: ReadonlyArray<PlanDays>): "plus" | "pro" | null {
   let plus = 0;
   let pro = 0;
+  let unpaid = 0;
   for (const days of months) {
     plus += days.plus;
     pro += days.pro;
+    unpaid += days.free + days.trial;
   }
+  if (plus + pro <= unpaid) return null;
   return pro > 0 && pro >= plus ? "pro" : "plus";
 }
 

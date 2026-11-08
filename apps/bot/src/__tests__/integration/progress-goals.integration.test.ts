@@ -36,7 +36,7 @@ import { type CapturedCall, createBotHarness, messageUpdate } from "../../test-h
 import { uniqueTelegramId } from "../../test-helpers/integration/id-factory.js";
 
 const NOW = new Date("2026-11-08T09:00:00.000Z");
-const FREE_MONTH: PlanDays = { free: 30, plus: 0, pro: 0, trial: 0 };
+const PLUS_MONTH: PlanDays = { free: 0, plus: 30, pro: 0, trial: 0 };
 
 function configWith(flags: Partial<MotivationConfig>): MotivationConfig {
   return { ...DEFAULT_MOTIVATION_CONFIG, enabled: true, ...flags };
@@ -104,7 +104,7 @@ async function arrangeFifthMonth(userId: number): Promise<void> {
         matureGained: 2,
         savedGained: 3,
         counted: true,
-        planDays: FREE_MONTH,
+        planDays: PLUS_MONTH,
         source: "live" as const,
         closedAt: NOW,
       })),

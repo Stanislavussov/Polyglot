@@ -218,6 +218,12 @@ export const progressRepository: ProgressRepository = {
         if (!(await insertClaim(tx, userId, `reward:cycle:${cycle}`, now))) continue;
         const months = counted.slice((cycle - 1) * config.monthsForReward, cycle * config.monthsForReward);
         const plan = longestHeldPlan(months.map((row) => row.planDays));
+        // The claim stays even with no gift: a cycle spent mostly on Free must not pay out
+        // later, once the learner upgrades.
+        if (!plan) {
+          logEvent("progress.reward_skipped_free", { userId, cycle });
+          continue;
+        }
         result.granted.push(await applyGrant(tx, input, cycle, plan, active));
       }
       return result;

@@ -155,8 +155,20 @@ describe("planDaysForMonth", () => {
 });
 
 describe("longestHeldPlan", () => {
-  it("returns plus for a user who was free or on trial throughout", () => {
-    expect(longestHeldPlan([{ free: 20, plus: 0, pro: 0, trial: 10 }])).toBe("plus");
+  it("gives no reward to a user who was mostly free or on trial", () => {
+    expect(longestHeldPlan([{ free: 20, plus: 0, pro: 0, trial: 10 }])).toBeNull();
+    expect(
+      longestHeldPlan([
+        { free: 30, plus: 0, pro: 0, trial: 0 },
+        { free: 0, plus: 30, pro: 0, trial: 0 },
+      ]),
+    ).toBeNull();
+    expect(
+      longestHeldPlan([
+        { free: 29, plus: 0, pro: 0, trial: 0 },
+        { free: 0, plus: 30, pro: 0, trial: 0 },
+      ]),
+    ).toBe("plus");
   });
 
   it("sums across months and breaks a tie toward the higher tier", () => {
