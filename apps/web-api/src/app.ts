@@ -93,7 +93,7 @@ export async function buildWebApiApp(
   meRoutes(app, services);
   settingsRoutes(app, services);
   dictionaryRoutes(app, services);
-  translateRoutes(app, services);
+  translateRoutes(app, services, config.jwtSecret);
   reviewRoutes(app, services);
   cardAudioRoutes(app, services);
   cardExploreRoutes(app, services);

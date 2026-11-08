@@ -563,6 +563,8 @@
   "web.translate.working": "Wird übersetzt…",
   "web.translate.correction": "Meintest du: {text}",
   "web.translate.savedToDictionary": "Im Wörterbuch gespeichert",
+  "web.translate.save": "Speichern",
+  "web.translate.saved": "Gespeichert",
   "web.translate.synonyms": "Synonyme",
   "web.translate.examples": "Beispiele",
   "web.translate.clarify": "Bitte gib etwas mehr Kontext an, damit ich das übersetzen kann.",

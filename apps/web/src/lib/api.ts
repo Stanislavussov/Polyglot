@@ -132,6 +132,7 @@ export const api = {
   }) => request<{ question: string; answer: string }>("POST", "/mentor", body),
   entry: (entryId: number) => request<EntryDetail>("GET", `/dictionary/${entryId}`),
   // With a dictionary, a word kept in another one only leaves this list (the bot's dictionary delete).
+  saveTranslation: (token: string) => request<{ entryId: number }>("POST", "/translate/save", { token }),
   removeEntry: (entryId: number, dictionary?: number) =>
     request<void>("DELETE", `/dictionary/${entryId}${dictionary ? `?dictionary=${dictionary}` : ""}`),
   restoreEntry: (entryId: number, dictionary?: number) =>

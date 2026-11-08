@@ -563,6 +563,8 @@
   "web.translate.working": "Traduzione…",
   "web.translate.correction": "Intendevi: {text}",
   "web.translate.savedToDictionary": "Salvato nel tuo dizionario",
+  "web.translate.save": "Salva",
+  "web.translate.saved": "Salvato",
   "web.translate.synonyms": "Sinonimi",
   "web.translate.examples": "Esempi",
   "web.translate.clarify": "Aggiungi un po' di contesto così posso tradurlo.",

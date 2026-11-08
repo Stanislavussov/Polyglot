@@ -563,6 +563,8 @@
   "web.translate.working": "Translating…",
   "web.translate.correction": "Did you mean: {text}",
   "web.translate.savedToDictionary": "Saved to your dictionary",
+  "web.translate.save": "Save",
+  "web.translate.saved": "Saved",
   "web.translate.synonyms": "Synonyms",
   "web.translate.examples": "Examples",
   "web.translate.clarify": "Please add a little more context so I can translate this.",

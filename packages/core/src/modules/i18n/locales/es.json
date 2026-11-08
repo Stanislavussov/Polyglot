@@ -563,6 +563,8 @@
   "web.translate.working": "Traduciendo…",
   "web.translate.correction": "¿Quisiste decir: {text}?",
   "web.translate.savedToDictionary": "Guardado en tu diccionario",
+  "web.translate.save": "Guardar",
+  "web.translate.saved": "Guardado",
   "web.translate.synonyms": "Sinónimos",
   "web.translate.examples": "Ejemplos",
   "web.translate.clarify": "Añade un poco más de contexto para que pueda traducirlo.",

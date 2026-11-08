@@ -19,6 +19,9 @@ import { z } from "zod";
 import type { WebServices } from "../services.js";
 import { cardFeatures } from "./card-explore.js";
 import { featureLocked, hasFeature } from "./learn-shared.js";
+import { signSaveToken, verifySaveToken } from "./save-token.js";
+
+const saveSchema = z.object({ token: z.string().min(1).max(200_000) });
 
 const bodySchema = z.object({
   // Generous on purpose: the length rule (and its message) belongs to core's input validation.
@@ -92,7 +95,38 @@ async function templateFields(services: WebServices, userId: number): Promise<Te
   return resolveTemplate(saved ? { name: saved.name, fields: saved.fields } : null).fields;
 }
 
-export function translateRoutes(app: FastifyInstance, services: WebServices): void {
+/** The entry a learner already keeps for this card — what makes a re-translated saved word show Remove, not Save. */
+async function activeEntryId(services: WebServices, userId: number, output: TranslateOutput): Promise<number | null> {
+  const sourceLang = services.languageCache.getLang(output.sourceLang);
+  if (!sourceLang) return null;
+  const existing = await services.vocabularyRepository.findByOriginalAndSource(userId, output.original, sourceLang.id);
+  return existing?.isActive ? existing.id : null;
+}
+
+export function translateRoutes(app: FastifyInstance, services: WebServices, saveSecret: string): void {
+  // The bot's Save button: only an explicit tap puts a word in the dictionary.
+  app.post("/api/translate/save", async (request, reply) => {
+    const parsed = saveSchema.safeParse(request.body);
+    if (!parsed.success) return reply.status(400).send({ code: "invalid_token" });
+    const user = request.learner;
+    const card = verifySaveToken(saveSecret, parsed.data.token);
+    if (!card || card.userId !== user.id) return reply.status(403).send({ code: "invalid_token" });
+    const entryId = await saveTranslationToDictionary(
+      {
+        languageCache: services.languageCache,
+        vocabulary: services.vocabularyRepository,
+        dictionaries: services.vocabularyDictionaryRepository,
+      },
+      user.id,
+      card.output,
+      card.inputType,
+      "web",
+    );
+    if (entryId === null) return reply.status(422).send({ code: "unsupported_language" });
+    await creditEffort(services.momentumService, { userId: user.id, kind: "save", dedupeKey: `save:${entryId}` });
+    return { entryId };
+  });
+
   app.post("/api/translate", async (request, reply) => {
     const parsed = bodySchema.safeParse(request.body);
     if (!parsed.success) return reply.status(400).send({ code: "invalid_text" });
@@ -164,34 +198,13 @@ export function translateRoutes(app: FastifyInstance, services: WebServices): vo
       case "no_more_meanings":
         return reply.status(422).send({ code: "no_more_meanings" });
       case "done": {
-        // The web's save policy: every word or phrase lands in the dictionary; a sentence is not a word to learn.
         const savedEntryId =
-          outcome.inputType === "sentence"
-            ? null
-            : await saveTranslationToDictionary(
-                {
-                  languageCache: services.languageCache,
-                  vocabulary: services.vocabularyRepository,
-                  dictionaries: services.vocabularyDictionaryRepository,
-                },
-                user.id,
-                outcome.output,
-                outcome.inputType,
-                "web",
-              );
-        // The bot's credits for the same two efforts, under the same dedupe keys.
+          outcome.inputType === "sentence" ? null : await activeEntryId(services, user.id, outcome.output);
         await creditEffort(services.momentumService, {
           userId: user.id,
           kind: "translate",
           dedupeKey: `translate:${outcome.translationRequestId}`,
         });
-        if (savedEntryId !== null) {
-          await creditEffort(services.momentumService, {
-            userId: user.id,
-            kind: "save",
-            dedupeKey: `save:${savedEntryId}`,
-          });
-        }
         const settings = await services.userRepository.getSettings(user.id);
         // The dictionary keeps the whole card; only the shown card drops what the template turns off, as the bot's does.
         const shown = applyTemplateFields(outcome.output, await templateFields(services, user.id));
@@ -204,6 +217,11 @@ export function translateRoutes(app: FastifyInstance, services: WebServices): vo
             outcome.needsReview,
           ),
           inputType: outcome.inputType,
+          // The full card, signed: Save stores what the dictionary keeps, not the template-trimmed view.
+          saveToken:
+            outcome.inputType === "sentence"
+              ? null
+              : signSaveToken(saveSecret, { userId: user.id, inputType: outcome.inputType, output: outcome.output }),
           context: outcome.contextHint ?? null,
           etymologyEligible: isEtymologyEligible(outcome.inputType, outcome.sourceLang, settings?.nativeLang ?? "en"),
           features: await cardFeatures(services, user),

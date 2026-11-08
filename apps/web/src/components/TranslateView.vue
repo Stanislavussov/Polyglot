@@ -127,16 +127,45 @@
                 <span class="sr-only">{{ languageName(code) }}</span>
               </span>
             </p>
-            <button
-              v-if="result.savedEntryId !== null"
-              type="button"
-              class="-mr-2 -mt-3 inline-flex size-11 shrink-0 items-center justify-center rounded-full text-ink-muted hover:bg-surface-muted hover:text-ink"
-              :title="t('web.dictionary.details')"
-              :aria-label="t('web.dictionary.details')"
-              @click="detailId = result.savedEntryId"
-            >
-              <Maximize2 class="size-4" aria-hidden="true" />
-            </button>
+            <div class="-mt-1 flex shrink-0 flex-wrap items-center justify-end gap-2 text-sm">
+              <template v-if="saveControls">
+                <button v-if="saveState === 'unsaved'" type="button" class="btn-primary" :disabled="savePending" @click="save">
+                  <span aria-hidden="true">💾</span>{{ t("web.translate.save") }}
+                </button>
+                <template v-else-if="saveState === 'removed'">
+                  <span class="text-ink-muted">{{ t("web.translate.removed") }}</span>
+                  <button type="button" class="btn-secondary" :disabled="savePending" @click="setSaved(true)">
+                    <Undo2 class="size-4" aria-hidden="true" />{{ t("web.translate.undo") }}
+                  </button>
+                </template>
+                <template v-else>
+                  <span class="flex items-center gap-1 font-semibold text-primary-soft-fg">
+                    <Check class="size-4" aria-hidden="true" />{{ t("web.translate.saved") }}
+                  </span>
+                  <button
+                    type="button"
+                    class="inline-flex size-11 items-center justify-center rounded-full text-ink-muted hover:bg-surface-muted hover:text-ink"
+                    :disabled="savePending"
+                    :title="t('web.translate.remove')"
+                    :aria-label="t('web.translate.remove')"
+                    @click="setSaved(false)"
+                  >
+                    <Trash2 class="size-4" aria-hidden="true" />
+                  </button>
+                </template>
+              </template>
+              <!-- The details dialog opens a dictionary entry, so it appears once the word is saved. -->
+              <button
+                v-if="result.savedEntryId !== null && saveState !== 'removed'"
+                type="button"
+                class="-mr-2 inline-flex size-11 shrink-0 items-center justify-center rounded-full text-ink-muted hover:bg-surface-muted hover:text-ink"
+                :title="t('web.dictionary.details')"
+                :aria-label="t('web.dictionary.details')"
+                @click="detailId = result.savedEntryId"
+              >
+                <Maximize2 class="size-4" aria-hidden="true" />
+              </button>
+            </div>
             </div>
             <h2 class="break-words text-xl font-semibold">
               <span v-if="result.emoji" class="mr-2" aria-hidden="true">{{ result.emoji }}</span>{{ result.sourceUsage?.headword ?? result.original }}
@@ -186,22 +215,6 @@
 
           <CardExplore :result="result" @replace="onReplace" />
 
-          <div v-if="saveControls" class="flex flex-wrap items-center gap-3 border-t border-line pt-4 text-sm">
-            <template v-if="saveState === 'removed'">
-              <span class="text-ink-muted">{{ t("web.translate.removed") }}</span>
-              <button type="button" class="btn-secondary" :disabled="savePending" @click="setSaved(true)">
-                <Undo2 class="size-4" aria-hidden="true" />{{ t("web.translate.undo") }}
-              </button>
-            </template>
-            <template v-else>
-              <span class="flex items-center gap-2 text-primary-soft-fg">
-                <Check class="size-4" aria-hidden="true" />{{ t("web.translate.savedToDictionary") }}
-              </span>
-              <button type="button" class="btn-secondary" :disabled="savePending" @click="setSaved(false)">
-                <Trash2 class="size-4" aria-hidden="true" />{{ t("web.translate.remove") }}
-              </button>
-            </template>
-          </div>
         </article>
       </div>
 
@@ -283,12 +296,14 @@ const limit = ref<{ reason?: "plan" | "daily_ceiling"; resetAt?: string } | null
 const history = ref<TranslateResult[]>([]);
 // Bumped per shown result so each card opens folded, even when the same word is shown again.
 const resultSeq = ref(0);
-const saveState = ref<"saved" | "removed">("saved");
+const saveState = ref<"unsaved" | "saved" | "removed">("unsaved");
 const savePending = ref(false);
 
 // A stored result has no live connection to the dictionary, so its save controls would act on stale state.
 const split = computed(() => splitNative(result.value?.translations ?? [], settings.value?.nativeLang));
-const saveControls = computed(() => result.value?.savedEntryId != null && !fromHistory.value);
+const saveControls = computed(
+  () => !fromHistory.value && !!result.value && (result.value.savedEntryId != null || !!result.value.saveToken),
+);
 
 function isStoredResult(value: unknown): value is TranslateResult {
   if (typeof value !== "object" || value === null) return false;
@@ -319,7 +334,9 @@ function historyKey(item: TranslateResult): string {
 
 function remember(entry: TranslateResult): void {
   const key = historyKey(entry);
-  history.value = [entry, ...history.value.filter((item) => historyKey(item) !== key)].slice(0, HISTORY_SIZE);
+  // A stored result never saves (its controls are hidden), so the signed card would only fill storage.
+  const { saveToken: _token, ...stored } = entry;
+  history.value = [stored, ...history.value.filter((item) => historyKey(item) !== key)].slice(0, HISTORY_SIZE);
   persistHistory();
 }
 
@@ -337,7 +354,7 @@ function clearHistory(): void {
 function show(entry: TranslateResult, stored: boolean): void {
   result.value = entry;
   fromHistory.value = stored;
-  saveState.value = "saved";
+  saveState.value = entry.savedEntryId != null ? "saved" : "unsaved";
   resultSeq.value += 1;
 }
 
@@ -368,6 +385,22 @@ function openHistory(entry: TranslateResult): void {
   resetNotices();
   show(entry, true);
   focusInput();
+}
+
+async function save(): Promise<void> {
+  const current = result.value;
+  if (!current?.saveToken || savePending.value) return;
+  savePending.value = true;
+  errorKey.value = null;
+  try {
+    const { entryId } = await api.saveTranslation(current.saveToken);
+    current.savedEntryId = entryId;
+    saveState.value = "saved";
+  } catch {
+    errorKey.value = "web.common.error";
+  } finally {
+    savePending.value = false;
+  }
 }
 
 async function setSaved(saved: boolean): Promise<void> {

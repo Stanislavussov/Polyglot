@@ -38,9 +38,9 @@ describe("web translate flow", () => {
     const res = await web.call(cookie, "POST", "/api/translate", { text: "hotel", sourceLang: "en" });
 
     expect(res.status).toBe(200);
-    const body = res.body as { sourceLang: string; savedEntryId: number | null };
+    const body = res.body as { sourceLang: string; saveToken: string | null };
     expect(body.sourceLang).toBe("en");
-    expect(body.savedEntryId).not.toBeNull();
+    expect(body.saveToken).not.toBeNull();
   });
 
   it("offers to add a language the user does not study instead of mistranslating", async () => {

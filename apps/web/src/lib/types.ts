@@ -183,6 +183,8 @@ export interface TranslateResult {
   } | null;
   translations: TranslateTarget[];
   savedEntryId: number | null;
+  /** Signed card for the Save button; null for a sentence, absent on stored history. */
+  saveToken?: string | null;
   // Absent on results saved in history before the card could be explored.
   inputType?: "word" | "phrase" | "sentence";
   context?: string | null;

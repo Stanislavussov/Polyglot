@@ -563,6 +563,8 @@
   "web.translate.working": "Tłumaczę…",
   "web.translate.correction": "Czy chodziło o: {text}",
   "web.translate.savedToDictionary": "Zapisano w słowniku",
+  "web.translate.save": "Zapisz",
+  "web.translate.saved": "Zapisane",
   "web.translate.synonyms": "Synonimy",
   "web.translate.examples": "Przykłady",
   "web.translate.clarify": "Dodaj trochę więcej kontekstu, abym mógł to przetłumaczyć.",

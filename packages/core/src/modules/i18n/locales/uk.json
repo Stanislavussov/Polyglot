@@ -563,6 +563,8 @@
   "web.translate.working": "Перекладаю…",
   "web.translate.correction": "Можливо, ви мали на увазі: {text}",
   "web.translate.savedToDictionary": "Збережено у словнику",
+  "web.translate.save": "Зберегти",
+  "web.translate.saved": "Збережено",
   "web.translate.synonyms": "Синоніми",
   "web.translate.examples": "Приклади",
   "web.translate.clarify": "Додайте трохи більше контексту, щоб я зміг це перекласти.",

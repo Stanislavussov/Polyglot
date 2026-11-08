@@ -44,8 +44,13 @@ describe("web momentum", () => {
     const empty = await web.call(cookie, "GET", "/api/progress");
     expect(empty).toMatchObject({ status: 200, body: { enabled: true, stats: [] } });
 
-    const translated = (await web.call(cookie, "POST", "/api/translate", { text: "hello" })).body as {
-      savedEntryId: number;
+    const { saveToken } = (await web.call(cookie, "POST", "/api/translate", { text: "hello" })).body as {
+      saveToken: string;
+    };
+    const translated = {
+      savedEntryId: (
+        (await web.call(cookie, "POST", "/api/translate/save", { token: saveToken })).body as { entryId: number }
+      ).entryId,
     };
     expect((await web.call(cookie, "POST", `/api/review/${translated.savedEntryId}`, { rating: "good" })).status).toBe(
       200,
