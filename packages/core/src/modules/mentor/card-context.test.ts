@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { type CardMentorContext, composeCardMentorTurn, renderCardForMentor } from "./card-mentor-context.js";
+import { type CardMentorContext, composeCardMentorTurn, renderCardForMentor } from "./card-context.js";
 
 const FULL_CARD: CardMentorContext = {
   output: {

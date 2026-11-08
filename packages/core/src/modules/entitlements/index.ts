@@ -14,6 +14,7 @@ export {
   AI_CALL_WEIGHTS,
   checkAiQuota,
   checkDailyCeiling,
+  checkMentorDailyQuota,
   checkTranslationQuota,
   recordAiUsage,
   resolvePlanLimit,

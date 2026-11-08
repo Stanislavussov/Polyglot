@@ -23,6 +23,14 @@ export interface EtymologyInput {
   inputType: "word" | "phrase";
 }
 
+/**
+ * Whether the card offers etymology: words and short phrases in a language the user
+ * is learning — sentences and native-language input are excluded.
+ */
+export function isEtymologyEligible(inputType: string | undefined, sourceLang: string, nativeLang: string): boolean {
+  return (inputType === "word" || inputType === "phrase") && sourceLang !== nativeLang;
+}
+
 const etymologySchema = z.object({
   etymology: z.string().min(1),
 });

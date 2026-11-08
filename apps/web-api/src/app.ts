@@ -6,6 +6,7 @@ import { SESSION_TTL_SECONDS } from "./auth/session-cookie.js";
 import type { WebApiConfig } from "./config.js";
 import { authRoutes } from "./routes/auth.js";
 import { cardAudioRoutes } from "./routes/card-audio.js";
+import { cardExploreRoutes } from "./routes/card-explore.js";
 import { dictionaryRoutes } from "./routes/dictionary.js";
 import { loaderRoutes } from "./routes/loader.js";
 import { meRoutes } from "./routes/me.js";
@@ -84,6 +85,7 @@ export async function buildWebApiApp(
   translateRoutes(app, services);
   reviewRoutes(app, services);
   cardAudioRoutes(app, services);
+  cardExploreRoutes(app, services);
   loaderRoutes(app, services);
 
   if (config.staticDir) {
