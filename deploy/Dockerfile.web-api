@@ -1,0 +1,78 @@
+# Learner web app: the Fastify API plus the static Astro site it serves.
+# ── Stage 1: base ─────────────────────────────────────────────────────
+FROM node:26-alpine AS base
+RUN npm install -g pnpm@10.14.0
+WORKDIR /app
+
+# ── Stage 2: deps ─────────────────────────────────────────────────────
+FROM base AS deps
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/bot/package.json apps/bot/
+COPY apps/admin-api/package.json apps/admin-api/
+COPY apps/admin/package.json apps/admin/
+COPY apps/web/package.json apps/web/
+COPY apps/web-api/package.json apps/web-api/
+COPY apps/translation-benchmark/package.json apps/translation-benchmark/
+COPY packages/admin-contracts/package.json packages/admin-contracts/
+COPY packages/@types/package.json packages/@types/
+COPY packages/core/package.json packages/core/
+COPY packages/infra/package.json packages/infra/
+COPY packages/adapters/ai/package.json packages/adapters/ai/
+COPY packages/adapters/db/package.json packages/adapters/db/
+COPY packages/adapters/notifications/package.json packages/adapters/notifications/
+COPY packages/adapters/youtube/package.json packages/adapters/youtube/
+
+RUN pnpm install --frozen-lockfile
+
+# ── Stage 3: build ────────────────────────────────────────────────────
+FROM deps AS build
+
+COPY tsconfig.json ./
+COPY apps/ apps/
+COPY packages/ packages/
+
+RUN pnpm --filter @polyglot/web-api... run build
+# The site build reads the locale JSON from packages/core (apps/web/scripts/build-i18n.ts).
+RUN pnpm --filter @polyglot/web run build
+
+# ── Stage 4: production ──────────────────────────────────────────────
+FROM base AS production
+
+ENV NODE_ENV=production
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/bot/package.json apps/bot/
+COPY apps/admin-api/package.json apps/admin-api/
+COPY apps/admin/package.json apps/admin/
+COPY apps/web/package.json apps/web/
+COPY apps/web-api/package.json apps/web-api/
+COPY apps/translation-benchmark/package.json apps/translation-benchmark/
+COPY packages/admin-contracts/package.json packages/admin-contracts/
+COPY packages/@types/package.json packages/@types/
+COPY packages/core/package.json packages/core/
+COPY packages/infra/package.json packages/infra/
+COPY packages/adapters/ai/package.json packages/adapters/ai/
+COPY packages/adapters/db/package.json packages/adapters/db/
+COPY packages/adapters/notifications/package.json packages/adapters/notifications/
+COPY packages/adapters/youtube/package.json packages/adapters/youtube/
+
+RUN pnpm install --frozen-lockfile --prod
+
+COPY --from=build /app/apps/web-api/dist apps/web-api/dist
+COPY --from=build /app/apps/web/dist apps/web/dist
+COPY --from=build /app/packages/core/dist packages/core/dist
+COPY --from=build /app/packages/infra/dist packages/infra/dist
+COPY --from=build /app/packages/adapters/ai/dist packages/adapters/ai/dist
+COPY --from=build /app/packages/adapters/db/dist packages/adapters/db/dist
+
+ENV WEB_STATIC_DIR=/app/apps/web/dist
+
+USER node
+
+EXPOSE 3002
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD wget -qO- "http://127.0.0.1:${WEB_API_PORT:-3002}/livez" || exit 1
+
+CMD ["node", "apps/web-api/dist/index.js"]

@@ -12,10 +12,9 @@
  * succeeded.
  */
 
-import { logger, resolveOutputConfig, translateWithContext } from "@polyglot/core";
+import { logger, resolveOutputConfig, toVocabularyInput, translateWithContext } from "@polyglot/core";
 import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
-import { toVocabularyInput } from "../../utils/vocabulary-mapper.js";
 import { getUserLanguageGroup } from "./translate-mode.shared.js";
 
 export interface EnrichEntryInput {

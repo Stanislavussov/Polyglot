@@ -100,6 +100,7 @@ export type {
 } from "./ports/video-vocabulary.repository.js";
 export type {
   CreateVocabularyInput,
+  DictionaryFilters,
   DictionaryListOptions,
   DictionaryListSort,
   EntrySrsRow,
@@ -213,11 +214,13 @@ export {
 export * from "./modules/rate-limit/index.js";
 export * from "./modules/release-notes/index.js";
 export { AI_GENERATION_DEFAULTS, parseAIGenerationDefaults } from "./modules/settings/ai-defaults.schema.js";
+export { MAX_LEARNING_LANGS } from "./modules/settings/learning-langs.js";
 export * from "./modules/settings/settings.service.js";
 export * from "./modules/srs/index.js";
 export * from "./modules/subscriptions/index.js";
 export * from "./modules/subscriptions/trial.js";
 export * from "./modules/topics/index.js";
+export * from "./modules/translate-flow/index.js";
 export * from "./modules/translation/index.js";
 export type { SpeakableCard } from "./modules/tts/pronounceable-langs.js";
 export { resolvePronounceableText, selectPronounceableLangs } from "./modules/tts/pronounceable-langs.js";
@@ -259,6 +262,7 @@ export {
   orderRecordEntries,
   orderTranslations,
 } from "./modules/vocabulary/translation-order.js";
+export { type LangResolver, toTranslateOutput, toVocabularyInput } from "./modules/vocabulary/vocabulary-mapper.js";
 export type {
   CefrLevel,
   DefaultWordPickerPreset,
@@ -285,6 +289,7 @@ export {
 export type { CircuitBreakerConfig, CircuitState } from "./resilience/circuit-breaker.js";
 // Resilience — per-model circuit breaker (Phase 3)
 export { CircuitBreaker } from "./resilience/circuit-breaker.js";
+export { AIModelNotConfiguredError, resolveDefaultAIModel } from "./shared/ai-model.js";
 // Shared
 export type { CardFrontFields } from "./shared/card-template.types.js";
 export {

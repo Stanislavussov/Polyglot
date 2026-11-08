@@ -55,6 +55,8 @@ export interface TranslateAiOptions {
    * clarification branch and another straight to a card with the same mock.
    */
   unrecognizedWord?: string;
+  /** Spelling the metadata fixture suggests for `unrecognizedWord` (null when omitted). */
+  suggestedCorrection?: string;
   /**
    * Makes the preflight fixture report `misspelled` as a probable typo with
    * `correctedText` offered, driving the preflight branch of the clarification.
@@ -67,7 +69,7 @@ export function deterministicTranslateAi(options: TranslateAiOptions = {}): Part
   const generateObject: AIPort["generateObject"] = async (prompt, schema) => {
     const metadata =
       options.unrecognizedWord && prompt.includes(options.unrecognizedWord)
-        ? { ...METADATA_FAT, sourceWordRecognized: false, suggestedCorrection: null }
+        ? { ...METADATA_FAT, sourceWordRecognized: false, suggestedCorrection: options.suggestedCorrection ?? null }
         : METADATA_FAT;
     const typo = options.typoSuggestion;
     const preflight =

@@ -1,10 +1,15 @@
 import {
-  evaluateDailyCeiling,
-  evaluatePlanRateLimit,
+  type AiCallType,
+  checkAiQuota,
+  checkTranslationQuota,
+  recordAiUsage as coreRecordAiUsage,
   getDailyWindowReset,
   getDailyWindowStart,
   isUnlimitedRole,
   logEvent,
+  type QuotaDecision,
+  type QuotaPorts,
+  resolvePlanLimit,
   type SubscriptionPlan,
   type SupportedLang,
   t,
@@ -12,29 +17,16 @@ import {
 import { trackProductEvent } from "../observability/product-events.js";
 import { buildUpgradeKeyboard } from "../scenes/helpers/subscription.helper.js";
 import type { BotContext } from "../types.js";
-import { resolvePlanLimit } from "./plan-limit.js";
 
-/**
- * Credit weight per paid AI call type (Fable T16). Every paid AI call goes
- * through the same meter; a heavier call (a full mentor turn, phrase extraction
- * over a long video transcript) costs more than a single-word translation.
- */
-export const AI_CALL_WEIGHTS = {
-  translate: 1,
-  mentor: 2,
-  dictionaryTranslate: 1,
-  video: 5,
-  wordPick: 3,
-  etymology: 1,
-  grammarCheck: 2,
-  // A check the service refused as outside the user's languages. Same cost as a
-  // check, but its own ledger tag: the daily allowance counts "[grammarCheck]" rows
-  // only, so a mistaken language spends credits, never one of the day's checks.
-  grammarCheckOutOfSet: 2,
-  expression: 1,
-} as const;
+export type { AiCallType };
 
-export type AiCallType = keyof typeof AI_CALL_WEIGHTS;
+function quotaPorts(ctx: BotContext): QuotaPorts {
+  return {
+    settings: ctx.services.settings,
+    translationRequests: ctx.services.translationRequestRepository,
+    ...(ctx.services.subscriptionRepository ? { subscriptions: ctx.services.subscriptionRepository } : {}),
+  };
+}
 
 /**
  * The single credit-metering point for every paid AI call. Checks the user's
@@ -48,72 +40,36 @@ export async function ensureAiQuota(
   lang: SupportedLang,
   callType: AiCallType,
 ): Promise<number | null> {
-  const weight = AI_CALL_WEIGHTS[callType];
-  // An internal role bypasses every plan limit (`resolveEntitlements`), and the
-  // mentor's own daily cap already honours that; this meter did not, so a tester
-  // on the default plan was capped on every other paid call. The safety ceiling
-  // below is the one limit they do NOT bypass. The caller still bills the ledger
-  // — the call costs real money and the admin reports read it — at the bare call
-  // weight, since skipping the plan read means no per-request cost is known
-  // (identical while every plan charges 1).
-  const internal = isUnlimitedRole(ctx.user.audienceGroup);
-  const windowStart = getDailyWindowStart();
-  const usedCredits = await ctx.services.translationRequestRepository.getUserCreditsInWindow(ctx.user.id, windowStart);
-  const planLimit = internal ? null : await resolvePlanLimit(ctx.services.settings, plan);
-  // A plan sets its own per-request base cost; multiply by the call weight so
-  // heavier calls still cost proportionally more under any plan.
-  const requestedCredits = planLimit ? planLimit.creditCost * weight : weight;
-
-  if (planLimit) {
-    const status = evaluatePlanRateLimit(
-      { plan: planLimit.name, label: planLimit.label, creditsPerDay: planLimit.translationLimit },
-      usedCredits,
-      requestedCredits,
-      getDailyWindowReset(),
-    );
-
-    if (!status.allowed) {
-      // Same message and same way out as the translate-flow quota gate: an exhausted
-      // quota is the moment the upgrade offer is worth something, and a bare notice
-      // here would be the one dead end left in the funnel.
-      trackProductEvent(ctx, "limit.reached", "translation");
-      await ctx.reply(t("rateLimitExceeded", lang), { reply_markup: buildUpgradeKeyboard(lang) });
-      return null;
-    }
-  }
-
-  if (!(await ensureDailyCeiling(ctx, usedCredits, requestedCredits, planLimit?.dailyCreditCeiling, lang, callType))) {
-    return null;
-  }
-
-  return requestedCredits;
+  const decision = await checkAiQuota(
+    quotaPorts(ctx),
+    { id: ctx.user.id, audienceGroup: ctx.user.audienceGroup, subscriptionPlan: plan },
+    callType,
+  );
+  if (decision.ok) return decision.creditCost;
+  await replyToRefusal(ctx, decision, lang, callType);
+  return null;
 }
 
 /**
- * The ceiling nobody is exempt from — the last check before a paid call, after
- * whatever the plan itself had to say.
- *
- * Ordered last on purpose: a metered plan that has run out should meet its own
- * limit and the upgrade offer, not this one. Reaching this check at all means
- * the plan was willing, so the refusal has nothing to sell and says so — it is
- * an ops guard tripping, and the only honest thing to report is that today's use
- * is far past what a person does and when it resets.
+ * The ceiling nobody is exempt from is checked last: a metered plan that has run
+ * out meets its own limit and the upgrade offer, not this one. Reaching the
+ * ceiling means the plan was willing, so that refusal has nothing to sell — it is
+ * an ops guard tripping, and it only says when the window resets.
  */
-async function ensureDailyCeiling(
+async function replyToRefusal(
   ctx: BotContext,
-  usedCredits: number,
-  requestedCredits: number,
-  planCeiling: number | null | undefined,
+  decision: Extract<QuotaDecision, { ok: false }>,
   lang: SupportedLang,
   callType: AiCallType | "translate",
-): Promise<boolean> {
-  const status = evaluateDailyCeiling(usedCredits, requestedCredits, planCeiling);
-  if (status.allowed) {
-    return true;
+): Promise<void> {
+  if (decision.reason === "plan") {
+    // Same message and way out as the translate-flow gate: an exhausted quota is
+    // the moment the upgrade offer is worth something.
+    trackProductEvent(ctx, "limit.reached", "translation");
+    await ctx.reply(t("rateLimitExceeded", lang), { reply_markup: buildUpgradeKeyboard(lang) });
+    return;
   }
-  // Warn, not info: this should be rare enough that every occurrence is worth a
-  // look, and silent enforcement would make a stuck client indistinguishable
-  // from a quiet day.
+  // Warn, not info: rare enough that every occurrence is worth a look.
   logEvent(
     "limit.daily_ceiling_reached",
     {
@@ -121,14 +77,13 @@ async function ensureDailyCeiling(
       plan: ctx.user.subscriptionPlan,
       audienceGroup: ctx.user.audienceGroup,
       callType,
-      ceiling: status.ceiling,
-      usedCredits: status.usedCredits,
+      ceiling: decision.ceiling,
+      usedCredits: decision.usedCredits,
     },
     "warn",
   );
   trackProductEvent(ctx, "limit.reached", "daily_ceiling");
   await ctx.reply(t("dailyCeilingReached", lang, { resetsAt: formatResetTime(getDailyWindowReset()) }));
-  return false;
 }
 
 /** "14:05 UTC" — the window is a rolling 24 h, so a clock time is the only honest answer. */
@@ -137,27 +92,24 @@ function formatResetTime(at: Date): string {
 }
 
 /**
- * The same ceiling for the translate path, which runs its own monthly quota gate
- * and never reaches {@link ensureAiQuota}. Exported so there is exactly one
- * implementation of "no account is uncapped" rather than two that can drift.
+ * Translation quota — a monthly (calendar-UTC) window, distinct from the daily
+ * credit meter of {@link ensureAiQuota}, then the daily safety ceiling. Returns
+ * the credit cost to log, or null after replying with the refusal (the caller
+ * must abort). The decision is shared with the web app via core.
  */
-export async function ensureTranslationDailyCeiling(
+export async function ensureTranslationQuota(
   ctx: BotContext,
   plan: SubscriptionPlan,
   lang: SupportedLang,
-  requestedCredits: number,
-): Promise<boolean> {
-  // Read unconditionally, including for internal roles and unlimited plans —
-  // those are precisely the accounts nothing else bounds. One indexed aggregate
-  // is noise beside the multi-second AI call it guards.
-  const usedCredits = await ctx.services.translationRequestRepository.getUserCreditsInWindow(
-    ctx.user.id,
-    getDailyWindowStart(),
-  );
-  const planConfig = isUnlimitedRole(ctx.user.audienceGroup)
-    ? null
-    : await resolvePlanLimit(ctx.services.settings, plan);
-  return ensureDailyCeiling(ctx, usedCredits, requestedCredits, planConfig?.dailyCreditCeiling, lang, "translate");
+): Promise<number | null> {
+  const decision = await checkTranslationQuota(quotaPorts(ctx), {
+    id: ctx.user.id,
+    audienceGroup: ctx.user.audienceGroup,
+    subscriptionPlan: plan,
+  });
+  if (decision.ok) return decision.creditCost;
+  await replyToRefusal(ctx, decision, lang, "translate");
+  return null;
 }
 
 /**
@@ -240,10 +192,7 @@ export async function ensureGrammarCheckDailyQuota(
   return false;
 }
 
-/**
- * Record consumption of `creditCost` credits for a paid AI call in the shared
- * ledger (the same table the translate flow bills against), tagged by call type.
- */
+/** Bills a paid AI call into the shared ledger (the one the translate flow bills against). */
 export async function recordAiUsage(
   ctx: BotContext,
   callType: AiCallType,
@@ -251,11 +200,5 @@ export async function recordAiUsage(
   sourceLangCode: string | null = null,
   targetLangCodes: string[] = [],
 ): Promise<void> {
-  await ctx.services.translationRequestRepository.logTranslationRequest(
-    ctx.user.id,
-    `[${callType}]`,
-    sourceLangCode,
-    targetLangCodes,
-    creditCost,
-  );
+  await coreRecordAiUsage(quotaPorts(ctx), ctx.user.id, callType, creditCost, sourceLangCode, targetLangCodes);
 }

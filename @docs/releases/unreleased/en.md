@@ -19,3 +19,9 @@
 - New in 🎓 Learning: 💬 Expressions — idioms, lines from films and books, witty comparisons with famous people, in your own language and the ones you learn, each with its meaning, where it comes from and an example; choose “Expressions & quotes” in 🔔 Notifications to get one on schedule.
 - New ✍️ Check button and /check: send a sentence in a language you're learning (or your own) and get every mistake fixed, with the rule behind it and an example.
 - A single card no longer says “Card 1 of 1” — the counter only shows up when there are several cards to go through.
+- Recent translations on the website are now a tidy list of words, and each one has a 🗑 button to remove it.
+- While the website translates, it now keeps you company with the same little “one moment” phrases as the bot, in the languages you learn — and the button just turns pale instead of see-through.
+- Pages in the web app now open with a friendly monster placeholder instead of a blank screen, and on your phone you can swipe the menu open from the left edge.
+- Made a typo? The web app now suggests the word you meant, and you can still translate it exactly as you wrote it.
+- The web app now asks which language a word is in when it could be several, and tells you when you typed in a language you don't study yet instead of translating it wrong.
+- After a translation on the website, the input box empties itself, ready for your next word.

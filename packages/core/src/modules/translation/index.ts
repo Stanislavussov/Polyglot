@@ -8,6 +8,13 @@ export {
   RELIABLE_OUTPUT,
   SENTENCE_OUTPUT,
 } from "../../shared/translation-output.presets.js";
+export {
+  buildClarificationView,
+  type ClarificationView,
+  clarificationReasonText,
+  clarifiedTargetLangs,
+  fallbackLanguageChoices,
+} from "./clarification.js";
 // Etymology
 export type { EtymologyInput } from "./etymology.service.js";
 export { generateEtymology } from "./etymology.service.js";

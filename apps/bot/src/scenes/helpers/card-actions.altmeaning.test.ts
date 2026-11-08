@@ -47,7 +47,6 @@ vi.mock("../../utils/long-op.js", () => ({
   NOOP_CALLBACK: "noop",
   withTimeout: <T>(p: Promise<T>) => p,
 }));
-vi.mock("../../utils/vocabulary-mapper.js", () => ({ toVocabularyInput: vi.fn() }));
 vi.mock("./edit-message.helper.js", () => ({
   editMessageReplyMarkupOrIgnore: vi.fn().mockResolvedValue(undefined),
   editMessageTextOrReply: vi.fn().mockResolvedValue(undefined),

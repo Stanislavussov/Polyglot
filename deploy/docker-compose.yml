@@ -93,6 +93,39 @@ services:
         max-size: "10m"
         max-file: "3"
 
+  # Learner web app. Dormant: starts only when COMPOSE_PROFILES=learn is in .env.
+  # Every variable uses `:-` so `compose config`/`pull` still work with the
+  # profile off; web-api itself refuses to boot on an empty required value.
+  web-api:
+    image: ${WEB_API_IMAGE_NAME:-}
+    profiles:
+      - learn
+    container_name: polyglot_web_api
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=${DATABASE_URL:-}
+      - BOT_TOKEN=${BOT_TOKEN:-}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+      - WEB_JWT_SECRET=${WEB_JWT_SECRET:-}
+      - WEB_APP_ORIGIN=${WEB_APP_ORIGIN:-}
+      - WEB_API_PORT=3002
+    ports:
+      - "127.0.0.1:${WEB_API_HOST_PORT:-3002}:3002"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3002/livez"]
+      interval: 30s
+      timeout: 5s
+      start_period: 15s
+      retries: 3
+    mem_limit: 256m
+    cpus: 0.5
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
   landing:
     image: ${LANDING_IMAGE_NAME:?LANDING_IMAGE_NAME is required}
     container_name: polyglot_landing

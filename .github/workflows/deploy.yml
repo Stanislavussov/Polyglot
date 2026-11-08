@@ -94,6 +94,17 @@ jobs:
           cache-from: type=gha,scope=admin-api
           cache-to: type=gha,mode=max,scope=admin-api
 
+      # Built on every deploy, run only where COMPOSE_PROFILES includes `learn`.
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: deploy/Dockerfile.web-api
+          target: production
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/polyglot-web-api:${{ env.IMAGE_TAG }}
+          cache-from: type=gha,scope=web-api
+          cache-to: type=gha,mode=max,scope=web-api
+
       - uses: docker/build-push-action@v6
         with:
           context: .
@@ -216,6 +227,12 @@ jobs:
           echo "ADMIN_API_IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/polyglot-admin-api:${{ env.IMAGE_TAG }}" >> .env
           echo "ADMIN_IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/polyglot-admin:${{ env.IMAGE_TAG }}" >> .env
           echo "LANDING_IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/polyglot-landing:${{ env.IMAGE_TAG }}" >> .env
+          echo "WEB_API_IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/polyglot-web-api:${{ env.IMAGE_TAG }}" >> .env
+          # Learner web app (dormant): empty unless the repo/environment sets these.
+          # COMPOSE_PROFILES=learn turns web-api on; see @docs/agents/deployment.md.
+          echo "COMPOSE_PROFILES=${{ vars.COMPOSE_PROFILES }}" >> .env
+          echo "WEB_APP_ORIGIN=${{ vars.WEB_APP_ORIGIN }}" >> .env
+          echo "WEB_JWT_SECRET=${{ secrets.WEB_JWT_SECRET }}" >> .env
           echo "BOT_TOKEN=${{ secrets.BOT_TOKEN }}" >> .env
           echo "OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}" >> .env
           # Dev: the branch cut above. Prod: the managed production database.
@@ -287,6 +304,7 @@ jobs:
               echo "ADMIN_API_IMAGE_NAME=$(docker inspect --format '{{.Config.Image}}' polyglot_admin_api 2>/dev/null)"
               echo "ADMIN_IMAGE_NAME=$(docker inspect --format '{{.Config.Image}}' polyglot_admin 2>/dev/null)"
               echo "LANDING_IMAGE_NAME=$(docker inspect --format '{{.Config.Image}}' polyglot_landing 2>/dev/null)"
+              echo "WEB_API_IMAGE_NAME=$(docker inspect --format '{{.Config.Image}}' polyglot_web_api 2>/dev/null)"
             } > PREVIOUS_RELEASE 2>/dev/null || true
 
             docker compose pull
@@ -358,6 +376,11 @@ jobs:
             for svc in polyglot_bot polyglot_admin_api polyglot_admin polyglot_landing; do
               gate_service "$svc" || { echo "Deploy health gate FAILED for $svc"; exit 1; }
             done
+
+            # web-api exists only where the `learn` profile is on.
+            if docker inspect polyglot_web_api >/dev/null 2>&1; then
+              gate_service polyglot_web_api || { echo "Deploy health gate FAILED for polyglot_web_api"; exit 1; }
+            fi
 
             # Readiness probe (T12 /readyz): confirms the DB is reachable and
             # long-polling is live, not just that the process is up.

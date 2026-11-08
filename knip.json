@@ -7,6 +7,10 @@
       "project": ["src/**/*.{astro,ts,vue}"],
       "ignoreFiles": ["src/components/ConfirmDialog.vue", "src/components/SettingsForm.vue"]
     },
+    "apps/web": {
+      "entry": ["src/pages/**/*.astro"],
+      "project": ["src/**/*.{astro,ts,vue}", "scripts/**/*.ts"]
+    },
     "apps/admin-api": {
       "project": ["src/**/*.ts"]
     },
