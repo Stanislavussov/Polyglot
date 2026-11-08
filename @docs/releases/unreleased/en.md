@@ -41,3 +41,4 @@
 - With Pro you can now say a word out loud on the website's translate page instead of typing it.
 - On the website, your name and plan now sit at the bottom of the menu — tap them to open Settings or sign out. A translated word also gets a corner button that opens its full card.
 - On a website review card, the “how well did you remember it?” buttons now come right after the translation into your language, so you can rate without scrolling.
+- If the website can't reach our server, it now still shows its buttons and labels in English instead of technical codes.
