@@ -27,3 +27,4 @@
 - After a translation on the website, the input box empties itself, ready for your next word.
 - Review cards on the website now show the whole word — meaning, examples, synonyms and notes — and with Pro you can tap 🔊 to hear it.
 - Under a translation on the site, tap 🔍 Explore to clarify the meaning, see another meaning, read where the word comes from, or ask the mentor about it — just like in the bot.
+- On the website, every word card now starts with the translation into your own language, then the meaning, then your other languages — and dictionary cards have an icon in the corner to open the full card.

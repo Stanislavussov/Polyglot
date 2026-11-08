@@ -42,6 +42,19 @@
       <p v-if="notice" role="status" class="rounded-xl bg-warning-soft px-4 py-3 text-sm text-warning-fg">{{ t(notice) }}</p>
 
       <template v-if="revealed">
+        <TranslationBlock v-for="translation in split.native ? [split.native] : []" :key="translation.lang" :translation="translation" id-prefix="review">
+          <template #actions>
+            <SpeakButton
+              v-if="speaks(translation.lang)"
+              :entry-id="card.entryId"
+              :lang="translation.lang"
+              :text="translation.text"
+              :access="card.audio.access"
+              @notice="showNotice"
+            />
+          </template>
+        </TranslationBlock>
+
         <p v-if="card.detail.nativeMeaning" class="border-t border-line pt-4 text-sm">
           <span class="font-semibold text-ink-muted">{{ t("web.translate.nativeMeaning") }}:</span>
           {{ card.detail.nativeMeaning }}
@@ -58,7 +71,7 @@
           <ExampleList :examples="card.detail.sourceUsage.examples" />
         </div>
 
-        <TranslationBlock v-for="translation in card.detail.details" :key="translation.lang" :translation="translation" id-prefix="review">
+        <TranslationBlock v-for="translation in split.others" :key="translation.lang" :translation="translation" id-prefix="review">
           <template #actions>
             <SpeakButton
               v-if="speaks(translation.lang)"
@@ -100,7 +113,8 @@
 import { computed, onMounted, ref } from "vue";
 import { ApiError, api } from "../lib/api";
 import { t } from "../lib/i18n";
-import { languageFlag, languageName } from "../lib/settings-store";
+import { splitNative } from "../lib/card-order";
+import { languageFlag, languageName, settings } from "../lib/settings-store";
 import type { Rating, ReviewState } from "../lib/types";
 import ExampleList from "./ExampleList.vue";
 import SpeakButton from "./SpeakButton.vue";
@@ -115,6 +129,7 @@ const ratings = [
 
 const state = ref<ReviewState | null>(null);
 const card = computed(() => state.value?.card ?? null);
+const split = computed(() => splitNative(card.value?.detail.details ?? [], settings.value?.nativeLang));
 // Bumped per card so the next card opens folded, with fresh speaker buttons.
 const cardSeq = ref(0);
 const revealed = ref(false);
