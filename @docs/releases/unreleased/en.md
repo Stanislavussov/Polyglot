@@ -46,3 +46,4 @@
 - On the website, a translated word no longer lands in your dictionary by itself — tap the bright 💾 Save button at the top of the card to keep it, just like in the bot.
 - Word meanings and mentor chat messages on the website now use a larger, easier-to-read font.
 - The Progress page on the website is redesigned: you see at a glance what is going well, what to work on next and how close your gift is.
+- On a website review card, tap ⚙️ to choose whether it shows a hint, synonyms or an example sentence — the card changes right away.

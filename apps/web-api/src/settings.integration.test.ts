@@ -26,4 +26,31 @@ describe("web settings", () => {
 
     expect((await web.call(cookie, "PATCH", "/api/settings", { learningLangs: ["en"] })).status).toBe(400);
   });
+
+  it("turns a card-front aid on and off, the same choice the bot's card settings read", async () => {
+    const web = await createWebHarness();
+    const telegramId = uniqueTelegramId();
+    const userId = await arrangeOnboardedTranslator(telegramId, { nativeLang: "en", learningLangs: ["cs"] });
+    const { cookie } = await web.login(telegramId);
+
+    const before = await web.call(cookie, "GET", "/api/settings/card");
+    expect(before.status).toBe(200);
+    expect(before.body).toEqual({ synonyms: true, example: false, hint: false });
+
+    const res = await web.call(cookie, "PATCH", "/api/settings/card", { field: "hint", enabled: true });
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ synonyms: true, example: false, hint: true });
+    expect(await web.bot.services.cardTemplateRepository.getFields(userId)).toMatchObject({ hint: true });
+  });
+
+  it("refuses an unknown card-front aid", async () => {
+    const web = await createWebHarness();
+    const telegramId = uniqueTelegramId();
+    await arrangeOnboardedTranslator(telegramId, { nativeLang: "en" });
+    const { cookie } = await web.login(telegramId);
+
+    const res = await web.call(cookie, "PATCH", "/api/settings/card", { field: "translation", enabled: true });
+    expect(res.status).toBe(400);
+  });
 });

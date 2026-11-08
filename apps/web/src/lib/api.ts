@@ -1,4 +1,5 @@
 import type {
+  CardFrontFields,
   ClarificationOption,
   Dictionary,
   DictionaryFilterState,
@@ -94,6 +95,9 @@ export const api = {
   settings: () => request<Settings>("GET", "/settings"),
   updateSettings: (patch: SettingsPatch) => request<Settings>("PATCH", "/settings", patch),
   updateNotifications: (patch: NotificationPatch) => request<Settings>("PATCH", "/settings/notifications", patch),
+  cardFront: () => request<CardFrontFields>("GET", "/settings/card"),
+  setCardFront: (field: keyof CardFrontFields, enabled: boolean) =>
+    request<CardFrontFields>("PATCH", "/settings/card", { field, enabled }),
   template: () => request<TemplateState>("GET", "/template"),
   saveTemplate: (fields: TemplateFields) => request<TemplateState>("PUT", "/template", { fields }),
   resetTemplate: () => request<TemplateState>("DELETE", "/template"),

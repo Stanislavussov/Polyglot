@@ -1,4 +1,5 @@
 import {
+  type CardFrontFields,
   DEFAULT_NOTIFICATION_BATCH_SIZE,
   formatNotificationTime,
   getSupportedLangs,
@@ -34,6 +35,13 @@ const notificationPatchSchema = z
     batchSize: z.number().int().refine(isNotificationBatchSize).optional(),
     timezone: z.string().min(1).max(64).optional(),
     context: z.string().trim().max(500).nullable().optional(),
+  })
+  .strict();
+
+const cardFieldPatchSchema = z
+  .object({
+    field: z.enum(["hint", "synonyms", "example"] as const satisfies readonly (keyof CardFrontFields)[]),
+    enabled: z.boolean(),
   })
   .strict();
 
@@ -106,6 +114,15 @@ export function settingsRoutes(app: FastifyInstance, services: WebServices): voi
     if (patch.nativeLang !== undefined) await services.userRepository.updateNativeLang(userId, patch.nativeLang);
     if (patch.learningLangs) await services.userRepository.updateLearningLangs(userId, patch.learningLangs);
     return readSettings(services, userId);
+  });
+
+  // The bot's card-settings toggles (handleSetCardToggleCallback): one aid at a time, same repository.
+  app.get("/api/settings/card", async (request) => services.cardTemplateRepository.getFields(request.learner.id));
+
+  app.patch("/api/settings/card", async (request, reply) => {
+    const parsed = cardFieldPatchSchema.safeParse(request.body);
+    if (!parsed.success) return reply.status(400).send({ code: "invalid_settings" });
+    return services.cardTemplateRepository.setField(request.learner.id, parsed.data.field, parsed.data.enabled);
   });
 
   // Only the preferences change here; delivery stays in Telegram, run by the bot's scheduler.

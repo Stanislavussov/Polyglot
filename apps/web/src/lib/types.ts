@@ -38,6 +38,13 @@ export type NotificationPatch = Partial<
   Pick<NotificationSettings, "enabled" | "times" | "type" | "batchSize" | "timezone" | "context">
 >;
 
+/** Which recall aids a review card's hidden-answer side shows (core `CardFrontFields`). */
+export interface CardFrontFields {
+  synonyms: boolean;
+  example: boolean;
+  hint: boolean;
+}
+
 export interface TemplateFields {
   synonyms: boolean;
   examples: boolean;
