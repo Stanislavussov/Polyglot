@@ -1,6 +1,6 @@
 <template>
   <section class="pb-24 md:pb-0">
-    <h1 class="text-2xl font-bold tracking-tight">{{ t("web.translate.title") }}</h1>
+    <h1 class="page-title">{{ t("web.translate.title") }}</h1>
 
     <div class="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,20rem)] xl:items-start">
       <form class="card space-y-3 xl:col-start-1 xl:row-start-1" @submit.prevent="submit()">
@@ -40,6 +40,7 @@
               :disabled="busy || text.trim() === ''"
             >
               {{ busy ? t("web.translate.working") : t("web.translate.submit") }}
+              <span v-if="!busy" class="btn-chip" aria-hidden="true"><ArrowRight class="size-4" /></span>
             </button>
           </div>
         </div>
@@ -110,20 +111,13 @@
         </p>
 
         <div v-if="busy" class="card space-y-4" aria-busy="true">
-          <p class="text-sm font-medium text-ink-muted" role="status">{{ loaderText || t("web.translate.loading") }}</p>
-          <div class="h-4 w-24 animate-pulse rounded bg-surface-muted" />
-          <div class="h-7 w-2/3 animate-pulse rounded bg-surface-muted" />
-          <div class="space-y-3 border-t border-line pt-4">
-            <div class="h-4 w-20 animate-pulse rounded bg-surface-muted" />
-            <div class="h-6 w-1/2 animate-pulse rounded bg-surface-muted" />
-            <div class="h-4 w-full animate-pulse rounded bg-surface-muted" />
-            <div class="h-4 w-5/6 animate-pulse rounded bg-surface-muted" />
-          </div>
+          <MonsterLoader compact :label="loaderText || t('web.translate.loading')" />
         </div>
 
         <article v-else-if="result" class="card space-y-5">
           <header class="space-y-3">
-            <p class="text-sm text-ink-muted">
+            <div class="flex items-start justify-between gap-3">
+            <p class="min-w-0 text-sm text-ink-muted">
               <span aria-hidden="true">{{ languageFlag(result.sourceLang) }}</span>
               {{ languageName(result.sourceLang) }}
               <span aria-hidden="true">→</span>
@@ -132,6 +126,17 @@
                 <span class="sr-only">{{ languageName(code) }}</span>
               </span>
             </p>
+            <button
+              v-if="result.savedEntryId !== null"
+              type="button"
+              class="-mr-2 -mt-3 inline-flex size-11 shrink-0 items-center justify-center rounded-full text-ink-muted hover:bg-surface-muted hover:text-ink"
+              :title="t('web.dictionary.details')"
+              :aria-label="t('web.dictionary.details')"
+              @click="detailId = result.savedEntryId"
+            >
+              <Maximize2 class="size-4" aria-hidden="true" />
+            </button>
+            </div>
             <h2 class="break-words text-xl font-semibold">
               <span v-if="result.emoji" class="mr-2" aria-hidden="true">{{ result.emoji }}</span>{{ result.sourceUsage?.headword ?? result.original }}
             </h2>
@@ -201,8 +206,8 @@
 
       <div class="card xl:col-start-2 xl:row-span-2 xl:row-start-1">
         <div class="flex items-center justify-between gap-3">
-          <h2 class="text-sm font-semibold">{{ t("web.translate.recent") }}</h2>
-          <button v-if="history.length > 0" type="button" class="min-h-11 text-sm font-semibold text-primary hover:text-primary-hover" @click="clearHistory">
+          <h2 class="min-w-0 truncate text-sm font-bold">{{ t("web.translate.recent") }}</h2>
+          <button v-if="history.length > 0" type="button" class="-mr-2 min-h-11 shrink-0 whitespace-nowrap rounded-full px-2 text-xs font-semibold text-primary hover:text-primary-hover" @click="clearHistory">
             {{ t("web.translate.clearHistory") }}
           </button>
         </div>
@@ -225,11 +230,12 @@
         </ul>
       </div>
     </div>
+    <EntryDetailDialog :entry-id="detailId" :fallback="null" @close="detailId = null" />
   </section>
 </template>
 
 <script setup lang="ts">
-import { Check, Mic, Square, Trash2, TriangleAlert, Undo2 } from "lucide-vue-next";
+import { ArrowRight, Check, Maximize2, Mic, Square, Trash2, TriangleAlert, Undo2 } from "lucide-vue-next";
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { useLoaderText } from "../lib/use-loader-text";
 import { useMainInput } from "../lib/use-main-input";
@@ -240,8 +246,10 @@ import { languageFlag, languageName, settings } from "../lib/settings-store";
 import type { Clarification, ClarificationOption, TranslateAnswer, TranslateResult } from "../lib/types";
 import { startWavRecording, type WavRecording } from "../lib/wav-recorder";
 import CardExplore from "./CardExplore.vue";
+import EntryDetailDialog from "./EntryDetailDialog.vue";
 import ExampleList from "./ExampleList.vue";
 import LimitNotice from "./LimitNotice.vue";
+import MonsterLoader from "./MonsterLoader.vue";
 import TranslationBlock from "./TranslationBlock.vue";
 
 const MAX_LENGTH = 500;
@@ -252,6 +260,7 @@ const input = ref<HTMLTextAreaElement | null>(null);
 const text = ref("");
 const { focus: focusInput } = useMainInput(() => input.value);
 const busy = ref(false);
+const detailId = ref<number | null>(null);
 const loaderText = useLoaderText(busy);
 const result = ref<TranslateResult | null>(null);
 const fromHistory = ref(false);

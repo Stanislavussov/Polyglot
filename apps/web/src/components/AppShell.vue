@@ -1,22 +1,22 @@
 <template>
   <ShellSkeleton v-if="!ready" :label="t('web.common.loading')" />
   <div v-else class="flex min-h-screen flex-col md:flex-row">
-    <aside class="hidden w-60 shrink-0 flex-col bg-sidebar md:sticky md:top-0 md:flex md:h-screen">
-      <div class="flex h-16 items-center gap-2.5 whitespace-nowrap px-5 text-lg font-bold tracking-tight text-sidebar-fg"><img src="/favicon.svg" alt="" class="size-8 rounded-lg" /> Polyglot Monster</div>
-      <div class="min-h-0 flex-1 overflow-y-auto"><NavList :page="page" /></div>
-      <SignOutButton />
+    <aside class="hidden w-64 shrink-0 flex-col bg-sidebar md:sticky md:top-0 md:flex md:h-screen">
+      <div class="flex h-16 items-center gap-2.5 whitespace-nowrap px-5 text-lg font-display font-extrabold tracking-tight text-sidebar-fg"><img src="/favicon.svg" alt="" class="size-8 rounded-lg" /> Polyglot Monster</div>
+      <div class="min-h-0 flex-1 overflow-y-auto"><NavList :page="page" @navigate="navigate" /></div>
+      <UserMenu :active="page === 'settings' || page === 'plan'" @navigate="navigate" />
     </aside>
 
-    <header class="flex h-14 items-center gap-3 bg-sidebar px-3 text-sidebar-fg md:hidden">
+    <header class="sticky top-0 z-30 flex h-14 items-center gap-3 bg-sidebar px-3 text-sidebar-fg md:hidden">
       <button
         type="button"
-        class="grid size-11 place-items-center rounded-xl hover:bg-sidebar-hover"
+        class="grid size-11 place-items-center rounded-full hover:bg-sidebar-hover"
         :aria-label="t('web.nav.openMenu')"
         @click="drawerOpen = true"
       >
         <Menu class="size-6" aria-hidden="true" />
       </button>
-      <span class="flex items-center gap-2 text-lg font-bold tracking-tight"><img src="/favicon.svg" alt="" class="size-7 rounded-lg" /> Polyglot Monster</span>
+      <span class="flex items-center gap-2 text-lg font-display font-extrabold tracking-tight"><img src="/favicon.svg" alt="" class="size-7 rounded-lg" /> Polyglot Monster</span>
     </header>
 
     <DialogRoot v-model:open="drawerOpen">
@@ -27,23 +27,29 @@
           :aria-describedby="undefined"
         >
           <div class="flex h-14 items-center justify-between px-5">
-            <DialogTitle class="flex items-center gap-2 text-lg font-bold tracking-tight"><img src="/favicon.svg" alt="" class="size-7 rounded-lg" /> Polyglot Monster</DialogTitle>
+            <DialogTitle class="flex items-center gap-2 text-lg font-display font-extrabold tracking-tight"><img src="/favicon.svg" alt="" class="size-7 rounded-lg" /> Polyglot Monster</DialogTitle>
             <DialogClose
-              class="grid size-11 place-items-center rounded-xl hover:bg-sidebar-hover"
+              class="grid size-11 place-items-center rounded-full hover:bg-sidebar-hover"
               :aria-label="t('web.nav.closeMenu')"
             >
               <X class="size-5" aria-hidden="true" />
             </DialogClose>
           </div>
-          <div class="min-h-0 flex-1 overflow-y-auto"><NavList :page="page" /></div>
-          <SignOutButton />
+          <div class="min-h-0 flex-1 overflow-y-auto"><NavList :page="page" @navigate="navigate" /></div>
+          <UserMenu :active="page === 'settings' || page === 'plan'" @navigate="navigate" />
         </DialogContent>
       </DialogPortal>
     </DialogRoot>
 
-    <main class="min-w-0 flex-1">
+    <main class="relative isolate min-w-0 flex-1">
+      <div class="pointer-events-none fixed inset-0 -z-10 md:left-64" aria-hidden="true">
+        <div class="backdrop-blob -right-40 -top-40 size-[32rem]" />
+        <div class="backdrop-ring -right-28 top-24 size-96" />
+        <div class="backdrop-dot right-[14%] top-10 size-2.5" />
+        <div class="backdrop-dot bottom-[16%] right-[9%] size-1.5 opacity-60" />
+      </div>
       <div class="mx-auto max-w-6xl px-4 py-6 sm:px-6 md:px-8 md:py-10">
-        <component :is="content" />
+        <component :is="content" :key="page" />
       </div>
     </main>
   </div>
@@ -69,11 +75,11 @@ import ProgressView from "./ProgressView.vue";
 import ReviewView from "./ReviewView.vue";
 import SettingsView from "./SettingsView.vue";
 import ShellSkeleton from "./ShellSkeleton.vue";
-import SignOutButton from "./SignOutButton.vue";
 import TranslateView from "./TranslateView.vue";
 import VideosView from "./VideosView.vue";
 import WordPickerView from "./WordPickerView.vue";
 import WelcomeView from "./WelcomeView.vue";
+import UserMenu from "./UserMenu.vue";
 
 const props = defineProps<{ page: PageName }>();
 
@@ -93,7 +99,59 @@ const views = {
   videos: VideosView,
 } as const;
 
-const content = computed(() => views[props.page]);
+const PAGE_PATH: Record<PageName, string> = {
+  translate: "/translate/",
+  dictionary: "/dictionary/",
+  review: "/review/",
+  progress: "/progress/",
+  settings: "/settings/",
+  welcome: "/welcome/",
+  plan: "/plan/",
+  learn: "/learn/",
+  mentor: "/learn/mentor/",
+  grammar: "/learn/grammar/",
+  expressions: "/learn/expressions/",
+  pick: "/learn/pick/",
+  videos: "/learn/videos/",
+};
+const PAGE_TITLE: Record<PageName, string> = {
+  translate: "Translate",
+  dictionary: "Dictionary",
+  review: "Review",
+  progress: "Progress",
+  settings: "Settings",
+  welcome: "Welcome",
+  plan: "Plan",
+  learn: "Learn",
+  mentor: "Mentor",
+  grammar: "Grammar check",
+  expressions: "Expressions",
+  pick: "Pick words",
+  videos: "Videos",
+};
+
+// Each page is its own Astro document; switching views in place keeps the menu from re-rendering on every click.
+const page = ref<PageName>(props.page);
+const content = computed(() => views[page.value]);
+
+function show(target: PageName): void {
+  page.value = target;
+  document.title = `${PAGE_TITLE[target]} — Polyglot`;
+  drawerOpen.value = false;
+}
+
+function navigate(target: PageName): void {
+  if (target !== page.value || window.location.search !== "") {
+    window.history.pushState({ page: target }, "", PAGE_PATH[target]);
+  }
+  show(target);
+}
+
+function onPopState(): void {
+  const target = (Object.keys(PAGE_PATH) as PageName[]).find((name) => PAGE_PATH[name] === window.location.pathname);
+  if (target) show(target);
+  else window.location.reload();
+}
 const ready = ref(false);
 const drawerOpen = ref(false);
 
@@ -129,10 +187,12 @@ function onTouchEnd(event: TouchEvent): void {
 onMounted(() => {
   window.addEventListener("touchstart", onTouchStart, { passive: true });
   window.addEventListener("touchend", onTouchEnd, { passive: true });
+  window.addEventListener("popstate", onPopState);
 });
 
 onBeforeUnmount(() => {
   window.removeEventListener("touchstart", onTouchStart);
   window.removeEventListener("touchend", onTouchEnd);
+  window.removeEventListener("popstate", onPopState);
 });
 </script>

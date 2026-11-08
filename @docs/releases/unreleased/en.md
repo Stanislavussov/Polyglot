@@ -27,6 +27,8 @@
 - After a translation on the website, the input box empties itself, ready for your next word.
 - Review cards on the website now show the whole word — meaning, examples, synonyms and notes — and with Pro you can tap 🔊 to hear it.
 - Under a translation on the site, tap 🔍 Explore to clarify the meaning, see another meaning, read where the word comes from, or ask the mentor about it — just like in the bot.
+- The website got a fresher look: new fonts, rounder buttons and cards, a lime underline under page titles and a lime marker on the page you're on — the dark theme stays just as it was.
+- Switching pages on the website is now instant: the menu stays put instead of reloading every time.
 - On the website, every word card now starts with the translation into your own language, then the meaning, then your other languages — and dictionary cards have an icon in the corner to open the full card.
 - The website's settings now let you set up reminders, choose what a translation card shows with a live preview, and report a problem — and your cards on the site follow that layout, just like in the bot.
 - A new Plans page on the website shows your plan and what each plan includes, with a button that takes you to the bot to upgrade.
@@ -37,3 +39,4 @@
 - When you type a word in a language you don't study yet, the website now offers to add that language and translate it in one tap.
 - Signing in to the website for the first time now walks you through choosing your languages and trying a word, just like the bot does.
 - With Pro you can now say a word out loud on the website's translate page instead of typing it.
+- On the website, your name and plan now sit at the bottom of the menu — tap them to open Settings or sign out. A translated word also gets a corner button that opens its full card.

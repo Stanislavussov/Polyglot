@@ -1,6 +1,6 @@
 <template>
   <section>
-    <h1 class="text-2xl font-bold tracking-tight">{{ t("web.settings.title") }}</h1>
+    <h1 class="page-title">{{ t("web.settings.title") }}</h1>
 
     <form v-if="settings" class="card mt-6 space-y-6" @submit.prevent="submit">
       <div>
