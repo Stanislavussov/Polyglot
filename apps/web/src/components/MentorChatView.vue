@@ -8,19 +8,19 @@
       </button>
     </div>
 
-    <p v-if="current.turns.length === 0" class="card text-sm">{{ t("web.learn.mentor.intro") }}</p>
+    <p v-if="current.turns.length === 0" class="card text-base">{{ t("web.learn.mentor.intro") }}</p>
     <ul class="space-y-2" aria-live="polite">
       <li
         v-for="(turn, index) in current.turns"
         :key="index"
         :class="turn.role === 'user' ? 'ml-8 bg-primary-soft text-primary-soft-fg' : 'mr-8 bg-surface-muted'"
-        class="whitespace-pre-line break-words rounded-xl px-4 py-3 text-sm"
+        class="whitespace-pre-line break-words rounded-xl px-4 py-3 text-base"
       >
         <!-- Safe: mentorHtml escapes everything but bare <b>/<i>. -->
         <span v-if="turn.role === 'assistant'" v-html="mentorHtml(turn.content)" />
         <span v-else>{{ turn.content }}</span>
       </li>
-      <li v-if="busy" class="mr-8 rounded-xl bg-surface-muted px-4 py-3 text-sm text-ink-muted" role="status">
+      <li v-if="busy" class="mr-8 rounded-xl bg-surface-muted px-4 py-3 text-base text-ink-muted" role="status">
         {{ t("web.explore.thinking") }}
       </li>
     </ul>

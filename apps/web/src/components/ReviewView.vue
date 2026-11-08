@@ -78,7 +78,7 @@
           </div>
         </div>
 
-        <p v-if="card.detail.nativeMeaning" class="border-t border-line pt-4 text-sm">
+        <p v-if="card.detail.nativeMeaning" class="border-t border-line pt-4 text-base">
           <span class="font-semibold text-ink-muted">{{ t("web.translate.nativeMeaning") }}:</span>
           {{ card.detail.nativeMeaning }}
         </p>

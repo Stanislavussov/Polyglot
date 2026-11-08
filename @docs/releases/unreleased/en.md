@@ -44,3 +44,4 @@
 - On a website review card, the “how well did you remember it?” buttons now come right after the translation into your language, so you can rate without scrolling.
 - If the website can't reach our server, it now still shows its buttons and labels in English instead of technical codes.
 - On the website, a translated word no longer lands in your dictionary by itself — tap the bright 💾 Save button at the top of the card to keep it, just like in the bot.
+- Word meanings and mentor chat messages on the website now use a larger, easier-to-read font.
