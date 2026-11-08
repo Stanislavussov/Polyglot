@@ -7,7 +7,6 @@
  */
 import {
   getLanguageName,
-  type InputType,
   type LanguageOrderContext,
   logger,
   type SpeakableCard,
@@ -19,16 +18,8 @@ import { InlineKeyboard } from "grammy";
 import type { BotContext } from "../../types.js";
 import { setPendingOutOfSet } from "./pending-out-of-set.helper.js";
 
-/**
- * Whether the Etymology button should be offered for this translation.
- *
- * Etymology applies to words and short phrases in a language the user is
- * learning — i.e. the source term is NOT in their native language. Sentences
- * and native-language input are excluded.
- */
-export function isEtymologyEligible(inputType: InputType, sourceLang: string, nativeLang: string): boolean {
-  return (inputType === "word" || inputType === "phrase") && sourceLang !== nativeLang;
-}
+// Moved to core so the web card offers etymology by the same rule; re-exported so bot imports stay put.
+export { isEtymologyEligible } from "@polyglot/core";
 
 /**
  * Languages on this card that get a 🔊 button, or an empty list when there are

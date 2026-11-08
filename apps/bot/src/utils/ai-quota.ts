@@ -1,6 +1,7 @@
 import {
   type AiCallType,
   checkAiQuota,
+  checkMentorDailyQuota,
   checkTranslationQuota,
   recordAiUsage as coreRecordAiUsage,
   getDailyWindowReset,
@@ -113,11 +114,7 @@ export async function ensureTranslationQuota(
 }
 
 /**
- * Per-plan cap on mentor turns per UTC day, on top of the credit meter: the
- * mentor model is priced above the translate default, so the unmetered Plus
- * plan still needs a ceiling on the expensive calls while Pro sells them
- * unlimited. Turns are counted from the shared ledger's "[mentor]" rows, so a
- * refused or failed turn (never recorded) does not burn the allowance.
+ * The per-plan daily mentor cap (decided in core, shared with the web app).
  * Returns true when the turn may proceed; otherwise replies with the limit
  * notice + upgrade offer and returns false.
  */
@@ -126,27 +123,14 @@ export async function ensureMentorDailyQuota(
   plan: SubscriptionPlan,
   lang: SupportedLang,
 ): Promise<boolean> {
-  // Internal roles bypass every plan limit (same rule as resolveEntitlements).
-  if (isUnlimitedRole(ctx.user.audienceGroup)) {
-    return true;
-  }
-  const planLimit = await resolvePlanLimit(ctx.services.settings, plan);
-  // `?? null`: a legacy fallback table predating the column reads as "no cap",
-  // never as "cap of undefined" (which would refuse every turn).
-  const limit = planLimit.mentorDailyLimit ?? null;
-  if (limit === null) {
-    return true;
-  }
-  const used = await ctx.services.translationRequestRepository.countRequestsInWindow(
-    ctx.user.id,
-    "[mentor]",
-    getDailyWindowStart(),
-  );
-  if (used < limit) {
-    return true;
-  }
+  const decision = await checkMentorDailyQuota(quotaPorts(ctx), {
+    id: ctx.user.id,
+    audienceGroup: ctx.user.audienceGroup,
+    subscriptionPlan: plan,
+  });
+  if (decision.ok) return true;
   trackProductEvent(ctx, "limit.reached", "mentor");
-  await ctx.reply(t("mentorDailyLimitReached", lang, { limit: String(limit) }), {
+  await ctx.reply(t("mentorDailyLimitReached", lang, { limit: String(decision.limit) }), {
     reply_markup: buildUpgradeKeyboard(lang),
   });
   return false;

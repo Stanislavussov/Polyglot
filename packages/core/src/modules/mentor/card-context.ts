@@ -12,11 +12,19 @@
  * the same reason the mentor's system prompt is English — the answer's language
  * is settled there, and a label in a third language only muddies it.
  */
-import type { Example, LanguageTranslation, Synonym, TranslateOutput } from "@polyglot/core";
+import type { Example, LanguageTranslation, Synonym, TranslateOutput } from "../translation/types.js";
+
+/** A card block as either channel holds it: the web round-trips the expression type as a plain string. */
+type MentorCardTranslation = Omit<LanguageTranslation, "expressionType"> & { expressionType?: string | null };
+
+/** The card the mentor reads — the bot's TranslateOutput, or the web's card rebuilt into the same shape. */
+export type MentorCard = Omit<TranslateOutput, "translations"> & {
+  translations: Record<string, MentorCardTranslation>;
+};
 
 /** What the session remembers about one card, as the mentor needs to see it. */
 export interface CardMentorContext {
-  output: TranslateOutput;
+  output: MentorCard;
   /** Context the user typed alongside the word when asking for the translation. */
   contextHint?: string;
   /** Etymology prose unfolded on this card. */
@@ -31,7 +39,7 @@ const formatExample = (example: Example): string =>
 const listExamples = (examples: readonly Example[]): string => examples.map(formatExample).join(" / ");
 
 /** One target-language block: the translation and every note the card carries for it. */
-function describeTranslation(code: string, translation: LanguageTranslation): string[] {
+function describeTranslation(code: string, translation: MentorCardTranslation): string[] {
   const synonyms = translation.synonyms.length > 0 ? ` (synonyms: ${listSynonyms(translation.synonyms)})` : "";
   const lines = [`Translation into ${code}: ${translation.text}${synonyms}`];
 

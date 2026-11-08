@@ -1,17 +1,14 @@
-import type {
-  AudienceGroup,
-  FeatureAccessPort,
-  FeatureAccessSubject,
-  SettingsPort,
-  SubscriptionPlan,
-} from "@polyglot/core";
-import { logger, resolveEntitlements } from "@polyglot/core";
+import { logger } from "../../logger.js";
+import type { FeatureAccessPort, FeatureAccessSubject } from "../../ports/feature-access.port.js";
+import type { SettingsPort } from "../../ports/settings.port.js";
+import type { AudienceGroup, SubscriptionPlan } from "../../ports/user.repository.js";
+import { resolveEntitlements } from "./entitlements.js";
 
 interface PlanFeatureAccessReader {
   findFeaturesForPlan(planName: string): Promise<string[]>;
 }
 
-interface FeatureAccessDeps {
+export interface FeatureAccessDeps {
   settings: Pick<SettingsPort, "getPlanLimit">;
   planFeatureAccess: PlanFeatureAccessReader;
 }

@@ -15,6 +15,8 @@
  * 5. An exhausted quota is `limit`, and the AI pipeline is not called.
  * 6. The pipeline's question is `needs_clarification` with a channel-neutral view,
  *    unless its correction is in an unstudied language's alphabet → `add_language`.
+ * 8. "Other meaning" passes the shown translations as negative constraints; a pipeline
+ *    that then wants clarification has `no_more_meanings` left to offer.
  * 7. An AI timeout is `timeout`; a result is `done`, logged once in the ledger, and
  *    `needs_review` results carry `needsReview: true`.
  */
@@ -148,6 +150,31 @@ describe("runTranslation", () => {
       sourceLang: "en",
       view: { options: [{ kind: "meaning", label: "bank (river)", value: "river" }] },
     });
+  });
+
+  it("asks for another meaning by excluding the translations already shown", async () => {
+    const { deps } = makeDeps();
+    vi.mocked(translateWithContext).mockResolvedValue(accepted(output("bank")));
+    const negativeConstraints = { cs: ["banka"] };
+    const outcome = await runTranslation(
+      { user, text: "bank", channel: "web", answer: { sourceLang: "en", negativeConstraints } },
+      deps,
+    );
+    expect(outcome).toMatchObject({ status: "done" });
+    expect(vi.mocked(translateWithContext).mock.calls[0]![0].negativeConstraints).toEqual(negativeConstraints);
+  });
+
+  it("has no more meanings when the pipeline asks instead of finding another sense", async () => {
+    const { deps } = makeDeps();
+    vi.mocked(translateWithContext).mockResolvedValue({
+      status: "needs_clarification",
+      ambiguity: { reason: "word_sense", options: [] },
+    } as unknown as TranslationDecision);
+    const outcome = await runTranslation(
+      { user, text: "bank", channel: "web", answer: { sourceLang: "en", negativeConstraints: { cs: ["banka"] } } },
+      deps,
+    );
+    expect(outcome).toEqual({ status: "no_more_meanings" });
   });
 
   it("turns a correction in an unstudied alphabet into an add-language offer", async () => {

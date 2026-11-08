@@ -164,6 +164,26 @@ export async function checkDailyCeiling(
   return ceilingDecision(usedCredits, requestedCredits, planConfig?.dailyCreditCeiling);
 }
 
+/**
+ * Per-plan cap on mentor turns per UTC day, on top of the credit meter: the mentor
+ * model is priced above the translate default, so the unmetered Plus plan still
+ * needs a ceiling on the expensive calls while Pro sells them unlimited. Turns are
+ * counted from the ledger's "[mentor]" rows, so a refused or failed turn (never
+ * recorded) does not burn the allowance.
+ */
+export async function checkMentorDailyQuota(
+  ports: QuotaPorts,
+  user: QuotaSubject,
+): Promise<{ ok: true } | { ok: false; limit: number }> {
+  if (isUnlimitedRole(user.audienceGroup)) return { ok: true };
+  // `?? null`: a legacy fallback table predating the column reads as "no cap",
+  // never as "cap of undefined" (which would refuse every turn).
+  const limit = (await resolvePlanLimit(ports.settings, user.subscriptionPlan)).mentorDailyLimit ?? null;
+  if (limit === null) return { ok: true };
+  const used = await ports.translationRequests.countRequestsInWindow(user.id, "[mentor]", getDailyWindowStart());
+  return used < limit ? { ok: true } : { ok: false, limit };
+}
+
 /** Bills a paid AI call into the shared ledger, tagged by call type. */
 export async function recordAiUsage(
   ports: Pick<QuotaPorts, "translationRequests">,

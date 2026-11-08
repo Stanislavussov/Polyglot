@@ -1,5 +1,5 @@
-import type { PlanLimitConfig } from "@polyglot/core";
 import { describe, expect, it, vi } from "vitest";
+import type { PlanLimitConfig } from "../../ports/settings.port.js";
 import { createFeatureAccess } from "./feature-access.js";
 
 const PLAN_CONFIGS: Record<string, PlanLimitConfig> = {
