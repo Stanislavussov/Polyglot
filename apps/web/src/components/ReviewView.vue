@@ -36,7 +36,31 @@
             :access="card.audio.access"
             @notice="showNotice"
           />
+          <button
+            type="button"
+            class="btn-secondary shrink-0 !px-3"
+            :aria-label="t('web.review.frontSettings')"
+            :aria-expanded="frontOpen"
+            aria-controls="review-front-settings"
+            @click="toggleFrontPanel"
+          >
+            <Settings2 class="size-4" aria-hidden="true" />
+          </button>
         </div>
+        <fieldset v-if="frontOpen" id="review-front-settings" class="space-y-2 rounded-xl bg-surface-muted px-4 py-3 text-sm">
+          <legend class="text-xs font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.review.frontSettings") }}</legend>
+          <p v-if="!frontFields" class="text-ink-muted">{{ t("web.common.loading") }}</p>
+          <label v-for="field in frontFieldKeys" v-else :key="field" class="flex items-center gap-3">
+            <input
+              type="checkbox"
+              class="size-4 accent-primary"
+              :checked="frontFields[field]"
+              :disabled="frontBusy"
+              @change="setFrontField(field, ($event.target as HTMLInputElement).checked)"
+            />
+            {{ t(`web.review.front.${field}`) }}
+          </label>
+        </fieldset>
         <ul v-if="card.front.synonyms.length > 0" class="flex flex-wrap gap-2" :aria-label="t('web.translate.synonyms')">
           <li v-for="synonym in card.front.synonyms" :key="synonym" class="rounded-full bg-primary-soft px-3 py-1 text-sm text-primary-soft-fg">
             {{ synonym }}
@@ -78,7 +102,7 @@
           </div>
         </div>
 
-        <p v-if="card.detail.nativeMeaning" class="border-t border-line pt-4 text-sm">
+        <p v-if="card.detail.nativeMeaning" class="border-t border-line pt-4 text-base">
           <span class="font-semibold text-ink-muted">{{ t("web.translate.nativeMeaning") }}:</span>
           {{ card.detail.nativeMeaning }}
         </p>
@@ -125,13 +149,13 @@
 </template>
 
 <script setup lang="ts">
-import { Eye, Trash2, Undo2 } from "lucide-vue-next";
+import { Eye, Settings2, Trash2, Undo2 } from "lucide-vue-next";
 import { computed, onMounted, ref } from "vue";
 import { ApiError, api } from "../lib/api";
 import { t } from "../lib/i18n";
 import { splitNative } from "../lib/card-order";
 import { languageFlag, languageName, settings } from "../lib/settings-store";
-import type { Rating, ReviewState } from "../lib/types";
+import type { CardFrontFields, Rating, ReviewState } from "../lib/types";
 import ExampleList from "./ExampleList.vue";
 import MonsterLoader from "./MonsterLoader.vue";
 import SpeakButton from "./SpeakButton.vue";
@@ -156,6 +180,39 @@ const picked = ref(false);
 const notice = ref<string | null>(null);
 // The bot's fc:del / fc:undo: the word leaves the dictionary, the deck goes on, one tap brings it back.
 const removed = ref<{ entryId: number; word: string } | null>(null);
+
+// The bot's card-settings toggles, on the card itself: a change redraws this card's front in place.
+const frontFieldKeys = ["hint", "synonyms", "example"] as const satisfies readonly (keyof CardFrontFields)[];
+const frontOpen = ref(false);
+const frontFields = ref<CardFrontFields | null>(null);
+const frontBusy = ref(false);
+
+async function toggleFrontPanel(): Promise<void> {
+  frontOpen.value = !frontOpen.value;
+  if (!frontOpen.value || frontFields.value) return;
+  try {
+    frontFields.value = await api.cardFront();
+  } catch {
+    frontOpen.value = false;
+    notice.value = "web.common.error";
+  }
+}
+
+async function setFrontField(field: keyof CardFrontFields, enabled: boolean): Promise<void> {
+  const current = card.value;
+  if (!current || frontBusy.value) return;
+  frontBusy.value = true;
+  try {
+    frontFields.value = await api.setCardFront(field, enabled);
+    // Swap only the card data: the reveal and the open panel stay as the learner left them.
+    const fresh = await api.reviewCard(current.entryId);
+    if (fresh.card?.entryId === current.entryId) state.value = fresh;
+  } catch {
+    notice.value = "web.common.error";
+  } finally {
+    frontBusy.value = false;
+  }
+}
 
 function speaks(lang: string): boolean {
   const audio = card.value?.audio;

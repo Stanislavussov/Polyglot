@@ -96,6 +96,33 @@ export function progressRoutes(app: FastifyInstance, services: WebServices): voi
               t("progressActiveDays", lang, { count: activeDays }),
             ],
       reviewLabel: t("progressReviewButton", lang, { count: due }),
+      metrics: {
+        band: snapshot.band,
+        words,
+        mature,
+        due,
+        activeDays,
+        ...(ladder
+          ? {
+              ladder: {
+                day: ladder.day,
+                week: ladder.week,
+                month: {
+                  activeDays: ladder.month.activeDays,
+                  minActiveDays: ladder.month.minActiveDays,
+                  mature: ladder.month.matureGained,
+                  saved: ladder.month.savedGained,
+                  minNewWords: ladder.month.minNewWords,
+                  counted: ladder.month.counted,
+                },
+                cycleMonths: ladder.cycleMonths,
+                monthsForReward: ladder.monthsForReward,
+                rewardDays: config.progressRewardDays,
+                milestone: ladder.milestone,
+              },
+            }
+          : {}),
+      },
       // Absent while the ladder is hidden, so the response is exactly what it was before.
       ...(ladder ? { ladder: renderProgressLadder(ladder, snapshot.band, lang) } : {}),
     };

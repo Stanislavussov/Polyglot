@@ -24,7 +24,7 @@
     <EntryLangSection v-if="split.native" :detail="split.native" />
 
     <div v-if="entry.nativeMeaning || entry.difficulty" class="space-y-2">
-      <p v-if="entry.nativeMeaning" class="text-sm">
+      <p v-if="entry.nativeMeaning" class="text-base">
         <span class="font-semibold text-ink-muted">{{ t("web.translate.nativeMeaning") }}:</span> {{ entry.nativeMeaning }}
       </p>
       <p v-if="entry.difficulty" class="text-sm">

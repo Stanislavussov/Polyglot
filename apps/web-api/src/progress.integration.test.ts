@@ -154,6 +154,8 @@ describe("web goal ladder", () => {
 
     expect(progress.body).toMatchObject({ enabled: true });
     expect(progress.body).not.toHaveProperty("ladder");
+    expect(progress.body).toMatchObject({ metrics: { words: 0, due: 0 } });
+    expect(progress.body).not.toHaveProperty("metrics.ladder");
     expect(goal.body).toEqual({ nearest: null, rewards: [] });
   });
 
@@ -169,6 +171,7 @@ describe("web goal ladder", () => {
     const goal = (await web.call(cookie, "GET", "/api/progress/goal")).body as { nearest: string; rewards: string[] };
     const progress = (await web.call(cookie, "GET", "/api/progress")).body as {
       ladder: { lines: string[]; nearest: string; rewards: string[] };
+      metrics: { ladder: unknown };
     };
 
     const gift = t("progressRewardCreated", "en", { plan: "Plus" });
@@ -182,6 +185,15 @@ describe("web goal ladder", () => {
     ]);
     expect(progress.ladder.nearest).toBe(goal.nearest);
     expect(progress.ladder.rewards).toEqual([]);
+    // The web draws these numbers; they must agree with the text lines above.
+    expect(progress.metrics.ladder).toMatchObject({
+      day: { reviews: 0, target: 5, done: false },
+      month: { activeDays: 0, minActiveDays: 12, mature: 0, saved: 0 },
+      cycleMonths: 0,
+      monthsForReward: 5,
+      rewardDays: 30,
+      milestone: { target: 10, remaining: 10 },
+    });
     expect(await rewardRows(userId)).toHaveLength(1);
   });
 });

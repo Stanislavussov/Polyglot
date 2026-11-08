@@ -38,6 +38,13 @@ export type NotificationPatch = Partial<
   Pick<NotificationSettings, "enabled" | "times" | "type" | "batchSize" | "timezone" | "context">
 >;
 
+/** Which recall aids a review card's hidden-answer side shows (core `CardFrontFields`). */
+export interface CardFrontFields {
+  synonyms: boolean;
+  example: boolean;
+  hint: boolean;
+}
+
 export interface TemplateFields {
   synonyms: boolean;
   examples: boolean;
@@ -249,9 +256,38 @@ export type Progress =
       recovery: string | null;
       stats: string[];
       reviewLabel: string;
+      metrics: ProgressMetrics;
       /** Absent while the goal ladder is hidden. */
       ladder?: { lines: string[]; nearest: string; rewards: string[] };
     };
+
+export type MomentumBand = "resting" | "warming" | "steady" | "strong";
+
+/** Raw numbers behind the Progress page; the web draws them, the bot keeps its text lines. */
+export interface ProgressMetrics {
+  band: MomentumBand;
+  words: number;
+  mature: number;
+  due: number;
+  /** Active days over the last 4 weeks. */
+  activeDays: number;
+  ladder?: {
+    day: { reviews: number; target: number; done: boolean };
+    week: { days: number; target: number; met: boolean };
+    month: {
+      activeDays: number;
+      minActiveDays: number;
+      mature: number;
+      saved: number;
+      minNewWords: number;
+      counted: boolean;
+    };
+    cycleMonths: number;
+    monthsForReward: number;
+    rewardDays: number;
+    milestone: { target: number; remaining: number } | null;
+  };
+}
 
 /** The thin goal bar: the nearest step, or nothing while the ladder is hidden. */
 export interface ProgressGoal {

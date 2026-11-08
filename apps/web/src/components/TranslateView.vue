@@ -189,7 +189,7 @@
           />
 
           <div v-if="result.nativeMeaning || result.sourceUsage" class="space-y-3">
-            <p v-if="result.nativeMeaning" class="text-sm">
+            <p v-if="result.nativeMeaning" class="text-base">
               <span class="font-semibold text-ink-muted">{{ t("web.translate.nativeMeaning") }}:</span>
               {{ result.nativeMeaning }}
             </p>
