@@ -8,12 +8,23 @@
     </div>
 
     <template v-else>
-      <p class="break-words font-semibold">
-        <span v-if="item.emoji" class="mr-2" aria-hidden="true">{{ item.emoji }}</span>{{ item.original }}
-        <span class="ml-1 text-xs font-normal text-ink-muted">{{ languageFlag(item.sourceLang) }} {{ languageName(item.sourceLang) }}</span>
-      </p>
+      <div class="flex items-start justify-between gap-2">
+        <p class="min-w-0 break-words font-semibold">
+          <span v-if="item.emoji" class="mr-2" aria-hidden="true">{{ item.emoji }}</span>{{ item.original }}
+          <span class="ml-1 text-xs font-normal text-ink-muted">{{ languageFlag(item.sourceLang) }} {{ languageName(item.sourceLang) }}</span>
+        </p>
+        <button
+          type="button"
+          class="-mr-2 -mt-2 inline-flex size-11 shrink-0 items-center justify-center rounded-xl text-ink-muted hover:bg-surface-muted hover:text-ink"
+          :title="t('web.dictionary.details')"
+          :aria-label="t('web.dictionary.details')"
+          @click="emit('details')"
+        >
+          <Maximize2 class="size-4" aria-hidden="true" />
+        </button>
+      </div>
       <ul class="mt-2 space-y-1 text-sm">
-        <li v-for="translation in item.translations" :key="translation.lang" class="break-words">
+        <li v-for="translation in ordered" :key="translation.lang" class="break-words">
           <span class="text-ink-muted">{{ languageFlag(translation.lang) }}</span> {{ translation.text }}
         </li>
       </ul>
@@ -64,13 +75,20 @@
 </template>
 
 <script setup lang="ts">
-import { Check, Copy, Ellipsis, Info, RotateCw, Trash2, Undo2 } from "lucide-vue-next";
+import { Check, Copy, Ellipsis, Info, Maximize2, RotateCw, Trash2, Undo2 } from "lucide-vue-next";
 import { DropdownMenuContent, DropdownMenuItem, DropdownMenuPortal, DropdownMenuRoot, DropdownMenuTrigger } from "reka-ui";
+import { computed } from "vue";
+import { splitNative } from "../lib/card-order";
 import { t } from "../lib/i18n";
-import { languageFlag, languageName } from "../lib/settings-store";
+import { languageFlag, languageName, settings } from "../lib/settings-store";
 import type { DictionaryItem } from "../lib/types";
 
-defineProps<{ item: DictionaryItem; removed: boolean; copied: boolean; busy: boolean }>();
+const props = defineProps<{ item: DictionaryItem; removed: boolean; copied: boolean; busy: boolean }>();
+
+const ordered = computed(() => {
+  const { native, others } = splitNative(props.item.translations, settings.value?.nativeLang);
+  return native ? [native, ...others] : others;
+});
 const emit = defineEmits<{ details: []; remove: []; undo: []; copy: []; review: [] }>();
 
 const menuItem =
