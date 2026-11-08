@@ -29,3 +29,4 @@
 - Under a translation on the site, tap 🔍 Explore to clarify the meaning, see another meaning, read where the word comes from, or ask the mentor about it — just like in the bot.
 - The website's settings now let you set up reminders, choose what a translation card shows with a live preview, and report a problem — and your cards on the site follow that layout, just like in the bot.
 - A new Plans page on the website shows your plan and what each plan includes, with a button that takes you to the bot to upgrade.
+- The website now has a Learning section: chat with the mentor, check your grammar, discover expressions, pick new words and pull phrases out of YouTube videos — just like in the bot.

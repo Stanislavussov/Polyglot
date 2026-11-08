@@ -159,6 +159,13 @@ export {
   type MentorCard,
   renderCardForMentor,
 } from "./modules/mentor/card-context.js";
+export {
+  MENTOR_MAX_INPUT_LENGTH,
+  type MentorModels,
+  type MentorSetup,
+  resolveMentorModels,
+  resolveMentorSetup,
+} from "./modules/mentor/mentor-setup.js";
 export type { MentorPromptOptions } from "./modules/mentor/prompt.builder.js";
 export { buildMentorSystemPrompt, MAX_MENTOR_HISTORY } from "./modules/mentor/prompt.builder.js";
 export {
@@ -265,6 +272,22 @@ export {
   extractionResultSchema,
   extractPhrasesFromTranscript,
 } from "./modules/video-vocabulary/index.js";
+export {
+  checkVideoAllowance,
+  processVideo,
+  type SaveVideoPhraseOptions,
+  saveAllVideoPhrases,
+  saveVideoPhrase,
+  type TranscriptSource,
+  type VideoAllowance,
+  type VideoFlowDeps,
+  type VideoProcessOutcome,
+} from "./modules/video-vocabulary/video-flow.js";
+export {
+  type EnrichEntryInput,
+  type EnrichSavedEntryDeps,
+  enrichSavedEntry,
+} from "./modules/vocabulary/enrich-saved-entry.js";
 export type { LanguageOrderContext } from "./modules/vocabulary/translation-order.js";
 export {
   createLanguageOrderContext,
@@ -280,14 +303,22 @@ export type {
   PickedItem,
   PickedItemType,
   PickResult,
+  SavePickedItemOptions,
+  WordPickDeps,
+  WordPickOutcome,
   WordPickRequest,
+  WordPickSetRequest,
 } from "./modules/word-picker/index.js";
 export {
   buildWordPickPrompt,
   DEFAULT_WORD_PICKER_PRESETS,
+  eligiblePresetLangs,
+  generateWordPickSet,
   normalizeWord,
   pickResultSchema,
   pickWords,
+  presetTitle,
+  savePickedItem,
 } from "./modules/word-picker/index.js";
 export {
   type AICircuitEvent,

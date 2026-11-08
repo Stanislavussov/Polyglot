@@ -66,6 +66,7 @@ COPY --from=build /app/packages/adapters/ai/dist packages/adapters/ai/dist
 COPY --from=build /app/packages/adapters/db/dist packages/adapters/db/dist
 # The web's release-notes page reads the pending notes from the image, as the bot's /changes does.
 COPY ["@docs/releases", "@docs/releases"]
+COPY --from=build /app/packages/adapters/youtube/dist packages/adapters/youtube/dist
 
 ENV WEB_STATIC_DIR=/app/apps/web/dist
 

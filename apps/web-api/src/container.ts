@@ -32,8 +32,11 @@ import {
   translationRequestRepository,
   translationTemplateRepository,
   userRepository,
+  videoVocabularyRepository,
   vocabularyDictionaryRepository,
   vocabularyRepository,
+  wordPickerPresetRepository,
+  wordPickerRunRepository,
   wordReviewRepository,
 } from "@polyglot/adapter-db";
 import { createFeatureAccess, SettingsService } from "@polyglot/core";
@@ -60,6 +63,9 @@ export function createWebServices(): WebServices {
     cardTemplateRepository,
     notificationRepository,
     reportedIssueRepository,
+    videoVocabularyRepository,
+    wordPickerPresetRepository,
+    wordPickerRunRepository,
     contextLookup: createContextLookup(),
     wordLanguageSweep: createWordLanguageSweep(),
     languageCache: {

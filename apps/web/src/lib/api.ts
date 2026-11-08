@@ -57,7 +57,7 @@ export class ApiError extends Error {
 
 const LOGIN_PATH = "/login/";
 
-async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
+export async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
   const response = await fetch(`/api${path}`, {
     method,
     credentials: "same-origin",

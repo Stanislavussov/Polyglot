@@ -25,4 +25,7 @@ export type WebServices = Pick<
   | "cardTemplateRepository"
   | "notificationRepository"
   | "reportedIssueRepository"
+  | "videoVocabularyRepository"
+  | "wordPickerPresetRepository"
+  | "wordPickerRunRepository"
 >;

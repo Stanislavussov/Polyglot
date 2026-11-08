@@ -2,7 +2,9 @@ import { describe, expect, it, vi } from "vitest";
 import type { PlanLimitConfig, SettingsPort } from "../../ports/settings.port.js";
 import {
   AI_CALL_WEIGHTS,
+  buildQuotaPorts,
   checkAiQuota,
+  checkGrammarCheckDailyQuota,
   checkMentorDailyQuota,
   checkTranslationQuota,
   recordAiUsage,
@@ -139,5 +141,62 @@ describe("checkMentorDailyQuota", () => {
     expect(await checkMentorDailyQuota(ports(999, plus).ports, { ...user, audienceGroup: "tester" })).toEqual({
       ok: true,
     });
+  });
+});
+
+describe("checkGrammarCheckDailyQuota", () => {
+  const user = { id: 4, audienceGroup: "product" as const, subscriptionPlan: "plus" as const };
+
+  function ports(checksToday: number, grammarCheckDailyLimit: number | null) {
+    const countRequestsInWindow = vi.fn().mockResolvedValue(checksToday);
+    const plan: PlanLimitConfig = { ...free, name: "plus", grammarCheckDailyLimit };
+    return {
+      countRequestsInWindow,
+      ports: {
+        settings: settingsWith(vi.fn().mockResolvedValue(plan), vi.fn()),
+        translationRequests: { countRequestsInWindow, getUserCreditsInWindow: vi.fn(), logTranslationRequest: vi.fn() },
+      },
+    };
+  }
+
+  it("allows a check under the cap, counting only grammar-check rows", async () => {
+    const { ports: p, countRequestsInWindow } = ports(4, 5);
+    expect(await checkGrammarCheckDailyQuota(p, user)).toEqual({ ok: true });
+    expect(countRequestsInWindow).toHaveBeenCalledWith(4, "[grammarCheck]", expect.any(Date));
+  });
+
+  it("refuses once the cap is used, naming it", async () => {
+    expect(await checkGrammarCheckDailyQuota(ports(5, 5).ports, user)).toEqual({ ok: false, limit: 5 });
+  });
+
+  it("reads a zero or a negative sentinel as 'not in the plan'", async () => {
+    expect(await checkGrammarCheckDailyQuota(ports(0, 0).ports, user)).toEqual({ ok: false, limit: 0 });
+    expect(await checkGrammarCheckDailyQuota(ports(0, -1).ports, user)).toEqual({ ok: false, limit: 0 });
+  });
+
+  it("never caps an unlimited plan, nor an internal role", async () => {
+    expect(await checkGrammarCheckDailyQuota(ports(999, null).ports, user)).toEqual({ ok: true });
+    expect(await checkGrammarCheckDailyQuota(ports(999, 0).ports, { ...user, audienceGroup: "admin" })).toEqual({
+      ok: true,
+    });
+  });
+});
+
+describe("buildQuotaPorts", () => {
+  it("maps the container slice and leaves subscriptions out when the channel has none", () => {
+    const settings = settingsWith(vi.fn(), vi.fn());
+    const translationRequestRepository = {
+      countRequestsInWindow: vi.fn(),
+      getUserCreditsInWindow: vi.fn(),
+      logTranslationRequest: vi.fn(),
+    };
+    expect(buildQuotaPorts({ settings, translationRequestRepository })).toEqual({
+      settings,
+      translationRequests: translationRequestRepository,
+    });
+    const subscriptionRepository = { findTrialByUser: vi.fn() };
+    expect(buildQuotaPorts({ settings, translationRequestRepository, subscriptionRepository }).subscriptions).toBe(
+      subscriptionRepository,
+    );
   });
 });
