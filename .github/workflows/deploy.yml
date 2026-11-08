@@ -340,6 +340,14 @@ jobs:
             # repository module once dev and prod have both run it.
             docker compose run --rm --no-deps bot node apps/bot/dist/backfill-grammar-check-limits.cli.js
 
+            # Backfill (see backfill-progress-months.cli.ts): closes the goal
+            # ladder's in-window months so /progress does not open at 0/5 for
+            # learners already practising. Only inserts months missing from the
+            # ledger and never grants, so re-runs are no-ops. Remove this step,
+            # the CLI and progress-backfill.ts on 2027-03-01 or one week after the
+            # first master deploy that carried it, whichever is later.
+            docker compose run --rm --no-deps bot node apps/bot/dist/backfill-progress-months.cli.js
+
             # Dev only: wipe the configured tester accounts from the freshly
             # branched production data. The CLI itself refuses to run unless
             # POLYGLOT_ENV=development, so a stray call on prod is a no-op error.

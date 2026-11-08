@@ -46,6 +46,7 @@ import {
   onboardingDemoCardRepository,
   planFeatureAccessRepository,
   productEventRepository,
+  progressRepository,
   reportedIssueRepository,
   requestTimingRepository,
   settingsAdapter,
@@ -73,6 +74,8 @@ import type {
 import {
   createFeatureAccess,
   createMomentumService,
+  createProgressService,
+  MATURE_INTERVAL_DAYS,
   type ServiceContainer,
   SettingsService,
   setAICircuitObserver,
@@ -233,6 +236,13 @@ export function createContainer(): ServiceContainer {
     getTimezone,
   });
 
+  const progressService = createProgressService({
+    progressRepository,
+    getMotivationConfig: () => settings.getMotivationConfig(),
+    getTimezone,
+    countMatureWords: (userId) => vocabularyRepository.countMatureTranslations(userId, MATURE_INTERVAL_DAYS),
+  });
+
   const container: ServiceContainer = {
     userRepository,
     identityRepository,
@@ -248,6 +258,7 @@ export function createContainer(): ServiceContainer {
     notificationRepository,
     mentorMessageRepository,
     momentumService,
+    progressService,
     onboardingDemoCardRepository,
     translationRequestRepository,
     languageDetectionRepository,

@@ -12,6 +12,7 @@ import type {
   NotificationPatch,
   PlanInfo,
   Progress,
+  ProgressGoal,
   Rating,
   ReviewState,
   Settings,
@@ -131,6 +132,7 @@ export const api = {
   }) => request<{ question: string; answer: string }>("POST", "/mentor", body),
   entry: (entryId: number) => request<EntryDetail>("GET", `/dictionary/${entryId}`),
   // With a dictionary, a word kept in another one only leaves this list (the bot's dictionary delete).
+  saveTranslation: (token: string) => request<{ entryId: number }>("POST", "/translate/save", { token }),
   removeEntry: (entryId: number, dictionary?: number) =>
     request<void>("DELETE", `/dictionary/${entryId}${dictionary ? `?dictionary=${dictionary}` : ""}`),
   restoreEntry: (entryId: number, dictionary?: number) =>
@@ -164,6 +166,7 @@ export const api = {
     return { text: parsed.text ?? "" };
   },
   progress: () => request<Progress>("GET", "/progress"),
+  progressGoal: () => request<ProgressGoal>("GET", "/progress/goal"),
   reviewNext: () => request<ReviewState>("GET", "/review/next"),
   reviewCard: (entryId: number) => request<ReviewState>("GET", `/review/card/${entryId}`),
   rate: (entryId: number, rating: Rating) => request<ReviewState>("POST", `/review/${entryId}`, { rating }),

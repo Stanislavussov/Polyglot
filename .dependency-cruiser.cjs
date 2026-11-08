@@ -165,11 +165,22 @@ module.exports = {
         path: "^packages/core/src/modules/([^/]+)/",
         // Modules with an explicit allow rule below are exempt from the default.
         pathNot:
-          "^packages/core/src/modules/(validation|translation|context-enrichment|notifications|expressions|tts|grammar-check|entitlements|translate-flow|word-picker|video-vocabulary|vocabulary)/",
+          "^packages/core/src/modules/(validation|translation|context-enrichment|notifications|expressions|tts|grammar-check|entitlements|translate-flow|word-picker|video-vocabulary|vocabulary|momentum)/",
       },
       to: {
         path: "^packages/core/src/modules/",
         pathNot: "^packages/core/src/modules/$1/",
+      },
+    },
+    {
+      name: "core-momentum-allowlist",
+      comment:
+        "The goal ladder grants plan time, so it reads subscription provider names; its copy keys are typed against i18n.",
+      severity: "error",
+      from: { path: "^packages/core/src/modules/momentum/" },
+      to: {
+        path: "^packages/core/src/modules/",
+        pathNot: "^packages/core/src/modules/(momentum|subscriptions|i18n)/",
       },
     },
     {

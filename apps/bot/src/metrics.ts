@@ -116,6 +116,11 @@ export const motivationProgressOpenedCounter = new Counter({
   labelNames: ["band"] as const,
 });
 
+export const progressRewardDeferredCounter = new Counter({
+  name: "bot_progress_reward_deferred_total",
+  help: "Goal-ladder rewards held back because a real billing subscription is active, once per user-cycle",
+});
+
 export const motivationRecoveryShownCounter = new Counter({
   name: "bot_motivation_recovery_shown_total",
   help: "Recovery lines shown to a returning user — volume only, no labels",

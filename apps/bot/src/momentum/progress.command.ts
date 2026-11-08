@@ -14,11 +14,15 @@ import {
   logEvent,
   MATURE_INTERVAL_DAYS,
   type MomentumBand,
+  type ProgressLadderCopy,
+  type ProgressView,
+  renderProgressLadder,
   type SupportedLang,
   t,
 } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import { motivationProgressOpenedCounter } from "../metrics.js";
+import { trackProductEvent } from "../observability/product-events.js";
 import type { BotContext } from "../types.js";
 
 /**
@@ -61,6 +65,13 @@ function bandBar(band: MomentumBand): string {
   return "▰".repeat(filled) + "▱".repeat(BAR_CELLS - filled);
 }
 
+async function announceRewards(ctx: BotContext, view: ProgressView, copy: ProgressLadderCopy): Promise<void> {
+  for (const [index, text] of copy.rewards.entries()) {
+    await ctx.reply(text);
+    trackProductEvent(ctx, "progress.reward_granted", view.freshRewards[index]?.plan);
+  }
+}
+
 async function resolveLang(ctx: BotContext): Promise<SupportedLang> {
   const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
   const lang = settings?.interfaceLang;
@@ -82,11 +93,14 @@ async function renderProgress(ctx: BotContext, entry: ProgressEntry): Promise<vo
       parse_mode: "HTML",
     });
   } else {
-    const [mature, due, activeDays] = await Promise.all([
+    const [mature, due, activeDays, ladder] = await Promise.all([
       ctx.services.vocabularyRepository.countMatureTranslations(userId, MATURE_INTERVAL_DAYS),
       ctx.services.vocabularyRepository.countDueForSrs(userId, now),
       ctx.services.momentumService.countActiveDays(userId, ACTIVE_DAYS_WINDOW, now),
+      ctx.services.progressService.getProgressView(userId, now),
     ]);
+    const ladderCopy = ladder ? renderProgressLadder(ladder, snapshot.band, lang) : null;
+    if (ladder && ladderCopy) await announceRewards(ctx, ladder, ladderCopy);
     const text = [
       t("progressTitle", lang),
       "",
@@ -97,6 +111,7 @@ async function renderProgress(ctx: BotContext, entry: ProgressEntry): Promise<vo
       t("progressMature", lang, { count: mature }),
       t("progressDue", lang, { count: due }),
       t("progressActiveDays", lang, { count: activeDays }),
+      ...(ladderCopy ? ["", ...ladderCopy.lines, "", ladderCopy.nearest] : []),
     ].join("\n");
     await ctx.reply(text, {
       parse_mode: "HTML",

@@ -52,6 +52,7 @@ retention is the control bounding it — check it before widening what is logged
 | Cards | `cards.session_started`, `.card_rated`, `.session_finished`, `.rating_persist_failed` |
 | Notifications | `notification.sent`, `.delivery_log_failed`, `.interaction` (`deliveryId`, `kind`, `action`), `.interaction_log_failed`, `.dictionary_exhausted`, `.preset.picked`/`.exhausted`/`.no_candidates`/`.unresolvable`, `nudge.*`, `retention.*` |
 | Momentum | `momentum.effort_recorded` (debug), `.record_failed`, `.mature_word`, `.band_changed`, `.praise_shown`, `.recovery_shown`, `.progress_opened`, `.weekly_line_shown`, `.backfill_finished`, `.recompute_failed` |
+| Progress | `progress.month_closed`, `.reward_granted` (`cycle`, `plan`, `action`), `.reward_deferred` (once per user-cycle), `.close_finished`, `.close_failed` |
 | Voice | `voice.transcribed`, `.transcribe_failed`, `.transcribe_empty`, `.too_long` |
 | TTS | `card.tts_played`, `.tts_failed` |
 | Errors | `bot.error`, `bot.error_handler_failed` |

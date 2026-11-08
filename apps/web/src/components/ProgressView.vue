@@ -16,6 +16,16 @@
         </ul>
         <a v-if="data.stats.length > 0" href="/review/" class="btn-primary w-full sm:w-auto">{{ data.reviewLabel }}</a>
       </article>
+      <article v-if="data.ladder" class="card mt-4 space-y-3">
+        <p v-for="gift in data.ladder.rewards" :key="gift" role="status" class="rounded-xl bg-primary-soft px-4 py-3 text-sm text-primary-soft-fg">{{ gift }}</p>
+        <ul class="space-y-1 text-sm">
+          <li v-for="line in data.ladder.lines" :key="line">{{ line }}</li>
+        </ul>
+        <p class="font-semibold">{{ data.ladder.nearest }}</p>
+        <button v-if="bar.snoozed.value" type="button" class="text-sm text-ink-muted underline hover:text-ink" @click="bar.show()">
+          {{ t("web.progress.barShow") }}
+        </button>
+      </article>
     </template>
   </section>
 </template>
@@ -25,6 +35,9 @@ import { onMounted, ref } from "vue";
 import { api } from "../lib/api";
 import { t } from "../lib/i18n";
 import type { Progress } from "../lib/types";
+import { useProgressBar } from "../lib/use-progress-bar";
+
+const bar = useProgressBar();
 
 const data = ref<Progress | null>(null);
 const failed = ref(false);

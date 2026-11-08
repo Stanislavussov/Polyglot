@@ -25,6 +25,7 @@
         "src/repair-native-translations.cli.ts",
         "src/repair-self-language-translations.cli.ts",
         "src/backfill-grammar-check-limits.cli.ts",
+        "src/backfill-progress-months.cli.ts",
         "src/momentum.backfill.wiring.ts"
       ],
       "project": ["src/**/*.ts"]

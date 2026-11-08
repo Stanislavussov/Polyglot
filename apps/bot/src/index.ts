@@ -6,8 +6,10 @@ import { logger, setLogger } from "@polyglot/core";
 import { botEnvSchema, ConfigError, loadConfig } from "@polyglot/infra";
 import { stopAiCreditPoll, wireAiCreditPoll } from "./ai-credit.wiring.js";
 import { createPolyglotBot, installBotCommands } from "./bot-factory.js";
+import { createContainer } from "./container.js";
 import { setRunnerHandle } from "./liveness-state.js";
 import { closeMetricsServer, startMetricsServer } from "./metrics.js";
+import { stopProgressClose, wireProgressClose } from "./momentum/progress-close.wiring.js";
 import { wireNotificationScheduler } from "./notifications/notification.wiring.js";
 import { stopActivationNudge, wireActivationNudge } from "./onboarding/activation-nudge.wiring.js";
 import { stopReleaseAnnouncements, wireReleaseAnnouncements } from "./release-announcement.wiring.js";
@@ -32,9 +34,12 @@ const config = loadBotConfig();
 
 setLogger(logger);
 
+const services = createContainer();
+
 const bot = createPolyglotBot({
   token: config.BOT_TOKEN,
   sessionStorage: createPostgresSessionStorage(),
+  services,
 });
 
 let runner: RunnerHandle | null = null;
@@ -53,6 +58,7 @@ function setupGracefulShutdown(): void {
       { name: "telemetryRetention", run: () => stopTelemetryRetention() },
       { name: "activationNudge", run: () => stopActivationNudge() },
       { name: "trialLifecycle", run: () => stopTrialLifecycle() },
+      { name: "progressClose", run: () => stopProgressClose() },
       { name: "aiCreditPoll", run: () => stopAiCreditPoll() },
       { name: "releaseAnnouncements", run: () => stopReleaseAnnouncements() },
       {
@@ -98,6 +104,7 @@ async function main(): Promise<void> {
   wireTelemetryRetention();
   wireActivationNudge(bot.api);
   wireTrialLifecycle(bot.api);
+  wireProgressClose(services.progressService);
   wireAiCreditPoll();
   wireReleaseAnnouncements(bot.api);
   metricsServer = startMetricsServer();

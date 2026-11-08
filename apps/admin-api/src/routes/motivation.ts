@@ -1,6 +1,6 @@
 /**
- * Motivation kill switch — the four booleans that gate momentum recording and
- * the three surfaces built on it.
+ * Motivation kill switch — the booleans that gate momentum recording and the
+ * surfaces built on it, plus the goal ladder's thresholds.
  *
  * The GET runs the stored blob through the same parser the runtime reads it
  * with, rather than the spread-over-defaults the other settings routes use: a

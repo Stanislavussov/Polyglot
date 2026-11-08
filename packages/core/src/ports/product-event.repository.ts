@@ -43,6 +43,8 @@ export const PRODUCT_EVENTS = [
   "command.used",
   /** The chat switched text-routing mode. `context`: the mode switched INTO. */
   "mode.switched",
+  /** A goal-ladder reward landed. `context`: plan name. */
+  "progress.reward_granted",
 ] as const;
 
 export type ProductEvent = (typeof PRODUCT_EVENTS)[number];

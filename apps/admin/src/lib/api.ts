@@ -520,12 +520,19 @@ export interface MentorModelOption {
   pricing: { prompt: string; completion: string };
 }
 
-/** The motivation kill switch. Recording is what the calibration window needs; the other three gate rendering. */
+/** The motivation kill switch plus the goal ladder's thresholds. Recording is what the calibration window needs. */
 export interface MotivationSettings {
   recordingEnabled: boolean;
   enabled: boolean;
   praiseEnabled: boolean;
   recoveryEnabled: boolean;
+  progressGoalsEnabled: boolean;
+  progressMinActiveDays: number;
+  progressMinNewWords: number;
+  progressDayTaskReviews: number;
+  progressRhythmDays: number;
+  progressMonthsForReward: number;
+  progressRewardDays: number;
 }
 
 export const settings = {

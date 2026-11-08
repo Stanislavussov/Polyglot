@@ -27,6 +27,7 @@ import {
   normalizeToIso1,
   notificationRepository,
   planFeatureAccessRepository,
+  progressRepository,
   reportedIssueRepository,
   settingsAdapter,
   subscriptionRepository,
@@ -40,7 +41,14 @@ import {
   wordPickerRunRepository,
   wordReviewRepository,
 } from "@polyglot/adapter-db";
-import { createFeatureAccess, createMomentumService, SettingsService, withReviewRecording } from "@polyglot/core";
+import {
+  createFeatureAccess,
+  createMomentumService,
+  createProgressService,
+  MATURE_INTERVAL_DAYS,
+  SettingsService,
+  withReviewRecording,
+} from "@polyglot/core";
 import type { WebServices } from "./services.js";
 
 /** The production wiring: the same adapters the bot's container uses, minus bot-only surfaces. */
@@ -49,14 +57,23 @@ export function createWebServices(): WebServices {
   const settings = new SettingsService(settingsAdapter);
   setAIRequestTimeoutProvider(async () => (await settings.getAIGenerationDefaults()).requestTimeoutMs);
   // Same service the bot builds, so web efforts land in the same journal under the same keys.
+  const getTimezone = async (userId: number) => (await userRepository.getSettings(userId))?.timezone ?? "UTC";
   const momentumService = createMomentumService({
     momentumRepository,
     getMotivationConfig: () => settings.getMotivationConfig(),
-    getTimezone: async (userId) => (await userRepository.getSettings(userId))?.timezone ?? "UTC",
+    getTimezone,
+  });
+  // The bot's progress service over the same ledger, so a reward is claimed once whichever channel opens first.
+  const progressService = createProgressService({
+    progressRepository,
+    getMotivationConfig: () => settings.getMotivationConfig(),
+    getTimezone,
+    countMatureWords: (userId) => vocabularyRepository.countMatureTranslations(userId, MATURE_INTERVAL_DAYS),
   });
 
   return {
     momentumService,
+    progressService,
     userRepository,
     identityRepository,
     vocabularyRepository,

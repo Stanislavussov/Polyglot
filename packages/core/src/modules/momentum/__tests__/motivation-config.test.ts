@@ -18,6 +18,13 @@ describe("parseMotivationConfig", () => {
       enabled: false,
       praiseEnabled: false,
       recoveryEnabled: false,
+      progressGoalsEnabled: false,
+      progressMinActiveDays: 12,
+      progressMinNewWords: 10,
+      progressDayTaskReviews: 5,
+      progressRhythmDays: 4,
+      progressMonthsForReward: 5,
+      progressRewardDays: 30,
     });
   });
 
@@ -31,10 +38,15 @@ describe("parseMotivationConfig", () => {
 
   it("repairs one broken switch without discarding its valid siblings", () => {
     expect(parseMotivationConfig({ enabled: "yes", praiseEnabled: true, recoveryEnabled: true })).toEqual({
-      recordingEnabled: true,
-      enabled: false,
+      ...DEFAULT_MOTIVATION_CONFIG,
       praiseEnabled: true,
       recoveryEnabled: true,
     });
+  });
+
+  it("keeps the goal ladder hidden and its thresholds sane when a value is garbage", () => {
+    expect(
+      parseMotivationConfig({ progressGoalsEnabled: "on", progressMinActiveDays: 0, progressRewardDays: 14 }),
+    ).toEqual({ ...DEFAULT_MOTIVATION_CONFIG, progressRewardDays: 14 });
   });
 });

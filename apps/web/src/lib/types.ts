@@ -183,6 +183,8 @@ export interface TranslateResult {
   } | null;
   translations: TranslateTarget[];
   savedEntryId: number | null;
+  /** Signed card for the Save button; null for a sentence, absent on stored history. */
+  saveToken?: string | null;
   // Absent on results saved in history before the card could be explored.
   inputType?: "word" | "phrase" | "sentence";
   context?: string | null;
@@ -247,7 +249,15 @@ export type Progress =
       recovery: string | null;
       stats: string[];
       reviewLabel: string;
+      /** Absent while the goal ladder is hidden. */
+      ladder?: { lines: string[]; nearest: string; rewards: string[] };
     };
+
+/** The thin goal bar: the nearest step, or nothing while the ladder is hidden. */
+export interface ProgressGoal {
+  nearest: string | null;
+  rewards: string[];
+}
 
 export interface LoaderPhrases {
   emoji: string[];

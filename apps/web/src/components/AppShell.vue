@@ -48,6 +48,31 @@
         <div class="backdrop-dot right-[14%] top-10 size-2.5" />
         <div class="backdrop-dot bottom-[16%] right-[9%] size-1.5 opacity-60" />
       </div>
+      <div v-if="goalText && page !== 'progress'" class="mx-auto max-w-6xl px-4 pt-3 sm:px-6 md:px-8">
+        <div v-if="!bar.snoozed.value" class="flex items-center gap-2 rounded-full bg-primary-soft py-1 pl-4 pr-1 text-sm text-primary-soft-fg">
+          <a href="/progress/" class="min-w-0 flex-1 truncate hover:underline" @click.prevent="navigate('progress')">{{ goalText }}</a>
+          <button
+            type="button"
+            class="grid size-8 shrink-0 place-items-center rounded-full hover:bg-surface"
+            :aria-label="t('web.progress.barHide')"
+            :title="t('web.progress.barHide')"
+            @click="bar.hide()"
+          >
+            <X class="size-4" aria-hidden="true" />
+          </button>
+        </div>
+        <div v-else class="flex justify-end">
+          <button
+            type="button"
+            class="rounded-full px-2 py-0.5 text-xs text-ink-muted hover:bg-primary-soft hover:text-primary-soft-fg"
+            :aria-label="t('web.progress.barShow')"
+            :title="t('web.progress.barShow')"
+            @click="bar.show()"
+          >
+            🎯
+          </button>
+        </div>
+      </div>
       <div class="mx-auto max-w-6xl px-4 py-6 sm:px-6 md:px-8 md:py-10">
         <component :is="content" :key="page" />
       </div>
@@ -58,12 +83,13 @@
 <script setup lang="ts">
 import { DialogClose, DialogContent, DialogOverlay, DialogPortal, DialogRoot, DialogTitle } from "reka-ui";
 import { Menu, X } from "lucide-vue-next";
-import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { api } from "../lib/api";
 import { drawerSwipeAction, type SwipePoint } from "../lib/drawer-swipe";
 import { t } from "../lib/i18n";
 import { loadSettings } from "../lib/settings-store";
-import type { PageName } from "../lib/types";
+import type { PageName, ProgressGoal } from "../lib/types";
+import { useProgressBar } from "../lib/use-progress-bar";
 import DictionaryView from "./DictionaryView.vue";
 import ExpressionsView from "./ExpressionsView.vue";
 import GrammarCheckView from "./GrammarCheckView.vue";
@@ -154,6 +180,10 @@ function onPopState(): void {
 }
 const ready = ref(false);
 const drawerOpen = ref(false);
+const bar = useProgressBar();
+const goal = ref<ProgressGoal | null>(null);
+// A gift granted by this very open outranks the next step: it is announced exactly once.
+const goalText = computed(() => goal.value?.rewards[0] ?? goal.value?.nearest ?? null);
 
 onMounted(async () => {
   // A 401 here redirects to the login page inside the api client; any other failure still renders the shell in English.
@@ -168,6 +198,19 @@ onMounted(async () => {
   }
   ready.value = true;
 });
+
+// Fetched only off the Progress tab: that tab announces a fresh gift itself, and the
+// claim is consumed by whichever request makes it. The bar is extra — a failure leaves it out.
+let goalRequested = false;
+watch(
+  [ready, page],
+  async ([isReady, current]) => {
+    if (!isReady || current === "progress" || goalRequested) return;
+    goalRequested = true;
+    goal.value = await api.progressGoal().catch(() => null);
+  },
+  { immediate: true },
+);
 
 let swipeStart: SwipePoint | null = null;
 

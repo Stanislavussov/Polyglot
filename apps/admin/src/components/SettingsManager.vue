@@ -160,6 +160,14 @@ const fieldDescriptions: FieldDescriptionMap = {
     enabled: "/progress screen and the weekly line in notifications.",
     praiseEnabled: "Milestone praise line on translation cards and session end.",
     recoveryEnabled: "Welcome-back line after a 7+ day gap.",
+    progressGoalsEnabled:
+      "Goal ladder on /progress and its free-month reward. Months are recorded either way, so turning it on later loses nothing.",
+    progressMinActiveDays: "Learning days (review, save or a word reaching long-term memory) a month needs to count.",
+    progressMinNewWords: "Saved words that count a month when no word reached long-term memory in it.",
+    progressDayTaskReviews: "Cards reviewed in a day to complete the day task.",
+    progressRhythmDays: "Learning days out of the last seven that make a rhythm week.",
+    progressMonthsForReward: "Counted months per free month. Counted months never reset.",
+    progressRewardDays: "Days granted per reward: a new reward period, or added to an active plan.",
   },
   "video-vocabulary": {
     monthlyLimit: "Maximum number of videos a user can process per calendar month.",
@@ -302,6 +310,13 @@ async function save(): Promise<void> {
         enabled: Boolean(payload.enabled),
         praiseEnabled: Boolean(payload.praiseEnabled),
         recoveryEnabled: Boolean(payload.recoveryEnabled),
+        progressGoalsEnabled: Boolean(payload.progressGoalsEnabled),
+        progressMinActiveDays: Number(payload.progressMinActiveDays),
+        progressMinNewWords: Number(payload.progressMinNewWords),
+        progressDayTaskReviews: Number(payload.progressDayTaskReviews),
+        progressRhythmDays: Number(payload.progressRhythmDays),
+        progressMonthsForReward: Number(payload.progressMonthsForReward),
+        progressRewardDays: Number(payload.progressRewardDays),
       });
     } else {
       await settings.videoVocabulary.update({

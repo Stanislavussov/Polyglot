@@ -19,7 +19,14 @@ export type EffortKind = (typeof EFFORT_KINDS)[number];
  * the notification's weekly line there would silently spend one of the card's two
  * praise slots every week for every subscriber.
  */
-export type MomentumEventKind = EffortKind | "praise" | "weekly_proof";
+export type MomentumEventKind = EffortKind | "praise" | "weekly_proof" | "reward" | "milestone";
+
+/**
+ * Weightless idempotency claims (`praise:<kind>`, `mature:<id>`, `reward:cycle:<n>`,
+ * `milestone:<n>`): retention keeps them past 90 days, or a once-ever praise, a
+ * matured word, a progress reward or a word badge would be claimable again.
+ */
+export const MOMENTUM_CLAIM_KINDS: MomentumEventKind[] = ["praise", "mature", "weekly_proof", "reward", "milestone"];
 
 export const EFFORT_WEIGHTS: Record<EffortKind, number> = {
   translate: 1,
@@ -107,6 +114,14 @@ export interface MotivationConfig {
   enabled: boolean;
   praiseEnabled: boolean;
   recoveryEnabled: boolean;
+  /** Gates the goal ladder's render and its reward grant only — months are closed either way. */
+  progressGoalsEnabled: boolean;
+  progressMinActiveDays: number;
+  progressMinNewWords: number;
+  progressDayTaskReviews: number;
+  progressRhythmDays: number;
+  progressMonthsForReward: number;
+  progressRewardDays: number;
 }
 
 /** Fail-open on recording (invisible and irrecoverable if lost), fail-closed on every visible surface (§4.6). */
@@ -115,7 +130,16 @@ export const DEFAULT_MOTIVATION_CONFIG: MotivationConfig = {
   enabled: false,
   praiseEnabled: false,
   recoveryEnabled: false,
+  progressGoalsEnabled: false,
+  progressMinActiveDays: 12,
+  progressMinNewWords: 10,
+  progressDayTaskReviews: 5,
+  progressRhythmDays: 4,
+  progressMonthsForReward: 5,
+  progressRewardDays: 30,
 };
+
+const positiveInt = (fallback: number) => z.number().int().min(1).catch(fallback);
 
 /**
  * Per-key `.catch()` rather than a whole-object fallback: a blob where one switch
@@ -129,6 +153,13 @@ const motivationConfigSchema = z.object({
   enabled: z.boolean().catch(DEFAULT_MOTIVATION_CONFIG.enabled),
   praiseEnabled: z.boolean().catch(DEFAULT_MOTIVATION_CONFIG.praiseEnabled),
   recoveryEnabled: z.boolean().catch(DEFAULT_MOTIVATION_CONFIG.recoveryEnabled),
+  progressGoalsEnabled: z.boolean().catch(DEFAULT_MOTIVATION_CONFIG.progressGoalsEnabled),
+  progressMinActiveDays: positiveInt(DEFAULT_MOTIVATION_CONFIG.progressMinActiveDays),
+  progressMinNewWords: positiveInt(DEFAULT_MOTIVATION_CONFIG.progressMinNewWords),
+  progressDayTaskReviews: positiveInt(DEFAULT_MOTIVATION_CONFIG.progressDayTaskReviews),
+  progressRhythmDays: positiveInt(DEFAULT_MOTIVATION_CONFIG.progressRhythmDays),
+  progressMonthsForReward: positiveInt(DEFAULT_MOTIVATION_CONFIG.progressMonthsForReward),
+  progressRewardDays: positiveInt(DEFAULT_MOTIVATION_CONFIG.progressRewardDays),
 });
 
 /**

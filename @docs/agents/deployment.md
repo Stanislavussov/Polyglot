@@ -71,6 +71,12 @@ without anyone running anything.
    what it leaves alone, and that a second run writes nothing.
 6. Removal condition written in the file header and the release note.
 
+Live one-offs and when they die:
+
+- `backfill-progress-months.cli.ts` (goal-ladder months) — remove with its `deploy.yml`
+  step and `packages/adapters/db/src/progress-backfill.ts` on 2027-03-01 or one week after
+  the first master deploy that carried it, whichever is later.
+
 ## Host provisioning — `deploy/ansible/site.yml`
 
 - `pnpm ansible` (prod, `.env.prod`) / `pnpm ansible:dev` (`.env.dev`). Requires `VPS_HOST`,

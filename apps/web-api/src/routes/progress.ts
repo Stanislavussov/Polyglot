@@ -4,6 +4,7 @@ import {
   logEvent,
   MATURE_INTERVAL_DAYS,
   type MomentumBand,
+  renderProgressLadder,
   type SupportedLang,
   t,
 } from "@polyglot/core";
@@ -24,23 +25,43 @@ const BAND_PHRASE_KEY: Record<MomentumBand, I18nKey> = {
 // Out of 5, as the bot's ▰▱ bar; the raw score never reaches the user (§3.6).
 const BAND_LEVEL: Record<MomentumBand, number> = { resting: 1, warming: 2, steady: 4, strong: 5 };
 
+async function learnerLang(services: WebServices, userId: number): Promise<SupportedLang> {
+  const settings = await services.userRepository.getSettings(userId);
+  return settings?.interfaceLang && isSupported(settings.interfaceLang) ? settings.interfaceLang : "en";
+}
+
 export function progressRoutes(app: FastifyInstance, services: WebServices): void {
+  // The thin bar every page shows: only the nearest step (and a gift, if this open granted one).
+  // No seen/recovery marks here — those belong to opening the Progress tab itself.
+  app.get("/api/progress/goal", async (request) => {
+    if (!(await services.settings.getMotivationConfig()).enabled) return { nearest: null, rewards: [] };
+    const userId = request.learner.id;
+    const now = new Date();
+    const view = await services.progressService.getProgressView(userId, now);
+    if (!view) return { nearest: null, rewards: [] };
+    const [lang, snapshot] = await Promise.all([
+      learnerLang(services, userId),
+      services.momentumService.getSnapshot(userId, now),
+    ]);
+    const copy = renderProgressLadder(view, snapshot.band, lang);
+    return { nearest: copy.nearest, rewards: copy.rewards };
+  });
+
   app.get("/api/progress", async (request) => {
     const config = await services.settings.getMotivationConfig();
     if (!config.enabled) return { enabled: false };
 
     const userId = request.learner.id;
     const now = new Date();
-    const settings = await services.userRepository.getSettings(userId);
-    const lang: SupportedLang =
-      settings?.interfaceLang && isSupported(settings.interfaceLang) ? settings.interfaceLang : "en";
+    const lang = await learnerLang(services, userId);
     const momentum = services.momentumService;
     const snapshot = await momentum.getSnapshot(userId, now);
     const words = await services.vocabularyRepository.countByUser(userId);
-    const [mature, due, activeDays] = await Promise.all([
+    const [mature, due, activeDays, ladder] = await Promise.all([
       services.vocabularyRepository.countMatureTranslations(userId, MATURE_INTERVAL_DAYS),
       services.vocabularyRepository.countDueForSrs(userId, now),
       momentum.countActiveDays(userId, ACTIVE_DAYS_WINDOW, now),
+      services.progressService.getProgressView(userId, now),
     ]);
 
     // The bot's welcome-back line after a long pause, under the same cooldown.
@@ -75,6 +96,8 @@ export function progressRoutes(app: FastifyInstance, services: WebServices): voi
               t("progressActiveDays", lang, { count: activeDays }),
             ],
       reviewLabel: t("progressReviewButton", lang, { count: due }),
+      // Absent while the ladder is hidden, so the response is exactly what it was before.
+      ...(ladder ? { ladder: renderProgressLadder(ladder, snapshot.band, lang) } : {}),
     };
   });
 }
