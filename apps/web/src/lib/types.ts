@@ -120,6 +120,23 @@ export interface TranslateResult {
   } | null;
   translations: TranslateTarget[];
   savedEntryId: number | null;
+  // Absent on results saved in history before the card could be explored.
+  inputType?: "word" | "phrase" | "sentence";
+  context?: string | null;
+  etymologyEligible?: boolean;
+  /** Paid card actions the plan includes; the server re-checks every one. */
+  features?: CardFeatures;
+}
+
+export interface CardFeatures {
+  clarification: boolean;
+  mentor: boolean;
+  etymology: boolean;
+}
+
+export interface MentorTurn {
+  role: "user" | "assistant";
+  content: string;
 }
 
 /** "off" = voice-over switched off for everyone; "locked" = not in the learner's plan. */
@@ -173,4 +190,6 @@ export interface TranslateAnswer {
   sourceLang?: string;
   asWritten?: boolean;
   context?: string;
+  clarify?: boolean;
+  negativeConstraints?: Record<string, string[]>;
 }

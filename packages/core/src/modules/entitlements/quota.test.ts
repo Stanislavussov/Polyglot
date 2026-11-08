@@ -1,6 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
 import type { PlanLimitConfig, SettingsPort } from "../../ports/settings.port.js";
-import { AI_CALL_WEIGHTS, checkAiQuota, checkTranslationQuota, recordAiUsage, resolvePlanLimit } from "./quota.js";
+import {
+  AI_CALL_WEIGHTS,
+  checkAiQuota,
+  checkMentorDailyQuota,
+  checkTranslationQuota,
+  recordAiUsage,
+  resolvePlanLimit,
+} from "./quota.js";
 
 const free: PlanLimitConfig = {
   name: "free",
@@ -99,5 +106,38 @@ describe("quota decisions", () => {
     const p = ports(0, free);
     await recordAiUsage(p, 7, "mentor", 2, "en", ["de"]);
     expect(p.translationRequests.logTranslationRequest).toHaveBeenCalledWith(7, "[mentor]", "en", ["de"], 2);
+  });
+});
+
+describe("checkMentorDailyQuota", () => {
+  const plus: PlanLimitConfig = { ...free, name: "plus", label: "Plus", mentorDailyLimit: 30, isDefault: false };
+  const user = { id: 3, audienceGroup: "product" as const, subscriptionPlan: "plus" as const };
+
+  function ports(turnsToday: number, plan: PlanLimitConfig) {
+    const countRequestsInWindow = vi.fn().mockResolvedValue(turnsToday);
+    return {
+      countRequestsInWindow,
+      ports: {
+        settings: settingsWith(vi.fn().mockResolvedValue(plan), vi.fn()),
+        translationRequests: { countRequestsInWindow, getUserCreditsInWindow: vi.fn(), logTranslationRequest: vi.fn() },
+      },
+    };
+  }
+
+  it("allows a turn under the plan's daily cap, counting only mentor rows", async () => {
+    const { ports: p, countRequestsInWindow } = ports(29, plus);
+    expect(await checkMentorDailyQuota(p, user)).toEqual({ ok: true });
+    expect(countRequestsInWindow).toHaveBeenCalledWith(3, "[mentor]", expect.any(Date));
+  });
+
+  it("refuses the turn once the cap is used, naming the cap", async () => {
+    expect(await checkMentorDailyQuota(ports(30, plus).ports, user)).toEqual({ ok: false, limit: 30 });
+  });
+
+  it("never caps a plan without a mentor limit, nor an internal role", async () => {
+    expect(await checkMentorDailyQuota(ports(999, free).ports, user)).toEqual({ ok: true });
+    expect(await checkMentorDailyQuota(ports(999, plus).ports, { ...user, audienceGroup: "tester" })).toEqual({
+      ok: true,
+    });
   });
 });

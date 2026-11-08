@@ -6,6 +6,7 @@ import type {
   EntryDetail,
   LoaderPhrases,
   Me,
+  MentorTurn,
   Rating,
   ReviewState,
   Settings,
@@ -30,6 +31,9 @@ interface ErrorBody {
   // add_language
   lang?: string;
   supported?: boolean;
+  // feature_locked, mentor_limit
+  feature?: string;
+  limit?: number;
 }
 
 export class ApiError extends Error {
@@ -89,6 +93,15 @@ export const api = {
   loaderPhrases: (kind: "translate") => request<LoaderPhrases>("GET", `/loader/${kind}`),
   translate: (text: string, answer: TranslateAnswer = {}) =>
     request<TranslateResult>("POST", "/translate", { text, ...answer }),
+  etymology: (card: { original: string; sourceLang: string; inputType: "word" | "phrase" }) =>
+    request<{ etymology: string }>("POST", "/translate/etymology", card),
+  mentor: (body: {
+    card: TranslateResult;
+    question?: string;
+    explain?: boolean;
+    etymology?: string;
+    history: MentorTurn[];
+  }) => request<{ question: string; answer: string }>("POST", "/mentor", body),
   entry: (entryId: number) => request<EntryDetail>("GET", `/dictionary/${entryId}`),
   removeEntry: (entryId: number) => request<void>("DELETE", `/dictionary/${entryId}`),
   restoreEntry: (entryId: number) => request<void>("POST", `/dictionary/${entryId}/restore`),

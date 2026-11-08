@@ -153,6 +153,12 @@ export * from "./modules/i18n/index.js";
 export * from "./modules/idiom-analysis/index.js";
 export * from "./modules/input-analysis/index.js";
 export * from "./modules/language-detect/index.js";
+export {
+  type CardMentorContext,
+  composeCardMentorTurn,
+  type MentorCard,
+  renderCardForMentor,
+} from "./modules/mentor/card-context.js";
 export type { MentorPromptOptions } from "./modules/mentor/prompt.builder.js";
 export { buildMentorSystemPrompt, MAX_MENTOR_HISTORY } from "./modules/mentor/prompt.builder.js";
 export {
@@ -289,7 +295,14 @@ export {
 export type { CircuitBreakerConfig, CircuitState } from "./resilience/circuit-breaker.js";
 // Resilience — per-model circuit breaker (Phase 3)
 export { CircuitBreaker } from "./resilience/circuit-breaker.js";
-export { AIModelNotConfiguredError, resolveDefaultAIModel } from "./shared/ai-model.js";
+export {
+  AIModelNotConfiguredError,
+  buildAiFailover,
+  MIN_FAILOVER_BUDGET_MS,
+  RESERVED_FALLBACK_MS,
+  resolveDefaultAIModel,
+  resolveFallbackAIModel,
+} from "./shared/ai-model.js";
 // Shared
 export type { CardFrontFields } from "./shared/card-template.types.js";
 export {

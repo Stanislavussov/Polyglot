@@ -26,3 +26,4 @@
 - The web app now asks which language a word is in when it could be several, and tells you when you typed in a language you don't study yet instead of translating it wrong.
 - After a translation on the website, the input box empties itself, ready for your next word.
 - Review cards on the website now show the whole word — meaning, examples, synonyms and notes — and with Pro you can tap 🔊 to hear it.
+- Under a translation on the site, tap 🔍 Explore to clarify the meaning, see another meaning, read where the word comes from, or ask the mentor about it — just like in the bot.

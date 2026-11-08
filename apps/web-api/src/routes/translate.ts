@@ -1,6 +1,8 @@
 import {
   type Example,
   errorFields,
+  FEATURE_KEYS,
+  isEtymologyEligible,
   logEvent,
   runTranslation,
   saveTranslationToDictionary,
@@ -9,6 +11,7 @@ import {
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import type { WebServices } from "../services.js";
+import { cardFeatures, featureLocked, hasFeature } from "./card-explore.js";
 
 const bodySchema = z.object({
   // Generous on purpose: the length rule (and its message) belongs to core's input validation.
@@ -18,6 +21,10 @@ const bodySchema = z.object({
   sourceLang: z.string().min(2).max(8).optional(),
   asWritten: z.boolean().optional(),
   context: z.string().trim().min(1).max(200).optional(),
+  // "Clarify translation" on a shown card: the same re-run as an answered question, but a paid card action.
+  clarify: z.boolean().optional(),
+  // "Other meaning": every translation shown so far, per target language, for the new card to avoid.
+  negativeConstraints: z.record(z.string().min(2).max(8), z.array(z.string().max(500)).max(20)).optional(),
 });
 
 const texts = (items: { text: string }[] | null | undefined) => (items ?? []).map((item) => item.text);
@@ -74,8 +81,14 @@ export function translateRoutes(app: FastifyInstance, services: WebServices): vo
   app.post("/api/translate", async (request, reply) => {
     const parsed = bodySchema.safeParse(request.body);
     if (!parsed.success) return reply.status(400).send({ code: "invalid_text" });
-    const { text, ...answer } = parsed.data;
+    const { text, clarify, ...answer } = parsed.data;
     const user = request.learner;
+    if (
+      (clarify === true || answer.negativeConstraints) &&
+      !(await hasFeature(services, user, FEATURE_KEYS.clarification))
+    ) {
+      return featureLocked(reply, FEATURE_KEYS.clarification);
+    }
 
     let outcome: Awaited<ReturnType<typeof runTranslation>>;
     try {
@@ -119,6 +132,8 @@ export function translateRoutes(app: FastifyInstance, services: WebServices): vo
         return reply.status(422).send({ code: "needs_clarification", sourceLang: outcome.sourceLang, ...outcome.view });
       case "timeout":
         return reply.status(504).send({ code: "timeout" });
+      case "no_more_meanings":
+        return reply.status(422).send({ code: "no_more_meanings" });
       case "done": {
         // The web's save policy: every word or phrase lands in the dictionary; a sentence is not a word to learn.
         const savedEntryId =
@@ -135,13 +150,20 @@ export function translateRoutes(app: FastifyInstance, services: WebServices): vo
                 outcome.inputType,
                 "web",
               );
-        return toTranslateResult(
-          outcome.output,
-          outcome.targetLangs,
-          savedEntryId,
-          outcome.inputType === "sentence",
-          outcome.needsReview,
-        );
+        const settings = await services.userRepository.getSettings(user.id);
+        return {
+          ...toTranslateResult(
+            outcome.output,
+            outcome.targetLangs,
+            savedEntryId,
+            outcome.inputType === "sentence",
+            outcome.needsReview,
+          ),
+          inputType: outcome.inputType,
+          context: outcome.contextHint ?? null,
+          etymologyEligible: isEtymologyEligible(outcome.inputType, outcome.sourceLang, settings?.nativeLang ?? "en"),
+          features: await cardFeatures(services, user),
+        };
       }
     }
   });

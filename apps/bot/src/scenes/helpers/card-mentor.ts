@@ -15,13 +15,21 @@
  * re-confirm, the daily allowance, the credit meter, the failover — because the
  * turn goes through the same `handleMentorText`.
  */
-import { FEATURE_KEYS, getLanguageName, isSupported, logEvent, type SupportedLang, t } from "@polyglot/core";
+import {
+  type CardMentorContext,
+  composeCardMentorTurn,
+  FEATURE_KEYS,
+  getLanguageName,
+  isSupported,
+  logEvent,
+  type SupportedLang,
+  t,
+} from "@polyglot/core";
 import type { InlineKeyboardMarkup } from "grammy/types";
 import { getRequestSettings } from "../../middlewares/request-settings.js";
 import { MODE_POLICIES, startMentorThread } from "../../modes/mode-policy.js";
 import { trackProductEvent } from "../../observability/product-events.js";
 import type { BotContext, SessionData } from "../../types.js";
-import { type CardMentorContext, composeCardMentorTurn } from "./card-mentor-context.js";
 import { handleMentorText, MENTOR_MAX_INPUT_LENGTH } from "./mentor-mode.helper.js";
 import { ensurePaidFeature, ensurePaidFeatureForMessage } from "./paid-feature.helper.js";
 import { answerStaleCallback } from "./stale-callback.helper.js";

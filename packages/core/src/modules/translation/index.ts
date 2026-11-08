@@ -17,7 +17,7 @@ export {
 } from "./clarification.js";
 // Etymology
 export type { EtymologyInput } from "./etymology.service.js";
-export { generateEtymology } from "./etymology.service.js";
+export { generateEtymology, isEtymologyEligible } from "./etymology.service.js";
 // Language traits
 export type { LanguageTraits } from "./language-traits.js";
 export { buildLanguageTraitsHint, getLanguageTraits, LANGUAGE_TRAITS } from "./language-traits.js";

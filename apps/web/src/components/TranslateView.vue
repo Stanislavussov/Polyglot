@@ -148,6 +148,8 @@
             id-prefix="translate"
           />
 
+          <CardExplore :result="result" @replace="onReplace" />
+
           <div v-if="saveControls" class="flex flex-wrap items-center gap-3 border-t border-line pt-4 text-sm">
             <template v-if="saveState === 'removed'">
               <span class="text-ink-muted">{{ t("web.translate.removed") }}</span>
@@ -205,6 +207,7 @@ import { ApiError, api } from "../lib/api";
 import { t } from "../lib/i18n";
 import { languageFlag, languageName } from "../lib/settings-store";
 import type { Clarification, ClarificationOption, TranslateAnswer, TranslateResult } from "../lib/types";
+import CardExplore from "./CardExplore.vue";
 import ExampleList from "./ExampleList.vue";
 import LimitNotice from "./LimitNotice.vue";
 import TranslationBlock from "./TranslationBlock.vue";
@@ -293,6 +296,11 @@ function show(entry: TranslateResult, stored: boolean): void {
   fromHistory.value = stored;
   saveState.value = "saved";
   resultSeq.value += 1;
+}
+
+function onReplace(fresh: TranslateResult): void {
+  show(fresh, false);
+  remember(fresh);
 }
 
 const REJECT_KEYS: Record<string, string> = {

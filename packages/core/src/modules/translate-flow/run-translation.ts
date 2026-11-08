@@ -43,6 +43,8 @@ export interface TranslationAnswer {
   sourceLang?: string;
   asWritten?: boolean;
   context?: string;
+  /** "Other meaning": translations already shown, per target language, that the new card must avoid. */
+  negativeConstraints?: Record<string, string[]>;
 }
 
 export interface RunTranslationRequest {
@@ -112,7 +114,9 @@ export type TranslationOutcome =
       ambiguity: TranslationAmbiguity;
       view: ClarificationView;
     }
-  | { status: "timeout" };
+  | { status: "timeout" }
+  /** "Other meaning" found no sense beyond the ones already shown. */
+  | { status: "no_more_meanings" };
 
 class HardTimeout extends Error {}
 
@@ -191,7 +195,10 @@ export async function runTranslation(
   // user is never asked the same thing twice.
   const answered =
     answer !== undefined &&
-    (answer.sourceLang !== undefined || answer.asWritten === true || answer.context !== undefined);
+    (answer.sourceLang !== undefined ||
+      answer.asWritten === true ||
+      answer.context !== undefined ||
+      answer.negativeConstraints !== undefined);
 
   if (answer?.sourceLang !== undefined) {
     // The answer came back through the client, so it is checked, never trusted.
@@ -306,6 +313,7 @@ export async function runTranslation(
           inputType: classification.type,
           correctionPolicy: { assessSourceExistence: true, ...(answered ? { skipInputCorrection: true } : {}) },
           deadlineAt: aiStart + TRANSLATION_PIPELINE_BUDGET_MS,
+          ...(answer?.negativeConstraints ? { negativeConstraints: answer.negativeConstraints } : {}),
         },
         {
           lookupContext: classification.type === "sentence" ? async () => [] : deps.contextLookup,
@@ -323,6 +331,11 @@ export async function runTranslation(
   }
   const aiRequestMs = now() - aiStart;
 
+  // The bot's rule: a pipeline that wants clarification after excluding every shown
+  // sense has no genuinely different one to offer.
+  if (decision.status === "needs_clarification" && answer?.negativeConstraints) {
+    return { status: "no_more_meanings" };
+  }
   if (decision.status === "needs_clarification") {
     const coerced = outOfSetLanguageFromCorrection(decision.ambiguity, nativeLang, learningLangs);
     if (coerced) return { status: "add_language", lang: coerced, supported: true, text, contextHint };
