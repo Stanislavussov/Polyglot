@@ -171,7 +171,19 @@ export interface ReviewState {
 }
 
 export type Rating = "again" | "hard" | "good" | "easy";
-export type PageName = "translate" | "dictionary" | "review" | "settings";
+export type PageName = "translate" | "dictionary" | "review" | "progress" | "settings";
+
+export type Progress =
+  | { enabled: false }
+  | {
+      enabled: true;
+      title: string;
+      level: number;
+      phrase: string;
+      recovery: string | null;
+      stats: string[];
+      reviewLabel: string;
+    };
 
 export interface LoaderPhrases {
   emoji: string[];

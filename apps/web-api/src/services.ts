@@ -23,4 +23,5 @@ export type WebServices = Pick<
   | "ai"
   | "featureAccess"
   | "cardTemplateRepository"
+  | "momentumService"
 >;

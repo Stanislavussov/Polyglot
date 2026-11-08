@@ -59,6 +59,7 @@ import { loadSettings } from "../lib/settings-store";
 import type { PageName } from "../lib/types";
 import DictionaryView from "./DictionaryView.vue";
 import NavList from "./NavList.vue";
+import ProgressView from "./ProgressView.vue";
 import ReviewView from "./ReviewView.vue";
 import SettingsView from "./SettingsView.vue";
 import ShellSkeleton from "./ShellSkeleton.vue";
@@ -71,6 +72,7 @@ const views = {
   translate: TranslateView,
   dictionary: DictionaryView,
   review: ReviewView,
+  progress: ProgressView,
   settings: SettingsView,
 } as const;
 

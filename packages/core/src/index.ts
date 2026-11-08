@@ -170,6 +170,7 @@ export {
   localDayKey,
   resolveBand,
 } from "./modules/momentum/momentum.math.js";
+export { creditEffort, recordMatureIfCrossed, withReviewRecording } from "./modules/momentum/momentum.recording.js";
 export type {
   MomentumService,
   MomentumServiceDeps,

@@ -509,6 +509,8 @@
   "web.nav.dictionary": "Dictionnaire",
   "web.nav.review": "Révision",
   "web.nav.settings": "Paramètres",
+  "web.nav.progress": "Progrès",
+  "web.progress.off": "La progression n’est pas disponible pour le moment.",
   "web.nav.signOut": "Se déconnecter",
   "web.nav.openMenu": "Ouvrir le menu",
   "web.nav.closeMenu": "Fermer le menu",

@@ -1,4 +1,5 @@
 import {
+  creditEffort,
   type Example,
   errorFields,
   FEATURE_KEYS,
@@ -150,6 +151,19 @@ export function translateRoutes(app: FastifyInstance, services: WebServices): vo
                 outcome.inputType,
                 "web",
               );
+        // The bot's credits for the same two efforts, under the same dedupe keys.
+        await creditEffort(services.momentumService, {
+          userId: user.id,
+          kind: "translate",
+          dedupeKey: `translate:${outcome.translationRequestId}`,
+        });
+        if (savedEntryId !== null) {
+          await creditEffort(services.momentumService, {
+            userId: user.id,
+            kind: "save",
+            dedupeKey: `save:${savedEntryId}`,
+          });
+        }
         const settings = await services.userRepository.getSettings(user.id);
         return {
           ...toTranslateResult(

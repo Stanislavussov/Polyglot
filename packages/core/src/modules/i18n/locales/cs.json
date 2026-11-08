@@ -509,6 +509,8 @@
   "web.nav.dictionary": "Slovník",
   "web.nav.review": "Opakování",
   "web.nav.settings": "Nastavení",
+  "web.nav.progress": "Pokrok",
+  "web.progress.off": "Pokrok teď není k dispozici.",
   "web.nav.signOut": "Odhlásit se",
   "web.nav.openMenu": "Otevřít nabídku",
   "web.nav.closeMenu": "Zavřít nabídku",

@@ -509,6 +509,8 @@
   "web.nav.dictionary": "Словарь",
   "web.nav.review": "Повторение",
   "web.nav.settings": "Настройки",
+  "web.nav.progress": "Прогресс",
+  "web.progress.off": "Прогресс сейчас недоступен.",
   "web.nav.signOut": "Выйти",
   "web.nav.openMenu": "Открыть меню",
   "web.nav.closeMenu": "Закрыть меню",

@@ -29,3 +29,4 @@
 - Under a translation on the site, tap 🔍 Explore to clarify the meaning, see another meaning, read where the word comes from, or ask the mentor about it — just like in the bot.
 - On the website you can now keep several dictionaries, just like in the bot: create, rename and delete them, and add or move a word between them.
 - While reviewing on the website, you can remove a word you no longer need — and bring it back with one tap if you change your mind.
+- The website now has a Progress page with your rhythm, words in long-term memory and active days — and everything you do on the site counts toward it, just like in the bot.

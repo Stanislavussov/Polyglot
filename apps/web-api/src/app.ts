@@ -10,6 +10,7 @@ import { cardExploreRoutes } from "./routes/card-explore.js";
 import { dictionaryRoutes } from "./routes/dictionary.js";
 import { loaderRoutes } from "./routes/loader.js";
 import { meRoutes } from "./routes/me.js";
+import { progressRoutes } from "./routes/progress.js";
 import { reviewRoutes } from "./routes/review.js";
 import { settingsRoutes } from "./routes/settings.js";
 import { translateRoutes } from "./routes/translate.js";
@@ -87,6 +88,7 @@ export async function buildWebApiApp(
   cardAudioRoutes(app, services);
   cardExploreRoutes(app, services);
   loaderRoutes(app, services);
+  progressRoutes(app, services);
 
   if (config.staticDir) {
     await app.register(import("@fastify/static"), { root: config.staticDir, wildcard: false });

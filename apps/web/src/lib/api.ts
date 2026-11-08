@@ -8,6 +8,7 @@ import type {
   LoaderPhrases,
   Me,
   MentorTurn,
+  Progress,
   Rating,
   ReviewState,
   Settings,
@@ -130,6 +131,7 @@ export const api = {
     }
     return response.blob();
   },
+  progress: () => request<Progress>("GET", "/progress"),
   reviewNext: () => request<ReviewState>("GET", "/review/next"),
   reviewCard: (entryId: number) => request<ReviewState>("GET", `/review/card/${entryId}`),
   rate: (entryId: number, rating: Rating) => request<ReviewState>("POST", `/review/${entryId}`, { rating }),

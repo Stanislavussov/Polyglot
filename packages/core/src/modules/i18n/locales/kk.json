@@ -509,6 +509,8 @@
   "web.nav.dictionary": "Сөздік",
   "web.nav.review": "Қайталау",
   "web.nav.settings": "Баптаулар",
+  "web.nav.progress": "Прогресс",
+  "web.progress.off": "Прогресс қазір қолжетімсіз.",
   "web.nav.signOut": "Шығу",
   "web.nav.openMenu": "Мәзірді ашу",
   "web.nav.closeMenu": "Мәзірді жабу",
