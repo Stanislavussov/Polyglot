@@ -562,6 +562,8 @@
   "web.translate.addLanguage": "Бұл {lang} сияқты, ол сіздің тілдеріңіздің арасында жоқ. Одан аудару үшін оны баптауларда қосыңыз.",
   "web.translate.languageUnsupported": "{lang} әзірге қолдау көрсетілмейді, сондықтан одан аудара алмаймын.",
   "web.translate.openSettings": "Баптауларды ашу",
+  "web.translate.addAndTranslate": "{lang} қосып, аудару",
+  "web.translate.maxLanguages": "{max} тілге дейін үйренуге болады. Жаңасын қосу үшін Баптауларда біреуін алып тастаңыз.",
   "web.translate.noLanguages": "Алдымен баптауларда үйренетін тілді таңдаңыз.",
   "web.translate.rejected.empty": "Аудару үшін мәтін енгізіңіз.",
   "web.translate.rejected.needsText": "Контекстің алдына сөз немесе тіркес енгізіңіз.",

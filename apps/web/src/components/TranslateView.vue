@@ -81,6 +81,14 @@
           <p>
             {{ t(otherLanguage.supported ? "web.translate.addLanguage" : "web.translate.languageUnsupported", { lang: languageName(otherLanguage.lang) }) }}
           </p>
+          <button
+            v-if="otherLanguage.supported"
+            type="button"
+            class="btn-primary"
+            @click="answer(otherLanguage.text, { addLanguage: otherLanguage.lang })"
+          >
+            {{ t("web.translate.addAndTranslate", { lang: languageName(otherLanguage.lang) }) }}
+          </button>
           <a v-if="otherLanguage.supported" href="/settings/" class="inline-flex min-h-11 items-center font-semibold underline">
             {{ t("web.translate.openSettings") }}
           </a>
@@ -226,7 +234,7 @@ const fromHistory = ref(false);
 const errorKey = ref<string | null>(null);
 const errorParams = ref<Record<string, string | number>>({});
 const languageQuestion = ref<{ text: string; kind: "ambiguous" | "unrecognized"; languages: string[] } | null>(null);
-const otherLanguage = ref<{ lang: string; supported: boolean } | null>(null);
+const otherLanguage = ref<{ lang: string; supported: boolean; text: string } | null>(null);
 const clarification = ref<{ text: string; view: Clarification } | null>(null);
 const languageChoices = computed(() => {
   const view = clarification.value?.view;
@@ -396,7 +404,10 @@ async function answer(value: string, choice: TranslateAnswer): Promise<void> {
         languages: error.body.languages,
       };
     } else if (error instanceof ApiError && error.code === "add_language" && error.body.lang) {
-      otherLanguage.value = { lang: error.body.lang, supported: error.body.supported === true };
+      otherLanguage.value = { lang: error.body.lang, supported: error.body.supported === true, text: error.body.text ?? value };
+    } else if (error instanceof ApiError && error.code === "max_languages") {
+      errorKey.value = "web.translate.maxLanguages";
+      errorParams.value = { max: error.body.limit ?? 0 };
     } else if (error instanceof ApiError && error.code === "rejected") {
       errorKey.value = REJECT_KEYS[error.body.reason ?? ""] ?? "web.common.error";
       errorParams.value = { max: error.body.maxLength ?? MAX_LENGTH };

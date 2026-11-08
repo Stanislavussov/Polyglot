@@ -562,6 +562,8 @@
   "web.translate.addLanguage": "Cela ressemble à du {lang}, qui ne fait pas partie de vos langues. Ajoutez-le dans les Paramètres pour traduire depuis cette langue.",
   "web.translate.languageUnsupported": "Le {lang} n'est pas encore pris en charge, je ne peux donc pas traduire depuis cette langue.",
   "web.translate.openSettings": "Ouvrir les Paramètres",
+  "web.translate.addAndTranslate": "Ajouter {lang} et traduire",
+  "web.translate.maxLanguages": "Vous pouvez apprendre jusqu’à {max} langues. Retirez-en une dans les Réglages pour en ajouter une autre.",
   "web.translate.noLanguages": "Choisissez d'abord une langue à apprendre dans les Paramètres.",
   "web.translate.rejected.empty": "Saisissez un texte à traduire.",
   "web.translate.rejected.needsText": "Saisissez un mot ou une expression avant le contexte.",

@@ -562,6 +562,8 @@
   "web.translate.addLanguage": "This looks like {lang}, which isn't one of your languages. Add it in Settings to translate from it.",
   "web.translate.languageUnsupported": "{lang} isn't supported yet, so I can't translate from it.",
   "web.translate.openSettings": "Open Settings",
+  "web.translate.addAndTranslate": "Add {lang} and translate",
+  "web.translate.maxLanguages": "You can learn up to {max} languages. Remove one in Settings to add another.",
   "web.translate.noLanguages": "Choose a language to learn in Settings first.",
   "web.translate.rejected.empty": "Type something to translate.",
   "web.translate.rejected.needsText": "Type a word or phrase before the context.",

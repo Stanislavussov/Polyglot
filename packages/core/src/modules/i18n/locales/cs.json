@@ -562,6 +562,8 @@
   "web.translate.addLanguage": "Vypadá to na {lang}, který mezi vašimi jazyky není. Přidejte ho v Nastavení, abyste z něj mohli překládat.",
   "web.translate.languageUnsupported": "{lang} zatím není podporován, takže z něj překládat nemohu.",
   "web.translate.openSettings": "Otevřít Nastavení",
+  "web.translate.addAndTranslate": "Přidat {lang} a přeložit",
+  "web.translate.maxLanguages": "Učit se můžete až {max} jazyky. Odeberte jeden v Nastavení a přidejte další.",
   "web.translate.noLanguages": "Nejprve si v Nastavení vyberte jazyk, který se učíte.",
   "web.translate.rejected.empty": "Napište něco k překladu.",
   "web.translate.rejected.needsText": "Před kontext napište slovo nebo frázi.",

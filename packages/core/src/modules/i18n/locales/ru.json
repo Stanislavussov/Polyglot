@@ -562,6 +562,8 @@
   "web.translate.addLanguage": "Похоже, это {lang}, а его нет среди ваших языков. Добавьте его в настройках, чтобы переводить с него.",
   "web.translate.languageUnsupported": "{lang} пока не поддерживается, поэтому перевести с него не получится.",
   "web.translate.openSettings": "Открыть настройки",
+  "web.translate.addAndTranslate": "Добавить {lang} и перевести",
+  "web.translate.maxLanguages": "Можно изучать до {max} языков. Уберите один в настройках, чтобы добавить новый.",
   "web.translate.noLanguages": "Сначала выберите язык для изучения в настройках.",
   "web.translate.rejected.empty": "Введите текст для перевода.",
   "web.translate.rejected.needsText": "Введите слово или фразу перед контекстом.",

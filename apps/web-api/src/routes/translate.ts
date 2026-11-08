@@ -4,7 +4,9 @@ import {
   errorFields,
   FEATURE_KEYS,
   isEtymologyEligible,
+  isSupportedLanguage,
   logEvent,
+  MAX_LEARNING_LANGS,
   runTranslation,
   saveTranslationToDictionary,
   type TranslateOutput,
@@ -26,6 +28,8 @@ const bodySchema = z.object({
   clarify: z.boolean().optional(),
   // "Other meaning": every translation shown so far, per target language, for the new card to avoid.
   negativeConstraints: z.record(z.string().min(2).max(8), z.array(z.string().max(500)).max(20)).optional(),
+  // The bot's tr:oos:add "Add and translate": join the learning set, then translate from it.
+  addLanguage: z.string().min(2).max(8).optional(),
 });
 
 const texts = (items: { text: string }[] | null | undefined) => (items ?? []).map((item) => item.text);
@@ -82,8 +86,22 @@ export function translateRoutes(app: FastifyInstance, services: WebServices): vo
   app.post("/api/translate", async (request, reply) => {
     const parsed = bodySchema.safeParse(request.body);
     if (!parsed.success) return reply.status(400).send({ code: "invalid_text" });
-    const { text, clarify, ...answer } = parsed.data;
+    const { text, clarify, addLanguage, ...answer } = parsed.data;
     const user = request.learner;
+    if (addLanguage !== undefined) {
+      if (!isSupportedLanguage(addLanguage)) return reply.status(400).send({ code: "invalid_language" });
+      const settings = await services.userRepository.getSettings(user.id);
+      const nativeLang = settings?.nativeLang ?? "en";
+      const learning = (settings?.learningLangs ?? []).filter((code) => code !== nativeLang);
+      if (addLanguage !== nativeLang && !learning.includes(addLanguage)) {
+        if (learning.length >= MAX_LEARNING_LANGS) {
+          return reply.status(422).send({ code: "max_languages", limit: MAX_LEARNING_LANGS });
+        }
+        await services.userRepository.updateLearningLangs(user.id, [...learning, addLanguage]);
+        logEvent("language.added_from_out_of_set", { sourceLang: addLanguage, surface: "web" });
+      }
+      answer.sourceLang = addLanguage;
+    }
     if (
       (clarify === true || answer.negativeConstraints) &&
       !(await hasFeature(services, user, FEATURE_KEYS.clarification))
