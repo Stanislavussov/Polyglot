@@ -15,7 +15,7 @@ import {
   localDayKey,
   resolveBand,
 } from "../momentum.math.js";
-import { BAND_THRESHOLDS, HALF_LIFE_MS } from "../momentum.types.js";
+import { BAND_THRESHOLDS, HALF_LIFE_MS, MOMENTUM_CLAIM_KINDS } from "../momentum.types.js";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -160,5 +160,32 @@ describe("activeDaysFromEvents", () => {
   it("ignores events older than the window", () => {
     const events = [{ occurredAt: new Date("2026-06-01T10:00:00.000Z"), weight: 3 }];
     expect(activeDaysFromEvents(events, "UTC", new Date("2026-07-01T00:00:00.000Z"))).toBe(0);
+  });
+});
+
+describe("goal-ladder claim tokens", () => {
+  it("leave the score and the active-day count exactly as they were", () => {
+    const at = new Date("2026-03-02T10:00:00.000Z");
+    const effort = [{ kind: "review", weight: 3, occurredAt: at }];
+    const withTokens = [
+      ...effort,
+      { kind: "reward", weight: 0, occurredAt: new Date(at.getTime() + DAY_MS) },
+      { kind: "milestone", weight: 0, occurredAt: new Date(at.getTime() + 2 * DAY_MS) },
+    ];
+    const replay = (events: typeof withTokens) =>
+      events.reduce((state, event) => applyEffort(state, event.weight, event.occurredAt), {
+        score: 0,
+        scoredAt: at,
+      });
+    const end = new Date(at.getTime() + 3 * DAY_MS);
+    expect(decay(replay(withTokens).score, replay(withTokens).scoredAt, end)).toBeCloseTo(
+      decay(replay(effort).score, replay(effort).scoredAt, end),
+      9,
+    );
+    expect(activeDaysFromEvents(withTokens, "UTC", at)).toBe(activeDaysFromEvents(effort, "UTC", at));
+  });
+
+  it("are kept by retention like every other claim", () => {
+    expect(MOMENTUM_CLAIM_KINDS).toEqual(expect.arrayContaining(["reward", "milestone"]));
   });
 });

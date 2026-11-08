@@ -16,7 +16,7 @@
  * `timestamptz` columns, so the horizon does not depend on the container/process
  * timezone.
  */
-import type { MomentumEventKind } from "@polyglot/core";
+import { MOMENTUM_CLAIM_KINDS } from "@polyglot/core";
 import { and, lt, notInArray } from "drizzle-orm";
 import { getDb } from "./connection.js";
 import {
@@ -47,9 +47,6 @@ export const DEFAULT_RETENTION_DAYS = 90;
  * horizon so a deliberately shorter sweep still wins.
  */
 export const PRODUCT_EVENT_RETENTION_DAYS = 30;
-
-/** Journal kinds that act as idempotency claims rather than effort; see the momentum delete below. */
-const MOMENTUM_CLAIM_KINDS: MomentumEventKind[] = ["praise", "mature", "weekly_proof"];
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 

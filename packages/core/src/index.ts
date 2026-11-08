@@ -47,6 +47,13 @@ export type {
 } from "./ports/product-event.repository.js";
 export { PRODUCT_EVENTS } from "./ports/product-event.repository.js";
 export type {
+  CloseAndClaimInput,
+  CloseAndClaimResult,
+  ProgressMonth,
+  ProgressRepository,
+  RewardGrant,
+} from "./ports/progress.repository.js";
+export type {
   IssueType,
   ReportedIssue,
   ReportedIssueRepository,
@@ -205,6 +212,7 @@ export {
   EFFORT_WEIGHTS,
   HALF_LIFE_MS,
   MATURE_INTERVAL_DAYS,
+  MOMENTUM_CLAIM_KINDS,
   parseMotivationConfig,
 } from "./modules/momentum/momentum.types.js";
 export type {
@@ -214,6 +222,35 @@ export type {
   SelectPraiseInput,
 } from "./modules/momentum/praise.selector.js";
 export { PRAISE_COOLDOWN_MS, PRAISE_WEEKLY_CAP, selectPraise } from "./modules/momentum/praise.selector.js";
+export type {
+  ActivityEvent,
+  GrantAction,
+  MonthStats,
+  PlanDays,
+  PlanInterval,
+  ProgressGoalsConfig,
+  ProgressGoalType,
+} from "./modules/momentum/progress-goals.js";
+export {
+  activityStats,
+  cyclesToClaim,
+  DEFAULT_PROGRESS_GOALS,
+  dayTaskState,
+  grantAction,
+  isMonthCounted,
+  longestHeldPlan,
+  monthBounds,
+  monthKey,
+  monthsBetween,
+  nearestGoal,
+  nextMilestone,
+  PROGRESS_MILESTONES,
+  planDaysForMonth,
+  progressGoalsConfig,
+  REWARD_PROVIDER,
+  rhythmWeek,
+  safeTimezone,
+} from "./modules/momentum/progress-goals.js";
 export * from "./modules/notifications/index.js";
 export type { HookWord, HookWordCategory } from "./modules/onboarding/hook-words.js";
 export { getHookWordLanguages, getHookWords, HOOK_WORDS } from "./modules/onboarding/hook-words.js";
