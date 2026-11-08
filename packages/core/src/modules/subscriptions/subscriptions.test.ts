@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import type { PaymentPort } from "../../ports/payment.port.js";
 import type { Subscription, SubscriptionRepository } from "../../ports/subscription.repository.js";
+import { REWARD_PROVIDER } from "../momentum/progress-goals.js";
 import { addOneMonth, createSubscriptionService } from "./index.js";
 import {
   addDays,
@@ -141,9 +142,14 @@ describe("subscription service — processRenewals", () => {
     expect(users.updateSubscriptionPlan).toHaveBeenCalledWith(42, "free");
   });
 
-  it("expires the row but keeps the plan when another active subscription remains", async () => {
+  it("expires the row and points the user at the subscription that still covers them", async () => {
     const users = { updateSubscriptionPlan: vi.fn(async () => null) };
-    const stillActive: Subscription = { ...expiredSub, id: 8, currentPeriodEnd: new Date("2026-12-01T00:00:00Z") };
+    const stillActive: Subscription = {
+      ...expiredSub,
+      id: 8,
+      plan: "pro",
+      currentPeriodEnd: new Date("2026-12-01T00:00:00Z"),
+    };
     const subscriptions = makeSubscriptionRepo({
       findExpired: vi.fn(async () => [expiredSub]),
       findActiveByUser: vi.fn(async () => stillActive),
@@ -158,7 +164,43 @@ describe("subscription service — processRenewals", () => {
 
     expect(result).toEqual({ renewed: 0, expired: 1 });
     expect(subscriptions.updateStatus).toHaveBeenCalledWith(7, "expired");
-    expect(users.updateSubscriptionPlan).not.toHaveBeenCalled();
+    // A stale pointer would keep serving the expired row's plan.
+    expect(users.updateSubscriptionPlan).toHaveBeenCalledWith(42, "pro");
+  });
+
+  it("expires a progress reward at its end instead of asking the provider to renew it", async () => {
+    const users = { updateSubscriptionPlan: vi.fn(async () => null) };
+    const reward: Subscription = { ...expiredSub, provider: REWARD_PROVIDER };
+    const subscriptions = makeSubscriptionRepo({ findExpired: vi.fn(async () => [reward]) });
+    const payment: PaymentPort = {
+      createCheckout: vi.fn(async () => ({ ok: true })),
+      verifyRenewal: vi.fn(async () => ({ paid: true })),
+    };
+    const service = createSubscriptionService({ payment, subscriptions, users });
+
+    const result = await service.processRenewals(new Date("2026-07-02T00:00:00Z"));
+
+    expect(result).toEqual({ renewed: 0, expired: 1 });
+    expect(payment.verifyRenewal).not.toHaveBeenCalled();
+    expect(subscriptions.updateStatus).toHaveBeenCalledWith(7, "expired");
+    expect(users.updateSubscriptionPlan).toHaveBeenCalledWith(42, "free");
+  });
+
+  it("keeps a reward's thirty days on a mock row through its next renewal", async () => {
+    // The row as the reward left it: period end pushed 30 days past the paid one.
+    const extended: Subscription = { ...expiredSub, currentPeriodEnd: new Date("2026-07-31T00:00:00Z") };
+    const rows = [extended];
+    const subscriptions = makeSubscriptionRepo({
+      findExpired: vi.fn(async (now: Date) => rows.filter((row) => row.currentPeriodEnd <= now)),
+    });
+    const users = { updateSubscriptionPlan: vi.fn(async () => null) };
+    const service = createSubscriptionService({ payment: paidProvider, subscriptions, users });
+
+    // The original period end has passed, the reward's has not: nothing is due.
+    expect(await service.processRenewals(new Date("2026-07-02T00:00:00Z"))).toEqual({ renewed: 0, expired: 0 });
+    expect(await service.processRenewals(new Date("2026-07-31T01:00:00Z"))).toEqual({ renewed: 1, expired: 0 });
+    // Renewed from the extended end, not from the sweep's clock.
+    expect(subscriptions.extend).toHaveBeenCalledWith(7, new Date("2026-08-31T00:00:00Z"));
   });
 });
 

@@ -222,6 +222,8 @@ export type {
   SelectPraiseInput,
 } from "./modules/momentum/praise.selector.js";
 export { PRAISE_COOLDOWN_MS, PRAISE_WEEKLY_CAP, selectPraise } from "./modules/momentum/praise.selector.js";
+export type { ProgressService, ProgressView } from "./modules/momentum/progress.service.js";
+export { createProgressService } from "./modules/momentum/progress.service.js";
 export type {
   ActivityEvent,
   GrantAction,

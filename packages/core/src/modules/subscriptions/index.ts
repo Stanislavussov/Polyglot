@@ -1,6 +1,7 @@
 import type { PaymentPort } from "../../ports/payment.port.js";
 import type { Subscription, SubscriptionRepository } from "../../ports/subscription.repository.js";
 import type { SubscriptionPlan } from "../../ports/user.repository.js";
+import { REWARD_PROVIDER } from "../momentum/progress-goals.js";
 import { TRIAL_PROVIDER } from "./trial.js";
 
 /** Just the user-mutation the subscription lifecycle needs (kept narrow on purpose). */
@@ -33,9 +34,9 @@ export function addOneMonth(from: Date): Date {
 }
 
 /**
- * Close a period out: expire the row, and drop the user to free unless another
- * active subscription still covers them (a concurrent upgrade, say) — clobbering
- * a still-valid plan pointer would take away something the user is paying for.
+ * Close a period out: expire the row, and point the user at whatever active
+ * subscription still covers them (a concurrent upgrade, say), else free — leaving
+ * the pointer alone would keep serving the expired row's plan.
  */
 async function expireAndDowngrade(
   deps: Pick<SubscriptionServiceDeps, "subscriptions" | "users">,
@@ -43,9 +44,7 @@ async function expireAndDowngrade(
 ): Promise<void> {
   await deps.subscriptions.updateStatus(sub.id, "expired");
   const remaining = await deps.subscriptions.findActiveByUser(sub.userId);
-  if (!remaining) {
-    await deps.users.updateSubscriptionPlan(sub.userId, "free");
-  }
+  await deps.users.updateSubscriptionPlan(sub.userId, remaining ? remaining.plan : "free");
 }
 
 /**
@@ -91,7 +90,8 @@ export function createSubscriptionService(deps: SubscriptionServiceDeps) {
         // provider to ask. The mock adapter answers `paid: true` to every
         // query — routing a trial through it would silently turn the
         // onboarding gift into a free Plus subscription for life.
-        if (sub.provider === TRIAL_PROVIDER) {
+        // A progress reward was never billed either, and the same `paid: true` would renew it forever.
+        if (sub.provider === TRIAL_PROVIDER || sub.provider === REWARD_PROVIDER) {
           await expireAndDowngrade(deps, sub);
           expired += 1;
           continue;
