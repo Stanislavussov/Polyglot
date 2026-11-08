@@ -1,0 +1,11 @@
+---
+import AppShell from "../../components/AppShell.vue";
+import ShellSkeleton from "../../components/ShellSkeleton.vue";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Pick words">
+  <AppShell client:only="vue" page="pick">
+    <ShellSkeleton slot="fallback" label="Loading…" />
+  </AppShell>
+</BaseLayout>

@@ -10,6 +10,15 @@
     overflow-wrap: anywhere;
   }
 
+  h1,
+  h2 {
+    @apply font-display tracking-tight;
+  }
+
+  h1 {
+    letter-spacing: -0.035em;
+  }
+
   :focus-visible {
     @apply outline-2 outline-offset-2 outline-ring;
   }
@@ -17,24 +26,52 @@
 
 @layer components {
   .card {
-    @apply rounded-2xl border border-line bg-surface p-4 shadow-sm sm:p-6;
+    @apply rounded-3xl border border-line bg-surface p-4 shadow-card sm:p-6;
   }
 
   .btn {
-    @apply inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-xl px-4 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60;
+    @apply inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 py-2 text-sm font-bold transition duration-200 hover:-translate-y-0.5 disabled:hover:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60;
   }
 
   .btn-primary {
     /* Solid pale fill when disabled: the phone button floats over the page, so opacity let the text behind it show through. */
-    @apply btn bg-primary text-primary-fg hover:bg-primary-hover disabled:bg-primary-soft disabled:text-primary-soft-fg disabled:opacity-100;
+    @apply btn bg-primary text-primary-fg shadow-primary hover:bg-primary-hover disabled:shadow-none disabled:bg-primary-soft disabled:text-primary-soft-fg disabled:opacity-100;
   }
 
   .btn-secondary {
-    @apply btn border border-line bg-surface text-ink hover:bg-surface-muted;
+    @apply btn border border-primary-soft bg-surface text-primary-soft-fg hover:border-ring;
+  }
+
+  /* Lime swash under a page title, slightly tilted — the hand-drawn underline from the Figma hero. */
+  .page-title {
+    @apply relative z-0 inline-block text-3xl font-extrabold;
+  }
+
+  .page-title::after {
+    @apply absolute -bottom-1 left-[2%] right-[-4%] -z-10 h-2.5 rounded-[50%] bg-accent opacity-80 content-[''];
+    transform: rotate(-2deg);
+  }
+
+  /* Round icon chip at the end of a pill button. */
+  .btn-chip {
+    @apply -my-1 -mr-3 grid size-8 shrink-0 place-items-center rounded-full bg-accent text-accent-fg;
+  }
+
+  /* Background shapes from the Figma hero: blurred leaf circles, thin rings and lime dots. */
+  .backdrop-blob {
+    @apply absolute rounded-full bg-primary opacity-[0.14] blur-3xl;
+  }
+
+  .backdrop-ring {
+    @apply absolute rounded-full border border-primary opacity-[0.15];
+  }
+
+  .backdrop-dot {
+    @apply absolute rounded-full bg-accent opacity-70;
   }
 
   .field {
-    @apply min-h-11 w-full rounded-xl border border-line bg-surface px-3 py-2 text-base text-ink placeholder:text-ink-muted;
+    @apply min-h-11 w-full rounded-2xl border border-line bg-surface px-4 py-2 text-base transition-colors focus:border-ring text-ink placeholder:text-ink-muted;
   }
 }
 

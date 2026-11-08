@@ -1,61 +1,37 @@
 import {
   AITimeoutError,
-  buildAiFailover,
-  buildMentorSystemPrompt,
   type ChatMessage,
-  checkAiQuota,
-  checkMentorDailyQuota,
   composeCardMentorTurn,
   defaultFeatureAccess,
   errorFields,
   FEATURE_KEYS,
-  type FeatureKey,
   generateEtymology,
   getLanguageName,
   isEtymologyEligible,
-  isSupported,
   logEvent,
   MAX_MENTOR_HISTORY,
+  MENTOR_MAX_INPUT_LENGTH,
   type MentorCard,
-  type QuotaPorts,
-  recordAiUsage,
   resolveDefaultAIModel,
-  resolveFallbackAIModel,
-  TRANSLATION_HARD_TIMEOUT_MS,
+  resolveFeatureStates,
   t,
   type User,
 } from "@polyglot/core";
-import type { FastifyInstance, FastifyReply } from "fastify";
+import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import type { WebServices } from "../services.js";
-
-/** The bot's MENTOR_MAX_INPUT_LENGTH: what a user may type as one question. */
-export const MENTOR_MAX_QUESTION_LENGTH = 1000;
-
-export async function hasFeature(services: WebServices, user: User, feature: FeatureKey): Promise<boolean> {
-  const access = services.featureAccess ?? defaultFeatureAccess;
-  return (await access.checkFeatureAccess(user, feature)).hasAccess;
-}
+import { featureLocked, hasFeature } from "./learn-shared.js";
+import { answerMentorTurn, mentorHistorySchema } from "./mentor-chat.js";
 
 /** The card's paid actions the plan includes; the routes re-check, this only draws the locks. */
 export async function cardFeatures(services: WebServices, user: User) {
-  const [clarification, mentor, etymology] = await Promise.all([
-    hasFeature(services, user, FEATURE_KEYS.clarification),
-    hasFeature(services, user, FEATURE_KEYS.mentor),
-    hasFeature(services, user, FEATURE_KEYS.etymology),
-  ]);
-  return { clarification, mentor, etymology };
-}
-
-export function featureLocked(reply: FastifyReply, feature: FeatureKey) {
-  return reply.status(403).send({ code: "feature_locked", feature });
-}
-
-function quotaPorts(services: WebServices): QuotaPorts {
+  const access = services.featureAccess ?? defaultFeatureAccess;
+  const { clarification, mentor, etymology } = FEATURE_KEYS;
+  const states = await resolveFeatureStates(access, user, [clarification, mentor, etymology]);
   return {
-    settings: services.settings,
-    translationRequests: services.translationRequestRepository,
-    ...(services.subscriptionRepository ? { subscriptions: services.subscriptionRepository } : {}),
+    clarification: states.get(clarification) === "ok",
+    mentor: states.get(mentor) === "ok",
+    etymology: states.get(etymology) === "ok",
   };
 }
 
@@ -105,10 +81,7 @@ const mentorBody = z
     question: z.string().trim().min(1).optional(),
     explain: z.boolean().optional(),
     etymology: z.string().max(4_000).optional(),
-    history: z
-      .array(z.object({ role: z.enum(["user", "assistant"]), content: z.string().min(1).max(8_000) }))
-      .max(MAX_MENTOR_HISTORY * 2)
-      .optional(),
+    history: mentorHistorySchema.optional(),
   })
   .refine((body) => body.question !== undefined || body.explain === true);
 
@@ -199,70 +172,23 @@ export function cardExploreRoutes(app: FastifyInstance, services: WebServices): 
     const parsed = mentorBody.safeParse(request.body);
     if (!parsed.success) return reply.status(400).send({ code: "invalid_question" });
     const { card, question, explain, etymology, history = [] } = parsed.data;
-    if (question !== undefined && question.length > MENTOR_MAX_QUESTION_LENGTH) {
-      return reply.status(400).send({ code: "too_long", max: MENTOR_MAX_QUESTION_LENGTH });
+    if (question !== undefined && question.length > MENTOR_MAX_INPUT_LENGTH) {
+      return reply.status(400).send({ code: "too_long", max: MENTOR_MAX_INPUT_LENGTH });
     }
-    const user = request.learner;
-    if (!(await hasFeature(services, user, FEATURE_KEYS.mentor))) return featureLocked(reply, FEATURE_KEYS.mentor);
-
-    // Metered before the paid call, in the bot's order: the per-plan daily cap, then the credit meter.
-    const ports = quotaPorts(services);
-    const daily = await checkMentorDailyQuota(ports, user);
-    if (!daily.ok) {
-      logEvent("limit.reached", { userId: user.id, reason: "mentor", channel: "web" });
-      return reply.status(429).send({ code: "mentor_limit", limit: daily.limit });
-    }
-    const quota = await checkAiQuota(ports, user, "mentor");
-    if (!quota.ok) {
-      logEvent("limit.reached", { userId: user.id, reason: quota.reason, channel: "web" });
-      return reply.status(429).send({ code: "limit", reason: quota.reason, resetAt: quota.resetAt.toISOString() });
-    }
-
-    const settings = await services.userRepository.getSettings(user.id);
-    const iLang = settings?.interfaceLang ?? "en";
-    const lang = isSupported(iLang) ? iLang : "en";
-    const mentorConfig = await services.settings.getMentorConfig();
-    const overrideModel = mentorConfig.modelId.trim();
-    const [model, fallbackModel, levelRows] = await Promise.all([
-      overrideModel ? Promise.resolve(overrideModel) : resolveDefaultAIModel(services.settings, user.subscriptionPlan),
-      resolveFallbackAIModel(services.settings),
-      services.userRepository.getLanguageLevels(user.id),
-    ]);
-    const systemPrompt = buildMentorSystemPrompt({
-      nativeLang: settings?.nativeLang ?? "en",
-      learningLangs: settings?.learningLangs ?? [],
-      levels: Object.fromEntries(levelRows.map((row) => [row.languageCode, row.proficiencyLevel])),
-      interfaceLang: lang,
-    });
-
     const mentorCard = toMentorCard(card);
     const headword = card.sourceUsage?.headword?.trim() || card.original;
-    const asked =
-      question ?? t("cardMentorQuestion", lang, { text: headword, lang: getLanguageName(card.sourceLang, lang) });
-    const turns = mentorTurns(
-      (q) => composeCardMentorTurn({ output: mentorCard, ...(etymology ? { etymology } : {}) }, q),
-      history,
-      asked,
-    );
-
-    try {
-      const answer = await services.ai.generateChat([{ role: "system", content: systemPrompt }, ...turns], model, {
-        maxTokens: mentorConfig.maxTokens,
-        userId: user.id,
-        budgetMs: TRANSLATION_HARD_TIMEOUT_MS,
-        failover: buildAiFailover(TRANSLATION_HARD_TIMEOUT_MS, fallbackModel),
-      });
-      await recordAiUsage(ports, user.id, "mentor", quota.creditCost);
-      logEvent("card.mentor_asked", {
-        lang: card.sourceLang,
-        withCard: true,
-        explain: explain === true,
-        channel: "web",
-      });
-      return { question: asked, answer };
-    } catch (err) {
-      logEvent("mentor.failed", { channel: "web", ...errorFields(err) }, "error");
-      return reply.status(err instanceof AITimeoutError ? 504 : 502).send({ code: "mentor_failed" });
-    }
+    let asked = question ?? "";
+    const answer = await answerMentorTurn(services, request.learner, reply, (lang) => {
+      asked =
+        question ?? t("cardMentorQuestion", lang, { text: headword, lang: getLanguageName(card.sourceLang, lang) });
+      return mentorTurns(
+        (q) => composeCardMentorTurn({ output: mentorCard, ...(etymology ? { etymology } : {}) }, q),
+        history,
+        asked,
+      );
+    });
+    if (answer === null) return reply;
+    logEvent("card.mentor_asked", { lang: card.sourceLang, withCard: true, explain: explain === true, channel: "web" });
+    return { question: asked, answer };
   });
 }

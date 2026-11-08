@@ -1,6 +1,6 @@
 <template>
   <section>
-    <h1 class="text-2xl font-bold tracking-tight">{{ t("web.settings.title") }}</h1>
+    <h1 class="page-title">{{ t("web.settings.title") }}</h1>
 
     <form v-if="settings" class="card mt-6 space-y-6" @submit.prevent="submit">
       <div>
@@ -41,6 +41,13 @@
       </div>
     </form>
     <p v-else class="mt-6 text-sm text-ink-muted" role="alert">{{ t("web.common.error") }}</p>
+
+    <template v-if="settings">
+      <NotificationSettings />
+      <TemplateEditor />
+      <ReportIssue />
+      <ChangesList />
+    </template>
   </section>
 </template>
 
@@ -48,6 +55,10 @@
 import { ref } from "vue";
 import { t } from "../lib/i18n";
 import { languageFlag, languageName, saveSettings, settings } from "../lib/settings-store";
+import ChangesList from "./ChangesList.vue";
+import NotificationSettings from "./NotificationSettings.vue";
+import ReportIssue from "./ReportIssue.vue";
+import TemplateEditor from "./TemplateEditor.vue";
 
 const interfaceLang = ref(settings.value?.interfaceLang ?? "en");
 const nativeLang = ref(settings.value?.nativeLang ?? "en");

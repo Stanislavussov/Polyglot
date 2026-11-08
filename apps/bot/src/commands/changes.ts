@@ -1,5 +1,6 @@
 import {
   buildAnnouncementText,
+  canReadReleaseNotes,
   findUnreleasedDir,
   isSupported,
   logger,
@@ -11,7 +12,7 @@ import {
 import type { BotContext } from "../types.js";
 
 export function canUseChangesCommand(audienceGroup: string): boolean {
-  return audienceGroup === "admin" || audienceGroup === "tester";
+  return canReadReleaseNotes(audienceGroup);
 }
 
 /**

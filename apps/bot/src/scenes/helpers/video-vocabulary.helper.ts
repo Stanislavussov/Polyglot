@@ -10,14 +10,16 @@ import {
   TranscriptNotAvailableError,
 } from "@polyglot/adapter-youtube";
 import {
-  computePhraseTarget,
-  extractPhrasesFromTranscript,
+  checkVideoAllowance,
   getVideoSuggestionsForLangs,
   isSupported,
   logger,
-  resolveEntitlements,
+  processVideo,
   resolveVideoSuggestion,
   type SupportedLang,
+  saveAllVideoPhrases,
+  saveVideoPhrase,
+  type TranscriptSource,
   t,
 } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
@@ -34,12 +36,27 @@ import {
 import type { BotContext } from "../../types.js";
 import { ensureAiQuota, recordAiUsage } from "../../utils/ai-quota.js";
 import { editMessageTextOrReply } from "./edit-message.helper.js";
-import { enrichEntryInBackground } from "./entry-enrichment.helper.js";
 import { buildUpgradeKeyboard } from "./subscription.helper.js";
 
 const PHRASES_PER_PAGE = 5;
-const MAX_RETRIES = 2;
-const RETRY_DELAYS_MS = [2000, 4000];
+
+// Built here from the package's exports (not inside the adapter) so a test's module mock of them takes effect.
+const youtubeTranscripts: TranscriptSource = {
+  async fetch(videoId, language) {
+    const transcript = await fetchTranscript(videoId, language);
+    return {
+      text: formatSegmentedTranscript(transcript.segments),
+      type: transcript.type,
+      language: transcript.language,
+    };
+  },
+  isPermanent: (error) => error instanceof TranscriptNotAvailableError,
+};
+
+const enrichmentOptions = (ctx: BotContext) => ({
+  plan: ctx.user.subscriptionPlan,
+  onEnriched: (status: "success" | "error") => videoEnrichmentCounter.inc({ status }),
+});
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
@@ -51,112 +68,6 @@ async function resolveInterfaceLang(ctx: BotContext): Promise<SupportedLang> {
   const settings = await ctx.services.userRepository.getSettings(userId);
   const rawLang = settings?.interfaceLang ?? "en";
   return isSupported(rawLang) ? rawLang : "en";
-}
-
-/**
- * Estimate video duration (seconds) from the [Ns] timestamp markers embedded in
- * a formatted transcript. oEmbed does not expose duration, so the last marker —
- * inserted roughly every 5 seconds — is the most reliable signal available for
- * both freshly fetched and cached transcripts.
- */
-function estimateDurationSeconds(transcriptText: string): number {
-  let max = 0;
-  for (const match of transcriptText.matchAll(/\[(\d+)s\]/g)) {
-    const seconds = Number.parseInt(match[1], 10);
-    if (seconds > max) max = seconds;
-  }
-  return max;
-}
-
-interface VideoPhraseForSave {
-  nativeTranslation: string | null;
-  emoji: string | null;
-  context: string | null;
-  phrase: string;
-}
-
-type TranslationInput = {
-  targetLangId: number;
-  text: string;
-  details: {
-    synonyms: Array<{ text: string }>;
-    examples: Array<{ context: string; target: string; native?: string | null }>;
-  };
-};
-
-/**
- * Build translations array with native language translation from extraction data.
- * Includes context sentence from the video as an example.
- */
-function buildNativeTranslation(
-  phrase: VideoPhraseForSave,
-  nativeLangCode: string | null | undefined,
-  ctx: BotContext,
-): TranslationInput[] {
-  const translations: TranslationInput[] = [];
-
-  if (phrase.nativeTranslation) {
-    if (nativeLangCode) {
-      const nativeLang = ctx.services.languageCache.getLang(nativeLangCode);
-      if (nativeLang) {
-        // Use context sentence from the video as an example
-        const examples: Array<{ context: string; target: string; native?: string | null }> = [];
-        if (phrase.context) {
-          examples.push({
-            context: phrase.context,
-            target: phrase.nativeTranslation,
-          });
-        }
-
-        translations.push({
-          targetLangId: nativeLang.id,
-          text: phrase.nativeTranslation,
-          details: { synonyms: [], examples },
-        });
-      }
-    }
-  }
-
-  return translations;
-}
-
-/** Enrich a saved video phrase, counting the outcome on the video metric. */
-function enrichVideoEntry(
-  ctx: BotContext,
-  entryId: number,
-  word: string,
-  inputType: "word" | "phrase",
-  sourceLangCode: string,
-  userId: number,
-): Promise<void> {
-  return enrichEntryInBackground(ctx, {
-    entryId,
-    word,
-    inputType,
-    sourceLangCode,
-    userId,
-    onOutcome: (status) => videoEnrichmentCounter.inc({ status }),
-  });
-}
-
-/**
- * Feature launch date — the free-tier lifetime video trial only counts analyses
- * created on or after this date, so existing users aren't retroactively locked out.
- * Overridable via env for staging/testing.
- */
-const DEFAULT_VIDEO_TRIAL_START = "2026-07-04T00:00:00Z";
-const VIDEO_TRIAL_START = parseTrialStart(process.env.FEATURE_LAUNCH_DATE);
-
-/** Parse the launch date, falling back to the documented default on a malformed env value. */
-function parseTrialStart(raw: string | undefined): Date {
-  const parsed = new Date(raw ?? DEFAULT_VIDEO_TRIAL_START);
-  return Number.isNaN(parsed.getTime()) ? new Date(DEFAULT_VIDEO_TRIAL_START) : parsed;
-}
-
-/** Current calendar month as `YYYY-MM`, in UTC (matches the DB monthly-count boundaries). */
-function getCurrentYearMonth(): string {
-  const now = new Date();
-  return `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}`;
 }
 
 /* ------------------------------------------------------------------ */
@@ -204,47 +115,13 @@ export async function handleVideoVocabularyUrl(
     return;
   }
 
-  // Plan-based video allowance (admin/tester get unlimited via role override).
-  const plan = ctx.user.subscriptionPlan ?? "free";
-  const planConfig = await ctx.services.settings.getPlanLimit(plan);
-  const { video: videoEntitlement } = resolveEntitlements({
-    audienceGroup: ctx.user.audienceGroup,
-    plan,
-    planConfig,
-    planFeatures: [],
-  });
-
-  // Resolved before the allowance check so the giveaway can bypass it entirely —
-  // but only when the plan cannot pay for this video itself. Since Task 84 a
-  // brand-new user spends their first week on the Plus trial, whose monthly
-  // allowance covers a starter video; spending the once-per-account giveaway
-  // there would leave them with nothing the first time they open Videos after
-  // the trial expires, which is exactly the screen this giveaway exists for.
-  const planCoversVideo = videoEntitlement.window !== "none";
-  const isTrial =
-    options.fromOnboarding && !planCoversVideo
-      ? !(await ctx.services.videoVocabularyRepository.hasCompletedTrial(userId))
-      : false;
-
-  let usageCount = 0;
-  if (!isTrial && videoEntitlement.window === "none") {
-    // Video not available on this plan → US-6 attaches the upgrade CTA keyboard here.
+  const allowance = await checkVideoAllowance(ctx.services, ctx.user, options);
+  if (!allowance.ok) {
+    // No allowance on this plan, the free lifetime trial spent, or the Plus monthly
+    // cap hit — the prime conversion moment, so the upgrade CTA rides along.
     trackProductEvent(ctx, "limit.reached", "video");
     await ctx.reply(t("videoLimitReached", lang), { reply_markup: buildUpgradeKeyboard(lang) });
     return;
-  }
-  if (!isTrial && videoEntitlement.limit !== null) {
-    usageCount =
-      videoEntitlement.window === "lifetime"
-        ? await ctx.services.videoVocabularyRepository.getLifetimeUsageCount(userId, VIDEO_TRIAL_START)
-        : await ctx.services.videoVocabularyRepository.getMonthlyUsageCount(userId, getCurrentYearMonth());
-    if (usageCount >= videoEntitlement.limit) {
-      // Free trial exhausted (3 lifetime) or Plus monthly cap hit — the prime
-      // conversion moment, so surface the upgrade CTA here too.
-      trackProductEvent(ctx, "limit.reached", "video");
-      await ctx.reply(t("videoLimitReached", lang), { reply_markup: buildUpgradeKeyboard(lang) });
-      return;
-    }
   }
 
   // Fetch video metadata
@@ -274,14 +151,12 @@ export async function handleVideoVocabularyUrl(
     title: metadata.title,
     durationSeconds: metadata.durationSeconds,
     language: videoLang,
-    isTrial,
+    isTrial: allowance.isTrial,
   });
 
   metadata.language = videoLang;
-  const remaining = videoEntitlement.limit === null ? null : videoEntitlement.limit - usageCount;
 
-  // Show confirmation
-  const text2 = renderConfirmation(metadata, remaining, videoEntitlement.limit, lang);
+  const text2 = renderConfirmation(metadata, allowance.remaining, allowance.limit, lang);
   const keyboard = buildConfirmationKeyboard(process.id, lang);
   await ctx.reply(text2, {
     parse_mode: "HTML",
@@ -391,52 +266,8 @@ export async function handleVideoSavePhraseCallback(ctx: BotContext): Promise<vo
     return;
   }
 
-  // Check if already in vocabulary
-  const existing = await ctx.services.vocabularyRepository.findByOriginalAndSource(
-    userId,
-    phrase.phrase,
-    sourceLang.id,
-  );
-  if (existing) {
-    await ctx.services.videoVocabularyRepository.markPhraseSaved(phraseId, existing.id);
-    await ctx.answerCallbackQuery({ text: "✅" });
-  } else {
-    // Build translations array — include native language translation if available
-    const settings = await ctx.services.userRepository.getSettings(userId);
-    const translations = buildNativeTranslation(phrase, settings?.nativeLang, ctx);
-
-    // Build sourceUsage with context sentence from video as example
-    const sourceUsage = phrase.context
-      ? {
-          explanation: phrase.nativeTranslation ?? "",
-          synonyms: [],
-          examples: [{ context: phrase.context, target: phrase.nativeTranslation ?? "" }],
-        }
-      : undefined;
-
-    const entry = await ctx.services.vocabularyRepository.create(userId, {
-      original: phrase.phrase,
-      sourceLangId: sourceLang.id,
-      inputType: phrase.phraseType === "word" ? "word" : "phrase",
-      emoji: phrase.emoji ?? "",
-      nativeMeaning: phrase.nativeTranslation ?? undefined,
-      sourceUsage,
-      source: {
-        type: "video",
-        videoUrl: process.videoUrl,
-        videoTitle: process.title ?? "",
-        timestampSeconds: phrase.timestampSeconds ?? null,
-      },
-      translations,
-    });
-    await ctx.services.vocabularyDictionaryRepository.addEntryToDefault(userId, entry.id);
-    await ctx.services.videoVocabularyRepository.markPhraseSaved(phraseId, entry.id);
-    await ctx.answerCallbackQuery({ text: "✅" });
-
-    // Enrich with full template translation in background
-    const entryInputType = phrase.phraseType === "word" ? ("word" as const) : ("phrase" as const);
-    void enrichVideoEntry(ctx, entry.id, phrase.phrase, entryInputType, process.language, userId);
-  }
+  await saveVideoPhrase(ctx.services, userId, process, phrase, sourceLang.id, enrichmentOptions(ctx));
+  await ctx.answerCallbackQuery({ text: "✅" });
 
   // Re-render the current page
   const currentPage = Math.ceil(phrase.sortOrder / PHRASES_PER_PAGE);
@@ -493,67 +324,8 @@ export async function handleVideoSaveAllCallback(ctx: BotContext): Promise<void>
     return;
   }
 
-  // Get all unsaved phrases
-  const allPhrases = await ctx.services.videoVocabularyRepository.findPhrasesByProcess(processId, 0, 100);
-  const unsaved = allPhrases.filter((p) => !p.savedEntryId);
-
-  const settings = await ctx.services.userRepository.getSettings(userId);
-  const nativeLangCode = settings?.nativeLang;
-
-  let savedCount = 0;
-  const enrichmentQueue: Array<{ entryId: number; phrase: string; inputType: "word" | "phrase" }> = [];
-
-  for (const phrase of unsaved) {
-    const existing = await ctx.services.vocabularyRepository.findByOriginalAndSource(
-      userId,
-      phrase.phrase,
-      sourceLang.id,
-    );
-    if (existing) {
-      await ctx.services.videoVocabularyRepository.markPhraseSaved(phrase.id, existing.id);
-      savedCount++;
-    } else {
-      const translations = buildNativeTranslation(phrase, nativeLangCode, ctx);
-      const sourceUsage = phrase.context
-        ? {
-            explanation: phrase.nativeTranslation ?? "",
-            synonyms: [],
-            examples: [{ context: phrase.context, target: phrase.nativeTranslation ?? "" }],
-          }
-        : undefined;
-      const entryInputType = phrase.phraseType === "word" ? ("word" as const) : ("phrase" as const);
-      const entry = await ctx.services.vocabularyRepository.create(userId, {
-        original: phrase.phrase,
-        sourceLangId: sourceLang.id,
-        inputType: entryInputType,
-        emoji: phrase.emoji ?? "",
-        nativeMeaning: phrase.nativeTranslation ?? undefined,
-        sourceUsage,
-        source: {
-          type: "video",
-          videoUrl: process.videoUrl,
-          videoTitle: process.title ?? "",
-          timestampSeconds: phrase.timestampSeconds ?? null,
-        },
-        translations,
-      });
-      await ctx.services.vocabularyDictionaryRepository.addEntryToDefault(userId, entry.id);
-      await ctx.services.videoVocabularyRepository.markPhraseSaved(phrase.id, entry.id);
-      enrichmentQueue.push({ entryId: entry.id, phrase: phrase.phrase, inputType: entryInputType });
-      savedCount++;
-    }
-  }
-
+  const savedCount = await saveAllVideoPhrases(ctx.services, userId, process, sourceLang.id, enrichmentOptions(ctx));
   await ctx.answerCallbackQuery({ text: `✅ ${savedCount}` });
-
-  // Enrich all new entries with full template translations in background (sequentially)
-  if (enrichmentQueue.length > 0) {
-    void (async () => {
-      for (const item of enrichmentQueue) {
-        await enrichVideoEntry(ctx, item.entryId, item.phrase, item.inputType, process.language, userId);
-      }
-    })();
-  }
 
   // Re-render current page
   await showPhraseBrowserEdit(ctx, processId, 1, lang);
@@ -772,182 +544,31 @@ async function showVideoListEdit(ctx: BotContext, userId: number, page: number, 
 /*  Background processing                                              */
 /* ------------------------------------------------------------------ */
 
-/**
- * Collect every phrase the user already has in a given language so extraction can
- * skip them: the originals of their saved vocabulary in that source language, plus
- * every phrase generated in their previous videos of the same language. The source
- * language may be missing from the cache — in that case only prior video phrases
- * are used.
- */
-async function collectKnownPhrases(
-  ctx: BotContext,
-  userId: number,
-  language: string,
-  currentProcessId: number,
-): Promise<string[]> {
-  const sourceLang = ctx.services.languageCache.getLang(language);
-  const [savedOriginals, priorPhrases] = await Promise.all([
-    sourceLang
-      ? ctx.services.vocabularyRepository.findOriginalsByUserAndSource(userId, sourceLang.id)
-      : Promise.resolve([]),
-    ctx.services.videoVocabularyRepository.findKnownPhrasesByUser(userId, language, currentProcessId),
-  ]);
-  return [...savedOriginals, ...priorPhrases];
-}
-
 async function processVideoInBackground(
   ctx: BotContext,
   processId: number,
   userId: number,
   lang: SupportedLang,
 ): Promise<void> {
-  const process = await ctx.services.videoVocabularyRepository.findProcessById(processId);
-  if (!process) return;
-
   const stopTimer = videoProcessingDuration.startTimer();
-  let lastError: unknown;
-
-  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-    try {
-      await ctx.services.videoVocabularyRepository.updateProcessStatus(processId, "processing");
-
-      // 1. Get transcript (from cache or YouTube)
-      let transcriptText: string;
-      let transcriptType: string | undefined;
-      // process.language is a guess from user settings; the fetch may fall back
-      // to the video's real caption track, so track the actual language here.
-      let videoLang = process.language;
-
-      const cached = await ctx.services.videoVocabularyRepository.findCachedTranscript(
-        process.videoId,
-        process.language,
-      );
-      if (cached) {
-        transcriptText = cached.transcript;
-        transcriptType = cached.transcriptType ?? undefined;
-      } else {
-        const transcript = await fetchTranscript(process.videoId, process.language);
-        transcriptText = formatSegmentedTranscript(transcript.segments);
-        transcriptType = transcript.type;
-        if (transcript.language !== "unknown" && transcript.language !== process.language) {
-          videoLang = transcript.language;
-          await ctx.services.videoVocabularyRepository.updateProcessLanguage(processId, videoLang);
-        }
-        await ctx.services.videoVocabularyRepository.cacheTranscript(
-          process.videoId,
-          transcript.language,
-          transcriptText,
-          transcriptType,
-        );
-      }
-
-      // 2. Get user's proficiency level for this language
-      const levels = await ctx.services.userRepository.getLanguageLevels(userId);
-      const levelEntry = levels.find((l) => l.languageCode === videoLang);
-      const userLevel = levelEntry?.proficiencyLevel ?? "B1";
-
-      // 3. Get extraction config and user's native language
-      const config = await ctx.services.settings.getVideoVocabularyConfig();
-      const userSettings = await ctx.services.userRepository.getSettings(userId);
-      const nativeLang = userSettings?.nativeLang ?? "en";
-
-      // 4. Scale the phrase target to the video length
-      const durationSeconds = estimateDurationSeconds(transcriptText);
-      const targetPhrases = computePhraseTarget(durationSeconds, config.minPhrases, config.maxPhrases);
-
-      // 4b. Gather phrases the user already knows in this language — their saved
-      // dictionary plus everything generated in their previous videos — so the AI
-      // does not regenerate them.
-      const knownPhrases = await collectKnownPhrases(ctx, userId, videoLang, processId);
-
-      // 5. Extract phrases using AI
-      const phrases = await extractPhrasesFromTranscript(
-        transcriptText,
-        videoLang,
-        userLevel,
-        targetPhrases,
-        ctx.services.ai.generateObject,
-        config.extractionModelId,
-        nativeLang,
-        knownPhrases,
-      );
-
-      // 6. Save phrases to DB
-      await ctx.services.videoVocabularyRepository.savePhrases(
-        processId,
-        phrases.map((p, i) => ({
-          phrase: p.phrase,
-          nativeTranslation: p.nativeTranslation,
-          emoji: p.emoji,
-          phraseType: p.type,
-          level: p.level,
-          context: p.context,
-          timestampSeconds: p.timestampSeconds,
-          sortOrder: i + 1,
-        })),
-      );
-
-      // 7. Mark as completed
-      await ctx.services.videoVocabularyRepository.updateProcessStatus(processId, "completed");
-
-      stopTimer();
-      videoProcessingCounter.inc({ status: "completed" });
-      logger.info({ processId, phraseCount: phrases.length, userId }, "Video processing completed");
-
-      // 8. Notify user (outside retry scope — don't retry on notification failure)
-      const chatId = ctx.chat?.id;
-      if (chatId) {
-        try {
-          const keyboard = new (await import("grammy")).InlineKeyboard().text(
-            t("videoBrowse", lang),
-            `vid:browse:${processId}:1`,
-          );
-          await ctx.api.sendMessage(chatId, `✅ ${t("videoProcessingDone", lang)} (${phrases.length})`, {
-            parse_mode: "HTML",
-            reply_markup: keyboard,
-          });
-        } catch {
-          logger.warn({ processId, chatId }, "Failed to send video completion notification");
-        }
-      }
-
-      return; // Success — exit retry loop
-    } catch (error) {
-      lastError = error;
-      logger.error(
-        {
-          processId,
-          attempt: attempt + 1,
-          error: error instanceof Error ? error.message : String(error),
-        },
-        "Video processing attempt failed",
-      );
-
-      if (error instanceof TranscriptNotAvailableError) {
-        // Don't retry transcript errors — they won't resolve
-        break;
-      }
-
-      if (attempt < MAX_RETRIES) {
-        await new Promise((resolve) => setTimeout(resolve, RETRY_DELAYS_MS[attempt]));
-      }
-    }
-  }
-
-  // All retries failed
-  const errorMsg = lastError instanceof Error ? lastError.message : "Unknown error";
-  await ctx.services.videoVocabularyRepository.updateProcessStatus(processId, "failed", errorMsg);
-
+  const outcome = await processVideo(ctx.services, processId, userId, youtubeTranscripts);
   stopTimer();
-  videoProcessingCounter.inc({ status: "failed" });
-  logger.error({ processId, userId, error: errorMsg }, "Video processing failed after all retries");
+  videoProcessingCounter.inc({ status: outcome.status });
 
+  // Outside the retry scope — a failed notification never re-runs the extraction.
   const chatId = ctx.chat?.id;
-  if (chatId) {
-    try {
+  if (!chatId) return;
+  try {
+    if (outcome.status === "completed") {
+      const keyboard = new InlineKeyboard().text(t("videoBrowse", lang), `vid:browse:${processId}:1`);
+      await ctx.api.sendMessage(chatId, `✅ ${t("videoProcessingDone", lang)} (${outcome.phraseCount})`, {
+        parse_mode: "HTML",
+        reply_markup: keyboard,
+      });
+    } else {
       await ctx.api.sendMessage(chatId, `❌ ${t("videoProcessingFailed", lang)}`);
-    } catch {
-      logger.warn({ processId, chatId }, "Failed to send video failure notification");
     }
+  } catch {
+    logger.warn({ processId, chatId }, "Failed to send video completion notification");
   }
 }

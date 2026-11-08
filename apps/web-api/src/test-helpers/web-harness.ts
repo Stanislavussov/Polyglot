@@ -50,6 +50,7 @@ export async function createWebHarness(options: HarnessOptions = {}): Promise<We
     appOrigin: WEB_ORIGIN,
     staticDir: null,
     devUserId: null,
+    botUsername: "harness_bot",
   };
   const app = await buildWebApiApp(bot.services, config, { now: () => NOW });
 

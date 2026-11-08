@@ -14,7 +14,8 @@ export default defineConfig({
   vite: {
     server: {
       // In production the API shares the origin; in dev web-api listens on its own port.
-      proxy: { "/api": "http://localhost:3002" },
+      // WEB_API_URL lets parallel worktrees each run their own API instead of sharing :3002.
+      proxy: { "/api": process.env.WEB_API_URL ?? "http://localhost:3002" },
     },
   },
 });
