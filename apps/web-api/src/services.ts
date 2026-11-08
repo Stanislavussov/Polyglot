@@ -21,4 +21,6 @@ export type WebServices = Pick<
   | "contextLookup"
   | "wordLanguageSweep"
   | "ai"
+  | "featureAccess"
+  | "cardTemplateRepository"
 >;

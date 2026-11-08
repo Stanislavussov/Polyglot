@@ -92,6 +92,17 @@ export const api = {
   entry: (entryId: number) => request<EntryDetail>("GET", `/dictionary/${entryId}`),
   removeEntry: (entryId: number) => request<void>("DELETE", `/dictionary/${entryId}`),
   restoreEntry: (entryId: number) => request<void>("POST", `/dictionary/${entryId}/restore`),
+  /** The spoken word as audio bytes; the server picks the text from the saved entry. */
+  audio: async (entryId: number, lang: string): Promise<Blob> => {
+    const response = await fetch(`/api/dictionary/${entryId}/audio/${encodeURIComponent(lang)}`, {
+      credentials: "same-origin",
+    });
+    if (!response.ok) {
+      const parsed: ErrorBody = await response.json().catch(() => ({}));
+      throw new ApiError(response.status, parsed);
+    }
+    return response.blob();
+  },
   reviewNext: () => request<ReviewState>("GET", "/review/next"),
   reviewCard: (entryId: number) => request<ReviewState>("GET", `/review/card/${entryId}`),
   rate: (entryId: number, rating: Rating) => request<ReviewState>("POST", `/review/${entryId}`, { rating }),

@@ -8,6 +8,7 @@ import {
   transcribeAudio,
 } from "@polyglot/adapter-ai";
 import {
+  cardTemplateRepository,
   createContextLookup,
   createWordLanguageSweep,
   getAllLangs,
@@ -23,6 +24,7 @@ import {
   languageDetectionRepository,
   loadLanguageCache,
   normalizeToIso1,
+  planFeatureAccessRepository,
   settingsAdapter,
   subscriptionRepository,
   translationRequestRepository,
@@ -32,7 +34,7 @@ import {
   vocabularyRepository,
   wordReviewRepository,
 } from "@polyglot/adapter-db";
-import { SettingsService } from "@polyglot/core";
+import { createFeatureAccess, SettingsService } from "@polyglot/core";
 import type { WebServices } from "./services.js";
 
 /** The production wiring: the same adapters the bot's container uses, minus bot-only surfaces. */
@@ -52,6 +54,8 @@ export function createWebServices(): WebServices {
     translationTemplateRepository,
     subscriptionRepository,
     settings,
+    featureAccess: createFeatureAccess({ settings, planFeatureAccess: planFeatureAccessRepository }),
+    cardTemplateRepository,
     contextLookup: createContextLookup(),
     wordLanguageSweep: createWordLanguageSweep(),
     languageCache: {

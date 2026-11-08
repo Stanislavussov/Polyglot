@@ -25,3 +25,4 @@
 - Made a typo? The web app now suggests the word you meant, and you can still translate it exactly as you wrote it.
 - The web app now asks which language a word is in when it could be several, and tells you when you typed in a language you don't study yet instead of translating it wrong.
 - After a translation on the website, the input box empties itself, ready for your next word.
+- Review cards on the website now show the whole word — meaning, examples, synonyms and notes — and with Pro you can tap 🔊 to hear it.

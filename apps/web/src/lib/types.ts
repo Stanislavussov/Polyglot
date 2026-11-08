@@ -122,12 +122,22 @@ export interface TranslateResult {
   savedEntryId: number | null;
 }
 
+/** "off" = voice-over switched off for everyone; "locked" = not in the learner's plan. */
+export type AudioAccess = "ok" | "locked" | "off";
+
+export interface CardAudio {
+  langs: string[];
+  access: AudioAccess;
+}
+
 export interface ReviewCard {
   entryId: number;
-  original: string;
-  sourceLang: string;
-  emoji: string | null;
-  back: { lang: string; text: string }[];
+  /** Not due yet: practised ahead because nothing is due. */
+  ahead: boolean;
+  /** What the hidden-answer side shows, per the learner's card settings. */
+  front: { headword: string; synonyms: string[]; example: string | null; hint: string | null };
+  detail: EntryDetail;
+  audio: CardAudio;
 }
 
 export interface ReviewState {
