@@ -86,8 +86,16 @@ export interface DictionaryItem {
   translations: { lang: string; text: string }[];
 }
 
+export interface Dictionary {
+  id: number;
+  name: string;
+  isDefault: boolean;
+  count: number;
+}
+
 export interface DictionaryPage {
   items: DictionaryItem[];
+  dictionary: Dictionary;
   total: number;
   page: number;
   pageSize: number;
@@ -219,7 +227,27 @@ export interface ReviewState {
 
 export type Rating = "again" | "hard" | "good" | "easy";
 export type LearnPageName = "learn" | "mentor" | "grammar" | "expressions" | "pick" | "videos";
-export type PageName = "translate" | "dictionary" | "review" | "settings" | "plan" | LearnPageName;
+export type PageName =
+  | "translate"
+  | "dictionary"
+  | "review"
+  | "progress"
+  | "settings"
+  | "welcome"
+  | "plan"
+  | LearnPageName;
+
+export type Progress =
+  | { enabled: false }
+  | {
+      enabled: true;
+      title: string;
+      level: number;
+      phrase: string;
+      recovery: string | null;
+      stats: string[];
+      reviewLabel: string;
+    };
 
 export interface LoaderPhrases {
   emoji: string[];
@@ -248,4 +276,5 @@ export interface TranslateAnswer {
   context?: string;
   clarify?: boolean;
   negativeConstraints?: Record<string, string[]>;
+  addLanguage?: string;
 }

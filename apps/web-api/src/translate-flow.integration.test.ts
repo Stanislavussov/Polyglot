@@ -15,9 +15,9 @@ const real = new SettingsService(settingsAdapter);
 async function signedIn(options: Parameters<typeof createWebHarness>[0] = {}) {
   const web = await createWebHarness({ ai: deterministicTranslateAi(), ...options });
   const telegramId = uniqueTelegramId();
-  await arrangeOnboardedTranslator(telegramId, { nativeLang: "en", learningLangs: ["cs"] });
+  const userId = await arrangeOnboardedTranslator(telegramId, { nativeLang: "en", learningLangs: ["cs"] });
   const { cookie } = await web.login(telegramId);
-  return { web, cookie };
+  return { web, cookie, userId };
 }
 
 describe("web translate flow", () => {
@@ -49,6 +49,27 @@ describe("web translate flow", () => {
     const res = await web.call(cookie, "POST", "/api/translate", { text: "mañana" });
 
     expect(res).toMatchObject({ status: 422, body: { code: "add_language", lang: "es", supported: true } });
+  });
+
+  it("adds the language and translates, as the bot's Add and translate button does", async () => {
+    const { web, cookie, userId } = await signedIn();
+
+    const res = await web.call(cookie, "POST", "/api/translate", { text: "mañana", addLanguage: "es" });
+
+    expect(res).toMatchObject({ status: 200, body: { sourceLang: "es" } });
+    expect((await web.bot.services.userRepository.getSettings(userId))?.learningLangs).toEqual(["cs", "es"]);
+    // Already studied now: a second add is a plain translation, the set stays as it is.
+    expect((await web.call(cookie, "POST", "/api/translate", { text: "mañana", addLanguage: "es" })).status).toBe(200);
+    expect((await web.bot.services.userRepository.getSettings(userId))?.learningLangs).toEqual(["cs", "es"]);
+  });
+
+  it("refuses to add a language past the learning-language limit", async () => {
+    const { web, cookie, userId } = await signedIn();
+    await web.bot.services.userRepository.updateLearningLangs(userId, ["cs", "de", "fr", "it"]);
+
+    const res = await web.call(cookie, "POST", "/api/translate", { text: "mañana", addLanguage: "es" });
+
+    expect(res).toMatchObject({ status: 422, body: { code: "max_languages", limit: 4 } });
   });
 
   it("rejects text it cannot translate with the reason", async () => {

@@ -91,6 +91,16 @@ export function settingsRoutes(app: FastifyInstance, services: WebServices): voi
     if (!validation.ok) return reply.status(400).send({ code: "invalid_settings", reason: validation.reason });
     const patch = validation.patch;
 
+    // A web-first learner has no settings row yet, and the per-field updates write
+    // nothing without one; the upsert creates it, as the bot's onboarding does.
+    if (!current) {
+      await services.userRepository.updateSettings(userId, {
+        interfaceLang: patch.interfaceLang ?? "en",
+        nativeLang: patch.nativeLang ?? "en",
+        learningLangs: patch.learningLangs ?? [],
+      });
+      return readSettings(services, userId);
+    }
     if (patch.interfaceLang !== undefined)
       await services.userRepository.updateInterfaceLang(userId, patch.interfaceLang);
     if (patch.nativeLang !== undefined) await services.userRepository.updateNativeLang(userId, patch.nativeLang);

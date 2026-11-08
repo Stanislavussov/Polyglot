@@ -18,6 +18,18 @@
         <div class="flex items-center justify-between gap-3">
           <span class="text-xs text-ink-muted" aria-hidden="true">{{ text.length }}/{{ MAX_LENGTH }}</span>
           <div class="flex gap-2">
+            <button
+              v-if="voiceAvailable"
+              type="button"
+              :class="recording ? 'btn-primary' : 'btn-secondary'"
+              :aria-pressed="recording"
+              :aria-label="recording ? t('web.voice.stop') : t('web.voice.record')"
+              :title="recording ? t('web.voice.stop') : t('web.voice.record')"
+              :disabled="busy || transcribing"
+              @click="toggleRecording"
+            >
+              <Square v-if="recording" class="size-4" aria-hidden="true" /><Mic v-else class="size-4" aria-hidden="true" />
+            </button>
             <button v-if="text !== ''" type="button" class="btn-secondary" @click="clearInput">
               {{ t("web.translate.clear") }}
             </button>
@@ -81,6 +93,14 @@
           <p>
             {{ t(otherLanguage.supported ? "web.translate.addLanguage" : "web.translate.languageUnsupported", { lang: languageName(otherLanguage.lang) }) }}
           </p>
+          <button
+            v-if="otherLanguage.supported"
+            type="button"
+            class="btn-primary"
+            @click="answer(otherLanguage.text, { addLanguage: otherLanguage.lang })"
+          >
+            {{ t("web.translate.addAndTranslate", { lang: languageName(otherLanguage.lang) }) }}
+          </button>
           <a v-if="otherLanguage.supported" href="/settings/" class="inline-flex min-h-11 items-center font-semibold underline">
             {{ t("web.translate.openSettings") }}
           </a>
@@ -199,14 +219,15 @@
 </template>
 
 <script setup lang="ts">
-import { Check, Trash2, TriangleAlert, Undo2 } from "lucide-vue-next";
-import { computed, onMounted, ref } from "vue";
+import { Check, Mic, Square, Trash2, TriangleAlert, Undo2 } from "lucide-vue-next";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { useLoaderText } from "../lib/use-loader-text";
 import { useMainInput } from "../lib/use-main-input";
 import { ApiError, api } from "../lib/api";
 import { t } from "../lib/i18n";
 import { languageFlag, languageName } from "../lib/settings-store";
 import type { Clarification, ClarificationOption, TranslateAnswer, TranslateResult } from "../lib/types";
+import { startWavRecording, type WavRecording } from "../lib/wav-recorder";
 import CardExplore from "./CardExplore.vue";
 import ExampleList from "./ExampleList.vue";
 import LimitNotice from "./LimitNotice.vue";
@@ -226,7 +247,7 @@ const fromHistory = ref(false);
 const errorKey = ref<string | null>(null);
 const errorParams = ref<Record<string, string | number>>({});
 const languageQuestion = ref<{ text: string; kind: "ambiguous" | "unrecognized"; languages: string[] } | null>(null);
-const otherLanguage = ref<{ lang: string; supported: boolean } | null>(null);
+const otherLanguage = ref<{ lang: string; supported: boolean; text: string } | null>(null);
 const clarification = ref<{ text: string; view: Clarification } | null>(null);
 const languageChoices = computed(() => {
   const view = clarification.value?.view;
@@ -356,6 +377,48 @@ function onKeydown(event: KeyboardEvent): void {
   }
 }
 
+const voiceAvailable = ref(typeof navigator !== "undefined" && navigator.mediaDevices?.getUserMedia !== undefined);
+const recording = ref(false);
+const transcribing = ref(false);
+let recorder: WavRecording | null = null;
+
+const VOICE_ERRORS: Record<string, string> = {
+  feature_locked: "web.voice.locked",
+  voice_too_long: "web.voice.tooLong",
+};
+
+// Same path as the bot's voice message: the transcript goes through the ordinary translation.
+async function toggleRecording(): Promise<void> {
+  if (!recording.value) {
+    resetNotices();
+    try {
+      recorder = await startWavRecording();
+      recording.value = true;
+    } catch {
+      errorKey.value = "web.voice.denied";
+    }
+    return;
+  }
+  const active = recorder;
+  recorder = null;
+  recording.value = false;
+  if (!active) return;
+  transcribing.value = true;
+  try {
+    const { text: spoken } = await api.transcribe(await active.stop());
+    text.value = spoken;
+    await answer(spoken, {});
+  } catch (error) {
+    if (error instanceof ApiError && error.code === "voice_off") voiceAvailable.value = false;
+    errorKey.value = (error instanceof ApiError && VOICE_ERRORS[error.code ?? ""]) || "web.voice.failed";
+    errorParams.value = { max: error instanceof ApiError ? (error.body.max ?? 0) : 0 };
+  } finally {
+    transcribing.value = false;
+  }
+}
+
+onBeforeUnmount(() => recorder?.cancel());
+
 async function submit(): Promise<void> {
   await answer(text.value.trim(), {});
 }
@@ -396,7 +459,10 @@ async function answer(value: string, choice: TranslateAnswer): Promise<void> {
         languages: error.body.languages,
       };
     } else if (error instanceof ApiError && error.code === "add_language" && error.body.lang) {
-      otherLanguage.value = { lang: error.body.lang, supported: error.body.supported === true };
+      otherLanguage.value = { lang: error.body.lang, supported: error.body.supported === true, text: error.body.text ?? value };
+    } else if (error instanceof ApiError && error.code === "max_languages") {
+      errorKey.value = "web.translate.maxLanguages";
+      errorParams.value = { max: error.body.limit ?? 0 };
     } else if (error instanceof ApiError && error.code === "rejected") {
       errorKey.value = REJECT_KEYS[error.body.reason ?? ""] ?? "web.common.error";
       errorParams.value = { max: error.body.maxLength ?? MAX_LENGTH };

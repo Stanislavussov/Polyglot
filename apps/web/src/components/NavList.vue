@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import { BookOpen, Gem, GraduationCap, Languages, Settings, Sparkles } from "lucide-vue-next";
+import { BookOpen, Gem, GraduationCap, Languages, Settings, Sparkles, TrendingUp } from "lucide-vue-next";
 import { t } from "../lib/i18n";
 import type { PageName } from "../lib/types";
 
@@ -35,6 +35,7 @@ const items = [
   { page: "dictionary", href: "/dictionary/", label: "web.nav.dictionary", icon: BookOpen },
   { page: "review", href: "/review/", label: "web.nav.review", icon: GraduationCap },
   { page: "learn", href: "/learn/", label: "web.nav.learn", icon: Sparkles },
+  { page: "progress", href: "/progress/", label: "web.nav.progress", icon: TrendingUp },
   { page: "settings", href: "/settings/", label: "web.nav.settings", icon: Settings },
   { page: "plan", href: "/plan/", label: "web.nav.plan", icon: Gem },
 ] as const;

@@ -5,6 +5,13 @@
       <p v-if="state" class="text-sm text-ink-muted">{{ t("web.review.due", { count: state.dueCount }) }}</p>
     </div>
 
+    <div v-if="removed" class="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-surface-muted px-4 py-3 text-sm" role="status">
+      <span class="min-w-0 break-words text-ink-muted">{{ t("web.dictionary.removed", { word: removed.word }) }}</span>
+      <button type="button" class="btn-secondary" :disabled="busy" @click="undo">
+        <Undo2 class="size-4" aria-hidden="true" />{{ t("web.dictionary.undo") }}
+      </button>
+    </div>
+
     <p v-if="failed" role="alert" class="mt-6 rounded-xl bg-danger-soft px-4 py-3 text-sm text-danger">{{ t("web.common.error") }}</p>
     <p v-else-if="!state" class="mt-6 text-sm text-ink-muted" role="status">{{ t("web.common.loading") }}</p>
     <p v-else-if="!card" class="card mt-6 text-center text-ink-muted">{{ t("web.review.empty") }}</p>
@@ -92,11 +99,18 @@
           {{ t("web.review.reveal") }}
         </button>
       </div>
+
+      <div class="border-t border-line pt-4 text-center">
+        <button type="button" class="btn-secondary !text-danger" :disabled="busy" @click="remove">
+          <Trash2 class="size-4" aria-hidden="true" />{{ t("web.dictionary.remove") }}
+        </button>
+      </div>
     </article>
   </section>
 </template>
 
 <script setup lang="ts">
+import { Trash2, Undo2 } from "lucide-vue-next";
 import { computed, onMounted, ref } from "vue";
 import { ApiError, api } from "../lib/api";
 import { t } from "../lib/i18n";
@@ -122,6 +136,8 @@ const busy = ref(false);
 const failed = ref(false);
 const picked = ref(false);
 const notice = ref<string | null>(null);
+// The bot's fc:del / fc:undo: the word leaves the dictionary, the deck goes on, one tap brings it back.
+const removed = ref<{ entryId: number; word: string } | null>(null);
 
 function speaks(lang: string): boolean {
   const audio = card.value?.audio;
@@ -149,6 +165,7 @@ async function rate(rating: Rating): Promise<void> {
   if (!current || busy.value) return;
   busy.value = true;
   picked.value = false;
+  removed.value = null;
   try {
     await show(
       api.rate(current.entryId, rating).catch((error: unknown) => {
@@ -157,6 +174,44 @@ async function rate(rating: Rating): Promise<void> {
         throw error;
       }),
     );
+  } finally {
+    busy.value = false;
+  }
+}
+
+async function remove(): Promise<void> {
+  const current = card.value;
+  if (!current || busy.value) return;
+  busy.value = true;
+  picked.value = false;
+  try {
+    // A 404 means it was already removed elsewhere: it leaves the deck, with nothing to undo.
+    const wasRemoved = await api.removeEntry(current.entryId).then(
+      () => true,
+      (error: unknown) => {
+        if (error instanceof ApiError && error.status === 404) return false;
+        throw error;
+      },
+    );
+    removed.value = wasRemoved ? { entryId: current.entryId, word: current.front.headword } : null;
+    await show(api.reviewNext());
+  } catch {
+    failed.value = true;
+  } finally {
+    busy.value = false;
+  }
+}
+
+async function undo(): Promise<void> {
+  const last = removed.value;
+  if (!last || busy.value) return;
+  busy.value = true;
+  try {
+    await api.restoreEntry(last.entryId);
+    removed.value = null;
+    await show(api.reviewCard(last.entryId));
+  } catch {
+    failed.value = true;
   } finally {
     busy.value = false;
   }

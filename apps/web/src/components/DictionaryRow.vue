@@ -23,6 +23,24 @@
           <Info class="size-4" aria-hidden="true" />{{ t("web.dictionary.details") }}
         </button>
 
+        <DropdownMenuRoot v-if="others.length > 0">
+          <DropdownMenuTrigger class="btn-secondary !px-3" :aria-label="t('web.dictionaries.menu')" :title="t('web.dictionaries.menu')">
+            <FolderInput class="size-5 sm:size-4" aria-hidden="true" />
+          </DropdownMenuTrigger>
+          <DropdownMenuPortal>
+            <DropdownMenuContent align="end" :side-offset="6" class="z-50 min-w-44 rounded-xl border border-line bg-surface p-1 shadow-lg">
+              <template v-for="other in others" :key="other.id">
+                <DropdownMenuItem :class="menuItem" @select="emit('place', other.id, false)">
+                  <FolderPlus class="size-4" aria-hidden="true" />{{ t("web.dictionaries.addTo", { name: other.name }) }}
+                </DropdownMenuItem>
+                <DropdownMenuItem :class="menuItem" @select="emit('place', other.id, true)">
+                  <FolderInput class="size-4" aria-hidden="true" />{{ t("web.dictionaries.moveTo", { name: other.name }) }}
+                </DropdownMenuItem>
+              </template>
+            </DropdownMenuContent>
+          </DropdownMenuPortal>
+        </DropdownMenuRoot>
+
         <!-- Phones keep one primary action and fold the rest into a menu, so the row never overflows. -->
         <DropdownMenuRoot>
           <DropdownMenuTrigger class="btn-secondary !px-3 sm:hidden" :aria-label="t('web.dictionary.more')">
@@ -64,14 +82,14 @@
 </template>
 
 <script setup lang="ts">
-import { Check, Copy, Ellipsis, Info, RotateCw, Trash2, Undo2 } from "lucide-vue-next";
+import { Check, Copy, Ellipsis, FolderInput, FolderPlus, Info, RotateCw, Trash2, Undo2 } from "lucide-vue-next";
 import { DropdownMenuContent, DropdownMenuItem, DropdownMenuPortal, DropdownMenuRoot, DropdownMenuTrigger } from "reka-ui";
 import { t } from "../lib/i18n";
 import { languageFlag, languageName } from "../lib/settings-store";
-import type { DictionaryItem } from "../lib/types";
+import type { Dictionary, DictionaryItem } from "../lib/types";
 
-defineProps<{ item: DictionaryItem; removed: boolean; copied: boolean; busy: boolean }>();
-const emit = defineEmits<{ details: []; remove: []; undo: []; copy: []; review: [] }>();
+defineProps<{ item: DictionaryItem; removed: boolean; copied: boolean; busy: boolean; others: Dictionary[] }>();
+const emit = defineEmits<{ details: []; remove: []; undo: []; copy: []; review: []; place: [to: number, move: boolean] }>();
 
 const menuItem =
   "flex min-h-11 cursor-pointer items-center gap-2 rounded-lg px-3 text-sm font-medium outline-none data-[highlighted]:bg-surface-muted";

@@ -14,6 +14,7 @@
 import {
   FEATURE_KEYS,
   isSupported,
+  languageOrderFromSettings,
   logEvent,
   playPronunciation,
   resolvePronounceableText,
@@ -22,7 +23,6 @@ import {
 } from "@polyglot/core";
 import { InputFile } from "grammy";
 import type { BotContext } from "../../types.js";
-import { languageOrderFromSettings } from "../../utils/language-order.js";
 import { ensurePaidFeature } from "./paid-feature.helper.js";
 import { answerStaleCallback } from "./stale-callback.helper.js";
 

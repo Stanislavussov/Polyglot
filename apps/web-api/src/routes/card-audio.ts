@@ -1,16 +1,17 @@
 import {
-  createLanguageOrderContext,
   defaultFeatureAccess,
   FEATURE_KEYS,
   type FeatureState,
   hashTtsText,
   type LanguageOrderContext,
+  languageOrderFromSettings,
   logEvent,
   normalizeTtsText,
   resolveFeatureStates,
   resolvePronounceableText,
   type SpeakableCard,
   selectPronounceableLangs,
+  toTranslateOutput,
   type User,
   type VocabularyEntryWithTranslations,
 } from "@polyglot/core";
@@ -23,22 +24,18 @@ import { langCode } from "./dictionary.js";
 export type AudioAccess = FeatureState;
 
 export async function languageOrder(services: WebServices, userId: number): Promise<LanguageOrderContext> {
-  const settings = await services.userRepository.getSettings(userId);
-  return createLanguageOrderContext({
-    nativeLang: settings?.nativeLang ?? null,
-    learningLangs: settings?.learningLangs ?? [],
-  });
+  return languageOrderFromSettings(await services.userRepository.getSettings(userId));
 }
 
 export function speakableCard(services: WebServices, entry: VocabularyEntryWithTranslations): SpeakableCard {
-  return {
-    sourceLang: langCode(services, entry.sourceLangId),
-    original: entry.original,
-    sourceUsage: entry.sourceUsage,
-    translations: Object.fromEntries(
-      entry.translations.map((t) => [langCode(services, t.targetLangId), { text: t.text }]),
-    ),
-  };
+  // The bot speaks a saved word from this same mapping (flashcards, notifications).
+  return (
+    toTranslateOutput(entry, (id) => langCode(services, id) || undefined) ?? {
+      sourceLang: "",
+      original: entry.original,
+      translations: {},
+    }
+  );
 }
 
 export async function audioAccess(services: WebServices, user: User): Promise<AudioAccess> {

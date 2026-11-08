@@ -177,6 +177,7 @@ export {
   localDayKey,
   resolveBand,
 } from "./modules/momentum/momentum.math.js";
+export { creditEffort, recordMatureIfCrossed, withReviewRecording } from "./modules/momentum/momentum.recording.js";
 export type {
   MomentumService,
   MomentumServiceDeps,
@@ -283,6 +284,7 @@ export {
   type VideoFlowDeps,
   type VideoProcessOutcome,
 } from "./modules/video-vocabulary/video-flow.js";
+export { acceptDictionaryName, MAX_DICTIONARY_NAME_LENGTH } from "./modules/vocabulary/dictionary-name.js";
 export {
   type EnrichEntryInput,
   type EnrichSavedEntryDeps,
@@ -291,6 +293,7 @@ export {
 export type { LanguageOrderContext } from "./modules/vocabulary/translation-order.js";
 export {
   createLanguageOrderContext,
+  languageOrderFromSettings,
   languageRank,
   orderLangCodes,
   orderRecordEntries,
