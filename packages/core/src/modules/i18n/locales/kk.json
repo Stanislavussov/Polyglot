@@ -564,6 +564,7 @@
   "web.translate.correction": "Сіз мынаны меңзедіңіз бе: {text}",
   "web.translate.savedToDictionary": "Сөздікке сақталды",
   "web.translate.save": "Сақтау",
+  "web.translate.saveTo": "Сөздікке сақтау",
   "web.translate.saved": "Сақталды",
   "web.translate.synonyms": "Синонимдер",
   "web.translate.examples": "Мысалдар",

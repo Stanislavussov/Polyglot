@@ -57,3 +57,4 @@
 - Drop-down lists on the website are now neat menus with language flags, creating or renaming a dictionary opens in its own window, and the sound button always sits right next to the word.
 - Give each dictionary on the website its own emoji icon, picked from a neat grid with search, just like in Notion.
 - The dictionary icon picker on the website now offers about 300 emoji in 11 groups, with a quick jump bar between them.
+- On the website, Save is now a neat bookmark icon; if you have several dictionaries it asks which one to save the word to.

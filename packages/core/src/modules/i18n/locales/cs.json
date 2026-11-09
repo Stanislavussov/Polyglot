@@ -564,6 +564,7 @@
   "web.translate.correction": "Měli jste na mysli: {text}",
   "web.translate.savedToDictionary": "Uloženo do slovníku",
   "web.translate.save": "Uložit",
+  "web.translate.saveTo": "Uložit do slovníku",
   "web.translate.saved": "Uloženo",
   "web.translate.synonyms": "Synonyma",
   "web.translate.examples": "Příklady",

@@ -564,6 +564,7 @@
   "web.translate.correction": "Você quis dizer: {text}",
   "web.translate.savedToDictionary": "Salvo no seu dicionário",
   "web.translate.save": "Salvar",
+  "web.translate.saveTo": "Salvar no dicionário",
   "web.translate.saved": "Salvo",
   "web.translate.synonyms": "Sinônimos",
   "web.translate.examples": "Exemplos",

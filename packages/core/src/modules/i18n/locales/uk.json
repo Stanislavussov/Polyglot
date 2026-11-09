@@ -564,6 +564,7 @@
   "web.translate.correction": "Можливо, ви мали на увазі: {text}",
   "web.translate.savedToDictionary": "Збережено у словнику",
   "web.translate.save": "Зберегти",
+  "web.translate.saveTo": "Зберегти в словник",
   "web.translate.saved": "Збережено",
   "web.translate.synonyms": "Синоніми",
   "web.translate.examples": "Приклади",
