@@ -88,7 +88,7 @@
 
       <template v-if="revealed">
         <TranslationBlock v-for="translation in split.native ? [split.native] : []" :key="translation.lang" :translation="translation" id-prefix="review">
-          <template #actions>
+          <template #speak>
             <SpeakButton
               v-if="speaks(translation.lang)"
               :entry-id="card.entryId"
@@ -133,7 +133,7 @@
         </div>
 
         <TranslationBlock v-for="translation in split.others" :key="translation.lang" :translation="translation" id-prefix="review">
-          <template #actions>
+          <template #speak>
             <SpeakButton
               v-if="speaks(translation.lang)"
               :entry-id="card.entryId"

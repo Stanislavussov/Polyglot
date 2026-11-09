@@ -5,18 +5,20 @@
     <form v-if="settings" class="card mt-6 space-y-6" @submit.prevent="submit">
       <div>
         <label class="mb-1 block text-sm font-medium" for="interface-lang">{{ t("web.settings.interfaceLang") }}</label>
-        <select id="interface-lang" v-model="interfaceLang" class="field">
-          <option v-for="code in settings.interfaceLanguages" :key="code" :value="code">{{ label(code) }}</option>
-        </select>
+        <AppSelect
+          id="interface-lang"
+          v-model="interfaceLang"
+          :options="settings.interfaceLanguages.map((code) => ({ value: code, label: label(code), lang: code }))"
+        />
       </div>
 
       <div>
         <label class="mb-1 block text-sm font-medium" for="native-lang">{{ t("web.settings.nativeLang") }}</label>
-        <select id="native-lang" v-model="nativeLang" class="field">
-          <option v-for="language in settings.languages" :key="language.code" :value="language.code">
-            {{ language.name }}
-          </option>
-        </select>
+        <AppSelect
+          id="native-lang"
+          v-model="nativeLang"
+          :options="settings.languages.map((language) => ({ value: language.code, label: language.name, lang: language.code }))"
+        />
       </div>
 
       <fieldset>
@@ -52,6 +54,7 @@
 </template>
 
 <script setup lang="ts">
+import AppSelect from "./AppSelect.vue";
 import LangFlag from "./LangFlag.vue";
 import { ref } from "vue";
 import { t } from "../lib/i18n";

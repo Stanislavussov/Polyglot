@@ -1,56 +1,58 @@
 <template>
-  <div class="mt-4 space-y-3">
-    <div class="flex flex-wrap items-center gap-3">
-      <label class="sr-only" for="dictionary-switch">{{ t("web.dictionaries.label") }}</label>
-      <select
+  <div class="mt-4 flex items-center gap-3">
+    <label class="sr-only" for="dictionary-switch">{{ t("web.dictionaries.label") }}</label>
+    <div class="min-w-0 flex-1 sm:max-w-xs">
+      <AppSelect
         id="dictionary-switch"
-        class="field min-w-0 flex-1 sm:max-w-xs"
-        :value="current?.id"
-        @change="emit('select', Number(($event.target as HTMLSelectElement).value))"
-      >
-        <option v-for="dictionary in dictionaries" :key="dictionary.id" :value="dictionary.id">
-          {{ dictionary.name }} · {{ dictionary.count }}
-        </option>
-      </select>
-      <button type="button" class="btn-secondary" :aria-label="t('web.dictionaries.create')" @click="open('create')">
-        <Plus class="size-4" aria-hidden="true" /><span class="hidden sm:inline">{{ t("web.dictionaries.create") }}</span>
-      </button>
-      <template v-if="current && !current.isDefault">
-        <button type="button" class="btn-secondary" :aria-label="t('web.dictionaries.rename')" @click="open('rename')">
-          <Pencil class="size-4" aria-hidden="true" /><span class="hidden sm:inline">{{ t("web.dictionaries.rename") }}</span>
-        </button>
-        <button type="button" class="btn-secondary !text-danger" :aria-label="t('web.dictionaries.delete')" @click="open('delete')">
-          <Trash2 class="size-4" aria-hidden="true" /><span class="hidden sm:inline">{{ t("web.dictionaries.delete") }}</span>
-        </button>
-      </template>
-    </div>
-
-    <form v-if="mode === 'create' || mode === 'rename'" class="flex flex-wrap gap-2" @submit.prevent="submitName">
-      <label class="sr-only" for="dictionary-name">{{ t("web.dictionaries.namePlaceholder") }}</label>
-      <input
-        id="dictionary-name"
-        ref="nameInput"
-        v-model="name"
-        class="field min-w-0 flex-1 sm:max-w-xs"
-        :maxlength="MAX_NAME"
-        :placeholder="t('web.dictionaries.namePlaceholder')"
+        :model-value="current?.id"
+        :options="dictionaries.map((d) => ({ value: d.id, label: `${d.name} · ${d.count}` }))"
+        @update:model-value="(id) => emit('select', id)"
       />
-      <button type="submit" class="btn-primary" :disabled="busy">{{ t("web.dictionaries.save") }}</button>
-      <button type="button" class="btn-secondary" @click="close">{{ t("web.dictionaries.cancel") }}</button>
-    </form>
-
-    <div v-if="mode === 'delete' && current" class="flex flex-wrap items-center gap-2 rounded-xl bg-danger-soft px-4 py-3 text-sm" role="alertdialog">
-      <span class="min-w-0 flex-1 break-words">{{ t("web.dictionaries.deleteConfirm", { name: current.name }) }}</span>
-      <button type="button" class="btn-secondary !text-danger" :disabled="busy" @click="confirmDelete">{{ t("web.dictionaries.delete") }}</button>
-      <button type="button" class="btn-secondary" @click="close">{{ t("web.dictionaries.cancel") }}</button>
     </div>
+    <button type="button" class="btn-secondary" :aria-label="t('web.dictionaries.create')" @click="open('create')">
+      <Plus class="size-4" aria-hidden="true" /><span class="hidden sm:inline">{{ t("web.dictionaries.create") }}</span>
+    </button>
+    <template v-if="current && !current.isDefault">
+      <button type="button" class="btn-secondary !px-3" :aria-label="t('web.dictionaries.rename')" :title="t('web.dictionaries.rename')" @click="open('rename')">
+        <Pencil class="size-4" aria-hidden="true" />
+      </button>
+      <button type="button" class="btn-secondary !px-3 !text-danger" :aria-label="t('web.dictionaries.delete')" :title="t('web.dictionaries.delete')" @click="open('delete')">
+        <Trash2 class="size-4" aria-hidden="true" />
+      </button>
+    </template>
 
-    <p v-if="error" role="alert" class="text-sm text-danger">{{ error }}</p>
+    <!-- Create, rename and delete each get a roomy dialog instead of a row that pushes the list down. -->
+    <BottomSheet :open="mode !== null" @close="close">
+      <template #title>{{ mode === "delete" ? t("web.dictionaries.delete") : mode === "rename" ? t("web.dictionaries.rename") : t("web.dictionaries.create") }}</template>
+      <form v-if="mode === 'create' || mode === 'rename'" id="dictionary-name-form" class="space-y-2" @submit.prevent="submitName">
+        <label class="block text-sm font-medium" for="dictionary-name">{{ t("web.dictionaries.namePlaceholder") }}</label>
+        <input
+          id="dictionary-name"
+          ref="nameInput"
+          v-model="name"
+          class="field min-h-12"
+          :maxlength="MAX_NAME"
+          :placeholder="t('web.dictionaries.namePlaceholder')"
+        />
+        <p class="text-right text-sm text-ink-muted">{{ name.length }}/{{ MAX_NAME }}</p>
+      </form>
+      <p v-else-if="current" class="text-base">{{ t("web.dictionaries.deleteConfirm", { name: current.name }) }}</p>
+      <p v-if="error" role="alert" class="mt-3 text-sm text-danger">{{ error }}</p>
+      <template #footer>
+        <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+          <button type="button" class="btn-secondary" @click="close">{{ t("web.dictionaries.cancel") }}</button>
+          <button v-if="mode === 'delete'" type="button" class="btn-primary !bg-danger" :disabled="busy" @click="confirmDelete">{{ t("web.dictionaries.delete") }}</button>
+          <button v-else type="submit" form="dictionary-name-form" class="btn-primary" :disabled="busy || name.trim() === ''">{{ t("web.dictionaries.save") }}</button>
+        </div>
+      </template>
+    </BottomSheet>
   </div>
 </template>
 
 <script setup lang="ts">
 import { Pencil, Plus, Trash2 } from "lucide-vue-next";
+import AppSelect from "./AppSelect.vue";
+import BottomSheet from "./BottomSheet.vue";
 import { computed, nextTick, ref } from "vue";
 import { ApiError, api } from "../lib/api";
 import { t } from "../lib/i18n";
@@ -73,7 +75,8 @@ function open(next: "create" | "rename" | "delete"): void {
   mode.value = next;
   error.value = "";
   name.value = next === "rename" ? (current.value?.name ?? "") : "";
-  if (next !== "delete") void nextTick(() => nameInput.value?.focus());
+  // Wait for the dialog to mount before focusing its field.
+  if (next !== "delete") void nextTick(() => setTimeout(() => nameInput.value?.focus(), 50));
 }
 
 function close(): void {

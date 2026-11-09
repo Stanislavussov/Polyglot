@@ -2,14 +2,17 @@
   <div class="border-t border-line pt-4">
     <p><LangBadge :code="translation.lang" /></p>
     <div class="mt-1 flex items-center justify-between gap-3">
+      <div class="flex min-w-0 items-center gap-2">
       <p class="min-w-0 break-words text-xl font-semibold text-primary">
         {{ translation.text }}
         <span v-if="translation.expressionType" class="ml-2 inline-block rounded-full bg-primary-soft px-2 py-0.5 align-middle text-sm font-medium text-primary-soft-fg">
           {{ translation.expressionType }}
         </span>
       </p>
+      <!-- Sound sits right after the word, the same as on the review card's headword. -->
+      <slot name="speak" />
+      </div>
       <div class="flex shrink-0 gap-2">
-        <slot name="actions" />
         <button
           type="button"
           class="btn-secondary !px-3"
