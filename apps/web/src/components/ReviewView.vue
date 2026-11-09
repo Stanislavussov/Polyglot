@@ -46,15 +46,15 @@
                 align="end"
                 :side-offset="8"
                 :collision-padding="16"
-                class="z-30 w-72 max-w-[calc(100vw-2rem)] rounded-2xl border border-line bg-surface p-2 shadow-xl"
+                class="z-30 w-80 max-w-[calc(100vw-2rem)] rounded-2xl border border-line bg-surface p-2 shadow-xl [overflow-wrap:normal]"
               >
-                <p class="px-3 pb-1 pt-2 text-sm font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.review.frontSettings") }}</p>
+                <p class="px-3 pb-2 pt-2 text-sm font-semibold text-ink-muted">{{ t("web.review.frontSettings") }}</p>
                 <p v-if="!frontFields" class="px-3 py-2 text-sm text-ink-muted">{{ t("web.common.loading") }}</p>
                 <label
                   v-for="field in frontFieldKeys"
                   v-else
                   :key="field"
-                  class="flex min-h-11 cursor-pointer items-center gap-3 rounded-xl px-3 text-base hover:bg-surface-muted"
+                  class="flex min-h-12 cursor-pointer items-center gap-3 rounded-xl px-3 py-2 text-base hover:bg-surface-muted"
                 >
                   <input
                     type="checkbox"
@@ -63,8 +63,10 @@
                     :disabled="frontBusy"
                     @change="setFrontField(field, ($event.target as HTMLInputElement).checked)"
                   />
-                  <span class="flex-1">{{ t(`web.review.front.${field}`) }}</span>
-                  <span v-if="frontFields[field] && !frontHas(field)" class="text-sm text-ink-muted">{{ t("web.review.front.missing") }}</span>
+                  <span class="flex min-w-0 flex-1 flex-col">
+                    {{ t(`web.review.front.${field}`) }}
+                    <span v-if="frontFields[field] && !frontHas(field)" class="text-sm text-ink-muted">{{ t("web.review.front.missing") }}</span>
+                  </span>
                 </label>
               </PopoverContent>
             </PopoverPortal>
