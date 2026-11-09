@@ -117,8 +117,8 @@
 
         <article v-else-if="result" class="card space-y-5">
           <header class="space-y-3">
-            <div class="flex items-start justify-between gap-3">
-            <p class="min-w-0 text-sm text-ink-muted">
+            <div class="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
+            <p class="min-w-[10rem] flex-1 text-sm text-ink-muted">
               <span aria-hidden="true">{{ languageFlag(result.sourceLang) }}</span>
               {{ languageName(result.sourceLang) }}
               <span aria-hidden="true">→</span>
@@ -127,7 +127,7 @@
                 <span class="sr-only">{{ languageName(code) }}</span>
               </span>
             </p>
-            <div class="-mt-1 flex shrink-0 flex-wrap items-center justify-end gap-2 text-sm">
+            <div class="-mt-1 ml-auto flex shrink-0 flex-wrap items-center justify-end gap-2 text-sm">
               <template v-if="saveControls">
                 <button v-if="saveState === 'unsaved'" type="button" class="btn-primary" :disabled="savePending" @click="save">
                   <span aria-hidden="true">💾</span>{{ t("web.translate.save") }}

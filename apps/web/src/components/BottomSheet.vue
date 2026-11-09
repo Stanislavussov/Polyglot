@@ -1,12 +1,12 @@
 <template>
   <DialogRoot :open="open" @update:open="(next) => !next && emit('close')">
     <DialogPortal>
-      <DialogOverlay class="sheet-overlay fixed inset-0 z-40 bg-ink opacity-50" />
+      <DialogOverlay :style="overlayStyle" :class="{ 'sheet-dragged-out': dismissing }" class="sheet-overlay fixed inset-0 z-40 bg-ink opacity-50" />
       <!-- A bottom sheet on phones, a centered panel from sm up. -->
       <DialogContent
         :style="sheetStyle"
         :class="[{ 'sheet-dragged-out': dismissing }, panelClass]"
-        class="sheet fixed inset-x-0 bottom-0 z-50 flex max-h-[90vh] flex-col overflow-hidden rounded-t-2xl border border-line bg-surface shadow-xl sm:inset-x-auto sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-2xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl"
+        class="sheet fixed inset-x-0 bottom-0 z-50 flex max-h-[75dvh] flex-col overflow-hidden rounded-t-2xl border border-line bg-surface shadow-xl sm:inset-x-auto sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-2xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl"
         :aria-describedby="undefined"
       >
         <!-- Header and footer stay put while long content scrolls between them, so closing is always one tap away.
@@ -26,7 +26,15 @@
             </DialogClose>
           </div>
         </div>
-        <div class="min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-6">
+        <!-- Like Telegram: once the content is scrolled to the top, pulling down drags the sheet too. -->
+        <div
+          ref="body"
+          class="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-6"
+          @touchstart.passive="onBodyDragStart"
+          @touchmove.passive="onDragMove"
+          @touchend="onDragEnd"
+          @touchcancel="onDragEnd"
+        >
           <slot />
         </div>
         <div class="shrink-0 border-t border-line px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-6">
@@ -65,14 +73,36 @@ const sheetStyle = computed(() => {
   return undefined;
 });
 
+// The dim fades with the sheet: dropping it in one frame while the sheet still slid was the visible flash.
+const overlayStyle = computed(() => {
+  if (dismissing.value) return { opacity: 0, transition: `opacity ${SLIDE_OUT_MS}ms ease-in` };
+  if (dragStartY.value !== null && dragOffset.value > 0) {
+    return { opacity: 0.5 * Math.max(0, 1 - dragOffset.value / 400), transition: "none" };
+  }
+  return undefined;
+});
+
 function onDragStart(event: TouchEvent): void {
   // From sm up the panel is centered by a transform that a drag offset would overwrite.
   if (window.matchMedia("(min-width: 640px)").matches) return;
   dragStartY.value = event.touches[0]?.clientY ?? null;
 }
 
+const body = ref<HTMLElement | null>(null);
+
+function onBodyDragStart(event: TouchEvent): void {
+  if ((body.value?.scrollTop ?? 0) > 0) return;
+  onDragStart(event);
+}
+
 function onDragMove(event: TouchEvent): void {
   if (dragStartY.value === null) return;
+  // Scrolled content: the finger is reading, not dragging the sheet.
+  if ((body.value?.scrollTop ?? 0) > 0) {
+    dragStartY.value = null;
+    dragOffset.value = 0;
+    return;
+  }
   dragOffset.value = Math.max(0, (event.touches[0]?.clientY ?? dragStartY.value) - dragStartY.value);
 }
 
@@ -99,10 +129,10 @@ watch(
 /* Not scoped: the dialog is portalled to <body>. Open/close are driven by reka-ui's data-state,
    which keeps the element mounted until the exit animation ends. */
 .sheet {
-  transition: transform 200ms ease-out;
+  transition: transform 280ms cubic-bezier(0.32, 0.72, 0, 1);
 }
 .sheet[data-state="open"] {
-  animation: sheet-in 240ms ease-out;
+  animation: sheet-in 280ms cubic-bezier(0.32, 0.72, 0, 1);
 }
 .sheet[data-state="closed"] {
   animation: sheet-out 200ms ease-in forwards;
@@ -116,6 +146,10 @@ watch(
 }
 .sheet-overlay[data-state="closed"] {
   animation: overlay-out 200ms ease-in forwards;
+}
+.sheet-overlay.sheet-dragged-out[data-state="closed"] {
+  animation: none;
+  opacity: 0;
 }
 
 @keyframes sheet-in {
