@@ -55,3 +55,4 @@
 - Text across the website now follows one calm, larger scale, so captions, examples and headings no longer jump between sizes.
 - In the website dictionary on a phone, the search box is now big and full width with Filters and Sort right under it, and the review card settings grey out the aids a word doesn't have.
 - Drop-down lists on the website are now neat menus with language flags, creating or renaming a dictionary opens in its own window, and the sound button always sits right next to the word.
+- Give each dictionary on the website its own emoji icon, picked from a neat grid with search, just like in Notion.

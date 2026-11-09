@@ -5,6 +5,7 @@
  * - open one dictionary's words; add a word to another, or move it there;
  * - removing a word from a dictionary that is not its only one only leaves that list,
  *   and the undo puts it back; removing its last membership soft-deletes the word;
+ * - each dictionary can carry an emoji icon, set at creation or changed later — the default one too;
  * - everything is owner-scoped.
  */
 import { getLang, vocabularyDictionaryRepository, vocabularyRepository } from "@polyglot/adapter-db";
@@ -18,6 +19,7 @@ interface DictionaryView {
   name: string;
   isDefault: boolean;
   count: number;
+  icon: string | null;
 }
 
 async function saveInBot(userId: number, original: string): Promise<number> {
@@ -77,6 +79,33 @@ describe("web dictionaries", () => {
     expect((await list()).map((d) => d.id)).toEqual([first!.id]);
   });
 
+  it("gives a dictionary an emoji icon at creation, changes it, clears it — on the default one too", async () => {
+    const { call, list } = await setUp();
+
+    const created = await call("POST", "/api/dictionaries", { name: "Travel", icon: "✈️" });
+    expect(created).toMatchObject({ status: 201, body: { name: "Travel", icon: "✈️" } });
+    const travel = created.body as DictionaryView;
+
+    expect(await call("PATCH", `/api/dictionaries/${travel.id}/icon`, { icon: "🧳" })).toMatchObject({
+      status: 200,
+      body: { id: travel.id, icon: "🧳" },
+    });
+    expect(await call("PATCH", `/api/dictionaries/${travel.id}/icon`, { icon: null })).toMatchObject({
+      status: 200,
+      body: { icon: null },
+    });
+
+    const defaultId = (await list()).find((d) => d.isDefault)!.id;
+    expect(await call("PATCH", `/api/dictionaries/${defaultId}/icon`, { icon: "📚" })).toMatchObject({
+      status: 200,
+      body: { icon: "📚" },
+    });
+    expect((await list()).find((d) => d.isDefault)?.icon).toBe("📚");
+
+    // An icon is one short symbol, never a sentence.
+    expect((await call("PATCH", `/api/dictionaries/${travel.id}/icon`, { icon: "x".repeat(40) })).status).toBe(400);
+  });
+
   it("adds a word to another dictionary, moves it, and removes it from one list only", async () => {
     const { userId, call, list, words } = await setUp();
     const pes = await saveInBot(userId, "pes");
@@ -118,6 +147,7 @@ describe("web dictionaries", () => {
     expect((await intruder.call("GET", `/api/dictionary?dictionary=${travel.id}`)).status).toBe(404);
     expect((await intruder.call("PATCH", `/api/dictionaries/${travel.id}`, { name: "Mine" })).status).toBe(404);
     expect((await intruder.call("DELETE", `/api/dictionaries/${travel.id}`)).status).toBe(404);
+    expect((await intruder.call("PATCH", `/api/dictionaries/${travel.id}/icon`, { icon: "🙃" })).status).toBe(404);
     expect((await intruder.call("POST", `/api/dictionary/${pes}/dictionaries`, { to: travel.id })).status).toBe(404);
     expect(await owner.list()).toHaveLength(2);
   });

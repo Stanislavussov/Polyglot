@@ -266,6 +266,8 @@ export const vocabularyDictionaries = pgTable(
       .references(() => users.id, { onDelete: "cascade" })
       .notNull(),
     name: text("name").notNull(),
+    // An emoji the learner picks for the list; null shows the plain name.
+    icon: text("icon"),
     isDefault: boolean("is_default").default(false).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),

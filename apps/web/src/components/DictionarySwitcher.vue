@@ -5,17 +5,17 @@
       <AppSelect
         id="dictionary-switch"
         :model-value="current?.id"
-        :options="dictionaries.map((d) => ({ value: d.id, label: `${d.name} · ${d.count}` }))"
+        :options="dictionaries.map((d) => ({ value: d.id, label: `${d.icon ? `${d.icon} ` : ''}${d.name} · ${d.count}` }))"
         @update:model-value="(id) => emit('select', id)"
       />
     </div>
     <button type="button" class="btn-secondary" :aria-label="t('web.dictionaries.create')" @click="open('create')">
       <Plus class="size-4" aria-hidden="true" /><span class="hidden sm:inline">{{ t("web.dictionaries.create") }}</span>
     </button>
+    <button v-if="current" type="button" class="btn-secondary !px-3" :aria-label="t('web.dictionaries.rename')" :title="t('web.dictionaries.rename')" @click="open('rename')">
+      <Pencil class="size-4" aria-hidden="true" />
+    </button>
     <template v-if="current && !current.isDefault">
-      <button type="button" class="btn-secondary !px-3" :aria-label="t('web.dictionaries.rename')" :title="t('web.dictionaries.rename')" @click="open('rename')">
-        <Pencil class="size-4" aria-hidden="true" />
-      </button>
       <button type="button" class="btn-secondary !px-3 !text-danger" :aria-label="t('web.dictionaries.delete')" :title="t('web.dictionaries.delete')" @click="open('delete')">
         <Trash2 class="size-4" aria-hidden="true" />
       </button>
@@ -26,15 +26,35 @@
       <template #title>{{ mode === "delete" ? t("web.dictionaries.delete") : mode === "rename" ? t("web.dictionaries.rename") : t("web.dictionaries.create") }}</template>
       <form v-if="mode === 'create' || mode === 'rename'" id="dictionary-name-form" class="space-y-2" @submit.prevent="submitName">
         <label class="block text-sm font-medium" for="dictionary-name">{{ t("web.dictionaries.namePlaceholder") }}</label>
-        <input
-          id="dictionary-name"
-          ref="nameInput"
-          v-model="name"
-          class="field min-h-12"
-          :maxlength="MAX_NAME"
-          :placeholder="t('web.dictionaries.namePlaceholder')"
-        />
-        <p class="text-right text-sm text-ink-muted">{{ name.length }}/{{ MAX_NAME }}</p>
+        <div class="flex items-center gap-3">
+          <!-- Like Notion: the icon is a square button before the name that opens the emoji grid. -->
+          <PopoverRoot v-model:open="pickerOpen">
+            <PopoverTrigger
+              type="button"
+              class="grid size-12 shrink-0 place-items-center rounded-2xl border border-line bg-surface-muted text-2xl hover:border-ring"
+              :aria-label="t('web.dictionaries.icon')"
+              :title="t('web.dictionaries.icon')"
+            >
+              <span v-if="icon">{{ icon }}</span>
+              <SmilePlus v-else class="size-5 text-ink-muted" aria-hidden="true" />
+            </PopoverTrigger>
+            <PopoverPortal>
+              <PopoverContent align="start" :side-offset="8" :collision-padding="16" class="z-[60] rounded-2xl border border-line bg-surface p-3 shadow-xl">
+                <EmojiPicker :model-value="icon" @update:model-value="pickIcon" />
+              </PopoverContent>
+            </PopoverPortal>
+          </PopoverRoot>
+          <input
+            id="dictionary-name"
+            ref="nameInput"
+            v-model="name"
+            class="field min-h-12 min-w-0 flex-1 disabled:opacity-60"
+            :maxlength="MAX_NAME"
+            :disabled="renamingDefault"
+            :placeholder="t('web.dictionaries.namePlaceholder')"
+          />
+        </div>
+        <p class="text-right text-sm text-ink-muted">{{ renamingDefault ? t("web.dictionaries.defaultName") : `${name.length}/${MAX_NAME}` }}</p>
       </form>
       <p v-else-if="current" class="text-base">{{ t("web.dictionaries.deleteConfirm", { name: current.name }) }}</p>
       <p v-if="error" role="alert" class="mt-3 text-sm text-danger">{{ error }}</p>
@@ -50,7 +70,9 @@
 </template>
 
 <script setup lang="ts">
-import { Pencil, Plus, Trash2 } from "lucide-vue-next";
+import { Pencil, Plus, SmilePlus, Trash2 } from "lucide-vue-next";
+import { PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from "reka-ui";
+import EmojiPicker from "./EmojiPicker.vue";
 import AppSelect from "./AppSelect.vue";
 import BottomSheet from "./BottomSheet.vue";
 import { computed, nextTick, ref } from "vue";
@@ -70,11 +92,21 @@ const name = ref("");
 const busy = ref(false);
 const error = ref("");
 const nameInput = ref<HTMLInputElement | null>(null);
+const icon = ref<string | null>(null);
+const pickerOpen = ref(false);
+// The default list keeps its name, as in the bot, but takes an icon like any other.
+const renamingDefault = computed(() => mode.value === "rename" && Boolean(current.value?.isDefault));
+
+function pickIcon(next: string | null): void {
+  icon.value = next;
+  pickerOpen.value = false;
+}
 
 function open(next: "create" | "rename" | "delete"): void {
   mode.value = next;
   error.value = "";
   name.value = next === "rename" ? (current.value?.name ?? "") : "";
+  icon.value = next === "rename" ? (current.value?.icon ?? null) : null;
   // Wait for the dialog to mount before focusing its field.
   if (next !== "delete") void nextTick(() => setTimeout(() => nameInput.value?.focus(), 50));
 }
@@ -89,10 +121,14 @@ async function submitName(): Promise<void> {
   busy.value = true;
   error.value = "";
   try {
-    const saved =
-      mode.value === "rename" && current.value
-        ? await api.renameDictionary(current.value.id, name.value)
-        : await api.createDictionary(name.value);
+    const target = current.value;
+    let saved;
+    if (mode.value === "rename" && target) {
+      saved = target.isDefault ? target : await api.renameDictionary(target.id, name.value);
+      if (icon.value !== target.icon) saved = await api.setDictionaryIcon(target.id, icon.value);
+    } else {
+      saved = await api.createDictionary(name.value, icon.value);
+    }
     close();
     emit("changed", saved.id);
   } catch (err) {

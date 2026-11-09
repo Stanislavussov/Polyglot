@@ -96,6 +96,7 @@ export interface DictionaryItem {
 export interface Dictionary {
   id: number;
   name: string;
+  icon: string | null;
   isDefault: boolean;
   count: number;
 }

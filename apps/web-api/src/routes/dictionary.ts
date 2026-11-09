@@ -22,7 +22,10 @@ const querySchema = z.object({
   dictionary: z.coerce.number().int().positive().optional(),
 });
 
-const nameSchema = z.object({ name: z.string().max(200) });
+// One emoji, possibly several code points (flags, skin tones, ZWJ sequences) — never free text.
+const iconValue = z.string().trim().min(1).max(16).nullable();
+const nameSchema = z.object({ name: z.string().max(200), icon: iconValue.optional() });
+const iconSchema = z.object({ icon: iconValue });
 const dictionaryParams = z.object({ dictionaryId: z.coerce.number().int().positive() });
 const entryParams = z.object({ entryId: z.coerce.number().int().positive() });
 const targetQuery = z.object({ dictionary: z.coerce.number().int().positive().optional() });
@@ -47,6 +50,7 @@ function toDictionaryView(dictionary: VocabularyDictionary & { entryCount?: numb
   return {
     id: dictionary.id,
     name: dictionary.name,
+    icon: dictionary.icon,
     isDefault: dictionary.isDefault,
     count: dictionary.entryCount ?? 0,
   };
@@ -72,7 +76,7 @@ export function dictionaryRoutes(app: FastifyInstance, services: WebServices): v
       ? acceptDictionaryName(repo.normalizeName(body.data.name), await repo.listByUser(userId))
       : null;
     if (!name) return reply.status(400).send({ code: "invalid_name" });
-    const dictionary = await repo.create(userId, name);
+    const dictionary = await repo.create(userId, name, body.success ? (body.data.icon ?? null) : null);
     logEvent("dictionary.created", { dictionaryId: dictionary.id, nameLength: name.length, surface: "web" });
     return reply.status(201).send(toDictionaryView(dictionary));
   });
@@ -92,6 +96,17 @@ export function dictionaryRoutes(app: FastifyInstance, services: WebServices): v
     if (!renamed) return reply.status(404).send({ code: "not_found" });
     logEvent("dictionary.renamed", { dictionaryId, nameLength: name.length, surface: "web" });
     return toDictionaryView(renamed);
+  });
+
+  app.patch("/api/dictionaries/:dictionaryId/icon", async (request, reply) => {
+    const params = dictionaryParams.safeParse(request.params);
+    if (!params.success) return reply.status(400).send({ code: "invalid_dictionary" });
+    const body = iconSchema.safeParse(request.body);
+    if (!body.success) return reply.status(400).send({ code: "invalid_icon" });
+    const updated = await repo.setIcon(request.learner.id, params.data.dictionaryId, body.data.icon);
+    if (!updated) return reply.status(404).send({ code: "not_found" });
+    logEvent("dictionary.icon_set", { dictionaryId: updated.id, cleared: body.data.icon === null, surface: "web" });
+    return toDictionaryView(updated);
   });
 
   app.delete("/api/dictionaries/:dictionaryId", async (request, reply) => {

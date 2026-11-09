@@ -498,6 +498,13 @@
       "when": 1794162086389,
       "tag": "0070_empty_frog_thor",
       "breakpoints": true
+    },
+    {
+      "idx": 71,
+      "version": "7",
+      "when": 1794239965215,
+      "tag": "0071_first_lenny_balinger",
+      "breakpoints": true
     }
   ]
 }

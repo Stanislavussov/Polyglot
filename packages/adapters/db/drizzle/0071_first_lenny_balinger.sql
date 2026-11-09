@@ -1,0 +1,1 @@
+ALTER TABLE "vocabulary_dictionaries" ADD COLUMN "icon" text;
