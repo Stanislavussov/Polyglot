@@ -18,6 +18,12 @@ simple, minimal, large — "broad strokes", sized like the Google Store
    `LangBadge` for a language label, `.card`, `.btn-primary`, `.btn-secondary`, `.field`,
    `.page-title`, `BottomSheet`.
 
+## Colour
+
+Teal from the owl logo (`#1F8A74`), a mint accent, a cool white canvas. Every value lives in
+`apps/web/src/styles/tokens.css`; components use the tokens only. Avoid olive/swamp greens and
+plain blue.
+
 ## Type scale — the only allowed sizes
 
 | Class | Size | Use |

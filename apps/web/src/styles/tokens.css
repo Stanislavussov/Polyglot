@@ -1,6 +1,6 @@
 /*
- * Palette from the Figma Make file "Green Language Learning System": leaf greens, a lime
- * accent and a cream canvas. This is the only file that holds colour values.
+ * Teal palette taken from the owl logo (#1F8A74 / #2E9E86), with a mint
+ * accent and a cool white canvas. This is the only file that holds colour values.
  * Light is the default; dark applies by [data-theme=dark] or, with no explicit choice,
  * by the system preference.
  */
@@ -8,86 +8,86 @@
   color-scheme: light dark;
   --font-sans: "DM Sans", "Avenir Next", "Segoe UI", system-ui, sans-serif;
   --font-display: "Manrope", "DM Sans", system-ui, sans-serif;
-  --shadow-card: 0 10px 30px rgb(25 64 32 / 0.08);
-  --shadow-soft: 0 20px 60px rgb(25 64 32 / 0.1);
-  --shadow-primary: 0 8px 24px rgb(40 106 49 / 0.18);
+  --shadow-card: 0 10px 30px rgb(16 70 58 / 0.08);
+  --shadow-soft: 0 20px 60px rgb(16 70 58 / 0.1);
+  --shadow-primary: 0 8px 24px rgb(31 138 116 / 0.2);
 
-  --color-canvas: #fbfcf5;
+  --color-canvas: #f6faf8;
   --color-surface: #ffffff;
-  --color-surface-muted: #f3faf1;
-  --color-line: #e4f4df;
-  --color-ink: #17301d;
-  --color-ink-muted: #4f6a54;
-  --color-primary: #286a31;
-  --color-primary-hover: #24552c;
+  --color-surface-muted: #edf7f3;
+  --color-line: #d9ede6;
+  --color-ink: #102b25;
+  --color-ink-muted: #4b675f;
+  --color-primary: #1f8a74;
+  --color-primary-hover: #18705e;
   --color-primary-fg: #ffffff;
-  --color-primary-soft: #e4f4df;
-  --color-primary-soft-fg: #1f4727;
+  --color-primary-soft: #ddf3ec;
+  --color-primary-soft-fg: #0f4d40;
   --color-danger: #b3261e;
   --color-danger-soft: #fbe6e3;
   --color-warning-soft: #fff1cf;
   --color-warning-fg: #6a4700;
-  --color-accent: #d8f56a;
-  --color-accent-fg: #102817;
-  --color-ring: #43a547;
-  --color-sidebar: #102817;
-  --color-sidebar-fg: #e4f4df;
-  --color-sidebar-muted: #9dd890;
-  --color-sidebar-hover: #1f4727;
-  --color-sidebar-active: #24552c;
+  --color-accent: #8be3c9;
+  --color-accent-fg: #083a2f;
+  --color-ring: #2e9e86;
+  --color-sidebar: #0c2a24;
+  --color-sidebar-fg: #ddf3ec;
+  --color-sidebar-muted: #8fd6c2;
+  --color-sidebar-hover: #143b33;
+  --color-sidebar-active: #17473d;
 }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --color-canvas: #0e1611;
-  --color-surface: #16211a;
-  --color-surface-muted: #1e2b23;
-  --color-line: #2c3b32;
-  --color-ink: #e3eee7;
-  --color-ink-muted: #9db1a3;
-  --color-primary: #4cc38a;
-  --color-primary-hover: #6dd5a2;
-  --color-primary-fg: #06200f;
-  --color-primary-soft: #1b3a29;
-  --color-primary-soft-fg: #a9e7c6;
+  --color-canvas: #0b1613;
+  --color-surface: #10221d;
+  --color-surface-muted: #162c26;
+  --color-line: #234139;
+  --color-ink: #e2f1ec;
+  --color-ink-muted: #97b5ac;
+  --color-primary: #3cc4a3;
+  --color-primary-hover: #63d5b9;
+  --color-primary-fg: #04221b;
+  --color-primary-soft: #123d34;
+  --color-primary-soft-fg: #a6e8d6;
   --color-danger: #ff8d83;
   --color-danger-soft: #3b1d1b;
   --color-warning-soft: #3a2f10;
   --color-warning-fg: #f2d58a;
-  --color-accent: #c5e85a;
-  --color-accent-fg: #102817;
-  --color-ring: #4cc38a;
-  --color-sidebar: #0a110d;
-  --color-sidebar-fg: #bed1c5;
-  --color-sidebar-muted: #8ea597;
-  --color-sidebar-hover: #14211a;
-  --color-sidebar-active: #1b3a29;
+  --color-accent: #8be3c9;
+  --color-accent-fg: #083a2f;
+  --color-ring: #3cc4a3;
+  --color-sidebar: #07120f;
+  --color-sidebar-fg: #bcd8cf;
+  --color-sidebar-muted: #86a99f;
+  --color-sidebar-hover: #0e201b;
+  --color-sidebar-active: #123d34;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --color-canvas: #0e1611;
-    --color-surface: #16211a;
-    --color-surface-muted: #1e2b23;
-    --color-line: #2c3b32;
-    --color-ink: #e3eee7;
-    --color-ink-muted: #9db1a3;
-    --color-primary: #4cc38a;
-    --color-primary-hover: #6dd5a2;
-    --color-primary-fg: #06200f;
-    --color-primary-soft: #1b3a29;
-    --color-primary-soft-fg: #a9e7c6;
+    --color-canvas: #0b1613;
+    --color-surface: #10221d;
+    --color-surface-muted: #162c26;
+    --color-line: #234139;
+    --color-ink: #e2f1ec;
+    --color-ink-muted: #97b5ac;
+    --color-primary: #3cc4a3;
+    --color-primary-hover: #63d5b9;
+    --color-primary-fg: #04221b;
+    --color-primary-soft: #123d34;
+    --color-primary-soft-fg: #a6e8d6;
     --color-danger: #ff8d83;
     --color-danger-soft: #3b1d1b;
     --color-warning-soft: #3a2f10;
     --color-warning-fg: #f2d58a;
-    --color-accent: #c5e85a;
-    --color-accent-fg: #102817;
-    --color-ring: #4cc38a;
-    --color-sidebar: #0a110d;
-    --color-sidebar-fg: #bed1c5;
-    --color-sidebar-muted: #8ea597;
-    --color-sidebar-hover: #14211a;
-    --color-sidebar-active: #1b3a29;
+    --color-accent: #8be3c9;
+    --color-accent-fg: #083a2f;
+    --color-ring: #3cc4a3;
+    --color-sidebar: #07120f;
+    --color-sidebar-fg: #bcd8cf;
+    --color-sidebar-muted: #86a99f;
+    --color-sidebar-hover: #0e201b;
+    --color-sidebar-active: #123d34;
   }
 }

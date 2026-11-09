@@ -58,3 +58,4 @@
 - Give each dictionary on the website its own emoji icon, picked from a neat grid with search, just like in Notion.
 - The dictionary icon picker on the website now offers about 300 emoji in 11 groups, with a quick jump bar between them.
 - On the website, Save is now a neat bookmark icon; if you have several dictionaries it asks which one to save the word to.
+- The website has a fresh teal colour scheme that matches the owl logo.
