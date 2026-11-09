@@ -866,5 +866,6 @@
   "web.progress.insight.weekTodo": "Ještě {left} dny učení udrží rytmus týdne",
   "web.progress.insight.monthBehind": "Dny učení tento měsíc: {days} z {target} — přidej pár",
   "web.progress.insight.newWords": "Ulož ještě {left} slov, nebo jedno upevni v paměti",
-  "web.progress.insight.firstWord": "Ulož své první slovo — tím začne tvůj pokrok"
+  "web.progress.insight.firstWord": "Ulož své první slovo — tím začne tvůj pokrok",
+  "web.translate.saveTo": "Uložit do"
 }

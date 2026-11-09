@@ -866,5 +866,6 @@
   "web.progress.insight.weekTodo": "Тағы {left} сабақ күні аптаның ырғағын сақтайды",
   "web.progress.insight.monthBehind": "Осы айдағы сабақ күндері: {target} ішінен {days} — тағы бірнеше қосыңыз",
   "web.progress.insight.newWords": "Тағы {left} сөз сақтаңыз немесе біреуін жадқа бекітіңіз",
-  "web.progress.insight.firstWord": "Алғашқы сөзіңізді сақтаңыз — прогресс содан басталады"
+  "web.progress.insight.firstWord": "Алғашқы сөзіңізді сақтаңыз — прогресс содан басталады",
+  "web.translate.saveTo": "Сақтау"
 }

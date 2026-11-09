@@ -866,5 +866,6 @@
   "web.progress.insight.weekTodo": "Noch {left} Lerntage halten den Wochenrhythmus",
   "web.progress.insight.monthBehind": "{days} von {target} Lerntagen diesen Monat – leg ein paar nach",
   "web.progress.insight.newWords": "Speichere noch {left} Wörter oder festige eines im Gedächtnis",
-  "web.progress.insight.firstWord": "Speichere dein erstes Wort – damit beginnt dein Fortschritt"
+  "web.progress.insight.firstWord": "Speichere dein erstes Wort – damit beginnt dein Fortschritt",
+  "web.translate.saveTo": "Speichern in"
 }

@@ -31,23 +31,17 @@
 
       <div>
         <label class="mb-1 block text-sm font-medium" for="notif-type">{{ t("web.notif.type") }}</label>
-        <select id="notif-type" class="field" :value="notif.type" :disabled="saving" @change="save({ type: selectValue($event) as NotificationType })">
-          <option v-for="type in notif.options.types" :key="type" :value="type">{{ t(`web.notif.type.${type}`) }}</option>
-        </select>
+        <AppSelect id="notif-type" :model-value="notif.type" :options="typeOptions" :disabled="saving" @update:model-value="(value) => save({ type: value as NotificationType })" />
       </div>
 
       <div v-if="sendsDeck">
         <label class="mb-1 block text-sm font-medium" for="notif-batch">{{ t("web.notif.batch") }}</label>
-        <select id="notif-batch" class="field" :value="notif.batchSize" :disabled="saving" @change="save({ batchSize: Number(selectValue($event)) })">
-          <option v-for="size in notif.options.batchSizes" :key="size" :value="size">{{ size }}</option>
-        </select>
+        <AppSelect id="notif-batch" :model-value="String(notif.batchSize)" :options="batchOptions" :disabled="saving" @update:model-value="(value) => save({ batchSize: Number(value) })" />
       </div>
 
       <div>
         <label class="mb-1 block text-sm font-medium" for="notif-tz">{{ t("web.notif.timezone") }}</label>
-        <select id="notif-tz" class="field" :value="notif.timezone" :disabled="saving" @change="save({ timezone: selectValue($event) })">
-          <option v-for="zone in timezones" :key="zone" :value="zone">{{ zone }}</option>
-        </select>
+        <AppSelect id="notif-tz" :model-value="notif.timezone" :options="timezoneOptions" :disabled="saving" @update:model-value="(value) => save({ timezone: value })" />
       </div>
 
       <form v-if="notif.type === 'contextual'" @submit.prevent="save({ context: context.trim() || null })">
@@ -67,6 +61,7 @@
 import { computed, ref } from "vue";
 import { t } from "../lib/i18n";
 import { saveNotifications, settings } from "../lib/settings-store";
+import AppSelect from "./AppSelect.vue";
 import type { NotificationPatch, NotificationType } from "../lib/types";
 
 // The bot's grid: every half hour of the day.
@@ -90,9 +85,11 @@ const timezones = computed(() => {
   return [...new Set(["UTC", current, ...all])];
 });
 
-function selectValue(event: Event): string {
-  return (event.target as HTMLSelectElement).value;
-}
+const typeOptions = computed(() =>
+  (notif.value?.options.types ?? []).map((type) => ({ value: type, label: t(`web.notif.type.${type}`) })),
+);
+const batchOptions = computed(() => (notif.value?.options.batchSizes ?? []).map((size) => ({ value: String(size), label: String(size) })));
+const timezoneOptions = computed(() => timezones.value.map((zone) => ({ value: zone, label: zone })));
 
 // The last time cannot be removed: an empty schedule means "not configured", as in the bot.
 function canToggle(slot: string): boolean {

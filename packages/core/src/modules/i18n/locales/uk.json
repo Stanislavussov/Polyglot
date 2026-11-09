@@ -866,5 +866,6 @@
   "web.progress.insight.weekTodo": "Ще {left} дні занять — і тиждень у ритмі",
   "web.progress.insight.monthBehind": "Днів занять цього місяця: {days} з {target} — додайте кілька",
   "web.progress.insight.newWords": "Збережіть ще {left} слів або закріпіть одне в пам'яті",
-  "web.progress.insight.firstWord": "Збережіть перше слово — з нього почнеться прогрес"
+  "web.progress.insight.firstWord": "Збережіть перше слово — з нього почнеться прогрес",
+  "web.translate.saveTo": "Зберегти в"
 }

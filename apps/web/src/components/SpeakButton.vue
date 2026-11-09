@@ -1,15 +1,15 @@
 <template>
   <button
     type="button"
-    class="btn-secondary !px-3"
+    class="btn-secondary size-11 shrink-0 !rounded-full !p-0 !text-primary"
     :aria-label="t('web.audio.listenLabel', { text })"
     :title="access === 'locked' ? t('web.audio.locked') : t('web.audio.listen')"
     :aria-busy="loading"
     @click="play"
   >
-    <Lock v-if="access === 'locked'" class="size-4" aria-hidden="true" />
-    <LoaderCircle v-else-if="loading" class="size-4 animate-spin" aria-hidden="true" />
-    <Volume2 v-else class="size-4" aria-hidden="true" />
+    <Lock v-if="access === 'locked'" class="size-5" aria-hidden="true" />
+    <LoaderCircle v-else-if="loading" class="size-5 animate-spin" aria-hidden="true" />
+    <Volume2 v-else class="size-5" aria-hidden="true" />
   </button>
 </template>
 

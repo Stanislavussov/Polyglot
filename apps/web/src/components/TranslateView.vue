@@ -129,7 +129,30 @@
             </p>
             <div class="-mt-1 flex shrink-0 flex-wrap items-center justify-end gap-2 text-sm">
               <template v-if="saveControls">
-                <button v-if="saveState === 'unsaved'" type="button" class="btn-primary" :disabled="savePending" @click="save">
+                <!-- With several dictionaries the bot asks where the word goes, so the button opens that choice. -->
+                <DropdownMenuRoot v-if="saveState === 'unsaved' && dictionaries.length > 1">
+                  <DropdownMenuTrigger class="btn-primary" :disabled="savePending">
+                    <span aria-hidden="true">💾</span>{{ t("web.translate.save") }}<ChevronDown class="size-4" aria-hidden="true" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuPortal>
+                    <DropdownMenuContent align="end" :side-offset="6" :collision-padding="16" class="z-50 min-w-52 rounded-xl border border-line bg-surface p-1 shadow-lg">
+                      <DropdownMenuLabel class="px-3 py-2 text-xs font-semibold uppercase tracking-wide text-ink-muted">
+                        {{ t("web.translate.saveTo") }}
+                      </DropdownMenuLabel>
+                      <DropdownMenuItem
+                        v-for="dictionary in dictionaries"
+                        :key="dictionary.id"
+                        class="flex min-h-11 cursor-pointer items-center gap-2 rounded-lg px-3 text-sm outline-none data-[highlighted]:bg-surface-muted"
+                        @select="save(dictionary)"
+                      >
+                        <FolderPlus class="size-4 text-ink-muted" aria-hidden="true" />
+                        <span class="min-w-0 flex-1 truncate">{{ dictionary.name }}</span>
+                        <span class="text-xs text-ink-muted">{{ dictionary.count }}</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenuPortal>
+                </DropdownMenuRoot>
+                <button v-else-if="saveState === 'unsaved'" type="button" class="btn-primary" :disabled="savePending" @click="save()">
                   <span aria-hidden="true">💾</span>{{ t("web.translate.save") }}
                 </button>
                 <template v-else-if="saveState === 'removed'">
@@ -249,7 +272,8 @@
 </template>
 
 <script setup lang="ts">
-import { ArrowRight, Check, Maximize2, Mic, Square, Trash2, TriangleAlert, Undo2 } from "lucide-vue-next";
+import { ArrowRight, Check, ChevronDown, FolderPlus, Maximize2, Mic, Square, Trash2, TriangleAlert, Undo2 } from "lucide-vue-next";
+import { DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuPortal, DropdownMenuRoot, DropdownMenuTrigger } from "reka-ui";
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { useLoaderText } from "../lib/use-loader-text";
 import { useMainInput } from "../lib/use-main-input";
@@ -257,7 +281,7 @@ import { ApiError, api } from "../lib/api";
 import { t } from "../lib/i18n";
 import { splitNative } from "../lib/card-order";
 import { languageFlag, languageName, settings } from "../lib/settings-store";
-import type { Clarification, ClarificationOption, TranslateAnswer, TranslateResult } from "../lib/types";
+import type { Clarification, ClarificationOption, Dictionary, TranslateAnswer, TranslateResult } from "../lib/types";
 import { startWavRecording, type WavRecording } from "../lib/wav-recorder";
 import CardExplore from "./CardExplore.vue";
 import EntryDetailDialog from "./EntryDetailDialog.vue";
@@ -387,7 +411,17 @@ function openHistory(entry: TranslateResult): void {
   focusInput();
 }
 
-async function save(): Promise<void> {
+const dictionaries = ref<Dictionary[]>([]);
+
+async function loadDictionaries(): Promise<void> {
+  try {
+    dictionaries.value = (await api.dictionaries()).items;
+  } catch {
+    // Without the list the button saves straight into the default dictionary, as before.
+  }
+}
+
+async function save(target?: Dictionary): Promise<void> {
   const current = result.value;
   if (!current?.saveToken || savePending.value) return;
   savePending.value = true;
@@ -396,6 +430,9 @@ async function save(): Promise<void> {
     const { entryId } = await api.saveTranslation(current.saveToken);
     current.savedEntryId = entryId;
     saveState.value = "saved";
+    // A save always lands in the default dictionary; another choice moves it there, like the bot's picker.
+    const fallback = dictionaries.value.find((dictionary) => dictionary.isDefault);
+    if (target && fallback && target.id !== fallback.id) await api.placeEntry(entryId, target.id, fallback.id);
   } catch {
     errorKey.value = "web.common.error";
   } finally {
@@ -548,6 +585,7 @@ async function answer(value: string, choice: TranslateAnswer): Promise<void> {
 
 onMounted(() => {
   history.value = loadHistory();
+  void loadDictionaries();
   // A Learn page hands a phrase over as ?q= (the expression's "to dictionary"), as the bot's notif:tr translates it.
   const handed = new URLSearchParams(window.location.search).get("q")?.trim();
   if (handed) {

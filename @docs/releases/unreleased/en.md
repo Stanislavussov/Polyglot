@@ -47,3 +47,6 @@
 - Word meanings and mentor chat messages on the website now use a larger, easier-to-read font.
 - The Progress page on the website is redesigned: you see at a glance what is going well, what to work on next and how close your gift is.
 - On a website review card, tap ⚙️ to choose whether it shows a hint, synonyms or an example sentence — the card changes right away.
+- Every drop-down list on the website — languages, reminders, time zone, dictionaries — now opens as a neat menu that looks the same on phone and computer.
+- Have several dictionaries? The 💾 Save button on the website now asks which one the word goes to.
+- The 🔊 button on website review cards is now a tidy round icon, right next to the word.

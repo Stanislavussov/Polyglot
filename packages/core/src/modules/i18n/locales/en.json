@@ -866,5 +866,6 @@
   "web.progress.insight.weekTodo": "{left} more study days keep this week's rhythm",
   "web.progress.insight.monthBehind": "{days} of {target} study days this month — add a few",
   "web.progress.insight.newWords": "Save {left} more words, or lock one into memory",
-  "web.progress.insight.firstWord": "Save your first word — your progress starts there"
+  "web.progress.insight.firstWord": "Save your first word — your progress starts there",
+  "web.translate.saveTo": "Save to"
 }

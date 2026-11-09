@@ -2,16 +2,14 @@
   <div class="mt-4 space-y-3">
     <div class="flex flex-wrap items-center gap-2">
       <label class="sr-only" for="dictionary-switch">{{ t("web.dictionaries.label") }}</label>
-      <select
-        id="dictionary-switch"
-        class="field min-w-0 flex-1 sm:max-w-xs"
-        :value="current?.id"
-        @change="emit('select', Number(($event.target as HTMLSelectElement).value))"
-      >
-        <option v-for="dictionary in dictionaries" :key="dictionary.id" :value="dictionary.id">
-          {{ dictionary.name }} · {{ dictionary.count }}
-        </option>
-      </select>
+      <div class="min-w-0 flex-1 sm:max-w-xs">
+        <AppSelect
+          id="dictionary-switch"
+          :model-value="current ? String(current.id) : ''"
+          :options="dictionaryOptions"
+          @update:model-value="(value) => emit('select', Number(value))"
+        />
+      </div>
       <button type="button" class="btn-secondary" :aria-label="t('web.dictionaries.create')" @click="open('create')">
         <Plus class="size-4" aria-hidden="true" /><span class="hidden sm:inline">{{ t("web.dictionaries.create") }}</span>
       </button>
@@ -55,6 +53,7 @@ import { computed, nextTick, ref } from "vue";
 import { ApiError, api } from "../lib/api";
 import { t } from "../lib/i18n";
 import type { Dictionary } from "../lib/types";
+import AppSelect from "./AppSelect.vue";
 
 // Mirrors MAX_DICTIONARY_NAME_LENGTH in core; the server is what enforces it.
 const MAX_NAME = 32;
@@ -62,6 +61,7 @@ const MAX_NAME = 32;
 const props = defineProps<{ dictionaries: Dictionary[]; currentId: number | null }>();
 const emit = defineEmits<{ select: [id: number]; changed: [selectId: number | null] }>();
 
+const dictionaryOptions = computed(() => props.dictionaries.map((d) => ({ value: String(d.id), label: `${d.name} · ${d.count}` })));
 const current = computed(() => props.dictionaries.find((d) => d.id === props.currentId) ?? props.dictionaries[0] ?? null);
 const mode = ref<"create" | "rename" | "delete" | null>(null);
 const name = ref("");

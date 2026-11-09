@@ -23,13 +23,12 @@
         <p class="text-sm text-ink-muted">
           <span aria-hidden="true">{{ languageFlag(card.detail.sourceLang) }}</span> {{ languageName(card.detail.sourceLang) }}
         </p>
-        <div class="flex items-start justify-between gap-3">
-          <h2 class="min-w-0 break-words text-3xl font-bold">
+        <div class="flex items-center justify-between gap-3">
+          <h2 class="min-w-0 break-words text-3xl font-bold leading-tight">
             <span v-if="card.detail.emoji" class="mr-2" aria-hidden="true">{{ card.detail.emoji }}</span>{{ card.front.headword }}
           </h2>
           <SpeakButton
             v-if="speaks(card.detail.sourceLang)"
-            class="shrink-0"
             :entry-id="card.entryId"
             :lang="card.detail.sourceLang"
             :text="card.front.headword"

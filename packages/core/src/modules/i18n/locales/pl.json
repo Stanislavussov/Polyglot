@@ -866,5 +866,6 @@
   "web.progress.insight.weekTodo": "Jeszcze {left} dni nauki utrzyma rytm tygodnia",
   "web.progress.insight.monthBehind": "Dni nauki w tym miesiącu: {days} z {target} — dodaj kilka",
   "web.progress.insight.newWords": "Zapisz jeszcze {left} słów albo utrwal jedno w pamięci",
-  "web.progress.insight.firstWord": "Zapisz pierwsze słowo — od niego zacznie się postęp"
+  "web.progress.insight.firstWord": "Zapisz pierwsze słowo — od niego zacznie się postęp",
+  "web.translate.saveTo": "Zapisz w"
 }
