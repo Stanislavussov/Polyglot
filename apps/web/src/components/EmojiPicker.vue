@@ -1,5 +1,5 @@
 <template>
-  <div class="w-[min(20rem,calc(100vw-2rem))] space-y-3">
+  <div class="w-[min(22rem,calc(100vw-2rem))] space-y-3">
     <div class="flex items-center gap-2">
       <div class="relative min-w-0 flex-1">
         <Search class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ink-muted" aria-hidden="true" />
@@ -9,8 +9,21 @@
         {{ t("web.dictionaries.iconRemove") }}
       </button>
     </div>
-    <div class="max-h-64 space-y-3 overflow-y-auto overscroll-contain pr-1">
-      <section v-for="group in shown" :key="group.key">
+    <nav v-if="!query.trim()" class="flex justify-between border-b border-line pb-2">
+      <button
+        v-for="group in GROUPS"
+        :key="group.key"
+        type="button"
+        class="grid size-7 place-items-center rounded-lg text-base hover:bg-surface-muted"
+        :title="t(`web.dictionaries.iconGroup.${group.key}`)"
+        :aria-label="t(`web.dictionaries.iconGroup.${group.key}`)"
+        @click="jump(group.key)"
+      >
+        {{ group.items[0]?.emoji }}
+      </button>
+    </nav>
+    <div ref="scroller" class="max-h-72 space-y-3 overflow-y-auto overscroll-contain pr-1">
+      <section v-for="group in shown" :key="group.key" :data-group="group.key">
         <h4 class="mb-1 text-sm text-ink-muted">{{ t(`web.dictionaries.iconGroup.${group.key}`) }}</h4>
         <div class="grid grid-cols-8 gap-1">
           <button
@@ -36,60 +49,19 @@
 <script setup lang="ts">
 import { Search } from "lucide-vue-next";
 import { computed, ref } from "vue";
+import { EMOJI_GROUPS as GROUPS } from "../lib/emoji-set";
 import { t } from "../lib/i18n";
 
 defineProps<{ modelValue: string | null }>();
 const emit = defineEmits<{ "update:modelValue": [icon: string | null] }>();
 
-// A curated set for word lists, with English and Russian search words; a full Unicode
-// catalogue would weigh far more than this page and bury the useful picks.
-const RAW: { key: string; items: [emoji: string, words: string][] }[] = [
-  {
-    key: "study",
-    items: [
-      ["📚", "books study книги учеба"], ["📖", "book read книга"], ["📝", "note write заметка"], ["✏️", "pencil карандаш"],
-      ["🎓", "school graduate учеба"], ["🧠", "brain memory мозг память"], ["💡", "idea идея"], ["🔤", "letters abc буквы"],
-      ["🗣️", "speak talk говорить"], ["💬", "chat phrase фраза"], ["🎯", "goal target цель"], ["⭐", "star favorite избранное"],
-      ["🔥", "fire hot важное"], ["✅", "done check готово"], ["❓", "question вопрос"], ["📌", "pin закреп"],
-    ],
-  },
-  {
-    key: "travel",
-    items: [
-      ["✈️", "plane travel самолет путешествие"], ["🧳", "luggage trip багаж"], ["🗺️", "map карта"], ["🏖️", "beach пляж"],
-      ["🏔️", "mountain горы"], ["🚆", "train поезд"], ["🚗", "car машина"], ["🏨", "hotel отель"],
-      ["🌍", "world europe мир"], ["🏛️", "museum музей"], ["⛺", "camping кемпинг"], ["🛂", "passport паспорт"],
-    ],
-  },
-  {
-    key: "life",
-    items: [
-      ["🏠", "home дом"], ["💼", "work job работа"], ["💻", "computer it компьютер"], ["🛒", "shopping покупки"],
-      ["🍳", "cooking кухня"], ["🍕", "food еда"], ["☕", "coffee кофе"], ["🍷", "wine вино"],
-      ["⚽", "sport football спорт"], ["🏋️", "gym спортзал"], ["🎵", "music музыка"], ["🎬", "movie кино"],
-      ["🎮", "game игры"], ["🩺", "doctor health врач"], ["💰", "money деньги"], ["❤️", "love любовь"],
-    ],
-  },
-  {
-    key: "nature",
-    items: [
-      ["🌱", "plant growth растение"], ["🌸", "flower цветок"], ["🌳", "tree дерево"], ["🍂", "autumn осень"],
-      ["☀️", "sun summer солнце"], ["❄️", "winter snow зима"], ["🌊", "sea море"], ["🌙", "moon night луна"],
-      ["🐶", "dog animal собака"], ["🐱", "cat кошка"], ["🦊", "fox лиса"], ["🐝", "bee пчела"],
-    ],
-  },
-  {
-    key: "symbols",
-    items: [
-      ["🟢", "green зеленый"], ["🔵", "blue синий"], ["🟣", "purple фиолетовый"], ["🟡", "yellow желтый"],
-      ["🟠", "orange оранжевый"], ["🔴", "red красный"], ["⚪", "white белый"], ["⚫", "black черный"],
-      ["💎", "gem diamond алмаз"], ["🚀", "rocket ракета"], ["🧩", "puzzle пазл"], ["🎨", "art искусство"],
-    ],
-  },
-];
-const GROUPS = RAW.map((group) => ({ key: group.key, items: group.items.map(([emoji, words]) => ({ emoji, words })) }));
-
 const query = ref("");
+const scroller = ref<HTMLElement | null>(null);
+
+function jump(key: string): void {
+  const section = scroller.value?.querySelector<HTMLElement>(`[data-group="${key}"]`);
+  if (scroller.value && section) scroller.value.scrollTo({ top: section.offsetTop - scroller.value.offsetTop, behavior: "smooth" });
+}
 const shown = computed(() => {
   const q = query.value.trim().toLowerCase();
   if (!q) return GROUPS;

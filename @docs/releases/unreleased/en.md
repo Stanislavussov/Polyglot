@@ -56,3 +56,4 @@
 - In the website dictionary on a phone, the search box is now big and full width with Filters and Sort right under it, and the review card settings grey out the aids a word doesn't have.
 - Drop-down lists on the website are now neat menus with language flags, creating or renaming a dictionary opens in its own window, and the sound button always sits right next to the word.
 - Give each dictionary on the website its own emoji icon, picked from a neat grid with search, just like in Notion.
+- The dictionary icon picker on the website now offers about 300 emoji in 11 groups, with a quick jump bar between them.
