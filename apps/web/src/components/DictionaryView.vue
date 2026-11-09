@@ -80,7 +80,7 @@
         ]"
         @click="setFilter('lang', option.code)"
       >
-        <span v-if="option.flag" aria-hidden="true">{{ option.flag }}</span>{{ option.label }}
+        <LangFlag v-if="option.flag" :code="option.code" />{{ option.label }}
       </button>
     </div>
 
@@ -141,6 +141,7 @@
 </template>
 
 <script setup lang="ts">
+import LangFlag from "./LangFlag.vue";
 import MonsterLoader from "./MonsterLoader.vue";
 import { ArrowDownAZ, ChevronLeft, ChevronRight, Clock, Search, SlidersHorizontal, X } from "lucide-vue-next";
 import { PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from "reka-ui";

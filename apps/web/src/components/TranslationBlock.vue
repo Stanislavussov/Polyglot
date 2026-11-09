@@ -1,10 +1,8 @@
 <template>
   <div class="border-t border-line pt-4">
-    <p class="text-sm text-ink-muted">
-      <span aria-hidden="true">{{ languageFlag(translation.lang) }}</span> {{ languageName(translation.lang) }}
-    </p>
+    <p><LangBadge :code="translation.lang" /></p>
     <div class="mt-1 flex items-center justify-between gap-3">
-      <p class="min-w-0 break-words text-lg font-semibold text-primary">
+      <p class="min-w-0 break-words text-xl font-semibold text-primary">
         {{ translation.text }}
         <span v-if="translation.expressionType" class="ml-2 inline-block rounded-full bg-primary-soft px-2 py-0.5 align-middle text-xs font-medium text-primary-soft-fg">
           {{ translation.expressionType }}
@@ -26,12 +24,12 @@
     </div>
 
     <p v-if="translation.equivalentNote" class="mt-2 text-base text-ink-muted">{{ translation.equivalentNote }}</p>
-    <p v-if="translation.connotationWarning" class="mt-2 flex items-start gap-2 rounded-xl bg-warning-soft px-3 py-2 text-sm text-warning-fg">
+    <p v-if="translation.connotationWarning" class="mt-2 flex items-start gap-2 rounded-xl bg-warning-soft px-3 py-2 text-base text-warning-fg">
       <TriangleAlert class="mt-0.5 size-4 shrink-0" aria-hidden="true" />
       {{ translation.connotationWarning }}
     </p>
     <ul v-if="translation.synonyms.length > 0" class="mt-3 flex flex-wrap gap-2" :aria-label="t('web.translate.synonyms')">
-      <li v-for="synonym in translation.synonyms" :key="synonym" class="rounded-full bg-primary-soft px-3 py-1 text-sm text-primary-soft-fg">
+      <li v-for="synonym in translation.synonyms" :key="synonym" class="rounded-full bg-primary-soft px-3 py-1 text-base text-primary-soft-fg">
         {{ synonym }}
       </li>
     </ul>
@@ -43,7 +41,7 @@
         <div v-if="translation.alternatives.length > 0">
           <h3 class="text-xs font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.translate.alternatives") }}</h3>
           <ul class="mt-1 flex flex-wrap gap-2">
-            <li v-for="alternative in translation.alternatives" :key="alternative" class="rounded-full border border-line px-3 py-1 text-sm">
+            <li v-for="alternative in translation.alternatives" :key="alternative" class="rounded-full border border-line px-3 py-1 text-base">
               {{ alternative }}
             </li>
           </ul>
@@ -66,10 +64,11 @@
 </template>
 
 <script setup lang="ts">
+import LangBadge from "./LangBadge.vue";
 import { Check, ChevronDown, Copy, TriangleAlert } from "lucide-vue-next";
 import { computed, onBeforeUnmount, ref } from "vue";
 import { t } from "../lib/i18n";
-import { languageFlag, languageName } from "../lib/settings-store";
+import { languageName } from "../lib/settings-store";
 import type { TranslateTarget } from "../lib/types";
 import ExampleList from "./ExampleList.vue";
 

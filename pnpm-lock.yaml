@@ -240,6 +240,9 @@ importers:
       autoprefixer:
         specifier: ^10.6.1
         version: 10.6.1(postcss@8.5.28)
+      flag-icons:
+        specifier: 7.5.0
+        version: 7.5.0
       lucide-vue-next:
         specifier: ^1.0.0
         version: 1.0.0(vue@3.5.35(typescript@5.9.3))
@@ -3060,6 +3063,9 @@ packages:
   find-proc@0.2.0:
     resolution: {integrity: sha512-a6h2nTrgB3g5Wrn4au9Ux4kMk7IJtyF6oA8uGn+mk3weLZssUtc1cp6meHIzzuW2o1srrBAxzkmXLbqjRkgB6w==}
     engines: {node: ^20.19.0 || >=22.12.0}
+
+  flag-icons@7.5.0:
+    resolution: {integrity: sha512-kd+MNXviFIg5hijH766tt+3x76ele1AXlo4zDdCxIvqWZhKt4T83bOtxUOOMlTx/EcFdUMH5yvQgYlFh1EqqFg==}
 
   flattie@1.1.1:
     resolution: {integrity: sha512-9UbaD6XdAL97+k/n+N7JwX46K/M6Zc6KcFYskrYL8wbBV/Uyk0CTAMY0VT+qiK5PM7AIc9aTWYtq65U7T+aCNQ==}
@@ -7080,6 +7086,8 @@ snapshots:
       safe-regex2: 5.1.1
 
   find-proc@0.2.0: {}
+
+  flag-icons@7.5.0: {}
 
   flattie@1.1.1: {}
 

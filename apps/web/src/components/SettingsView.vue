@@ -14,7 +14,7 @@
         <label class="mb-1 block text-sm font-medium" for="native-lang">{{ t("web.settings.nativeLang") }}</label>
         <select id="native-lang" v-model="nativeLang" class="field">
           <option v-for="language in settings.languages" :key="language.code" :value="language.code">
-            {{ language.flag }} {{ language.name }}
+            {{ language.name }}
           </option>
         </select>
       </div>
@@ -29,7 +29,7 @@
             class="flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border border-line px-3 py-2 text-sm has-[:checked]:border-primary has-[:checked]:bg-primary-soft"
           >
             <input v-model="learningLangs" type="checkbox" class="size-5 shrink-0 accent-primary" :value="language.code" />
-            {{ language.flag }} {{ language.name }}
+            <LangFlag :code="language.code" />{{ language.name }}
           </label>
         </div>
       </fieldset>
@@ -52,9 +52,10 @@
 </template>
 
 <script setup lang="ts">
+import LangFlag from "./LangFlag.vue";
 import { ref } from "vue";
 import { t } from "../lib/i18n";
-import { languageFlag, languageName, saveSettings, settings } from "../lib/settings-store";
+import { languageName, saveSettings, settings } from "../lib/settings-store";
 import ChangesList from "./ChangesList.vue";
 import NotificationSettings from "./NotificationSettings.vue";
 import ReportIssue from "./ReportIssue.vue";
@@ -68,7 +69,7 @@ const saved = ref(false);
 const failed = ref(false);
 
 function label(code: string): string {
-  return `${languageFlag(code)} ${languageName(code)}`.trim();
+  return languageName(code);
 }
 
 async function submit(): Promise<void> {

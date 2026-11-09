@@ -11,7 +11,7 @@
       <div class="flex items-start justify-between gap-2">
         <p class="min-w-0 break-words text-lg font-semibold">
           <span v-if="item.emoji" class="mr-2" aria-hidden="true">{{ item.emoji }}</span>{{ item.original }}
-          <span class="ml-1 text-sm font-normal text-ink-muted">{{ languageFlag(item.sourceLang) }} {{ languageName(item.sourceLang) }}</span>
+          <LangBadge class="ml-2" :code="item.sourceLang" />
         </p>
         <button
           type="button"
@@ -25,7 +25,7 @@
       </div>
       <ul class="mt-2 space-y-1 text-base">
         <li v-for="translation in ordered" :key="translation.lang" class="break-words">
-          <span class="text-ink-muted">{{ languageFlag(translation.lang) }}</span> {{ translation.text }}
+          <LangFlag :code="translation.lang" /> {{ translation.text }}
         </li>
       </ul>
 
@@ -93,12 +93,14 @@
 </template>
 
 <script setup lang="ts">
+import LangBadge from "./LangBadge.vue";
+import LangFlag from "./LangFlag.vue";
 import { Check, Copy, Ellipsis, FolderInput, FolderPlus, Info, Maximize2, RotateCw, Trash2, Undo2 } from "lucide-vue-next";
 import { DropdownMenuContent, DropdownMenuItem, DropdownMenuPortal, DropdownMenuRoot, DropdownMenuTrigger } from "reka-ui";
 import { computed } from "vue";
 import { splitNative } from "../lib/card-order";
 import { t } from "../lib/i18n";
-import { languageFlag, languageName, settings } from "../lib/settings-store";
+import { languageName, settings } from "../lib/settings-store";
 import type { Dictionary, DictionaryItem } from "../lib/types";
 
 const props = defineProps<{ item: DictionaryItem; removed: boolean; copied: boolean; busy: boolean; others: Dictionary[] }>();

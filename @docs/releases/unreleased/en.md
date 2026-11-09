@@ -50,3 +50,5 @@
 - Text across the website is a little larger, so examples, meanings and captions are easier to read on a phone, a tablet and a computer.
 - On a website review card, the ⚙️ settings now open in a small panel that no longer pushes the card around, and the “How well did you remember it?” buttons stand out.
 - On a phone, word cards on the website slide up lower and smoother, close with a swipe from anywhere at the top of the card, and no longer flash when closing.
+- Language flags on the website are now crisp icons instead of emoji, and text on word cards uses one even, comfortable size.
+- The language line on a website translation is cleaner: the source language sits in a soft pill and the target languages show as a small row of round flags.

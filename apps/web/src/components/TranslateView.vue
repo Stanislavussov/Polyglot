@@ -60,7 +60,7 @@
               class="btn-secondary"
               @click="answer(clarification.text, { sourceLang: code })"
             >
-              <span aria-hidden="true">{{ languageFlag(code) }}</span>{{ languageName(code) }}
+              <LangFlag :code="code" />{{ languageName(code) }}
             </button>
           </div>
           <div class="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
@@ -87,7 +87,7 @@
               class="btn-secondary"
               @click="answer(languageQuestion.text, { sourceLang: code })"
             >
-              <span aria-hidden="true">{{ languageFlag(code) }}</span>{{ languageName(code) }}
+              <LangFlag :code="code" />{{ languageName(code) }}
             </button>
           </div>
         </div>
@@ -118,15 +118,16 @@
         <article v-else-if="result" class="card space-y-5">
           <header class="space-y-3">
             <div class="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
-            <p class="min-w-[10rem] flex-1 text-sm text-ink-muted">
-              <span aria-hidden="true">{{ languageFlag(result.sourceLang) }}</span>
-              {{ languageName(result.sourceLang) }}
-              <span aria-hidden="true">→</span>
-              <span v-for="code in result.targetLangs" :key="code" class="ml-1 whitespace-nowrap">
-                <span aria-hidden="true">{{ languageFlag(code) }}</span>
-                <span class="sr-only">{{ languageName(code) }}</span>
+            <div class="flex min-w-[10rem] flex-1 items-center gap-2.5 text-sm">
+              <LangBadge :code="result.sourceLang" />
+              <!-- Target languages as an overlapping stack: names live in the tooltip and for screen readers. -->
+              <span class="flex items-center -space-x-1.5" :title="result.targetLangs.map(languageName).join(', ')">
+                <span v-for="code in result.targetLangs" :key="code" class="rounded-full ring-2 ring-surface">
+                  <LangFlag :code="code" />
+                  <span class="sr-only">{{ languageName(code) }}</span>
+                </span>
               </span>
-            </p>
+            </div>
             <div class="-mt-1 ml-auto flex shrink-0 flex-wrap items-center justify-end gap-2 text-sm">
               <template v-if="saveControls">
                 <button v-if="saveState === 'unsaved'" type="button" class="btn-primary" :disabled="savePending" @click="save">
@@ -249,6 +250,8 @@
 </template>
 
 <script setup lang="ts">
+import LangBadge from "./LangBadge.vue";
+import LangFlag from "./LangFlag.vue";
 import { ArrowRight, Check, Maximize2, Mic, Square, Trash2, TriangleAlert, Undo2 } from "lucide-vue-next";
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { useLoaderText } from "../lib/use-loader-text";
@@ -256,7 +259,7 @@ import { useMainInput } from "../lib/use-main-input";
 import { ApiError, api } from "../lib/api";
 import { t } from "../lib/i18n";
 import { splitNative } from "../lib/card-order";
-import { languageFlag, languageName, settings } from "../lib/settings-store";
+import { languageName, settings } from "../lib/settings-store";
 import type { Clarification, ClarificationOption, TranslateAnswer, TranslateResult } from "../lib/types";
 import { startWavRecording, type WavRecording } from "../lib/wav-recorder";
 import CardExplore from "./CardExplore.vue";

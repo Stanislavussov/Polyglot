@@ -20,9 +20,7 @@
       <header class="space-y-3">
         <p v-if="picked" class="text-xs font-semibold uppercase tracking-wide text-primary">{{ t("web.review.picked") }}</p>
         <p v-else-if="card.ahead" class="text-xs font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.review.ahead") }}</p>
-        <p class="text-sm text-ink-muted">
-          <span aria-hidden="true">{{ languageFlag(card.detail.sourceLang) }}</span> {{ languageName(card.detail.sourceLang) }}
-        </p>
+        <p><LangBadge :code="card.detail.sourceLang" /></p>
         <div class="flex items-start gap-3">
           <div class="flex min-w-0 flex-1 items-center gap-2">
             <h2 class="min-w-0 break-words text-3xl font-bold">
@@ -73,7 +71,7 @@
           </PopoverRoot>
         </div>
         <ul v-if="card.front.synonyms.length > 0" class="flex flex-wrap gap-2" :aria-label="t('web.translate.synonyms')">
-          <li v-for="synonym in card.front.synonyms" :key="synonym" class="rounded-full bg-primary-soft px-3 py-1 text-sm text-primary-soft-fg">
+          <li v-for="synonym in card.front.synonyms" :key="synonym" class="rounded-full bg-primary-soft px-3 py-1 text-base text-primary-soft-fg">
             {{ synonym }}
           </li>
         </ul>
@@ -118,7 +116,7 @@
           {{ card.detail.nativeMeaning }}
         </p>
 
-        <div v-if="card.detail.sourceUsage" class="space-y-2 rounded-xl bg-surface-muted px-4 py-3 text-sm">
+        <div v-if="card.detail.sourceUsage" class="space-y-2 rounded-xl bg-surface-muted px-4 py-3 text-base">
           <h3 class="text-xs font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.translate.aboutSource") }}</h3>
           <p>{{ card.detail.sourceUsage.explanation }}</p>
           <ul v-if="card.front.synonyms.length === 0 && card.detail.sourceUsage.synonyms.length > 0" class="flex flex-wrap gap-2">
@@ -160,13 +158,14 @@
 </template>
 
 <script setup lang="ts">
+import LangBadge from "./LangBadge.vue";
 import { Eye, Settings2, Trash2, Undo2 } from "lucide-vue-next";
 import { PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from "reka-ui";
 import { computed, onMounted, ref } from "vue";
 import { ApiError, api } from "../lib/api";
 import { t } from "../lib/i18n";
 import { splitNative } from "../lib/card-order";
-import { languageFlag, languageName, settings } from "../lib/settings-store";
+import { languageName, settings } from "../lib/settings-store";
 import type { CardFrontFields, Rating, ReviewState } from "../lib/types";
 import ExampleList from "./ExampleList.vue";
 import MonsterLoader from "./MonsterLoader.vue";

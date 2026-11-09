@@ -14,7 +14,7 @@
           :disabled="busy"
           @click="chooseNative(language.code)"
         >
-          <span aria-hidden="true">{{ language.flag }}</span>{{ language.name }}
+          <LangFlag :code="language.code" />{{ language.name }}
         </button>
       </div>
     </div>
@@ -30,7 +30,7 @@
           :class="learning.includes(language.code) ? 'btn-primary' : 'btn-secondary'"
           @click="toggle(language.code)"
         >
-          <span aria-hidden="true">{{ language.flag }}</span>{{ language.name }}
+          <LangFlag :code="language.code" />{{ language.name }}
         </button>
       </div>
       <p v-if="tooMany" role="alert" class="text-sm text-danger">{{ t("web.translate.maxLanguages", { max: MAX_LEARNING }) }}</p>
@@ -50,7 +50,7 @@
       <div v-if="demo" class="space-y-2 border-t border-line pt-4" aria-live="polite">
         <p class="text-xl font-bold">{{ demo.original }}</p>
         <p v-for="translation in demo.translations" :key="translation.lang" class="text-sm">
-          <span aria-hidden="true">{{ languageFlag(translation.lang) }}</span> {{ translation.text }}
+          <LangFlag :code="translation.lang" /> {{ translation.text }}
         </p>
       </div>
       <button type="button" :class="demo ? 'btn-primary' : 'btn-secondary'" :disabled="busy" @click="finish">
@@ -67,10 +67,11 @@
 </template>
 
 <script setup lang="ts">
+import LangFlag from "./LangFlag.vue";
 import { onMounted, ref } from "vue";
 import { api } from "../lib/api";
 import { t } from "../lib/i18n";
-import { languageFlag, saveSettings, settings } from "../lib/settings-store";
+import { saveSettings, settings } from "../lib/settings-store";
 import type { TranslateResult } from "../lib/types";
 
 // Mirrors core MAX_LEARNING_LANGS; the server enforces it.

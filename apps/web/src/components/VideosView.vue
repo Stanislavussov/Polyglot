@@ -68,7 +68,7 @@
         <ul class="space-y-1">
           <li v-for="suggestion in listing.suggestions" :key="`${suggestion.lang}:${suggestion.index}`">
             <button type="button" class="min-h-11 w-full rounded-lg px-3 py-2 text-left text-sm hover:bg-surface-muted" :disabled="busy" @click="submit({ suggestion })">
-              {{ suggestion.flag }} {{ suggestion.title }}
+              <LangFlag :code="suggestion.lang" /> {{ suggestion.title }}
             </button>
           </li>
         </ul>
@@ -78,6 +78,7 @@
 </template>
 
 <script setup lang="ts">
+import LangFlag from "./LangFlag.vue";
 import { onBeforeUnmount, onMounted, ref } from "vue";
 import { ApiError } from "../lib/api";
 import { t } from "../lib/i18n";
