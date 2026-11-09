@@ -180,14 +180,14 @@
                 <button
                   v-else
                   type="button"
-                  :class="[ICON_BTN, '!border-primary !bg-primary !text-primary-fg']"
+                  :class="SAVED_BTN"
                   :disabled="savePending"
                   :title="`${t('web.translate.saved')} · ${t('web.translate.remove')}`"
                   :aria-label="t('web.translate.remove')"
                   :aria-pressed="true"
                   @click="setSaved(false)"
                 >
-                  <BookmarkCheck class="size-5" aria-hidden="true" />
+                  <Bookmark class="size-5" fill="currentColor" stroke-width="2.5" aria-hidden="true" />
                 </button>
               </template>
             </div>
@@ -275,7 +275,7 @@
 <script setup lang="ts">
 import LangBadge from "./LangBadge.vue";
 import LangFlag from "./LangFlag.vue";
-import { ArrowRight, BookmarkCheck, BookmarkPlus, Mic, Square, Trash2, TriangleAlert } from "lucide-vue-next";
+import { ArrowRight, Bookmark, BookmarkPlus, Mic, Square, Trash2, TriangleAlert } from "lucide-vue-next";
 import {
   DropdownMenuContent,
   DropdownMenuItem,
@@ -422,7 +422,10 @@ function openHistory(entry: TranslateResult): void {
 // Save sits among the card's round icon buttons, so it is one of them rather than a loud pill.
 const ICON_BTN = "btn-secondary size-11 !px-0";
 // Unsaved is the one action we want noticed: the lime accent fill, not the quiet outline.
-const SAVE_BTN = `${ICON_BTN} !border-accent !bg-accent !text-accent-fg shadow-soft hover:brightness-95`;
+// Unsaved reads as empty (white, thick teal ring), saved as full (solid dark teal, filled white mark):
+// two tints of the same teal were too alike to tell apart at a glance.
+const SAVE_BTN = `${ICON_BTN} !border-2 !border-primary !bg-surface !text-primary hover:!bg-primary-soft`;
+const SAVED_BTN = `${ICON_BTN} !border-2 !border-primary-hover !bg-primary-hover !text-primary-fg shadow-primary`;
 const dictionaries = ref<Dictionary[]>([]);
 
 async function loadDictionaries(): Promise<void> {
