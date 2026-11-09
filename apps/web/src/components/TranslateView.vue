@@ -162,10 +162,18 @@
                 >
                   <BookmarkPlus class="size-5" stroke-width="2.5" aria-hidden="true" />
                 </button>
+                <!-- Removed: the save button comes back, and pressing it is the undo — no extra pill to reflow the header. -->
                 <template v-else-if="saveState === 'removed'">
-                  <span class="text-ink-muted">{{ t("web.translate.removed") }}</span>
-                  <button type="button" class="btn-secondary" :disabled="savePending" @click="setSaved(true)">
-                    <Undo2 class="size-4" aria-hidden="true" />{{ t("web.translate.undo") }}
+                  <span class="sr-only" role="status">{{ t("web.translate.removed") }}</span>
+                  <button
+                    type="button"
+                    :class="SAVE_BTN"
+                    :disabled="savePending"
+                    :title="t('web.translate.undo')"
+                    :aria-label="t('web.translate.undo')"
+                    @click="setSaved(true)"
+                  >
+                    <BookmarkPlus class="size-5" stroke-width="2.5" aria-hidden="true" />
                   </button>
                 </template>
                 <!-- Saved: the same round button, filled; pressing it again takes the word out. -->
@@ -279,7 +287,7 @@
 <script setup lang="ts">
 import LangBadge from "./LangBadge.vue";
 import LangFlag from "./LangFlag.vue";
-import { ArrowRight, BookmarkCheck, BookmarkPlus, Maximize2, Mic, Square, Trash2, TriangleAlert, Undo2 } from "lucide-vue-next";
+import { ArrowRight, BookmarkCheck, BookmarkPlus, Maximize2, Mic, Square, Trash2, TriangleAlert } from "lucide-vue-next";
 import {
   DropdownMenuContent,
   DropdownMenuItem,
