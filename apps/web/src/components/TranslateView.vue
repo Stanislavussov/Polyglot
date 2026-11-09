@@ -190,17 +190,6 @@
                   <BookmarkCheck class="size-5" aria-hidden="true" />
                 </button>
               </template>
-              <!-- The details dialog opens a dictionary entry, so it appears once the word is saved. -->
-              <button
-                v-if="result.savedEntryId !== null && saveState !== 'removed'"
-                type="button"
-                class="-mr-2 inline-flex size-11 shrink-0 items-center justify-center rounded-full text-ink-muted hover:bg-surface-muted hover:text-ink"
-                :title="t('web.dictionary.details')"
-                :aria-label="t('web.dictionary.details')"
-                @click="detailId = result.savedEntryId"
-              >
-                <Maximize2 class="size-4" aria-hidden="true" />
-              </button>
             </div>
             </div>
             <h2 class="break-words text-xl font-semibold">
@@ -280,14 +269,13 @@
         </ul>
       </div>
     </div>
-    <EntryDetailDialog :entry-id="detailId" :fallback="null" @close="detailId = null" />
   </section>
 </template>
 
 <script setup lang="ts">
 import LangBadge from "./LangBadge.vue";
 import LangFlag from "./LangFlag.vue";
-import { ArrowRight, BookmarkCheck, BookmarkPlus, Maximize2, Mic, Square, Trash2, TriangleAlert } from "lucide-vue-next";
+import { ArrowRight, BookmarkCheck, BookmarkPlus, Mic, Square, Trash2, TriangleAlert } from "lucide-vue-next";
 import {
   DropdownMenuContent,
   DropdownMenuItem,
@@ -306,7 +294,6 @@ import { languageName, settings } from "../lib/settings-store";
 import type { Clarification, ClarificationOption, Dictionary, TranslateAnswer, TranslateResult } from "../lib/types";
 import { startWavRecording, type WavRecording } from "../lib/wav-recorder";
 import CardExplore from "./CardExplore.vue";
-import EntryDetailDialog from "./EntryDetailDialog.vue";
 import ExampleList from "./ExampleList.vue";
 import LimitNotice from "./LimitNotice.vue";
 import MonsterLoader from "./MonsterLoader.vue";
@@ -320,7 +307,6 @@ const input = ref<HTMLTextAreaElement | null>(null);
 const text = ref("");
 const { focus: focusInput } = useMainInput(() => input.value);
 const busy = ref(false);
-const detailId = ref<number | null>(null);
 const loaderText = useLoaderText(busy);
 const result = ref<TranslateResult | null>(null);
 const fromHistory = ref(false);
