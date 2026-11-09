@@ -132,8 +132,8 @@
               <template v-if="saveControls">
                 <!-- Several dictionaries: Save asks where to; with only one it saves straight away. -->
                 <DropdownMenuRoot v-if="saveState === 'unsaved' && dictionaries.length > 1">
-                  <DropdownMenuTrigger :class="ICON_BTN" :disabled="savePending" :title="t('web.translate.save')" :aria-label="t('web.translate.save')">
-                    <BookmarkPlus class="size-5" aria-hidden="true" />
+                  <DropdownMenuTrigger :class="SAVE_BTN" :disabled="savePending" :title="t('web.translate.save')" :aria-label="t('web.translate.save')">
+                    <BookmarkPlus class="size-5" stroke-width="2.5" aria-hidden="true" />
                   </DropdownMenuTrigger>
                   <DropdownMenuPortal>
                     <DropdownMenuContent align="end" :side-offset="8" :collision-padding="16" class="z-50 min-w-60 rounded-2xl border border-line bg-surface p-1.5 shadow-xl">
@@ -154,13 +154,13 @@
                 <button
                   v-else-if="saveState === 'unsaved'"
                   type="button"
-                  :class="ICON_BTN"
+                  :class="SAVE_BTN"
                   :disabled="savePending"
                   :title="t('web.translate.save')"
                   :aria-label="t('web.translate.save')"
                   @click="save()"
                 >
-                  <BookmarkPlus class="size-5" aria-hidden="true" />
+                  <BookmarkPlus class="size-5" stroke-width="2.5" aria-hidden="true" />
                 </button>
                 <template v-else-if="saveState === 'removed'">
                   <span class="text-ink-muted">{{ t("web.translate.removed") }}</span>
@@ -427,6 +427,8 @@ function openHistory(entry: TranslateResult): void {
 
 // Save sits among the card's round icon buttons, so it is one of them rather than a loud pill.
 const ICON_BTN = "btn-secondary size-11 !px-0";
+// Unsaved is the one action we want noticed: the lime accent fill, not the quiet outline.
+const SAVE_BTN = `${ICON_BTN} !border-accent !bg-accent !text-accent-fg shadow-soft hover:brightness-95`;
 const dictionaries = ref<Dictionary[]>([]);
 
 async function loadDictionaries(): Promise<void> {
