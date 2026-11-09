@@ -4,6 +4,7 @@ import {
   getLogger,
   INACTIVITY_DAYS,
   NOTIFICATION_TYPES,
+  type NotificationChannel,
   type NotificationType,
   type NotificationUser,
   parseNotificationMinutes,
@@ -210,6 +211,7 @@ export const notificationRepository = {
       notificationType?: NotificationType;
       notificationContext?: string | null;
       notificationBatchSize?: number;
+      notificationChannel?: NotificationChannel;
     },
   ): Promise<void> {
     const db = getDb();
@@ -219,6 +221,7 @@ export const notificationRepository = {
     if (prefs.notificationType !== undefined) set.notificationType = prefs.notificationType;
     if (prefs.notificationContext !== undefined) set.notificationContext = prefs.notificationContext;
     if (prefs.notificationBatchSize !== undefined) set.notificationBatchSize = prefs.notificationBatchSize;
+    if (prefs.notificationChannel !== undefined) set.notificationChannel = prefs.notificationChannel;
     set.updatedAt = new Date();
 
     await db.update(userLanguageSettings).set(set).where(eq(userLanguageSettings.userId, userId));

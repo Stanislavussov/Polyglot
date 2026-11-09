@@ -16,7 +16,7 @@
           @keydown="onKeydown"
         />
         <div class="flex items-center justify-between gap-3">
-          <span class="text-xs text-ink-muted" aria-hidden="true">{{ text.length }}/{{ MAX_LENGTH }}</span>
+          <span class="text-sm text-ink-muted" aria-hidden="true">{{ text.length }}/{{ MAX_LENGTH }}</span>
           <div class="flex gap-2">
             <button
               v-if="voiceAvailable"
@@ -45,7 +45,7 @@
           </div>
         </div>
         <!-- Touch keyboards have no Shift+Enter, so the hint only misleads there. -->
-        <p class="text-xs text-ink-muted [@media(pointer:coarse)]:hidden">{{ t("web.translate.hint") }}</p>
+        <p class="text-sm text-ink-muted [@media(pointer:coarse)]:hidden">{{ t("web.translate.hint") }}</p>
       </form>
 
       <div class="min-w-0 xl:col-start-1 xl:row-start-2" aria-live="polite">
@@ -60,7 +60,7 @@
               class="btn-secondary"
               @click="answer(clarification.text, { sourceLang: code })"
             >
-              <span aria-hidden="true">{{ languageFlag(code) }}</span>{{ languageName(code) }}
+              <LangFlag :code="code" />{{ languageName(code) }}
             </button>
           </div>
           <div class="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
@@ -87,7 +87,7 @@
               class="btn-secondary"
               @click="answer(languageQuestion.text, { sourceLang: code })"
             >
-              <span aria-hidden="true">{{ languageFlag(code) }}</span>{{ languageName(code) }}
+              <LangFlag :code="code" />{{ languageName(code) }}
             </button>
           </div>
         </div>
@@ -117,54 +117,79 @@
 
         <article v-else-if="result" class="card space-y-5">
           <header class="space-y-3">
-            <div class="flex items-start justify-between gap-3">
-            <p class="min-w-0 text-sm text-ink-muted">
-              <span aria-hidden="true">{{ languageFlag(result.sourceLang) }}</span>
-              {{ languageName(result.sourceLang) }}
-              <span aria-hidden="true">→</span>
-              <span v-for="code in result.targetLangs" :key="code" class="ml-1 whitespace-nowrap">
-                <span aria-hidden="true">{{ languageFlag(code) }}</span>
-                <span class="sr-only">{{ languageName(code) }}</span>
+            <div class="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
+            <div class="flex min-w-[10rem] flex-1 items-center gap-2.5 text-sm">
+              <LangBadge :code="result.sourceLang" />
+              <!-- Target languages as an overlapping stack: names live in the tooltip and for screen readers. -->
+              <span class="flex items-center -space-x-1.5" :title="result.targetLangs.map(languageName).join(', ')">
+                <span v-for="code in result.targetLangs" :key="code" class="rounded-full ring-2 ring-surface">
+                  <LangFlag :code="code" />
+                  <span class="sr-only">{{ languageName(code) }}</span>
+                </span>
               </span>
-            </p>
-            <div class="-mt-1 flex shrink-0 flex-wrap items-center justify-end gap-2 text-sm">
+            </div>
+            <div class="-mt-1 ml-auto flex shrink-0 flex-wrap items-center justify-end gap-2 text-sm">
               <template v-if="saveControls">
-                <button v-if="saveState === 'unsaved'" type="button" class="btn-primary" :disabled="savePending" @click="save">
-                  <span aria-hidden="true">💾</span>{{ t("web.translate.save") }}
+                <!-- Several dictionaries: Save asks where to; with only one it saves straight away. -->
+                <DropdownMenuRoot v-if="saveState === 'unsaved' && dictionaries.length > 1">
+                  <DropdownMenuTrigger :class="SAVE_BTN" :disabled="savePending" :title="t('web.translate.save')" :aria-label="t('web.translate.save')">
+                    <BookmarkPlus class="size-5" stroke-width="2.5" aria-hidden="true" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuPortal>
+                    <DropdownMenuContent align="end" :side-offset="8" :collision-padding="16" class="z-50 min-w-60 rounded-2xl border border-line bg-surface p-1.5 shadow-xl">
+                      <DropdownMenuLabel class="px-3 pb-1 pt-2 text-sm text-ink-muted">{{ t("web.translate.saveTo") }}</DropdownMenuLabel>
+                      <DropdownMenuItem
+                        v-for="dictionary in dictionaries"
+                        :key="dictionary.id"
+                        class="flex min-h-11 cursor-pointer items-center gap-3 rounded-xl px-3 text-base outline-none data-[highlighted]:bg-surface-muted"
+                        @select="save(dictionary)"
+                      >
+                        <span class="w-6 text-center text-xl" aria-hidden="true">{{ dictionary.icon ?? "📘" }}</span>
+                        <span class="min-w-0 flex-1 truncate">{{ dictionary.name }}</span>
+                        <span class="text-sm text-ink-muted">{{ dictionary.count }}</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenuPortal>
+                </DropdownMenuRoot>
+                <button
+                  v-else-if="saveState === 'unsaved'"
+                  type="button"
+                  :class="SAVE_BTN"
+                  :disabled="savePending"
+                  :title="t('web.translate.save')"
+                  :aria-label="t('web.translate.save')"
+                  @click="save()"
+                >
+                  <BookmarkPlus class="size-5" stroke-width="2.5" aria-hidden="true" />
                 </button>
+                <!-- Removed: the save button comes back, and pressing it is the undo — no extra pill to reflow the header. -->
                 <template v-else-if="saveState === 'removed'">
-                  <span class="text-ink-muted">{{ t("web.translate.removed") }}</span>
-                  <button type="button" class="btn-secondary" :disabled="savePending" @click="setSaved(true)">
-                    <Undo2 class="size-4" aria-hidden="true" />{{ t("web.translate.undo") }}
-                  </button>
-                </template>
-                <template v-else>
-                  <span class="flex items-center gap-1 font-semibold text-primary-soft-fg">
-                    <Check class="size-4" aria-hidden="true" />{{ t("web.translate.saved") }}
-                  </span>
+                  <span class="sr-only" role="status">{{ t("web.translate.removed") }}</span>
                   <button
                     type="button"
-                    class="inline-flex size-11 items-center justify-center rounded-full text-ink-muted hover:bg-surface-muted hover:text-ink"
+                    :class="SAVE_BTN"
                     :disabled="savePending"
-                    :title="t('web.translate.remove')"
-                    :aria-label="t('web.translate.remove')"
-                    @click="setSaved(false)"
+                    :title="t('web.translate.undo')"
+                    :aria-label="t('web.translate.undo')"
+                    @click="setSaved(true)"
                   >
-                    <Trash2 class="size-4" aria-hidden="true" />
+                    <BookmarkPlus class="size-5" stroke-width="2.5" aria-hidden="true" />
                   </button>
                 </template>
+                <!-- Saved: the same round button, filled; pressing it again takes the word out. -->
+                <button
+                  v-else
+                  type="button"
+                  :class="SAVED_BTN"
+                  :disabled="savePending"
+                  :title="`${t('web.translate.saved')} · ${t('web.translate.remove')}`"
+                  :aria-label="t('web.translate.remove')"
+                  :aria-pressed="true"
+                  @click="setSaved(false)"
+                >
+                  <Bookmark class="size-5" fill="currentColor" stroke-width="2.5" aria-hidden="true" />
+                </button>
               </template>
-              <!-- The details dialog opens a dictionary entry, so it appears once the word is saved. -->
-              <button
-                v-if="result.savedEntryId !== null && saveState !== 'removed'"
-                type="button"
-                class="-mr-2 inline-flex size-11 shrink-0 items-center justify-center rounded-full text-ink-muted hover:bg-surface-muted hover:text-ink"
-                :title="t('web.dictionary.details')"
-                :aria-label="t('web.dictionary.details')"
-                @click="detailId = result.savedEntryId"
-              >
-                <Maximize2 class="size-4" aria-hidden="true" />
-              </button>
             </div>
             </div>
             <h2 class="break-words text-xl font-semibold">
@@ -195,7 +220,7 @@
             </p>
 
             <div v-if="result.sourceUsage" class="space-y-2 rounded-xl bg-surface-muted px-4 py-3 text-sm">
-              <h3 class="text-xs font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.translate.aboutSource") }}</h3>
+              <h3 class="text-sm font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.translate.aboutSource") }}</h3>
               <p>{{ result.sourceUsage.explanation }}</p>
               <ul v-if="result.sourceUsage.synonyms.length > 0" class="flex flex-wrap gap-2">
                 <li v-for="synonym in result.sourceUsage.synonyms" :key="synonym" class="rounded-full bg-primary-soft px-3 py-1 text-primary-soft-fg">
@@ -221,7 +246,7 @@
       <div class="card xl:col-start-2 xl:row-span-2 xl:row-start-1">
         <div class="flex items-center justify-between gap-3">
           <h2 class="min-w-0 truncate text-sm font-bold">{{ t("web.translate.recent") }}</h2>
-          <button v-if="history.length > 0" type="button" class="-mr-2 min-h-11 shrink-0 whitespace-nowrap rounded-full px-2 text-xs font-semibold text-primary hover:text-primary-hover" @click="clearHistory">
+          <button v-if="history.length > 0" type="button" class="-mr-2 min-h-11 shrink-0 whitespace-nowrap rounded-full px-2 text-sm font-semibold text-primary hover:text-primary-hover" @click="clearHistory">
             {{ t("web.translate.clearHistory") }}
           </button>
         </div>
@@ -244,23 +269,31 @@
         </ul>
       </div>
     </div>
-    <EntryDetailDialog :entry-id="detailId" :fallback="null" @close="detailId = null" />
   </section>
 </template>
 
 <script setup lang="ts">
-import { ArrowRight, Check, Maximize2, Mic, Square, Trash2, TriangleAlert, Undo2 } from "lucide-vue-next";
+import LangBadge from "./LangBadge.vue";
+import LangFlag from "./LangFlag.vue";
+import { ArrowRight, Bookmark, BookmarkPlus, Mic, Square, Trash2, TriangleAlert } from "lucide-vue-next";
+import {
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuPortal,
+  DropdownMenuRoot,
+  DropdownMenuTrigger,
+} from "reka-ui";
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { useLoaderText } from "../lib/use-loader-text";
 import { useMainInput } from "../lib/use-main-input";
 import { ApiError, api } from "../lib/api";
 import { t } from "../lib/i18n";
 import { splitNative } from "../lib/card-order";
-import { languageFlag, languageName, settings } from "../lib/settings-store";
-import type { Clarification, ClarificationOption, TranslateAnswer, TranslateResult } from "../lib/types";
+import { languageName, settings } from "../lib/settings-store";
+import type { Clarification, ClarificationOption, Dictionary, TranslateAnswer, TranslateResult } from "../lib/types";
 import { startWavRecording, type WavRecording } from "../lib/wav-recorder";
 import CardExplore from "./CardExplore.vue";
-import EntryDetailDialog from "./EntryDetailDialog.vue";
 import ExampleList from "./ExampleList.vue";
 import LimitNotice from "./LimitNotice.vue";
 import MonsterLoader from "./MonsterLoader.vue";
@@ -274,7 +307,6 @@ const input = ref<HTMLTextAreaElement | null>(null);
 const text = ref("");
 const { focus: focusInput } = useMainInput(() => input.value);
 const busy = ref(false);
-const detailId = ref<number | null>(null);
 const loaderText = useLoaderText(busy);
 const result = ref<TranslateResult | null>(null);
 const fromHistory = ref(false);
@@ -387,13 +419,32 @@ function openHistory(entry: TranslateResult): void {
   focusInput();
 }
 
-async function save(): Promise<void> {
+// Save sits among the card's round icon buttons, so it is one of them rather than a loud pill.
+const ICON_BTN = "btn-secondary size-11 !px-0";
+// Unsaved is the one action we want noticed: the lime accent fill, not the quiet outline.
+// Unsaved reads as empty (white, thick teal ring), saved as full (solid dark teal, filled white mark):
+// two tints of the same teal were too alike to tell apart at a glance.
+const SAVE_BTN = `${ICON_BTN} !border-2 !border-primary !bg-surface !text-primary hover:!bg-primary-soft`;
+const SAVED_BTN = `${ICON_BTN} !border-2 !border-primary-hover !bg-primary-hover !text-primary-fg shadow-primary`;
+const dictionaries = ref<Dictionary[]>([]);
+
+async function loadDictionaries(): Promise<void> {
+  try {
+    dictionaries.value = (await api.dictionaries()).items;
+  } catch {
+    dictionaries.value = []; // the plain Save still works without the list
+  }
+}
+
+// Every saved word lives in the default list; a chosen other list is added on top, as the bot's "add to" does.
+async function save(target?: Dictionary): Promise<void> {
   const current = result.value;
   if (!current?.saveToken || savePending.value) return;
   savePending.value = true;
   errorKey.value = null;
   try {
     const { entryId } = await api.saveTranslation(current.saveToken);
+    if (target && !target.isDefault) await api.placeEntry(entryId, target.id);
     current.savedEntryId = entryId;
     saveState.value = "saved";
   } catch {
@@ -547,6 +598,7 @@ async function answer(value: string, choice: TranslateAnswer): Promise<void> {
 }
 
 onMounted(() => {
+  void loadDictionaries();
   history.value = loadHistory();
   // A Learn page hands a phrase over as ?q= (the expression's "to dictionary"), as the bot's notif:tr translates it.
   const handed = new URLSearchParams(window.location.search).get("q")?.trim();

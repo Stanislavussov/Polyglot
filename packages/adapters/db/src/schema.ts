@@ -203,6 +203,12 @@ export const userLanguageSettings = pgTable("user_language_settings", {
   notificationContext: text("notification_context"),
   /** Cards one scheduled notification carries (1/3/5/10); above 1 the notification opens a review deck. */
   notificationBatchSize: integer("notification_batch_size").default(1).notNull(),
+  /**
+   * Where scheduled notifications go: the Telegram chat or the installed web app.
+   * 'web' is only ever set while a push subscription exists; delivery drops back
+   * to 'bot' the moment the last one is gone, so a user is never left unreachable.
+   */
+  notificationChannel: varchar("notification_channel", { length: 8 }).$type<"bot" | "web">().default("bot").notNull(),
   /** Last bot interaction timestamp — used for 14-day inactivity pause */
   lastInteractionAt: timestamp("last_interaction_at", { withTimezone: true }),
   /**
@@ -266,6 +272,8 @@ export const vocabularyDictionaries = pgTable(
       .references(() => users.id, { onDelete: "cascade" })
       .notNull(),
     name: text("name").notNull(),
+    // An emoji the learner picks for the list; null shows the plain name.
+    icon: text("icon"),
     isDefault: boolean("is_default").default(false).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
@@ -566,6 +574,26 @@ export const reportedIssues = pgTable(
 export type ReportedIssue = typeof reportedIssues.$inferSelect;
 
 // ─────────────────────────────────────────────
+// Web Push subscriptions — one row per installed web app (browser/device).
+export const pushSubscriptions = pgTable(
+  "push_subscriptions",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    endpoint: text("endpoint").notNull().unique(),
+    p256dh: text("p256dh").notNull(),
+    auth: text("auth").notNull(),
+    userAgent: text("user_agent"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    lastSuccessAt: timestamp("last_success_at", { withTimezone: true }),
+  },
+  (t) => [index("push_subscriptions_user_idx").on(t.userId)],
+);
+
+export type PushSubscriptionRow = typeof pushSubscriptions.$inferSelect;
+
 // Notification history — tracks words sent to users
 // Prevents repeating the same word in recent notifications
 // ─────────────────────────────────────────────

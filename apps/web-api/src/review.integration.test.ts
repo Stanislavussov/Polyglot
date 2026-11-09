@@ -33,7 +33,8 @@ describe("web review", () => {
     expect(next.card).toMatchObject({
       entryId: entry.id,
       ahead: false,
-      front: { headword: "pes" },
+      // A word saved without source usage has none of the aids, so the settings panel greys them out.
+      front: { headword: "pes", available: { hint: false, synonyms: false, example: false } },
       detail: { original: "pes", details: [{ lang: "en", text: "dog" }] },
     });
 

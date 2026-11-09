@@ -12,7 +12,7 @@
         </span>
         <span class="min-w-0 flex-1">
           <span class="block truncate text-sm font-semibold text-sidebar-fg">{{ name }}</span>
-          <span class="block truncate text-xs text-sidebar-muted">{{ plan }}</span>
+          <span class="block truncate text-sm text-sidebar-muted">{{ plan }}</span>
         </span>
         <ChevronsUpDown class="size-4 shrink-0 text-sidebar-muted" aria-hidden="true" />
       </DropdownMenuTrigger>

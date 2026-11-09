@@ -47,3 +47,19 @@
 - Word meanings and mentor chat messages on the website now use a larger, easier-to-read font.
 - The Progress page on the website is redesigned: you see at a glance what is going well, what to work on next and how close your gift is.
 - On a website review card, tap ⚙️ to choose whether it shows a hint, synonyms or an example sentence — the card changes right away.
+- Text across the website is a little larger, so examples, meanings and captions are easier to read on a phone, a tablet and a computer.
+- On a website review card, the ⚙️ settings now open in a small panel that no longer pushes the card around, and the “How well did you remember it?” buttons stand out.
+- On a phone, word cards on the website slide up lower and smoother, close with a swipe from anywhere at the top of the card, and no longer flash when closing.
+- Language flags on the website are now crisp icons instead of emoji, and text on word cards uses one even, comfortable size.
+- The language line on a website translation is cleaner: the source language sits in a soft pill and the target languages show as a small row of round flags.
+- Text across the website now follows one calm, larger scale, so captions, examples and headings no longer jump between sizes.
+- In the website dictionary on a phone, the search box is now big and full width with Filters and Sort right under it, and the review card settings grey out the aids a word doesn't have.
+- Drop-down lists on the website are now neat menus with language flags, creating or renaming a dictionary opens in its own window, and the sound button always sits right next to the word.
+- Give each dictionary on the website its own emoji icon, picked from a neat grid with search, just like in Notion.
+- The dictionary icon picker on the website now offers about 300 emoji in 11 groups, with a quick jump bar between them.
+- On the website, Save is now a neat bookmark icon; if you have several dictionaries it asks which one to save the word to.
+- The website has a fresh teal colour scheme that matches the owl logo.
+- Every drop-down list on the website — languages, reminders, time zone, dictionaries — now opens as a neat menu that looks the same on phone and computer.
+- Have several dictionaries? The 💾 Save button on the website now asks which one the word goes to.
+- The 🔊 button on website review cards is now a tidy round icon, right next to the word.
+- Added Polyglot to your phone's home screen? Your reminders can now arrive right there as app notifications instead of in Telegram — choose where in Settings, and switch back any time.

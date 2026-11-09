@@ -34,6 +34,11 @@ describe("loadConfig", () => {
     expect(loadConfig({ ...base, WEB_BOT_USERNAME: "dev_bot" }).botUsername).toBe("dev_bot");
   });
 
+  it("turns Web Push on only with a VAPID public key", () => {
+    expect(loadConfig(base).vapidPublicKey).toBeNull();
+    expect(loadConfig({ ...base, VAPID_PUBLIC_KEY: " BPub " }).vapidPublicKey).toBe("BPub");
+  });
+
   it("enables the dev login outside production", () => {
     expect(loadConfig({ ...base, WEB_DEV_USER_ID: "1" }).devUserId).toBe(1);
   });

@@ -54,6 +54,14 @@ export type {
   RewardGrant,
 } from "./ports/progress.repository.js";
 export type {
+  NotificationChannel,
+  PushSubscriptionKeys,
+  PushSubscriptionRepository,
+  StoredPushSubscription,
+  WebPushResult,
+  WebPushSender,
+} from "./ports/push-subscription.repository.js";
+export type {
   IssueType,
   ReportedIssue,
   ReportedIssueRepository,

@@ -9,7 +9,8 @@
     },
     "apps/web": {
       "entry": ["src/pages/**/*.astro"],
-      "project": ["src/**/*.{astro,ts,vue}", "scripts/**/*.ts"]
+      "project": ["src/**/*.{astro,ts,vue}", "scripts/**/*.ts"],
+      "ignoreDependencies": ["flag-icons"]
     },
     "apps/admin-api": {
       "project": ["src/**/*.ts"]

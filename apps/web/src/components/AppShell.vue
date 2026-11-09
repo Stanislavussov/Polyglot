@@ -2,7 +2,7 @@
   <ShellSkeleton v-if="!ready" :label="t('web.common.loading')" />
   <div v-else class="flex min-h-screen flex-col md:flex-row">
     <aside class="hidden w-64 shrink-0 flex-col bg-sidebar md:sticky md:top-0 md:flex md:h-screen">
-      <div class="flex h-16 items-center gap-2.5 whitespace-nowrap px-5 text-lg font-display font-extrabold tracking-tight text-sidebar-fg"><img src="/favicon.svg" alt="" class="size-8 rounded-lg" /> Polyglot Monster</div>
+      <div class="flex h-16 items-center gap-2.5 whitespace-nowrap px-5 text-xl font-display font-extrabold tracking-tight text-sidebar-fg"><img src="/favicon.svg" alt="" class="size-8 rounded-lg" /> Polyglot Monster</div>
       <div class="min-h-0 flex-1 overflow-y-auto"><NavList :page="page" @navigate="navigate" /></div>
       <UserMenu :active="page === 'settings' || page === 'plan'" @navigate="navigate" />
     </aside>
@@ -16,7 +16,7 @@
       >
         <Menu class="size-6" aria-hidden="true" />
       </button>
-      <span class="flex items-center gap-2 text-lg font-display font-extrabold tracking-tight"><img src="/favicon.svg" alt="" class="size-7 rounded-lg" /> Polyglot Monster</span>
+      <span class="flex items-center gap-2 text-xl font-display font-extrabold tracking-tight"><img src="/favicon.svg" alt="" class="size-7 rounded-lg" /> Polyglot Monster</span>
     </header>
 
     <DialogRoot v-model:open="drawerOpen">
@@ -27,7 +27,7 @@
           :aria-describedby="undefined"
         >
           <div class="flex h-14 items-center justify-between px-5">
-            <DialogTitle class="flex items-center gap-2 text-lg font-display font-extrabold tracking-tight"><img src="/favicon.svg" alt="" class="size-7 rounded-lg" /> Polyglot Monster</DialogTitle>
+            <DialogTitle class="flex items-center gap-2 text-xl font-display font-extrabold tracking-tight"><img src="/favicon.svg" alt="" class="size-7 rounded-lg" /> Polyglot Monster</DialogTitle>
             <DialogClose
               class="grid size-11 place-items-center rounded-full hover:bg-sidebar-hover"
               :aria-label="t('web.nav.closeMenu')"
@@ -64,7 +64,7 @@
         <div v-else class="flex justify-end">
           <button
             type="button"
-            class="rounded-full px-2 py-0.5 text-xs text-ink-muted hover:bg-primary-soft hover:text-primary-soft-fg"
+            class="rounded-full px-2 py-0.5 text-sm text-ink-muted hover:bg-primary-soft hover:text-primary-soft-fg"
             :aria-label="t('web.progress.barShow')"
             :title="t('web.progress.barShow')"
             @click="bar.show()"
@@ -72,6 +72,19 @@
             🎯
           </button>
         </div>
+      </div>
+      <div v-if="pushOffer || pushSwitched" class="mx-auto max-w-6xl px-4 pt-3 sm:px-6 md:px-8">
+        <div v-if="pushOffer" class="flex flex-wrap items-center gap-2 rounded-2xl bg-primary-soft px-4 py-3 text-sm text-primary-soft-fg">
+          <span class="min-w-0 flex-1">{{ t("web.push.bannerText") }}</span>
+          <button type="button" class="btn-primary" @click="acceptPushOffer">{{ t("web.push.bannerEnable") }}</button>
+          <button type="button" class="btn-secondary" @click="declinePushOffer">{{ t("web.push.bannerDismiss") }}</button>
+        </div>
+        <p v-else role="status" class="flex items-center gap-2 rounded-2xl bg-primary-soft px-4 py-3 text-sm text-primary-soft-fg">
+          <span class="min-w-0 flex-1">{{ t("web.push.switched") }}</span>
+          <button type="button" class="grid size-8 shrink-0 place-items-center rounded-full hover:bg-surface" :aria-label="t('web.push.noticeClose')" @click="pushSwitched = false">
+            <X class="size-4" aria-hidden="true" />
+          </button>
+        </p>
       </div>
       <div class="mx-auto max-w-6xl px-4 py-6 sm:px-6 md:px-8 md:py-10">
         <component :is="content" :key="page" />
@@ -87,7 +100,19 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { api } from "../lib/api";
 import { drawerSwipeAction, type SwipePoint } from "../lib/drawer-swipe";
 import { t } from "../lib/i18n";
-import { loadSettings } from "../lib/settings-store";
+import {
+  decideAutoSwitch,
+  dismissOffer,
+  isStandalone,
+  markSwitchNoticeShown,
+  offerDismissed,
+  pushPermission,
+  pushSupported,
+  registerServiceWorker,
+  subscribeThisDevice,
+  switchNoticeShown,
+} from "../lib/push";
+import { loadSettings, settings } from "../lib/settings-store";
 import type { PageName, ProgressGoal } from "../lib/types";
 import { useProgressBar } from "../lib/use-progress-bar";
 import DictionaryView from "./DictionaryView.vue";
@@ -197,7 +222,52 @@ onMounted(async () => {
     }
   }
   ready.value = true;
+  registerServiceWorker();
+  void autoSwitchToApp();
 });
+
+const pushOffer = ref(false);
+const pushSwitched = ref(false);
+
+// An installed app takes over reminders the learner already gets in Telegram.
+async function autoSwitchToApp(): Promise<void> {
+  const notif = settings.value?.notifications;
+  if (!notif) return;
+  const action = decideAutoSwitch({
+    standalone: isStandalone(),
+    supported: pushSupported(),
+    pushAvailable: notif.pushPublicKey !== null,
+    notificationsEnabled: notif.enabled,
+    channel: notif.channel,
+    permission: pushPermission(),
+    dismissed: offerDismissed(),
+  });
+  if (action === "subscribe") await switchToApp();
+  else if (action === "offer") pushOffer.value = true;
+}
+
+async function switchToApp(): Promise<void> {
+  const key = settings.value?.notifications.pushPublicKey;
+  if (!key) return;
+  // One automatic switch per device: a later return to Telegram must stick.
+  dismissOffer();
+  const subscribed = await subscribeThisDevice(key, true).catch(() => false);
+  if (subscribed && settings.value?.notifications.channel === "web" && !switchNoticeShown()) {
+    markSwitchNoticeShown();
+    pushSwitched.value = true;
+  }
+}
+
+// The permission prompt must come from this tap: iOS ignores it otherwise.
+async function acceptPushOffer(): Promise<void> {
+  pushOffer.value = false;
+  await switchToApp();
+}
+
+function declinePushOffer(): void {
+  pushOffer.value = false;
+  dismissOffer();
+}
 
 // Fetched only off the Progress tab: that tab announces a fresh gift itself, and the
 // claim is consumed by whichever request makes it. The bar is extra — a failure leaves it out.

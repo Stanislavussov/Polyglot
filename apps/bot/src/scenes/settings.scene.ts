@@ -16,6 +16,7 @@ import {
   getMonthlyWindowStart,
   type I18nKey,
   isSupported,
+  type NotificationChannel,
   type PlanLimitConfig,
   parseNotificationMinutes,
   resolvePlanLimit,
@@ -195,6 +196,7 @@ export function buildNotifSubText(
   timezone: string,
   notifContext: string | null,
   batchSize: number = DEFAULT_NOTIFICATION_BATCH_SIZE,
+  channel: NotificationChannel = "bot",
 ): string {
   const statusLine = notifEnabled ? t("settingsNotifStatusOn", lang) : t("settingsNotifStatusOff", lang);
 
@@ -206,6 +208,9 @@ export function buildNotifSubText(
     t("settingsNotifType", lang, { type: notifTypeLabel(notifType, lang) }),
     ...(sendsAiContent(notifType) ? [] : [t("settingsNotifBatch", lang, { count: batchSize })]),
     t("settingsNotifTimezone", lang, { timezone }),
+    t("settingsNotifChannel", lang, {
+      channel: t(channel === "web" ? "settingsNotifChannelWeb" : "settingsNotifChannelBot", lang),
+    }),
   ];
 
   if (notifType === "contextual") {
@@ -227,8 +232,16 @@ function sendsAiContent(notifType: string): boolean {
 /**
  * Build the notification sub-menu keyboard.
  */
-export function buildNotifSubKeyboard(lang: SupportedLang, notifEnabled: boolean, notifType: string): InlineKeyboard {
+export function buildNotifSubKeyboard(
+  lang: SupportedLang,
+  notifEnabled: boolean,
+  notifType: string,
+  channel: NotificationChannel = "bot",
+): InlineKeyboard {
   const kb = new InlineKeyboard();
+  // The web app's choice can only be made in the web app (it needs that device's
+  // permission); the bot offers the way back.
+  if (channel === "web") kb.text(t("settingsNotifUseTelegram", lang), "set:notif:channel:bot").row();
   kb.text(notifEnabled ? t("settingsNotifDisable", lang) : t("settingsNotifEnable", lang), "set:notif:toggle").row();
   if (notifEnabled) {
     kb.text(t("settingsNotifChooseTimes", lang), "set:notif:time").row();

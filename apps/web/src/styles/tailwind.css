@@ -5,7 +5,7 @@
 
 @layer base {
   body {
-    @apply bg-canvas font-sans text-ink antialiased;
+    @apply bg-canvas font-sans text-base text-ink antialiased;
     /* A long word or URL from a translation wraps instead of widening the page on phones. */
     overflow-wrap: anywhere;
   }

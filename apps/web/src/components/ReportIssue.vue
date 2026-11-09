@@ -1,6 +1,6 @@
 <template>
   <section class="card mt-6 space-y-4" aria-labelledby="report-title">
-    <h2 id="report-title" class="text-lg font-semibold">{{ t("web.report.title") }}</h2>
+    <h2 id="report-title" class="text-xl font-semibold">{{ t("web.report.title") }}</h2>
     <p v-if="sent" role="status" class="text-sm text-primary-soft-fg">{{ t("web.report.sent") }}</p>
     <form v-else class="space-y-4" @submit.prevent="send">
       <div class="flex flex-wrap gap-2" role="radiogroup">
@@ -9,7 +9,7 @@
           :key="option"
           class="flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border border-line px-3 py-2 text-sm has-[:checked]:border-primary has-[:checked]:bg-primary-soft"
         >
-          <input v-model="type" type="radio" name="report-type" class="accent-primary" :value="option" />
+          <input v-model="type" type="radio" name="report-type" class="size-5 accent-primary" :value="option" />
           {{ t(`web.report.type.${option}`) }}
         </label>
       </div>

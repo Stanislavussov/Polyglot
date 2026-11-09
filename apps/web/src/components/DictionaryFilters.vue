@@ -10,7 +10,7 @@
           type="button"
           :aria-pressed="modelValue[group.key] === option.value"
           :class="[
-            'min-h-9 flex-auto whitespace-nowrap rounded-lg px-3 text-sm font-medium transition-colors',
+            'min-h-10 flex-auto whitespace-nowrap rounded-lg px-3 text-sm font-medium transition-colors',
             modelValue[group.key] === option.value ? 'bg-primary text-primary-fg' : 'text-ink-muted hover:bg-surface-muted',
           ]"
           @click="emit('update', group.key, option.value)"

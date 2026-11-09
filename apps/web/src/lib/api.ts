@@ -14,6 +14,7 @@ import type {
   PlanInfo,
   Progress,
   ProgressGoal,
+  PushSubscriptionBody,
   Rating,
   ReviewState,
   Settings,
@@ -95,6 +96,7 @@ export const api = {
   settings: () => request<Settings>("GET", "/settings"),
   updateSettings: (patch: SettingsPatch) => request<Settings>("PATCH", "/settings", patch),
   updateNotifications: (patch: NotificationPatch) => request<Settings>("PATCH", "/settings/notifications", patch),
+  pushSubscribe: (body: PushSubscriptionBody) => request<Settings>("POST", "/push/subscribe", body),
   cardFront: () => request<CardFrontFields>("GET", "/settings/card"),
   setCardFront: (field: keyof CardFrontFields, enabled: boolean) =>
     request<CardFrontFields>("PATCH", "/settings/card", { field, enabled }),
@@ -106,7 +108,9 @@ export const api = {
   changes: () => request<{ notes: string[] }>("GET", "/changes"),
   report: (type: IssueType, description: string) => request<void>("POST", "/report", { type, description }),
   dictionaries: () => request<{ items: Dictionary[] }>("GET", "/dictionaries"),
-  createDictionary: (name: string) => request<Dictionary>("POST", "/dictionaries", { name }),
+  createDictionary: (name: string, icon: string | null) => request<Dictionary>("POST", "/dictionaries", { name, icon }),
+  setDictionaryIcon: (id: number, icon: string | null) =>
+    request<Dictionary>("PATCH", `/dictionaries/${id}/icon`, { icon }),
   renameDictionary: (id: number, name: string) => request<Dictionary>("PATCH", `/dictionaries/${id}`, { name }),
   deleteDictionary: (id: number) => request<void>("DELETE", `/dictionaries/${id}`),
   /** Into another dictionary; with `from`, out of that one too (move). */

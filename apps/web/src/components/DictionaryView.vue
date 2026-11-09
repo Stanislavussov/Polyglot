@@ -10,31 +10,32 @@
       @changed="onDictionariesChanged"
     />
 
-    <div ref="toolbar" class="mt-6 flex scroll-mt-20 gap-2 sm:gap-3 md:scroll-mt-6">
+    <div ref="toolbar" class="mt-3 flex scroll-mt-20 flex-wrap gap-3 lg:flex-nowrap md:scroll-mt-6">
       <label class="sr-only" for="dictionary-search">{{ t("web.dictionary.search") }}</label>
-      <div class="relative min-w-0 flex-1">
+      <div class="relative min-w-0 basis-full lg:flex-1 lg:basis-0">
         <Search class="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-ink-muted" aria-hidden="true" />
         <input
           id="dictionary-search"
           ref="searchInput"
           v-model="query"
           type="search"
-          class="field text-ellipsis pl-10 pr-3 placeholder:text-sm sm:placeholder:text-base [@media(hover:hover)_and_(pointer:fine)]:pr-10 focus:border-primary focus:outline-none focus:ring-[3px] focus:ring-ring"
+          class="field min-h-12 text-ellipsis pl-10 pr-3 [@media(hover:hover)_and_(pointer:fine)]:pr-10 focus:border-primary focus:outline-none focus:ring-[3px] focus:ring-ring"
           :placeholder="t(isDesktop ? 'web.dictionary.searchHint' : 'web.dictionary.search')"
         />
         <kbd
           v-if="query === ''"
-          class="pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 rounded-md border border-line bg-surface-muted px-1.5 font-sans text-xs text-ink-muted [@media(hover:hover)_and_(pointer:fine)]:block"
+          class="pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 rounded-md border border-line bg-surface-muted px-1.5 font-sans text-sm text-ink-muted [@media(hover:hover)_and_(pointer:fine)]:block"
           aria-hidden="true"
         >/</kbd>
       </div>
-      <div class="flex shrink-0 gap-2 sm:gap-3">
+      <!-- Phones: the search gets the full row, filter and sort sit in their own row under it. -->
+      <div class="flex w-full gap-3 lg:w-auto lg:shrink-0">
       <PopoverRoot v-model:open="filtersOpen">
-        <PopoverTrigger class="btn-secondary relative shrink-0 gap-2 px-3 sm:px-4" :aria-label="filterButtonLabel">
-          <SlidersHorizontal class="size-5 sm:size-4" aria-hidden="true" /><span class="hidden sm:inline">{{ t("web.dictionary.filters") }}</span>
+        <PopoverTrigger class="btn-secondary relative flex-1 gap-2 px-3 sm:px-4 lg:flex-none" :aria-label="filterButtonLabel">
+          <SlidersHorizontal class="size-5 sm:size-4" aria-hidden="true" /><span>{{ t("web.dictionary.filters") }}</span>
           <span
             v-if="activeCount > 0"
-            class="grid min-w-5 place-items-center rounded-full bg-primary px-1.5 text-xs font-semibold text-primary-fg"
+            class="grid min-w-5 place-items-center rounded-full bg-primary px-1.5 text-sm font-semibold text-primary-fg"
             aria-hidden="true"
           >{{ activeCount }}</span>
         </PopoverTrigger>
@@ -50,11 +51,11 @@
       </PopoverRoot>
       <button
         type="button"
-        class="btn-secondary shrink-0 gap-2 px-3 sm:px-4"
+        class="btn-secondary flex-1 gap-2 px-3 sm:px-4 lg:flex-none"
         :aria-label="`${t('web.dictionary.sort')}: ${t(currentSort.label)}`"
         @click="toggleSort"
       >
-        <component :is="currentSort.icon" class="size-5 sm:size-4" aria-hidden="true" /><span class="hidden sm:inline">{{ t(currentSort.label) }}</span>
+        <component :is="currentSort.icon" class="size-5 sm:size-4" aria-hidden="true" /><span>{{ t(currentSort.label) }}</span>
       </button>
       </div>
     </div>
@@ -67,7 +68,7 @@
     <div
       role="group"
       :aria-label="t('web.dictionary.filterLang')"
-      class="-mx-1 mt-3 flex gap-2 overflow-x-auto px-1 py-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      class="-mx-1 mt-2 flex gap-3 overflow-x-auto px-1 py-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
     >
       <button
         v-for="option in langOptions"
@@ -75,20 +76,20 @@
         type="button"
         :aria-pressed="filters.lang === option.code"
         :class="[
-          'inline-flex min-h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 text-sm font-medium transition-colors',
+          'inline-flex min-h-10 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 text-sm font-medium transition-colors',
           filters.lang === option.code ? 'border-primary bg-primary text-primary-fg' : 'border-line bg-surface text-ink hover:bg-surface-muted',
         ]"
         @click="setFilter('lang', option.code)"
       >
-        <span v-if="option.flag" aria-hidden="true">{{ option.flag }}</span>{{ option.label }}
+        <LangFlag v-if="option.flag" :code="option.code" />{{ option.label }}
       </button>
     </div>
 
-    <ul v-if="activeChips.length > 0" class="mt-3 flex flex-wrap gap-2" :aria-label="t('web.dictionary.activeFilters')">
+    <ul v-if="activeChips.length > 0" class="mt-3 flex flex-wrap gap-3" :aria-label="t('web.dictionary.activeFilters')">
       <li v-for="chip in activeChips" :key="chip.key">
         <button
           type="button"
-          class="inline-flex min-h-9 items-center gap-1.5 rounded-full bg-primary-soft px-3 text-sm font-medium text-primary-soft-fg hover:opacity-80"
+          class="inline-flex min-h-10 items-center gap-1.5 rounded-full bg-primary-soft px-3 text-sm font-medium text-primary-soft-fg hover:opacity-80"
           :aria-label="t('web.dictionary.removeFilter', { filter: chip.label })"
           @click="setFilter(chip.key, '')"
         >
@@ -104,7 +105,7 @@
       <button v-if="filtersActive" type="button" class="btn-secondary mt-3" @click="resetFilters">{{ t("web.dictionary.filterReset") }}</button>
     </div>
 
-    <ul v-if="data && data.items.length > 0" class="mt-6 space-y-3" :aria-busy="loading">
+    <ul v-if="data && data.items.length > 0" class="mt-3 space-y-3" :aria-busy="loading">
       <DictionaryRow
         v-for="item in data.items"
         :key="item.id"
@@ -141,6 +142,7 @@
 </template>
 
 <script setup lang="ts">
+import LangFlag from "./LangFlag.vue";
 import MonsterLoader from "./MonsterLoader.vue";
 import { ArrowDownAZ, ChevronLeft, ChevronRight, Clock, Search, SlidersHorizontal, X } from "lucide-vue-next";
 import { PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from "reka-ui";

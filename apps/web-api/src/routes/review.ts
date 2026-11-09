@@ -27,6 +27,12 @@ function cardFront(detail: ReturnType<typeof toDictionaryDetail>, recallHint: st
     synonyms: fields.synonyms ? (usage?.synonyms ?? []) : [],
     example: fields.example ? (usage?.examples[0]?.target ?? null) : null,
     hint: fields.hint ? recallHint?.trim() || null : null,
+    // Whether the word has each aid at all, independent of the settings: an aid it lacks cannot be switched on.
+    available: {
+      hint: Boolean(recallHint?.trim()),
+      synonyms: (usage?.synonyms.length ?? 0) > 0,
+      example: Boolean(usage?.examples[0]?.target),
+    },
   };
 }
 

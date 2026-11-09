@@ -1,7 +1,7 @@
 <template>
   <section class="card mt-6 space-y-6" aria-labelledby="template-title">
     <div>
-      <h2 id="template-title" class="text-lg font-semibold">{{ t("web.template.title") }}</h2>
+      <h2 id="template-title" class="text-xl font-semibold">{{ t("web.template.title") }}</h2>
       <p class="mt-1 text-sm text-ink-muted">
         {{ t("web.template.hint") }}
         <span v-if="state">· {{ state.custom ? t("web.template.custom") : t("web.template.default") }}</span>
@@ -15,14 +15,14 @@
           :key="key"
           class="flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border border-line px-3 py-2 text-sm has-[:checked]:border-primary has-[:checked]:bg-primary-soft"
         >
-          <input v-model="fields[key]" type="checkbox" class="size-4 accent-primary" @change="refreshPreview" />
+          <input v-model="fields[key]" type="checkbox" class="size-5 shrink-0 accent-primary" @change="refreshPreview" />
           {{ t(`web.template.field.${key}`) }}
         </label>
       </div>
 
       <div v-if="preview" class="rounded-xl border border-dashed border-line p-4">
-        <h3 class="text-xs font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.template.preview") }}</h3>
-        <p class="mt-2 text-lg font-bold"><span v-if="preview.emoji" class="mr-2" aria-hidden="true">{{ preview.emoji }}</span>{{ preview.original }}</p>
+        <h3 class="text-sm font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.template.preview") }}</h3>
+        <p class="mt-2 text-xl font-bold"><span v-if="preview.emoji" class="mr-2" aria-hidden="true">{{ preview.emoji }}</span>{{ preview.original }}</p>
         <TranslationBlock v-for="translation in preview.translations" :key="translation.lang" class="mt-3" :translation="translation" id-prefix="template-preview" />
       </div>
 

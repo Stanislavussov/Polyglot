@@ -5,6 +5,11 @@ const config: Config = {
   content: ["./src/**/*.{astro,html,js,ts,vue}"],
   theme: {
     extend: {
+      // The whole type scale: 15 captions, 17 body, 20 titles, 24/30 display. xs and lg are deliberately unused.
+      fontSize: {
+        sm: ["0.9375rem", { lineHeight: "1.375rem" }],
+        base: ["1.0625rem", { lineHeight: "1.625rem" }],
+      },
       colors: {
         canvas: "var(--color-canvas)",
         surface: { DEFAULT: "var(--color-surface)", muted: "var(--color-surface-muted)" },

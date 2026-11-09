@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-4 border-t border-line pt-4">
     <section v-if="etymology" class="space-y-1 rounded-xl bg-surface-muted px-4 py-3 text-sm">
-      <h3 class="text-xs font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.explore.etymology") }}</h3>
+      <h3 class="text-sm font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.explore.etymology") }}</h3>
       <p class="whitespace-pre-line">{{ etymology }}</p>
     </section>
 
@@ -107,7 +107,7 @@ const MAX_THREAD = 20;
 const props = defineProps<{ result: TranslateResult }>();
 const emit = defineEmits<{ replace: [result: TranslateResult] }>();
 
-const LockBadge = defineComponent(() => () => h("span", { class: "ml-1 text-xs", title: t("web.explore.locked") }, "💎"));
+const LockBadge = defineComponent(() => () => h("span", { class: "ml-1 text-sm", title: t("web.explore.locked") }, "💎"));
 
 const open = ref(false);
 const panel = ref<"clarify" | "mentor" | null>(null);

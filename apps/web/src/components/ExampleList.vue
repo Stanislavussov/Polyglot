@@ -1,9 +1,9 @@
 <template>
-  <ul v-if="examples.length > 0" class="space-y-2 text-sm">
+  <ul v-if="examples.length > 0" class="space-y-2.5 text-base">
     <li v-for="example in examples" :key="example.target" class="border-l-2 border-line pl-3">
       <p class="font-medium">{{ example.target }}</p>
       <p v-if="example.native" class="text-ink-muted">{{ example.native }}</p>
-      <p v-if="example.context" class="text-xs text-ink-muted opacity-80">{{ example.context }}</p>
+      <p v-if="example.context" class="text-sm text-ink-muted opacity-80">{{ example.context }}</p>
     </li>
   </ul>
 </template>

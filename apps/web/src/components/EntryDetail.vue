@@ -17,9 +17,7 @@
   </div>
 
   <div v-else class="space-y-5">
-    <p class="text-sm text-ink-muted">
-      <span aria-hidden="true">{{ languageFlag(entry.sourceLang) }}</span> {{ languageName(entry.sourceLang) }}
-    </p>
+    <p><LangBadge :code="entry.sourceLang" /></p>
 
     <EntryLangSection v-if="split.native" :detail="split.native" />
 
@@ -32,8 +30,8 @@
       </p>
     </div>
 
-    <div v-if="entry.sourceUsage" class="space-y-2 rounded-xl bg-surface-muted px-4 py-3 text-sm">
-      <h3 class="text-xs font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.translate.aboutSource") }}</h3>
+    <div v-if="entry.sourceUsage" class="space-y-2 rounded-xl bg-surface-muted px-4 py-3 text-base">
+      <h3 class="text-sm font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.translate.aboutSource") }}</h3>
       <p v-if="entry.sourceUsage.headword" class="font-semibold">{{ entry.sourceUsage.headword }}</p>
       <p>{{ entry.sourceUsage.explanation }}</p>
       <ul v-if="entry.sourceUsage.synonyms.length > 0" class="flex flex-wrap gap-2">
@@ -47,10 +45,11 @@
 </template>
 
 <script setup lang="ts">
+import LangBadge from "./LangBadge.vue";
 import { computed } from "vue";
 import { splitNative } from "../lib/card-order";
 import { t } from "../lib/i18n";
-import { languageFlag, languageName, settings } from "../lib/settings-store";
+import { languageName, settings } from "../lib/settings-store";
 import type { EntryDetail } from "../lib/types";
 import EntryLangSection from "./EntryLangSection.vue";
 import ExampleList from "./ExampleList.vue";

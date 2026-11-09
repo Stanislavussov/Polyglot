@@ -3,7 +3,7 @@
     <p class="sr-only" role="status">{{ label }}</p>
 
     <aside class="hidden w-64 shrink-0 flex-col bg-sidebar md:flex md:h-screen" aria-hidden="true">
-      <div class="flex h-16 items-center gap-2.5 whitespace-nowrap px-5 text-lg font-bold tracking-tight text-sidebar-fg"><img src="/favicon.svg" alt="" class="size-8 rounded-lg" /> Polyglot Monster</div>
+      <div class="flex h-16 items-center gap-2.5 whitespace-nowrap px-5 text-xl font-bold tracking-tight text-sidebar-fg"><img src="/favicon.svg" alt="" class="size-8 rounded-lg" /> Polyglot Monster</div>
       <div class="space-y-2 px-3 pt-2">
         <div v-for="width in navWidths" :key="width" class="flex h-11 items-center gap-3 rounded-xl px-3">
           <div class="skeleton-dark size-5 rounded-md" />
@@ -21,7 +21,7 @@
 
     <header class="flex h-14 items-center gap-3 bg-sidebar px-3 text-sidebar-fg md:hidden" aria-hidden="true">
       <div class="grid size-11 place-items-center"><div class="skeleton-dark h-4 w-6 rounded" /></div>
-      <span class="flex items-center gap-2 text-lg font-bold tracking-tight"><img src="/favicon.svg" alt="" class="size-7 rounded-lg" /> Polyglot Monster</span>
+      <span class="flex items-center gap-2 text-xl font-bold tracking-tight"><img src="/favicon.svg" alt="" class="size-7 rounded-lg" /> Polyglot Monster</span>
     </header>
 
     <main class="min-w-0 flex-1" aria-hidden="true">

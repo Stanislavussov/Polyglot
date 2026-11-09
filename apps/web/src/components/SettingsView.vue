@@ -5,31 +5,33 @@
     <form v-if="settings" class="card mt-6 space-y-6" @submit.prevent="submit">
       <div>
         <label class="mb-1 block text-sm font-medium" for="interface-lang">{{ t("web.settings.interfaceLang") }}</label>
-        <select id="interface-lang" v-model="interfaceLang" class="field">
-          <option v-for="code in settings.interfaceLanguages" :key="code" :value="code">{{ label(code) }}</option>
-        </select>
+        <AppSelect
+          id="interface-lang"
+          v-model="interfaceLang"
+          :options="settings.interfaceLanguages.map((code) => ({ value: code, label: label(code), lang: code }))"
+        />
       </div>
 
       <div>
         <label class="mb-1 block text-sm font-medium" for="native-lang">{{ t("web.settings.nativeLang") }}</label>
-        <select id="native-lang" v-model="nativeLang" class="field">
-          <option v-for="language in settings.languages" :key="language.code" :value="language.code">
-            {{ language.flag }} {{ language.name }}
-          </option>
-        </select>
+        <AppSelect
+          id="native-lang"
+          v-model="nativeLang"
+          :options="settings.languages.map((language) => ({ value: language.code, label: language.name, lang: language.code }))"
+        />
       </div>
 
       <fieldset>
         <legend class="mb-1 text-sm font-medium">{{ t("web.settings.learningLangs") }}</legend>
-        <p class="mb-2 text-xs text-ink-muted">{{ t("web.settings.learningHint") }}</p>
+        <p class="mb-2 text-sm text-ink-muted">{{ t("web.settings.learningHint") }}</p>
         <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
           <label
             v-for="language in settings.languages"
             :key="language.code"
             class="flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border border-line px-3 py-2 text-sm has-[:checked]:border-primary has-[:checked]:bg-primary-soft"
           >
-            <input v-model="learningLangs" type="checkbox" class="size-4 accent-primary" :value="language.code" />
-            {{ language.flag }} {{ language.name }}
+            <input v-model="learningLangs" type="checkbox" class="size-5 shrink-0 accent-primary" :value="language.code" />
+            <LangFlag :code="language.code" />{{ language.name }}
           </label>
         </div>
       </fieldset>
@@ -52,9 +54,11 @@
 </template>
 
 <script setup lang="ts">
+import AppSelect from "./AppSelect.vue";
+import LangFlag from "./LangFlag.vue";
 import { ref } from "vue";
 import { t } from "../lib/i18n";
-import { languageFlag, languageName, saveSettings, settings } from "../lib/settings-store";
+import { languageName, saveSettings, settings } from "../lib/settings-store";
 import ChangesList from "./ChangesList.vue";
 import NotificationSettings from "./NotificationSettings.vue";
 import ReportIssue from "./ReportIssue.vue";
@@ -68,7 +72,7 @@ const saved = ref(false);
 const failed = ref(false);
 
 function label(code: string): string {
-  return `${languageFlag(code)} ${languageName(code)}`.trim();
+  return languageName(code);
 }
 
 async function submit(): Promise<void> {

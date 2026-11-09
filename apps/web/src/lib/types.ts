@@ -31,12 +31,23 @@ export interface NotificationSettings {
   batchSize: number;
   timezone: string;
   context: string | null;
+  channel: NotificationChannel;
+  /** VAPID key for this device's subscription; null = the server has Web Push off. */
+  pushPublicKey: string | null;
   options: { types: NotificationType[]; batchSizes: number[]; maxTimes: number };
 }
 
+export type NotificationChannel = "bot" | "web";
+
 export type NotificationPatch = Partial<
-  Pick<NotificationSettings, "enabled" | "times" | "type" | "batchSize" | "timezone" | "context">
+  Pick<NotificationSettings, "enabled" | "times" | "type" | "batchSize" | "timezone" | "context" | "channel">
 >;
+
+export interface PushSubscriptionBody {
+  endpoint: string;
+  keys: { p256dh: string; auth: string };
+  auto: boolean;
+}
 
 /** Which recall aids a review card's hidden-answer side shows (core `CardFrontFields`). */
 export interface CardFrontFields {
@@ -96,6 +107,7 @@ export interface DictionaryItem {
 export interface Dictionary {
   id: number;
   name: string;
+  icon: string | null;
   isDefault: boolean;
   count: number;
 }
@@ -224,7 +236,13 @@ export interface ReviewCard {
   /** Not due yet: practised ahead because nothing is due. */
   ahead: boolean;
   /** What the hidden-answer side shows, per the learner's card settings. */
-  front: { headword: string; synonyms: string[]; example: string | null; hint: string | null };
+  front: {
+    headword: string;
+    synonyms: string[];
+    example: string | null;
+    hint: string | null;
+    available: Record<keyof CardFrontFields, boolean>;
+  };
   detail: EntryDetail;
   audio: CardAudio;
 }

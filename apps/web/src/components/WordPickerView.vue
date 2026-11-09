@@ -1,6 +1,6 @@
 <template>
   <section class="space-y-4">
-    <a href="/learn/" class="text-sm text-ink-muted hover:underline">{{ t("web.learn.back") }}</a>
+    <a href="/learn/" class="-my-2 inline-flex min-h-11 items-center text-sm text-ink-muted hover:underline">{{ t("web.learn.back") }}</a>
     <h1 class="text-2xl font-bold tracking-tight">✨ {{ t("web.learn.pick") }}</h1>
 
     <p v-if="loading" class="text-sm text-ink-muted" role="status">{{ t("web.common.loading") }}</p>
@@ -20,7 +20,7 @@
         <p class="text-sm">{{ t("web.learn.pick.chooseLang") }}</p>
         <div class="flex flex-wrap gap-2">
           <button v-for="option in chosen.langs" :key="option.code" type="button" class="btn-secondary" @click="generate(chosen, option.code)">
-            {{ option.flag }} {{ option.name }}
+            <LangFlag :code="option.code" />{{ option.name }}
           </button>
         </div>
       </div>
@@ -32,8 +32,8 @@
 
     <article v-if="set && !busy" class="card space-y-4" aria-live="polite">
       <header>
-        <h2 class="text-lg font-semibold">{{ set.run.emoji }} {{ set.run.title }}</h2>
-        <p class="text-sm text-ink-muted">{{ set.run.lang.flag }} {{ set.run.lang.name }} · {{ t("web.learn.pick.hint") }}</p>
+        <h2 class="text-xl font-semibold">{{ set.run.emoji }} {{ set.run.title }}</h2>
+        <p class="flex flex-wrap items-center gap-2 text-sm text-ink-muted"><LangBadge :code="set.run.lang.code" :label="set.run.lang.name" />{{ t("web.learn.pick.hint") }}</p>
       </header>
       <ul class="space-y-3">
         <li v-for="item in set.items" :key="item.id" class="flex items-start justify-between gap-3 rounded-xl bg-surface-muted px-4 py-3 text-sm">
@@ -59,6 +59,8 @@
 </template>
 
 <script setup lang="ts">
+import LangBadge from "./LangBadge.vue";
+import LangFlag from "./LangFlag.vue";
 import { onMounted, ref } from "vue";
 import { ApiError } from "../lib/api";
 import { t } from "../lib/i18n";
