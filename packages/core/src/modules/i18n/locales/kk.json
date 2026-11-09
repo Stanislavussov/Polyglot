@@ -682,6 +682,7 @@
   "web.review.picked": "Сөздіктен таңдалған сөз",
   "web.review.ahead": "Алдын ала қайталау — бұл сөздің мерзімі әлі келген жоқ",
   "web.review.frontSettings": "Карточкада не көрсетілсін",
+  "web.review.front.missing": "бұл сөзде жоқ",
   "web.review.front.hint": "Кеңес",
   "web.review.front.synonyms": "Синонимдер",
   "web.review.front.example": "Мысал сөйлем",

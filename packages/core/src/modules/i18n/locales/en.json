@@ -682,6 +682,7 @@
   "web.review.picked": "Word you picked from your dictionary",
   "web.review.ahead": "Practising ahead — this word isn't due yet",
   "web.review.frontSettings": "What the card shows",
+  "web.review.front.missing": "not for this word",
   "web.review.front.hint": "Recall hint",
   "web.review.front.synonyms": "Synonyms",
   "web.review.front.example": "Example sentence",

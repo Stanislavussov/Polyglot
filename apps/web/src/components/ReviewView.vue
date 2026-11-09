@@ -23,51 +23,62 @@
         <p class="text-sm text-ink-muted">
           <span aria-hidden="true">{{ languageFlag(card.detail.sourceLang) }}</span> {{ languageName(card.detail.sourceLang) }}
         </p>
-        <div class="flex items-start justify-between gap-3">
-          <h2 class="min-w-0 break-words text-3xl font-bold">
-            <span v-if="card.detail.emoji" class="mr-2" aria-hidden="true">{{ card.detail.emoji }}</span>{{ card.front.headword }}
-          </h2>
-          <SpeakButton
-            v-if="speaks(card.detail.sourceLang)"
-            class="shrink-0"
-            :entry-id="card.entryId"
-            :lang="card.detail.sourceLang"
-            :text="card.front.headword"
-            :access="card.audio.access"
-            @notice="showNotice"
-          />
-          <button
-            type="button"
-            class="btn-secondary shrink-0 !px-3"
-            :aria-label="t('web.review.frontSettings')"
-            :aria-expanded="frontOpen"
-            aria-controls="review-front-settings"
-            @click="toggleFrontPanel"
-          >
-            <Settings2 class="size-4" aria-hidden="true" />
-          </button>
-        </div>
-        <fieldset v-if="frontOpen" id="review-front-settings" class="space-y-2 rounded-xl bg-surface-muted px-4 py-3 text-sm">
-          <legend class="text-xs font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.review.frontSettings") }}</legend>
-          <p v-if="!frontFields" class="text-ink-muted">{{ t("web.common.loading") }}</p>
-          <label v-for="field in frontFieldKeys" v-else :key="field" class="flex items-center gap-3">
-            <input
-              type="checkbox"
-              class="size-4 accent-primary"
-              :checked="frontFields[field]"
-              :disabled="frontBusy"
-              @change="setFrontField(field, ($event.target as HTMLInputElement).checked)"
+        <div class="flex items-start gap-3">
+          <div class="flex min-w-0 flex-1 items-center gap-2">
+            <h2 class="min-w-0 break-words text-3xl font-bold">
+              <span v-if="card.detail.emoji" class="mr-2" aria-hidden="true">{{ card.detail.emoji }}</span>{{ card.front.headword }}
+            </h2>
+            <SpeakButton
+              v-if="speaks(card.detail.sourceLang)"
+              class="shrink-0"
+              :entry-id="card.entryId"
+              :lang="card.detail.sourceLang"
+              :text="card.front.headword"
+              :access="card.audio.access"
+              @notice="showNotice"
             />
-            {{ t(`web.review.front.${field}`) }}
-          </label>
-        </fieldset>
+          </div>
+          <PopoverRoot :open="frontOpen" @update:open="setFrontPanel">
+            <PopoverTrigger class="btn-secondary shrink-0 !px-3" :aria-label="t('web.review.frontSettings')" :title="t('web.review.frontSettings')">
+              <Settings2 class="size-4" aria-hidden="true" />
+            </PopoverTrigger>
+            <PopoverPortal>
+              <!-- A floating panel, not an inline block: opening it must not push the card down. -->
+              <PopoverContent
+                align="end"
+                :side-offset="8"
+                :collision-padding="16"
+                class="z-30 w-72 max-w-[calc(100vw-2rem)] rounded-2xl border border-line bg-surface p-2 shadow-xl"
+              >
+                <p class="px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.review.frontSettings") }}</p>
+                <p v-if="!frontFields" class="px-3 py-2 text-sm text-ink-muted">{{ t("web.common.loading") }}</p>
+                <label
+                  v-for="field in frontFieldKeys"
+                  v-else
+                  :key="field"
+                  class="flex min-h-11 cursor-pointer items-center gap-3 rounded-xl px-3 text-base hover:bg-surface-muted"
+                >
+                  <input
+                    type="checkbox"
+                    class="size-5 shrink-0 accent-primary"
+                    :checked="frontFields[field]"
+                    :disabled="frontBusy"
+                    @change="setFrontField(field, ($event.target as HTMLInputElement).checked)"
+                  />
+                  <span class="flex-1">{{ t(`web.review.front.${field}`) }}</span>
+                  <span v-if="frontFields[field] && !frontHas(field)" class="text-sm text-ink-muted">{{ t("web.review.front.missing") }}</span>
+                </label>
+              </PopoverContent>
+            </PopoverPortal>
+          </PopoverRoot>
+        </div>
         <ul v-if="card.front.synonyms.length > 0" class="flex flex-wrap gap-2" :aria-label="t('web.translate.synonyms')">
           <li v-for="synonym in card.front.synonyms" :key="synonym" class="rounded-full bg-primary-soft px-3 py-1 text-sm text-primary-soft-fg">
             {{ synonym }}
           </li>
         </ul>
-        <p v-if="card.front.hint" class="text-sm italic text-ink-muted">🔎 {{ card.front.hint }}</p>
-        <p v-if="card.front.example" class="border-l-2 border-line pl-3 text-sm font-medium">{{ card.front.example }}</p>
+        <p v-if="card.front.hint" class="text-base italic text-ink-muted">🔎 {{ card.front.hint }}</p>
+        <p v-if="card.front.example" class="border-l-2 border-line pl-3 text-base font-medium">{{ card.front.example }}</p>
       </header>
 
       <p v-if="notice" role="status" class="rounded-xl bg-warning-soft px-4 py-3 text-sm text-warning-fg">{{ t(notice) }}</p>
@@ -86,8 +97,8 @@
           </template>
         </TranslationBlock>
 
-        <div class="space-y-2 border-t border-line pt-4 text-center">
-          <p class="text-sm text-ink-muted">{{ t("web.review.how") }}</p>
+        <div class="space-y-3 rounded-2xl bg-primary-soft p-4 text-center">
+          <p class="text-base font-semibold text-primary-soft-fg">{{ t("web.review.how") }}</p>
           <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
             <button
               v-for="rating in ratings"
@@ -150,6 +161,7 @@
 
 <script setup lang="ts">
 import { Eye, Settings2, Trash2, Undo2 } from "lucide-vue-next";
+import { PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from "reka-ui";
 import { computed, onMounted, ref } from "vue";
 import { ApiError, api } from "../lib/api";
 import { t } from "../lib/i18n";
@@ -187,9 +199,16 @@ const frontOpen = ref(false);
 const frontFields = ref<CardFrontFields | null>(null);
 const frontBusy = ref(false);
 
-async function toggleFrontPanel(): Promise<void> {
-  frontOpen.value = !frontOpen.value;
-  if (!frontOpen.value || frontFields.value) return;
+// An enabled field the word has no data for changes nothing on the card; say so instead of looking broken.
+function frontHas(field: keyof CardFrontFields): boolean {
+  const front = card.value?.front;
+  if (!front) return false;
+  return field === "synonyms" ? front.synonyms.length > 0 : Boolean(front[field]);
+}
+
+async function setFrontPanel(open: boolean): Promise<void> {
+  frontOpen.value = open;
+  if (!open || frontFields.value) return;
   try {
     frontFields.value = await api.cardFront();
   } catch {
@@ -206,7 +225,8 @@ async function setFrontField(field: keyof CardFrontFields, enabled: boolean): Pr
     frontFields.value = await api.setCardFront(field, enabled);
     // Swap only the card data: the reveal and the open panel stay as the learner left them.
     const fresh = await api.reviewCard(current.entryId);
-    if (fresh.card?.entryId === current.entryId) state.value = fresh;
+    // A single-card fetch never carries `ahead`; keep the label so the card does not jump.
+    if (fresh.card?.entryId === current.entryId) state.value = { ...fresh, card: { ...fresh.card, ahead: current.ahead } };
   } catch {
     notice.value = "web.common.error";
   } finally {

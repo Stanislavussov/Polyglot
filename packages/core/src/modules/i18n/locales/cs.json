@@ -682,6 +682,7 @@
   "web.review.picked": "Slovo vybrané ze slovníku",
   "web.review.ahead": "Opakování předem — toto slovo ještě není na řadě",
   "web.review.frontSettings": "Co karta ukazuje",
+  "web.review.front.missing": "u tohoto slova není",
   "web.review.front.hint": "Nápověda",
   "web.review.front.synonyms": "Synonyma",
   "web.review.front.example": "Ukázková věta",

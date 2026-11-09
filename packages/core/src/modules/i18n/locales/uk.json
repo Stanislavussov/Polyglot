@@ -682,6 +682,7 @@
   "web.review.picked": "Слово, яке ви обрали в словнику",
   "web.review.ahead": "Повторення наперед — час цього слова ще не настав",
   "web.review.frontSettings": "Що показувати на картці",
+  "web.review.front.missing": "у цього слова немає",
   "web.review.front.hint": "Підказка",
   "web.review.front.synonyms": "Синоніми",
   "web.review.front.example": "Приклад",

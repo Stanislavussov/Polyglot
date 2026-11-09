@@ -682,6 +682,7 @@
   "web.review.picked": "Słowo wybrane ze słownika",
   "web.review.ahead": "Powtórka z wyprzedzeniem — to słowo nie jest jeszcze do powtórki",
   "web.review.frontSettings": "Co pokazuje fiszka",
+  "web.review.front.missing": "brak dla tego słowa",
   "web.review.front.hint": "Podpowiedź",
   "web.review.front.synonyms": "Synonimy",
   "web.review.front.example": "Przykładowe zdanie",

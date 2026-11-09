@@ -682,6 +682,7 @@
   "web.review.picked": "Parola scelta dal tuo dizionario",
   "web.review.ahead": "Ripasso in anticipo: questa parola non è ancora da ripassare",
   "web.review.frontSettings": "Cosa mostra la scheda",
+  "web.review.front.missing": "assente per questa parola",
   "web.review.front.hint": "Suggerimento",
   "web.review.front.synonyms": "Sinonimi",
   "web.review.front.example": "Frase di esempio",

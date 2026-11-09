@@ -682,6 +682,7 @@
   "web.review.picked": "Слово, которое вы выбрали в словаре",
   "web.review.ahead": "Повторение заранее — срок этого слова ещё не наступил",
   "web.review.frontSettings": "Что показывать на карточке",
+  "web.review.front.missing": "нет у этого слова",
   "web.review.front.hint": "Подсказка",
   "web.review.front.synonyms": "Синонимы",
   "web.review.front.example": "Пример",

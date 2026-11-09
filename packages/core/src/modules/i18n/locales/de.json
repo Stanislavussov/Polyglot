@@ -682,6 +682,7 @@
   "web.review.picked": "Wort, das du im Wörterbuch gewählt hast",
   "web.review.ahead": "Vorab üben – dieses Wort ist noch nicht fällig",
   "web.review.frontSettings": "Was die Karte zeigt",
+  "web.review.front.missing": "bei diesem Wort nicht vorhanden",
   "web.review.front.hint": "Erinnerungshilfe",
   "web.review.front.synonyms": "Synonyme",
   "web.review.front.example": "Beispielsatz",

@@ -682,6 +682,7 @@
   "web.review.picked": "Palavra escolhida do seu dicionário",
   "web.review.ahead": "Revisão antecipada — esta palavra ainda não está na hora",
   "web.review.frontSettings": "O que o cartão mostra",
+  "web.review.front.missing": "não há para esta palavra",
   "web.review.front.hint": "Dica",
   "web.review.front.synonyms": "Sinônimos",
   "web.review.front.example": "Frase de exemplo",

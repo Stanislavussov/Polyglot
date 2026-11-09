@@ -682,6 +682,7 @@
   "web.review.picked": "Mot choisi dans votre dictionnaire",
   "web.review.ahead": "Révision en avance — ce mot n'est pas encore à revoir",
   "web.review.frontSettings": "Ce que la carte affiche",
+  "web.review.front.missing": "absent pour ce mot",
   "web.review.front.hint": "Indice",
   "web.review.front.synonyms": "Synonymes",
   "web.review.front.example": "Phrase d'exemple",

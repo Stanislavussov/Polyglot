@@ -1,12 +1,12 @@
 <template>
-  <section class="mx-auto max-w-4xl">
+  <section>
     <p v-if="failed" role="alert" class="rounded-xl bg-danger-soft px-4 py-3 text-sm text-danger">{{ t("web.common.error") }}</p>
     <p v-else-if="!data" class="text-sm text-ink-muted" role="status">{{ t("web.common.loading") }}</p>
     <p v-else-if="!data.enabled" class="card text-center text-ink-muted">{{ t("web.progress.off") }}</p>
     <template v-else>
       <header>
-        <h1 class="text-2xl font-bold tracking-tight">{{ t("web.progress.title") }}</h1>
-        <p class="mt-1 text-base text-ink-muted">{{ data.phrase }}</p>
+        <h1 class="page-title">{{ t("web.progress.title") }}</h1>
+        <p class="mt-3 text-base text-ink-muted">{{ data.phrase }}</p>
       </header>
 
       <p v-if="data.recovery" role="status" class="mt-4 rounded-xl bg-primary-soft px-4 py-3 text-sm text-primary-soft-fg">{{ data.recovery }}</p>
@@ -75,9 +75,9 @@
         </article>
       </div>
 
-      <div v-if="m.words > 0" class="mt-4 grid gap-4 md:grid-cols-[1fr_1.4fr]">
+      <div v-if="m.words > 0" :class="['mt-4 grid gap-4', ladder && 'lg:grid-cols-[1fr_1.4fr]']">
         <!-- Today: one ring, one number, one button. -->
-        <article class="card flex items-center gap-5">
+        <article class="card flex flex-wrap items-center gap-5">
           <div class="relative h-24 w-24 shrink-0">
             <svg class="h-full w-full -rotate-90" viewBox="0 0 36 36" aria-hidden="true">
               <circle cx="18" cy="18" r="15.5" fill="none" stroke-width="3.5" class="stroke-surface-muted" />
@@ -88,12 +88,12 @@
             </svg>
             <span class="absolute inset-0 flex items-center justify-center text-lg font-bold">{{ Math.round(todayShare * 100) }}%</span>
           </div>
-          <div class="min-w-0 flex-1 space-y-2">
+          <div class="min-w-[13rem] flex-1 space-y-2">
             <h2 class="text-sm font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.progress.today") }}</h2>
             <p class="text-base font-semibold">
               {{ ladder?.day.done ? t("web.progress.todayDone") : ladder ? t("web.progress.todayOf", ladder.day) : t("web.progress.dueCount", { count: m.due }) }}
             </p>
-            <a href="/review/" class="btn-primary max-w-full whitespace-normal text-center">{{ m.due > 0 ? t("web.progress.dueCount", { count: m.due }) : data.reviewLabel }}</a>
+            <a href="/review/" class="btn-primary max-w-full whitespace-normal text-center [overflow-wrap:normal]">{{ m.due > 0 ? t("web.progress.dueCount", { count: m.due }) : data.reviewLabel }}</a>
           </div>
         </article>
 
@@ -139,7 +139,7 @@
         </article>
       </div>
 
-      <dl v-if="m.words > 0" class="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4 max-md:[&>*:last-child:nth-child(odd)]:col-span-2">
+      <dl v-if="m.words > 0" class="mt-4 grid grid-cols-2 gap-3 md:auto-cols-fr md:grid-flow-col md:grid-cols-none max-md:[&>*:last-child:nth-child(odd)]:col-span-2">
         <div v-for="stat in stats" :key="stat.label" class="card">
           <dd class="text-2xl font-bold tracking-tight">{{ stat.value }}</dd>
           <dt class="mt-1 text-sm text-ink-muted">{{ stat.label }}</dt>

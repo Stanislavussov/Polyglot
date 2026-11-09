@@ -682,6 +682,7 @@
   "web.review.picked": "Palabra elegida de tu diccionario",
   "web.review.ahead": "Repaso por adelantado: esta palabra todavía no toca",
   "web.review.frontSettings": "Qué muestra la tarjeta",
+  "web.review.front.missing": "no hay para esta palabra",
   "web.review.front.hint": "Pista",
   "web.review.front.synonyms": "Sinónimos",
   "web.review.front.example": "Frase de ejemplo",

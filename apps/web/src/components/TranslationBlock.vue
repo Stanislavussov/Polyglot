@@ -3,7 +3,7 @@
     <p class="text-sm text-ink-muted">
       <span aria-hidden="true">{{ languageFlag(translation.lang) }}</span> {{ languageName(translation.lang) }}
     </p>
-    <div class="mt-1 flex items-start justify-between gap-3">
+    <div class="mt-1 flex items-center justify-between gap-3">
       <p class="min-w-0 break-words text-lg font-semibold text-primary">
         {{ translation.text }}
         <span v-if="translation.expressionType" class="ml-2 inline-block rounded-full bg-primary-soft px-2 py-0.5 align-middle text-xs font-medium text-primary-soft-fg">
