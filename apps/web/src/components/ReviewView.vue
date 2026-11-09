@@ -54,18 +54,21 @@
                   v-for="field in frontFieldKeys"
                   v-else
                   :key="field"
-                  class="flex min-h-12 cursor-pointer items-center gap-3 rounded-xl px-3 py-2 text-base hover:bg-surface-muted"
+                  :class="[
+                    'flex min-h-12 items-center gap-3 rounded-xl px-3 py-2 text-base',
+                    frontHas(field) ? 'cursor-pointer hover:bg-surface-muted' : 'cursor-not-allowed opacity-50',
+                  ]"
                 >
                   <input
                     type="checkbox"
                     class="size-5 shrink-0 accent-primary"
-                    :checked="frontFields[field]"
-                    :disabled="frontBusy"
+                    :checked="frontFields[field] && frontHas(field)"
+                    :disabled="frontBusy || !frontHas(field)"
                     @change="setFrontField(field, ($event.target as HTMLInputElement).checked)"
                   />
                   <span class="flex min-w-0 flex-1 flex-col">
                     {{ t(`web.review.front.${field}`) }}
-                    <span v-if="frontFields[field] && !frontHas(field)" class="text-sm text-ink-muted">{{ t("web.review.front.missing") }}</span>
+                    <span v-if="!frontHas(field)" class="text-sm text-ink-muted">{{ t("web.review.front.missing") }}</span>
                   </span>
                 </label>
               </PopoverContent>
@@ -200,11 +203,9 @@ const frontOpen = ref(false);
 const frontFields = ref<CardFrontFields | null>(null);
 const frontBusy = ref(false);
 
-// An enabled field the word has no data for changes nothing on the card; say so instead of looking broken.
+// An aid this word does not have would change nothing on the card, so it is disabled rather than looking broken.
 function frontHas(field: keyof CardFrontFields): boolean {
-  const front = card.value?.front;
-  if (!front) return false;
-  return field === "synonyms" ? front.synonyms.length > 0 : Boolean(front[field]);
+  return card.value?.front.available[field] ?? false;
 }
 
 async function setFrontPanel(open: boolean): Promise<void> {

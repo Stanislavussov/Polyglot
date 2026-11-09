@@ -224,7 +224,13 @@ export interface ReviewCard {
   /** Not due yet: practised ahead because nothing is due. */
   ahead: boolean;
   /** What the hidden-answer side shows, per the learner's card settings. */
-  front: { headword: string; synonyms: string[]; example: string | null; hint: string | null };
+  front: {
+    headword: string;
+    synonyms: string[];
+    example: string | null;
+    hint: string | null;
+    available: Record<keyof CardFrontFields, boolean>;
+  };
   detail: EntryDetail;
   audio: CardAudio;
 }

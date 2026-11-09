@@ -1,6 +1,6 @@
 <template>
   <div class="mt-4 space-y-3">
-    <div class="flex flex-wrap items-center gap-2">
+    <div class="flex flex-wrap items-center gap-3">
       <label class="sr-only" for="dictionary-switch">{{ t("web.dictionaries.label") }}</label>
       <select
         id="dictionary-switch"

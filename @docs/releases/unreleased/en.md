@@ -53,3 +53,4 @@
 - Language flags on the website are now crisp icons instead of emoji, and text on word cards uses one even, comfortable size.
 - The language line on a website translation is cleaner: the source language sits in a soft pill and the target languages show as a small row of round flags.
 - Text across the website now follows one calm, larger scale, so captions, examples and headings no longer jump between sizes.
+- In the website dictionary on a phone, the search box is now big and full width with Filters and Sort right under it, and the review card settings grey out the aids a word doesn't have.
