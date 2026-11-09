@@ -1,6 +1,8 @@
 /**
  * Notification Repository Port.
  */
+import type { NotificationChannel } from "./push-subscription.repository.js";
+
 export type NotificationType = "srs" | "suggested" | "contextual" | "expressions";
 
 export interface NotificationUser {
@@ -60,6 +62,7 @@ export interface NotificationRepository {
       notificationType?: NotificationType;
       notificationContext?: string | null;
       notificationBatchSize?: number;
+      notificationChannel?: NotificationChannel;
     },
   ): Promise<void>;
 }

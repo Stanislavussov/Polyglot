@@ -82,10 +82,11 @@ async function buildNotifSubScreen(ctx: BotContext): Promise<{ text: string; key
   const timezone = settings?.timezone ?? "UTC";
   const notifContext = settings?.notificationContext ?? null;
   const batchSize = settings?.notificationBatchSize ?? DEFAULT_NOTIFICATION_BATCH_SIZE;
+  const channel = settings?.notificationChannel ?? "bot";
 
   return {
-    text: buildNotifSubText(lang, notifEnabled, notifTimes, notifType, timezone, notifContext, batchSize),
-    keyboard: buildNotifSubKeyboard(lang, notifEnabled, notifType),
+    text: buildNotifSubText(lang, notifEnabled, notifTimes, notifType, timezone, notifContext, batchSize, channel),
+    keyboard: buildNotifSubKeyboard(lang, notifEnabled, notifType, channel),
   };
 }
 
@@ -618,6 +619,15 @@ export async function handleNotifContextTextInput(ctx: BotContext): Promise<void
 
   const lang = await getLang(ctx);
   await ctx.reply(t("settingsNotifContextSaved", lang, { context: text }), { parse_mode: "HTML" });
+  await showNotifSubMenu(ctx);
+}
+
+/** set:notif:channel:bot — deliver to Telegram again instead of the web app */
+export async function handleSetNotifChannelBotCallback(ctx: BotContext): Promise<void> {
+  await ctx.services.notificationRepository.updatePrefs(ctx.user.id, { notificationChannel: "bot" });
+  logEvent("settings.notification_channel_changed", { to: "bot", via: "bot" });
+  const lang = await getLang(ctx);
+  await ctx.answerCallbackQuery({ text: t("settingsNotifChannelToBot", lang) });
   await showNotifSubMenu(ctx);
 }
 

@@ -149,6 +149,7 @@ import {
   handleSetNotifBatchCallback,
   handleSetNotifBatchSelectCallback,
   handleSetNotifCallback,
+  handleSetNotifChannelBotCallback,
   handleSetNotifContextCallback,
   handleSetNotifContextCancelCallback,
   handleSetNotifTimeCallback,
@@ -516,6 +517,7 @@ export function createPolyglotBot(options: CreatePolyglotBotOptions): Bot<BotCon
   onCallback("set:notif:context", handleSetNotifContextCallback);
   onCallback("set:notif:context:cancel", handleSetNotifContextCancelCallback);
   onCallback("set:notif:back", handleSetNotifBackCallback);
+  onCallback("set:notif:channel:bot", handleSetNotifChannelBotCallback);
   onCallback("set:tpls", handleSetTemplatesCallback);
   onCallback("set:tpl", handleSetTemplateCallback);
   onCallback(CARD_TEMPLATE_PATTERN, handleSetCardCallback);

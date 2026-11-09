@@ -1,4 +1,5 @@
 import { createHash, createHmac } from "node:crypto";
+import { pushSubscriptionRepository } from "@polyglot/adapter-db";
 import type { FastifyInstance } from "fastify";
 import {
   type BotHarness,
@@ -11,6 +12,7 @@ import type { WebApiConfig } from "../config.js";
 export const WEB_ORIGIN = "http://learn.test";
 const BOT_TOKEN = "424242:web-harness-token";
 const NOW = 1_800_000_000;
+export const HARNESS_VAPID_PUBLIC_KEY = "harness-vapid-public-key";
 
 /**
  * The web app and the bot over ONE service container: the bot harness's real
@@ -51,8 +53,11 @@ export async function createWebHarness(options: HarnessOptions = {}): Promise<We
     staticDir: null,
     devUserId: null,
     botUsername: "harness_bot",
+    vapidPublicKey: HARNESS_VAPID_PUBLIC_KEY,
   };
-  const app = await buildWebApiApp(bot.services, config, { now: () => NOW });
+  // The same object, not a spread copy: tests swap services on `web.bot.services` after start.
+  const services = Object.assign(bot.services, { pushSubscriptionRepository });
+  const app = await buildWebApiApp(services, config, { now: () => NOW });
 
   const call: WebHarness["call"] = async (cookie, method, url, payload) => {
     const res = await app.inject({

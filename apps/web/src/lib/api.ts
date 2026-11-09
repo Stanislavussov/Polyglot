@@ -14,6 +14,7 @@ import type {
   PlanInfo,
   Progress,
   ProgressGoal,
+  PushSubscriptionBody,
   Rating,
   ReviewState,
   Settings,
@@ -95,6 +96,7 @@ export const api = {
   settings: () => request<Settings>("GET", "/settings"),
   updateSettings: (patch: SettingsPatch) => request<Settings>("PATCH", "/settings", patch),
   updateNotifications: (patch: NotificationPatch) => request<Settings>("PATCH", "/settings/notifications", patch),
+  pushSubscribe: (body: PushSubscriptionBody) => request<Settings>("POST", "/push/subscribe", body),
   cardFront: () => request<CardFrontFields>("GET", "/settings/card"),
   setCardFront: (field: keyof CardFrontFields, enabled: boolean) =>
     request<CardFrontFields>("PATCH", "/settings/card", { field, enabled }),

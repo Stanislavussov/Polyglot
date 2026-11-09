@@ -9,6 +9,7 @@ import {
   MAX_NOTIFICATION_TIMES,
   NOTIFICATION_BATCH_SIZES,
   NOTIFICATION_TYPES,
+  type NotificationChannel,
   parseNotificationMinutes,
   validateLanguageSettings,
 } from "@polyglot/core";
@@ -35,6 +36,7 @@ const notificationPatchSchema = z
     batchSize: z.number().int().refine(isNotificationBatchSize).optional(),
     timezone: z.string().min(1).max(64).optional(),
     context: z.string().trim().max(500).nullable().optional(),
+    channel: z.enum(["bot", "web"] as const satisfies readonly NotificationChannel[]).optional(),
   })
   .strict();
 
@@ -54,7 +56,7 @@ function isValidTimezone(timezone: string): boolean {
   }
 }
 
-async function readSettings(services: WebServices, userId: number) {
+export async function readSettings(services: WebServices, userId: number, vapidPublicKey: string | null) {
   const settings = await services.userRepository.getSettings(userId);
   const cache = services.languageCache;
   const display = settings?.interfaceLang ?? "en";
@@ -76,13 +78,15 @@ async function readSettings(services: WebServices, userId: number) {
       batchSize: settings?.notificationBatchSize ?? DEFAULT_NOTIFICATION_BATCH_SIZE,
       timezone: settings?.timezone || "UTC",
       context: settings?.notificationContext ?? null,
+      channel: settings?.notificationChannel ?? "bot",
+      pushPublicKey: vapidPublicKey,
       options: { types: NOTIFICATION_TYPES, batchSizes: NOTIFICATION_BATCH_SIZES, maxTimes: MAX_NOTIFICATION_TIMES },
     },
   };
 }
 
-export function settingsRoutes(app: FastifyInstance, services: WebServices): void {
-  app.get("/api/settings", async (request) => readSettings(services, request.learner.id));
+export function settingsRoutes(app: FastifyInstance, services: WebServices, vapidPublicKey: string | null): void {
+  app.get("/api/settings", async (request) => readSettings(services, request.learner.id, vapidPublicKey));
 
   // Writes go through the same repository the bot's settings scene uses, so the
   // bot reads the change on its next `getSettings(userId)`.
@@ -107,13 +111,13 @@ export function settingsRoutes(app: FastifyInstance, services: WebServices): voi
         nativeLang: patch.nativeLang ?? "en",
         learningLangs: patch.learningLangs ?? [],
       });
-      return readSettings(services, userId);
+      return readSettings(services, userId, vapidPublicKey);
     }
     if (patch.interfaceLang !== undefined)
       await services.userRepository.updateInterfaceLang(userId, patch.interfaceLang);
     if (patch.nativeLang !== undefined) await services.userRepository.updateNativeLang(userId, patch.nativeLang);
     if (patch.learningLangs) await services.userRepository.updateLearningLangs(userId, patch.learningLangs);
-    return readSettings(services, userId);
+    return readSettings(services, userId, vapidPublicKey);
   });
 
   // The bot's card-settings toggles (handleSetCardToggleCallback): one aid at a time, same repository.
@@ -125,7 +129,7 @@ export function settingsRoutes(app: FastifyInstance, services: WebServices): voi
     return services.cardTemplateRepository.setField(request.learner.id, parsed.data.field, parsed.data.enabled);
   });
 
-  // Only the preferences change here; delivery stays in Telegram, run by the bot's scheduler.
+  // Only the preferences change here; the bot's scheduler delivers, to Telegram or to the web app's pushes.
   app.patch("/api/settings/notifications", async (request, reply) => {
     const parsed = notificationPatchSchema.safeParse(request.body);
     if (!parsed.success) return reply.status(400).send({ code: "invalid_settings" });
@@ -134,6 +138,13 @@ export function settingsRoutes(app: FastifyInstance, services: WebServices): voi
       return reply.status(400).send({ code: "invalid_settings" });
     }
     const userId = request.learner.id;
+    // The web channel without a live subscription would deliver to nobody.
+    if (
+      patch.channel === "web" &&
+      (!vapidPublicKey || (await services.pushSubscriptionRepository.countForUser(userId)) === 0)
+    ) {
+      return reply.status(409).send({ code: "no_push_subscription" });
+    }
     const current = await services.userRepository.getSettings(userId);
 
     const times = patch.times
@@ -156,6 +167,7 @@ export function settingsRoutes(app: FastifyInstance, services: WebServices): voi
       ...(patch.type !== undefined ? { notificationType: patch.type } : {}),
       ...(patch.batchSize !== undefined ? { notificationBatchSize: patch.batchSize } : {}),
       ...(patch.context !== undefined ? { notificationContext: patch.context || null } : {}),
+      ...(patch.channel !== undefined ? { notificationChannel: patch.channel } : {}),
     };
     if (Object.keys(prefs).length > 0) await services.notificationRepository.updatePrefs(userId, prefs);
     if (patch.timezone !== undefined) {
@@ -167,6 +179,6 @@ export function settingsRoutes(app: FastifyInstance, services: WebServices): voi
         activeMode: current?.activeMode ?? "translate",
       });
     }
-    return readSettings(services, userId);
+    return readSettings(services, userId, vapidPublicKey);
   });
 }

@@ -20,6 +20,10 @@ services:
       - RELEASE_AUDIENCE_GROUPS=${RELEASE_AUDIENCE_GROUPS:-}
       # "on" only on the dev stack (deploy.yml): the mock checkout grants paid plans for free.
       - MOCK_PAYMENTS=${MOCK_PAYMENTS:-off}
+      # Web Push (VAPID). Empty = notifications stay in Telegram only.
+      - VAPID_PUBLIC_KEY=${VAPID_PUBLIC_KEY:-}
+      - VAPID_PRIVATE_KEY=${VAPID_PRIVATE_KEY:-}
+      - VAPID_SUBJECT=${VAPID_SUBJECT:-}
     ports:
       - "127.0.0.1:${METRICS_PORT:-9090}:9090"
     # Healthcheck is baked into the image (deploy/Dockerfile HEALTHCHECK), single
@@ -110,6 +114,8 @@ services:
       - WEB_JWT_SECRET=${WEB_JWT_SECRET:-}
       - WEB_APP_ORIGIN=${WEB_APP_ORIGIN:-}
       - WEB_BOT_USERNAME=${WEB_BOT_USERNAME:-}
+      # Only the public key: web-api hands it to the browser; the bot signs the pushes.
+      - VAPID_PUBLIC_KEY=${VAPID_PUBLIC_KEY:-}
       - WEB_API_PORT=3002
     ports:
       - "127.0.0.1:${WEB_API_HOST_PORT:-3002}:3002"

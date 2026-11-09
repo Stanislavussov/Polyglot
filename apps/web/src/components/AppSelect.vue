@@ -2,7 +2,7 @@
   <SelectRoot :model-value="modelValue" :disabled="disabled" @update:model-value="onPick">
     <SelectTrigger
       :id="id"
-      class="field flex items-center justify-between gap-3 text-left data-[placeholder]:text-ink-muted disabled:opacity-60"
+      class="field flex items-center justify-between gap-3 text-left focus:border-primary focus:outline-none focus:ring-[3px] focus:ring-ring data-[placeholder]:text-ink-muted data-[disabled]:opacity-60"
     >
       <span class="flex min-w-0 items-center gap-2.5">
         <LangFlag v-if="selected?.lang" :code="selected.lang" />
@@ -15,7 +15,7 @@
         position="popper"
         :side-offset="6"
         :collision-padding="16"
-        class="z-50 max-h-[min(22rem,var(--reka-select-content-available-height))] w-[var(--reka-select-trigger-width)] overflow-hidden rounded-2xl border border-line bg-surface p-1.5 shadow-xl"
+        class="select-content z-50 max-h-[min(22rem,var(--reka-select-content-available-height))] w-[var(--reka-select-trigger-width)] overflow-hidden rounded-2xl border border-line bg-surface p-1.5 shadow-xl"
       >
         <SelectViewport>
           <SelectItem
@@ -72,3 +72,17 @@ function onPick(value: unknown): void {
   if (match) emit("update:modelValue", match.value);
 }
 </script>
+
+<style>
+/* Not scoped: the list is portalled to <body>. */
+.select-content[data-state="open"] {
+  animation: select-in 140ms ease-out;
+}
+@keyframes select-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .select-content { animation: none !important; }
+}
+</style>

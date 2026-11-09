@@ -59,3 +59,7 @@
 - The dictionary icon picker on the website now offers about 300 emoji in 11 groups, with a quick jump bar between them.
 - On the website, Save is now a neat bookmark icon; if you have several dictionaries it asks which one to save the word to.
 - The website has a fresh teal colour scheme that matches the owl logo.
+- Every drop-down list on the website — languages, reminders, time zone, dictionaries — now opens as a neat menu that looks the same on phone and computer.
+- Have several dictionaries? The 💾 Save button on the website now asks which one the word goes to.
+- The 🔊 button on website review cards is now a tidy round icon, right next to the word.
+- Added Polyglot to your phone's home screen? Your reminders can now arrive right there as app notifications instead of in Telegram — choose where in Settings, and switch back any time.

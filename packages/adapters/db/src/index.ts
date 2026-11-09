@@ -101,6 +101,7 @@ export type {
 } from "./repositories/product-event.repository.js";
 export { productEventRepository } from "./repositories/product-event.repository.js";
 export { progressRepository } from "./repositories/progress.repository.js";
+export { pushSubscriptionRepository } from "./repositories/push-subscription.repository.js";
 export type { RateLimitPlan } from "./repositories/rate-limit-plan.repository.js";
 export { rateLimitPlanRepository } from "./repositories/rate-limit-plan.repository.js";
 export type {
