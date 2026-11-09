@@ -19,9 +19,28 @@ describe("rate limit", () => {
       staticDir: dir,
       devUserId: null,
       botUsername: "test_bot",
+      vapidPublicKey: null,
     });
     const statuses = new Set<number>();
     for (let i = 0; i < 150; i++) statuses.add((await app.inject({ url: "/app.js" })).statusCode);
     expect([...statuses]).toEqual([200]);
+  });
+
+  it("serves the service worker uncached, so a new push handler reaches installed apps", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "static-"));
+    writeFileSync(join(dir, "sw.js"), "1");
+    const app = await buildWebApiApp({} as WebServices, {
+      port: 0,
+      host: "127.0.0.1",
+      production: false,
+      botToken: "1:x",
+      jwtSecret: "s".repeat(32),
+      appOrigin: "http://x",
+      staticDir: dir,
+      devUserId: null,
+      botUsername: "test_bot",
+      vapidPublicKey: null,
+    });
+    expect((await app.inject({ url: "/sw.js" })).headers["cache-control"]).toBe("no-cache");
   });
 });

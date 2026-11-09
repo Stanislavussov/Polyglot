@@ -232,6 +232,13 @@ describe("buildNotifSubText", () => {
     expect(text).not.toContain("Cards per notification");
   });
 
+  it("names where notifications are delivered", () => {
+    expect(buildNotifSubText("en", true, ["08:00"], "srs", "UTC", null)).toContain("Notifications go to — Telegram");
+    expect(buildNotifSubText("en", true, ["08:00"], "srs", "UTC", null, 1, "web")).toContain(
+      "Notifications go to — the web app",
+    );
+  });
+
   it("shows how many cards one notification brings", () => {
     const text = buildNotifSubText("en", true, ["08:00"], "srs", "UTC", null, 5);
     expect(text).toContain("Cards per notification — 5");
@@ -269,6 +276,15 @@ describe("buildNotifSubKeyboard", () => {
       .map((button) => ("callback_data" in button ? button.callback_data : undefined));
     expect(callbacks).not.toContain("set:notif:batch");
     expect(callbacks).not.toContain("set:notif:context");
+  });
+
+  it("offers the way back to Telegram only while notifications go to the web app", () => {
+    const callbacksFor = (channel: "bot" | "web") =>
+      buildNotifSubKeyboard("en", true, "srs", channel)
+        .inline_keyboard.flat()
+        .map((button) => ("callback_data" in button ? button.callback_data : undefined));
+    expect(callbacksFor("web")).toContain("set:notif:channel:bot");
+    expect(callbacksFor("bot")).not.toContain("set:notif:channel:bot");
   });
 
   it("hides settings buttons when disabled", () => {

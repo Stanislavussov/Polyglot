@@ -16,6 +16,7 @@ import { mentorChatRoutes } from "./routes/mentor-chat.js";
 import { onboardingRoutes } from "./routes/onboarding.js";
 import { planRoutes } from "./routes/plan.js";
 import { progressRoutes } from "./routes/progress.js";
+import { pushRoutes } from "./routes/push.js";
 import { reportRoutes } from "./routes/report.js";
 import { reviewRoutes } from "./routes/review.js";
 import { settingsRoutes } from "./routes/settings.js";
@@ -69,8 +70,10 @@ export async function buildWebApiApp(
   });
 
   const csp = contentSecurityPolicy(config.staticDir ? inlineScriptHashes(config.staticDir) : []);
-  app.addHook("onSend", async (_request, reply) => {
+  app.addHook("onSend", async (request, reply) => {
     reply.header("content-security-policy", csp);
+    // A cached service worker keeps an old push handler alive; the browser must revalidate it every time.
+    if (request.url === "/sw.js") reply.header("cache-control", "no-cache");
     reply.header("x-content-type-options", "nosniff");
     reply.header("referrer-policy", "same-origin");
   });
@@ -91,7 +94,8 @@ export async function buildWebApiApp(
 
   authRoutes(app, services, config, options.now);
   meRoutes(app, services);
-  settingsRoutes(app, services);
+  settingsRoutes(app, services, config.vapidPublicKey);
+  pushRoutes(app, services, config.vapidPublicKey);
   dictionaryRoutes(app, services);
   translateRoutes(app, services, config.jwtSecret);
   reviewRoutes(app, services);

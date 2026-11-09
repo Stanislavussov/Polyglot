@@ -11,6 +11,25 @@
     </label>
 
     <template v-if="notif.enabled">
+      <fieldset v-if="notif.pushPublicKey">
+        <legend class="mb-2 text-sm font-medium">{{ t("web.notif.channel") }}</legend>
+        <div class="grid grid-cols-2 gap-2 sm:max-w-sm">
+          <button
+            v-for="channel in CHANNELS"
+            :key="channel"
+            type="button"
+            :aria-pressed="notif.channel === channel"
+            :disabled="saving || (channel === 'web' && !appCanNotify)"
+            class="min-h-11 rounded-xl border border-line px-3 text-sm aria-pressed:border-primary aria-pressed:bg-primary-soft aria-pressed:text-primary-soft-fg disabled:opacity-50"
+            @click="chooseChannel(channel)"
+          >
+            {{ t(`web.notif.channel.${channel}`) }}
+          </button>
+        </div>
+        <p v-if="!appCanNotify" class="mt-2 text-xs text-ink-muted">{{ t("web.notif.channelInstallHint") }}</p>
+        <p v-else-if="permissionDenied" class="mt-2 text-xs text-ink-muted">{{ t("web.notif.channelDenied") }}</p>
+      </fieldset>
+
       <fieldset>
         <legend class="mb-1 text-sm font-medium">{{ t("web.notif.times") }}</legend>
         <p class="mb-2 text-xs text-ink-muted">{{ t("web.notif.timesHint", { max: notif.options.maxTimes }) }}</p>
@@ -62,7 +81,8 @@ import { computed, ref } from "vue";
 import { t } from "../lib/i18n";
 import { saveNotifications, settings } from "../lib/settings-store";
 import AppSelect from "./AppSelect.vue";
-import type { NotificationPatch, NotificationType } from "../lib/types";
+import { dismissOffer, isStandalone, pushPermission, pushSupported, subscribeThisDevice } from "../lib/push";
+import type { NotificationChannel, NotificationPatch, NotificationType } from "../lib/types";
 
 // The bot's grid: every half hour of the day.
 const SLOTS = Array.from({ length: 48 }, (_, slot) => {
@@ -71,6 +91,34 @@ const SLOTS = Array.from({ length: 48 }, (_, slot) => {
 });
 
 const notif = computed(() => settings.value?.notifications ?? null);
+
+const CHANNELS: NotificationChannel[] = ["bot", "web"];
+// Only an app opened from the home screen can receive pushes on iOS, so a browser tab never offers it.
+const appCanNotify = isStandalone() && pushSupported();
+const permissionDenied = ref(appCanNotify && pushPermission() === "denied");
+
+async function chooseChannel(channel: NotificationChannel): Promise<void> {
+  if (channel === notif.value?.channel) return;
+  if (channel === "bot") {
+    dismissOffer();
+    return save({ channel });
+  }
+  const key = notif.value?.pushPublicKey;
+  if (!key) return;
+  saving.value = true;
+  failed.value = false;
+  try {
+    const subscribed = await subscribeThisDevice(key, false);
+    permissionDenied.value = !subscribed;
+    if (!subscribed) return;
+  } catch {
+    failed.value = true;
+    return;
+  } finally {
+    saving.value = false;
+  }
+  await save({ channel });
+}
 const context = ref(notif.value?.context ?? "");
 const saving = ref(false);
 const saved = ref(false);

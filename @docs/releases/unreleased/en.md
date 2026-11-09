@@ -50,3 +50,4 @@
 - Every drop-down list on the website — languages, reminders, time zone, dictionaries — now opens as a neat menu that looks the same on phone and computer.
 - Have several dictionaries? The 💾 Save button on the website now asks which one the word goes to.
 - The 🔊 button on website review cards is now a tidy round icon, right next to the word.
+- Added Polyglot to your phone's home screen? Your reminders can now arrive right there as app notifications instead of in Telegram — choose where in Settings, and switch back any time.

@@ -1,3 +1,4 @@
+import type { NotificationChannel } from "./push-subscription.repository.js";
 export type SubscriptionPlan = string;
 export type AudienceGroup = "admin" | "tester" | "product";
 
@@ -41,6 +42,8 @@ export interface UserLanguageSettings {
   notificationType: string;
   notificationContext: string | null;
   notificationBatchSize: number;
+  /** Absent only in hand-built fixtures; every stored row has one ('bot' by default). */
+  notificationChannel?: NotificationChannel;
   lastInteractionAt: Date | null;
   /** Last re-engagement ping of the current lapse episode; NULL once the user returns. */
   lastReengagementAt: Date | null;
