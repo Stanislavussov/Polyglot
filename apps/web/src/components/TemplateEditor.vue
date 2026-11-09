@@ -15,7 +15,7 @@
           :key="key"
           class="flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border border-line px-3 py-2 text-sm has-[:checked]:border-primary has-[:checked]:bg-primary-soft"
         >
-          <input v-model="fields[key]" type="checkbox" class="size-4 accent-primary" @change="refreshPreview" />
+          <input v-model="fields[key]" type="checkbox" class="size-5 shrink-0 accent-primary" @change="refreshPreview" />
           {{ t(`web.template.field.${key}`) }}
         </label>
       </div>

@@ -5,6 +5,11 @@ const config: Config = {
   content: ["./src/**/*.{astro,html,js,ts,vue}"],
   theme: {
     extend: {
+      // One step above Tailwind's 12/14px: examples, meanings and captions read too small on phones.
+      fontSize: {
+        xs: ["0.8125rem", { lineHeight: "1.25rem" }],
+        sm: ["0.9375rem", { lineHeight: "1.375rem" }],
+      },
       colors: {
         canvas: "var(--color-canvas)",
         surface: { DEFAULT: "var(--color-surface)", muted: "var(--color-surface-muted)" },

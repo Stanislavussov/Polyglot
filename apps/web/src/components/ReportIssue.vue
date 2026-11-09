@@ -9,7 +9,7 @@
           :key="option"
           class="flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border border-line px-3 py-2 text-sm has-[:checked]:border-primary has-[:checked]:bg-primary-soft"
         >
-          <input v-model="type" type="radio" name="report-type" class="accent-primary" :value="option" />
+          <input v-model="type" type="radio" name="report-type" class="size-5 accent-primary" :value="option" />
           {{ t(`web.report.type.${option}`) }}
         </label>
       </div>

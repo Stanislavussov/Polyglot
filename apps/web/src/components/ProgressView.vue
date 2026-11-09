@@ -88,12 +88,12 @@
             </svg>
             <span class="absolute inset-0 flex items-center justify-center text-lg font-bold">{{ Math.round(todayShare * 100) }}%</span>
           </div>
-          <div class="min-w-0 space-y-2">
+          <div class="min-w-0 flex-1 space-y-2">
             <h2 class="text-sm font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.progress.today") }}</h2>
             <p class="text-base font-semibold">
               {{ ladder?.day.done ? t("web.progress.todayDone") : ladder ? t("web.progress.todayOf", ladder.day) : t("web.progress.dueCount", { count: m.due }) }}
             </p>
-            <a href="/review/" class="btn-primary">{{ m.due > 0 ? t("web.progress.dueCount", { count: m.due }) : data.reviewLabel }}</a>
+            <a href="/review/" class="btn-primary max-w-full whitespace-normal text-center">{{ m.due > 0 ? t("web.progress.dueCount", { count: m.due }) : data.reviewLabel }}</a>
           </div>
         </article>
 
@@ -139,7 +139,7 @@
         </article>
       </div>
 
-      <dl v-if="m.words > 0" class="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
+      <dl v-if="m.words > 0" class="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4 max-md:[&>*:last-child:nth-child(odd)]:col-span-2">
         <div v-for="stat in stats" :key="stat.label" class="card">
           <dd class="text-2xl font-bold tracking-tight">{{ stat.value }}</dd>
           <dt class="mt-1 text-sm text-ink-muted">{{ stat.label }}</dt>

@@ -9,9 +9,9 @@
 
     <template v-else>
       <div class="flex items-start justify-between gap-2">
-        <p class="min-w-0 break-words font-semibold">
+        <p class="min-w-0 break-words text-lg font-semibold">
           <span v-if="item.emoji" class="mr-2" aria-hidden="true">{{ item.emoji }}</span>{{ item.original }}
-          <span class="ml-1 text-xs font-normal text-ink-muted">{{ languageFlag(item.sourceLang) }} {{ languageName(item.sourceLang) }}</span>
+          <span class="ml-1 text-sm font-normal text-ink-muted">{{ languageFlag(item.sourceLang) }} {{ languageName(item.sourceLang) }}</span>
         </p>
         <button
           type="button"
@@ -23,7 +23,7 @@
           <Maximize2 class="size-4" aria-hidden="true" />
         </button>
       </div>
-      <ul class="mt-2 space-y-1 text-sm">
+      <ul class="mt-2 space-y-1 text-base">
         <li v-for="translation in ordered" :key="translation.lang" class="break-words">
           <span class="text-ink-muted">{{ languageFlag(translation.lang) }}</span> {{ translation.text }}
         </li>

@@ -28,7 +28,7 @@
             :key="language.code"
             class="flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border border-line px-3 py-2 text-sm has-[:checked]:border-primary has-[:checked]:bg-primary-soft"
           >
-            <input v-model="learningLangs" type="checkbox" class="size-4 accent-primary" :value="language.code" />
+            <input v-model="learningLangs" type="checkbox" class="size-5 shrink-0 accent-primary" :value="language.code" />
             {{ language.flag }} {{ language.name }}
           </label>
         </div>

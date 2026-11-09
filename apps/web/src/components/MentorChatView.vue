@@ -1,6 +1,6 @@
 <template>
   <section class="space-y-4">
-    <a href="/learn/" class="text-sm text-ink-muted hover:underline">{{ t("web.learn.back") }}</a>
+    <a href="/learn/" class="-my-2 inline-flex min-h-11 items-center text-sm text-ink-muted hover:underline">{{ t("web.learn.back") }}</a>
     <div class="flex items-center justify-between gap-3">
       <h1 class="text-2xl font-bold tracking-tight">🧑‍🏫 {{ t("web.learn.mentor") }}</h1>
       <button type="button" class="btn-secondary" :disabled="busy || current.turns.length === 0" @click="startNew">

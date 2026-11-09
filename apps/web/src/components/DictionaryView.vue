@@ -75,7 +75,7 @@
         type="button"
         :aria-pressed="filters.lang === option.code"
         :class="[
-          'inline-flex min-h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 text-sm font-medium transition-colors',
+          'inline-flex min-h-10 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 text-sm font-medium transition-colors',
           filters.lang === option.code ? 'border-primary bg-primary text-primary-fg' : 'border-line bg-surface text-ink hover:bg-surface-muted',
         ]"
         @click="setFilter('lang', option.code)"
@@ -88,7 +88,7 @@
       <li v-for="chip in activeChips" :key="chip.key">
         <button
           type="button"
-          class="inline-flex min-h-9 items-center gap-1.5 rounded-full bg-primary-soft px-3 text-sm font-medium text-primary-soft-fg hover:opacity-80"
+          class="inline-flex min-h-10 items-center gap-1.5 rounded-full bg-primary-soft px-3 text-sm font-medium text-primary-soft-fg hover:opacity-80"
           :aria-label="t('web.dictionary.removeFilter', { filter: chip.label })"
           @click="setFilter(chip.key, '')"
         >

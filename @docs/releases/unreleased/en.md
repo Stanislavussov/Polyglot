@@ -47,3 +47,4 @@
 - Word meanings and mentor chat messages on the website now use a larger, easier-to-read font.
 - The Progress page on the website is redesigned: you see at a glance what is going well, what to work on next and how close your gift is.
 - On a website review card, tap ⚙️ to choose whether it shows a hint, synonyms or an example sentence — the card changes right away.
+- Text across the website is a little larger, so examples, meanings and captions are easier to read on a phone, a tablet and a computer.

@@ -1,6 +1,6 @@
 <template>
   <section class="space-y-4">
-    <a href="/learn/" class="text-sm text-ink-muted hover:underline">{{ t("web.learn.back") }}</a>
+    <a href="/learn/" class="-my-2 inline-flex min-h-11 items-center text-sm text-ink-muted hover:underline">{{ t("web.learn.back") }}</a>
     <h1 class="text-2xl font-bold tracking-tight">🎬 {{ t("web.learn.videos") }}</h1>
 
     <form class="flex flex-col gap-2 sm:flex-row" @submit.prevent="submit({ url: url.trim() })">
@@ -67,7 +67,7 @@
         <p class="text-sm">{{ t("web.learn.videos.tryThese") }}</p>
         <ul class="space-y-1">
           <li v-for="suggestion in listing.suggestions" :key="`${suggestion.lang}:${suggestion.index}`">
-            <button type="button" class="w-full rounded-lg px-3 py-2 text-left text-sm hover:bg-surface-muted" :disabled="busy" @click="submit({ suggestion })">
+            <button type="button" class="min-h-11 w-full rounded-lg px-3 py-2 text-left text-sm hover:bg-surface-muted" :disabled="busy" @click="submit({ suggestion })">
               {{ suggestion.flag }} {{ suggestion.title }}
             </button>
           </li>

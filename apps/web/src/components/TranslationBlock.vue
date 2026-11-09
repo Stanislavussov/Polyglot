@@ -25,7 +25,7 @@
       </div>
     </div>
 
-    <p v-if="translation.equivalentNote" class="mt-2 text-sm text-ink-muted">{{ translation.equivalentNote }}</p>
+    <p v-if="translation.equivalentNote" class="mt-2 text-base text-ink-muted">{{ translation.equivalentNote }}</p>
     <p v-if="translation.connotationWarning" class="mt-2 flex items-start gap-2 rounded-xl bg-warning-soft px-3 py-2 text-sm text-warning-fg">
       <TriangleAlert class="mt-0.5 size-4 shrink-0" aria-hidden="true" />
       {{ translation.connotationWarning }}
@@ -39,7 +39,7 @@
 
     <template v-if="hasMore">
       <div v-if="expanded" :id="moreId" class="mt-3 space-y-3">
-        <p v-if="translation.usageNote" class="text-sm">{{ translation.usageNote }}</p>
+        <p v-if="translation.usageNote" class="text-base">{{ translation.usageNote }}</p>
         <div v-if="translation.alternatives.length > 0">
           <h3 class="text-xs font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.translate.alternatives") }}</h3>
           <ul class="mt-1 flex flex-wrap gap-2">
