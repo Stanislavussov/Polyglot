@@ -26,12 +26,12 @@
       <article class="card mt-6">
         <div class="flex items-baseline justify-between gap-3">
           <h2 class="text-sm font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.progress.rhythm") }}</h2>
-          <span class="text-lg font-bold text-primary">{{ t(`web.progress.band.${m.band}`) }}</span>
+          <span class="text-xl font-bold text-primary">{{ t(`web.progress.band.${m.band}`) }}</span>
         </div>
         <ol class="mt-4 grid grid-cols-4 gap-2">
           <li v-for="(band, index) in BANDS" :key="band" class="min-w-0">
             <span :class="['block h-2.5 rounded-full transition-colors', index <= bandIndex ? 'bg-primary' : 'bg-surface-muted']" />
-            <span :class="['mt-2 block truncate text-xs', index === bandIndex ? 'font-semibold text-ink' : 'text-ink-muted']">
+            <span :class="['mt-2 block truncate text-sm', index === bandIndex ? 'font-semibold text-ink' : 'text-ink-muted']">
               {{ t(`web.progress.band.${band}`) }}
             </span>
           </li>
@@ -86,7 +86,7 @@
                 :stroke-dasharray="`${todayShare * RING} ${RING}`"
               />
             </svg>
-            <span class="absolute inset-0 flex items-center justify-center text-lg font-bold">{{ Math.round(todayShare * 100) }}%</span>
+            <span class="absolute inset-0 flex items-center justify-center text-xl font-bold">{{ Math.round(todayShare * 100) }}%</span>
           </div>
           <div class="min-w-[13rem] flex-1 space-y-2">
             <h2 class="text-sm font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.progress.today") }}</h2>

@@ -4,7 +4,7 @@
     <div class="mt-1 flex items-center justify-between gap-3">
       <p class="min-w-0 break-words text-xl font-semibold text-primary">
         {{ translation.text }}
-        <span v-if="translation.expressionType" class="ml-2 inline-block rounded-full bg-primary-soft px-2 py-0.5 align-middle text-xs font-medium text-primary-soft-fg">
+        <span v-if="translation.expressionType" class="ml-2 inline-block rounded-full bg-primary-soft px-2 py-0.5 align-middle text-sm font-medium text-primary-soft-fg">
           {{ translation.expressionType }}
         </span>
       </p>
@@ -39,7 +39,7 @@
       <div v-if="expanded" :id="moreId" class="mt-3 space-y-3">
         <p v-if="translation.usageNote" class="text-base">{{ translation.usageNote }}</p>
         <div v-if="translation.alternatives.length > 0">
-          <h3 class="text-xs font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.translate.alternatives") }}</h3>
+          <h3 class="text-sm font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.translate.alternatives") }}</h3>
           <ul class="mt-1 flex flex-wrap gap-2">
             <li v-for="alternative in translation.alternatives" :key="alternative" class="rounded-full border border-line px-3 py-1 text-base">
               {{ alternative }}

@@ -1,6 +1,6 @@
 <template>
   <section v-if="notes" class="card mt-6" aria-labelledby="changes-title">
-    <h2 id="changes-title" class="text-lg font-semibold">{{ t("web.changes.title") }}</h2>
+    <h2 id="changes-title" class="text-xl font-semibold">{{ t("web.changes.title") }}</h2>
     <p v-if="notes.length === 0" class="mt-2 text-sm text-ink-muted">{{ t("web.changes.empty") }}</p>
     <ul v-else class="mt-3 list-disc space-y-2 pl-5 text-sm">
       <li v-for="note in notes" :key="note">{{ note }}</li>

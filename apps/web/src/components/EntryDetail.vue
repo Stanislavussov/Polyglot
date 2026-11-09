@@ -31,7 +31,7 @@
     </div>
 
     <div v-if="entry.sourceUsage" class="space-y-2 rounded-xl bg-surface-muted px-4 py-3 text-base">
-      <h3 class="text-xs font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.translate.aboutSource") }}</h3>
+      <h3 class="text-sm font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.translate.aboutSource") }}</h3>
       <p v-if="entry.sourceUsage.headword" class="font-semibold">{{ entry.sourceUsage.headword }}</p>
       <p>{{ entry.sourceUsage.explanation }}</p>
       <ul v-if="entry.sourceUsage.synonyms.length > 0" class="flex flex-wrap gap-2">

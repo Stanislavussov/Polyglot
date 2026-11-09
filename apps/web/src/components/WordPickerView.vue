@@ -32,7 +32,7 @@
 
     <article v-if="set && !busy" class="card space-y-4" aria-live="polite">
       <header>
-        <h2 class="text-lg font-semibold">{{ set.run.emoji }} {{ set.run.title }}</h2>
+        <h2 class="text-xl font-semibold">{{ set.run.emoji }} {{ set.run.title }}</h2>
         <p class="flex flex-wrap items-center gap-2 text-sm text-ink-muted"><LangBadge :code="set.run.lang.code" :label="set.run.lang.name" />{{ t("web.learn.pick.hint") }}</p>
       </header>
       <ul class="space-y-3">

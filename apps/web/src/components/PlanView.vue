@@ -4,7 +4,7 @@
 
     <template v-if="info">
       <div class="card mt-6">
-        <p class="text-lg font-semibold">{{ t("web.plan.current", { plan: info.current.label }) }}</p>
+        <p class="text-xl font-semibold">{{ t("web.plan.current", { plan: info.current.label }) }}</p>
         <p v-if="info.current.periodEnd" class="mt-1 text-sm text-ink-muted">
           {{ t(info.current.trial ? "web.plan.trial" : "web.plan.activeUntil", { date: formatDate(info.current.periodEnd) }) }}
         </p>
@@ -20,7 +20,7 @@
           class="card"
           :class="{ 'border-primary': plan.name === info.current.name }"
         >
-          <h2 class="text-lg font-semibold">{{ plan.label }}</h2>
+          <h2 class="text-xl font-semibold">{{ plan.label }}</h2>
           <p class="text-sm text-ink-muted">{{ t("web.plan.perMonth", { price: formatPrice(plan.priceUsdCents) }) }}</p>
           <ul class="mt-3 space-y-1 text-sm">
             <li v-for="line in lines(plan.translationLimit, plan.video, plan.features)" :key="line">✓ {{ line }}</li>

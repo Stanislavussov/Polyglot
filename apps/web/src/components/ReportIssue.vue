@@ -1,6 +1,6 @@
 <template>
   <section class="card mt-6 space-y-4" aria-labelledby="report-title">
-    <h2 id="report-title" class="text-lg font-semibold">{{ t("web.report.title") }}</h2>
+    <h2 id="report-title" class="text-xl font-semibold">{{ t("web.report.title") }}</h2>
     <p v-if="sent" role="status" class="text-sm text-primary-soft-fg">{{ t("web.report.sent") }}</p>
     <form v-else class="space-y-4" @submit.prevent="send">
       <div class="flex flex-wrap gap-2" role="radiogroup">

@@ -4,7 +4,7 @@
     <p class="mt-3 text-base text-ink-muted">{{ t("web.learn.subtitle") }}</p>
     <ul class="mt-6 grid gap-3 sm:grid-cols-2">
       <li v-for="mode in modes" :key="mode.href">
-        <a :href="mode.href" class="card flex min-h-16 items-center gap-3 text-lg font-semibold hover:bg-surface-muted">
+        <a :href="mode.href" class="card flex min-h-16 items-center gap-3 text-xl font-semibold hover:bg-surface-muted">
           <span aria-hidden="true">{{ mode.icon }}</span>{{ t(mode.label) }}
         </a>
       </li>

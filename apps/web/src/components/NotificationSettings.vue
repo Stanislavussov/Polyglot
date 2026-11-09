@@ -1,7 +1,7 @@
 <template>
   <section v-if="notif" class="card mt-6 space-y-6" aria-labelledby="notif-title">
     <div>
-      <h2 id="notif-title" class="text-lg font-semibold">{{ t("web.notif.title") }}</h2>
+      <h2 id="notif-title" class="text-xl font-semibold">{{ t("web.notif.title") }}</h2>
       <p class="mt-1 text-sm text-ink-muted">{{ t("web.notif.hint") }}</p>
     </div>
 
@@ -13,7 +13,7 @@
     <template v-if="notif.enabled">
       <fieldset>
         <legend class="mb-1 text-sm font-medium">{{ t("web.notif.times") }}</legend>
-        <p class="mb-2 text-xs text-ink-muted">{{ t("web.notif.timesHint", { max: notif.options.maxTimes }) }}</p>
+        <p class="mb-2 text-sm text-ink-muted">{{ t("web.notif.timesHint", { max: notif.options.maxTimes }) }}</p>
         <div class="grid grid-cols-4 gap-2 sm:grid-cols-8">
           <button
             v-for="slot in SLOTS"
@@ -52,7 +52,7 @@
 
       <form v-if="notif.type === 'contextual'" @submit.prevent="save({ context: context.trim() || null })">
         <label class="mb-1 block text-sm font-medium" for="notif-context">{{ t("web.notif.context") }}</label>
-        <p class="mb-2 text-xs text-ink-muted">{{ t("web.notif.contextHint") }}</p>
+        <p class="mb-2 text-sm text-ink-muted">{{ t("web.notif.contextHint") }}</p>
         <textarea id="notif-context" v-model="context" class="field min-h-24" maxlength="500" />
         <button type="submit" class="btn-secondary mt-2" :disabled="saving">{{ t("web.common.save") }}</button>
       </form>

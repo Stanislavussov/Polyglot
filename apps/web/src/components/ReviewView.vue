@@ -18,8 +18,8 @@
 
     <article v-else :key="cardSeq" class="card mt-6 space-y-5" aria-live="polite">
       <header class="space-y-3">
-        <p v-if="picked" class="text-xs font-semibold uppercase tracking-wide text-primary">{{ t("web.review.picked") }}</p>
-        <p v-else-if="card.ahead" class="text-xs font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.review.ahead") }}</p>
+        <p v-if="picked" class="text-sm font-semibold uppercase tracking-wide text-primary">{{ t("web.review.picked") }}</p>
+        <p v-else-if="card.ahead" class="text-sm font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.review.ahead") }}</p>
         <p><LangBadge :code="card.detail.sourceLang" /></p>
         <div class="flex items-start gap-3">
           <div class="flex min-w-0 flex-1 items-center gap-2">
@@ -48,7 +48,7 @@
                 :collision-padding="16"
                 class="z-30 w-72 max-w-[calc(100vw-2rem)] rounded-2xl border border-line bg-surface p-2 shadow-xl"
               >
-                <p class="px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.review.frontSettings") }}</p>
+                <p class="px-3 pb-1 pt-2 text-sm font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.review.frontSettings") }}</p>
                 <p v-if="!frontFields" class="px-3 py-2 text-sm text-ink-muted">{{ t("web.common.loading") }}</p>
                 <label
                   v-for="field in frontFieldKeys"
@@ -117,7 +117,7 @@
         </p>
 
         <div v-if="card.detail.sourceUsage" class="space-y-2 rounded-xl bg-surface-muted px-4 py-3 text-base">
-          <h3 class="text-xs font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.translate.aboutSource") }}</h3>
+          <h3 class="text-sm font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.translate.aboutSource") }}</h3>
           <p>{{ card.detail.sourceUsage.explanation }}</p>
           <ul v-if="card.front.synonyms.length === 0 && card.detail.sourceUsage.synonyms.length > 0" class="flex flex-wrap gap-2">
             <li v-for="synonym in card.detail.sourceUsage.synonyms" :key="synonym" class="rounded-full bg-primary-soft px-3 py-1 text-primary-soft-fg">

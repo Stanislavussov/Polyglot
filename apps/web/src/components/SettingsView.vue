@@ -21,7 +21,7 @@
 
       <fieldset>
         <legend class="mb-1 text-sm font-medium">{{ t("web.settings.learningLangs") }}</legend>
-        <p class="mb-2 text-xs text-ink-muted">{{ t("web.settings.learningHint") }}</p>
+        <p class="mb-2 text-sm text-ink-muted">{{ t("web.settings.learningHint") }}</p>
         <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
           <label
             v-for="language in settings.languages"

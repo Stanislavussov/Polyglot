@@ -9,7 +9,7 @@
 
     <template v-else>
       <div class="flex items-start justify-between gap-2">
-        <p class="min-w-0 break-words text-lg font-semibold">
+        <p class="min-w-0 break-words text-xl font-semibold">
           <span v-if="item.emoji" class="mr-2" aria-hidden="true">{{ item.emoji }}</span>{{ item.original }}
           <LangBadge class="ml-2" :code="item.sourceLang" />
         </p>

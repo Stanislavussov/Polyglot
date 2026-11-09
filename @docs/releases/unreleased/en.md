@@ -52,3 +52,4 @@
 - On a phone, word cards on the website slide up lower and smoother, close with a swipe from anywhere at the top of the card, and no longer flash when closing.
 - Language flags on the website are now crisp icons instead of emoji, and text on word cards uses one even, comfortable size.
 - The language line on a website translation is cleaner: the source language sits in a soft pill and the target languages show as a small row of round flags.
+- Text across the website now follows one calm, larger scale, so captions, examples and headings no longer jump between sizes.

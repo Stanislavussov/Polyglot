@@ -16,7 +16,7 @@
           @keydown="onKeydown"
         />
         <div class="flex items-center justify-between gap-3">
-          <span class="text-xs text-ink-muted" aria-hidden="true">{{ text.length }}/{{ MAX_LENGTH }}</span>
+          <span class="text-sm text-ink-muted" aria-hidden="true">{{ text.length }}/{{ MAX_LENGTH }}</span>
           <div class="flex gap-2">
             <button
               v-if="voiceAvailable"
@@ -45,7 +45,7 @@
           </div>
         </div>
         <!-- Touch keyboards have no Shift+Enter, so the hint only misleads there. -->
-        <p class="text-xs text-ink-muted [@media(pointer:coarse)]:hidden">{{ t("web.translate.hint") }}</p>
+        <p class="text-sm text-ink-muted [@media(pointer:coarse)]:hidden">{{ t("web.translate.hint") }}</p>
       </form>
 
       <div class="min-w-0 xl:col-start-1 xl:row-start-2" aria-live="polite">
@@ -196,7 +196,7 @@
             </p>
 
             <div v-if="result.sourceUsage" class="space-y-2 rounded-xl bg-surface-muted px-4 py-3 text-sm">
-              <h3 class="text-xs font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.translate.aboutSource") }}</h3>
+              <h3 class="text-sm font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.translate.aboutSource") }}</h3>
               <p>{{ result.sourceUsage.explanation }}</p>
               <ul v-if="result.sourceUsage.synonyms.length > 0" class="flex flex-wrap gap-2">
                 <li v-for="synonym in result.sourceUsage.synonyms" :key="synonym" class="rounded-full bg-primary-soft px-3 py-1 text-primary-soft-fg">
@@ -222,7 +222,7 @@
       <div class="card xl:col-start-2 xl:row-span-2 xl:row-start-1">
         <div class="flex items-center justify-between gap-3">
           <h2 class="min-w-0 truncate text-sm font-bold">{{ t("web.translate.recent") }}</h2>
-          <button v-if="history.length > 0" type="button" class="-mr-2 min-h-11 shrink-0 whitespace-nowrap rounded-full px-2 text-xs font-semibold text-primary hover:text-primary-hover" @click="clearHistory">
+          <button v-if="history.length > 0" type="button" class="-mr-2 min-h-11 shrink-0 whitespace-nowrap rounded-full px-2 text-sm font-semibold text-primary hover:text-primary-hover" @click="clearHistory">
             {{ t("web.translate.clearHistory") }}
           </button>
         </div>

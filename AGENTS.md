@@ -96,3 +96,4 @@ Read the relevant `@docs/agents/` file before editing its area:
 - `testing-strategy-tdd.md` — spec-first workflow, test lanes, what to test.
 - `observability.md` — traces, event vocabulary, product events.
 - `deployment.md` — app deploy, migrations, data changes, provisioning, secrets.
+- `web-design.md` — website look: minimal and large, the only allowed type scale, shared components.

@@ -24,7 +24,7 @@
         />
         <kbd
           v-if="query === ''"
-          class="pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 rounded-md border border-line bg-surface-muted px-1.5 font-sans text-xs text-ink-muted [@media(hover:hover)_and_(pointer:fine)]:block"
+          class="pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 rounded-md border border-line bg-surface-muted px-1.5 font-sans text-sm text-ink-muted [@media(hover:hover)_and_(pointer:fine)]:block"
           aria-hidden="true"
         >/</kbd>
       </div>
@@ -34,7 +34,7 @@
           <SlidersHorizontal class="size-5 sm:size-4" aria-hidden="true" /><span class="hidden sm:inline">{{ t("web.dictionary.filters") }}</span>
           <span
             v-if="activeCount > 0"
-            class="grid min-w-5 place-items-center rounded-full bg-primary px-1.5 text-xs font-semibold text-primary-fg"
+            class="grid min-w-5 place-items-center rounded-full bg-primary px-1.5 text-sm font-semibold text-primary-fg"
             aria-hidden="true"
           >{{ activeCount }}</span>
         </PopoverTrigger>

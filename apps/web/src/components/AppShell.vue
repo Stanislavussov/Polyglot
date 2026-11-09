@@ -2,7 +2,7 @@
   <ShellSkeleton v-if="!ready" :label="t('web.common.loading')" />
   <div v-else class="flex min-h-screen flex-col md:flex-row">
     <aside class="hidden w-64 shrink-0 flex-col bg-sidebar md:sticky md:top-0 md:flex md:h-screen">
-      <div class="flex h-16 items-center gap-2.5 whitespace-nowrap px-5 text-lg font-display font-extrabold tracking-tight text-sidebar-fg"><img src="/favicon.svg" alt="" class="size-8 rounded-lg" /> Polyglot Monster</div>
+      <div class="flex h-16 items-center gap-2.5 whitespace-nowrap px-5 text-xl font-display font-extrabold tracking-tight text-sidebar-fg"><img src="/favicon.svg" alt="" class="size-8 rounded-lg" /> Polyglot Monster</div>
       <div class="min-h-0 flex-1 overflow-y-auto"><NavList :page="page" @navigate="navigate" /></div>
       <UserMenu :active="page === 'settings' || page === 'plan'" @navigate="navigate" />
     </aside>
@@ -16,7 +16,7 @@
       >
         <Menu class="size-6" aria-hidden="true" />
       </button>
-      <span class="flex items-center gap-2 text-lg font-display font-extrabold tracking-tight"><img src="/favicon.svg" alt="" class="size-7 rounded-lg" /> Polyglot Monster</span>
+      <span class="flex items-center gap-2 text-xl font-display font-extrabold tracking-tight"><img src="/favicon.svg" alt="" class="size-7 rounded-lg" /> Polyglot Monster</span>
     </header>
 
     <DialogRoot v-model:open="drawerOpen">
@@ -27,7 +27,7 @@
           :aria-describedby="undefined"
         >
           <div class="flex h-14 items-center justify-between px-5">
-            <DialogTitle class="flex items-center gap-2 text-lg font-display font-extrabold tracking-tight"><img src="/favicon.svg" alt="" class="size-7 rounded-lg" /> Polyglot Monster</DialogTitle>
+            <DialogTitle class="flex items-center gap-2 text-xl font-display font-extrabold tracking-tight"><img src="/favicon.svg" alt="" class="size-7 rounded-lg" /> Polyglot Monster</DialogTitle>
             <DialogClose
               class="grid size-11 place-items-center rounded-full hover:bg-sidebar-hover"
               :aria-label="t('web.nav.closeMenu')"
@@ -64,7 +64,7 @@
         <div v-else class="flex justify-end">
           <button
             type="button"
-            class="rounded-full px-2 py-0.5 text-xs text-ink-muted hover:bg-primary-soft hover:text-primary-soft-fg"
+            class="rounded-full px-2 py-0.5 text-sm text-ink-muted hover:bg-primary-soft hover:text-primary-soft-fg"
             :aria-label="t('web.progress.barShow')"
             :title="t('web.progress.barShow')"
             @click="bar.show()"

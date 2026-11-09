@@ -5,9 +5,8 @@ const config: Config = {
   content: ["./src/**/*.{astro,html,js,ts,vue}"],
   theme: {
     extend: {
-      // One step above Tailwind's 12/14px: examples, meanings and captions read too small on phones.
+      // The whole type scale: 15 captions, 17 body, 20 titles, 24/30 display. xs and lg are deliberately unused.
       fontSize: {
-        xs: ["0.8125rem", { lineHeight: "1.25rem" }],
         sm: ["0.9375rem", { lineHeight: "1.375rem" }],
         base: ["1.0625rem", { lineHeight: "1.625rem" }],
       },
