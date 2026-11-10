@@ -147,7 +147,11 @@ async function buildDelivery(
     now,
     pickSelfCheckVariant: () => 0,
   });
-  return { sendFn, ai, deps: { ...deps, now: () => WEEKLY_SLOT_UTC, pickPresetWord: async () => null } };
+  return {
+    sendFn,
+    ai,
+    deps: { ...deps, now: () => WEEKLY_SLOT_UTC, pickPresetWord: async () => null, pickPackWord: async () => null },
+  };
 }
 
 async function arrangeSubscriber(telegramId: number, notificationEnabled = true): Promise<NotifiableUser> {

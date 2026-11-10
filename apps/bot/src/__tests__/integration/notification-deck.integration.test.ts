@@ -99,7 +99,11 @@ async function buildDelivery(harness: BotHarness): Promise<{
     generateObject: ai.fn,
     pickSelfCheckVariant: () => 0,
   });
-  return { sendFn, ai, deps: { ...deps, now: () => DECK_SLOT_UTC, pickPresetWord: async () => null } };
+  return {
+    sendFn,
+    ai,
+    deps: { ...deps, now: () => DECK_SLOT_UTC, pickPresetWord: async () => null, pickPackWord: async () => null },
+  };
 }
 
 function buttonsOf(call: CapturedCall | undefined): string[] {

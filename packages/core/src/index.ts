@@ -136,6 +136,12 @@ export type {
   VocabularyDictionaryWithCount,
 } from "./ports/vocabulary-dictionary.repository.js";
 export type {
+  ActiveWordPackItem,
+  PublishWordPackInput,
+  WordPack,
+  WordPackRepository,
+} from "./ports/word-pack.repository.js";
+export type {
   CreateWordPickerRunInput,
   WordPickerItem,
   WordPickerItemInput,
@@ -349,6 +355,8 @@ export {
   orderTranslations,
 } from "./modules/vocabulary/translation-order.js";
 export { type LangResolver, toTranslateOutput, toVocabularyInput } from "./modules/vocabulary/vocabulary-mapper.js";
+export { localizePackWords, WORD_PACK_MIN_LEVEL } from "./modules/word-packs/localize.service.js";
+export type { LocalizedPackWord, PackLocalizationResult, PackSourceWord } from "./modules/word-packs/types.js";
 export type {
   CefrLevel,
   DefaultWordPickerPreset,

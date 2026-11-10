@@ -564,7 +564,7 @@
   "web.translate.correction": "Did you mean: {text}",
   "web.translate.savedToDictionary": "Saved to your dictionary",
   "web.translate.save": "Save",
-  "web.translate.saveTo": "Save to dictionary",
+  "web.translate.saveTo": "Save to",
   "web.translate.saved": "Saved",
   "web.translate.synonyms": "Synonyms",
   "web.translate.examples": "Examples",
@@ -885,7 +885,6 @@
   "web.progress.insight.monthBehind": "{days} of {target} study days this month — add a few",
   "web.progress.insight.newWords": "Save {left} more words, or lock one into memory",
   "web.progress.insight.firstWord": "Save your first word — your progress starts there",
-  "web.translate.saveTo": "Save to",
   "webPushWordTitle": "Time for a word",
   "webPushWordBody": "Do you remember “{word}”?",
   "webPushDeckBody": "{count} cards are waiting for you",
@@ -904,5 +903,10 @@
   "web.push.bannerEnable": "Turn on",
   "web.push.bannerDismiss": "Not now",
   "web.push.switched": "Reminders now come to this app. You can switch back to Telegram in Settings.",
-  "web.push.noticeClose": "Close"
+  "web.push.noticeClose": "Close",
+  "wordPackPublishButton": "📦 Make it a pack",
+  "wordPackPublishing": "📦 Building a pack from “{name}”…",
+  "wordPackPublished": "📦 Pack “{name}” is live: {kept} words now go out to learners who stopped coming. Too easy, left out: {tooEasy}.",
+  "wordPackNothing": "📦 No word in “{name}” is hard enough for a pack — only words from B2 up make it in.",
+  "wordPackFailed": "📦 Couldn't build the pack. Try again in a minute."
 }

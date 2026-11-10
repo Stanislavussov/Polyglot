@@ -13,13 +13,16 @@ import {
   subscriptionRepository,
   userRepository,
   vocabularyRepository,
+  wordPackRepository,
 } from "@polyglot/adapter-db";
 import {
   createExpressionPicker,
   createNotificationService,
+  createPackWordPicker,
   createPresetWordPicker,
   createReviewDeckPicker,
   type NotificationPayload,
+  type PresetWordPickerDeps,
   type SchedulerDeps,
   startScheduler,
   stopScheduler,
@@ -610,7 +613,7 @@ Return translations as JSON array.`;
   // The preset layer's free source: cards already rendered and human-reviewed
   // for the onboarding demo. Serving them costs nothing and their quality is
   // already vetted, so they are tried before any AI call.
-  const presetPicker = createPresetWordPicker({
+  const presetSources = {
     findDemoCard: async (sourceLang, nativeLang, headword) => {
       const card = await onboardingDemoCardRepository.findOne(sourceLang, nativeLang, headword);
       if (!card) return null;
@@ -642,12 +645,18 @@ Return translations as JSON array.`;
       }
       return Object.keys(translations).length > 0 ? { translations } : null;
     },
+  } satisfies PresetWordPickerDeps;
+  const presetPicker = createPresetWordPicker(presetSources);
+  const packPicker = createPackWordPicker({
+    ...presetSources,
+    findActivePackItems: () => wordPackRepository.findActiveItems(),
   });
 
   const schedulerDeps: SchedulerDeps = {
     getUsersForWindow: (hour: number, minute = 0) => notificationRepository.getUsersForWindow(hour, minute),
     getLastSentWord: (userId: number) => notificationRepository.getLastSentWord(userId),
     pickPresetWord: (user, recentWords) => presetPicker(user, recentWords),
+    pickPackWord: (user, sentWords) => packPicker(user, sentWords),
     getUsersForReEngagement: () => notificationRepository.getUsersForReEngagement(),
     recordReEngagement: (userId: number) => notificationRepository.recordReEngagement(userId),
     disableNotifications: (userId: number) => notificationRepository.disableNotifications(userId),

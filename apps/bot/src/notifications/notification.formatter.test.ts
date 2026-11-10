@@ -51,7 +51,7 @@ describe("formatNotificationMessage", () => {
   // card the word was translated on.
 
   it("renders emoji, the source label and the word — the headword the Reveal card shows", () => {
-    expect(formatNotificationMessage(srsPayload, "en")).toContain("🏠 🇬🇧 EN: <b>house</b>");
+    expect(formatNotificationMessage(srsPayload, "en")).toContain("🏠 🇬🇧 <b>house</b>");
   });
 
   it("prefers the stored citation form, as the card behind Reveal does", () => {

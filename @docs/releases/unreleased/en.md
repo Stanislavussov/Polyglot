@@ -63,3 +63,5 @@
 - Have several dictionaries? The 💾 Save button on the website now asks which one the word goes to.
 - The 🔊 button on website review cards is now a tidy round icon, right next to the word.
 - Added Polyglot to your phone's home screen? Your reminders can now arrive right there as app notifications instead of in Telegram — choose where in Settings, and switch back any time.
+- Been away for a while? The bot now brings you back with a striking word in the language you're learning, hand-picked from a collection of tricky, beautiful words.
+- Cards look cleaner: each language is marked with just its flag, so words no longer wrap onto a second line on your phone.

@@ -564,7 +564,7 @@
   "web.translate.correction": "¿Quisiste decir: {text}?",
   "web.translate.savedToDictionary": "Guardado en tu diccionario",
   "web.translate.save": "Guardar",
-  "web.translate.saveTo": "Guardar en el diccionario",
+  "web.translate.saveTo": "Guardar en",
   "web.translate.saved": "Guardado",
   "web.translate.synonyms": "Sinónimos",
   "web.translate.examples": "Ejemplos",
@@ -885,7 +885,6 @@
   "web.progress.insight.monthBehind": "{days} de {target} días de estudio este mes: suma algunos",
   "web.progress.insight.newWords": "Guarda {left} palabras más o fija una en la memoria",
   "web.progress.insight.firstWord": "Guarda tu primera palabra: ahí empieza tu progreso",
-  "web.translate.saveTo": "Guardar en",
   "webPushWordTitle": "Hora de una palabra",
   "webPushWordBody": "¿Recuerdas «{word}»?",
   "webPushDeckBody": "Te esperan {count} tarjetas",
@@ -904,5 +903,10 @@
   "web.push.bannerEnable": "Activar",
   "web.push.bannerDismiss": "Ahora no",
   "web.push.switched": "Los recordatorios ahora llegan a esta app. Puedes volver a Telegram en Ajustes.",
-  "web.push.noticeClose": "Cerrar"
+  "web.push.noticeClose": "Cerrar",
+  "wordPackPublishButton": "📦 Convertir en paquete",
+  "wordPackPublishing": "📦 Preparando un paquete con «{name}»…",
+  "wordPackPublished": "📦 El paquete «{name}» ya está activo: {kept} palabras llegan ahora a quienes dejaron de venir. Demasiado fáciles, fuera: {tooEasy}.",
+  "wordPackNothing": "📦 Ninguna palabra de «{name}» es lo bastante difícil para un paquete: solo entran palabras desde B2.",
+  "wordPackFailed": "📦 No se pudo crear el paquete. Inténtalo en un minuto."
 }

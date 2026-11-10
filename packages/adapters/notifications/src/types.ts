@@ -34,10 +34,10 @@ export interface NotificationPayload {
 
 /**
  * Where a suggested word came from. Deliberately wider than
- * {@link NotificationType}: `preset` is a fallback source the scheduler picks,
- * never a delivery type a user can select in settings.
+ * {@link NotificationType}: `preset` and `pack` are fallback sources the
+ * scheduler picks, never delivery types a user can select in settings.
  */
-export type WordSource = NotificationType | "preset";
+export type WordSource = NotificationType | "preset" | "pack";
 
 /** A word suggested in a notification, with translations per language. */
 export interface SuggestedWord {
@@ -214,6 +214,16 @@ export interface SchedulerDeps {
   pickPresetWord: (
     user: { userId: number; nativeLang: string; learningLangs: string[] },
     recentWords?: string[],
+  ) => Promise<SuggestedWord | null>;
+
+  /**
+   * A word from an editor's pack (Task 87) the user has not been sent before.
+   * Null when no pack has one in a language they study — the pack layer never
+   * recycles, so the other layers take over.
+   */
+  pickPackWord: (
+    user: { userId: number; nativeLang: string; learningLangs: string[] },
+    sentWords: string[],
   ) => Promise<SuggestedWord | null>;
 
   /**

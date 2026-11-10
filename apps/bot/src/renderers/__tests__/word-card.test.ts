@@ -90,7 +90,7 @@ describe("renderWordCard — headword", () => {
       "ru",
     );
 
-    expect(card.split("\n")[0]).toBe("🏠 🇩🇪 DE: <b>Haus</b>");
+    expect(card.split("\n")[0]).toBe("🏠 🇩🇪 <b>Haus</b>");
     // The old dictionary/flashcard chrome line — the translate card never had it.
     expect(card).not.toMatch(/<i>[^<]*·/);
   });
@@ -113,7 +113,7 @@ describe("renderWordCard — headword", () => {
       "ru",
     );
 
-    expect(card).toContain("🇷🇺 RU: <b>дом</b> (жилище, здание)");
+    expect(card).toContain("🇷🇺 <b>дом</b> (жилище, здание)");
   });
 
   it("keeps the headword's label slot when the source language no longer resolves", () => {
@@ -208,7 +208,7 @@ describe("renderWordCard — stored prose", () => {
  * the save. The answer block is absent, so the stored prose is all the meaning
  * the card has, and everything about how it is presented matters.
  *
- * What the chat showed: two near-duplicate paragraphs, each prefixed `🇷🇺 RU:` —
+ * What the chat showed: two near-duplicate paragraphs, each prefixed `🇷🇺` —
  * the label that everywhere else on the card introduces a translation. A reader
  * scanning for their word found a wall of description wearing the answer's badge,
  * with the actual Czech answer pushed below it.
@@ -249,7 +249,7 @@ describe("renderWordCard — a card with no answer in the reader's language", ()
   it("still shows the answer it does have, in the shared grammar", () => {
     const card = renderWordCard(wasted, "ru");
 
-    expect(card).toContain("🇨🇿 CS: <b>promarněný</b> (zmařený)");
+    expect(card).toContain("🇨🇿 <b>promarněný</b> (zmařený)");
   });
 
   it("keeps the meaning visible — with no answer it is the only meaning there is", () => {
@@ -471,8 +471,8 @@ describe("renderWordCard — invariants", () => {
 });
 
 /**
- * The card showed a Czech word with `🇨🇿 CS: Povzdech úlevy` directly under the
- * headword `🇨🇿 CS: Povzdech ulevy` — the word offered as its own translation,
+ * The card showed a Czech word with `🇨🇿 Povzdech úlevy` directly under the
+ * headword `🇨🇿 Povzdech ulevy` — the word offered as its own translation,
  * with the Russian the reader needed nowhere in sight. The live translate card
  * has always dropped its own language; the saved-word card had no such guard.
  */
@@ -492,7 +492,7 @@ describe("renderWordCard — never the same language twice", () => {
     );
 
     expect(rendered).not.toContain("Povzdech úlevy");
-    expect(rendered).toContain("🇷🇺 RU: <b>вздох облегчения</b>");
+    expect(rendered).toContain("🇷🇺 <b>вздох облегчения</b>");
   });
 
   it("drops a same-language block sitting among the others", () => {
@@ -510,7 +510,7 @@ describe("renderWordCard — never the same language twice", () => {
     );
 
     expect(rendered).not.toContain("Povzdech úlevy");
-    expect(rendered).toContain("🇷🇺 RU: <b>вздох облегчения</b>");
+    expect(rendered).toContain("🇷🇺 <b>вздох облегчения</b>");
   });
 
   it("keeps a block whose language no longer resolves — it duplicates nothing provable", () => {

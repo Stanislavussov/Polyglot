@@ -134,6 +134,12 @@ vi.mock("@polyglot/adapter-db", () => ({
     findById: vi.fn().mockResolvedValue(null),
     findActiveForLangs: vi.fn().mockResolvedValue([]),
   },
+  wordPackRepository: {
+    publishFromDictionary: vi.fn(),
+    upsertItems: vi.fn(),
+    countActiveItems: vi.fn().mockResolvedValue(0),
+    findActiveItems: vi.fn().mockResolvedValue([]),
+  },
   wordPickerRunRepository: {
     createRun: vi.fn().mockResolvedValue({ id: 1 }),
     saveItems: vi.fn().mockResolvedValue([]),

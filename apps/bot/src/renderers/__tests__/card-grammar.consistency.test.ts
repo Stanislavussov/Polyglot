@@ -152,11 +152,11 @@ function targetAnswerLine(card: string): string {
 
 describe("card grammar — every surface renders a saved word the same way", () => {
   it.each(SURFACES)("%s puts emoji, the source label, headword and source synonyms on one line", (_name, card) => {
-    expect(headwordLine(card)).toBe("💼 🇩🇪 DE: <b>die Arbeit</b> (die Tätigkeit)");
+    expect(headwordLine(card)).toBe("💼 🇩🇪 <b>die Arbeit</b> (die Tätigkeit)");
   });
 
   it.each(SURFACES)("%s renders the answer as flag, code, bold text and inline synonyms", (_name, card) => {
-    expect(targetAnswerLine(card)).toBe("🇬🇧 EN: <b>work</b> (job)");
+    expect(targetAnswerLine(card)).toBe("🇬🇧 <b>work</b> (job)");
   });
 
   it.each(SURFACES)("%s keeps the example visible and folds the usage note", (_name, card) => {
@@ -191,7 +191,7 @@ describe("card grammar — every surface renders a saved word the same way", () 
   });
 
   it.each(SURFACES)("%s never prefixes prose with a language label", (_name, card) => {
-    // `🇷🇺 RU:` introduces a translation everywhere else on the card; prose wearing
+    // `🇷🇺` introduces a translation everywhere else on the card; prose wearing
     // it read as the answer the reader was hunting for.
     const answerLines = card.split("\n").filter((line) => /^\S+ [A-Z]{2}: /u.test(line));
     for (const line of answerLines) {
@@ -211,7 +211,7 @@ describe("card grammar — a reveal-style front hands over nothing", () => {
       renderFlashCardFront({ ...CARDS_CARD, ahead: true }, "de", 1, 3, "ru", EVERY_FRONT_OPTION),
     ],
   ])("%s shows the word but neither the answer nor a glossed source example", (_name, front) => {
-    expect(front).toContain("💼 🇩🇪 DE: <b>die Arbeit</b>");
+    expect(front).toContain("💼 🇩🇪 <b>die Arbeit</b>");
     expect(front).not.toContain(WORD.targetText);
     // The source example's native gloss is the answer in the reader's own language.
     expect(front).not.toContain("Работа в радость.");
@@ -315,15 +315,15 @@ describe("card grammar — compact and list surfaces use the same lines", () => 
   ];
 
   it.each(COMPACT)("%s introduces the word with emoji and the source label", (_name, card) => {
-    expect(card).toContain(`${WORD.emoji} 🇩🇪 DE: <b>${WORD.original}</b>`);
+    expect(card).toContain(`${WORD.emoji} 🇩🇪 <b>${WORD.original}</b>`);
   });
 
   it("a notification introduces the word with emoji and the source label", () => {
-    expect(notification).toContain(`${WORD.emoji} 🇩🇪 DE: <b>die Arbeit</b>`);
+    expect(notification).toContain(`${WORD.emoji} 🇩🇪 <b>die Arbeit</b>`);
   });
 
   it.each(COMPACT)("%s renders the translation as a bold, flagged, coded answer line", (_name, card) => {
-    expect(card).toContain("🇷🇺 RU: <b>работа</b>");
+    expect(card).toContain("🇷🇺 <b>работа</b>");
     // The arrow form these surfaces used before.
     expect(card).not.toContain("→ работа");
   });
@@ -338,7 +338,7 @@ describe("card grammar — compact and list surfaces use the same lines", () => 
     // The whole point of the nudge: the reader recalls the word, then taps Reveal
     // to check. An answer line here would be the card answering its own question.
     expect(notification).not.toContain("работа");
-    expect(notification).not.toContain("🇷🇺 RU:");
+    expect(notification).not.toContain("🇷🇺");
     expect(notification).not.toContain(WORD.nativeMeaning);
   });
 
@@ -349,7 +349,7 @@ describe("card grammar — compact and list surfaces use the same lines", () => 
     const nudge = headwordLine(notification);
     const revealed = headwordLine(SURFACES[0]?.[1] ?? "");
 
-    expect(nudge).toBe("💼 🇩🇪 DE: <b>die Arbeit</b>");
+    expect(nudge).toBe("💼 🇩🇪 <b>die Arbeit</b>");
     expect(revealed.startsWith(nudge)).toBe(true);
   });
 });

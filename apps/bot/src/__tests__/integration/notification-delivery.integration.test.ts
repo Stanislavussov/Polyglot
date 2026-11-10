@@ -114,7 +114,7 @@ async function buildDelivery(
     deps: {
       ...deps,
       now: () => DELIVERY_TEST_SLOT_UTC,
-      ...(withPresets ? {} : { pickPresetWord: async () => null }),
+      ...(withPresets ? {} : { pickPresetWord: async () => null, pickPackWord: async () => null }),
     },
   };
 }

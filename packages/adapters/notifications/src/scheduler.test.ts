@@ -109,6 +109,7 @@ function buildSchedulerDeps(overrides: Partial<SchedulerDeps> = {}): SchedulerDe
     recordSentWord: vi.fn().mockResolvedValue(undefined),
     pickDictionaryWord: vi.fn().mockResolvedValue(mockDictWord),
     pickPresetWord: vi.fn().mockResolvedValue(null),
+    pickPackWord: vi.fn().mockResolvedValue(null),
     pickContextualWord: vi.fn().mockResolvedValue(mockDictWord),
     pickExpression: vi.fn().mockResolvedValue(null),
     pickReviewDeck: vi.fn().mockResolvedValue([]),
@@ -189,6 +190,29 @@ describe("layered word selection", () => {
     expect(result.sent).toBe(1);
   });
 
+  it("offers a pack word before a hook word once the dictionary is exhausted, de-duped over the pack's own history", async () => {
+    const pack: SuggestedWord = {
+      original: "Fernweh",
+      emoji: "🧳",
+      translations: { ru: "тяга к странствиям" },
+      source: "pack",
+    };
+    const deps = buildSchedulerDeps({
+      pickDictionaryWord: vi.fn().mockResolvedValue(null),
+      pickPackWord: vi.fn().mockResolvedValue(pack),
+      getSentWordsFromSourceSince: vi.fn(async (_userId: number, source: string) =>
+        source === "pack" ? ["Regengeruch"] : [],
+      ),
+    });
+
+    await checkAndSend(mockSendFn, deps);
+
+    expect(mockSendFn).toHaveBeenCalledWith(1, expect.objectContaining({ word: pack }));
+    expect(deps.pickPresetWord).not.toHaveBeenCalled();
+    expect(vi.mocked(deps.pickPackWord).mock.calls[0]?.[1]).toContain("Regengeruch");
+    expect(deps.recordSentWord).toHaveBeenCalledWith(1, "Fernweh", "pack");
+  });
+
   it("remembers presets far longer than dictionary words, and only presets", async () => {
     // The bug this closes: at one notification a day the 24-hour window holds a
     // single send, so the preset picker's queue came back around immediately and
@@ -198,13 +222,15 @@ describe("layered word selection", () => {
     const deps = buildSchedulerDeps({
       pickDictionaryWord: vi.fn().mockResolvedValue(null),
       pickPresetWord: vi.fn().mockResolvedValue({ ...mockDictWord, source: "preset" }),
-      getSentWordsFromSourceSince: vi.fn().mockResolvedValue(["hangry", "cozy"]),
+      getSentWordsFromSourceSince: vi.fn(async (_userId: number, source: string) =>
+        source === "preset" ? ["hangry", "cozy"] : [],
+      ),
     });
 
     await checkAndSend(mockSendFn, deps);
 
-    const [, source, since] = vi.mocked(deps.getSentWordsFromSourceSince).mock.calls[0] ?? [];
-    expect(source).toBe("preset");
+    const [, , since] =
+      vi.mocked(deps.getSentWordsFromSourceSince).mock.calls.find(([, source]) => source === "preset") ?? [];
     const daysBack = (Date.now() - (since as Date).getTime()) / (24 * 60 * 60 * 1000);
     expect(daysBack).toBeGreaterThanOrEqual(89);
     expect(vi.mocked(deps.pickPresetWord).mock.calls[0]?.[1]).toEqual(["hangry", "cozy"]);
@@ -717,6 +743,34 @@ describe("processLapsedUsers", () => {
     const since = vi.mocked(deps.getSentWordsSince).mock.calls[0]?.[1] as Date;
     const daysBack = (Date.now() - since.getTime()) / (24 * 60 * 60 * 1000);
     expect(daysBack).toBeGreaterThanOrEqual(89);
+  });
+
+  it("leads with a pack word, ahead of the dictionary the user walked away from", async () => {
+    const pack: SuggestedWord = {
+      original: "Fernweh",
+      emoji: "🧳",
+      translations: { ru: "тяга к странствиям" },
+      source: "pack",
+    };
+    const deps = lapsedDeps({
+      pickPackWord: vi.fn().mockResolvedValue(pack),
+      getSentWordsSince: vi.fn().mockResolvedValue(["Regengeruch"]),
+    });
+
+    await processLapsedUsers(mockSend, mockReEngagementSend, deps);
+
+    expect(mockSend).toHaveBeenCalledWith(1, expect.objectContaining({ word: pack }));
+    expect(deps.pickDictionaryWord).not.toHaveBeenCalled();
+    expect(vi.mocked(deps.pickPackWord).mock.calls[0]?.[1]).toEqual(["Regengeruch"]);
+    expect(deps.recordSentWord).toHaveBeenCalledWith(1, "Fernweh", "pack");
+  });
+
+  it("goes back to the user's own dictionary once the packs have nothing new", async () => {
+    const deps = lapsedDeps({ pickPackWord: vi.fn().mockResolvedValue(null) });
+
+    await processLapsedUsers(mockSend, mockReEngagementSend, deps);
+
+    expect(mockSend).toHaveBeenCalledWith(1, expect.objectContaining({ word: mockDictWord }));
   });
 
   it("falls back to the curated presets when the dictionary has nothing", async () => {

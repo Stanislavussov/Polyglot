@@ -564,7 +564,7 @@
   "web.translate.correction": "Vouliez-vous dire : {text}",
   "web.translate.savedToDictionary": "Enregistré dans votre dictionnaire",
   "web.translate.save": "Enregistrer",
-  "web.translate.saveTo": "Enregistrer dans le dictionnaire",
+  "web.translate.saveTo": "Enregistrer dans",
   "web.translate.saved": "Enregistré",
   "web.translate.synonyms": "Synonymes",
   "web.translate.examples": "Exemples",
@@ -885,7 +885,6 @@
   "web.progress.insight.monthBehind": "{days} jours d'étude sur {target} ce mois-ci — ajoutes-en quelques-uns",
   "web.progress.insight.newWords": "Enregistre encore {left} mots ou ancre-en un en mémoire",
   "web.progress.insight.firstWord": "Enregistre ton premier mot — ta progression commence là",
-  "web.translate.saveTo": "Enregistrer dans",
   "webPushWordTitle": "L’heure d’un mot",
   "webPushWordBody": "Vous souvenez-vous de « {word} » ?",
   "webPushDeckBody": "{count} cartes vous attendent",
@@ -904,5 +903,10 @@
   "web.push.bannerEnable": "Activer",
   "web.push.bannerDismiss": "Plus tard",
   "web.push.switched": "Les rappels arrivent désormais dans cette application. Vous pouvez revenir à Telegram dans les Réglages.",
-  "web.push.noticeClose": "Fermer"
+  "web.push.noticeClose": "Fermer",
+  "wordPackPublishButton": "📦 En faire un pack",
+  "wordPackPublishing": "📦 Je prépare un pack à partir de « {name} »…",
+  "wordPackPublished": "📦 Le pack « {name} » est en ligne : {kept} mots partent désormais aux apprenants qui ne reviennent plus. Trop faciles, écartés : {tooEasy}.",
+  "wordPackNothing": "📦 Aucun mot de « {name} » n'est assez difficile pour un pack — seuls les mots à partir de B2 y entrent.",
+  "wordPackFailed": "📦 Impossible de créer le pack. Réessayez dans une minute."
 }

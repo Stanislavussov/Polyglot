@@ -564,7 +564,7 @@
   "web.translate.correction": "Meintest du: {text}",
   "web.translate.savedToDictionary": "Im Wörterbuch gespeichert",
   "web.translate.save": "Speichern",
-  "web.translate.saveTo": "In Wörterbuch speichern",
+  "web.translate.saveTo": "Speichern in",
   "web.translate.saved": "Gespeichert",
   "web.translate.synonyms": "Synonyme",
   "web.translate.examples": "Beispiele",
@@ -885,7 +885,6 @@
   "web.progress.insight.monthBehind": "{days} von {target} Lerntagen diesen Monat – leg ein paar nach",
   "web.progress.insight.newWords": "Speichere noch {left} Wörter oder festige eines im Gedächtnis",
   "web.progress.insight.firstWord": "Speichere dein erstes Wort – damit beginnt dein Fortschritt",
-  "web.translate.saveTo": "Speichern in",
   "webPushWordTitle": "Zeit für ein Wort",
   "webPushWordBody": "Erinnerst du dich an „{word}“?",
   "webPushDeckBody": "{count} Karten warten auf dich",
@@ -904,5 +903,10 @@
   "web.push.bannerEnable": "Einschalten",
   "web.push.bannerDismiss": "Nicht jetzt",
   "web.push.switched": "Erinnerungen kommen jetzt in diese App. In den Einstellungen kannst du zu Telegram zurückwechseln.",
-  "web.push.noticeClose": "Schließen"
+  "web.push.noticeClose": "Schließen",
+  "wordPackPublishButton": "📦 Als Paket veröffentlichen",
+  "wordPackPublishing": "📦 Stelle ein Paket aus „{name}“ zusammen…",
+  "wordPackPublished": "📦 Paket „{name}“ ist live: {kept} Wörter gehen jetzt an Lernende, die nicht mehr vorbeikommen. Zu leicht, weggelassen: {tooEasy}.",
+  "wordPackNothing": "📦 In „{name}“ ist kein Wort schwer genug für ein Paket — nur Wörter ab B2 kommen hinein.",
+  "wordPackFailed": "📦 Das Paket konnte nicht erstellt werden. Versuch es in einer Minute noch einmal."
 }

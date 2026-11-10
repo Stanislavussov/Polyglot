@@ -48,7 +48,9 @@ async function arrangeMultiLanguageUser(telegramId: number): Promise<number> {
 
 /** Language-code labels in the order they appear in a rendered card. */
 function languageOrderOf(text: string): string[] {
-  return [...text.matchAll(/\b(DE|ES|CS|RU):/g)].map((m) => m[1] as string);
+  // Each language line is marked by its flag alone, so the flag names the language.
+  const codeOfFlag: Record<string, string> = { "🇩🇪": "DE", "🇪🇸": "ES", "🇨🇿": "CS", "🇷🇺": "RU" };
+  return [...text.matchAll(/(🇩🇪|🇪🇸|🇨🇿|🇷🇺) <b>/gu)].map((m) => codeOfFlag[m[1] as string] as string);
 }
 
 type Sent = ReturnType<typeof createBotHarness>["sent"];

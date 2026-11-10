@@ -119,7 +119,12 @@ describe("expressions (integration)", () => {
     });
 
     // Act
-    await checkAndSend(sendFn, { ...deps, now: () => EXPRESSION_SLOT_UTC, pickPresetWord: async () => null });
+    await checkAndSend(sendFn, {
+      ...deps,
+      now: () => EXPRESSION_SLOT_UTC,
+      pickPresetWord: async () => null,
+      pickPackWord: async () => null,
+    });
 
     // Assert — reply
     const [message, ...extra] = messagesTo(harness.sent, telegramId);
@@ -154,7 +159,12 @@ describe("expressions (integration)", () => {
     });
 
     // Act
-    await checkAndSend(sendFn, { ...deps, now: () => EXPRESSION_SLOT_UTC, pickPresetWord: async () => null });
+    await checkAndSend(sendFn, {
+      ...deps,
+      now: () => EXPRESSION_SLOT_UTC,
+      pickPresetWord: async () => null,
+      pickPackWord: async () => null,
+    });
 
     // Assert
     const [message] = messagesTo(harness.sent, telegramId);

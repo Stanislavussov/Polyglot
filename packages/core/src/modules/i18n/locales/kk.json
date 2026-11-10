@@ -564,7 +564,7 @@
   "web.translate.correction": "Сіз мынаны меңзедіңіз бе: {text}",
   "web.translate.savedToDictionary": "Сөздікке сақталды",
   "web.translate.save": "Сақтау",
-  "web.translate.saveTo": "Сөздікке сақтау",
+  "web.translate.saveTo": "Сақтау",
   "web.translate.saved": "Сақталды",
   "web.translate.synonyms": "Синонимдер",
   "web.translate.examples": "Мысалдар",
@@ -885,7 +885,6 @@
   "web.progress.insight.monthBehind": "Осы айдағы сабақ күндері: {target} ішінен {days} — тағы бірнеше қосыңыз",
   "web.progress.insight.newWords": "Тағы {left} сөз сақтаңыз немесе біреуін жадқа бекітіңіз",
   "web.progress.insight.firstWord": "Алғашқы сөзіңізді сақтаңыз — прогресс содан басталады",
-  "web.translate.saveTo": "Сақтау",
   "webPushWordTitle": "Сөз уақыты",
   "webPushWordBody": "«{word}» есіңізде ме?",
   "webPushDeckBody": "Сізді карталар күтіп тұр: {count}",
@@ -904,5 +903,10 @@
   "web.push.bannerEnable": "Қосу",
   "web.push.bannerDismiss": "Қазір емес",
   "web.push.switched": "Еске салғыштар енді осы қолданбаға келеді. Telegram-ға баптаулардан қайта ауыстыра аласыз.",
-  "web.push.noticeClose": "Жабу"
+  "web.push.noticeClose": "Жабу",
+  "wordPackPublishButton": "📦 Жинақ ету",
+  "wordPackPublishing": "📦 «{name}» сөздігінен жинақ құрастырып жатырмын…",
+  "wordPackPublished": "📦 «{name}» жинағы іске қосылды: {kept} сөз енді кіруді доғарғандарға жіберіледі. Тым оңай, енбеді: {tooEasy}.",
+  "wordPackNothing": "📦 «{name}» ішінде жинаққа жететін күрделі сөз жоқ — тек B2 деңгейінен бастап сөздер енеді.",
+  "wordPackFailed": "📦 Жинақ құрастыру мүмкін болмады. Бір минуттан соң қайталап көріңіз."
 }

@@ -564,7 +564,7 @@
   "web.translate.correction": "Czy chodziło o: {text}",
   "web.translate.savedToDictionary": "Zapisano w słowniku",
   "web.translate.save": "Zapisz",
-  "web.translate.saveTo": "Zapisz w słowniku",
+  "web.translate.saveTo": "Zapisz w",
   "web.translate.saved": "Zapisane",
   "web.translate.synonyms": "Synonimy",
   "web.translate.examples": "Przykłady",
@@ -885,7 +885,6 @@
   "web.progress.insight.monthBehind": "Dni nauki w tym miesiącu: {days} z {target} — dodaj kilka",
   "web.progress.insight.newWords": "Zapisz jeszcze {left} słów albo utrwal jedno w pamięci",
   "web.progress.insight.firstWord": "Zapisz pierwsze słowo — od niego zacznie się postęp",
-  "web.translate.saveTo": "Zapisz w",
   "webPushWordTitle": "Czas na słówko",
   "webPushWordBody": "Pamiętasz „{word}”?",
   "webPushDeckBody": "Czekają na ciebie karty: {count}",
@@ -904,5 +903,10 @@
   "web.push.bannerEnable": "Włącz",
   "web.push.bannerDismiss": "Nie teraz",
   "web.push.switched": "Przypomnienia trafiają teraz do tej aplikacji. Do Telegrama wrócisz w Ustawieniach.",
-  "web.push.noticeClose": "Zamknij"
+  "web.push.noticeClose": "Zamknij",
+  "wordPackPublishButton": "📦 Zrób z tego zestaw",
+  "wordPackPublishing": "📦 Tworzę zestaw ze słownika „{name}”…",
+  "wordPackPublished": "📦 Zestaw „{name}” działa: {kept} słów trafia teraz do osób, które przestały zaglądać. Zbyt łatwe, pominięte: {tooEasy}.",
+  "wordPackNothing": "📦 W „{name}” nie ma wystarczająco trudnych słów na zestaw — wchodzą tylko słowa od B2.",
+  "wordPackFailed": "📦 Nie udało się utworzyć zestawu. Spróbuj za minutę."
 }

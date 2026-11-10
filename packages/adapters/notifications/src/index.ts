@@ -6,6 +6,7 @@ export {
   createNotificationService,
 } from "./notification.service.js";
 
+export { createPackWordPicker, type PackWordPickerDeps } from "./pack-picker.js";
 export { createPresetWordPicker, presetCandidates } from "./preset-picker.js";
 
 export { createReviewDeckPicker, type ReviewDeckPickerDeps } from "./review-deck-picker.js";

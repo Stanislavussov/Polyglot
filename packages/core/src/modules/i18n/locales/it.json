@@ -564,7 +564,7 @@
   "web.translate.correction": "Intendevi: {text}",
   "web.translate.savedToDictionary": "Salvato nel tuo dizionario",
   "web.translate.save": "Salva",
-  "web.translate.saveTo": "Salva nel dizionario",
+  "web.translate.saveTo": "Salva in",
   "web.translate.saved": "Salvato",
   "web.translate.synonyms": "Sinonimi",
   "web.translate.examples": "Esempi",
@@ -885,7 +885,6 @@
   "web.progress.insight.monthBehind": "{days} di {target} giorni di studio questo mese — aggiungine qualcuno",
   "web.progress.insight.newWords": "Salva altre {left} parole o fissane una in memoria",
   "web.progress.insight.firstWord": "Salva la tua prima parola — da lì partono i progressi",
-  "web.translate.saveTo": "Salva in",
   "webPushWordTitle": "È l’ora di una parola",
   "webPushWordBody": "Ti ricordi «{word}»?",
   "webPushDeckBody": "Ti aspettano {count} carte",
@@ -904,5 +903,10 @@
   "web.push.bannerEnable": "Attiva",
   "web.push.bannerDismiss": "Non ora",
   "web.push.switched": "I promemoria ora arrivano in questa app. Puoi tornare a Telegram nelle Impostazioni.",
-  "web.push.noticeClose": "Chiudi"
+  "web.push.noticeClose": "Chiudi",
+  "wordPackPublishButton": "📦 Trasforma in pacchetto",
+  "wordPackPublishing": "📦 Preparo un pacchetto da «{name}»…",
+  "wordPackPublished": "📦 Il pacchetto «{name}» è attivo: {kept} parole ora arrivano a chi ha smesso di venire. Troppo facili, escluse: {tooEasy}.",
+  "wordPackNothing": "📦 Nessuna parola di «{name}» è abbastanza difficile per un pacchetto: entrano solo parole da B2 in su.",
+  "wordPackFailed": "📦 Non è stato possibile creare il pacchetto. Riprova tra un minuto."
 }

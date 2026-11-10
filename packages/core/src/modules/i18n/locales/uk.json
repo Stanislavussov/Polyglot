@@ -564,7 +564,7 @@
   "web.translate.correction": "Можливо, ви мали на увазі: {text}",
   "web.translate.savedToDictionary": "Збережено у словнику",
   "web.translate.save": "Зберегти",
-  "web.translate.saveTo": "Зберегти в словник",
+  "web.translate.saveTo": "Зберегти в",
   "web.translate.saved": "Збережено",
   "web.translate.synonyms": "Синоніми",
   "web.translate.examples": "Приклади",
@@ -885,7 +885,6 @@
   "web.progress.insight.monthBehind": "Днів занять цього місяця: {days} з {target} — додайте кілька",
   "web.progress.insight.newWords": "Збережіть ще {left} слів або закріпіть одне в пам'яті",
   "web.progress.insight.firstWord": "Збережіть перше слово — з нього почнеться прогрес",
-  "web.translate.saveTo": "Зберегти в",
   "webPushWordTitle": "Час для слова",
   "webPushWordBody": "Пам’ятаєте «{word}»?",
   "webPushDeckBody": "На вас чекають картки: {count}",
@@ -904,5 +903,10 @@
   "web.push.bannerEnable": "Увімкнути",
   "web.push.bannerDismiss": "Не зараз",
   "web.push.switched": "Нагадування тепер надходять у цей застосунок. Повернути Telegram можна в налаштуваннях.",
-  "web.push.noticeClose": "Закрити"
+  "web.push.noticeClose": "Закрити",
+  "wordPackPublishButton": "📦 Зробити набором",
+  "wordPackPublishing": "📦 Збираю набір із «{name}»…",
+  "wordPackPublished": "📦 Набір «{name}» готовий: {kept} слів тепер надходять тим, хто перестав заходити. Надто прості, не ввійшли: {tooEasy}.",
+  "wordPackNothing": "📦 У «{name}» немає достатньо складних слів для набору — входять лише слова від B2.",
+  "wordPackFailed": "📦 Не вдалося зібрати набір. Спробуйте за хвилину."
 }

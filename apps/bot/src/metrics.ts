@@ -76,6 +76,12 @@ export const unrecognizedWordCounter = new Counter({
   labelNames: ["outcome"] as const,
 });
 
+export const wordPackPublishCounter = new Counter({
+  name: "bot_word_pack_publish_total",
+  help: "Word-pack publishes from the dictionary (Task 87), by result: published, empty (no word hard enough) or failed",
+  labelNames: ["result"] as const,
+});
+
 export const staleCallbackCounter = new Counter({
   name: "bot_stale_callback_total",
   help: "Inline-button taps whose backing state was already gone, by guard and whether the card's input could still seed a one-tap retry",

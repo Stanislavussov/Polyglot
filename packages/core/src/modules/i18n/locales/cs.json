@@ -564,7 +564,7 @@
   "web.translate.correction": "Měli jste na mysli: {text}",
   "web.translate.savedToDictionary": "Uloženo do slovníku",
   "web.translate.save": "Uložit",
-  "web.translate.saveTo": "Uložit do slovníku",
+  "web.translate.saveTo": "Uložit do",
   "web.translate.saved": "Uloženo",
   "web.translate.synonyms": "Synonyma",
   "web.translate.examples": "Příklady",
@@ -885,7 +885,6 @@
   "web.progress.insight.monthBehind": "Dny učení tento měsíc: {days} z {target} — přidej pár",
   "web.progress.insight.newWords": "Ulož ještě {left} slov, nebo jedno upevni v paměti",
   "web.progress.insight.firstWord": "Ulož své první slovo — tím začne tvůj pokrok",
-  "web.translate.saveTo": "Uložit do",
   "webPushWordTitle": "Čas na slovíčko",
   "webPushWordBody": "Pamatujete si „{word}“?",
   "webPushDeckBody": "Čekají na vás karty: {count}",
@@ -904,5 +903,10 @@
   "web.push.bannerEnable": "Zapnout",
   "web.push.bannerDismiss": "Teď ne",
   "web.push.switched": "Připomínky teď chodí do této aplikace. Zpět na Telegram přepnete v Nastavení.",
-  "web.push.noticeClose": "Zavřít"
+  "web.push.noticeClose": "Zavřít",
+  "wordPackPublishButton": "📦 Udělat z toho sadu",
+  "wordPackPublishing": "📦 Sestavuji sadu ze slovníku „{name}“…",
+  "wordPackPublished": "📦 Sada „{name}“ je hotová: {kept} slov teď chodí těm, kdo přestali chodit. Příliš snadná, vynechaná: {tooEasy}.",
+  "wordPackNothing": "📦 Ve slovníku „{name}“ není žádné dost těžké slovo — do sady patří jen slova od B2.",
+  "wordPackFailed": "📦 Sadu se nepodařilo sestavit. Zkuste to za minutu."
 }
