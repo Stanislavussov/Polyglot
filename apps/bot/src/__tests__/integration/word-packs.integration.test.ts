@@ -225,7 +225,14 @@ describe("word packs (integration)", () => {
 
     // Act
     const { sendFn, reEngagementSendFn, deps } = await buildNotificationScheduling(harness.bot.api);
-    await processLapsedUsers(sendFn, reEngagementSendFn, deps);
+    // Scoped to this learner: an unscoped sweep would also card the lapsed users of
+    // notification-reengagement running in the other worker, and race their own sweep.
+    const onlyLearner: typeof deps = {
+      ...deps,
+      getUsersForReEngagement: async () =>
+        (await deps.getUsersForReEngagement()).filter((user) => user.userId === learner.userId),
+    };
+    await processLapsedUsers(sendFn, reEngagementSendFn, onlyLearner);
 
     // Assert — the card, then the history that stops it being sent again.
     const mine = harness.sent.filter(
