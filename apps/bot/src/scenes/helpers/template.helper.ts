@@ -8,6 +8,7 @@ import {
   resolveTemplate,
   type SupportedLang,
   TEMPLATE_FIELD_KEYS,
+  TEMPLATE_PREVIEW_OUTPUT,
   type TemplateFields,
   t,
 } from "@polyglot/core";
@@ -15,7 +16,6 @@ import { InlineKeyboard } from "grammy";
 import { renderTranslation } from "../../renderers/translation.renderer.js";
 import type { BotContext } from "../../types.js";
 import { resolveLanguageOrder } from "../../utils/language-order.js";
-import { MOCK_PREVIEW_OUTPUT } from "../template-preview.data.js";
 import { editMessageTextOrReply } from "./edit-message.helper.js";
 
 /** Map TemplateFields key → i18n key for field label */
@@ -108,7 +108,7 @@ export async function handlePreviewCallback(ctx: BotContext): Promise<void> {
   // Preview the mock card in the user's own language order, so the wizard shows
   // what their real cards will look like.
   const card = renderTranslation(
-    MOCK_PREVIEW_OUTPUT,
+    TEMPLATE_PREVIEW_OUTPUT,
     await resolveLanguageOrder(ctx),
     lang,
     ctx.session.templateWizard.fields,

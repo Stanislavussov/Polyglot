@@ -1,5 +1,6 @@
+import { isEmojiOnly, validateTranslatableText } from "@polyglot/core";
 import { describe, expect, it } from "vitest";
-import { detectNonTextContent, isEmojiOnly, validateTranslatableText } from "./validate-text-input.js";
+import { detectNonTextContent } from "./validate-text-input.js";
 
 describe("isEmojiOnly", () => {
   it("returns true for a single emoji", () => {

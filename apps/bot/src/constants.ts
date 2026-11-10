@@ -5,11 +5,7 @@
  * This file only contains non-language constants.
  */
 
-/** Max number of target languages a user can learn */
-export const MAX_LEARNING_LANGS = 4;
-
-/** Max number of daily notification times a user can configure */
-export const MAX_NOTIFICATION_TIMES = 12;
+export { MAX_LEARNING_LANGS, MAX_NOTIFICATION_TIMES } from "@polyglot/core";
 
 /**
  * Telegram `file_id` of the optional onboarding screencast (Task 72), shown above

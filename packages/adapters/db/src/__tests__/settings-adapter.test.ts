@@ -18,7 +18,7 @@ vi.mock("../repositories/ai-model.repository.js", () => ({ aiModelRepository: {}
 vi.mock("../repositories/rate-limit-plan.repository.js", () => ({ rateLimitPlanRepository: {} }));
 vi.mock("../repositories/translation-preset.repository.js", () => ({ translationPresetRepository: {} }));
 
-import { AI_GENERATION_DEFAULTS } from "@polyglot/core";
+import { AI_GENERATION_DEFAULTS, DEFAULT_MOTIVATION_CONFIG } from "@polyglot/core";
 import { settingsAdapter } from "../settings-adapter.js";
 
 describe("settingsAdapter.getAIGenerationDefaults — partial-blob merge", () => {
@@ -192,6 +192,7 @@ describe("settingsAdapter.getMotivationConfig — kill switch read boundary", ()
     mockGet.mockResolvedValueOnce(null);
 
     expect(await settingsAdapter.getMotivationConfig()).toEqual({
+      ...DEFAULT_MOTIVATION_CONFIG,
       recordingEnabled: true,
       enabled: false,
       praiseEnabled: false,
@@ -200,7 +201,13 @@ describe("settingsAdapter.getMotivationConfig — kill switch read boundary", ()
   });
 
   it("serves a valid stored blob verbatim", async () => {
-    const stored = { recordingEnabled: true, enabled: true, praiseEnabled: true, recoveryEnabled: false };
+    const stored = {
+      ...DEFAULT_MOTIVATION_CONFIG,
+      enabled: true,
+      praiseEnabled: true,
+      progressGoalsEnabled: true,
+      progressMinActiveDays: 8,
+    };
     mockGet.mockResolvedValueOnce(stored);
 
     expect(await settingsAdapter.getMotivationConfig()).toEqual(stored);
@@ -212,6 +219,7 @@ describe("settingsAdapter.getMotivationConfig — kill switch read boundary", ()
     mockGet.mockResolvedValueOnce({ recordingEnabled: true, enabled: true });
 
     expect(await settingsAdapter.getMotivationConfig()).toEqual({
+      ...DEFAULT_MOTIVATION_CONFIG,
       recordingEnabled: true,
       enabled: true,
       praiseEnabled: false,
@@ -230,6 +238,7 @@ describe("settingsAdapter.getMotivationConfig — kill switch read boundary", ()
     });
 
     expect(await settingsAdapter.getMotivationConfig()).toEqual({
+      ...DEFAULT_MOTIVATION_CONFIG,
       recordingEnabled: true,
       enabled: false,
       praiseEnabled: false,
@@ -248,6 +257,7 @@ describe("settingsAdapter.getMotivationConfig — kill switch read boundary", ()
     });
 
     expect(await settingsAdapter.getMotivationConfig()).toEqual({
+      ...DEFAULT_MOTIVATION_CONFIG,
       recordingEnabled: true,
       enabled: true,
       praiseEnabled: false,

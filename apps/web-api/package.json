@@ -1,0 +1,27 @@
+{
+  "name": "@polyglot/web-api",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "NODE_OPTIONS='--conditions source' tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo"
+  },
+  "dependencies": {
+    "@fastify/jwt": "^10.2.2",
+    "@fastify/rate-limit": "^10.3.0",
+    "@fastify/static": "^9.0.0",
+    "@polyglot/adapter-ai": "workspace:*",
+    "@polyglot/adapter-db": "workspace:*",
+    "@polyglot/adapter-youtube": "workspace:*",
+    "@polyglot/core": "workspace:*",
+    "dotenv": "^17.3.1",
+    "fastify": "^5.12.5",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "tsx": "^4.21.0"
+  }
+}

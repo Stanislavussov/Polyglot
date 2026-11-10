@@ -19,5 +19,49 @@
 - New in 🎓 Learning: 💬 Expressions — idioms, lines from films and books, witty comparisons with famous people, in your own language and the ones you learn, each with its meaning, where it comes from and an example; choose “Expressions & quotes” in 🔔 Notifications to get one on schedule.
 - New ✍️ Check button and /check: send a sentence in a language you're learning (or your own) and get every mistake fixed, with the rule behind it and an example.
 - A single card no longer says “Card 1 of 1” — the counter only shows up when there are several cards to go through.
+- Recent translations on the website are now a tidy list of words, and each one has a 🗑 button to remove it.
+- While the website translates, it now keeps you company with the same little “one moment” phrases as the bot, in the languages you learn — and the button just turns pale instead of see-through.
+- Pages in the web app now open with a friendly monster placeholder instead of a blank screen, and on your phone you can swipe the menu open from the left edge.
+- Made a typo? The web app now suggests the word you meant, and you can still translate it exactly as you wrote it.
+- The web app now asks which language a word is in when it could be several, and tells you when you typed in a language you don't study yet instead of translating it wrong.
+- After a translation on the website, the input box empties itself, ready for your next word.
+- Review cards on the website now show the whole word — meaning, examples, synonyms and notes — and with Pro you can tap 🔊 to hear it.
+- Under a translation on the site, tap 🔍 Explore to clarify the meaning, see another meaning, read where the word comes from, or ask the mentor about it — just like in the bot.
+- On phones and tablets the website no longer shows keyboard tips you can't use there.
+- The website got a fresher look: new fonts, rounder buttons and cards, a lime underline under page titles and a lime marker on the page you're on — the dark theme stays just as it was.
+- Switching pages on the website is now instant: the menu stays put instead of reloading every time.
+- On the website, every word card now starts with the translation into your own language, then the meaning, then your other languages — and dictionary cards have an icon in the corner to open the full card.
+- The website's settings now let you set up reminders, choose what a translation card shows with a live preview, and report a problem — and your cards on the site follow that layout, just like in the bot.
+- A new Plans page on the website shows your plan and what each plan includes, with a button that takes you to the bot to upgrade.
+- The website now has a Learning section: chat with the mentor, check your grammar, discover expressions, pick new words and pull phrases out of YouTube videos — just like in the bot.
+- On the website you can now keep several dictionaries, just like in the bot: create, rename and delete them, and add or move a word between them.
+- While reviewing on the website, you can remove a word you no longer need — and bring it back with one tap if you change your mind.
+- The website now has a Progress page with your rhythm, words in long-term memory and active days — and everything you do on the site counts toward it, just like in the bot.
+- When you type a word in a language you don't study yet, the website now offers to add that language and translate it in one tap.
+- Signing in to the website for the first time now walks you through choosing your languages and trying a word, just like the bot does.
+- With Pro you can now say a word out loud on the website's translate page instead of typing it.
+- On the website, your name and plan now sit at the bottom of the menu — tap them to open Settings or sign out. A translated word also gets a corner button that opens its full card.
+- On a website review card, the “how well did you remember it?” buttons now come right after the translation into your language, so you can rate without scrolling.
+- If the website can't reach our server, it now still shows its buttons and labels in English instead of technical codes.
+- On the website, a translated word no longer lands in your dictionary by itself — tap the bright 💾 Save button at the top of the card to keep it, just like in the bot.
+- Word meanings and mentor chat messages on the website now use a larger, easier-to-read font.
+- The Progress page on the website is redesigned: you see at a glance what is going well, what to work on next and how close your gift is.
+- On a website review card, tap ⚙️ to choose whether it shows a hint, synonyms or an example sentence — the card changes right away.
+- Text across the website is a little larger, so examples, meanings and captions are easier to read on a phone, a tablet and a computer.
+- On a website review card, the ⚙️ settings now open in a small panel that no longer pushes the card around, and the “How well did you remember it?” buttons stand out.
+- On a phone, word cards on the website slide up lower and smoother, close with a swipe from anywhere at the top of the card, and no longer flash when closing.
+- Language flags on the website are now crisp icons instead of emoji, and text on word cards uses one even, comfortable size.
+- The language line on a website translation is cleaner: the source language sits in a soft pill and the target languages show as a small row of round flags.
+- Text across the website now follows one calm, larger scale, so captions, examples and headings no longer jump between sizes.
+- In the website dictionary on a phone, the search box is now big and full width with Filters and Sort right under it, and the review card settings grey out the aids a word doesn't have.
+- Drop-down lists on the website are now neat menus with language flags, creating or renaming a dictionary opens in its own window, and the sound button always sits right next to the word.
+- Give each dictionary on the website its own emoji icon, picked from a neat grid with search, just like in Notion.
+- The dictionary icon picker on the website now offers about 300 emoji in 11 groups, with a quick jump bar between them.
+- On the website, Save is now a neat bookmark icon; if you have several dictionaries it asks which one to save the word to.
+- The website has a fresh teal colour scheme that matches the owl logo.
+- Every drop-down list on the website — languages, reminders, time zone, dictionaries — now opens as a neat menu that looks the same on phone and computer.
+- Have several dictionaries? The 💾 Save button on the website now asks which one the word goes to.
+- The 🔊 button on website review cards is now a tidy round icon, right next to the word.
+- Added Polyglot to your phone's home screen? Your reminders can now arrive right there as app notifications instead of in Telegram — choose where in Settings, and switch back any time.
 - Been away for a while? The bot now brings you back with a striking word in the language you're learning, hand-picked from a collection of tricky, beautiful words.
 - Cards look cleaner: each language is marked with just its flag, so words no longer wrap onto a second line on your phone.

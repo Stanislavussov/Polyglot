@@ -11,33 +11,35 @@
  * `clarification` depend on this module without a cycle.
  */
 import {
+  clarificationReasonText,
   type DetectionResult,
   detectLanguageWithConfidence,
   detectLanguageWithConfidenceAsync,
   detectOutOfSetByAlphabet,
   detectOutOfSetLanguage,
   errorFields,
+  fallbackLanguageChoices,
   getLangFlag,
   getLanguageName,
-  getMonthlyWindowStart,
+  hasActionableLanguageAmbiguity,
   type InputType,
   isSupported,
   isSupportedLanguage,
   logEvent,
   needsAiArbitration,
   needsDictionaryVerification,
+  outOfSetLanguageFromCorrection,
+  parseTranslateInput,
   resolveDirectionFromSource,
-  resolveEntitlements,
-  resolveMeteredWindowStart,
   resolveOutputConfig,
   resolveTemplate,
   resolveTranslationDirection,
-  type SubscriptionPlan,
   type SupportedLang,
   type TranslateOutput,
   type TranslationAmbiguity,
   t,
   translateWithContext,
+  validateTranslatableText,
 } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import {
@@ -52,11 +54,10 @@ import { getRequestSettings } from "../../middlewares/request-settings.js";
 import { recordEffort } from "../../momentum/momentum.wiring.js";
 import { resolvePraiseLine } from "../../momentum/praise.footer.js";
 import { commitRecovery, resolveRecoveryPrefix } from "../../momentum/recovery.helper.js";
-import { trackProductEvent } from "../../observability/product-events.js";
 import { renderSentenceTranslation, renderTranslation } from "../../renderers/translation.renderer.js";
 import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
-import { ensureTranslationDailyCeiling } from "../../utils/ai-quota.js";
+import { ensureTranslationQuota } from "../../utils/ai-quota.js";
 import { classifyInput } from "../../utils/classify-input.js";
 import { resolveLanguageOrder } from "../../utils/language-order.js";
 import {
@@ -70,12 +71,9 @@ import {
   TRANSLATION_BUDGET_MS,
   withTimeout,
 } from "../../utils/long-op.js";
-import { parseTranslateInput } from "../../utils/parse-translate-input.js";
 import { encodeTranslateRetryText, replyWithRetry } from "../../utils/retry-action.js";
-import { validateTranslatableText } from "../../utils/validate-text-input.js";
 import { buildCardKeyboard } from "./card-keyboard.js";
 import { answerStaleCallback } from "./stale-callback.helper.js";
-import { buildUpgradeKeyboard } from "./subscription.helper.js";
 import {
   clearPendingClarification,
   getUserLanguageGroup,
@@ -83,134 +81,6 @@ import {
   showAddLanguagePrompt,
 } from "./translate-mode.shared.js";
 import { setTranslationEntry } from "./translation-map.helper.js";
-
-/**
- * Translation quota — a monthly (calendar-UTC) window, distinct from the daily
- * credit meter (`ensureAiQuota`) that governs the other paid AI calls. Free plans
- * allow N translations per calendar month; unlimited plans and admin/tester roles
- * skip the ledger entirely. Returns the credit cost to log on success, or null
- * when the quota is exhausted (after replying with the limit notice + upgrade
- * CTA — the caller must then abort).
- */
-async function ensureTranslationQuota(
-  ctx: BotContext,
-  plan: SubscriptionPlan,
-  lang: SupportedLang,
-): Promise<number | null> {
-  const creditCost = 1;
-  const planConfig = await ctx.services.settings.getPlanLimit(plan);
-  const entitlements = resolveEntitlements({
-    audienceGroup: ctx.user.audienceGroup,
-    plan,
-    planConfig,
-    planFeatures: [],
-  });
-
-  if (entitlements.translationsPerMonth !== null) {
-    const usedCredits = await ctx.services.translationRequestRepository.getUserCreditsInWindow(
-      ctx.user.id,
-      await resolveQuotaWindowStart(ctx),
-    );
-    if (usedCredits + creditCost > entitlements.translationsPerMonth) {
-      trackProductEvent(ctx, "limit.reached", "translation");
-      await ctx.reply(t("rateLimitExceeded", lang), { reply_markup: buildUpgradeKeyboard(lang) });
-      return null;
-    }
-  }
-
-  // The safety ceiling runs even when the plan said yes, and especially then: an
-  // unlimited plan and an internal role are exactly the accounts the monthly
-  // window above returns early for, so this is the only thing standing between a
-  // stuck client and an unbounded AI bill.
-  if (!(await ensureTranslationDailyCeiling(ctx, plan, lang, creditCost))) {
-    return null;
-  }
-
-  return creditCost;
-}
-
-/**
- * The billing window for a metered plan, rebased on a trial that ended inside
- * this month (see `resolveMeteredWindowStart` for why). Only the monthly
- * translation window is rebased; the daily credit meter is left alone, where the
- * same overlap can cost at most the remainder of one day.
- *
- * Reached only by a metered plan — an unlimited one returns above this call, so
- * the extra lookup never touches a paying user's hot path.
- */
-async function resolveQuotaWindowStart(ctx: BotContext): Promise<Date> {
-  const trial = await ctx.services.subscriptionRepository?.findTrialByUser(ctx.user.id);
-  return resolveMeteredWindowStart(getMonthlyWindowStart(), trial?.currentPeriodEnd);
-}
-
-/**
- * Task 70 cross-language guard. A `needs_clarification` of reason
- * `unrecognized_word` carries the AI's spelling correction; when that correction
- * is written in the exclusive alphabet of a SUPPORTED language the user does not
- * study, the "unrecognized word" is really an out-of-set language the closed-set
- * detector coerced to a studied one — e.g. Russian-lettered Kazakh "кыздарай",
- * corrected to "қыздар-ай" whose "қ" exists only in Kazakh. Returns that
- * language so the flow can offer "add and translate" instead of a nonsensical
- * spelling fix. Returns undefined for genuine same-alphabet typos (Slovak vs
- * Czech share their alphabet and cannot be told apart by letters alone — those
- * need a dictionary/AI signal the alphabet check deliberately does not fake).
- */
-function outOfSetLanguageFromCorrection(
-  ambiguity: TranslationAmbiguity,
-  nativeLang: string,
-  learningLangs: string[],
-): string | undefined {
-  // Both correction-bearing reasons: the metadata existence guard answers
-  // "unrecognized_word", the spelling preflight "possible_typo", and either can
-  // be the coerced out-of-set language rather than a typo.
-  if (ambiguity.reason !== "unrecognized_word" && ambiguity.reason !== "possible_typo") {
-    return undefined;
-  }
-  const correction = (ambiguity.options ?? []).find((option) => option.kind === "typo_correction")?.correctedText;
-  if (!correction) {
-    return undefined;
-  }
-  const outOfSetLang = detectOutOfSetByAlphabet(correction, [nativeLang, ...learningLangs]);
-  return outOfSetLang && isSupportedLanguage(outOfSetLang) ? outOfSetLang : undefined;
-}
-
-function hasActionableLanguageAmbiguity(detection: DetectionResult): boolean {
-  const candidates = detection.ambiguousCandidates ?? [];
-  if (candidates.length < 2) {
-    return false;
-  }
-
-  const wiktionaryCandidates = new Set(
-    detection.evidence.filter((entry) => entry.strategy === "wiktionary").map((entry) => entry.candidate),
-  );
-  return candidates.filter((candidate) => wiktionaryCandidates.has(candidate)).length >= 2;
-}
-
-function clarificationReasonText(ambiguity: TranslationAmbiguity, lang: SupportedLang): string {
-  // Core returns structured reason + params (Fable T23/A13); the channel
-  // localizes here via t(). `params.lang` is a source-language CODE — localize
-  // its display name locally.
-  const params = ambiguity.params ?? {};
-  const fallbackByReason: Record<TranslationAmbiguity["reason"], string> = {
-    source_language: t("translationClarifyReasonLanguage", lang),
-    word_sense: t("translationClarifyReasonMeaning", lang),
-    possible_typo: t("translationClarifyReasonMeaning", lang),
-    date_or_time: t("translationClarifyReasonFormat", lang),
-    placeholder_grammar: t("translationClarifyReasonFormat", lang),
-    mixed_or_transliterated_input: t("translationClarifyReasonFormat", lang),
-    unsupported_input: t("translationClarifyReasonFormat", lang),
-    unrecognized_word: t("translationClarifyReasonUnrecognized", lang, {
-      word: params.word ?? "",
-      lang: params.lang ? getLanguageName(params.lang, lang) : "",
-    }),
-  };
-  const technicalPattern = /\b(sourceLang|targetLangs|JSON|schema|pipeline|validation|fieldPath)\b/i;
-  const message = ambiguity.message?.trim();
-  if (message && !technicalPattern.test(message)) {
-    return message;
-  }
-  return fallbackByReason[ambiguity.reason];
-}
 
 async function showTranslationClarification(
   ctx: BotContext,
@@ -298,10 +168,11 @@ async function showTranslationClarification(
 
   // No model-supplied language options but we still need a language choice —
   // offer the user's configured languages as flag + code buttons.
-  const showFallbackLanguages = params.ambiguity.reason === "source_language" && languageOptions.length === 0;
+  const fallbackLanguages = fallbackLanguageChoices(params.ambiguity, params.nativeLang, params.learningLangs);
+  const showFallbackLanguages = fallbackLanguages.length > 0;
   if (showFallbackLanguages) {
     addFlagRows(
-      getUserLanguageGroup(params.nativeLang, params.learningLangs).map((code) => ({
+      fallbackLanguages.map((code) => ({
         label: `${getLangFlag(code) ?? "🔤"} ${code.toUpperCase()}`,
         data: `tr:clarify:lang:${code}`,
       })),

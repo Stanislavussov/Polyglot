@@ -1,6 +1,6 @@
+import { parseTranslateInput } from "@polyglot/core";
 import { describe, expect, it, vi } from "vitest";
 import type { BotContext, SessionData } from "../types.js";
-import { parseTranslateInput } from "./parse-translate-input.js";
 import {
   encodeTranslateRetryText,
   MAX_RETRY_ACTIONS,

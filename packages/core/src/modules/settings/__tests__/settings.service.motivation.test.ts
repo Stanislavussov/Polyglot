@@ -6,10 +6,12 @@
  */
 import { describe, expect, it, vi } from "vitest";
 import type { SettingsPort } from "../../../ports/settings.port.js";
-import type { MotivationConfig } from "../../momentum/momentum.types.js";
+import { DEFAULT_MOTIVATION_CONFIG, type MotivationConfig } from "../../momentum/momentum.types.js";
 import { SettingsService } from "../settings.service.js";
 
 const ALL_ON: MotivationConfig = {
+  ...DEFAULT_MOTIVATION_CONFIG,
+  progressGoalsEnabled: true,
   recordingEnabled: true,
   enabled: true,
   praiseEnabled: true,

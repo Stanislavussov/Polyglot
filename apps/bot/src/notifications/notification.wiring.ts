@@ -8,6 +8,7 @@ import {
   notificationDeliveryRepository,
   notificationRepository,
   onboardingDemoCardRepository,
+  pushSubscriptionRepository,
   settingsAdapter,
   subscriptionRepository,
   userRepository,
@@ -41,6 +42,8 @@ import {
   SettingsService,
   type SupportedLang,
   t,
+  type UserLanguageSettings,
+  type WebPushSender,
 } from "@polyglot/core";
 import { type Api, type RawApi } from "grammy";
 import { z } from "zod";
@@ -60,6 +63,13 @@ import {
   formatNotificationMessage,
   SELF_CHECK_KEYS,
 } from "./notification.formatter.js";
+import {
+  formatEmptyDictionaryPush,
+  formatReEngagementPush,
+  formatWordPush,
+  type WebPushMessage,
+} from "./web-push.formatter.js";
+import { createWebPushSender, readVapidConfig } from "./web-push.sender.js";
 
 const jitTranslationSchema = z.object({
   translations: z.array(
@@ -180,6 +190,11 @@ export interface NotificationSchedulingOverrides {
    * `formatNotificationMessage` pins it.
    */
   pickSelfCheckVariant?: () => number;
+  /**
+   * Replaces the VAPID-signed sender built from the environment; `null` turns web
+   * delivery off. Tests pass a fake so no request leaves for a real push service.
+   */
+  webPushSender?: WebPushSender | null;
 }
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
@@ -416,6 +431,64 @@ Return translations as JSON array.`;
     notificationCounter.inc({ status });
   };
 
+  const vapid = readVapidConfig(process.env);
+  const webPush: WebPushSender | null =
+    overrides.webPushSender !== undefined ? overrides.webPushSender : vapid ? createWebPushSender(vapid) : null;
+
+  /**
+   * Delivers to every installed web app of a user whose channel is `web`.
+   *
+   * Returns false when the message must go to Telegram instead: the user is on the
+   * bot channel, push is not configured, or every subscription turned out dead —
+   * then the channel is reset to `bot` so the user is never left unreachable.
+   * A transient push failure with nothing delivered throws, wrapped so the
+   * scheduler's Telegram-403 check can never read it as "user blocked the bot".
+   */
+  const deliverToWeb = async (
+    userId: number,
+    settings: Pick<UserLanguageSettings, "notificationChannel"> | null,
+    message: WebPushMessage,
+    journal: {
+      kind: "word_card" | "expression" | "re_engagement" | "dictionary_empty";
+      meta?: Record<string, string | number | null>;
+    },
+  ): Promise<boolean> => {
+    if (settings?.notificationChannel !== "web" || !webPush) return false;
+    const subscriptions = await pushSubscriptionRepository.listForUser(userId);
+    const body = JSON.stringify(message);
+    let delivered = 0;
+    let failure: unknown = null;
+    for (const subscription of subscriptions) {
+      try {
+        if ((await webPush.send(subscription, body)) === "gone") {
+          await pushSubscriptionRepository.remove(subscription.id);
+          continue;
+        }
+        await pushSubscriptionRepository.markSuccess(subscription.id);
+        delivered++;
+      } catch (err) {
+        failure ??= err;
+      }
+    }
+    if (delivered > 0) {
+      countDelivery("delivery_sent");
+      await logDelivery(notificationDeliveryRepository, {
+        userId,
+        kind: journal.kind,
+        text: `${message.title}\n${message.body}`,
+        meta: { ...journal.meta, channel: "web" },
+      });
+      return true;
+    }
+    if (failure !== null) {
+      countDelivery("delivery_failed");
+      throw new Error("Web push delivery failed", { cause: failure });
+    }
+    await notificationRepository.updatePrefs(userId, { notificationChannel: "bot" });
+    logEvent("notification.web_push.channel_reset", { userId });
+    return false;
+  };
+
   /**
    * Counts the outcome, then re-throws. The re-throw is load-bearing: the
    * scheduler needs the rejection to run its retry ladder and to disable
@@ -434,16 +507,26 @@ Return translations as JSON array.`;
   };
 
   const sendFn = async (userId: number, payload: NotificationPayload): Promise<void> => {
-    const telegramId = await resolveTelegramId(userId);
-    if (telegramId === null) {
-      countDelivery("delivery_skipped");
-      return;
-    }
-
     let lang: SupportedLang = "en";
     const settings = await userRepository.getSettings(userId);
     if (settings?.interfaceLang && isSupported(settings.interfaceLang)) {
       lang = settings.interfaceLang as SupportedLang;
+    }
+
+    const webDelivered = await deliverToWeb(userId, settings, formatWordPush(payload, lang), {
+      kind: payload.word.expression ? "expression" : "word_card",
+      meta: {
+        word: payload.word.expression?.expression ?? payload.word.headword ?? payload.word.original,
+        entryId: payload.word.entryId ?? null,
+        deckSize: payload.deck?.length ?? null,
+      },
+    });
+    if (webDelivered) return;
+
+    const telegramId = await resolveTelegramId(userId);
+    if (telegramId === null) {
+      countDelivery("delivery_skipped");
+      return;
     }
 
     const weeklyProof = await prepareWeeklyProof(userId, lang, settings?.timezone ?? "UTC");
@@ -503,12 +586,14 @@ Return translations as JSON array.`;
   };
 
   const reEngagementSendFn = async (userId: number, message: string): Promise<void> => {
+    const settings = await userRepository.getSettings(userId);
+    if (await deliverToWeb(userId, settings, formatReEngagementPush(message), { kind: "re_engagement" })) return;
     const telegramId = await resolveTelegramId(userId);
     if (telegramId === null) {
       countDelivery("delivery_skipped");
       return;
     }
-    const interfaceLang = (await userRepository.getSettings(userId))?.interfaceLang;
+    const interfaceLang = settings?.interfaceLang;
     const lang: SupportedLang = interfaceLang && isSupported(interfaceLang) ? interfaceLang : "en";
     const sent = await withDeliveryMetrics(() =>
       api.sendMessage(telegramId, message, {
@@ -591,9 +676,13 @@ Return translations as JSON array.`;
     pickReviewDeck: (userId: number, size: number, recentWords: string[]) =>
       reviewDeckPicker(userId, size, recentWords),
     sendDictionaryEmptyPrompt: async (userId: number, lang: string) => {
+      const userLang = (isSupported(lang) ? lang : "en") as SupportedLang;
+      const settings = await userRepository.getSettings(userId);
+      if (await deliverToWeb(userId, settings, formatEmptyDictionaryPush(userLang), { kind: "dictionary_empty" })) {
+        return;
+      }
       const telegramId = await resolveTelegramId(userId);
       if (telegramId === null) return;
-      const userLang = (isSupported(lang) ? lang : "en") as SupportedLang;
       const text = t("notifNoDictionary" as never, userLang);
       const sent = await api.sendMessage(telegramId, text, {
         reply_markup: buildNotificationSettingsKeyboard(userLang),

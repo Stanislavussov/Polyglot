@@ -1,0 +1,24 @@
+{
+  "name": "@polyglot/web",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "i18n": "node scripts/build-i18n.ts",
+    "dev": "pnpm run i18n && astro dev",
+    "build": "pnpm run i18n && astro build",
+    "preview": "astro preview",
+    "clean": "rm -rf dist .astro node_modules/.astro src/i18n/generated"
+  },
+  "dependencies": {
+    "@astrojs/vue": "^7.0.3",
+    "astro": "^7.3.5",
+    "autoprefixer": "^10.6.1",
+    "flag-icons": "7.5.0",
+    "lucide-vue-next": "^1.0.0",
+    "postcss": "^8.5.28",
+    "reka-ui": "^2.9.9",
+    "tailwindcss": "^3.4.17",
+    "vue": "^3.5.17"
+  }
+}

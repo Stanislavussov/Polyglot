@@ -54,6 +54,14 @@ vi.mock("@polyglot/adapter-db", () => ({
     countActiveDays: vi.fn().mockResolvedValue(0),
     listEventsForReplay: vi.fn().mockResolvedValue([]),
   },
+  progressRepository: {
+    closeAndClaim: vi.fn().mockResolvedValue({ closedMonths: [], countedMonths: 0, granted: [], deferredCycles: [] }),
+    getLedger: vi.fn().mockResolvedValue([]),
+    listActivityEvents: vi.fn().mockResolvedValue([]),
+    claimMilestones: vi.fn().mockResolvedValue([]),
+    listActiveUserIds: vi.fn().mockResolvedValue([]),
+    listUsersToClose: vi.fn().mockResolvedValue([]),
+  },
   mentorMessageRepository: {
     record: vi.fn().mockResolvedValue(undefined),
     findThreadByMessage: vi.fn().mockResolvedValue(null),

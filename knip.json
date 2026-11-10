@@ -7,6 +7,11 @@
       "project": ["src/**/*.{astro,ts,vue}"],
       "ignoreFiles": ["src/components/ConfirmDialog.vue", "src/components/SettingsForm.vue"]
     },
+    "apps/web": {
+      "entry": ["src/pages/**/*.astro"],
+      "project": ["src/**/*.{astro,ts,vue}", "scripts/**/*.ts"],
+      "ignoreDependencies": ["flag-icons"]
+    },
     "apps/admin-api": {
       "project": ["src/**/*.ts"]
     },
@@ -21,6 +26,7 @@
         "src/repair-native-translations.cli.ts",
         "src/repair-self-language-translations.cli.ts",
         "src/backfill-grammar-check-limits.cli.ts",
+        "src/backfill-progress-months.cli.ts",
         "src/momentum.backfill.wiring.ts"
       ],
       "project": ["src/**/*.ts"]

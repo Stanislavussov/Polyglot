@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { ALL_FEATURES, FEATURE_KEYS, FREE_FALLBACK, type PlanEntitlementConfig, resolveEntitlements } from "./index.js";
+import {
+  ALL_FEATURES,
+  FEATURE_KEYS,
+  FREE_FALLBACK,
+  type PlanEntitlementConfig,
+  resolveEntitlements,
+} from "./entitlements.js";
 
 // The real free tier, not a hand-written copy of it: the limit is a pricing knob
 // that has moved once already (Task 84) and will move again.

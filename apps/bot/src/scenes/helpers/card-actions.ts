@@ -13,6 +13,7 @@ import {
   resolveTemplate,
   type SupportedLang,
   t,
+  toVocabularyInput,
   translateWithContext,
 } from "@polyglot/core";
 import type { InlineKeyboard } from "grammy";
@@ -23,7 +24,6 @@ import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
 import { resolveLanguageOrder } from "../../utils/language-order.js";
 import { isUserFacingTimeout, LONG_OP_TIMEOUT_MS, loadingKeyboard, withTimeout } from "../../utils/long-op.js";
-import { toVocabularyInput } from "../../utils/vocabulary-mapper.js";
 import { buildCardKeyboard } from "./card-keyboard.js";
 import { editMessageReplyMarkupOrIgnore, editMessageTextOrReply } from "./edit-message.helper.js";
 import { ensurePaidFeature } from "./paid-feature.helper.js";

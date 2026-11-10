@@ -23,6 +23,8 @@ export {
 } from "./language-cache.js";
 export type { MomentumBackfillOptions, MomentumBackfillResult } from "./momentum-backfill.js";
 export { runMomentumBackfill } from "./momentum-backfill.js";
+export type { ProgressBackfillResult } from "./progress-backfill.js";
+export { runProgressBackfill } from "./progress-backfill.js";
 export type { AdminUser } from "./repositories/admin-user.repository.js";
 export { adminUserRepository } from "./repositories/admin-user.repository.js";
 export type { AIModelRow } from "./repositories/ai-model.repository.js";
@@ -98,6 +100,8 @@ export type {
   ProductFunnelStep,
 } from "./repositories/product-event.repository.js";
 export { productEventRepository } from "./repositories/product-event.repository.js";
+export { progressRepository } from "./repositories/progress.repository.js";
+export { pushSubscriptionRepository } from "./repositories/push-subscription.repository.js";
 export type { RateLimitPlan } from "./repositories/rate-limit-plan.repository.js";
 export { rateLimitPlanRepository } from "./repositories/rate-limit-plan.repository.js";
 export type {

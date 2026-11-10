@@ -123,6 +123,11 @@ export function localDayBounds(timezone: string, at: Date): { start: Date; end: 
   return { start, end };
 }
 
+/** UTC instant of local midnight opening `year-month-day`; `day` may overflow into the next month. */
+export function localMidnight(timezone: string, year: number, month: number, day: number): Date {
+  return instantForLocalWallClock(timezone, Date.UTC(year, month - 1, day));
+}
+
 /** Distinct local days carrying real effort — a day of capped-out (weight 0) rows does not count as active. */
 export function activeDaysFromEvents(
   events: ReadonlyArray<{ occurredAt: Date; weight: number }>,

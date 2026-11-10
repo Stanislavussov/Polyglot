@@ -1,4 +1,4 @@
-import type { MomentumEventKind, ProductEvent, TranslateOutput } from "@polyglot/core";
+import type { MomentumEventKind, PlanDays, ProductEvent, TranslateOutput } from "@polyglot/core";
 import { sql } from "drizzle-orm";
 import {
   bigint,
@@ -203,6 +203,12 @@ export const userLanguageSettings = pgTable("user_language_settings", {
   notificationContext: text("notification_context"),
   /** Cards one scheduled notification carries (1/3/5/10); above 1 the notification opens a review deck. */
   notificationBatchSize: integer("notification_batch_size").default(1).notNull(),
+  /**
+   * Where scheduled notifications go: the Telegram chat or the installed web app.
+   * 'web' is only ever set while a push subscription exists; delivery drops back
+   * to 'bot' the moment the last one is gone, so a user is never left unreachable.
+   */
+  notificationChannel: varchar("notification_channel", { length: 8 }).$type<"bot" | "web">().default("bot").notNull(),
   /** Last bot interaction timestamp — used for 14-day inactivity pause */
   lastInteractionAt: timestamp("last_interaction_at", { withTimezone: true }),
   /**
@@ -266,6 +272,8 @@ export const vocabularyDictionaries = pgTable(
       .references(() => users.id, { onDelete: "cascade" })
       .notNull(),
     name: text("name").notNull(),
+    // An emoji the learner picks for the list; null shows the plain name.
+    icon: text("icon"),
     isDefault: boolean("is_default").default(false).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
@@ -566,6 +574,26 @@ export const reportedIssues = pgTable(
 export type ReportedIssue = typeof reportedIssues.$inferSelect;
 
 // ─────────────────────────────────────────────
+// Web Push subscriptions — one row per installed web app (browser/device).
+export const pushSubscriptions = pgTable(
+  "push_subscriptions",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    endpoint: text("endpoint").notNull().unique(),
+    p256dh: text("p256dh").notNull(),
+    auth: text("auth").notNull(),
+    userAgent: text("user_agent"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    lastSuccessAt: timestamp("last_success_at", { withTimezone: true }),
+  },
+  (t) => [index("push_subscriptions_user_idx").on(t.userId)],
+);
+
+export type PushSubscriptionRow = typeof pushSubscriptions.$inferSelect;
+
 // Notification history — tracks words sent to users
 // Prevents repeating the same word in recent notifications
 // ─────────────────────────────────────────────
@@ -1348,7 +1376,38 @@ export const momentumEvents = pgTable(
   (t) => [
     uniqueIndex("momentum_events_user_dedupe_idx").on(t.userId, t.dedupeKey),
     index("momentum_events_user_time_idx").on(t.userId, t.occurredAt),
+    // The daily progress close and the backfill scan by kind and time across all users.
+    index("momentum_events_kind_time_idx").on(t.kind, t.occurredAt),
   ],
+);
+
+/**
+ * Goal-ladder ledger: one closed month per user. Frozen at close because both of its
+ * sources move after the fact — `momentum_events` is pruned at 90 days and
+ * `subscriptions` rows are rewritten by `extend` — while a reward five months later
+ * must be judged on what the month was. Never pruned.
+ */
+export const progressMonths = pgTable(
+  "progress_months",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    /** "YYYY-MM" in `tz`. */
+    month: varchar("month", { length: 7 }).notNull(),
+    /** The timezone the month was closed in; a later timezone change never rewrites it. */
+    tz: text("tz").notNull(),
+    activeDays: integer("active_days").notNull(),
+    matureGained: integer("mature_gained").notNull(),
+    savedGained: integer("saved_gained").notNull(),
+    counted: boolean("counted").notNull(),
+    planDays: jsonb("plan_days").$type<PlanDays>().notNull(),
+    /** 'backfill' rows were rebuilt from history after the fact and are approximate. */
+    source: text("source").$type<"live" | "backfill">().notNull(),
+    closedAt: timestamp("closed_at", { withTimezone: true }).notNull(),
+  },
+  (t) => [uniqueIndex("progress_months_user_month_idx").on(t.userId, t.month)],
 );
 
 /** Durable snapshot, one row per user; deliberately NOT pruned by retention. */

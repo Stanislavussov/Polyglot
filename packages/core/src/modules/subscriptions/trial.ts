@@ -28,6 +28,9 @@ import type { SubscriptionUserUpdater } from "./index.js";
 /** `subscriptions.provider` marking a granted, never-billed period. */
 export const TRIAL_PROVIDER = "trial";
 
+/** `subscriptions.provider` of a period granted by the `/progress` goal ladder — never billed either. */
+export const REWARD_PROVIDER = "reward";
+
 /** The tier the first week runs on — the dearest one, so nothing is badged. */
 export const TRIAL_PLAN = "pro";
 

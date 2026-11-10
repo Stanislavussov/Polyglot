@@ -91,6 +91,20 @@ export function createLanguageOrderContext(settings: {
 }
 
 /**
+ * The context from a settings row that may be missing or half-filled, as both the bot
+ * and the web API read it. A missing row ranks everything by language code, which is
+ * right for a user who has chosen nothing yet.
+ */
+export function languageOrderFromSettings(
+  settings: { nativeLang?: string | null; learningLangs?: readonly string[] | null } | null | undefined,
+): LanguageOrderContext {
+  return createLanguageOrderContext({
+    nativeLang: settings?.nativeLang,
+    learningLangs: settings?.learningLangs ?? [],
+  });
+}
+
+/**
  * Rank of a language code: 0 for the native language, 1..n for learning languages
  * in the user's order, and one past the end for anything else.
  */

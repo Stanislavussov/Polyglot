@@ -6,12 +6,14 @@
 import type { Conversation } from "@grammyjs/conversations";
 import {
   type InputType,
+  languageOrderFromSettings,
   logger,
   resolveOutputConfig,
   resolveTemplate,
   type SupportedLang,
   type TranslateOutput,
   t,
+  toVocabularyInput,
   translateOne,
 } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
@@ -22,8 +24,6 @@ import {
 } from "../../renderers/translation.renderer.js";
 import type { BotContext, ConversationContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
-import { languageOrderFromSettings } from "../../utils/language-order.js";
-import { toVocabularyInput } from "../../utils/vocabulary-mapper.js";
 import { editMessageTextOrReply } from "./edit-message.helper.js";
 import { resolveLockedBadges } from "./paid-feature.helper.js";
 

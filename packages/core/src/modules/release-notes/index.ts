@@ -1,6 +1,7 @@
 export type { ReleaseNote, TranslatedReleaseNote } from "./release-notes.js";
 export {
   buildAnnouncementText,
+  canReadReleaseNotes,
   findReleasesDir,
   findUnreleasedDir,
   noteId,

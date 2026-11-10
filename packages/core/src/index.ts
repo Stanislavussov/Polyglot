@@ -47,6 +47,21 @@ export type {
 } from "./ports/product-event.repository.js";
 export { PRODUCT_EVENTS } from "./ports/product-event.repository.js";
 export type {
+  CloseAndClaimInput,
+  CloseAndClaimResult,
+  ProgressMonth,
+  ProgressRepository,
+  RewardGrant,
+} from "./ports/progress.repository.js";
+export type {
+  NotificationChannel,
+  PushSubscriptionKeys,
+  PushSubscriptionRepository,
+  StoredPushSubscription,
+  WebPushResult,
+  WebPushSender,
+} from "./ports/push-subscription.repository.js";
+export type {
   IssueType,
   ReportedIssue,
   ReportedIssueRepository,
@@ -100,6 +115,7 @@ export type {
 } from "./ports/video-vocabulary.repository.js";
 export type {
   CreateVocabularyInput,
+  DictionaryFilters,
   DictionaryListOptions,
   DictionaryListSort,
   EntrySrsRow,
@@ -158,6 +174,19 @@ export * from "./modules/i18n/index.js";
 export * from "./modules/idiom-analysis/index.js";
 export * from "./modules/input-analysis/index.js";
 export * from "./modules/language-detect/index.js";
+export {
+  type CardMentorContext,
+  composeCardMentorTurn,
+  type MentorCard,
+  renderCardForMentor,
+} from "./modules/mentor/card-context.js";
+export {
+  MENTOR_MAX_INPUT_LENGTH,
+  type MentorModels,
+  type MentorSetup,
+  resolveMentorModels,
+  resolveMentorSetup,
+} from "./modules/mentor/mentor-setup.js";
 export type { MentorPromptOptions } from "./modules/mentor/prompt.builder.js";
 export { buildMentorSystemPrompt, MAX_MENTOR_HISTORY } from "./modules/mentor/prompt.builder.js";
 export {
@@ -169,6 +198,7 @@ export {
   localDayKey,
   resolveBand,
 } from "./modules/momentum/momentum.math.js";
+export { creditEffort, recordMatureIfCrossed, withReviewRecording } from "./modules/momentum/momentum.recording.js";
 export type {
   MomentumService,
   MomentumServiceDeps,
@@ -196,6 +226,7 @@ export {
   EFFORT_WEIGHTS,
   HALF_LIFE_MS,
   MATURE_INTERVAL_DAYS,
+  MOMENTUM_CLAIM_KINDS,
   parseMotivationConfig,
 } from "./modules/momentum/momentum.types.js";
 export type {
@@ -205,6 +236,39 @@ export type {
   SelectPraiseInput,
 } from "./modules/momentum/praise.selector.js";
 export { PRAISE_COOLDOWN_MS, PRAISE_WEEKLY_CAP, selectPraise } from "./modules/momentum/praise.selector.js";
+export type { ProgressService, ProgressView } from "./modules/momentum/progress.service.js";
+export { createProgressService } from "./modules/momentum/progress.service.js";
+export type { ProgressLadderCopy } from "./modules/momentum/progress-copy.js";
+export { renderProgressLadder } from "./modules/momentum/progress-copy.js";
+export type {
+  ActivityEvent,
+  GrantAction,
+  MonthStats,
+  PlanDays,
+  PlanInterval,
+  ProgressGoalsConfig,
+  ProgressGoalType,
+} from "./modules/momentum/progress-goals.js";
+export {
+  activityStats,
+  cyclesToClaim,
+  DEFAULT_PROGRESS_GOALS,
+  dayTaskState,
+  grantAction,
+  isMonthCounted,
+  longestHeldPlan,
+  monthBounds,
+  monthKey,
+  monthsBetween,
+  nearestGoal,
+  nextMilestone,
+  PROGRESS_MILESTONES,
+  planDaysForMonth,
+  previousMonth,
+  progressGoalsConfig,
+  rhythmWeek,
+  safeTimezone,
+} from "./modules/momentum/progress-goals.js";
 export * from "./modules/notifications/index.js";
 export type { HookWord, HookWordCategory } from "./modules/onboarding/hook-words.js";
 export { getHookWordLanguages, getHookWords, HOOK_WORDS } from "./modules/onboarding/hook-words.js";
@@ -219,11 +283,18 @@ export {
 export * from "./modules/rate-limit/index.js";
 export * from "./modules/release-notes/index.js";
 export { AI_GENERATION_DEFAULTS, parseAIGenerationDefaults } from "./modules/settings/ai-defaults.schema.js";
+export { MAX_LEARNING_LANGS } from "./modules/settings/learning-langs.js";
 export * from "./modules/settings/settings.service.js";
+export type {
+  LanguageSettingsPatch,
+  LanguageSettingsValidation,
+} from "./modules/settings/validate-language-settings.js";
+export { validateLanguageSettings } from "./modules/settings/validate-language-settings.js";
 export * from "./modules/srs/index.js";
 export * from "./modules/subscriptions/index.js";
 export * from "./modules/subscriptions/trial.js";
 export * from "./modules/topics/index.js";
+export * from "./modules/translate-flow/index.js";
 export * from "./modules/translation/index.js";
 export type { SpeakableCard } from "./modules/tts/pronounceable-langs.js";
 export { resolvePronounceableText, selectPronounceableLangs } from "./modules/tts/pronounceable-langs.js";
@@ -257,14 +328,33 @@ export {
   extractionResultSchema,
   extractPhrasesFromTranscript,
 } from "./modules/video-vocabulary/index.js";
+export {
+  checkVideoAllowance,
+  processVideo,
+  type SaveVideoPhraseOptions,
+  saveAllVideoPhrases,
+  saveVideoPhrase,
+  type TranscriptSource,
+  type VideoAllowance,
+  type VideoFlowDeps,
+  type VideoProcessOutcome,
+} from "./modules/video-vocabulary/video-flow.js";
+export { acceptDictionaryName, MAX_DICTIONARY_NAME_LENGTH } from "./modules/vocabulary/dictionary-name.js";
+export {
+  type EnrichEntryInput,
+  type EnrichSavedEntryDeps,
+  enrichSavedEntry,
+} from "./modules/vocabulary/enrich-saved-entry.js";
 export type { LanguageOrderContext } from "./modules/vocabulary/translation-order.js";
 export {
   createLanguageOrderContext,
+  languageOrderFromSettings,
   languageRank,
   orderLangCodes,
   orderRecordEntries,
   orderTranslations,
 } from "./modules/vocabulary/translation-order.js";
+export { type LangResolver, toTranslateOutput, toVocabularyInput } from "./modules/vocabulary/vocabulary-mapper.js";
 export { localizePackWords, WORD_PACK_MIN_LEVEL } from "./modules/word-packs/localize.service.js";
 export type { LocalizedPackWord, PackLocalizationResult, PackSourceWord } from "./modules/word-packs/types.js";
 export type {
@@ -273,14 +363,22 @@ export type {
   PickedItem,
   PickedItemType,
   PickResult,
+  SavePickedItemOptions,
+  WordPickDeps,
+  WordPickOutcome,
   WordPickRequest,
+  WordPickSetRequest,
 } from "./modules/word-picker/index.js";
 export {
   buildWordPickPrompt,
   DEFAULT_WORD_PICKER_PRESETS,
+  eligiblePresetLangs,
+  generateWordPickSet,
   normalizeWord,
   pickResultSchema,
   pickWords,
+  presetTitle,
+  savePickedItem,
 } from "./modules/word-picker/index.js";
 export {
   type AICircuitEvent,
@@ -293,6 +391,14 @@ export {
 export type { CircuitBreakerConfig, CircuitState } from "./resilience/circuit-breaker.js";
 // Resilience — per-model circuit breaker (Phase 3)
 export { CircuitBreaker } from "./resilience/circuit-breaker.js";
+export {
+  AIModelNotConfiguredError,
+  buildAiFailover,
+  MIN_FAILOVER_BUDGET_MS,
+  RESERVED_FALLBACK_MS,
+  resolveDefaultAIModel,
+  resolveFallbackAIModel,
+} from "./shared/ai-model.js";
 // Shared
 export type { CardFrontFields } from "./shared/card-template.types.js";
 export {
@@ -309,6 +415,7 @@ export {
   NOTIFICATION_TEMPLATE_FIELD_KEYS,
 } from "./shared/notification-template.types.js";
 export { isFinitePositive } from "./shared/numbers.js";
+export { applyTemplateFields, TEMPLATE_PREVIEW_OUTPUT } from "./shared/template-preview.js";
 export type { InputContext } from "./shared/translation-template.service.js";
 export {
   resolveOutputConfig,

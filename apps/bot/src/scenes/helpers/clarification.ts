@@ -7,6 +7,7 @@
  * text, and drive the post-translation "Clarify" button on a rendered card.
  */
 import {
+  clarifiedTargetLangs,
   FEATURE_KEYS,
   isSupported,
   isSupportedLanguage,
@@ -35,17 +36,6 @@ import {
   showAddLanguagePrompt,
 } from "./translate-mode.shared.js";
 import { setTranslationEntry } from "./translation-map.helper.js";
-
-function resolveTargetsForClarifiedSource(
-  selectedSource: string,
-  nativeLang: string,
-  learningLangs: readonly string[],
-  fallbackTargetLangs: readonly string[],
-): string[] {
-  const userLangs = getUserLanguageGroup(nativeLang, learningLangs);
-  const targets = userLangs.filter((code) => code !== selectedSource);
-  return targets.length > 0 ? targets : [...fallbackTargetLangs];
-}
 
 async function runClarifiedTranslation(
   ctx: BotContext,
@@ -137,12 +127,7 @@ export async function handleTranslationClarificationCallback(ctx: BotContext): P
       await showAddLanguagePrompt(ctx, lang, selectedSource, pending.word, pending.contextHint);
       return;
     }
-    const targetLangs = resolveTargetsForClarifiedSource(
-      selectedSource,
-      nativeLang,
-      learningLangs,
-      pending.targetLangs,
-    );
+    const targetLangs = clarifiedTargetLangs(selectedSource, nativeLang, learningLangs, pending.targetLangs);
     await ctx.answerCallbackQuery();
     await runClarifiedTranslation(ctx, pending, selectedSource, targetLangs, pending.contextHint);
     return;
@@ -170,12 +155,7 @@ export async function handleTranslationClarificationCallback(ctx: BotContext): P
         await showAddLanguagePrompt(ctx, lang, option.langCode, pending.word, pending.contextHint);
         return;
       }
-      const targetLangs = resolveTargetsForClarifiedSource(
-        option.langCode,
-        nativeLang,
-        learningLangs,
-        pending.targetLangs,
-      );
+      const targetLangs = clarifiedTargetLangs(option.langCode, nativeLang, learningLangs, pending.targetLangs);
       await ctx.answerCallbackQuery();
       await runClarifiedTranslation(ctx, pending, option.langCode, targetLangs, pending.contextHint);
       return;
@@ -184,7 +164,7 @@ export async function handleTranslationClarificationCallback(ctx: BotContext): P
       const sourceLang = option.langCode ?? pending.sourceLang;
       const targetLangs =
         option.langCode !== undefined
-          ? resolveTargetsForClarifiedSource(option.langCode, nativeLang, learningLangs, pending.targetLangs)
+          ? clarifiedTargetLangs(option.langCode, nativeLang, learningLangs, pending.targetLangs)
           : pending.targetLangs;
       inputCorrectionCounter.inc({ outcome: "confirmed", input_type: pending.inputType });
       await ctx.answerCallbackQuery();

@@ -140,6 +140,10 @@ export function createServicesStub(overrides: Partial<ServiceContainer> = {}): S
     notificationRepository: autoMockObject<ServiceContainer["notificationRepository"]>(),
     mentorMessageRepository: autoMockObject<ServiceContainer["mentorMessageRepository"]>(),
     momentumService: createMomentumServiceStub(),
+    progressService: {
+      closeForUser: vi.fn().mockResolvedValue({ closedMonths: [], countedMonths: 0, granted: [], deferredCycles: [] }),
+      getProgressView: vi.fn().mockResolvedValue(null),
+    },
     onboardingDemoCardRepository: autoMockObject<ServiceContainer["onboardingDemoCardRepository"]>(),
     translationRequestRepository: autoMockObject<ServiceContainer["translationRequestRepository"]>(),
     languageDetectionRepository: autoMockObject<ServiceContainer["languageDetectionRepository"]>(),

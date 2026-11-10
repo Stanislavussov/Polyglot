@@ -1,0 +1,8 @@
+---
+import LoginView from "../components/LoginView.vue";
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Login">
+  <LoginView client:only="vue" />
+</BaseLayout>

@@ -32,7 +32,7 @@
  */
 import { momentumRepository, notificationRepository, systemSettingsRepository } from "@polyglot/adapter-db";
 import { checkAndSend, type NotificationPayload, type SchedulerDeps } from "@polyglot/adapter-notifications";
-import { type GenerateObjectFn, type MotivationConfig, t } from "@polyglot/core";
+import { DEFAULT_MOTIVATION_CONFIG, type GenerateObjectFn, type MotivationConfig, t } from "@polyglot/core";
 import { afterEach, describe, expect, it } from "vitest";
 import { formatNotificationMessage } from "../../notifications/notification.formatter.js";
 import { buildNotificationScheduling } from "../../notifications/notification.wiring.js";
@@ -115,6 +115,7 @@ async function withMotivation<T>(config: MotivationConfig, act: () => Promise<T>
 }
 
 const MOTIVATION_ON: MotivationConfig = {
+  ...DEFAULT_MOTIVATION_CONFIG,
   recordingEnabled: true,
   enabled: true,
   praiseEnabled: false,

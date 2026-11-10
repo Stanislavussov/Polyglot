@@ -1,0 +1,45 @@
+# Web Design Rules (`apps/web`)
+
+Read before any visual change to the website. The owner's direction (2026-11-09):
+simple, minimal, large — "broad strokes", sized like the Google Store
+(https://store.google.com/ie/?hl=en-GB).
+
+## Principles
+
+1. **Large and calm.** Big type, generous spacing, few elements per screen. When unsure,
+   go one step bigger and remove something rather than add.
+2. **One thing is the focus.** Each screen and each card has one obvious main element
+   (the word, the rating block, the primary button). Everything else is quieter.
+3. **No decoration for its own sake.** No arrows, emoji, or ornaments as UI. Icons come
+   from `lucide-vue-next`; language flags only through `LangFlag` / `LangBadge`.
+4. **Nothing jumps.** Opening a setting, saving, or reloading a card must not shift the
+   layout. Settings open in a popover or sheet, never as an inline block that pushes content.
+5. **Same thing, same look.** Reuse the shared component instead of restyling in place:
+   `LangBadge` for a language label, `.card`, `.btn-primary`, `.btn-secondary`, `.field`,
+   `.page-title`, `BottomSheet`.
+
+## Colour
+
+Teal from the owl logo (`#1F8A74`), a mint accent, a cool white canvas. Every value lives in
+`apps/web/src/styles/tokens.css`; components use the tokens only. Avoid olive/swamp greens and
+plain blue.
+
+## Type scale — the only allowed sizes
+
+| Class | Size | Use |
+|---|---|---|
+| `text-sm` | 15px | captions, buttons, badges, helper and meta text |
+| `text-base` | 17px | all body text: examples, notes, descriptions (the `body` default) |
+| `text-xl` | 20px | translation words, block titles |
+| `text-2xl` | 24px | big numbers, section headings |
+| `text-3xl` | 30px | page titles (`.page-title`), the headword on a card |
+
+`text-xs` and `text-lg` are not used: they create the "every line a different size" look.
+Never add arbitrary sizes like `text-[13px]`.
+
+## Layout
+
+- Phone 390px, tablet 820/1180px, desktop 1440px: check all four, no horizontal scroll.
+- Tap targets at least 44px high (`min-h-11`) on phones.
+- Phone sheets open to at most `75dvh` so the close control stays in thumb reach.
+- Page content aligns left like every other page; do not center one page alone.

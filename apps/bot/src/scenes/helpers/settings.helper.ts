@@ -16,6 +16,7 @@ import {
   parseNotificationMinutes,
   type SupportedLang,
   t,
+  validateLanguageSettings,
 } from "@polyglot/core";
 import { InlineKeyboard } from "grammy";
 import { changesCommand } from "../../commands/changes.js";
@@ -48,6 +49,20 @@ async function getLang(ctx: BotContext): Promise<SupportedLang> {
   return (isSupported(iLang) ? iLang : "en") as SupportedLang;
 }
 
+/** A picker callback is forgeable, so a code is checked by the same rules the web settings form uses. */
+async function isValidLanguageWrite(
+  ctx: BotContext,
+  patch: { interfaceLang?: string; nativeLang?: string; learningLangs?: string[] },
+): Promise<boolean> {
+  const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
+  const known = (code: string) => ctx.services.languageCache.getSupportedLangs().some((l) => l.code === code);
+  return validateLanguageSettings(patch, {
+    currentNativeLang: settings?.nativeLang,
+    isKnownLang: known,
+    isInterfaceLang: isSupported,
+  }).ok;
+}
+
 async function showLangGroupMenu(ctx: BotContext): Promise<void> {
   const lang = await getLang(ctx);
   await editMessageTextOrReply(ctx, t("settingsLangGroupTitle", lang), {
@@ -67,10 +82,11 @@ async function buildNotifSubScreen(ctx: BotContext): Promise<{ text: string; key
   const timezone = settings?.timezone ?? "UTC";
   const notifContext = settings?.notificationContext ?? null;
   const batchSize = settings?.notificationBatchSize ?? DEFAULT_NOTIFICATION_BATCH_SIZE;
+  const channel = settings?.notificationChannel ?? "bot";
 
   return {
-    text: buildNotifSubText(lang, notifEnabled, notifTimes, notifType, timezone, notifContext, batchSize),
-    keyboard: buildNotifSubKeyboard(lang, notifEnabled, notifType),
+    text: buildNotifSubText(lang, notifEnabled, notifTimes, notifType, timezone, notifContext, batchSize, channel),
+    keyboard: buildNotifSubKeyboard(lang, notifEnabled, notifType, channel),
   };
 }
 
@@ -111,6 +127,10 @@ export async function handleSetNativeSelectCallback(ctx: BotContext): Promise<vo
   const data = ctx.callbackQuery?.data ?? "";
   const code = data.replace("set:native:", "");
   const lang = await getLang(ctx);
+  if (!(await isValidLanguageWrite(ctx, { nativeLang: code }))) {
+    await ctx.answerCallbackQuery();
+    return;
+  }
 
   const previousNative = (await ctx.services.userRepository.getSettings(ctx.user.id))?.nativeLang ?? null;
   await ctx.services.userRepository.updateNativeLang(ctx.user.id, code);
@@ -250,6 +270,10 @@ export async function handleSetLearnLevelCallback(ctx: BotContext): Promise<void
       });
       return;
     }
+    if (!(await isValidLanguageWrite(ctx, { learningLangs: [...selected, code] }))) {
+      await ctx.answerCallbackQuery();
+      return;
+    }
     selected.push(code);
     await ctx.services.userRepository.updateLearningLangs(ctx.user.id, selected);
   }
@@ -285,6 +309,10 @@ export async function handleSetInterfaceCallback(ctx: BotContext): Promise<void>
 export async function handleSetIfaceSelectCallback(ctx: BotContext): Promise<void> {
   const data = ctx.callbackQuery?.data ?? "";
   const code = data.replace("set:iface:", "");
+  if (!(await isValidLanguageWrite(ctx, { interfaceLang: code }))) {
+    await ctx.answerCallbackQuery();
+    return;
+  }
 
   await ctx.services.userRepository.updateInterfaceLang(ctx.user.id, code);
   logEvent("settings.interface_lang_changed", { to: code });
@@ -591,6 +619,15 @@ export async function handleNotifContextTextInput(ctx: BotContext): Promise<void
 
   const lang = await getLang(ctx);
   await ctx.reply(t("settingsNotifContextSaved", lang, { context: text }), { parse_mode: "HTML" });
+  await showNotifSubMenu(ctx);
+}
+
+/** set:notif:channel:bot — deliver to Telegram again instead of the web app */
+export async function handleSetNotifChannelBotCallback(ctx: BotContext): Promise<void> {
+  await ctx.services.notificationRepository.updatePrefs(ctx.user.id, { notificationChannel: "bot" });
+  logEvent("settings.notification_channel_changed", { to: "bot", via: "bot" });
+  const lang = await getLang(ctx);
+  await ctx.answerCallbackQuery({ text: t("settingsNotifChannelToBot", lang) });
   await showNotifSubMenu(ctx);
 }
 

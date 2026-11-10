@@ -8,6 +8,7 @@ export interface VocabularyDictionary {
   id: number;
   userId: number;
   name: string;
+  icon: string | null;
   isDefault: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -122,14 +123,24 @@ export const vocabularyDictionaryRepository = {
     return rows[0] ?? null;
   },
 
-  async create(userId: number, name: string): Promise<VocabularyDictionary> {
+  async create(userId: number, name: string, icon: string | null = null): Promise<VocabularyDictionary> {
     const normalized = normalizeDictionaryName(name);
     const db = getDb();
     const [created] = await db
       .insert(vocabularyDictionaries)
-      .values({ userId, name: normalized, isDefault: false })
+      .values({ userId, name: normalized, icon, isDefault: false })
       .returning();
     return created!;
+  },
+
+  /** Unlike rename, the default dictionary takes an icon too. */
+  async setIcon(userId: number, dictionaryId: number, icon: string | null): Promise<VocabularyDictionary | null> {
+    const [updated] = await getDb()
+      .update(vocabularyDictionaries)
+      .set({ icon, updatedAt: new Date() })
+      .where(and(eq(vocabularyDictionaries.id, dictionaryId), eq(vocabularyDictionaries.userId, userId)))
+      .returning();
+    return updated ?? null;
   },
 
   async rename(userId: number, dictionaryId: number, name: string): Promise<VocabularyDictionary | null> {
@@ -224,6 +235,7 @@ export const vocabularyDictionaryRepository = {
         id: vocabularyDictionaries.id,
         userId: vocabularyDictionaries.userId,
         name: vocabularyDictionaries.name,
+        icon: vocabularyDictionaries.icon,
         isDefault: vocabularyDictionaries.isDefault,
         createdAt: vocabularyDictionaries.createdAt,
         updatedAt: vocabularyDictionaries.updatedAt,

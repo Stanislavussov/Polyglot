@@ -4,6 +4,7 @@
 import type { ContextLookupFn } from "../modules/context-enrichment/types.js";
 import type { FindWordLanguagesFn } from "../modules/language-detect/types.js";
 import type { MomentumService } from "../modules/momentum/momentum.service.js";
+import type { ProgressService } from "../modules/momentum/progress.service.js";
 import type { AIPort } from "./ai.port.js";
 import type { CardTemplateRepository } from "./card-template.repository.js";
 import type { FeatureAccessPort } from "./feature-access.port.js";
@@ -52,6 +53,8 @@ export interface ServiceContainer {
   mentorMessageRepository: MentorMessageRepository;
   /** Effort journal and momentum snapshot — the only writer of `momentum_events` (Task 81). */
   momentumService: MomentumService;
+  /** Goal ladder on `/progress`: month ledger and the every-N-months reward. */
+  progressService: ProgressService;
   translationRequestRepository: TranslationRequestRepository;
   languageDetectionRepository: LanguageDetectionRepository;
   /** Product-analytics journal — purchase funnel, feature usage, mode switches. */

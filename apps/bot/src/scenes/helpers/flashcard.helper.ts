@@ -7,16 +7,16 @@ import {
   errorFields,
   isSupported,
   logEvent,
+  rateEntry,
+  recordMatureIfCrossed,
   type SrsRating,
-  type SrsReviewResult,
   type SupportedLang,
-  scheduleCardRating,
   t,
-  type VocabDifficulty,
+  toTranslateOutput,
   type VocabularyEntryWithTranslations,
 } from "@polyglot/core";
 import type { InlineKeyboard } from "grammy";
-import { recordMatureIfCrossed } from "../../momentum/momentum.wiring.js";
+
 import { resolvePraiseLine } from "../../momentum/praise.footer.js";
 import {
   buildFlashCardBackKeyboard,
@@ -29,7 +29,6 @@ import {
 } from "../../renderers/flashcard.renderer.js";
 import type { BotContext } from "../../types.js";
 import { makeLangCodeResolver, resolveLanguageOrder } from "../../utils/language-order.js";
-import { toTranslateOutput } from "../../utils/vocabulary-mapper.js";
 import { buildCardKeyboard } from "./card-keyboard.js";
 import { editMessageReplyMarkupOrIgnore, editMessageTextOrReply } from "./edit-message.helper.js";
 import { setTranslationEntry } from "./translation-map.helper.js";
@@ -39,14 +38,6 @@ type CardsSession = NonNullable<BotContext["session"]["cards"]>;
 
 /** Rows fetched per query, as a multiple of the session size: one card per entry discards rows, and the deck should still fill. */
 const CANDIDATE_OVERSHOOT = 4;
-
-/** The notification grade each rating writes, so a word keeps one grade across notifications and Cards. */
-const DIFFICULTY_BY_RATING: Record<SrsRating, VocabDifficulty> = {
-  again: "hard",
-  hard: "hard",
-  good: "normal",
-  easy: "easy",
-};
 
 export async function getUserLang(ctx: BotContext): Promise<SupportedLang> {
   const settings = await ctx.services.userRepository.getSettings(ctx.user.id);
@@ -305,40 +296,6 @@ export async function handleFcReveal(ctx: BotContext): Promise<void> {
 export const FLASHCARD_RATE_PATTERN = /^fc:rate:(again|hard|good|easy):(\d+)$/;
 
 /**
- * A rating grades the word, not the row the deck happened to draw.
- *
- * The deck takes at most one card per entry and the back shows every language, so
- * one rating covers all of them. Each row is scheduled from its *own* SM-2 state —
- * copying the rated row's numbers across would reset schedules the reader earned
- * in another language — and a row still ahead of its due date is treated as
- * practice ahead, exactly as the deck itself classifies it.
- *
- * Returns the state written per translation id; rows SM-2 declined to touch are absent.
- */
-async function rescheduleEntry(
-  ctx: BotContext,
-  card: CardsDeckCard,
-  rating: SrsRating,
-): Promise<Map<number, SrsReviewResult>> {
-  const now = new Date();
-  const rows = await ctx.services.vocabularyRepository.findEntrySrsRows(ctx.user.id, card.entryId);
-  const written = new Map<number, SrsReviewResult>();
-  for (const row of rows) {
-    const next = scheduleCardRating(
-      // `dueDate` is unused by SM-2; `ahead` above carries everything it says.
-      { easeFactor: row.srsEaseFactor, interval: row.srsInterval, reviewCount: row.srsReviewCount, dueDate: null },
-      rating,
-      { ahead: row.srsDueDate !== null && row.srsDueDate.getTime() > now.getTime(), retry: card.retry },
-      now,
-    );
-    if (!next) continue;
-    await ctx.services.vocabularyRepository.updateSrsState(row.translationId, next);
-    written.set(row.translationId, next);
-  }
-  return written;
-}
-
-/**
  * Everything a first presentation owes: the notification grade, the schedule, the
  * review log and the praise evidence. False only when the entry is gone. A storage
  * failure is logged and the deck carries on — as `/review` did — because a stuck
@@ -351,14 +308,16 @@ async function persistFirstRating(
   rating: SrsRating,
 ): Promise<boolean> {
   try {
-    const saved = await ctx.services.vocabularyRepository.setDifficulty(
-      card.entryId,
+    const next = await rateEntry(
+      { vocabulary: ctx.services.vocabularyRepository, reviews: ctx.services.wordReviewRepository },
       ctx.user.id,
-      DIFFICULTY_BY_RATING[rating],
+      card.entryId,
+      rating,
+      "flashcard",
+      { retry: card.retry },
     );
-    if (!saved) return false;
+    if (!next) return false;
 
-    const next = await rescheduleEntry(ctx, card, rating);
     const own = next.get(card.translationId);
     if (own) {
       const crossed = await recordMatureIfCrossed(ctx.services.momentumService, {
@@ -371,7 +330,6 @@ async function persistFirstRating(
     }
     // "You marked this one hard — and today you knew it": only a correct recall counts.
     if (card.difficulty === "hard" && (rating === "good" || rating === "easy")) cards.hardRecalled = true;
-    await ctx.services.wordReviewRepository.logReview(ctx.user.id, card.entryId, "flashcard");
     // The scheduling decision itself: a card resurfacing too soon or never again is
     // only explainable from what this rating wrote, or that it wrote nothing.
     logEvent("cards.card_rated", {

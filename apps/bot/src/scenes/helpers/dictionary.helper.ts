@@ -8,7 +8,18 @@ import type {
   VocabularyDictionaryWithCount,
   VocabularyEntryWithTranslations,
 } from "@polyglot/core";
-import { errorFields, isSupported, logEvent, resolveOutputConfig, resolveTemplate, t, translate } from "@polyglot/core";
+import {
+  acceptDictionaryName,
+  errorFields,
+  isSupported,
+  languageOrderFromSettings,
+  logEvent,
+  MAX_DICTIONARY_NAME_LENGTH,
+  resolveOutputConfig,
+  resolveTemplate,
+  t,
+  translate,
+} from "@polyglot/core";
 import { esc } from "../../renderers/card-sections.js";
 import {
   buildDeleteConfirmKeyboard,
@@ -29,13 +40,12 @@ import { renderTranslation } from "../../renderers/translation.renderer.js";
 import type { BotContext } from "../../types.js";
 import { resolveDefaultAIModel } from "../../utils/ai-model.js";
 import { ensureAiQuota, recordAiUsage } from "../../utils/ai-quota.js";
-import { languageOrderFromSettings, makeLangCodeResolver, resolveLanguageOrder } from "../../utils/language-order.js";
+import { makeLangCodeResolver, resolveLanguageOrder } from "../../utils/language-order.js";
 import { isUserFacingTimeout, LONG_OP_TIMEOUT_MS, withTimeout } from "../../utils/long-op.js";
 import { editMessageTextOrReply } from "./edit-message.helper.js";
 import { canPublishWordPack } from "./word-pack.helper.js";
 import { removeWord, restoreWord } from "./word-removal.js";
 
-const MAX_DICTIONARY_NAME_LENGTH = 32;
 const MAX_SEARCH_QUERY_LENGTH = 64;
 
 async function getUserLang(ctx: BotContext): Promise<SupportedLang> {
@@ -156,13 +166,7 @@ function validateDictionaryName(
   currentDictionaryId?: number,
 ): string | null {
   const normalized = ctx.services.vocabularyDictionaryRepository.normalizeName(name);
-  if (normalized.length === 0) return null;
-  if (normalized.length > MAX_DICTIONARY_NAME_LENGTH) return null;
-  const lower = normalized.toLowerCase();
-  const duplicate = dictionaries.some(
-    (dictionary) => dictionary.id !== currentDictionaryId && dictionary.name.toLowerCase() === lower,
-  );
-  return duplicate ? null : normalized;
+  return acceptDictionaryName(normalized, dictionaries, currentDictionaryId);
 }
 
 async function handleSearchQueryInput(ctx: BotContext, dictionaryId: number | undefined, text: string): Promise<void> {

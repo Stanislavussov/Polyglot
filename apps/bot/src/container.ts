@@ -46,6 +46,7 @@ import {
   onboardingDemoCardRepository,
   planFeatureAccessRepository,
   productEventRepository,
+  progressRepository,
   reportedIssueRepository,
   requestTimingRepository,
   settingsAdapter,
@@ -71,11 +72,19 @@ import type {
   SpeechOptions,
   TranscribeOptions,
 } from "@polyglot/core";
-import { createMomentumService, type ServiceContainer, SettingsService, setAICircuitObserver } from "@polyglot/core";
+import {
+  createFeatureAccess,
+  createMomentumService,
+  createProgressService,
+  MATURE_INTERVAL_DAYS,
+  type ServiceContainer,
+  SettingsService,
+  setAICircuitObserver,
+  withReviewRecording,
+} from "@polyglot/core";
 import type { ZodSchema } from "zod";
-import { createFeatureAccess } from "./feature-access.js";
 import { aiCircuitStateGauge, aiCircuitTransitionsCounter, aiFallbackCounter } from "./metrics.js";
-import { withReviewRecording } from "./momentum/momentum.wiring.js";
+
 import { purchasePaymentPort } from "./payment.js";
 import { buildAiFailover, resolveFallbackAIModel } from "./utils/ai-model.js";
 import { clampAiBudgetToOpGuard } from "./utils/long-op.js";
@@ -228,6 +237,13 @@ export function createContainer(): ServiceContainer {
     getTimezone,
   });
 
+  const progressService = createProgressService({
+    progressRepository,
+    getMotivationConfig: () => settings.getMotivationConfig(),
+    getTimezone,
+    countMatureWords: (userId) => vocabularyRepository.countMatureTranslations(userId, MATURE_INTERVAL_DAYS),
+  });
+
   const container: ServiceContainer = {
     userRepository,
     identityRepository,
@@ -243,6 +259,7 @@ export function createContainer(): ServiceContainer {
     notificationRepository,
     mentorMessageRepository,
     momentumService,
+    progressService,
     onboardingDemoCardRepository,
     translationRequestRepository,
     languageDetectionRepository,
