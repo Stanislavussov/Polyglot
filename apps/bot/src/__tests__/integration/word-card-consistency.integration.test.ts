@@ -32,11 +32,11 @@ import { deterministicTranslateAi } from "../../test-helpers/integration/transla
 /** The word the deterministic AI mock is fixtured for. */
 const WORD = "hello";
 
-/** `🇷🇺 RU: <b>…</b>` — the shape the translate card gives every language. */
-const ANSWER_LINE = /^\S+ [A-Z]{2}: <b>[^<]+<\/b>( \([^)]+\))?$/u;
+/** `🇷🇺 <b>…</b>` — the shape the translate card gives every language. */
+const ANSWER_LINE = /^[\u{1F1E6}-\u{1F1FF}]{2} <b>[^<]+<\/b>( \([^)]+\))?$/u;
 
-/** Any line wearing the shared flag-and-code label, the headword's included. */
-const LABELLED_LINE = /(^|\s)\S+ [A-Z]{2}: /u;
+/** Any line wearing the shared flag label, the headword's included. */
+const LABELLED_LINE = /(^|\s)[\u{1F1E6}-\u{1F1FF}]{2} <b>/u;
 
 /**
  * The card's answer lines.
@@ -47,7 +47,7 @@ const LABELLED_LINE = /(^|\s)\S+ [A-Z]{2}: /u;
  */
 function answerLines(card: string): string[] {
   const head = card.split("\n").find((line) => line.includes(`<b>${WORD}</b>`));
-  return card.split("\n").filter((line) => line !== head && /^\S+ [A-Z]{2}: /u.test(line));
+  return card.split("\n").filter((line) => line !== head && /^[\u{1F1E6}-\u{1F1FF}]{2} <b>/u.test(line));
 }
 
 function textsOf(sent: CapturedCall[]): string[] {

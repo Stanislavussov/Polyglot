@@ -111,7 +111,7 @@ describe("renderFlashCardFront", () => {
     const html = renderFlashCardFront(CARD, "ru", 2, 10, "ru", ALL_OFF);
 
     expect(html).toContain("Карточка 2 из 10");
-    expect(html).toContain("📝 🇷🇺 RU: <b>Обрисовать проблему</b>");
+    expect(html).toContain("📝 🇷🇺 <b>Обрисовать проблему</b>");
   });
 
   it("drops the progress line for a one-card deck — '1 of 1' says nothing", () => {
@@ -162,7 +162,7 @@ describe("renderFlashCardBack", () => {
   it("keeps the answer and its example on the card", () => {
     const html = renderFlashCardBack(ENTRY, RESOLVE_CODE, 2, 10, "ru", ORDER);
 
-    expect(html).toContain("🇬🇧 EN: <b>outline the problem</b>");
+    expect(html).toContain("🇬🇧 <b>outline the problem</b>");
     expect(html).toContain("💬 <i>Let me outline the problem.</i> (Позвольте обрисовать проблему.)");
   });
 });
@@ -172,7 +172,7 @@ describe("renderFlashCardBackFromCard", () => {
     const html = renderFlashCardBackFromCard(CARD, "ru", "en", 2, 10, "ru");
 
     expect(html).toContain("Карточка 2 из 10");
-    expect(html).toContain("🇬🇧 EN: <b>outline the problem</b>");
+    expect(html).toContain("🇬🇧 <b>outline the problem</b>");
     expect(html).not.toMatch(/<i>→/u);
   });
 });

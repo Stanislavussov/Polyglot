@@ -54,7 +54,7 @@ describe("assembleCard", () => {
     });
     const lines = card.split("\n");
 
-    expect(lines.indexOf("🇷🇺 RU: <b>дом</b> (жилище)")).toBe(lines.findIndex((l) => l.includes("Haus")) + 1);
+    expect(lines.indexOf("🇷🇺 <b>дом</b> (жилище)")).toBe(lines.findIndex((l) => l.includes("Haus")) + 1);
     expect(lines.findIndex((l) => l.startsWith("🇷🇺"))).toBeLessThan(lines.findIndex((l) => l.startsWith("💡")));
   });
 
@@ -74,13 +74,13 @@ describe("assembleCard", () => {
 });
 
 describe("langLabel", () => {
-  // Flag AND code: two flags are easy to confuse at a glance, and a reader
-  // scanning a multi-language card is hunting for one specific language.
-  it("pairs the flag with the ISO code", () => {
-    expect(langLabel("ru")).toBe("🇷🇺 RU:");
+  // The flag alone: the code pushed long words onto a second line on a phone,
+  // so the word no longer started at the same place on every line.
+  it("is the flag alone, so the word starts at the same place on every line", () => {
+    expect(langLabel("ru")).toBe("🇷🇺");
   });
 
-  it("keeps the code when no flag resolves, so the language stays identifiable", () => {
+  it("names the code only when no flag resolves, so the language stays identifiable", () => {
     expect(langLabel("xx")).toBe("🔤 XX:");
   });
 
@@ -91,11 +91,9 @@ describe("langLabel", () => {
 });
 
 describe("line builders", () => {
-  // The same label every answer wears. A bare flag was what the headword had,
-  // and a bare flag is exactly what langLabel's own comment calls not enough to
-  // tell two languages apart at a glance.
-  it("introduces the word with the same flag-and-code label every answer wears", () => {
-    expect(headwordLine("Haus", { emoji: "🏠", sourceLang: "de" })).toBe("🏠 🇩🇪 DE: <b>Haus</b>");
+  // The same label every answer wears, so the headword and the answers line up.
+  it("introduces the word with the same flag every answer wears", () => {
+    expect(headwordLine("Haus", { emoji: "🏠", sourceLang: "de" })).toBe("🏠 🇩🇪 <b>Haus</b>");
   });
 
   it("keeps the flag slot when the source language does not resolve", () => {
@@ -103,15 +101,15 @@ describe("line builders", () => {
   });
 
   it("carries source synonyms on the headword's own line", () => {
-    expect(headwordLine("Haus", { sourceLang: "de", synonyms: ["Gebäude"] })).toBe("🇩🇪 DE: <b>Haus</b> (Gebäude)");
+    expect(headwordLine("Haus", { sourceLang: "de", synonyms: ["Gebäude"] })).toBe("🇩🇪 <b>Haus</b> (Gebäude)");
   });
 
   it("appends a per-surface badge after the word, never inside it", () => {
-    expect(headwordLine("Haus", { sourceLang: "de", badge: " ✅" })).toBe("🇩🇪 DE: <b>Haus</b> ✅");
+    expect(headwordLine("Haus", { sourceLang: "de", badge: " ✅" })).toBe("🇩🇪 <b>Haus</b> ✅");
   });
 
   it("renders every language with the same bold answer line", () => {
-    expect(answerLine("cs", "dům")).toBe("🇨🇿 CS: <b>dům</b>");
+    expect(answerLine("cs", "dům")).toBe("🇨🇿 <b>dům</b>");
   });
 
   it("glosses an example with its native translation", () => {
@@ -120,7 +118,7 @@ describe("line builders", () => {
 
   it("escapes HTML in every builder", () => {
     expect(headwordLine("a<b>&c")).toBe("🔤 <b>a&lt;b&gt;&amp;c</b>");
-    expect(answerLine("ru", "x<y")).toBe("🇷🇺 RU: <b>x&lt;y</b>");
+    expect(answerLine("ru", "x<y")).toBe("🇷🇺 <b>x&lt;y</b>");
     expect(meaningLine("a & b")).toBe("💡 a &amp; b");
   });
 });

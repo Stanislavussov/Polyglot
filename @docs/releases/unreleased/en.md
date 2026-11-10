@@ -20,3 +20,4 @@
 - New ✍️ Check button and /check: send a sentence in a language you're learning (or your own) and get every mistake fixed, with the rule behind it and an example.
 - A single card no longer says “Card 1 of 1” — the counter only shows up when there are several cards to go through.
 - Been away for a while? The bot now brings you back with a striking word in the language you're learning, hand-picked from a collection of tricky, beautiful words.
+- Cards look cleaner: each language is marked with just its flag, so words no longer wrap onto a second line on your phone.

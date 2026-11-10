@@ -55,15 +55,16 @@ export function langFlag(code: string | undefined): string {
 }
 
 /**
- * `🇷🇺 RU:` — what precedes every translation on every card.
+ * `🇷🇺` — what precedes every translation on every card.
  *
- * The ISO code rides along with the flag rather than being dropped as
- * duplication: flags are hard to tell apart at a glance (🇷🇺/🇧🇾, 🇩🇪/🇧🇪, and any
- * pair on a small screen), and a reader scanning a multi-language card is
- * looking for one specific language.
+ * The flag alone: the ISO code beside it pushed a long word onto a second line on
+ * a phone, so the word stopped starting at a fixed place. The code survives only
+ * where no flag resolves, since `🔤` on its own names no language.
  */
 export function langLabel(code: string | undefined): string {
-  return code ? `${langFlag(code)} ${esc(code.toUpperCase())}:` : langFlag(code);
+  if (!code) return langFlag(code);
+  const flag = getLangFlag(code);
+  return flag ?? `${langFlag(code)} ${esc(code.toUpperCase())}:`;
 }
 
 /** Join synonyms into the trailing `(a, b)` form shared by the headword and answer lines. */
@@ -76,10 +77,9 @@ function synonymSuffix(synonyms: readonly string[]): string {
  * source-language synonyms — the card's only mention of the source language, so a
  * surface that also renders a source-usage block must not repeat it there.
  *
- * It wears {@link langLabel}, the same label as every answer, for the reason given
- * there: a bare flag does not survive a glance on a small screen, and the headword
- * is the one line whose language the reader must be sure of before reading
- * anything below it. The label precedes the word rather than trailing it — it says
+ * It wears {@link langLabel}, the same label as every answer, so the headword and
+ * the answers line up. The headword is the one line whose language the reader must
+ * be sure of before reading anything below it. The label precedes the word rather than trailing it — it says
  * which language you are looking at, which is needed before the word, not after.
  */
 export function headwordLine(

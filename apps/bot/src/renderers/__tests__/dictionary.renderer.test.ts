@@ -249,7 +249,7 @@ describe("renderDictionaryEntry", () => {
 
   it("contains original word with emoji and the source label beside it", () => {
     const html = renderDictionaryEntry(entryWithDetails, langResolver);
-    expect(html).toContain("🍎 🇬🇧 EN: <b>apple</b>");
+    expect(html).toContain("🍎 🇬🇧 <b>apple</b>");
   });
 
   it("carries no input-type chrome line — the translate card has none", () => {
@@ -263,8 +263,8 @@ describe("renderDictionaryEntry", () => {
 
   it("contains translations without transcription", () => {
     const html = renderDictionaryEntry(entryWithDetails, langResolver);
-    expect(html).toContain("🇷🇺 RU: <b>яблоко</b>");
-    expect(html).toContain("🇨🇿 CS: <b>jablko</b>");
+    expect(html).toContain("🇷🇺 <b>яблоко</b>");
+    expect(html).toContain("🇨🇿 <b>jablko</b>");
     expect(html).not.toContain("[");
   });
 
@@ -471,7 +471,7 @@ describe("renderDictionaryEntry — collapsible examples", () => {
 
   it("collapses the stored prose below the source examples once the answer is on the card", () => {
     const html = renderDictionaryEntryRaw(entryWithDetails, langResolver, "ru", RU_NATIVE);
-    const answerIdx = html.indexOf("🇷🇺 RU: <b>яблоко</b>");
+    const answerIdx = html.indexOf("🇷🇺 <b>яблоко</b>");
     const exampleIdx = html.indexOf("💬 <i>This apple is sweet.</i>");
     const collapsedIdx = html.indexOf("💡 Used for the fruit, not the technology company.");
 
