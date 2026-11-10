@@ -66,3 +66,4 @@
 - Been away for a while? The bot now brings you back with a striking word in the language you're learning, hand-picked from a collection of tricky, beautiful words.
 - Cards look cleaner: each language is marked with just its flag, so words no longer wrap onto a second line on your phone.
 - New on the website: 📰 Articles — paste a link to any article, and we keep just the story (no ads, menus or comments) and pick the words worth learning, ready to save to your dictionary.
+- Website dictionary cards look calmer: the word's language sits in small print above it, the emoji lines up with the translation flags, and long phrases wrap neatly.

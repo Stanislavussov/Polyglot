@@ -9,13 +9,20 @@
 
     <template v-else>
       <div class="flex items-start justify-between gap-2">
-        <p class="min-w-0 break-words text-xl font-semibold">
-          <span v-if="item.emoji" class="mr-2" aria-hidden="true">{{ item.emoji }}</span>{{ item.original }}
-          <LangBadge class="ml-2" :code="item.sourceLang" />
-        </p>
+        <!-- Eyebrow flag, emoji and translation flags share one centred w-6 column so they line up. -->
+        <div class="min-w-0">
+          <p class="mb-1 flex items-center gap-3 text-sm font-medium uppercase tracking-wider text-ink-muted">
+            <span class="grid w-6 shrink-0 place-items-center"><LangFlag class="!size-4" :code="item.sourceLang" /></span>
+            {{ languageName(item.sourceLang) }}
+          </p>
+          <div class="flex min-w-0 items-start gap-3">
+          <span v-if="item.emoji" class="grid w-6 shrink-0 place-items-center text-2xl leading-7" aria-hidden="true">{{ item.emoji }}</span>
+          <p class="min-w-0 break-words text-xl font-semibold leading-7">{{ item.original }}</p>
+          </div>
+        </div>
         <button
           type="button"
-          class="-mr-2 -mt-2 inline-flex size-11 shrink-0 items-center justify-center rounded-full text-ink-muted hover:bg-surface-muted hover:text-ink"
+          class="-mr-2 inline-flex size-11 shrink-0 items-center justify-center rounded-full text-ink-muted hover:bg-surface-muted hover:text-ink"
           :title="t('web.dictionary.details')"
           :aria-label="t('web.dictionary.details')"
           @click="emit('details')"
@@ -24,8 +31,9 @@
         </button>
       </div>
       <ul class="mt-2 space-y-1 text-base">
-        <li v-for="translation in ordered" :key="translation.lang" class="break-words">
-          <LangFlag :code="translation.lang" /> {{ translation.text }}
+        <li v-for="translation in ordered" :key="translation.lang" class="flex items-start gap-3">
+          <span class="grid w-6 shrink-0 place-items-center pt-[0.2em]"><LangFlag :code="translation.lang" /></span>
+          <span class="min-w-0 break-words">{{ translation.text }}</span>
         </li>
       </ul>
 
@@ -93,7 +101,6 @@
 </template>
 
 <script setup lang="ts">
-import LangBadge from "./LangBadge.vue";
 import LangFlag from "./LangFlag.vue";
 import { Check, Copy, Ellipsis, FolderInput, FolderPlus, Info, Maximize2, RotateCw, Trash2, Undo2 } from "lucide-vue-next";
 import { DropdownMenuContent, DropdownMenuItem, DropdownMenuPortal, DropdownMenuRoot, DropdownMenuTrigger } from "reka-ui";
