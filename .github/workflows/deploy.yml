@@ -82,7 +82,7 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/polyglot-bot:${{ env.IMAGE_TAG }}
           cache-from: type=gha,scope=bot
-          cache-to: type=gha,mode=max,scope=bot
+          cache-to: type=gha,mode=max,scope=bot,ignore-error=true
 
       - uses: docker/build-push-action@v6
         with:
@@ -92,7 +92,7 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/polyglot-admin-api:${{ env.IMAGE_TAG }}
           cache-from: type=gha,scope=admin-api
-          cache-to: type=gha,mode=max,scope=admin-api
+          cache-to: type=gha,mode=max,scope=admin-api,ignore-error=true
 
       # Built on every deploy, run only where COMPOSE_PROFILES includes `learn`.
       - uses: docker/build-push-action@v6
@@ -103,7 +103,7 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/polyglot-web-api:${{ env.IMAGE_TAG }}
           cache-from: type=gha,scope=web-api
-          cache-to: type=gha,mode=max,scope=web-api
+          cache-to: type=gha,mode=max,scope=web-api,ignore-error=true
 
       - uses: docker/build-push-action@v6
         with:
@@ -115,7 +115,7 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/polyglot-admin:${{ env.IMAGE_TAG }}
           cache-from: type=gha,scope=admin
-          cache-to: type=gha,mode=max,scope=admin
+          cache-to: type=gha,mode=max,scope=admin,ignore-error=true
 
       # mode=min: a small static Astro build, not worth a full-layer export
       # against the repo's shared 10 GB Actions cache budget.
@@ -127,7 +127,7 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/polyglot-landing:${{ env.IMAGE_TAG }}
           cache-from: type=gha,scope=landing
-          cache-to: type=gha,mode=min,scope=landing
+          cache-to: type=gha,mode=min,scope=landing,ignore-error=true
 
       # Reads scope=bot but deliberately does NOT export to it. `migrate` is
       # `FROM build` plus three metadata-only layers, so everything it needs is

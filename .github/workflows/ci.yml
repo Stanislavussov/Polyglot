@@ -196,4 +196,6 @@ jobs:
           target: ${{ matrix.target }}
           push: false
           cache-from: type=gha,scope=ci-${{ matrix.name }}
-          cache-to: type=gha,mode=max,scope=ci-${{ matrix.name }}
+          # ignore-error: a pull_request run that starts after its PR is merged gets a
+          # read-only cache token, and the failed cache write would fail a good build.
+          cache-to: type=gha,mode=max,scope=ci-${{ matrix.name }},ignore-error=true
