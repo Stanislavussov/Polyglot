@@ -115,8 +115,6 @@
         :busy="busyIds.has(item.id)"
         :others="otherDictionaries"
         :audio="data.audio"
-        :etymology-busy="etymologyBusyId === item.id"
-        @etymology="loadEtymology(item)"
         @details="openId = item.id"
         @notice="(key) => (notice = key)"
         @remove="remove(item)"
@@ -185,7 +183,6 @@ const initial = new URLSearchParams(window.location.search);
 
 const query = ref(initial.get("q") ?? "");
 const notice = ref<string | null>(null);
-const etymologyBusyId = ref<number | null>(null);
 const sort = ref<DictionarySort>(initial.get("sort") === "alpha" ? "alpha" : "recent");
 const currentSort = computed(() => (sort.value === "alpha" ? sorts[1] : sorts[0]));
 
@@ -401,21 +398,6 @@ async function copy(item: DictionaryItem): Promise<void> {
   copiedTimer = setTimeout(() => {
     copiedId.value = null;
   }, COPIED_MS);
-}
-
-// Etymology opens at the bottom of the card itself; the server keeps it on the entry.
-async function loadEtymology(item: DictionaryItem): Promise<void> {
-  if (etymologyBusyId.value !== null) return;
-  etymologyBusyId.value = item.id;
-  notice.value = null;
-  try {
-    item.etymology = (await api.entryEtymology(item.id)).etymology;
-  } catch (error) {
-    notice.value =
-      error instanceof ApiError && error.code === "feature_locked" ? "web.explore.lockedHint" : "web.common.error";
-  } finally {
-    etymologyBusyId.value = null;
-  }
 }
 
 // A stale response must not overwrite a newer one when the learner types fast.

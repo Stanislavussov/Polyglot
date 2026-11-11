@@ -15,7 +15,7 @@
         <template #body>
           <hr class="border-line" />
           <TranslationLines :lines="entry.translations" />
-          <EtymologyFold v-if="entry.etymology" :text="entry.etymology" />
+          <EtymologyFold v-if="entry.etymologyEligible" :entry-id="entry.id" :saved="entry.etymology" />
         </template>
       </WordCard>
 

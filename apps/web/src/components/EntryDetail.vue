@@ -63,7 +63,7 @@
       :speaks="speakLangs.includes(detail.lang)"
       @notice="(key) => emit('notice', key)"
     />
-    <EtymologyFold v-if="entry.etymology" class="border-t border-line pt-3" :text="entry.etymology" />
+    <EtymologyFold v-if="entry.etymologyEligible" class="border-t border-line pt-3" :entry-id="entry.id" :saved="entry.etymology" />
   </div>
 </template>
 

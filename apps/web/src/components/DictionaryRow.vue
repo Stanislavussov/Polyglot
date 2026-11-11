@@ -26,13 +26,9 @@
     <template #body>
       <hr class="border-line" />
       <TranslationLines :lines="ordered" />
-      <template v-if="etymologyBusy">
+      <template v-if="item.etymologyEligible">
         <hr class="border-line" />
-        <MonsterLoader inline :label="t('web.ask.etymologyLoading')" />
-      </template>
-      <template v-if="item.etymology">
-        <hr class="border-line" />
-        <EtymologyFold :text="item.etymology" :open="justAsked" />
+        <EtymologyFold :entry-id="item.id" :saved="item.etymology" />
       </template>
     </template>
 
@@ -49,8 +45,8 @@
 </template>
 
 <script setup lang="ts">
-import { BookOpen, Check, Copy, FolderInput, FolderPlus, History, MessageCircleQuestion, MessagesSquare, Trash2, Undo2 } from "lucide-vue-next";
-import { computed, ref, watch } from "vue";
+import { BookOpen, Check, Copy, FolderInput, FolderPlus, MessageCircleQuestion, Trash2, Undo2 } from "lucide-vue-next";
+import { computed } from "vue";
 import type { BarAction } from "../lib/action-bar";
 import { splitNative } from "../lib/card-order";
 import { t } from "../lib/i18n";
@@ -60,7 +56,6 @@ import { headlineSizeFor } from "../lib/word-card";
 import ActionBar from "./ActionBar.vue";
 import EtymologyFold from "./EtymologyFold.vue";
 import LangBadge from "./LangBadge.vue";
-import MonsterLoader from "./MonsterLoader.vue";
 import SpeakButton from "./SpeakButton.vue";
 import TranslationLines from "./word/TranslationLines.vue";
 import WordCard from "./word/WordCard.vue";
@@ -73,23 +68,13 @@ const props = defineProps<{
   busy: boolean;
   others: Dictionary[];
   audio: AudioAccess;
-  etymologyBusy: boolean;
 }>();
-const emit = defineEmits<{ details: []; remove: []; undo: []; copy: []; place: [to: number, move: boolean]; notice: [key: string]; etymology: [] }>();
+const emit = defineEmits<{ details: []; remove: []; undo: []; copy: []; place: [to: number, move: boolean]; notice: [key: string] }>();
 
 const ordered = computed(() => {
   const { native, others } = splitNative(props.item.translations, settings.value?.nativeLang);
   return native ? [native, ...others] : others;
 });
-
-// Opened right after the learner asked for it, folded on every later visit.
-const justAsked = ref(false);
-watch(
-  () => props.etymologyBusy,
-  (busy, wasBusy) => {
-    if (wasBusy && !busy) justAsked.value = true;
-  },
-);
 
 const mentorHref = computed(() => `/dictionary/ask/?${new URLSearchParams({ id: String(props.item.id) })}`);
 
@@ -108,17 +93,7 @@ const actions = computed<BarAction[]>(() => [
         },
       ]
     : []),
-  {
-    key: "ask",
-    label: t("web.dictionary.ask"),
-    icon: MessageCircleQuestion,
-    children: [
-      { key: "mentor", label: t("web.dictionary.askMentor"), icon: MessagesSquare, href: mentorHref.value },
-      ...(props.item.etymologyEligible && !props.item.etymology
-        ? [{ key: "etymology", label: t("web.dictionary.askEtymology"), icon: History, onSelect: () => emit("etymology") }]
-        : []),
-    ],
-  },
+  { key: "ask", label: t("web.dictionary.ask"), icon: MessageCircleQuestion, href: mentorHref.value },
   {
     key: "copy",
     label: props.copied ? t("web.dictionary.copied") : t("web.dictionary.copy"),
