@@ -26,6 +26,14 @@
     <template #body>
       <hr class="border-line" />
       <TranslationLines :lines="ordered" />
+      <template v-if="etymologyBusy">
+        <hr class="border-line" />
+        <MonsterLoader inline :label="t('web.ask.etymologyLoading')" />
+      </template>
+      <template v-if="item.etymology">
+        <hr class="border-line" />
+        <p class="line-clamp-3 text-sm text-ink-muted"><span class="font-semibold">{{ t("web.dictionary.askEtymology") }}:</span> {{ item.etymology }}</p>
+      </template>
     </template>
 
     <!-- Right-handed thumb zone: the one primary action sits bottom-right, rarer ones to its left. -->
@@ -41,7 +49,7 @@
 </template>
 
 <script setup lang="ts">
-import { BookOpen, Check, Copy, FolderInput, FolderPlus, History, MessageCircleQuestion, MessagesSquare, Target, Trash2, Undo2 } from "lucide-vue-next";
+import { BookOpen, Check, Copy, FolderInput, FolderPlus, History, MessageCircleQuestion, MessagesSquare, Trash2, Undo2 } from "lucide-vue-next";
 import { computed } from "vue";
 import type { BarAction } from "../lib/action-bar";
 import { splitNative } from "../lib/card-order";
@@ -50,8 +58,8 @@ import { settings } from "../lib/settings-store";
 import type { AudioAccess, Dictionary, DictionaryItem } from "../lib/types";
 import { headlineSizeFor } from "../lib/word-card";
 import ActionBar from "./ActionBar.vue";
-import type { ExploreStart } from "./CardExplore.vue";
 import LangBadge from "./LangBadge.vue";
+import MonsterLoader from "./MonsterLoader.vue";
 import SpeakButton from "./SpeakButton.vue";
 import TranslationLines from "./word/TranslationLines.vue";
 import WordCard from "./word/WordCard.vue";
@@ -64,20 +72,16 @@ const props = defineProps<{
   busy: boolean;
   others: Dictionary[];
   audio: AudioAccess;
+  etymologyBusy: boolean;
 }>();
-const emit = defineEmits<{ details: []; remove: []; undo: []; copy: []; place: [to: number, move: boolean]; notice: [key: string] }>();
+const emit = defineEmits<{ details: []; remove: []; undo: []; copy: []; place: [to: number, move: boolean]; notice: [key: string]; etymology: [] }>();
 
 const ordered = computed(() => {
   const { native, others } = splitNative(props.item.translations, settings.value?.nativeLang);
   return native ? [native, ...others] : others;
 });
 
-// Etymology is offered for single words only, as on the translate card.
-const singleWord = computed(() => !/\s/.test(props.item.original.trim()));
-
-function askHref(start: ExploreStart): string {
-  return `/translate/?${new URLSearchParams({ q: props.item.original, explore: start })}`;
-}
+const mentorHref = computed(() => `/dictionary/ask/?${new URLSearchParams({ id: String(props.item.id) })}`);
 
 // Order = priority: the row keeps the first ones, the rest fold into ⋯.
 const actions = computed<BarAction[]>(() => [
@@ -99,9 +103,10 @@ const actions = computed<BarAction[]>(() => [
     label: t("web.dictionary.ask"),
     icon: MessageCircleQuestion,
     children: [
-      { key: "mentor", label: t("web.dictionary.askMentor"), icon: MessagesSquare, href: askHref("mentor") },
-      { key: "clarify", label: t("web.dictionary.askClarify"), icon: Target, href: askHref("clarify") },
-      ...(singleWord.value ? [{ key: "etymology", label: t("web.dictionary.askEtymology"), icon: History, href: askHref("etymology") }] : []),
+      { key: "mentor", label: t("web.dictionary.askMentor"), icon: MessagesSquare, href: mentorHref.value },
+      ...(props.item.etymologyEligible && !props.item.etymology
+        ? [{ key: "etymology", label: t("web.dictionary.askEtymology"), icon: History, onSelect: () => emit("etymology") }]
+        : []),
     ],
   },
   {

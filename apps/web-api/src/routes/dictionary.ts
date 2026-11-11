@@ -34,6 +34,7 @@ const iconSchema = z.object({ icon: iconValue });
 const dictionaryParams = z.object({ dictionaryId: z.coerce.number().int().positive() });
 const entryParams = z.object({ entryId: z.coerce.number().int().positive() });
 const targetQuery = z.object({ dictionary: z.coerce.number().int().positive().optional() });
+const difficultyBody = z.object({ difficulty: z.enum(["hard", "normal", "easy"]) });
 const placeBody = z.object({ to: z.number().int().positive(), from: z.number().int().positive().optional() });
 
 export function toDictionaryItem(
@@ -46,6 +47,9 @@ export function toDictionaryItem(
     original: entry.original,
     sourceLang: langCode(services, entry.sourceLangId),
     emoji: entry.emoji,
+    etymology: entry.etymology ?? null,
+    // Sentences have no single origin; the route re-checks the language pair.
+    etymologyEligible: entry.inputType !== "sentence",
     // The same rule the audio route checks, so a speaker only shows where tapping it plays.
     speakLangs: order ? selectPronounceableLangs(speakableCard(services, entry), order) : [],
     createdAt: entry.createdAt.toISOString(),
@@ -63,7 +67,7 @@ function toDictionaryView(dictionary: VocabularyDictionary & { entryCount?: numb
   };
 }
 
-async function ownedLiveEntry(services: WebServices, userId: number, entryId: number) {
+export async function ownedLiveEntry(services: WebServices, userId: number, entryId: number) {
   const entry = await services.vocabularyRepository.findById(entryId);
   return entry && entry.userId === userId && entry.isActive ? entry : null;
 }
@@ -164,6 +168,20 @@ export function dictionaryRoutes(app: FastifyInstance, services: WebServices): v
   // bot's Remove / Save buttons use, so a word removed here is gone there too.
   // With `dictionary`, a word that also lives in another dictionary only leaves this
   // one, as the bot's dictionary delete does.
+  // The bot's notification feedback grade: "hard" brings the word back sooner.
+  app.put("/api/dictionary/:entryId/difficulty", async (request, reply) => {
+    const params = entryParams.safeParse(request.params);
+    const body = difficultyBody.safeParse(request.body);
+    if (!params.success || !body.success) return reply.status(400).send({ code: "invalid_entry" });
+    const updated = await services.vocabularyRepository.setDifficulty(
+      params.data.entryId,
+      request.learner.id,
+      body.data.difficulty,
+    );
+    if (!updated) return reply.status(404).send({ code: "not_found" });
+    return reply.status(204).send();
+  });
+
   app.delete("/api/dictionary/:entryId", async (request, reply) => {
     const params = entryParams.safeParse(request.params);
     const target = targetQuery.safeParse(request.query);

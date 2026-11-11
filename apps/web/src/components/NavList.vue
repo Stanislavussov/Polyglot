@@ -36,7 +36,11 @@ const LEARN_PAGES: readonly PageName[] = ["learn", "mentor", "grammar", "express
 
 // Every Learn mode sits under the one Learn entry.
 function active(itemPage: PageName): boolean {
-  return itemPage === props.page || (itemPage === "learn" && LEARN_PAGES.includes(props.page));
+  return (
+    itemPage === props.page ||
+    (itemPage === "learn" && LEARN_PAGES.includes(props.page)) ||
+    (itemPage === "dictionary" && props.page === "ask")
+  );
 }
 
 // A plain click switches the view in place; modified clicks (new tab, etc.) keep normal link behaviour.

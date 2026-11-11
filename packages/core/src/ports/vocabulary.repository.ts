@@ -66,6 +66,8 @@ export interface VocabularyEntry {
   nativeMeaning: string | null;
   sourceUsage: SourceUsage | null;
   source: VocabularySource | null;
+  /** Saved etymology prose; optional so fixtures built before the column stay valid. */
+  etymology?: string | null;
   /** Task 70 — translated on a "translate as written" override; excluded from notifications/SRS. */
   unverified: boolean;
   /** Notification feedback grade; null = unrated (treated as "normal"). */
@@ -189,6 +191,7 @@ export interface VocabularyRepository {
       nativeMeaning?: string | null;
       sourceUsage?: SourceUsage | null;
       source?: VocabularySource | null;
+      etymology?: string | null;
     },
   ): Promise<void>;
   updateTranslation(entryId: number, targetLangId: number, data: UpdateTranslationData): Promise<VocabularyTranslation>;

@@ -138,6 +138,11 @@ export const api = {
     etymology?: string;
     history: MentorTurn[];
   }) => request<{ question: string; answer: string }>("POST", "/mentor", body),
+  setDifficulty: (entryId: number, difficulty: "hard" | "normal" | "easy") =>
+    request<void>("PUT", `/dictionary/${entryId}/difficulty`, { difficulty }),
+  entryEtymology: (entryId: number) => request<{ etymology: string }>("POST", `/dictionary/${entryId}/etymology`),
+  entryMentor: (entryId: number, body: { question: string; history: MentorTurn[] }) =>
+    request<{ question: string; answer: string }>("POST", `/dictionary/${entryId}/mentor`, body),
   entry: (entryId: number) => request<EntryDetail>("GET", `/dictionary/${entryId}`),
   // With a dictionary, a word kept in another one only leaves this list (the bot's dictionary delete).
   saveTranslation: (token: string) => request<{ entryId: number }>("POST", "/translate/save", { token }),

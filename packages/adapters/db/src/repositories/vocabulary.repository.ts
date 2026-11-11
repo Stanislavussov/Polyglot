@@ -474,7 +474,7 @@ export const vocabularyRepository = {
     return assembleEntriesWithTranslations(entries, matchingTranslations);
   },
 
-  /** Update entry-level fields (emoji, nativeMeaning, sourceUsage, source). */
+  /** Update entry-level fields (emoji, nativeMeaning, sourceUsage, source, etymology). */
   async updateEntry(
     entryId: number,
     data: {
@@ -482,6 +482,7 @@ export const vocabularyRepository = {
       nativeMeaning?: string | null;
       sourceUsage?: SourceUsage | null;
       source?: VocabularySource | null;
+      etymology?: string | null;
     },
   ): Promise<void> {
     const db = getDb();
@@ -490,6 +491,7 @@ export const vocabularyRepository = {
     if (data.nativeMeaning !== undefined) set.nativeMeaning = data.nativeMeaning;
     if (data.sourceUsage !== undefined) set.sourceUsage = data.sourceUsage;
     if (data.source !== undefined) set.source = data.source;
+    if (data.etymology !== undefined) set.etymology = data.etymology;
     await db.update(vocabularyEntries).set(set).where(eq(vocabularyEntries.id, entryId));
   },
 
@@ -777,6 +779,7 @@ export const vocabularyRepository = {
               nativeMeaning: vocabularyEntries.nativeMeaning,
               sourceUsage: vocabularyEntries.sourceUsage,
               source: vocabularyEntries.source,
+              etymology: vocabularyEntries.etymology,
               unverified: vocabularyEntries.unverified,
               difficulty: vocabularyEntries.difficulty,
               isActive: vocabularyEntries.isActive,

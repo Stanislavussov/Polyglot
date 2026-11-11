@@ -10,6 +10,7 @@ import { cardAudioRoutes } from "./routes/card-audio.js";
 import { cardExploreRoutes } from "./routes/card-explore.js";
 import { changesRoutes } from "./routes/changes.js";
 import { dictionaryRoutes } from "./routes/dictionary.js";
+import { entryExploreRoutes } from "./routes/entry-explore.js";
 import { learnPracticeRoutes } from "./routes/learn-practice.js";
 import { loaderRoutes } from "./routes/loader.js";
 import { meRoutes } from "./routes/me.js";
@@ -102,6 +103,7 @@ export async function buildWebApiApp(
   reviewRoutes(app, services);
   cardAudioRoutes(app, services);
   cardExploreRoutes(app, services);
+  entryExploreRoutes(app, services);
   loaderRoutes(app, services);
   templateRoutes(app, services);
   planRoutes(app, services, config.botUsername);

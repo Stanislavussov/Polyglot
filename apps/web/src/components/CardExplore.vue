@@ -1,5 +1,5 @@
 <template>
-  <div ref="root" class="space-y-4 border-t border-line pt-4">
+  <div class="space-y-4 border-t border-line pt-4">
     <section v-if="etymology" class="space-y-1 rounded-xl bg-surface-muted px-4 py-3 text-sm">
       <h3 class="text-sm font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.explore.etymology") }}</h3>
       <p class="whitespace-pre-line">{{ etymology }}</p>
@@ -93,7 +93,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, h, onMounted, ref, useTemplateRef, watch } from "vue";
+import { computed, defineComponent, h, ref, watch } from "vue";
 import { ApiError, api } from "../lib/api";
 import { t } from "../lib/i18n";
 import { mentorHtml } from "../lib/mentor-html";
@@ -104,10 +104,7 @@ const MAX_QUESTION = 1000;
 // The bot's mentor window; the server trims to it too, this keeps the request small.
 const MAX_THREAD = 20;
 
-export type ExploreStart = "mentor" | "clarify" | "etymology";
-
-// `start` opens one action straight away: the dictionary card's "Ask" links land here.
-const props = defineProps<{ result: TranslateResult; start?: ExploreStart }>();
+const props = defineProps<{ result: TranslateResult }>();
 const emit = defineEmits<{ replace: [result: TranslateResult] }>();
 
 const LockBadge = defineComponent(() => () => h("span", { class: "ml-1 text-sm", title: t("web.explore.locked") }, "💎"));
@@ -126,19 +123,6 @@ const errorParams = ref<Record<string, string | number>>({});
 // Every translation shown for this word, so "Other meaning" keeps finding new senses.
 let seen: Record<string, string[]> = {};
 let keepSeen = false;
-
-const root = useTemplateRef<HTMLElement>("root");
-
-onMounted(() => {
-  if (!props.start) return;
-  open.value = true;
-  if (props.start === "etymology") {
-    if (props.result.etymologyEligible) void loadEtymology();
-  } else {
-    toggle(props.start);
-  }
-  root.value?.scrollIntoView({ behavior: "smooth", block: "start" });
-});
 
 const headword = computed(() => props.result.sourceUsage?.headword ?? props.result.original);
 const exploreKey = computed(() =>

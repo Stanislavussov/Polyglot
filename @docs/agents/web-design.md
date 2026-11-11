@@ -82,3 +82,13 @@ A row of secondary actions is an `ActionBar` (`apps/web/src/components/ActionBar
 "⋯". The "⋯" menu never holds a single action. Phones show icons only, desktop adds labels.
 The one primary action (for example "Open") sits outside the bar, bottom-right, under a
 right-handed thumb. A destructive action goes last, so it is the first to fold away.
+
+## Text input (`ComposerCard`)
+
+Every free-text box (translate, the mentor) is a `ComposerCard`: the same field, counter, Clear,
+Enter-to-send, and a thumb-reach submit button on phones. Extra buttons go in its `tools` slot.
+
+## Loading inside a card
+
+A paragraph that is still loading inside a card shows `MonsterLoader inline` (a small monster
+beside text-shaped lines), never a bare "Working…".

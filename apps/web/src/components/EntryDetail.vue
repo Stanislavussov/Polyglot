@@ -24,14 +24,23 @@
       :emoji="entry.emoji"
     />
 
+    <!-- "Hard" words come back first: the same grade the bot's notification feedback sets. -->
+    <button
+      type="button"
+      :class="['btn-secondary', important && '!border-primary !bg-primary-soft !text-primary-soft-fg']"
+      :aria-pressed="important"
+      :disabled="saving"
+      @click="toggleImportant"
+    >
+      <Star class="size-4" :fill="important ? 'currentColor' : 'none'" aria-hidden="true" />
+      {{ important ? t("web.dictionary.moreOftenOn") : t("web.dictionary.moreOften") }}
+    </button>
+
     <EntryLangSection v-if="split.native" :detail="split.native" :entry-id="entry.id" />
 
-    <div v-if="entry.nativeMeaning || entry.difficulty" class="space-y-2">
+    <div v-if="entry.nativeMeaning" class="space-y-2">
       <p v-if="entry.nativeMeaning" class="text-base">
         <span class="font-semibold text-ink-muted">{{ t("web.translate.nativeMeaning") }}:</span> {{ entry.nativeMeaning }}
-      </p>
-      <p v-if="entry.difficulty" class="text-sm">
-        <span class="font-semibold text-ink-muted">{{ t("web.dictionary.difficulty") }}:</span> {{ t(`web.dictionary.difficulty.${entry.difficulty}`) }}
       </p>
     </div>
 
@@ -54,12 +63,18 @@
       :speaks="speakLangs.includes(detail.lang)"
       @notice="(key) => emit('notice', key)"
     />
+    <section v-if="entry.etymology" class="space-y-1 border-t border-line pt-4">
+      <h3 class="text-sm font-semibold text-ink-muted">{{ t("web.dictionary.askEtymology") }}</h3>
+      <p class="whitespace-pre-line text-base">{{ entry.etymology }}</p>
+    </section>
   </div>
 </template>
 
 <script setup lang="ts">
 import WordHeadline from "./word/WordHeadline.vue";
-import { computed } from "vue";
+import { Star } from "lucide-vue-next";
+import { computed, ref, watch } from "vue";
+import { api } from "../lib/api";
 import { splitNative } from "../lib/card-order";
 import { t } from "../lib/i18n";
 import { settings } from "../lib/settings-store";
@@ -78,4 +93,28 @@ const props = defineProps<{
 const emit = defineEmits<{ retry: []; notice: [key: string] }>();
 
 const split = computed(() => splitNative(props.entry?.details ?? [], settings.value?.nativeLang));
+
+const important = ref(false);
+const saving = ref(false);
+watch(
+  () => props.entry,
+  (entry) => {
+    important.value = entry?.difficulty === "hard";
+  },
+  { immediate: true },
+);
+
+async function toggleImportant(): Promise<void> {
+  if (!props.entry || saving.value) return;
+  const next = !important.value;
+  important.value = next;
+  saving.value = true;
+  try {
+    await api.setDifficulty(props.entry.id, next ? "hard" : "normal");
+  } catch {
+    important.value = !next;
+  } finally {
+    saving.value = false;
+  }
+}
 </script>

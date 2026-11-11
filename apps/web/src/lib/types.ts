@@ -101,6 +101,9 @@ export interface DictionaryItem {
   sourceLang: string;
   emoji: string | null;
   createdAt: string;
+  /** Saved once asked on the "Ask" page; shown at the bottom of the card. */
+  etymology: string | null;
+  etymologyEligible: boolean;
   /** Languages with a voice (never the learner's native one): speakers show only where tapping plays. */
   speakLangs: string[];
   translations: { lang: string; text: string }[];
@@ -266,6 +269,7 @@ export type PageName =
   | "settings"
   | "welcome"
   | "plan"
+  | "ask"
   | LearnPageName;
 
 export type Progress =
