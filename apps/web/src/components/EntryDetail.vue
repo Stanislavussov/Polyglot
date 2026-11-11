@@ -24,7 +24,7 @@
       :emoji="entry.emoji"
     />
 
-    <EntryLangSection v-if="split.native" :detail="split.native" />
+    <EntryLangSection v-if="split.native" :detail="split.native" :entry-id="entry.id" />
 
     <div v-if="entry.nativeMeaning || entry.difficulty" class="space-y-2">
       <p v-if="entry.nativeMeaning" class="text-base">

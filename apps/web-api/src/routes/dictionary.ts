@@ -3,6 +3,7 @@ import {
   type Example,
   type LanguageOrderContext,
   logEvent,
+  MATURE_INTERVAL_DAYS,
   selectPronounceableLangs,
   type VocabularyDictionary,
   type VocabularyEntryWithTranslations,
@@ -271,6 +272,8 @@ export function toDictionaryDetail(services: WebServices, entry: VocabularyEntry
         dueAt: t.srsDueDate ? t.srsDueDate.toISOString() : null,
         intervalDays: t.srsInterval,
         reviewCount: t.srsReviewCount,
+        // The "learned" filter's own threshold, so the dialog and the filter agree.
+        mature: t.srsInterval >= MATURE_INTERVAL_DAYS,
       },
     })),
   };

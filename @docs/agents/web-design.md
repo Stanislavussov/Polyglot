@@ -6,6 +6,10 @@ simple, minimal, large — "broad strokes", sized like the Google Store
 
 ## Principles
 
+0. **The goal is simplicity.** Every screen should be understood at a glance by someone who
+   never read a manual. Prefer one plain, friendly sentence over numbers, intervals, counters
+   and jargon ("Not reviewed yet", "Time to review", "You know this one well" — never
+   "Interval: 3 d · Reviews: 2"). When a detail needs explaining, remove it instead.
 1. **Large and calm.** Big type, generous spacing, few elements per screen. When unsure,
    go one step bigger and remove something rather than add.
 2. **One thing is the focus.** Each screen and each card has one obvious main element

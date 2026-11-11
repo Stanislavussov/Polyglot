@@ -127,6 +127,7 @@ export interface EntryReviewState {
   dueAt: string | null;
   intervalDays: number;
   reviewCount: number;
+  mature: boolean;
 }
 
 export interface EntryDetailTarget {

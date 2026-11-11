@@ -29,13 +29,12 @@
     </div>
     <ExampleList class="mt-3" :examples="detail.examples" />
 
-    <p class="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-ink-muted">
-      <span class="inline-flex items-center gap-1 font-semibold">
-        <CalendarClock class="size-4" aria-hidden="true" />{{ t("web.dictionary.schedule") }}:
-      </span>
-      <span>{{ schedule(detail.review) }}</span>
-      <span>{{ t("web.dictionary.interval", { days: detail.review.intervalDays }) }}</span>
-      <span>{{ t("web.dictionary.reviewCount", { count: detail.review.reviewCount }) }}</span>
+    <!-- Simplicity first: an action when there is something to do, one friendly line otherwise. -->
+    <a v-if="entryId !== undefined && cta" :href="`/review/?entry=${entryId}`" class="btn-secondary mt-3 !text-primary">
+      <RotateCw class="size-4" aria-hidden="true" />{{ t(cta) }}
+    </a>
+    <p v-else class="mt-3 flex items-center gap-2 text-sm text-ink-muted">
+      <CalendarClock class="size-4 shrink-0" aria-hidden="true" />{{ schedule(detail.review) }}
     </p>
   </section>
 </template>
@@ -43,7 +42,8 @@
 <script setup lang="ts">
 import LangBadge from "./LangBadge.vue";
 import WordHeadline from "./word/WordHeadline.vue";
-import { CalendarClock, TriangleAlert } from "lucide-vue-next";
+import { CalendarClock, RotateCw, TriangleAlert } from "lucide-vue-next";
+import { computed } from "vue";
 import { formatDue } from "../lib/format";
 import { lang, t } from "../lib/i18n";
 import { languageName } from "../lib/settings-store";
@@ -52,12 +52,20 @@ import SpeakButton from "./SpeakButton.vue";
 import ExampleList from "./ExampleList.vue";
 
 // Speaker props are optional: without them the section is read-only (no voice for this language).
-defineProps<{ detail: EntryDetail["details"][number]; entryId?: number; audio?: AudioAccess; speaks?: boolean }>();
+const props = defineProps<{ detail: EntryDetail["details"][number]; entryId?: number; audio?: AudioAccess; speaks?: boolean }>();
 const emit = defineEmits<{ notice: [key: string] }>();
+
+// Due or never practised: worth a tap, so it is a button, not a status.
+const cta = computed(() => {
+  const review = props.detail.review;
+  if (!review.dueAt) return null;
+  if (review.reviewCount === 0) return "web.dictionary.startLearning";
+  return formatDue(review.dueAt, lang.value).due ? "web.dictionary.reviewNow" : null;
+});
 
 function schedule(review: EntryReviewState): string {
   if (!review.dueAt) return t("web.dictionary.notScheduled");
-  const { due, time } = formatDue(review.dueAt, lang.value);
-  return due ? t("web.dictionary.dueNow") : t("web.dictionary.nextReview", { time });
+  if (review.mature) return t("web.dictionary.reviewWellKnown");
+  return t("web.dictionary.nextReview", { time: formatDue(review.dueAt, lang.value).time });
 }
 </script>
