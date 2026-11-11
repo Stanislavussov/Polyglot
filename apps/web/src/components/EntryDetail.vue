@@ -17,7 +17,7 @@
   </div>
 
   <div v-else class="space-y-5">
-    <p><LangBadge :code="entry.sourceLang" /></p>
+    <WordEyebrow :code="entry.sourceLang" />
 
     <EntryLangSection v-if="split.native" :detail="split.native" />
 
@@ -45,7 +45,7 @@
 </template>
 
 <script setup lang="ts">
-import LangBadge from "./LangBadge.vue";
+import WordEyebrow from "./word/WordEyebrow.vue";
 import { computed } from "vue";
 import { splitNative } from "../lib/card-order";
 import { t } from "../lib/i18n";

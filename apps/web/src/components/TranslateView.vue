@@ -192,9 +192,7 @@
               </template>
             </div>
             </div>
-            <h2 class="break-words text-xl font-semibold">
-              <span v-if="result.emoji" class="mr-2" aria-hidden="true">{{ result.emoji }}</span>{{ result.sourceUsage?.headword ?? result.original }}
-            </h2>
+            <WordHeadline as="h2" :text="result.sourceUsage?.headword ?? result.original" :emoji="result.emoji" />
 
             <div v-if="result.correction" class="rounded-xl bg-warning-soft px-4 py-3 text-sm text-warning-fg">
               <p class="font-semibold">{{ t("web.translate.corrected", { corrected: result.correction.corrected }) }}</p>
@@ -273,6 +271,7 @@
 </template>
 
 <script setup lang="ts">
+import WordHeadline from "./word/WordHeadline.vue";
 import LangBadge from "./LangBadge.vue";
 import LangFlag from "./LangFlag.vue";
 import { ArrowRight, Bookmark, BookmarkPlus, Mic, Square, Trash2, TriangleAlert } from "lucide-vue-next";

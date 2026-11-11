@@ -1,17 +1,14 @@
 <template>
   <div class="border-t border-line pt-4">
-    <p><LangBadge :code="translation.lang" /></p>
+    <WordEyebrow :code="translation.lang" />
     <div class="mt-1 flex items-center justify-between gap-3">
-      <div class="flex min-w-0 items-center gap-2">
-      <p class="min-w-0 break-words text-xl font-semibold text-primary">
-        {{ translation.text }}
-        <span v-if="translation.expressionType" class="ml-2 inline-block rounded-full bg-primary-soft px-2 py-0.5 align-middle text-sm font-medium text-primary-soft-fg">
-          {{ translation.expressionType }}
-        </span>
-      </p>
-      <!-- Sound sits right after the word, the same as on the review card's headword. -->
-      <slot name="speak" />
-      </div>
+      <WordHeadline class="flex-1" tone="primary" :text="translation.text">
+        <template #after>
+          <span v-if="translation.expressionType" class="inline-block rounded-full bg-primary-soft px-2 py-0.5 text-sm font-medium text-primary-soft-fg">{{ translation.expressionType }}</span>
+          <!-- Sound sits right after the word, the same as on the review card's headword. -->
+          <slot name="speak" />
+        </template>
+      </WordHeadline>
       <div class="flex shrink-0 gap-2">
         <button
           type="button"
@@ -67,7 +64,8 @@
 </template>
 
 <script setup lang="ts">
-import LangBadge from "./LangBadge.vue";
+import WordEyebrow from "./word/WordEyebrow.vue";
+import WordHeadline from "./word/WordHeadline.vue";
 import { Check, ChevronDown, Copy, TriangleAlert } from "lucide-vue-next";
 import { computed, onBeforeUnmount, ref } from "vue";
 import { t } from "../lib/i18n";

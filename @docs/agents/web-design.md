@@ -43,3 +43,30 @@ Never add arbitrary sizes like `text-[13px]`.
 - Tap targets at least 44px high (`min-h-11`) on phones.
 - Phone sheets open to at most `75dvh` so the close control stays in thumb reach.
 - Page content aligns left like every other page; do not center one page alone.
+
+## Word card kit (`apps/web/src/components/word/`)
+
+Every card that shows a word is assembled from these parts. Do not hand-roll a headword, a
+language label or a flag list.
+
+| Part | What it draws | Props |
+|---|---|---|
+| `WordCard` | Card shell: default slot (top), `aside` (top-right actions), `body`, `footer` | `as`, `flat`, `padding` (`none`/`sm`/`md`), `iconColumn` |
+| `IconRow` | The shared layout: icon column + content. Everything below is built on it | `align`, `iconColumn` |
+| `WordEyebrow` | Small grey "🇨🇿 ЧЕШСКИЙ" line above a word | `code`, `label`, `flag`, `tone` |
+| `WordHeadline` | Emoji + word; `after` slot for sound and chips | `text`, `emoji`, `size` (`md`/`lg`/`xl`), `tone`, `as`, `reserveIcon` |
+| `TranslationLines` | Flag + text per translation | `lines`, `size` (`sm`/`base`/`xl`) |
+
+Sizes and tones live in `apps/web/src/lib/word-card.ts` and map only onto the type scale above.
+`WordCard` passes `iconColumn` to every `IconRow` inside it, so the eyebrow flag, the emoji
+and the translation flags stay in one column.
+
+```vue
+<WordCard as="li">
+  <WordEyebrow :code="item.sourceLang" />
+  <WordHeadline :text="item.original" :emoji="item.emoji" size="md" />
+  <template #aside><button>…</button></template>
+  <template #body><TranslationLines :lines="translations" /></template>
+  <template #footer>…buttons…</template>
+</WordCard>
+```

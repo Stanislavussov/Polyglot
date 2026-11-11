@@ -1,10 +1,9 @@
 <template>
   <section class="border-t border-line pt-4">
-    <p><LangBadge :code="detail.lang" /></p>
-    <p class="mt-1 break-words text-xl font-semibold text-primary">
-      {{ detail.text }}
-      <span v-if="detail.expressionType" class="ml-2 inline-block rounded-full bg-primary-soft px-2 py-0.5 align-middle text-sm font-medium text-primary-soft-fg">{{ detail.expressionType }}</span>
-    </p>
+    <WordEyebrow :code="detail.lang" />
+    <WordHeadline class="mt-1" tone="primary" :text="detail.text">
+      <template #after><span v-if="detail.expressionType" class="inline-block rounded-full bg-primary-soft px-2 py-0.5 text-sm font-medium text-primary-soft-fg">{{ detail.expressionType }}</span></template>
+    </WordHeadline>
     <p v-if="detail.equivalentNote" class="mt-2 text-base text-ink-muted">{{ detail.equivalentNote }}</p>
     <p v-if="detail.usageNote" class="mt-2 text-base">{{ detail.usageNote }}</p>
     <p v-if="detail.connotationWarning" class="mt-2 flex items-start gap-2 rounded-xl bg-warning-soft px-3 py-2 text-base text-warning-fg">
@@ -33,7 +32,8 @@
 </template>
 
 <script setup lang="ts">
-import LangBadge from "./LangBadge.vue";
+import WordEyebrow from "./word/WordEyebrow.vue";
+import WordHeadline from "./word/WordHeadline.vue";
 import { CalendarClock, TriangleAlert } from "lucide-vue-next";
 import { formatDue } from "../lib/format";
 import { lang, t } from "../lib/i18n";

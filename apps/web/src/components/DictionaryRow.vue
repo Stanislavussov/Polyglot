@@ -1,43 +1,32 @@
 <template>
-  <li class="card !p-4">
-    <div v-if="removed" class="flex flex-wrap items-center justify-between gap-3 text-sm" role="status">
+  <li v-if="removed" class="card !p-4">
+    <div class="flex flex-wrap items-center justify-between gap-3 text-sm" role="status">
       <span class="min-w-0 break-words text-ink-muted">{{ t("web.dictionary.removed", { word: item.original }) }}</span>
       <button type="button" class="btn-secondary" :disabled="busy" @click="emit('undo')">
         <Undo2 class="size-4" aria-hidden="true" />{{ t("web.dictionary.undo") }}
       </button>
     </div>
+  </li>
 
-    <template v-else>
-      <div class="flex items-start justify-between gap-2">
-        <!-- Eyebrow flag, emoji and translation flags share one centred w-6 column so they line up. -->
-        <div class="min-w-0">
-          <p class="mb-1 flex items-center gap-3 text-sm font-medium uppercase tracking-wider text-ink-muted">
-            <span class="grid w-6 shrink-0 place-items-center"><LangFlag class="!size-4" :code="item.sourceLang" /></span>
-            {{ languageName(item.sourceLang) }}
-          </p>
-          <div class="flex min-w-0 items-start gap-3">
-          <span v-if="item.emoji" class="grid w-6 shrink-0 place-items-center text-2xl leading-7" aria-hidden="true">{{ item.emoji }}</span>
-          <p class="min-w-0 break-words text-xl font-semibold leading-7">{{ item.original }}</p>
-          </div>
-        </div>
-        <button
-          type="button"
-          class="-mr-2 inline-flex size-11 shrink-0 items-center justify-center rounded-full text-ink-muted hover:bg-surface-muted hover:text-ink"
-          :title="t('web.dictionary.details')"
-          :aria-label="t('web.dictionary.details')"
-          @click="emit('details')"
-        >
-          <Maximize2 class="size-4" aria-hidden="true" />
-        </button>
-      </div>
-      <ul class="mt-2 space-y-1 text-base">
-        <li v-for="translation in ordered" :key="translation.lang" class="flex items-start gap-3">
-          <span class="grid w-6 shrink-0 place-items-center pt-[0.2em]"><LangFlag :code="translation.lang" /></span>
-          <span class="min-w-0 break-words">{{ translation.text }}</span>
-        </li>
-      </ul>
-
-      <div class="mt-3 flex items-center gap-2">
+  <WordCard v-else as="li">
+    <WordEyebrow :code="item.sourceLang" />
+    <WordHeadline :text="item.original" :emoji="item.emoji" />
+    <template #aside>
+      <button
+        type="button"
+        class="inline-flex size-11 items-center justify-center rounded-full text-ink-muted hover:bg-surface-muted hover:text-ink"
+        :title="t('web.dictionary.details')"
+        :aria-label="t('web.dictionary.details')"
+        @click="emit('details')"
+      >
+        <Maximize2 class="size-4" aria-hidden="true" />
+      </button>
+    </template>
+    <template #body>
+      <TranslationLines :lines="ordered" />
+    </template>
+    <template #footer>
+      <div class="flex items-center gap-2">
         <button type="button" class="btn-secondary flex-1 sm:flex-none" @click="emit('details')">
           <Info class="size-4" aria-hidden="true" />{{ t("web.dictionary.details") }}
         </button>
@@ -97,17 +86,20 @@
         </div>
       </div>
     </template>
-  </li>
+  </WordCard>
 </template>
 
 <script setup lang="ts">
-import LangFlag from "./LangFlag.vue";
+import TranslationLines from "./word/TranslationLines.vue";
+import WordCard from "./word/WordCard.vue";
+import WordEyebrow from "./word/WordEyebrow.vue";
+import WordHeadline from "./word/WordHeadline.vue";
 import { Check, Copy, Ellipsis, FolderInput, FolderPlus, Info, Maximize2, RotateCw, Trash2, Undo2 } from "lucide-vue-next";
 import { DropdownMenuContent, DropdownMenuItem, DropdownMenuPortal, DropdownMenuRoot, DropdownMenuTrigger } from "reka-ui";
 import { computed } from "vue";
 import { splitNative } from "../lib/card-order";
 import { t } from "../lib/i18n";
-import { languageName, settings } from "../lib/settings-store";
+import { settings } from "../lib/settings-store";
 import type { Dictionary, DictionaryItem } from "../lib/types";
 
 const props = defineProps<{ item: DictionaryItem; removed: boolean; copied: boolean; busy: boolean; others: Dictionary[] }>();
