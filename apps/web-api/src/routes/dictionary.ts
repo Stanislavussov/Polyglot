@@ -1,13 +1,17 @@
 import {
   acceptDictionaryName,
   type Example,
+  type LanguageOrderContext,
   logEvent,
+  selectPronounceableLangs,
   type VocabularyDictionary,
   type VocabularyEntryWithTranslations,
 } from "@polyglot/core";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import type { WebServices } from "../services.js";
+import { audioAccess, languageOrder, speakableCard } from "./card-audio.js";
+import { langCode } from "./lang-code.js";
 
 export const DICTIONARY_PAGE_SIZE = 20;
 
@@ -31,16 +35,19 @@ const entryParams = z.object({ entryId: z.coerce.number().int().positive() });
 const targetQuery = z.object({ dictionary: z.coerce.number().int().positive().optional() });
 const placeBody = z.object({ to: z.number().int().positive(), from: z.number().int().positive().optional() });
 
-export function langCode(services: WebServices, langId: number): string {
-  return services.languageCache.getAllLangs().find((lang) => lang.id === langId)?.code ?? "";
-}
-
-export function toDictionaryItem(services: WebServices, entry: VocabularyEntryWithTranslations) {
+export function toDictionaryItem(
+  services: WebServices,
+  entry: VocabularyEntryWithTranslations,
+  order?: LanguageOrderContext,
+) {
+  const sourceLang = langCode(services, entry.sourceLangId);
   return {
     id: entry.id,
     original: entry.original,
-    sourceLang: langCode(services, entry.sourceLangId),
+    sourceLang,
     emoji: entry.emoji,
+    // The same rule the audio route checks, so the speaker only shows where tapping it plays.
+    speakable: order ? selectPronounceableLangs(speakableCard(services, entry), order).includes(sourceLang) : false,
     createdAt: entry.createdAt.toISOString(),
     translations: entry.translations.map((t) => ({ lang: langCode(services, t.targetLangId), text: t.text })),
   };
@@ -142,8 +149,10 @@ export function dictionaryRoutes(app: FastifyInstance, services: WebServices): v
       dictionary.id,
       { sort, search, ...filters },
     );
+    const order = await languageOrder(services, userId);
     return {
-      items: entries.map((entry) => toDictionaryItem(services, entry)),
+      items: entries.map((entry) => toDictionaryItem(services, entry, order)),
+      audio: await audioAccess(services, request.learner),
       dictionary: toDictionaryView(dictionary),
       total,
       page,

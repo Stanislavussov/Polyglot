@@ -54,7 +54,7 @@ language label or a flag list.
 | `WordCard` | Card shell: default slot (top), `aside` (top-right actions), `body`, `footer` | `as`, `flat`, `padding` (`none`/`sm`/`md`), `iconColumn` |
 | `IconRow` | The shared layout: icon column + content. Everything below is built on it | `align`, `iconColumn` |
 | `WordEyebrow` | Small grey "🇨🇿 ЧЕШСКИЙ" line above a word | `code`, `label`, `flag`, `tone` |
-| `WordHeadline` | Emoji + word; `after` slot for sound and chips | `text`, `emoji`, `size` (`md`/`lg`/`xl`), `tone`, `as`, `reserveIcon` |
+| `WordHeadline` | Emoji + word; `after` slot for sound and chips | `text`, `emoji`, `size` (`md`/`lg`/`xl`), `tone`, `as`, `reserveIcon`, `variant` (`plain`/`chip`) |
 | `TranslationLines` | Flag + text per translation | `lines`, `size` (`sm`/`base`/`xl`) |
 
 Sizes and tones live in `apps/web/src/lib/word-card.ts` and map only onto the type scale above.
@@ -70,3 +70,11 @@ and the translation flags stay in one column.
   <template #footer>…buttons…</template>
 </WordCard>
 ```
+
+## Action rows (`ActionBar`)
+
+A row of secondary actions is an `ActionBar` (`apps/web/src/components/ActionBar.vue`), fed a
+`BarAction[]` in priority order. Actions fit in the row while there is room; the rest fold into
+"⋯". The "⋯" menu never holds a single action. Phones show icons only, desktop adds labels.
+The one primary action (for example "Open") sits outside the bar, bottom-right, under a
+right-handed thumb. A destructive action goes last, so it is the first to fold away.

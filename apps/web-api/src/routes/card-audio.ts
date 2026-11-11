@@ -18,7 +18,7 @@ import {
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import type { WebServices } from "../services.js";
-import { langCode } from "./dictionary.js";
+import { langCode } from "./lang-code.js";
 
 /** "off" = the admin turned TTS off; "locked" = the plan does not include it (the bot's 💎 badge). */
 export type AudioAccess = FeatureState;

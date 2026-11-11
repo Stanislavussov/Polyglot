@@ -236,7 +236,7 @@
             id-prefix="translate"
           />
 
-          <CardExplore :result="result" @replace="onReplace" />
+          <CardExplore :result="result" :start="exploreStart" @replace="onReplace" />
 
         </article>
       </div>
@@ -271,6 +271,7 @@
 </template>
 
 <script setup lang="ts">
+import type { ExploreStart } from "./CardExplore.vue";
 import WordHeadline from "./word/WordHeadline.vue";
 import LangBadge from "./LangBadge.vue";
 import LangFlag from "./LangFlag.vue";
@@ -304,6 +305,8 @@ const HISTORY_KEY = "polyglot.translate.history";
 
 const input = ref<HTMLTextAreaElement | null>(null);
 const text = ref("");
+// The dictionary card hands over ?explore= to open the conversation on the saved word.
+const exploreStart = ref<ExploreStart | undefined>(undefined);
 const { focus: focusInput } = useMainInput(() => input.value);
 const busy = ref(false);
 const loaderText = useLoaderText(busy);
@@ -601,6 +604,8 @@ onMounted(() => {
   history.value = loadHistory();
   // A Learn page hands a phrase over as ?q= (the expression's "to dictionary"), as the bot's notif:tr translates it.
   const handed = new URLSearchParams(window.location.search).get("q")?.trim();
+  const explore = new URLSearchParams(window.location.search).get("explore");
+  if (explore === "mentor" || explore === "clarify" || explore === "etymology") exploreStart.value = explore;
   if (handed) {
     text.value = handed;
     void submit();

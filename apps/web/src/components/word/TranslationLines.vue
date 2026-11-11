@@ -2,7 +2,7 @@
   <ul :class="['space-y-1', LINE_TEXT[size]]">
     <li v-for="line in lines" :key="line.lang">
       <IconRow>
-        <template #icon><LangFlag class="mt-[0.2em]" :code="line.lang" /></template>
+        <template #icon><LangFlag class="mt-[0.3em] !size-4" :code="line.lang" /></template>
         <span class="break-words">{{ line.text }}</span>
       </IconRow>
     </li>

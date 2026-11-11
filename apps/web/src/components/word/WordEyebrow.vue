@@ -1,7 +1,7 @@
 <template>
   <IconRow align="center">
     <template v-if="flag" #icon><LangFlag class="!size-4" :code="code" /></template>
-    <p :class="['text-sm font-medium uppercase tracking-wider', TONE[tone]]">
+    <p :class="['text-sm', TONE[tone]]">
       <slot>{{ label ?? languageName(code) }}</slot>
     </p>
   </IconRow>

@@ -68,3 +68,4 @@
 - New on the website: 📰 Articles — paste a link to any article, and we keep just the story (no ads, menus or comments) and pick the words worth learning, ready to save to your dictionary.
 - Website dictionary cards look calmer: the word's language sits in small print above it, the emoji lines up with the translation flags, and long phrases wrap neatly.
 - Word cards on the website now look the same everywhere — dictionary, review and translate: the language sits in small print above the word, the emoji lines up with the flags, and long phrases wrap neatly.
+- New dictionary cards on the website: a 🔊 button by the language, a big "Open" button right under your thumb, and "Ask" jumps straight into a chat with the mentor, a meaning check or the word's etymology. Buttons that do not fit tuck neatly into "⋯".

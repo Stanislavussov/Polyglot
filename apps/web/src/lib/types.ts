@@ -101,6 +101,8 @@ export interface DictionaryItem {
   sourceLang: string;
   emoji: string | null;
   createdAt: string;
+  /** The source word has a voice: the speaker shows only where tapping it plays. */
+  speakable: boolean;
   translations: { lang: string; text: string }[];
 }
 
@@ -114,6 +116,7 @@ export interface Dictionary {
 
 export interface DictionaryPage {
   items: DictionaryItem[];
+  audio: AudioAccess;
   dictionary: Dictionary;
   total: number;
   page: number;

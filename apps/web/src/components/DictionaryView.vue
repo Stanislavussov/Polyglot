@@ -114,15 +114,17 @@
         :copied="copiedId === item.id"
         :busy="busyIds.has(item.id)"
         :others="otherDictionaries"
+        :audio="data.audio"
         @details="openId = item.id"
+        @notice="(key) => (notice = key)"
         @remove="remove(item)"
         @undo="undo(item)"
         @copy="copy(item)"
-        @review="review(item)"
         @place="(to, move) => place(item, to, move)"
       />
     </ul>
 
+    <p v-if="notice" role="status" class="mt-4 rounded-xl bg-warning-soft px-4 py-3 text-sm text-warning-fg">{{ t(notice) }}</p>
     <p v-if="placedMessage" role="status" class="mt-4 rounded-xl bg-surface-muted px-4 py-3 text-sm">{{ placedMessage }}</p>
 
     <p v-if="actionFailed" role="alert" class="mt-4 rounded-xl bg-danger-soft px-4 py-3 text-sm text-danger">{{ t("web.common.error") }}</p>
@@ -180,6 +182,7 @@ function pick<T extends string>(params: URLSearchParams, key: string, allowed: r
 const initial = new URLSearchParams(window.location.search);
 
 const query = ref(initial.get("q") ?? "");
+const notice = ref<string | null>(null);
 const sort = ref<DictionarySort>(initial.get("sort") === "alpha" ? "alpha" : "recent");
 const currentSort = computed(() => (sort.value === "alpha" ? sorts[1] : sorts[0]));
 
@@ -395,10 +398,6 @@ async function copy(item: DictionaryItem): Promise<void> {
   copiedTimer = setTimeout(() => {
     copiedId.value = null;
   }, COPIED_MS);
-}
-
-function review(item: DictionaryItem): void {
-  window.location.assign(`/review/?entry=${item.id}`);
 }
 
 // A stale response must not overwrite a newer one when the learner types fast.
