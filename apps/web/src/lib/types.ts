@@ -101,8 +101,8 @@ export interface DictionaryItem {
   sourceLang: string;
   emoji: string | null;
   createdAt: string;
-  /** The source word has a voice: the speaker shows only where tapping it plays. */
-  speakable: boolean;
+  /** Languages with a voice (never the learner's native one): speakers show only where tapping plays. */
+  speakLangs: string[];
   translations: { lang: string; text: string }[];
 }
 

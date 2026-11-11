@@ -1,15 +1,15 @@
 <template>
   <button
     type="button"
-    class="btn-secondary size-11 shrink-0 !rounded-full !p-0 !text-primary"
+    :class="['btn-secondary shrink-0 !rounded-full !p-0 !text-primary', small ? '-my-1.5 !min-h-0 size-8' : 'size-11']"
     :aria-label="t('web.audio.listenLabel', { text })"
     :title="access === 'locked' ? t('web.audio.locked') : t('web.audio.listen')"
     :aria-busy="loading"
     @click="play"
   >
-    <Lock v-if="access === 'locked'" class="size-5" aria-hidden="true" />
-    <LoaderCircle v-else-if="loading" class="size-5 animate-spin" aria-hidden="true" />
-    <Volume2 v-else class="size-5" aria-hidden="true" />
+    <Lock v-if="access === 'locked'" :class="ICON" aria-hidden="true" />
+    <LoaderCircle v-else-if="loading" :class="[ICON, 'animate-spin']" aria-hidden="true" />
+    <Volume2 v-else :class="ICON" aria-hidden="true" />
   </button>
 </template>
 
@@ -20,7 +20,9 @@ import { ApiError, api } from "../lib/api";
 import { t } from "../lib/i18n";
 import type { AudioAccess } from "../lib/types";
 
-const props = defineProps<{ entryId: number; lang: string; text: string; access: AudioAccess }>();
+// `small` sits inside a line of text (a translation row); the default is a headword's speaker.
+const props = defineProps<{ entryId: number; lang: string; text: string; access: AudioAccess; small?: boolean }>();
+const ICON = props.small ? "size-4" : "size-5";
 /** A message key for the card to show; the button itself has no room for text. */
 const emit = defineEmits<{ notice: [key: string] }>();
 

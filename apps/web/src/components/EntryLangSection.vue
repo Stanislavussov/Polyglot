@@ -2,7 +2,16 @@
   <section class="border-t border-line pt-4">
     <LangBadge :code="detail.lang" />
     <WordHeadline class="mt-2" tone="primary" :text="detail.text">
-      <template #after><span v-if="detail.expressionType" class="inline-block rounded-full bg-primary-soft px-2 py-0.5 text-sm font-medium text-primary-soft-fg">{{ detail.expressionType }}</span></template>
+      <template #after>
+        <SpeakButton
+          v-if="entryId !== undefined && audio && audio !== 'off' && speaks"
+          small
+          :entry-id="entryId"
+          :lang="detail.lang"
+          :text="detail.text"
+          :access="audio"
+          @notice="(key) => emit('notice', key)"
+        /><span v-if="detail.expressionType" class="inline-block rounded-full bg-primary-soft px-2 py-0.5 text-sm font-medium text-primary-soft-fg">{{ detail.expressionType }}</span></template>
     </WordHeadline>
     <p v-if="detail.equivalentNote" class="mt-2 text-base text-ink-muted">{{ detail.equivalentNote }}</p>
     <p v-if="detail.usageNote" class="mt-2 text-base">{{ detail.usageNote }}</p>
@@ -38,10 +47,13 @@ import { CalendarClock, TriangleAlert } from "lucide-vue-next";
 import { formatDue } from "../lib/format";
 import { lang, t } from "../lib/i18n";
 import { languageName } from "../lib/settings-store";
-import type { EntryDetail, EntryReviewState } from "../lib/types";
+import type { AudioAccess, EntryDetail, EntryReviewState } from "../lib/types";
+import SpeakButton from "./SpeakButton.vue";
 import ExampleList from "./ExampleList.vue";
 
-defineProps<{ detail: EntryDetail["details"][number] }>();
+// Speaker props are optional: without them the section is read-only (no voice for this language).
+defineProps<{ detail: EntryDetail["details"][number]; entryId?: number; audio?: AudioAccess; speaks?: boolean }>();
+const emit = defineEmits<{ notice: [key: string] }>();
 
 function schedule(review: EntryReviewState): string {
   if (!review.dueAt) return t("web.dictionary.notScheduled");

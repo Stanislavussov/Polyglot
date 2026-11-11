@@ -143,9 +143,10 @@ describe("web review card voice-over", () => {
 
     const page = (await web.call(cookie, "GET", "/api/dictionary")).body as {
       audio: string;
-      items: { id: number; speakable: boolean }[];
+      items: { id: number; speakLangs: string[] }[];
     };
     expect(page.audio).toBe("ok");
-    expect(page.items.find((item) => item.id === entry.id)?.speakable).toBe(true);
+    // The learning-language word speaks; the native "dog" does not.
+    expect(page.items.find((item) => item.id === entry.id)?.speakLangs).toEqual(["cs"]);
   });
 });

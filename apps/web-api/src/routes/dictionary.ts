@@ -40,14 +40,13 @@ export function toDictionaryItem(
   entry: VocabularyEntryWithTranslations,
   order?: LanguageOrderContext,
 ) {
-  const sourceLang = langCode(services, entry.sourceLangId);
   return {
     id: entry.id,
     original: entry.original,
-    sourceLang,
+    sourceLang: langCode(services, entry.sourceLangId),
     emoji: entry.emoji,
-    // The same rule the audio route checks, so the speaker only shows where tapping it plays.
-    speakable: order ? selectPronounceableLangs(speakableCard(services, entry), order).includes(sourceLang) : false,
+    // The same rule the audio route checks, so a speaker only shows where tapping it plays.
+    speakLangs: order ? selectPronounceableLangs(speakableCard(services, entry), order) : [],
     createdAt: entry.createdAt.toISOString(),
     translations: entry.translations.map((t) => ({ lang: langCode(services, t.targetLangId), text: t.text })),
   };

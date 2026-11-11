@@ -6,7 +6,7 @@
         <DialogTitle class="sr-only">{{ headword }}</DialogTitle>
         <LangBadge v-if="sourceLang" :code="sourceLang" />
         <SpeakButton
-          v-if="entryId !== null && sourceLang && audio !== 'off' && fallback?.speakable"
+          v-if="entryId !== null && sourceLang && audio !== 'off' && speakLangs.includes(sourceLang)"
           :entry-id="entryId"
           :lang="sourceLang"
           :text="headword"
@@ -16,7 +16,7 @@
       </div>
     </template>
     <p v-if="notice" role="status" class="mb-4 rounded-xl bg-warning-soft px-4 py-3 text-sm text-warning-fg">{{ t(notice) }}</p>
-    <EntryDetail :entry="entry" :fallback="fallback" :failed="failed" @retry="load" />
+    <EntryDetail :entry="entry" :fallback="fallback" :failed="failed" :audio="audio" :speak-langs="speakLangs" @retry="load" @notice="(key) => (notice = key)" />
   </BottomSheet>
 </template>
 
@@ -40,6 +40,8 @@ const failed = ref(false);
 const notice = ref<string | null>(null);
 
 const sourceLang = computed(() => entry.value?.sourceLang ?? props.fallback?.sourceLang ?? "");
+// Kept after close so the sheet does not change while it animates out.
+const speakLangs = computed(() => props.fallback?.speakLangs ?? []);
 const headword = computed(() => entry.value?.sourceUsage?.headword ?? entry.value?.original ?? props.fallback?.original ?? "");
 
 // A slow response for a sheet the learner already closed must not fill the next one.

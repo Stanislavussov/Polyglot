@@ -13,7 +13,7 @@
       <LangBadge :code="item.sourceLang" />
       <!-- Sound sits by the language: you want to hear the word while reading it. -->
       <SpeakButton
-        v-if="audio !== 'off' && item.speakable"
+        v-if="audio !== 'off' && item.speakLangs.includes(item.sourceLang)"
         :entry-id="item.id"
         :lang="item.sourceLang"
         :text="item.original"

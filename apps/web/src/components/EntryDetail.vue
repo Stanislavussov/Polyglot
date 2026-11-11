@@ -45,7 +45,15 @@
       <ExampleList :examples="entry.sourceUsage.examples" />
     </div>
 
-    <EntryLangSection v-for="detail in split.others" :key="detail.lang" :detail="detail" />
+    <EntryLangSection
+      v-for="detail in split.others"
+      :key="detail.lang"
+      :detail="detail"
+      :entry-id="entry.id"
+      :audio="audio"
+      :speaks="speakLangs.includes(detail.lang)"
+      @notice="(key) => emit('notice', key)"
+    />
   </div>
 </template>
 
@@ -55,13 +63,19 @@ import { computed } from "vue";
 import { splitNative } from "../lib/card-order";
 import { t } from "../lib/i18n";
 import { settings } from "../lib/settings-store";
-import type { DictionaryItem, EntryDetail } from "../lib/types";
+import type { AudioAccess, DictionaryItem, EntryDetail } from "../lib/types";
 import { headlineSizeFor } from "../lib/word-card";
 import EntryLangSection from "./EntryLangSection.vue";
 import ExampleList from "./ExampleList.vue";
 
-const props = defineProps<{ entry: EntryDetail | null; fallback?: DictionaryItem | null; failed: boolean }>();
-const emit = defineEmits<{ retry: [] }>();
+const props = defineProps<{
+  entry: EntryDetail | null;
+  fallback?: DictionaryItem | null;
+  failed: boolean;
+  audio: AudioAccess;
+  speakLangs: string[];
+}>();
+const emit = defineEmits<{ retry: []; notice: [key: string] }>();
 
 const split = computed(() => splitNative(props.entry?.details ?? [], settings.value?.nativeLang));
 </script>
