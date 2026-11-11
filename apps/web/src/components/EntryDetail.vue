@@ -6,8 +6,8 @@
 
   <div v-else-if="!entry" class="space-y-4" aria-busy="true">
     <p class="sr-only" role="status">{{ t("web.common.loading") }}</p>
-    <div class="h-4 w-24 animate-pulse rounded bg-surface-muted" />
-    <div class="h-7 w-2/3 animate-pulse rounded bg-surface-muted" />
+    <WordHeadline v-if="fallback" :size="headlineSizeFor(fallback.original)" :text="fallback.original" :emoji="fallback.emoji" />
+    <div v-else class="h-7 w-2/3 animate-pulse rounded bg-surface-muted" />
     <div class="space-y-3 border-t border-line pt-4">
       <div class="h-4 w-20 animate-pulse rounded bg-surface-muted" />
       <div class="h-6 w-1/2 animate-pulse rounded bg-surface-muted" />
@@ -17,7 +17,12 @@
   </div>
 
   <div v-else class="space-y-5">
-    <WordEyebrow :code="entry.sourceLang" />
+    <WordHeadline
+      as="h3"
+      :size="headlineSizeFor(entry.sourceUsage?.headword ?? entry.original)"
+      :text="entry.sourceUsage?.headword ?? entry.original"
+      :emoji="entry.emoji"
+    />
 
     <EntryLangSection v-if="split.native" :detail="split.native" />
 
@@ -45,16 +50,17 @@
 </template>
 
 <script setup lang="ts">
-import WordEyebrow from "./word/WordEyebrow.vue";
+import WordHeadline from "./word/WordHeadline.vue";
 import { computed } from "vue";
 import { splitNative } from "../lib/card-order";
 import { t } from "../lib/i18n";
-import { languageName, settings } from "../lib/settings-store";
-import type { EntryDetail } from "../lib/types";
+import { settings } from "../lib/settings-store";
+import type { DictionaryItem, EntryDetail } from "../lib/types";
+import { headlineSizeFor } from "../lib/word-card";
 import EntryLangSection from "./EntryLangSection.vue";
 import ExampleList from "./ExampleList.vue";
 
-const props = defineProps<{ entry: EntryDetail | null; failed: boolean }>();
+const props = defineProps<{ entry: EntryDetail | null; fallback?: DictionaryItem | null; failed: boolean }>();
 const emit = defineEmits<{ retry: [] }>();
 
 const split = computed(() => splitNative(props.entry?.details ?? [], settings.value?.nativeLang));

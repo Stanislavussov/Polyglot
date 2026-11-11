@@ -129,7 +129,7 @@
 
     <p v-if="actionFailed" role="alert" class="mt-4 rounded-xl bg-danger-soft px-4 py-3 text-sm text-danger">{{ t("web.common.error") }}</p>
 
-    <EntryDetailDialog :entry-id="openId" :fallback="openItem" @close="openId = null" />
+    <EntryDetailDialog :entry-id="openId" :fallback="openItem" :audio="data?.audio ?? 'off'" @close="openId = null" />
 
     <nav v-if="data && pageCount > 1" class="mt-6 flex items-center justify-between gap-3">
       <button type="button" class="btn-secondary px-3 sm:px-5" :disabled="page <= 1" @click="page -= 1">

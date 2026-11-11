@@ -19,8 +19,9 @@
           @touchcancel="onDragEnd"
         >
           <div class="mx-auto mb-2 h-1.5 w-10 rounded-full bg-line sm:hidden" aria-hidden="true" />
-          <div class="flex items-start justify-between gap-3">
-            <DialogTitle class="min-w-0 break-words text-xl font-semibold"><slot name="title" /></DialogTitle>
+          <div class="flex items-center justify-between gap-3">
+            <!-- `header` replaces the title row; it must still render a DialogTitle (sr-only is fine). -->
+            <slot name="header"><DialogTitle class="min-w-0 break-words text-xl font-semibold"><slot name="title" /></DialogTitle></slot>
             <DialogClose class="grid size-11 shrink-0 place-items-center rounded-xl hover:bg-surface-muted" :aria-label="t('web.dictionary.close')">
               <X class="size-5" aria-hidden="true" />
             </DialogClose>

@@ -1,7 +1,7 @@
 <template>
   <section class="border-t border-line pt-4">
-    <WordEyebrow :code="detail.lang" />
-    <WordHeadline class="mt-1" tone="primary" :text="detail.text">
+    <LangBadge :code="detail.lang" />
+    <WordHeadline class="mt-2" tone="primary" :text="detail.text">
       <template #after><span v-if="detail.expressionType" class="inline-block rounded-full bg-primary-soft px-2 py-0.5 text-sm font-medium text-primary-soft-fg">{{ detail.expressionType }}</span></template>
     </WordHeadline>
     <p v-if="detail.equivalentNote" class="mt-2 text-base text-ink-muted">{{ detail.equivalentNote }}</p>
@@ -32,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import WordEyebrow from "./word/WordEyebrow.vue";
+import LangBadge from "./LangBadge.vue";
 import WordHeadline from "./word/WordHeadline.vue";
 import { CalendarClock, TriangleAlert } from "lucide-vue-next";
 import { formatDue } from "../lib/format";
