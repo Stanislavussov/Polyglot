@@ -15,9 +15,7 @@
         <template #body>
           <hr class="border-line" />
           <TranslationLines :lines="entry.translations" />
-          <p v-if="entry.etymology" class="text-sm text-ink-muted">
-            <span class="font-semibold">{{ t("web.dictionary.askEtymology") }}:</span> {{ entry.etymology }}
-          </p>
+          <EtymologyFold v-if="entry.etymology" :text="entry.etymology" />
         </template>
       </WordCard>
 
@@ -67,6 +65,7 @@ import { mentorHtml } from "../lib/mentor-html";
 import type { EntryDetail, MentorTurn } from "../lib/types";
 import { headlineSizeFor } from "../lib/word-card";
 import ComposerCard from "./ComposerCard.vue";
+import EtymologyFold from "./EtymologyFold.vue";
 import LangBadge from "./LangBadge.vue";
 import LimitNotice from "./LimitNotice.vue";
 import MonsterLoader from "./MonsterLoader.vue";

@@ -63,10 +63,7 @@
       :speaks="speakLangs.includes(detail.lang)"
       @notice="(key) => emit('notice', key)"
     />
-    <section v-if="entry.etymology" class="space-y-1 border-t border-line pt-4">
-      <h3 class="text-sm font-semibold text-ink-muted">{{ t("web.dictionary.askEtymology") }}</h3>
-      <p class="whitespace-pre-line text-base">{{ entry.etymology }}</p>
-    </section>
+    <EtymologyFold v-if="entry.etymology" class="border-t border-line pt-3" :text="entry.etymology" />
   </div>
 </template>
 
@@ -81,6 +78,7 @@ import { settings } from "../lib/settings-store";
 import type { AudioAccess, DictionaryItem, EntryDetail } from "../lib/types";
 import { headlineSizeFor } from "../lib/word-card";
 import EntryLangSection from "./EntryLangSection.vue";
+import EtymologyFold from "./EtymologyFold.vue";
 import ExampleList from "./ExampleList.vue";
 
 const props = defineProps<{

@@ -32,7 +32,7 @@
       </template>
       <template v-if="item.etymology">
         <hr class="border-line" />
-        <p class="line-clamp-3 text-sm text-ink-muted"><span class="font-semibold">{{ t("web.dictionary.askEtymology") }}:</span> {{ item.etymology }}</p>
+        <EtymologyFold :text="item.etymology" :open="justAsked" />
       </template>
     </template>
 
@@ -50,7 +50,7 @@
 
 <script setup lang="ts">
 import { BookOpen, Check, Copy, FolderInput, FolderPlus, History, MessageCircleQuestion, MessagesSquare, Trash2, Undo2 } from "lucide-vue-next";
-import { computed } from "vue";
+import { computed, ref, watch } from "vue";
 import type { BarAction } from "../lib/action-bar";
 import { splitNative } from "../lib/card-order";
 import { t } from "../lib/i18n";
@@ -58,6 +58,7 @@ import { settings } from "../lib/settings-store";
 import type { AudioAccess, Dictionary, DictionaryItem } from "../lib/types";
 import { headlineSizeFor } from "../lib/word-card";
 import ActionBar from "./ActionBar.vue";
+import EtymologyFold from "./EtymologyFold.vue";
 import LangBadge from "./LangBadge.vue";
 import MonsterLoader from "./MonsterLoader.vue";
 import SpeakButton from "./SpeakButton.vue";
@@ -80,6 +81,15 @@ const ordered = computed(() => {
   const { native, others } = splitNative(props.item.translations, settings.value?.nativeLang);
   return native ? [native, ...others] : others;
 });
+
+// Opened right after the learner asked for it, folded on every later visit.
+const justAsked = ref(false);
+watch(
+  () => props.etymologyBusy,
+  (busy, wasBusy) => {
+    if (wasBusy && !busy) justAsked.value = true;
+  },
+);
 
 const mentorHref = computed(() => `/dictionary/ask/?${new URLSearchParams({ id: String(props.item.id) })}`);
 
