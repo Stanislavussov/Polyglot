@@ -32,7 +32,7 @@ import type { PageName } from "../lib/types";
 const props = defineProps<{ page: PageName }>();
 const emit = defineEmits<{ navigate: [page: PageName] }>();
 
-const LEARN_PAGES: readonly PageName[] = ["learn", "mentor", "grammar", "expressions", "pick", "videos"];
+const LEARN_PAGES: readonly PageName[] = ["learn", "mentor", "grammar", "expressions", "pick", "videos", "articles"];
 
 // Every Learn mode sits under the one Learn entry.
 function active(itemPage: PageName): boolean {

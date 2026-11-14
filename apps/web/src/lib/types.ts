@@ -253,7 +253,7 @@ export interface ReviewState {
 }
 
 export type Rating = "again" | "hard" | "good" | "easy";
-export type LearnPageName = "learn" | "mentor" | "grammar" | "expressions" | "pick" | "videos";
+export type LearnPageName = "learn" | "mentor" | "grammar" | "expressions" | "pick" | "videos" | "articles";
 export type PageName =
   | "translate"
   | "dictionary"

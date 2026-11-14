@@ -1137,6 +1137,63 @@ export const videoTranscriptCache = pgTable(
 export type VideoTranscriptCache = typeof videoTranscriptCache.$inferSelect;
 
 // ─────────────────────────────────────────────
+// Article vocabulary — a web article the learner sent, cleaned to its body
+// ─────────────────────────────────────────────
+export const articleProcesses = pgTable(
+  "article_processes",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    /** The page after redirects, without the fragment — one run per user and URL. */
+    url: text("url").notNull(),
+    title: text("title").notNull(),
+    siteName: text("site_name"),
+    /** Article language code (ISO 639-1): the page's declared language, else the learner's first learning language. */
+    language: text("language").notNull(),
+    /** The cleaned, length-capped body the extraction reads — kept so confirm never re-fetches the page. */
+    content: text("content").notNull(),
+    wordCount: integer("word_count").notNull(),
+    /** The page was longer than the cap; only its beginning was kept. */
+    truncated: boolean("truncated").default(false).notNull(),
+    status: text("status").$type<"pending" | "processing" | "completed" | "failed">().default("pending").notNull(),
+    errorMessage: text("error_message"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [index("ap_user_created_idx").on(t.userId, t.createdAt), index("ap_user_url_idx").on(t.userId, t.url)],
+);
+
+export type ArticleProcess = typeof articleProcesses.$inferSelect;
+
+export const articlePhrases = pgTable(
+  "article_phrases",
+  {
+    id: serial("id").primaryKey(),
+    articleProcessId: integer("article_process_id")
+      .references(() => articleProcesses.id, { onDelete: "cascade" })
+      .notNull(),
+    phrase: text("phrase").notNull(),
+    nativeTranslation: text("native_translation"),
+    emoji: text("emoji"),
+    /** 'word' | 'phrase' | 'idiom' | 'collocation' */
+    phraseType: text("phrase_type"),
+    /** CEFR level: A1-C2 */
+    level: text("level"),
+    /** The sentence from the article where the phrase appears */
+    context: text("context"),
+    /** Learning value rank (1 = most useful) */
+    sortOrder: integer("sort_order").notNull(),
+    savedEntryId: integer("saved_entry_id").references(() => vocabularyEntries.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [index("aph_process_sort_idx").on(t.articleProcessId, t.sortOrder)],
+);
+
+export type ArticlePhrase = typeof articlePhrases.$inferSelect;
+
+// ─────────────────────────────────────────────
 // Subscriptions — recurring paid plan state (source of truth for lifecycle)
 // users.subscriptionPlan stays the fast pointer read by the entitlements resolver.
 // ─────────────────────────────────────────────

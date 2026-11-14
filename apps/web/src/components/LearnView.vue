@@ -20,6 +20,7 @@ const modes = [
   { href: "/learn/pick/", icon: "✨", label: "web.learn.pick" },
   { href: "/review/", icon: "🎴", label: "web.learn.cards" },
   { href: "/learn/videos/", icon: "🎬", label: "web.learn.videos" },
+  { href: "/learn/articles/", icon: "📰", label: "web.learn.articles" },
   { href: "/learn/mentor/", icon: "🧑‍🏫", label: "web.learn.mentor" },
   { href: "/learn/expressions/", icon: "💬", label: "web.learn.expressions" },
   { href: "/learn/grammar/", icon: "✍️", label: "web.learn.grammar" },

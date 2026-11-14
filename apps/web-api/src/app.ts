@@ -4,6 +4,7 @@ import { originGuard } from "./auth/origin-guard.js";
 import { installSessionGuard } from "./auth/session.js";
 import { SESSION_TTL_SECONDS } from "./auth/session-cookie.js";
 import type { WebApiConfig } from "./config.js";
+import { articleRoutes } from "./routes/articles.js";
 import { authRoutes } from "./routes/auth.js";
 import { cardAudioRoutes } from "./routes/card-audio.js";
 import { cardExploreRoutes } from "./routes/card-explore.js";
@@ -110,6 +111,7 @@ export async function buildWebApiApp(
   learnPracticeRoutes(app, services);
   wordPickerRoutes(app, services);
   videoRoutes(app, services);
+  articleRoutes(app, services);
   progressRoutes(app, services);
   onboardingRoutes(app, services);
   voiceRoutes(app, services);

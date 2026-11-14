@@ -13,6 +13,14 @@ export type {
   TranscribeOptions,
   TranscriptionResult,
 } from "./ports/ai.port.js";
+export type {
+  ArticlePhrase,
+  ArticleProcess,
+  ArticleProcessStatus,
+  ArticleVocabularyRepository,
+  CreateArticleProcessInput,
+  SaveArticlePhraseInput,
+} from "./ports/article-vocabulary.repository.js";
 // Ports — service container for dependency injection
 export type { CardTemplateRepository } from "./ports/card-template.repository.js";
 export type { ServiceContainer } from "./ports/container.js";
@@ -166,6 +174,14 @@ export { enrichTrace, getTraceContext, newTraceId, runWithTrace } from "./observ
 
 // Modules
 
+export {
+  type ArticleFlowDeps,
+  articleExtractionResultSchema,
+  computeArticlePhraseTarget,
+  processArticle,
+  saveAllArticlePhrases,
+  saveArticlePhrase,
+} from "./modules/article-vocabulary/index.js";
 export * from "./modules/context-enrichment/index.js";
 export * from "./modules/entitlements/index.js";
 export * from "./modules/expressions/index.js";

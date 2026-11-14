@@ -23,6 +23,8 @@ export const AI_CALL_WEIGHTS = {
   mentor: 2,
   dictionaryTranslate: 1,
   video: 5,
+  // A capped article body is a fraction of a long transcript's input.
+  article: 3,
   wordPick: 3,
   etymology: 1,
   grammarCheck: 2,

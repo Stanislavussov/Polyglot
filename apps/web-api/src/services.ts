@@ -1,4 +1,4 @@
-import type { PushSubscriptionRepository, ServiceContainer } from "@polyglot/core";
+import type { ArticleVocabularyRepository, PushSubscriptionRepository, ServiceContainer } from "@polyglot/core";
 
 /**
  * The slice of the bot's service container the web app uses. Typed as a Pick so
@@ -33,4 +33,6 @@ export type WebServices = Pick<
 > & {
   /** Web-only: the bot reads subscriptions straight from adapter-db when it delivers. */
   pushSubscriptionRepository: PushSubscriptionRepository;
+  /** Web-only until the bot gets articles. */
+  articleVocabularyRepository: ArticleVocabularyRepository;
 };
