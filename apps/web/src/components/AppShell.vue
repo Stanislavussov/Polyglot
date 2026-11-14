@@ -127,6 +127,7 @@ import ReviewView from "./ReviewView.vue";
 import SettingsView from "./SettingsView.vue";
 import ShellSkeleton from "./ShellSkeleton.vue";
 import TranslateView from "./TranslateView.vue";
+import ArticlesView from "./ArticlesView.vue";
 import VideosView from "./VideosView.vue";
 import WordPickerView from "./WordPickerView.vue";
 import WelcomeView from "./WelcomeView.vue";
@@ -148,6 +149,7 @@ const views = {
   expressions: ExpressionsView,
   pick: WordPickerView,
   videos: VideosView,
+  articles: ArticlesView,
 } as const;
 
 const PAGE_PATH: Record<PageName, string> = {
@@ -164,6 +166,7 @@ const PAGE_PATH: Record<PageName, string> = {
   expressions: "/learn/expressions/",
   pick: "/learn/pick/",
   videos: "/learn/videos/",
+  articles: "/learn/articles/",
 };
 const PAGE_TITLE: Record<PageName, string> = {
   translate: "Translate",
@@ -179,6 +182,7 @@ const PAGE_TITLE: Record<PageName, string> = {
   expressions: "Expressions",
   pick: "Pick words",
   videos: "Videos",
+  articles: "Articles",
 };
 
 // Each page is its own Astro document; switching views in place keeps the menu from re-rendering on every click.

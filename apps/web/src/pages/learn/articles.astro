@@ -1,0 +1,11 @@
+---
+import AppShell from "../../components/AppShell.vue";
+import ShellSkeleton from "../../components/ShellSkeleton.vue";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Articles">
+  <AppShell client:only="vue" page="articles">
+    <ShellSkeleton slot="fallback" label="Loading…" />
+  </AppShell>
+</BaseLayout>

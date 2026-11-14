@@ -13,7 +13,10 @@ import { normalizePhrase } from "./normalize.js";
 const MAX_KNOWN_PHRASES_IN_PROMPT = 500;
 
 /** Build the "already known — do not extract" section, or "" when there is nothing to exclude. */
-function buildKnownPhrasesSection(knownPhrases: string[]): string {
+export function buildKnownPhrasesSection(
+  knownPhrases: string[],
+  earlierSources = "previously processed videos",
+): string {
   if (knownPhrases.length === 0) return "";
 
   // Deduplicate case-insensitively while preserving the first-seen original form.
@@ -32,7 +35,7 @@ function buildKnownPhrasesSection(knownPhrases: string[]): string {
   return `
 ## Already Known — DO NOT extract these
 
-The learner already has the following ${unique.length} items (from their saved dictionary and previously processed videos). Do NOT include any of them, nor a trivial variant (different casing, inflection, or article) of one. Spend the budget on genuinely new items instead:
+The learner already has the following ${unique.length} items (from their saved dictionary and ${earlierSources}). Do NOT include any of them, nor a trivial variant (different casing, inflection, or article) of one. Spend the budget on genuinely new items instead:
 
 ${unique.join(", ")}
 `;

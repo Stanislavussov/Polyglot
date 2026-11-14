@@ -42,6 +42,11 @@ export type VocabularySource =
       timestampSeconds: number | null;
     }
   | {
+      type: "article";
+      articleUrl: string;
+      articleTitle: string;
+    }
+  | {
       /** Saved from a word-picker set; `runId` links back to `word_picker_runs`. */
       type: "wordPicker";
       runId: number;

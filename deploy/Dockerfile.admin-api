@@ -19,6 +19,7 @@ COPY packages/adapters/ai/package.json packages/adapters/ai/
 COPY packages/adapters/db/package.json packages/adapters/db/
 COPY packages/adapters/notifications/package.json packages/adapters/notifications/
 COPY packages/adapters/youtube/package.json packages/adapters/youtube/
+COPY packages/adapters/article/package.json packages/adapters/article/
 
 RUN pnpm install --frozen-lockfile
 
@@ -49,6 +50,7 @@ COPY packages/adapters/ai/package.json packages/adapters/ai/
 COPY packages/adapters/db/package.json packages/adapters/db/
 COPY packages/adapters/notifications/package.json packages/adapters/notifications/
 COPY packages/adapters/youtube/package.json packages/adapters/youtube/
+COPY packages/adapters/article/package.json packages/adapters/article/
 
 RUN pnpm install --frozen-lockfile --prod
 

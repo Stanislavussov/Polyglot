@@ -1,5 +1,5 @@
 import { createHash, createHmac } from "node:crypto";
-import { pushSubscriptionRepository } from "@polyglot/adapter-db";
+import { articleVocabularyRepository, pushSubscriptionRepository } from "@polyglot/adapter-db";
 import type { FastifyInstance } from "fastify";
 import {
   type BotHarness,
@@ -56,7 +56,7 @@ export async function createWebHarness(options: HarnessOptions = {}): Promise<We
     vapidPublicKey: HARNESS_VAPID_PUBLIC_KEY,
   };
   // The same object, not a spread copy: tests swap services on `web.bot.services` after start.
-  const services = Object.assign(bot.services, { pushSubscriptionRepository });
+  const services = Object.assign(bot.services, { pushSubscriptionRepository, articleVocabularyRepository });
   const app = await buildWebApiApp(services, config, { now: () => NOW });
 
   const call: WebHarness["call"] = async (cookie, method, url, payload) => {

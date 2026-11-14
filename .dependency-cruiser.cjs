@@ -165,7 +165,7 @@ module.exports = {
         path: "^packages/core/src/modules/([^/]+)/",
         // Modules with an explicit allow rule below are exempt from the default.
         pathNot:
-          "^packages/core/src/modules/(validation|translation|context-enrichment|notifications|expressions|tts|grammar-check|entitlements|translate-flow|word-picker|video-vocabulary|vocabulary|momentum|word-packs)/",
+          "^packages/core/src/modules/(validation|translation|context-enrichment|notifications|expressions|tts|grammar-check|entitlements|translate-flow|word-picker|video-vocabulary|article-vocabulary|vocabulary|momentum|word-packs)/",
       },
       to: {
         path: "^packages/core/src/modules/",
@@ -229,6 +229,17 @@ module.exports = {
       to: {
         path: "^packages/core/src/modules/",
         pathNot: "^packages/core/src/modules/($1|entitlements|vocabulary)/",
+      },
+    },
+    {
+      name: "core-article-vocabulary-allowlist",
+      comment:
+        "article-vocabulary is the video flow for web articles: it reuses video-vocabulary's prompt pieces and saves through vocabulary",
+      severity: "error",
+      from: { path: "^packages/core/src/modules/article-vocabulary/" },
+      to: {
+        path: "^packages/core/src/modules/",
+        pathNot: "^packages/core/src/modules/(article-vocabulary|video-vocabulary|vocabulary)/",
       },
     },
     {

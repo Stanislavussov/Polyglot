@@ -97,6 +97,33 @@ export type VideoSubmit =
   | { status: "existing"; video: Video }
   | { status: "confirm"; video: Video; remaining: number | null; limit: number | null };
 
+export interface Article {
+  id: number;
+  title: string;
+  url: string;
+  siteName: string | null;
+  language: string;
+  wordCount: number;
+  truncated: boolean;
+  status: "pending" | "processing" | "completed" | "failed";
+  createdAt: string;
+}
+
+export interface ArticlePhrase {
+  id: number;
+  phrase: string;
+  nativeTranslation: string | null;
+  emoji: string | null;
+  type: string | null;
+  level: string | null;
+  context: string | null;
+  saved: boolean;
+}
+
+export type ArticleSubmit =
+  | { status: "existing"; article: Article }
+  | { status: "confirm"; article: Article; excerpt: string };
+
 export interface SaveResult {
   saved: number;
   alreadySaved: boolean;
@@ -127,4 +154,16 @@ export const learnApi = {
     ),
   saveVideoPhrase: (phraseId: number) => request<SaveResult>("POST", `/videos/phrases/${phraseId}/save`),
   saveAllVideoPhrases: (id: number) => request<SaveResult>("POST", `/videos/${id}/save-all`),
+  articles: (page: number) =>
+    request<{ articles: Article[]; page: number; totalPages: number }>("GET", `/articles?page=${page}`),
+  submitArticle: (url: string) => request<ArticleSubmit>("POST", "/articles", { url }),
+  confirmArticle: (id: number) => request<{ status: "processing" }>("POST", `/articles/${id}/confirm`),
+  cancelArticle: (id: number) => request<void>("POST", `/articles/${id}/cancel`),
+  article: (id: number, page: number) =>
+    request<{ article: Article; page: number; totalPages: number; phrases: ArticlePhrase[] }>(
+      "GET",
+      `/articles/${id}?page=${page}`,
+    ),
+  saveArticlePhrase: (phraseId: number) => request<SaveResult>("POST", `/articles/phrases/${phraseId}/save`),
+  saveAllArticlePhrases: (id: number) => request<SaveResult>("POST", `/articles/${id}/save-all`),
 };

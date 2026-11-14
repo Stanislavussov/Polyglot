@@ -8,6 +8,7 @@ import {
   transcribeAudio,
 } from "@polyglot/adapter-ai";
 import {
+  articleVocabularyRepository,
   cardTemplateRepository,
   createContextLookup,
   createWordLanguageSweep,
@@ -89,6 +90,7 @@ export function createWebServices(): WebServices {
     cardTemplateRepository,
     notificationRepository,
     pushSubscriptionRepository,
+    articleVocabularyRepository,
     reportedIssueRepository,
     videoVocabularyRepository,
     wordPickerPresetRepository,
