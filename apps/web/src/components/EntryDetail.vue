@@ -6,8 +6,8 @@
 
   <div v-else-if="!entry" class="space-y-4" aria-busy="true">
     <p class="sr-only" role="status">{{ t("web.common.loading") }}</p>
-    <div class="h-4 w-24 animate-pulse rounded bg-surface-muted" />
-    <div class="h-7 w-2/3 animate-pulse rounded bg-surface-muted" />
+    <WordHeadline v-if="fallback" :size="headlineSizeFor(fallback.original)" :text="fallback.original" :emoji="fallback.emoji" />
+    <div v-else class="h-7 w-2/3 animate-pulse rounded bg-surface-muted" />
     <div class="space-y-3 border-t border-line pt-4">
       <div class="h-4 w-20 animate-pulse rounded bg-surface-muted" />
       <div class="h-6 w-1/2 animate-pulse rounded bg-surface-muted" />
@@ -17,16 +17,30 @@
   </div>
 
   <div v-else class="space-y-5">
-    <p><LangBadge :code="entry.sourceLang" /></p>
+    <WordHeadline
+      as="h3"
+      :size="headlineSizeFor(entry.sourceUsage?.headword ?? entry.original)"
+      :text="entry.sourceUsage?.headword ?? entry.original"
+      :emoji="entry.emoji"
+    />
 
-    <EntryLangSection v-if="split.native" :detail="split.native" />
+    <!-- "Hard" words come back first: the same grade the bot's notification feedback sets. -->
+    <button
+      type="button"
+      :class="['btn-secondary', important && '!border-primary !bg-primary-soft !text-primary-soft-fg']"
+      :aria-pressed="important"
+      :disabled="saving"
+      @click="toggleImportant"
+    >
+      <Star class="size-4" :fill="important ? 'currentColor' : 'none'" aria-hidden="true" />
+      {{ important ? t("web.dictionary.moreOftenOn") : t("web.dictionary.moreOften") }}
+    </button>
 
-    <div v-if="entry.nativeMeaning || entry.difficulty" class="space-y-2">
+    <EntryLangSection v-if="split.native" :detail="split.native" :entry-id="entry.id" />
+
+    <div v-if="entry.nativeMeaning" class="space-y-2">
       <p v-if="entry.nativeMeaning" class="text-base">
         <span class="font-semibold text-ink-muted">{{ t("web.translate.nativeMeaning") }}:</span> {{ entry.nativeMeaning }}
-      </p>
-      <p v-if="entry.difficulty" class="text-sm">
-        <span class="font-semibold text-ink-muted">{{ t("web.dictionary.difficulty") }}:</span> {{ t(`web.dictionary.difficulty.${entry.difficulty}`) }}
       </p>
     </div>
 
@@ -40,22 +54,65 @@
       <ExampleList :examples="entry.sourceUsage.examples" />
     </div>
 
-    <EntryLangSection v-for="detail in split.others" :key="detail.lang" :detail="detail" />
+    <EntryLangSection
+      v-for="detail in split.others"
+      :key="detail.lang"
+      :detail="detail"
+      :entry-id="entry.id"
+      :audio="audio"
+      :speaks="speakLangs.includes(detail.lang)"
+      @notice="(key) => emit('notice', key)"
+    />
+    <EtymologyFold v-if="entry.etymologyEligible" class="border-t border-line pt-3" :entry-id="entry.id" :saved="entry.etymology" />
   </div>
 </template>
 
 <script setup lang="ts">
-import LangBadge from "./LangBadge.vue";
-import { computed } from "vue";
+import WordHeadline from "./word/WordHeadline.vue";
+import { Star } from "lucide-vue-next";
+import { computed, ref, watch } from "vue";
+import { api } from "../lib/api";
 import { splitNative } from "../lib/card-order";
 import { t } from "../lib/i18n";
-import { languageName, settings } from "../lib/settings-store";
-import type { EntryDetail } from "../lib/types";
+import { settings } from "../lib/settings-store";
+import type { AudioAccess, DictionaryItem, EntryDetail } from "../lib/types";
+import { headlineSizeFor } from "../lib/word-card";
 import EntryLangSection from "./EntryLangSection.vue";
+import EtymologyFold from "./EtymologyFold.vue";
 import ExampleList from "./ExampleList.vue";
 
-const props = defineProps<{ entry: EntryDetail | null; failed: boolean }>();
-const emit = defineEmits<{ retry: [] }>();
+const props = defineProps<{
+  entry: EntryDetail | null;
+  fallback?: DictionaryItem | null;
+  failed: boolean;
+  audio: AudioAccess;
+  speakLangs: string[];
+}>();
+const emit = defineEmits<{ retry: []; notice: [key: string] }>();
 
 const split = computed(() => splitNative(props.entry?.details ?? [], settings.value?.nativeLang));
+
+const important = ref(false);
+const saving = ref(false);
+watch(
+  () => props.entry,
+  (entry) => {
+    important.value = entry?.difficulty === "hard";
+  },
+  { immediate: true },
+);
+
+async function toggleImportant(): Promise<void> {
+  if (!props.entry || saving.value) return;
+  const next = !important.value;
+  important.value = next;
+  saving.value = true;
+  try {
+    await api.setDifficulty(props.entry.id, next ? "hard" : "normal");
+  } catch {
+    important.value = !next;
+  } finally {
+    saving.value = false;
+  }
+}
 </script>

@@ -20,12 +20,10 @@
       <header class="space-y-3">
         <p v-if="picked" class="text-sm font-semibold uppercase tracking-wide text-primary">{{ t("web.review.picked") }}</p>
         <p v-else-if="card.ahead" class="text-sm font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.review.ahead") }}</p>
-        <p><LangBadge :code="card.detail.sourceLang" /></p>
+        <WordEyebrow :code="card.detail.sourceLang" />
         <div class="flex items-start gap-3">
-          <div class="flex min-w-0 flex-1 items-center gap-2">
-            <h2 class="min-w-0 break-words text-3xl font-bold">
-              <span v-if="card.detail.emoji" class="mr-2" aria-hidden="true">{{ card.detail.emoji }}</span>{{ card.front.headword }}
-            </h2>
+          <WordHeadline class="flex-1" as="h2" size="xl" :text="card.front.headword" :emoji="card.detail.emoji">
+            <template #after>
             <SpeakButton
               v-if="speaks(card.detail.sourceLang)"
               class="shrink-0"
@@ -35,7 +33,8 @@
               :access="card.audio.access"
               @notice="showNotice"
             />
-          </div>
+            </template>
+          </WordHeadline>
           <PopoverRoot :open="frontOpen" @update:open="setFrontPanel">
             <PopoverTrigger class="btn-secondary shrink-0 !px-3" :aria-label="t('web.review.frontSettings')" :title="t('web.review.frontSettings')">
               <Settings2 class="size-4" aria-hidden="true" />
@@ -163,6 +162,8 @@
 </template>
 
 <script setup lang="ts">
+import WordEyebrow from "./word/WordEyebrow.vue";
+import WordHeadline from "./word/WordHeadline.vue";
 import LangBadge from "./LangBadge.vue";
 import { Eye, Settings2, Trash2, Undo2 } from "lucide-vue-next";
 import { PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from "reka-ui";

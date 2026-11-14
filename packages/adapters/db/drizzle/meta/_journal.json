@@ -526,6 +526,13 @@
       "when": 1794645026470,
       "tag": "0074_cuddly_ravenous",
       "breakpoints": true
+    },
+    {
+      "idx": 75,
+      "version": "7",
+      "when": 1794676558201,
+      "tag": "0075_petite_starbolt",
+      "breakpoints": true
     }
   ]
 }

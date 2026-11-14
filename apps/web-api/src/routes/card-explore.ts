@@ -17,7 +17,7 @@ import {
   t,
   type User,
 } from "@polyglot/core";
-import type { FastifyInstance } from "fastify";
+import type { FastifyInstance, FastifyReply } from "fastify";
 import { z } from "zod";
 import type { WebServices } from "../services.js";
 import { featureLocked, hasFeature } from "./learn-shared.js";
@@ -130,7 +130,11 @@ function toMentorCard(card: WebCard): MentorCard {
  * The thread the model reads: the card rides on the oldest user turn still in the
  * window, so a follow-up keeps the context without the client ever holding it.
  */
-function mentorTurns(cardText: (question: string) => string, history: ChatMessage[], question: string): ChatMessage[] {
+export function mentorTurns(
+  cardText: (question: string) => string,
+  history: ChatMessage[],
+  question: string,
+): ChatMessage[] {
   const asked: ChatMessage = { role: "user", content: question };
   const turns = [...history, asked].slice(-MAX_MENTOR_HISTORY);
   const first = turns.findIndex((turn) => turn.role === "user");
@@ -139,33 +143,48 @@ function mentorTurns(cardText: (question: string) => string, history: ChatMessag
   );
 }
 
+/**
+ * One etymology, gated like the bot's button: the plan, then eligibility, then the model.
+ * Returns the prose, or null after sending the refusal.
+ */
+export async function answerEtymology(
+  services: WebServices,
+  user: User,
+  reply: FastifyReply,
+  card: { original: string; sourceLang: string; inputType: "word" | "phrase" | "sentence" },
+): Promise<string | null> {
+  if (!(await hasFeature(services, user, FEATURE_KEYS.etymology))) {
+    await featureLocked(reply, FEATURE_KEYS.etymology);
+    return null;
+  }
+  const settings = await services.userRepository.getSettings(user.id);
+  const nativeLang = settings?.nativeLang ?? "en";
+  const { original, sourceLang, inputType } = card;
+  if (inputType === "sentence" || !isEtymologyEligible(inputType, sourceLang, nativeLang)) {
+    await reply.status(422).send({ code: "not_eligible" });
+    return null;
+  }
+  try {
+    const model = await resolveDefaultAIModel(services.settings, user.subscriptionPlan);
+    return await generateEtymology(
+      { originalText: original, sourceLang, nativeLang, inputType },
+      services.ai.generateObject,
+      model,
+      user.id,
+    );
+  } catch (err) {
+    logEvent("card.etymology_failed", { word: original, channel: "web", ...errorFields(err) }, "error");
+    await reply.status(err instanceof AITimeoutError ? 504 : 502).send({ code: "etymology_failed" });
+    return null;
+  }
+}
+
 export function cardExploreRoutes(app: FastifyInstance, services: WebServices): void {
   app.post("/api/translate/etymology", async (request, reply) => {
     const parsed = etymologyBody.safeParse(request.body);
     if (!parsed.success) return reply.status(400).send({ code: "invalid_card" });
-    const user = request.learner;
-    if (!(await hasFeature(services, user, FEATURE_KEYS.etymology)))
-      return featureLocked(reply, FEATURE_KEYS.etymology);
-
-    const settings = await services.userRepository.getSettings(user.id);
-    const nativeLang = settings?.nativeLang ?? "en";
-    const { original, sourceLang, inputType } = parsed.data;
-    if (!isEtymologyEligible(inputType, sourceLang, nativeLang))
-      return reply.status(422).send({ code: "not_eligible" });
-
-    try {
-      const model = await resolveDefaultAIModel(services.settings, user.subscriptionPlan);
-      const etymology = await generateEtymology(
-        { originalText: original, sourceLang, nativeLang, inputType },
-        services.ai.generateObject,
-        model,
-        user.id,
-      );
-      return { etymology };
-    } catch (err) {
-      logEvent("card.etymology_failed", { word: original, channel: "web", ...errorFields(err) }, "error");
-      return reply.status(err instanceof AITimeoutError ? 504 : 502).send({ code: "etymology_failed" });
-    }
+    const etymology = await answerEtymology(services, request.learner, reply, parsed.data);
+    return etymology === null ? reply : { etymology };
   });
 
   app.post("/api/mentor", async (request, reply) => {

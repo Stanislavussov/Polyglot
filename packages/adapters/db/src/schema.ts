@@ -243,6 +243,8 @@ export const vocabularyEntries = pgTable(
     nativeMeaning: text("native_meaning"),
     sourceUsage: jsonb("source_usage").$type<SourceUsage>(),
     source: jsonb("source").$type<VocabularySource>(),
+    /** The word's origin, kept once a learner asked for it so it is never paid for twice. */
+    etymology: text("etymology"),
     /**
      * Task 70 — set when the source headword was not recognized as a real word
      * but translated anyway on the user's "translate as written" override.

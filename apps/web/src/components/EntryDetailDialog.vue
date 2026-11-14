@@ -1,25 +1,48 @@
 <template>
   <BottomSheet :open="entryId !== null" @close="emit('close')">
-    <template #title>
-      <span v-if="entry?.emoji ?? fallback?.emoji" class="mr-2" aria-hidden="true">{{ entry?.emoji ?? fallback?.emoji }}</span>{{ entry?.sourceUsage?.headword ?? entry?.original ?? fallback?.original }}
+    <!-- Same order as the dictionary card: language and sound, then the word, a line, the translations. -->
+    <template #header>
+      <div class="flex min-w-0 items-center gap-2">
+        <DialogTitle class="sr-only">{{ headword }}</DialogTitle>
+        <LangBadge v-if="sourceLang" :code="sourceLang" />
+        <SpeakButton
+          v-if="entryId !== null && sourceLang && audio !== 'off' && speakLangs.includes(sourceLang)"
+          :entry-id="entryId"
+          :lang="sourceLang"
+          :text="headword"
+          :access="audio"
+          @notice="(key) => (notice = key)"
+        />
+      </div>
     </template>
-    <EntryDetail :entry="entry" :failed="failed" @retry="load" />
+    <p v-if="notice" role="status" class="mb-4 rounded-xl bg-warning-soft px-4 py-3 text-sm text-warning-fg">{{ t(notice) }}</p>
+    <EntryDetail :entry="entry" :fallback="fallback" :failed="failed" :audio="audio" :speak-langs="speakLangs" @retry="load" @notice="(key) => (notice = key)" />
   </BottomSheet>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { DialogTitle } from "reka-ui";
+import { computed, ref, watch } from "vue";
 import { api } from "../lib/api";
-import type { DictionaryItem, EntryDetail as EntryDetailData } from "../lib/types";
+import { t } from "../lib/i18n";
+import type { AudioAccess, DictionaryItem, EntryDetail as EntryDetailData } from "../lib/types";
+import LangBadge from "./LangBadge.vue";
+import SpeakButton from "./SpeakButton.vue";
 import BottomSheet from "./BottomSheet.vue";
 import EntryDetail from "./EntryDetail.vue";
 
-const props = defineProps<{ entryId: number | null; fallback: DictionaryItem | null }>();
+const props = defineProps<{ entryId: number | null; fallback: DictionaryItem | null; audio: AudioAccess }>();
 const emit = defineEmits<{ close: [] }>();
 
 const entry = ref<EntryDetailData | null>(null);
 
 const failed = ref(false);
+const notice = ref<string | null>(null);
+
+const sourceLang = computed(() => entry.value?.sourceLang ?? props.fallback?.sourceLang ?? "");
+// Kept after close so the sheet does not change while it animates out.
+const speakLangs = computed(() => props.fallback?.speakLangs ?? []);
+const headword = computed(() => entry.value?.sourceUsage?.headword ?? entry.value?.original ?? props.fallback?.original ?? "");
 
 // A slow response for a sheet the learner already closed must not fill the next one.
 let requestId = 0;
@@ -46,6 +69,7 @@ watch(
     if (id === null) return;
     entry.value = null;
     failed.value = false;
+    notice.value = null;
     void load();
   },
 );

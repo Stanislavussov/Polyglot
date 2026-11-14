@@ -3,50 +3,34 @@
     <h1 class="page-title">{{ t("web.translate.title") }}</h1>
 
     <div class="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,20rem)] xl:items-start">
-      <form class="card space-y-3 xl:col-start-1 xl:row-start-1" @submit.prevent="submit()">
-        <label class="sr-only" for="translate-input">{{ t("web.translate.placeholder") }}</label>
-        <textarea
-          id="translate-input"
-          ref="input"
-          v-model="text"
-          class="field min-h-28 resize-y focus:border-primary focus:outline-none focus:ring-[3px] focus:ring-ring"
-          rows="3"
-          :maxlength="MAX_LENGTH"
-          :placeholder="t('web.translate.placeholder')"
-          @keydown="onKeydown"
-        />
-        <div class="flex items-center justify-between gap-3">
-          <span class="text-sm text-ink-muted" aria-hidden="true">{{ text.length }}/{{ MAX_LENGTH }}</span>
-          <div class="flex gap-2">
-            <button
-              v-if="voiceAvailable"
-              type="button"
-              :class="recording ? 'btn-primary' : 'btn-secondary'"
-              :aria-pressed="recording"
-              :aria-label="recording ? t('web.voice.stop') : t('web.voice.record')"
-              :title="recording ? t('web.voice.stop') : t('web.voice.record')"
-              :disabled="busy || transcribing"
-              @click="toggleRecording"
-            >
-              <Square v-if="recording" class="size-4" aria-hidden="true" /><Mic v-else class="size-4" aria-hidden="true" />
-            </button>
-            <button v-if="text !== ''" type="button" class="btn-secondary" @click="clearInput">
-              {{ t("web.translate.clear") }}
-            </button>
-            <!-- On phones the button sits at the bottom of the screen, within thumb reach and above the keyboard. -->
-            <button
-              type="submit"
-              class="btn-primary fixed inset-x-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-30 py-3 shadow-lg md:static md:inset-auto md:py-2 md:shadow-none"
-              :disabled="busy || text.trim() === ''"
-            >
-              {{ busy ? t("web.translate.working") : t("web.translate.submit") }}
-              <span v-if="!busy" class="btn-chip" aria-hidden="true"><ArrowRight class="size-4" /></span>
-            </button>
-          </div>
-        </div>
+      <ComposerCard
+        id="translate-input"
+        ref="composer"
+        v-model="text"
+        class="xl:col-start-1 xl:row-start-1"
+        :placeholder="t('web.translate.placeholder')"
+        :submit-label="t('web.translate.submit')"
+        :max-length="MAX_LENGTH"
+        :busy="busy"
+        @submit="submit()"
+      >
+        <template #tools>
+          <button
+            v-if="voiceAvailable"
+            type="button"
+            :class="recording ? 'btn-primary' : 'btn-secondary'"
+            :aria-pressed="recording"
+            :aria-label="recording ? t('web.voice.stop') : t('web.voice.record')"
+            :title="recording ? t('web.voice.stop') : t('web.voice.record')"
+            :disabled="busy || transcribing"
+            @click="toggleRecording"
+          >
+            <Square v-if="recording" class="size-4" aria-hidden="true" /><Mic v-else class="size-4" aria-hidden="true" />
+          </button>
+        </template>
         <!-- Touch keyboards have no Shift+Enter, so the hint only misleads there. -->
         <p class="text-sm text-ink-muted [@media(pointer:coarse)]:hidden">{{ t("web.translate.hint") }}</p>
-      </form>
+      </ComposerCard>
 
       <div class="min-w-0 xl:col-start-1 xl:row-start-2" aria-live="polite">
         <LimitNotice v-if="limit" :reason="limit.reason" :reset-at="limit.resetAt" />
@@ -192,9 +176,7 @@
               </template>
             </div>
             </div>
-            <h2 class="break-words text-xl font-semibold">
-              <span v-if="result.emoji" class="mr-2" aria-hidden="true">{{ result.emoji }}</span>{{ result.sourceUsage?.headword ?? result.original }}
-            </h2>
+            <WordHeadline as="h2" :text="result.sourceUsage?.headword ?? result.original" :emoji="result.emoji" />
 
             <div v-if="result.correction" class="rounded-xl bg-warning-soft px-4 py-3 text-sm text-warning-fg">
               <p class="font-semibold">{{ t("web.translate.corrected", { corrected: result.correction.corrected }) }}</p>
@@ -273,6 +255,7 @@
 </template>
 
 <script setup lang="ts">
+import WordHeadline from "./word/WordHeadline.vue";
 import LangBadge from "./LangBadge.vue";
 import LangFlag from "./LangFlag.vue";
 import { ArrowRight, Bookmark, BookmarkPlus, Mic, Square, Trash2, TriangleAlert } from "lucide-vue-next";
@@ -294,6 +277,7 @@ import { languageName, settings } from "../lib/settings-store";
 import type { Clarification, ClarificationOption, Dictionary, TranslateAnswer, TranslateResult } from "../lib/types";
 import { startWavRecording, type WavRecording } from "../lib/wav-recorder";
 import CardExplore from "./CardExplore.vue";
+import ComposerCard from "./ComposerCard.vue";
 import ExampleList from "./ExampleList.vue";
 import LimitNotice from "./LimitNotice.vue";
 import MonsterLoader from "./MonsterLoader.vue";
@@ -303,9 +287,9 @@ const MAX_LENGTH = 500;
 const HISTORY_SIZE = 10;
 const HISTORY_KEY = "polyglot.translate.history";
 
-const input = ref<HTMLTextAreaElement | null>(null);
+const composer = ref<InstanceType<typeof ComposerCard> | null>(null);
 const text = ref("");
-const { focus: focusInput } = useMainInput(() => input.value);
+const { focus: focusInput } = useMainInput(() => composer.value?.el ?? null);
 const busy = ref(false);
 const loaderText = useLoaderText(busy);
 const result = ref<TranslateResult | null>(null);
@@ -469,19 +453,7 @@ async function setSaved(saved: boolean): Promise<void> {
   }
 }
 
-function clearInput(): void {
-  text.value = "";
-  focusInput();
-}
 
-function onKeydown(event: KeyboardEvent): void {
-  if (event.key === "Escape") {
-    clearInput();
-  } else if (event.key === "Enter" && !event.shiftKey && !event.isComposing) {
-    event.preventDefault();
-    void submit();
-  }
-}
 
 const voiceAvailable = ref(typeof navigator !== "undefined" && navigator.mediaDevices?.getUserMedia !== undefined);
 const recording = ref(false);

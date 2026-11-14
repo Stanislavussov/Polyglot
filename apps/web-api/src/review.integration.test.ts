@@ -137,4 +137,16 @@ describe("web review card voice-over", () => {
     expect(played).toMatchObject({ status: 403, body: { code: "locked" } });
     expect(generateSpeech).not.toHaveBeenCalled();
   });
+
+  it("marks speakable words on the dictionary page with the learner's voice-over access", async () => {
+    const { web, cookie, entry } = await arrangeSpeakableWord("pro");
+
+    const page = (await web.call(cookie, "GET", "/api/dictionary")).body as {
+      audio: string;
+      items: { id: number; speakLangs: string[] }[];
+    };
+    expect(page.audio).toBe("ok");
+    // The learning-language word speaks; the native "dog" does not.
+    expect(page.items.find((item) => item.id === entry.id)?.speakLangs).toEqual(["cs"]);
+  });
 });
