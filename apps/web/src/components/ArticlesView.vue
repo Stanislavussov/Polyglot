@@ -1,6 +1,6 @@
 <template>
   <section class="space-y-5">
-    <a href="/learn/" class="-my-2 inline-flex min-h-11 items-center text-sm text-ink-muted hover:underline">{{ t("web.learn.back") }}</a>
+    <a href="/learn/" class="-mb-2 flex w-fit min-h-11 items-center text-sm text-ink-muted hover:underline">{{ t("web.learn.back") }}</a>
     <h1 class="page-title">{{ t("web.learn.articles") }}</h1>
     <p class="text-base text-ink-muted">{{ t("web.learn.articles.hint") }}</p>
 
