@@ -1,9 +1,9 @@
 <template>
   <nav class="flex flex-col gap-1 px-3 py-4" :aria-label="'Polyglot'">
+    <SidebarTip v-for="item in items" :key="item.page" :text="t(item.label)" :collapsed="collapsed">
     <a
-      v-for="item in items"
-      :key="item.page"
       :href="item.href"
+      :aria-label="collapsed ? t(item.label) : undefined"
       :aria-current="active(item.page) ? 'page' : undefined"
       @click="onClick($event, item.page)"
       :class="[
@@ -19,17 +19,19 @@
       >
         <component :is="item.icon" class="size-[18px]" aria-hidden="true" />
       </span>
-      {{ t(item.label) }}
+      <span class="sb-label truncate whitespace-nowrap">{{ t(item.label) }}</span>
     </a>
+    </SidebarTip>
   </nav>
 </template>
 
 <script setup lang="ts">
 import { BookOpen, GraduationCap, Languages, Sparkles, TrendingUp } from "lucide-vue-next";
 import { t } from "../lib/i18n";
+import SidebarTip from "./SidebarTip.vue";
 import type { PageName } from "../lib/types";
 
-const props = defineProps<{ page: PageName }>();
+const props = defineProps<{ page: PageName; collapsed?: boolean }>();
 const emit = defineEmits<{ navigate: [page: PageName] }>();
 
 const LEARN_PAGES: readonly PageName[] = ["learn", "mentor", "grammar", "expressions", "pick", "videos", "articles"];

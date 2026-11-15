@@ -545,6 +545,8 @@
   "web.progress.barShow": "Fortschrittsleiste anzeigen",
   "web.nav.signOut": "Abmelden",
   "web.nav.openMenu": "Menü öffnen",
+  "web.nav.collapseMenu": "Menü einklappen",
+  "web.nav.expandMenu": "Menü ausklappen",
   "web.nav.closeMenu": "Menü schließen",
   "web.common.loading": "Wird geladen…",
   "web.common.error": "Etwas ist schiefgelaufen. Bitte versuche es erneut.",

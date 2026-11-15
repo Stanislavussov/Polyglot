@@ -27,6 +27,15 @@ const { title } = Astro.props;
       href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap"
     />
     <title>{title} — Polyglot</title>
+    <!-- Applies the saved menu width before first paint, so the menu never jumps on load (see lib/sidebar-width.ts). -->
+    <script is:inline>
+      try {
+        const s = JSON.parse(localStorage.getItem("web.sidebar") || "{}");
+        const root = document.documentElement;
+        if (typeof s.width === "number") root.style.setProperty("--sidebar-w", Math.min(420, Math.max(220, s.width)) + "px");
+        if (s.collapsed === true) root.classList.add("sidebar-collapsed");
+      } catch {}
+    </script>
     <slot name="head" />
   </head>
   <body class="min-h-screen">

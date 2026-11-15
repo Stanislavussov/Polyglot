@@ -545,6 +545,8 @@
   "web.progress.barShow": "Zobrazit lištu pokroku",
   "web.nav.signOut": "Odhlásit se",
   "web.nav.openMenu": "Otevřít nabídku",
+  "web.nav.collapseMenu": "Sbalit nabídku",
+  "web.nav.expandMenu": "Rozbalit nabídku",
   "web.nav.closeMenu": "Zavřít nabídku",
   "web.common.loading": "Načítání…",
   "web.common.error": "Něco se pokazilo. Zkuste to prosím znovu.",
