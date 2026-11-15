@@ -545,6 +545,8 @@
   "web.progress.barShow": "Mostra la barra dei progressi",
   "web.nav.signOut": "Esci",
   "web.nav.openMenu": "Apri il menu",
+  "web.nav.collapseMenu": "Comprimi menu",
+  "web.nav.expandMenu": "Espandi menu",
   "web.nav.closeMenu": "Chiudi il menu",
   "web.common.loading": "Caricamento…",
   "web.common.error": "Qualcosa è andato storto. Riprova.",

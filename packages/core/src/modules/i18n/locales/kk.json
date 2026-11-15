@@ -545,6 +545,8 @@
   "web.progress.barShow": "Прогресс жолағын көрсету",
   "web.nav.signOut": "Шығу",
   "web.nav.openMenu": "Мәзірді ашу",
+  "web.nav.collapseMenu": "Мәзірді жию",
+  "web.nav.expandMenu": "Мәзірді жаю",
   "web.nav.closeMenu": "Мәзірді жабу",
   "web.common.loading": "Жүктелуде…",
   "web.common.error": "Бірдеңе дұрыс болмады. Қайталап көріңіз.",

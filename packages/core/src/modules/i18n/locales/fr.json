@@ -545,6 +545,8 @@
   "web.progress.barShow": "Afficher la barre de progression",
   "web.nav.signOut": "Se déconnecter",
   "web.nav.openMenu": "Ouvrir le menu",
+  "web.nav.collapseMenu": "Réduire le menu",
+  "web.nav.expandMenu": "Développer le menu",
   "web.nav.closeMenu": "Fermer le menu",
   "web.common.loading": "Chargement…",
   "web.common.error": "Une erreur s'est produite. Réessayez.",

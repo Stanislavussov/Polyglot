@@ -545,6 +545,8 @@
   "web.progress.barShow": "Show the progress bar",
   "web.nav.signOut": "Sign out",
   "web.nav.openMenu": "Open menu",
+  "web.nav.collapseMenu": "Collapse menu",
+  "web.nav.expandMenu": "Expand menu",
   "web.nav.closeMenu": "Close menu",
   "web.common.loading": "Loading…",
   "web.common.error": "Something went wrong. Please try again.",

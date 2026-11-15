@@ -1,10 +1,38 @@
 <template>
   <ShellSkeleton v-if="!ready" :label="t('web.common.loading')" :placeholder="page === 'translate' ? '…' : undefined" />
   <div v-else class="flex min-h-screen flex-col md:flex-row">
-    <aside class="hidden w-64 shrink-0 flex-col bg-sidebar md:sticky md:top-0 md:flex md:h-screen">
-      <div class="flex h-16 items-center gap-2.5 whitespace-nowrap px-5 text-xl font-display font-extrabold tracking-tight text-sidebar-fg"><img src="/favicon.svg" alt="" class="size-8 rounded-lg" /> Polyglot Monster</div>
-      <div class="min-h-0 flex-1 overflow-y-auto"><NavList :page="page" @navigate="navigate" /></div>
-      <UserMenu :active="page === 'settings' || page === 'plan'" @navigate="navigate" />
+    <aside
+      class="app-sidebar relative hidden shrink-0 flex-col bg-sidebar md:sticky md:top-0 md:flex md:h-screen"
+      :class="{ 'is-dragging': dragging }"
+    >
+      <div class="flex h-16 items-center gap-2 px-3">
+        <span class="sb-label flex min-w-0 flex-1 items-center gap-2.5 whitespace-nowrap pl-2 text-xl font-display font-extrabold tracking-tight text-sidebar-fg">
+          <img src="/favicon.svg" alt="" class="size-8 shrink-0 rounded-lg" /> <span class="truncate">Polyglot Monster</span>
+        </span>
+        <SidebarTip :text="collapsed ? t('web.nav.expandMenu') : t('web.nav.collapseMenu')" :collapsed="collapsed">
+          <button
+            type="button"
+            class="grid size-11 shrink-0 place-items-center rounded-full text-sidebar-muted transition-colors hover:bg-sidebar-hover hover:text-sidebar-fg"
+            :aria-label="collapsed ? t('web.nav.expandMenu') : t('web.nav.collapseMenu')"
+            :aria-expanded="!collapsed"
+            @click="toggleSidebar"
+          >
+            <PanelLeft class="size-5" aria-hidden="true" />
+          </button>
+        </SidebarTip>
+      </div>
+      <div class="min-h-0 flex-1 overflow-y-auto overflow-x-hidden"><NavList :page="page" :collapsed="collapsed" @navigate="navigate" /></div>
+      <UserMenu :active="page === 'settings' || page === 'plan'" :collapsed="collapsed" @navigate="navigate" />
+      <div
+        class="group absolute inset-y-0 -right-1.5 z-20 w-3 cursor-col-resize"
+        role="separator"
+        aria-orientation="vertical"
+        :aria-label="collapsed ? t('web.nav.expandMenu') : t('web.nav.collapseMenu')"
+        @pointerdown="startDrag"
+        @dblclick="toggleSidebar"
+      >
+        <div :class="['mx-auto h-full w-0.5 transition-colors', dragging ? 'bg-accent' : 'group-hover:bg-accent/60']" />
+      </div>
     </aside>
 
     <header class="sticky top-0 z-30 flex h-14 items-center gap-3 bg-sidebar px-3 text-sidebar-fg md:hidden">
@@ -42,7 +70,7 @@
     </DialogRoot>
 
     <main class="relative isolate min-w-0 flex-1">
-      <div class="pointer-events-none fixed inset-0 -z-10 md:left-64" aria-hidden="true">
+      <div class="pointer-events-none app-backdrop fixed inset-0 -z-10" aria-hidden="true">
         <div class="backdrop-blob -right-40 -top-40 size-[32rem]" />
         <div class="backdrop-ring -right-28 top-24 size-96" />
         <div class="backdrop-dot right-[14%] top-10 size-2.5" />
@@ -96,7 +124,7 @@
 
 <script setup lang="ts">
 import { DialogClose, DialogContent, DialogOverlay, DialogPortal, DialogRoot, DialogTitle } from "reka-ui";
-import { Menu, X } from "lucide-vue-next";
+import { Menu, PanelLeft, X } from "lucide-vue-next";
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { api } from "../lib/api";
 import { drawerSwipeAction, type SwipePoint } from "../lib/drawer-swipe";
@@ -136,6 +164,8 @@ import WordAskView from "./WordAskView.vue";
 import WordPickerView from "./WordPickerView.vue";
 import WelcomeView from "./WelcomeView.vue";
 import UserMenu from "./UserMenu.vue";
+import SidebarTip from "./SidebarTip.vue";
+import { useSidebar } from "../lib/use-sidebar";
 
 const props = defineProps<{ page: PageName }>();
 
@@ -218,6 +248,7 @@ function onPopState(): void {
 captureEarlyInput();
 const ready = ref(false);
 const drawerOpen = ref(false);
+const { collapsed, dragging, toggle: toggleSidebar, startDrag } = useSidebar();
 const bar = useProgressBar();
 const goal = ref<ProgressGoal | null>(null);
 // A gift granted by this very open outranks the next step: it is announced exactly once.

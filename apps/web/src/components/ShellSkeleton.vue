@@ -2,17 +2,17 @@
   <div class="flex min-h-screen flex-col md:flex-row" aria-busy="true">
     <p class="sr-only" role="status">{{ label }}</p>
 
-    <aside class="hidden w-64 shrink-0 flex-col bg-sidebar md:flex md:h-screen" aria-hidden="true">
+    <aside class="app-sidebar hidden shrink-0 flex-col overflow-hidden bg-sidebar md:flex md:h-screen" aria-hidden="true">
       <div class="flex h-16 items-center gap-2.5 whitespace-nowrap px-5 text-xl font-bold tracking-tight text-sidebar-fg"><img src="/favicon.svg" alt="" class="size-8 rounded-lg" /> Polyglot Monster</div>
       <div class="space-y-2 px-3 pt-2">
         <div v-for="width in navWidths" :key="width" class="flex h-11 items-center gap-3 rounded-xl px-3">
           <div class="skeleton-dark size-5 rounded-md" />
-          <div class="skeleton-dark h-3 rounded" :style="{ width }" />
+          <div class="sb-label skeleton-dark h-3 rounded" :style="{ width }" />
         </div>
       </div>
       <div class="mt-auto flex items-center gap-3 border-t border-sidebar-hover p-3">
         <div class="skeleton-dark size-9 rounded-full" />
-        <div class="flex-1 space-y-1.5">
+        <div class="sb-label flex-1 space-y-1.5">
           <div class="skeleton-dark h-3 w-24 rounded" />
           <div class="skeleton-dark h-2.5 w-12 rounded" />
         </div>

@@ -545,6 +545,8 @@
   "web.progress.barShow": "Pokaż pasek postępu",
   "web.nav.signOut": "Wyloguj się",
   "web.nav.openMenu": "Otwórz menu",
+  "web.nav.collapseMenu": "Zwiń menu",
+  "web.nav.expandMenu": "Rozwiń menu",
   "web.nav.closeMenu": "Zamknij menu",
   "web.common.loading": "Ładowanie…",
   "web.common.error": "Coś poszło nie tak. Spróbuj ponownie.",
