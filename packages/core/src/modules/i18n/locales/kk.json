@@ -583,6 +583,7 @@
   "web.translate.alternatives": "Балама нұсқалар",
   "web.translate.unverified": "Мен мұны тексере алмадым. Қолданар алдында қайта тексеріңіз.",
   "web.translate.remove": "Жою",
+  "web.translate.removeFromDictionary": "Сөздіктен жою",
   "web.translate.removed": "Сөздіктен жойылды",
   "web.translate.undo": "Болдырмау",
   "web.translate.recent": "Соңғы аудармалар",

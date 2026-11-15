@@ -583,6 +583,7 @@
   "web.translate.alternatives": "Alternativas",
   "web.translate.unverified": "No pude verificarlo. Compruébalo bien antes de usarlo.",
   "web.translate.remove": "Quitar",
+  "web.translate.removeFromDictionary": "Quitar del diccionario",
   "web.translate.removed": "Quitado de tu diccionario",
   "web.translate.undo": "Deshacer",
   "web.translate.recent": "Traducciones recientes",

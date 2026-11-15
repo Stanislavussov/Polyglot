@@ -583,6 +583,7 @@
   "web.translate.alternatives": "Alternatywy",
   "web.translate.unverified": "Nie udało mi się tego zweryfikować. Sprawdź to jeszcze raz, zanim użyjesz.",
   "web.translate.remove": "Usuń",
+  "web.translate.removeFromDictionary": "Usuń ze słownika",
   "web.translate.removed": "Usunięto ze słownika",
   "web.translate.undo": "Cofnij",
   "web.translate.recent": "Ostatnie tłumaczenia",

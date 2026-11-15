@@ -583,6 +583,7 @@
   "web.translate.alternatives": "Alternativy",
   "web.translate.unverified": "Nepodařilo se mi to ověřit. Před použitím si to prosím překontrolujte.",
   "web.translate.remove": "Odebrat",
+  "web.translate.removeFromDictionary": "Odebrat ze slovníku",
   "web.translate.removed": "Odebráno ze slovníku",
   "web.translate.undo": "Vrátit zpět",
   "web.translate.recent": "Nedávné překlady",

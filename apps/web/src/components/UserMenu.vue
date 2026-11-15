@@ -40,6 +40,7 @@
 </template>
 
 <script setup lang="ts">
+import { forgetSettings } from "../lib/settings-store";
 import { ChevronsUpDown, Gem, LogOut, Settings } from "lucide-vue-next";
 import {
   DropdownMenuContent,
@@ -75,6 +76,7 @@ onMounted(async () => {
 async function signOut(): Promise<void> {
   // Even if the call fails the cookie may be gone; the login page re-checks the session either way.
   await api.logout().catch(() => undefined);
+  forgetSettings();
   window.location.replace("/login/");
 }
 </script>

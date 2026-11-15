@@ -583,6 +583,7 @@
   "web.translate.alternatives": "Альтернативы",
   "web.translate.unverified": "Мне не удалось это проверить. Перепроверьте, прежде чем использовать.",
   "web.translate.remove": "Удалить",
+  "web.translate.removeFromDictionary": "Удалить из словаря",
   "web.translate.removed": "Удалено из словаря",
   "web.translate.undo": "Отменить",
   "web.translate.recent": "Недавние переводы",

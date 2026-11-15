@@ -24,21 +24,66 @@
       <span class="flex items-center gap-2 text-xl font-bold tracking-tight"><img src="/favicon.svg" alt="" class="size-7 rounded-lg" /> Polyglot Monster</span>
     </header>
 
-    <main class="min-w-0 flex-1" aria-hidden="true">
+    <main class="min-w-0 flex-1" :aria-hidden="placeholder ? undefined : 'true'">
       <div class="mx-auto max-w-6xl px-4 py-6 sm:px-6 md:px-8 md:py-10">
-        <div class="skeleton h-8 w-48 rounded-lg" />
-        <div class="card mt-6"><MonsterLoader /></div>
+        <!-- Same line as the page's own title; the inline script in BaseLayout fills it before the app loads. -->
+        <h1 class="page-title" data-early-title>{{ title || "\u00a0" }}</h1>
+        <!-- The input needs nothing from the server: typing starts before the app has loaded. -->
+        <!-- A copy of the translate page's ComposerCard, box for box, so nothing moves when the app takes over. -->
+        <div v-if="placeholder" class="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,20rem)] xl:items-start">
+          <div class="card space-y-3 xl:col-start-1 xl:row-start-1">
+            <label class="sr-only" :for="EARLY_INPUT_ID">{{ placeholder }}</label>
+            <textarea
+              :id="EARLY_INPUT_ID"
+              v-model="earlyText"
+              class="field min-h-28 resize-y focus:border-primary focus:outline-none focus:ring-[3px] focus:ring-ring"
+              rows="3"
+              maxlength="500"
+              autofocus
+              :placeholder="placeholder"
+            />
+            <div class="flex items-center justify-between gap-3">
+              <span class="text-sm text-ink-muted" aria-hidden="true">{{ earlyText.length }}/500</span>
+              <div class="flex gap-2" aria-hidden="true">
+                <span class="btn-secondary pointer-events-none"><Mic class="size-4" /></span>
+                <span class="btn-primary pointer-events-none fixed inset-x-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-30 py-3 shadow-lg md:static md:inset-auto md:py-2 md:shadow-none">
+                  <span class="skeleton h-3 w-16 rounded" /><span class="btn-chip"><ArrowRight class="size-4" /></span>
+                </span>
+              </div>
+            </div>
+            <p class="relative hidden text-sm sm:block [@media(pointer:coarse)]:hidden" aria-hidden="true">&nbsp;<span class="skeleton absolute inset-y-1 left-0 w-64 max-w-full rounded" /></p>
+          </div>
+          <div class="card xl:col-start-2 xl:row-span-2 xl:row-start-1" aria-hidden="true">
+            <div class="skeleton h-4 w-40 rounded" />
+          </div>
+        </div>
+        <div v-else class="card mt-6"><MonsterLoader /></div>
       </div>
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ArrowRight, Mic } from "lucide-vue-next";
+import { onMounted } from "vue";
+import { EARLY_INPUT_ID, earlyFocused, earlyText, rememberedTitle } from "../lib/early-input";
 import MonsterLoader from "./MonsterLoader.vue";
 
 // Rendered as static HTML by Astro before the app's JS loads, so it cannot rely on the
 // loaded interface language: the caller passes the label in.
-defineProps<{ label: string }>();
+// `placeholder` turns the page's body into a usable input (the translate page).
+const props = defineProps<{ label: string; placeholder?: string }>();
+
+// Astro renders this on the server, where there is no storage: the inline script fills it there.
+const title = typeof window === "undefined" ? "" : rememberedTitle();
+
+onMounted(() => {
+  const field = document.getElementById(EARLY_INPUT_ID);
+  if (props.placeholder && earlyFocused.value && field instanceof HTMLTextAreaElement) {
+    field.focus();
+    field.setSelectionRange(field.value.length, field.value.length);
+  }
+});
 
 const navWidths = ["60%", "72%", "52%", "58%", "66%"];
 </script>

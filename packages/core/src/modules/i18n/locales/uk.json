@@ -583,6 +583,7 @@
   "web.translate.alternatives": "Альтернативи",
   "web.translate.unverified": "Мені не вдалося це перевірити. Перевірте ще раз, перш ніж використовувати.",
   "web.translate.remove": "Видалити",
+  "web.translate.removeFromDictionary": "Видалити зі словника",
   "web.translate.removed": "Видалено зі словника",
   "web.translate.undo": "Скасувати",
   "web.translate.recent": "Нещодавні переклади",

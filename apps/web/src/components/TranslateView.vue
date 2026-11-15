@@ -29,7 +29,7 @@
           </button>
         </template>
         <!-- Touch keyboards have no Shift+Enter, so the hint only misleads there. -->
-        <p class="text-sm text-ink-muted [@media(pointer:coarse)]:hidden">{{ t("web.translate.hint") }}</p>
+        <p class="hidden truncate text-sm text-ink-muted sm:block [@media(pointer:coarse)]:hidden">{{ t("web.translate.hint") }}</p>
       </ComposerCard>
 
       <div class="min-w-0 xl:col-start-1 xl:row-start-2" aria-live="polite">
@@ -148,7 +148,6 @@
                 </button>
                 <!-- Removed: the save button comes back, and pressing it is the undo — no extra pill to reflow the header. -->
                 <template v-else-if="saveState === 'removed'">
-                  <span class="sr-only" role="status">{{ t("web.translate.removed") }}</span>
                   <button
                     type="button"
                     :class="SAVE_BTN"
@@ -160,18 +159,17 @@
                     <BookmarkPlus class="size-4" stroke-width="2.5" aria-hidden="true" /><span class="hidden sm:inline">{{ t("web.translate.save") }}</span>
                   </button>
                 </template>
-                <!-- Saved: the same round button, filled; pressing it again takes the word out. -->
+                <!-- Saved: the button turns into the opposite action, in red, so the two states never look alike. -->
                 <button
                   v-else
                   type="button"
                   :class="SAVED_BTN"
                   :disabled="savePending"
-                  :title="`${t('web.translate.saved')} · ${t('web.translate.remove')}`"
-                  :aria-label="t('web.translate.remove')"
-                  :aria-pressed="true"
+                  :title="t('web.translate.removeFromDictionary')"
+                  :aria-label="t('web.translate.removeFromDictionary')"
                   @click="setSaved(false)"
                 >
-                  <BookmarkCheck class="size-4" stroke-width="2.5" aria-hidden="true" /><span class="hidden sm:inline">{{ t("web.translate.saved") }}</span>
+                  <Trash2 class="size-4" aria-hidden="true" /><span class="hidden sm:inline">{{ t("web.translate.removeFromDictionary") }}</span>
                 </button>
               </template>
               <DropdownMenuRoot v-if="explore && explore.actions.length > 0">
@@ -272,7 +270,7 @@
 import WordHeadline from "./word/WordHeadline.vue";
 import LangBadge from "./LangBadge.vue";
 import LangFlag from "./LangFlag.vue";
-import { ArrowRight, BookmarkCheck, BookmarkPlus, Sparkles, Mic, Square, Trash2, TriangleAlert } from "lucide-vue-next";
+import { ArrowRight, BookmarkPlus, Sparkles, Mic, Square, Trash2, TriangleAlert } from "lucide-vue-next";
 import {
   DropdownMenuContent,
   DropdownMenuItem,
@@ -283,6 +281,8 @@ import {
 } from "reka-ui";
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { useLoaderText } from "../lib/use-loader-text";
+import { captureEarlyInput, earlyFocused, earlyText } from "../lib/early-input";
+import { toast } from "../lib/toast";
 import { useMainInput } from "../lib/use-main-input";
 import { ApiError, api } from "../lib/api";
 import { t } from "../lib/i18n";
@@ -304,7 +304,9 @@ const HISTORY_SIZE = 10;
 const HISTORY_KEY = "polyglot.translate.history";
 
 const composer = ref<InstanceType<typeof ComposerCard> | null>(null);
-const text = ref("");
+// Text typed into the loading page's early input carries over, caret and all.
+captureEarlyInput();
+const text = ref(earlyText.value);
 const { focus: focusInput } = useMainInput(() => composer.value?.el ?? null);
 const busy = ref(false);
 const loaderText = useLoaderText(busy);
@@ -415,10 +417,9 @@ function openHistory(entry: TranslateResult): void {
   focusInput();
 }
 
-// Unsaved and saved must read apart at a glance (two teal tints did not): a filled call to action
-// with a bookmark-plus, against a quiet soft pill with a check and the word "Saved".
+// Unsaved and saved must read apart at a glance (two teal tints did not): a filled Save, then a red Remove.
 const SAVE_BTN = "btn-primary !min-h-9 min-w-9 gap-1.5 !px-2 !text-sm sm:!px-3";
-const SAVED_BTN = "btn-secondary !min-h-9 min-w-9 gap-1.5 !px-2 !text-sm sm:!px-3 !border-transparent !bg-primary-soft !text-primary-soft-fg";
+const SAVED_BTN = "btn-secondary !min-h-9 min-w-9 gap-1.5 !px-2 !text-sm sm:!px-3 !border-danger !text-danger hover:!bg-danger-soft";
 // Icon-only on a phone, labelled where there is room: the sparkles say "more about this word".
 const EXPLORE_BTN = "btn-secondary !min-h-9 min-w-9 gap-1.5 !px-2 !text-sm";
 const explore = ref<InstanceType<typeof CardExplore> | null>(null);
@@ -444,6 +445,7 @@ async function save(target?: Dictionary): Promise<void> {
     current.savedEntryId = entryId;
     saveState.value = "saved";
     markHistory(current, entryId);
+    toast(t("web.translate.savedToDictionary"));
   } catch {
     errorKey.value = "web.common.error";
   } finally {
@@ -467,6 +469,7 @@ async function setSaved(saved: boolean): Promise<void> {
     await (saved ? api.restoreEntry(entryId) : api.removeEntry(entryId));
     saveState.value = saved ? "saved" : "removed";
     if (result.value) markHistory(result.value, saved ? entryId : null);
+    toast(t(saved ? "web.translate.savedToDictionary" : "web.translate.removed"));
   } catch {
     errorKey.value = "web.common.error";
   } finally {
@@ -594,6 +597,10 @@ onMounted(() => {
   void loadDictionaries();
   history.value = loadHistory();
   // A Learn page hands a phrase over as ?q= (the expression's "to dictionary"), as the bot's notif:tr translates it.
+  if (earlyFocused.value) {
+    focusInput();
+    requestAnimationFrame(() => composer.value?.el?.setSelectionRange(text.value.length, text.value.length));
+  }
   const handed = new URLSearchParams(window.location.search).get("q")?.trim();
   if (handed) {
     text.value = handed;
