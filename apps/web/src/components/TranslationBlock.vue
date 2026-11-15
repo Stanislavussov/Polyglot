@@ -12,7 +12,7 @@
       <div class="flex shrink-0 gap-2">
         <button
           type="button"
-          class="btn-secondary !px-3"
+          class="btn-secondary !min-h-9 gap-1.5 !px-2.5"
           :aria-label="t('web.translate.copyLabel', { text: translation.text })"
           @click="copy"
         >

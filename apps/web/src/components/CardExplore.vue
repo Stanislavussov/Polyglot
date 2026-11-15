@@ -1,37 +1,12 @@
 <template>
-  <div class="space-y-4 border-t border-line pt-4">
+  <div v-if="visible" class="space-y-4 border-t border-line pt-4">
     <section v-if="etymology" class="space-y-1 rounded-xl bg-surface-muted px-4 py-3 text-sm">
       <h3 class="text-sm font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.explore.etymology") }}</h3>
       <p class="whitespace-pre-line">{{ etymology }}</p>
     </section>
 
-    <button type="button" class="btn-secondary" :aria-expanded="open" @click="open = !open">
-      {{ t(exploreKey) }}
-    </button>
-
-    <div v-if="open" class="space-y-3">
-      <div class="flex flex-wrap gap-2">
-        <button type="button" class="btn-secondary" :disabled="busy !== null" @click="toggle('clarify')">
-          {{ t("web.explore.clarify") }}<LockBadge v-if="locked('clarification')" />
-        </button>
-        <button type="button" class="btn-secondary" :disabled="busy !== null" @click="otherMeaning">
-          {{ busy === "other" ? t("web.translate.working") : t("web.explore.otherMeaning") }}<LockBadge v-if="locked('clarification')" />
-        </button>
-        <button type="button" class="btn-secondary" :disabled="busy !== null" @click="toggle('mentor')">
-          {{ t("web.explore.mentor") }}<LockBadge v-if="locked('mentor')" />
-        </button>
-        <button
-          v-if="result.etymologyEligible && !etymology"
-          type="button"
-          class="btn-secondary"
-          :disabled="busy !== null"
-          @click="loadEtymology"
-        >
-          {{ busy === "etymology" ? t("web.translate.working") : t("web.explore.etymology") }}<LockBadge v-if="locked('etymology')" />
-        </button>
-      </div>
-
-      <p v-if="lockedHint" role="alert" class="rounded-xl bg-warning-soft px-4 py-3 text-sm text-warning-fg">
+    <MonsterLoader v-if="busy === 'etymology'" inline :label="t('web.translate.working')" />
+    <p v-if="lockedHint" role="alert" class="rounded-xl bg-warning-soft px-4 py-3 text-sm text-warning-fg">
         {{ t("web.explore.lockedHint") }}
       </p>
       <LimitNotice v-else-if="limit" :reason="limit.reason" :reset-at="limit.resetAt" />
@@ -88,17 +63,19 @@
           </div>
         </form>
       </section>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, h, ref, watch } from "vue";
+import { Crosshair, History, MessageCircleQuestion, RefreshCw } from "lucide-vue-next";
+import { computed, ref, watch } from "vue";
+import type { BarAction } from "../lib/action-bar";
 import { ApiError, api } from "../lib/api";
 import { t } from "../lib/i18n";
 import { mentorHtml } from "../lib/mentor-html";
 import type { CardFeatures, MentorTurn, TranslateAnswer, TranslateResult } from "../lib/types";
 import LimitNotice from "./LimitNotice.vue";
+import MonsterLoader from "./MonsterLoader.vue";
 
 const MAX_QUESTION = 1000;
 // The bot's mentor window; the server trims to it too, this keeps the request small.
@@ -107,9 +84,7 @@ const MAX_THREAD = 20;
 const props = defineProps<{ result: TranslateResult }>();
 const emit = defineEmits<{ replace: [result: TranslateResult] }>();
 
-const LockBadge = defineComponent(() => () => h("span", { class: "ml-1 text-sm", title: t("web.explore.locked") }, "💎"));
 
-const open = ref(false);
 const panel = ref<"clarify" | "mentor" | null>(null);
 const busy = ref<"clarify" | "other" | "etymology" | "mentor" | null>(null);
 const clarifyText = ref("");
@@ -124,6 +99,26 @@ const errorParams = ref<Record<string, string | number>>({});
 let seen: Record<string, string[]> = {};
 let keepSeen = false;
 
+// Shown under the card only once an action has something to say.
+const visible = computed(
+  () => !!etymology.value || panel.value !== null || busy.value === "etymology" || lockedHint.value || !!limit.value || !!errorKey.value,
+);
+
+// The card's header menu lists these; the answers render here, under the card.
+const actions = computed<BarAction[]>(() => [
+  { key: "clarify", label: t("web.explore.clarify"), icon: Crosshair, onSelect: () => toggle("clarify") },
+  { key: "other", label: t("web.explore.otherMeaning"), icon: RefreshCw, onSelect: otherMeaning },
+  { key: "mentor", label: t("web.explore.mentor"), icon: MessageCircleQuestion, onSelect: () => toggle("mentor") },
+  ...(props.result.etymologyEligible && !etymology.value
+    ? [{ key: "etymology", label: t("web.explore.etymology"), icon: History, onSelect: () => void loadEtymology() }]
+    : []),
+]);
+
+// A new meaning of the same word: the card keeps the word and swaps only the translations.
+const retranslating = computed(() => busy.value === "other" || busy.value === "clarify");
+
+defineExpose({ actions, retranslating, menuLabel: computed(() => t(exploreKey.value)) });
+
 const headword = computed(() => props.result.sourceUsage?.headword ?? props.result.original);
 const exploreKey = computed(() =>
   props.result.sentence
@@ -137,8 +132,6 @@ watch(
   () => props.result,
   () => {
     if (!keepSeen) seen = {};
-    // A new card from this panel's own action opens with the actions still showing.
-    open.value = keepSeen;
     keepSeen = false;
     panel.value = null;
     etymology.value = null;
@@ -165,7 +158,14 @@ function toggle(next: "clarify" | "mentor"): void {
     lockedHint.value = true;
     return;
   }
-  panel.value = panel.value === next ? null : next;
+  panel.value = next;
+  // Picked from the header menu, the input opens far below: bring it to the learner.
+  // After the menu's close, which otherwise takes focus (and the page) back to its trigger.
+  window.setTimeout(() => {
+    const input = document.getElementById(next === "mentor" ? "explore-question" : "explore-clarify");
+    input?.scrollIntoView({ behavior: "smooth", block: "center" });
+    input?.focus({ preventScroll: true });
+  }, 150);
 }
 
 function showError(error: unknown): void {

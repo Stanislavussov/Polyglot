@@ -1,7 +1,7 @@
 <template>
   <button
     type="button"
-    :class="['btn-secondary shrink-0 !rounded-full !p-0 !text-primary', small ? '-my-1.5 !min-h-0 size-8' : 'size-11']"
+    :class="['btn-secondary shrink-0 !rounded-full !p-0 !text-primary', small ? '-my-1.5 !min-h-0 size-8' : '!min-h-0 size-9']"
     :aria-label="t('web.audio.listenLabel', { text })"
     :title="access === 'locked' ? t('web.audio.locked') : t('web.audio.listen')"
     :aria-busy="loading"
@@ -22,7 +22,7 @@ import type { AudioAccess } from "../lib/types";
 
 // `small` sits inside a line of text (a translation row); the default is a headword's speaker.
 const props = defineProps<{ entryId: number; lang: string; text: string; access: AudioAccess; small?: boolean }>();
-const ICON = props.small ? "size-4" : "size-5";
+const ICON = "size-4";
 /** A message key for the card to show; the button itself has no room for text. */
 const emit = defineEmits<{ notice: [key: string] }>();
 
