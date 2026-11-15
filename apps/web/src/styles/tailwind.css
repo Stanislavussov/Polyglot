@@ -85,3 +85,26 @@
     }
   }
 }
+
+/* Desktop menu: width is dragged by the learner; below md the menu is a drawer and none of this applies. */
+@media (min-width: 768px) {
+  .app-sidebar {
+    width: var(--sidebar-w, 256px);
+    transition: width 200ms ease;
+  }
+  .app-sidebar.is-dragging {
+    transition: none;
+  }
+  .sidebar-collapsed .app-sidebar {
+    width: 68px;
+  }
+  .sidebar-collapsed .app-sidebar .sb-label {
+    display: none;
+  }
+  .app-backdrop {
+    left: var(--sidebar-w, 256px);
+  }
+  .sidebar-collapsed .app-backdrop {
+    left: 68px;
+  }
+}

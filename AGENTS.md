@@ -87,6 +87,12 @@ JSDoc; a block that seems to want a *what* comment wants extraction into a named
 Delete restatements and section banners on sight when editing nearby code. One `//` line beats
 a block.
 
+### 8. UI Requests Mean the Web App
+
+A request about the UI ("menu", "page", "sidebar", "site") targets `apps/web` — the learner's
+web app. Touch `apps/admin` only when the request names the admin panel; its design is not a
+priority.
+
 ## Guidance Map
 
 `@docs/` is the canonical documentation directory — never a top-level `docs/`.

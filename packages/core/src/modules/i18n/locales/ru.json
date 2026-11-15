@@ -545,6 +545,8 @@
   "web.progress.barShow": "Показать полоску прогресса",
   "web.nav.signOut": "Выйти",
   "web.nav.openMenu": "Открыть меню",
+  "web.nav.collapseMenu": "Свернуть меню",
+  "web.nav.expandMenu": "Развернуть меню",
   "web.nav.closeMenu": "Закрыть меню",
   "web.common.loading": "Загрузка…",
   "web.common.error": "Что-то пошло не так. Попробуйте ещё раз.",

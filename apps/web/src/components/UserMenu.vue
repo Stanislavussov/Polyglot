@@ -2,6 +2,7 @@
   <div class="border-t border-sidebar-hover p-3">
     <DropdownMenuRoot>
       <DropdownMenuTrigger
+        :aria-label="collapsed ? name : undefined"
         :class="[
           'group flex min-h-12 w-full items-center gap-3 rounded-2xl px-2 py-1.5 text-left transition-colors hover:bg-sidebar-hover data-[state=open]:bg-sidebar-hover',
           active ? 'bg-sidebar-active' : '',
@@ -10,15 +11,15 @@
         <span class="grid size-9 shrink-0 place-items-center rounded-full bg-accent font-display text-sm font-extrabold text-accent-fg" aria-hidden="true">
           {{ initial }}
         </span>
-        <span class="min-w-0 flex-1">
+        <span class="sb-label min-w-0 flex-1">
           <span class="block truncate text-sm font-semibold text-sidebar-fg">{{ name }}</span>
           <span class="block truncate text-sm text-sidebar-muted">{{ plan }}</span>
         </span>
-        <ChevronsUpDown class="size-4 shrink-0 text-sidebar-muted" aria-hidden="true" />
+        <ChevronsUpDown class="sb-label size-4 shrink-0 text-sidebar-muted" aria-hidden="true" />
       </DropdownMenuTrigger>
       <DropdownMenuPortal>
         <DropdownMenuContent
-          side="top"
+          :side="collapsed ? 'right' : 'top'"
           align="start"
           :side-offset="8"
           class="z-50 w-[var(--reka-dropdown-menu-trigger-width)] min-w-52 rounded-2xl border border-line bg-surface p-1.5 shadow-soft"
@@ -55,7 +56,7 @@ import { api } from "../lib/api";
 import { t } from "../lib/i18n";
 import type { Me, PageName } from "../lib/types";
 
-defineProps<{ active: boolean }>();
+defineProps<{ active: boolean; collapsed?: boolean }>();
 const emit = defineEmits<{ navigate: [page: PageName] }>();
 
 const menuItem =
