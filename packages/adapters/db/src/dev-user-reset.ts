@@ -15,7 +15,7 @@ import { botSessions, users } from "./schema.js";
 export type UserResetIdentifier = { kind: "telegramId"; telegramId: number } | { kind: "username"; username: string };
 
 export interface UserResetResult {
-  deleted: Array<{ userId: number; telegramId: number; username: string | null }>;
+  deleted: Array<{ userId: number; telegramId: number | null; username: string | null }>;
   notFound: UserResetIdentifier[];
 }
 
@@ -73,7 +73,7 @@ export async function resetUsers(identifiers: UserResetIdentifier[]): Promise<Us
 
   if (matched.length > 0) {
     const ids = matched.map((row) => row.userId);
-    const sessionKeys = matched.map((row) => String(row.telegramId));
+    const sessionKeys = matched.flatMap((row) => (row.telegramId === null ? [] : [String(row.telegramId)]));
     await db.transaction(async (tx) => {
       await tx.delete(botSessions).where(inArray(botSessions.key, sessionKeys));
       await tx.delete(users).where(inArray(users.id, ids));

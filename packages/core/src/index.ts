@@ -32,6 +32,7 @@ export type {
   LanguageDetectionRepository,
   RecordLanguageDetectionEventInput,
 } from "./ports/language-detection.repository.js";
+export type { LoginVerifier, VerifiedLogin } from "./ports/login-verifier.port.js";
 export type {
   MentorHistoryMessage,
   MentorMessageRepository,
@@ -47,7 +48,20 @@ export type {
   NotificationUser,
 } from "./ports/notification.repository.js";
 export type { NotificationTemplateRepository } from "./ports/notification-template.repository.js";
-export type { CheckoutResult, PaymentPort, RenewableSubscription, RenewalResult } from "./ports/payment.port.js";
+export type {
+  ChargeState,
+  ChargeStatus,
+  CheckoutResult,
+  HostedChargeRequest,
+  HostedCheckout,
+  HostedCheckoutRequest,
+  HostedPaymentProvider,
+  Money,
+  PaymentPort,
+  RenewableSubscription,
+  RenewalResult,
+} from "./ports/payment.port.js";
+export type { CreatePaymentInput, Payment, PaymentRepository } from "./ports/payment.repository.js";
 export type {
   ProductEvent,
   ProductEventRepository,
@@ -187,6 +201,7 @@ export * from "./modules/entitlements/index.js";
 export * from "./modules/expressions/index.js";
 export * from "./modules/grammar-check/index.js";
 export * from "./modules/i18n/index.js";
+export * from "./modules/identity/accounts.js";
 export * from "./modules/idiom-analysis/index.js";
 export * from "./modules/input-analysis/index.js";
 export * from "./modules/language-detect/index.js";
@@ -307,7 +322,9 @@ export type {
 } from "./modules/settings/validate-language-settings.js";
 export { validateLanguageSettings } from "./modules/settings/validate-language-settings.js";
 export * from "./modules/srs/index.js";
+export * from "./modules/subscriptions/checkout.js";
 export * from "./modules/subscriptions/index.js";
+export * from "./modules/subscriptions/purchase.js";
 export * from "./modules/subscriptions/trial.js";
 export * from "./modules/topics/index.js";
 export * from "./modules/translate-flow/index.js";

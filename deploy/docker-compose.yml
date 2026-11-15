@@ -20,6 +20,11 @@ services:
       - RELEASE_AUDIENCE_GROUPS=${RELEASE_AUDIENCE_GROUPS:-}
       # "on" only on the dev stack (deploy.yml): the mock checkout grants paid plans for free.
       - MOCK_PAYMENTS=${MOCK_PAYMENTS:-off}
+      # The renewal sweep runs here for every channel: it charges web card subscriptions too.
+      - COMGATE_MERCHANT=${COMGATE_MERCHANT:-}
+      - COMGATE_SECRET=${COMGATE_SECRET:-}
+      - COMGATE_TEST=${COMGATE_TEST:-off}
+      - COMGATE_RECURRING=${COMGATE_RECURRING:-off}
       # Web Push (VAPID). Empty = notifications stay in Telegram only.
       - VAPID_PUBLIC_KEY=${VAPID_PUBLIC_KEY:-}
       - VAPID_PRIVATE_KEY=${VAPID_PRIVATE_KEY:-}
@@ -116,6 +121,13 @@ services:
       - WEB_BOT_USERNAME=${WEB_BOT_USERNAME:-}
       # Only the public key: web-api hands it to the browser; the bot signs the pushes.
       - VAPID_PUBLIC_KEY=${VAPID_PUBLIC_KEY:-}
+      # "Sign in with Google"; empty hides the button.
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
+      # Card checkout; empty merchant/secret keeps buying in the bot.
+      - COMGATE_MERCHANT=${COMGATE_MERCHANT:-}
+      - COMGATE_SECRET=${COMGATE_SECRET:-}
+      - COMGATE_TEST=${COMGATE_TEST:-off}
+      - COMGATE_RECURRING=${COMGATE_RECURRING:-off}
       - WEB_API_PORT=3002
     ports:
       - "127.0.0.1:${WEB_API_HOST_PORT:-3002}:3002"

@@ -16,6 +16,18 @@ rule to pass — extract shared types, inject, or break the cycle.
 DB cache or a constant exported by `packages/adapters/db` (`MAX_LEARNING_LANGS`,
 `DEFAULT_DICTIONARY_NAME`, `AUDIENCE_GROUPS`, …) — never a hardcoded list or TS union.
 
+## Ports and Adapters
+
+- A port is an interface in `packages/core/src/ports/`, named for what core needs
+  (`PaymentRepository`, `HostedPaymentProvider`), never for a vendor.
+- An adapter implements one port for one external system. It translates — HTTP, SQL,
+  vendor status codes — and decides nothing: no prices, no grants, no retries policy.
+- Apps wire adapters into core services in their composition root (`container.ts`,
+  `*.wiring.ts`). The bot and the web call the same core service; only the adapter set
+  differs per channel.
+- Test core through in-memory fakes of its ports; test an adapter against the vendor's
+  documented responses at the HTTP boundary.
+
 ## Module Contracts
 
 Behavioral invariants, not API surface — read source for signatures.
@@ -57,6 +69,45 @@ Behavioral invariants, not API surface — read source for signatures.
   `contextual`, and every card's word is recorded in the history. Reveal builds the deck on
   the tap and hands the message to the Cards (`fc:*`) handlers — never a second rating flow,
   never a second template. Only a word with no entry stays a prompt that Reveal translates.
+
+### Accounts and sign-in — `packages/core/src/modules/identity`, `packages/adapters/auth`
+
+- **One person, one `users` row, many ways in.** Each way in is an `identities` row
+  `(channel, external_id)`. `createAccounts` is the only sign-in rule; the bot's auth
+  middleware and every web login call it.
+- **Methods join only by proof.** Telegram gives no email, so nothing is matched
+  automatically. A signed-in person adds a method in web settings by passing its check
+  (Telegram widget, Google ID token).
+- **Two existing accounts are never merged.** Linking a method that already opens another
+  account answers 409 `taken`; one account holds at most one id per method (`channel_taken`).
+  The login page steers bot users to Telegram so they do not create a second account.
+- `users.telegram_id` is null for a Google-only account until Telegram is linked; linking
+  fills it. Anything that sends a Telegram message must skip rows without it.
+- A legacy Telegram row (before `identities`, migration 0044) is found by `telegram_id`
+  and its identity row self-heals; the common sign-in path does no write.
+- Google: `sub` is the account id, never the email. The verifier checks signature
+  (Google JWKS), issuer, expiry and our client id (`GOOGLE_CLIENT_ID`).
+
+### Payments — `packages/core/src/modules/subscriptions`, `packages/adapters/payments`
+
+- **One ledger for every channel.** Bot and web write the same `subscriptions` and
+  `payments` tables. A user is one `users` row whatever they log in with (the web logs in
+  through Telegram), so a plan bought anywhere is the same entitlement everywhere.
+- **Per-channel providers, shared rules.** Telegram ToS: digital goods inside the bot are
+  sold for Stars only, and the bot must never link out to the web checkout. The web sells
+  by card through Comgate (Czech PSP: no reverse-charge VAT on its fees, so a Czech
+  non-VAT-payer stays outside the "identifikovaná osoba" regime). Both reach core through
+  ports; neither app decides prices, upgrades or grants.
+- `decidePurchase` / `purchasableLadder` are the only upgrade rules; `grantPaidPeriod` is the
+  only way a paid month opens.
+- **Only a re-fetched charge grants.** A provider notification is a hint (Comgate pushes
+  are unsigned): `settle` re-reads the charge, compares the amount to the pending row, and
+  claims `pending → paid` once. A grant that throws releases the claim.
+- **Renewals repeat the price last paid** and run in the bot's renewal sweep for every
+  channel, routed by `subscriptions.provider` (`routeRenewalsByProvider`). The mock renews
+  only `provider = "mock"` rows. A network error rethrows — an outage never expires a payer.
+- Comgate is off until `COMGATE_MERCHANT` and `COMGATE_SECRET` are set; recurring charges
+  stay off until `COMGATE_RECURRING=on`, after Comgate support enables them for the shop.
 
 ### Core — `packages/core`
 

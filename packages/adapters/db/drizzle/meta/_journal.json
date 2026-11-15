@@ -533,6 +533,20 @@
       "when": 1794676558201,
       "tag": "0075_petite_starbolt",
       "breakpoints": true
+    },
+    {
+      "idx": 76,
+      "version": "7",
+      "when": 1794756212288,
+      "tag": "0076_modern_unus",
+      "breakpoints": true
+    },
+    {
+      "idx": 77,
+      "version": "7",
+      "when": 1794758112475,
+      "tag": "0077_nasty_young_avengers",
+      "breakpoints": true
     }
   ]
 }

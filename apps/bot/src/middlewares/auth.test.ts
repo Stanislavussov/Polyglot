@@ -19,6 +19,7 @@ vi.mock("@polyglot/infra", () => ({
 const repo = {
   findById: vi.fn(),
   create: vi.fn(),
+  findIdByTelegramId: vi.fn().mockResolvedValue(null),
   getSettings: vi.fn(),
   updateLastInteraction: vi.fn().mockResolvedValue(undefined),
 };

@@ -58,6 +58,13 @@ module.exports = {
       to: { path: "^packages/infra/" },
     },
     {
+      name: "adapters-payments-auth-only-core",
+      comment: "@polyglot/adapter-payments and adapter-auth talk to one vendor each: they import @polyglot/core, nothing else of ours",
+      severity: "error",
+      from: { path: "^packages/adapters/(payments|auth)/src" },
+      to: { path: ["^packages/infra/", "^packages/adapters/(?!payments/|auth/)", "^apps/"] },
+    },
+    {
       name: "no-adapter-db-importing-ai-or-notifications",
       comment: "@polyglot/adapter-db must not import @polyglot/adapter-ai or @polyglot/adapter-notifications",
       severity: "error",

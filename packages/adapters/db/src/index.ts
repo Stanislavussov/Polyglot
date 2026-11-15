@@ -94,6 +94,7 @@ export type {
   UpsertOnboardingDemoCardInput,
 } from "./repositories/onboarding-demo-card.repository.js";
 export { onboardingDemoCardRepository } from "./repositories/onboarding-demo-card.repository.js";
+export { paymentRepository } from "./repositories/payment.repository.js";
 export { planFeatureAccessRepository } from "./repositories/plan-feature-access.repository.js";
 export type {
   ProductEventBreakdownRow,

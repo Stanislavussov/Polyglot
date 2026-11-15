@@ -17,8 +17,9 @@ import {
   formatLongDate,
   type I18nKey,
   isSupported,
-  isTrial,
   type PlanLimitConfig,
+  paidPlanPrice,
+  purchasableLadder,
   type SupportedLang,
   t,
 } from "@polyglot/core";
@@ -93,9 +94,7 @@ async function resolveLang(ctx: BotContext): Promise<SupportedLang> {
  */
 async function loadPurchasablePlans(ctx: PlanReadingContext): Promise<PurchasablePlan[]> {
   const access = ctx.services.featureAccess ?? defaultFeatureAccess;
-  const priced = (await ctx.services.settings.getPlanLimits())
-    .filter((plan): plan is PlanLimitConfig & { priceUsdCents: number } => plan.isActive && plan.priceUsdCents !== null)
-    .sort((a, b) => a.priceUsdCents - b.priceUsdCents);
+  const priced = purchasableLadder(await ctx.services.settings.getPlanLimits());
 
   return Promise.all(
     priced.map(async (plan) => ({
@@ -291,12 +290,8 @@ function buildPlanChoiceKeyboard(plans: PurchasablePlan[], lang: SupportedLang):
  * downgrade — refusing the single conversion the reverse trial exists to produce.
  */
 async function currentPlanPrice(ctx: BotContext): Promise<number> {
-  const active = await ctx.services.subscriptionRepository?.findActiveByUser(ctx.user.id);
-  if (active && isTrial(active)) {
-    return 0;
-  }
-  const current = (await ctx.services.settings.getPlanLimits()).find((plan) => plan.name === ctx.user.subscriptionPlan);
-  return current?.priceUsdCents ?? 0;
+  const active = (await ctx.services.subscriptionRepository?.findActiveByUser(ctx.user.id)) ?? null;
+  return paidPlanPrice(await ctx.services.settings.getPlanLimits(), ctx.user.subscriptionPlan, active);
 }
 
 /**

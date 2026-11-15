@@ -12,6 +12,8 @@
     "admin": "pnpm --filter @polyglot/admin run dev",
     "app": "pnpm --parallel --filter @polyglot/bot --filter @polyglot/admin-api --filter @polyglot/admin run dev",
     "web": "pnpm --filter @polyglot/web run dev",
+    "comgate:sandbox": "pnpm --filter @polyglot/web-api run comgate:sandbox",
+    "renew-now": "pnpm --filter @polyglot/bot run renew-now",
     "landing": "pnpm --filter @polyglot/landing run dev",
     "translation:benchmark": "pnpm --filter @polyglot/translation-benchmark run benchmark",
     "dev": "pnpm -r --parallel run dev",

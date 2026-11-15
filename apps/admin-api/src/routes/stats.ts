@@ -129,7 +129,7 @@ export async function statsRoutes(app: FastifyInstance) {
       {
         userId: number;
         username: string | null;
-        telegramId: number;
+        telegramId: number | null;
         subscriptionPlan: string;
         counts: Record<string, number>;
         total: number;

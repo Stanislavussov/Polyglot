@@ -72,3 +72,4 @@
 - In the website settings, your native language can no longer be ticked as a learning language, and if saving fails you now see the reason instead of a vague error.
 - On the translation card, every action for the word now sits in the "⋯" menu at the top, and the Save button is easy to read: bright before you save, then a red "Remove from dictionary"; a short message confirms each action. Words from your recent translations can be saved too, and the word stays in place while another meaning loads.
 - The translate page opens faster: the input is ready at once, so you can type while the rest loads, and nothing jumps around.
+- The Plans page now shows every plan side by side, with the price, what it gives you and a clear mark on the plan you have now.

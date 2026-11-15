@@ -1,7 +1,7 @@
 import fastifyJwt from "@fastify/jwt";
 import Fastify, { type FastifyError, type FastifyInstance } from "fastify";
 import { originGuard } from "./auth/origin-guard.js";
-import { installSessionGuard } from "./auth/session.js";
+import { installSessionGuard, PAYMENT_NOTIFY_PATHS } from "./auth/session.js";
 import { SESSION_TTL_SECONDS } from "./auth/session-cookie.js";
 import type { WebApiConfig } from "./config.js";
 import { articleRoutes } from "./routes/articles.js";
@@ -30,16 +30,17 @@ import { wordPickerRoutes } from "./routes/word-picker.js";
 import type { WebServices } from "./services.js";
 import { inlineScriptHashes } from "./static-csp.js";
 
-// Telegram's widget script and its login iframe are the only third parties.
+// The sign-in widgets are the only third parties: Telegram's, and Google Identity
+// Services (its script, button iframe, stylesheet and status calls under /gsi/).
 function contentSecurityPolicy(scriptHashes: string[]): string {
   return [
     "default-src 'self'",
-    ["script-src 'self' https://telegram.org", ...scriptHashes].join(" "),
-    "frame-src https://oauth.telegram.org",
+    ["script-src 'self' https://telegram.org https://accounts.google.com/gsi/client", ...scriptHashes].join(" "),
+    "frame-src https://oauth.telegram.org https://accounts.google.com/gsi/",
     "img-src 'self' data: https://t.me https://*.telegram.org",
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com/gsi/style",
     "font-src 'self' https://fonts.gstatic.com",
-    "connect-src 'self'",
+    "connect-src 'self' https://accounts.google.com/gsi/",
     // Pronunciation arrives as fetched bytes played from a blob: URL.
     "media-src 'self' blob:",
     "frame-ancestors 'none'",
@@ -79,7 +80,7 @@ export async function buildWebApiApp(
     reply.header("x-content-type-options", "nosniff");
     reply.header("referrer-policy", "same-origin");
   });
-  app.addHook("preHandler", originGuard(config.appOrigin));
+  app.addHook("preHandler", originGuard(config.appOrigin, PAYMENT_NOTIFY_PATHS));
   installSessionGuard(app, services, config.production);
 
   app.setErrorHandler((error: FastifyError, request, reply) => {
@@ -106,7 +107,7 @@ export async function buildWebApiApp(
   entryExploreRoutes(app, services);
   loaderRoutes(app, services);
   templateRoutes(app, services);
-  planRoutes(app, services, config.botUsername);
+  planRoutes(app, services, config);
   changesRoutes(app, services);
   reportRoutes(app, services);
   mentorChatRoutes(app, services);

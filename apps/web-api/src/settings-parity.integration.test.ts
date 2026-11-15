@@ -132,7 +132,7 @@ describe("web card template", () => {
 });
 
 describe("web plan screen", () => {
-  it("shows the current plan, the catalog cheapest first and the bot upgrade link", async () => {
+  it("shows every tier — Free first, then the catalog cheapest first — marks the current one, and links the bot", async () => {
     const { web, cookie } = await arrange();
 
     const res = await web.call(cookie, "GET", "/api/plan");
@@ -140,13 +140,16 @@ describe("web plan screen", () => {
     expect(res.status).toBe(200);
     const body = res.body as {
       current: { name: string; trial: boolean };
-      plans: { name: string; priceUsdCents: number }[];
+      plans: { name: string; priceUsdCents: number; current: boolean }[];
       upgradeUrl: string;
     };
     expect(body.current).toMatchObject({ name: "free", trial: false });
     const catalog = (await web.bot.services.settings.getPlanLimits()).filter((p) => p.isActive && p.priceUsdCents);
-    expect(body.plans.map((p) => p.name).sort()).toEqual(catalog.map((p) => p.name).sort());
-    const prices = body.plans.map((p) => p.priceUsdCents);
+    const [free, ...forSale] = body.plans;
+    expect(free).toMatchObject({ name: "free", priceUsdCents: 0, current: true });
+    expect(forSale.map((p) => p.name).sort()).toEqual(catalog.map((p) => p.name).sort());
+    expect(forSale.every((p) => !p.current)).toBe(true);
+    const prices = forSale.map((p) => p.priceUsdCents);
     expect(prices).toEqual([...prices].sort((a, b) => a - b));
     expect(body.upgradeUrl).toBe("https://t.me/harness_bot?start=plan");
   });

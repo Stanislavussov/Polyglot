@@ -46,6 +46,7 @@
 
     <template v-if="settings">
       <NotificationSettings />
+      <SignInMethods />
       <TemplateEditor />
       <ReportIssue />
       <ChangesList />
@@ -64,6 +65,7 @@ import { languageName, saveSettings, settings } from "../lib/settings-store";
 import ChangesList from "./ChangesList.vue";
 import NotificationSettings from "./NotificationSettings.vue";
 import ReportIssue from "./ReportIssue.vue";
+import SignInMethods from "./SignInMethods.vue";
 import TemplateEditor from "./TemplateEditor.vue";
 
 const interfaceLang = ref(settings.value?.interfaceLang ?? "en");

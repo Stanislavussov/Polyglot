@@ -1,12 +1,10 @@
 import type { PaymentPort } from "../../ports/payment.port.js";
 import type { Subscription, SubscriptionRepository } from "../../ports/subscription.repository.js";
 import type { SubscriptionPlan } from "../../ports/user.repository.js";
+import { addOneMonth, grantPaidPeriod, type SubscriptionUserUpdater } from "./grant.js";
 import { REWARD_PROVIDER, TRIAL_PROVIDER } from "./trial.js";
 
-/** Just the user-mutation the subscription lifecycle needs (kept narrow on purpose). */
-export interface SubscriptionUserUpdater {
-  updateSubscriptionPlan(userId: number, plan: SubscriptionPlan): Promise<unknown>;
-}
+export { addOneMonth, grantPaidPeriod, type SubscriptionUserUpdater } from "./grant.js";
 
 export interface SubscriptionServiceDeps {
   payment: PaymentPort;
@@ -23,13 +21,6 @@ export interface ActivationResult {
 export interface RenewalSweepResult {
   renewed: number;
   expired: number;
-}
-
-/** Add one calendar month (UTC). Date normalizes overflow (e.g. Jan 31 → Mar 3). */
-export function addOneMonth(from: Date): Date {
-  const d = new Date(from);
-  d.setUTCMonth(d.getUTCMonth() + 1);
-  return d;
 }
 
 /**
@@ -58,24 +49,11 @@ export function createSubscriptionService(deps: SubscriptionServiceDeps) {
       if (!checkout.ok) {
         return { ok: false, url: checkout.url };
       }
-      // Supersede any existing active subscription (repeat buy, or Plus→Pro upgrade)
-      // so a user never accumulates multiple concurrent active rows.
-      const existing = await deps.subscriptions.findActiveByUser(userId);
-      if (existing) {
-        await deps.subscriptions.updateStatus(existing.id, "canceled");
-      }
-      // A reward is days already earned: the bought month starts where they end, or buying would forfeit them.
-      const periodStart =
-        existing?.provider === REWARD_PROVIDER && existing.currentPeriodEnd > now ? existing.currentPeriodEnd : now;
-      const currentPeriodEnd = addOneMonth(periodStart);
-      await deps.users.updateSubscriptionPlan(userId, plan);
-      await deps.subscriptions.create({
-        userId,
-        plan,
-        currentPeriodEnd,
-        provider: "mock",
-        externalId: checkout.externalId ?? null,
-      });
+      const { currentPeriodEnd } = await grantPaidPeriod(
+        deps,
+        { userId, plan, provider: "mock", externalId: checkout.externalId ?? null },
+        now,
+      );
       return { ok: true, currentPeriodEnd };
     },
 
