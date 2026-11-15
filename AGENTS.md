@@ -13,7 +13,7 @@ customer, never to a developer or tester**, in every required language, under
 `@docs/releases/unreleased/` (format and rules: `@docs/releases/README.md`) — and run:
 
 ```bash
-pnpm build && pnpm lint && pnpm lint:deps && pnpm lint:knip && pnpm lint:release-notes && pnpm test && pnpm db:push
+pnpm build && pnpm lint && pnpm lint:deps && pnpm lint:knip && pnpm lint:release-notes && pnpm lint:docker && pnpm test && pnpm db:push
 ```
 
 Fix every failure before moving on — a deferred fix is an unfinished change. `pnpm db:push`

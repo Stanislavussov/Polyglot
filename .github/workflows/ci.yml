@@ -59,6 +59,11 @@ jobs:
       - name: Biome check
         run: pnpm lint
 
+      # Every image must carry each workspace package its app needs (manifest for
+      # the install, dist for the runtime); a forgotten adapter broke the build once.
+      - name: Docker layers
+        run: pnpm lint:docker
+
       - name: Dependency cruiser
         run: pnpm lint:deps
 

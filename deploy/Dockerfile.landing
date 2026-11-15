@@ -22,6 +22,7 @@ COPY packages/adapters/youtube/package.json packages/adapters/youtube/
 COPY packages/adapters/article/package.json packages/adapters/article/
 COPY packages/adapters/payments/package.json packages/adapters/payments/
 COPY packages/adapters/auth/package.json packages/adapters/auth/
+COPY packages/admin-contracts/package.json packages/admin-contracts/
 
 RUN pnpm install --frozen-lockfile
 
