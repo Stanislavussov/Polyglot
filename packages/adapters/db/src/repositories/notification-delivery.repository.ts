@@ -45,7 +45,7 @@ export interface NotificationDeliveryListItem {
   interactionCount: number;
   user: {
     id: number;
-    telegramId: number;
+    telegramId: number | null;
     username: string | null;
   };
 }

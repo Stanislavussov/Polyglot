@@ -2,7 +2,7 @@
 // mode enum is owned by adapter-db, and deriving VALID_MODES from anything else lets it
 // drift from the `active_mode` column this middleware hydrates from.
 import { USER_MODES, type UserMode } from "@polyglot/adapter-db";
-import { enrichTrace, errorFields, logEvent } from "@polyglot/core";
+import { createAccounts, enrichTrace, errorFields, logEvent, TELEGRAM_CHANNEL } from "@polyglot/core";
 import type { NextFunction } from "grammy";
 import type { BotContext } from "../types.js";
 import { getRequestSettings } from "./request-settings.js";
@@ -23,22 +23,15 @@ export async function authMiddleware(ctx: BotContext, next: NextFunction): Promi
     return next();
   }
 
-  // Resolve the neutral userId from the channel identity (Fable T24/A1). The bot
-  // is the Telegram channel adapter, so it owns the telegram → userId mapping.
-  const externalId = String(telegramId);
-  const userId = await ctx.services.identityRepository.resolveUserId("telegram", externalId);
-  let user = userId !== null ? await ctx.services.userRepository.findById(userId) : null;
-
-  if (!user) {
-    // Either a brand-new user or an existing telegram-only user without an
-    // identity row yet. `create` is an idempotent get-or-create on telegram_id,
-    // so both paths converge on the right user; linking then self-heals the
-    // legacy user into an identity row on this first post-migration message.
-    user = await ctx.services.userRepository.create({
-      telegramId,
-      username: ctx.from?.username ?? null,
-    });
-    await ctx.services.identityRepository.linkIdentity(user.id, "telegram", externalId);
+  // The one sign-in rule every channel uses (core `accounts`): the identity row
+  // first, a legacy telegram_id row next, else a new account.
+  const accounts = createAccounts({ identities: ctx.services.identityRepository, users: ctx.services.userRepository });
+  const { user, created } = await accounts.signIn({
+    channel: TELEGRAM_CHANNEL,
+    externalId: String(telegramId),
+    username: ctx.from?.username ?? null,
+  });
+  if (created) {
     logEvent("user.identity_linked", { userId: user.id, onboarded: user.onboarded });
   }
 

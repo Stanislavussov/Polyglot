@@ -5,7 +5,7 @@ import { userDailyRequestCounts, users } from "../schema.js";
 export interface UserRequestCountRow {
   userId: number;
   username: string | null;
-  telegramId: number;
+  telegramId: number | null;
   subscriptionPlan: string;
   day: string;
   count: number;

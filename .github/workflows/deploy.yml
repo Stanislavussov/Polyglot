@@ -239,6 +239,13 @@ jobs:
           echo "VAPID_PUBLIC_KEY=${{ vars.VAPID_PUBLIC_KEY }}" >> .env
           echo "VAPID_PRIVATE_KEY=${{ secrets.VAPID_PRIVATE_KEY }}" >> .env
           echo "VAPID_SUBJECT=${{ vars.VAPID_SUBJECT }}" >> .env
+          # "Sign in with Google" on the web (a public OAuth client id); empty hides the button.
+          echo "GOOGLE_CLIENT_ID=${{ vars.GOOGLE_CLIENT_ID }}" >> .env
+          # Comgate card checkout on the web; empty keeps buying in the bot.
+          echo "COMGATE_MERCHANT=${{ secrets.COMGATE_MERCHANT }}" >> .env
+          echo "COMGATE_SECRET=${{ secrets.COMGATE_SECRET }}" >> .env
+          echo "COMGATE_TEST=${{ vars.COMGATE_TEST }}" >> .env
+          echo "COMGATE_RECURRING=${{ vars.COMGATE_RECURRING }}" >> .env
           echo "BOT_TOKEN=${{ secrets.BOT_TOKEN }}" >> .env
           echo "OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}" >> .env
           # Dev: the branch cut above. Prod: the managed production database.

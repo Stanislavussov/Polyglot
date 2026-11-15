@@ -193,7 +193,7 @@ export const requestTimings = {
 export interface UserRequestCount {
   userId: number;
   username: string | null;
-  telegramId: number;
+  telegramId: number | null;
   subscriptionPlan: string;
   total: number;
   counts: Record<string, number>;
@@ -629,7 +629,7 @@ export type AudienceGroup = "admin" | "tester" | "product";
 
 export interface User {
   id: number;
-  telegramId: number;
+  telegramId: number | null;
   username: string | null;
   audienceGroup: AudienceGroup;
   subscriptionPlan: string;
@@ -682,7 +682,7 @@ export interface NotificationDelivery {
   interactionCount: number;
   user: {
     id: number;
-    telegramId: number;
+    telegramId: number | null;
     username: string | null;
   };
 }
@@ -753,7 +753,7 @@ export interface ReportedIssue {
   updatedAt: string;
   user: {
     id: number;
-    telegramId: number;
+    telegramId: number | null;
     username: string | null;
   };
 }

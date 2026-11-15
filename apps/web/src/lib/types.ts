@@ -72,11 +72,17 @@ export interface TemplateState {
 export interface PlanOffer {
   name: string;
   label: string;
-  priceUsdCents: number;
+  /** 0 for Free; null for a plan that is not sold (an internal plan someone is on). */
+  priceUsdCents: number | null;
   translationLimit: number | null;
   video: boolean;
   features: string[];
+  current: boolean;
+  /** False for the current plan and anything cheaper: buying it would replace a dearer one. */
+  buyable: boolean;
 }
+
+export type SettleOutcome = "granted" | "already" | "pending" | "failed" | "unknown";
 
 export interface PlanInfo {
   current: {
@@ -88,6 +94,8 @@ export interface PlanInfo {
     trial: boolean;
   };
   plans: PlanOffer[];
+  /** The site sells by card; false = buying happens in the bot via `upgradeUrl`. */
+  checkout: boolean;
   upgradeUrl: string;
 }
 

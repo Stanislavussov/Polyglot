@@ -1,6 +1,6 @@
 # Payment Integration — High-Level Architecture Plan
 
-Status: **proposed** · Date: 2026-07-05 · Scope: replace the mock `PaymentPort` behind the paid-tiers feature (Plus/Pro) with real recurring payments.
+Status: **proposed** · Date: 2026-07-05 · Update 2026-11-15: the web channel (Phase 3) is built on **Comgate**, not Mollie/Paddle — see §9. · Scope: replace the mock `PaymentPort` behind the paid-tiers feature (Plus/Pro) with real recurring payments.
 Companion visualization: `@docs/reports/payments-architecture.html` (published to the admin panel via `pnpm reports:sync-admin` → `/reports/payments-architecture.html`).
 
 ## 1. Context
@@ -142,3 +142,41 @@ Yearly plans in Stars (unsupported), multi-currency in-bot, storing card data (n
 Telegram: [Stars payments](https://core.telegram.org/bots/payments-stars) · [subscriptions](https://core.telegram.org/api/subscriptions) · [Bot ToS](https://telegram.org/tos/bot-developers) · [refund bug #690](https://github.com/tdlib/telegram-bot-api/issues/690).
 Mollie: [recurring](https://docs.mollie.com/payments/recurring) · [webhooks](https://docs.mollie.com/reference/webhooks) · [pricing](https://www.mollie.com/pricing) · [testing](https://docs.mollie.com/reference/testing).
 Patterns: [Airbnb — avoiding double payments](https://medium.com/airbnb-engineering/avoiding-double-payments-in-a-distributed-payments-system-2981f6b070bb) · [webhook idempotency](https://hookdeck.com/webhooks/guides/implement-webhook-idempotency) · [Stripe billing cycle & smart retries](https://docs.stripe.com/billing) · [dunning](https://baremetrics.com/blog/dunning-management) · [grandfathering](https://www.paddle.com/blog/legacy-pricing) · [SEPA chargebacks](https://gocardless.com/guides/sepa/protection/) · [MoR/VAT](https://www.paddle.com/blog/what-is-merchant-of-record).
+
+## 9. Update 2026-11-15 — web channel on Comgate
+
+Decision: the web (`apps/web` + `apps/web-api`) sells by card through **Comgate**, a Czech
+PSP. Reasons, for the seller — a Czech s.r.o. that is not a VAT payer:
+
+- Below the EU-wide €10,000 limit for B2C e-services the place of supply stays Czechia, so a
+  non-payer charges no VAT and needs no OSS. Crossing it (or CZK 2M Czech turnover) needs
+  registration — monitor turnover.
+- A Czech PSP invoices its fees domestically, so there is no §6h reverse charge, and the
+  seller does not become an *identifikovaná osoba*. Stripe (Ireland) or a foreign MoR could.
+- No setup fee; the Start tariff is free for 6 months (cards free up to 50k CZK/month) from the
+  day the contract is signed.
+
+Built: `payments` table (unique `(provider, charge_id)`), `HostedPaymentProvider` port,
+`createHostedCheckoutService` (start / settle / verifyRenewal), the Comgate adapter
+(`packages/adapters/payments`), web routes `POST /api/plan/checkout`, `POST /api/plan/settle`,
+`POST /api/payments/comgate/notify`, and renewal routing by provider in the bot's sweep.
+Charges are in USD at the catalog's `price_usd_cents`, the price the page shows.
+
+Before going live: sign Comgate as the s.r.o., set the Result URL in the Comgate portal to
+`https://<web origin>/api/payments/comgate/notify`, set the secrets, and ask Comgate to
+enable recurring payments (then `COMGATE_RECURRING=on`). Not built yet: cancel from the web,
+refunds, a reconciliation job, terms/withdrawal-right pages the PSP requires on the site.
+
+### Trying the whole flow locally (no Comgate account)
+
+`pnpm comgate:sandbox` starts a local stand-in for Comgate REST v2.0 on :3110 — same paths,
+JSON, Basic auth, push, status and recurring calls — with a checkout page (pay / Apple Pay /
+Google Pay / bank declines) and a dashboard that can make the bank decline renewals.
+
+1. `.env`: `COMGATE_BASE_URL=http://localhost:3110/v2.0`, `COMGATE_MERCHANT=sandbox`,
+   `COMGATE_SECRET=sandbox-secret`, `COMGATE_TEST=on`, `COMGATE_RECURRING=on`.
+2. Run `pnpm comgate:sandbox`, the web-api and `pnpm web`; buy a plan on `/plan`.
+3. `pnpm renew-now <userId>` runs the monthly charge now instead of in a month.
+
+Going live changes only `.env`: drop `COMGATE_BASE_URL`, put Comgate's merchant and secret.
+The sandbox follows the documentation; the first real test payment is still the proof.

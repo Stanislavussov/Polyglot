@@ -14,6 +14,8 @@ export interface WebApiConfig {
   botUsername: string;
   /** VAPID public key the browser subscribes with; null = Web Push off, the web hides the choice. */
   vapidPublicKey: string | null;
+  /** Google OAuth client id for "Sign in with Google"; null hides the button. */
+  googleClientId: string | null;
 }
 
 const PRODUCTION_BOT_USERNAME = "polyglot_lang_ai_bot";
@@ -45,5 +47,6 @@ export function loadConfig(env: NodeJS.ProcessEnv): WebApiConfig {
     devUserId: !production && env.WEB_DEV_USER_ID ? Number.parseInt(env.WEB_DEV_USER_ID, 10) : null,
     botUsername: env.WEB_BOT_USERNAME?.trim() || PRODUCTION_BOT_USERNAME,
     vapidPublicKey: env.VAPID_PUBLIC_KEY?.trim() || null,
+    googleClientId: env.GOOGLE_CLIENT_ID?.trim() || null,
   };
 }

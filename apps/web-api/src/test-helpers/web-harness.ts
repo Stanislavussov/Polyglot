@@ -13,6 +13,7 @@ export const WEB_ORIGIN = "http://learn.test";
 const BOT_TOKEN = "424242:web-harness-token";
 const NOW = 1_800_000_000;
 export const HARNESS_VAPID_PUBLIC_KEY = "harness-vapid-public-key";
+export const HARNESS_GOOGLE_CLIENT_ID = "harness.apps.googleusercontent.com";
 
 /**
  * The web app and the bot over ONE service container: the bot harness's real
@@ -54,6 +55,7 @@ export async function createWebHarness(options: HarnessOptions = {}): Promise<We
     devUserId: null,
     botUsername: "harness_bot",
     vapidPublicKey: HARNESS_VAPID_PUBLIC_KEY,
+    googleClientId: HARNESS_GOOGLE_CLIENT_ID,
   };
   // The same object, not a spread copy: tests swap services on `web.bot.services` after start.
   const services = Object.assign(bot.services, { pushSubscriptionRepository, articleVocabularyRepository });

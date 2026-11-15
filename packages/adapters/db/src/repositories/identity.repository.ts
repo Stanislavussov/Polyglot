@@ -40,4 +40,13 @@ export const identityRepository: IdentityRepository = {
       .values({ userId, channel, externalId })
       .onConflictDoNothing({ target: [identities.channel, identities.externalId] });
   },
+
+  async listChannels(userId: number): Promise<string[]> {
+    const rows = await getDb()
+      .select({ channel: identities.channel })
+      .from(identities)
+      .where(eq(identities.userId, userId))
+      .orderBy(identities.id);
+    return rows.map((row) => row.channel);
+  },
 };

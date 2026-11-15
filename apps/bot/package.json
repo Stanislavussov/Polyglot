@@ -18,7 +18,8 @@
     "dev-reset-users": "node dist/dev-reset-users.cli.js",
     "momentum:backfill": "node dist/momentum.backfill.wiring.js",
     "demo-cards:warm": "tsx src/scripts/warm-onboarding-demo-cards.ts",
-    "clean": "rm -rf dist tsconfig.tsbuildinfo"
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
+    "renew-now": "NODE_OPTIONS='--conditions source' tsx src/scripts/renew-now.ts"
   },
   "dependencies": {
     "@grammyjs/auto-retry": "^2.0.2",
@@ -28,6 +29,7 @@
     "@polyglot/adapter-ai": "workspace:*",
     "@polyglot/adapter-db": "workspace:*",
     "@polyglot/adapter-notifications": "workspace:*",
+    "@polyglot/adapter-payments": "workspace:*",
     "@polyglot/adapter-youtube": "workspace:*",
     "@polyglot/core": "workspace:*",
     "@polyglot/infra": "workspace:*",
