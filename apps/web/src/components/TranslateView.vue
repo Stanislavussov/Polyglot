@@ -29,7 +29,7 @@
           </button>
         </template>
         <!-- Touch keyboards have no Shift+Enter, so the hint only misleads there. -->
-        <p class="text-sm text-ink-muted [@media(pointer:coarse)]:hidden">{{ t("web.translate.hint") }}</p>
+        <p class="hidden truncate text-sm text-ink-muted sm:block [@media(pointer:coarse)]:hidden">{{ t("web.translate.hint") }}</p>
       </ComposerCard>
 
       <div class="min-w-0 xl:col-start-1 xl:row-start-2" aria-live="polite">
@@ -101,23 +101,23 @@
 
         <article v-else-if="result" class="card space-y-5">
           <header class="space-y-3">
-            <div class="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
-            <div class="flex min-w-[10rem] flex-1 items-center gap-2.5 text-sm">
+            <div class="flex items-center justify-between gap-2">
+            <div class="flex min-w-0 flex-1 items-center gap-2.5 text-sm">
               <LangBadge :code="result.sourceLang" />
               <!-- Target languages as an overlapping stack: names live in the tooltip and for screen readers. -->
-              <span class="flex items-center -space-x-1.5" :title="result.targetLangs.map(languageName).join(', ')">
+              <span class="flex shrink-0 items-center -space-x-1.5" :title="result.targetLangs.map(languageName).join(', ')">
                 <span v-for="code in result.targetLangs" :key="code" class="rounded-full ring-2 ring-surface">
                   <LangFlag :code="code" />
                   <span class="sr-only">{{ languageName(code) }}</span>
                 </span>
               </span>
             </div>
-            <div class="-mt-1 ml-auto flex shrink-0 flex-wrap items-center justify-end gap-2 text-sm">
+            <div class="flex shrink-0 items-center gap-2 text-sm">
               <template v-if="saveControls">
                 <!-- Several dictionaries: Save asks where to; with only one it saves straight away. -->
                 <DropdownMenuRoot v-if="saveState === 'unsaved' && dictionaries.length > 1">
                   <DropdownMenuTrigger :class="SAVE_BTN" :disabled="savePending" :title="t('web.translate.save')" :aria-label="t('web.translate.save')">
-                    <BookmarkPlus class="size-5" stroke-width="2.5" aria-hidden="true" />
+                    <BookmarkPlus class="size-4" stroke-width="2.5" aria-hidden="true" /><span class="hidden sm:inline">{{ t("web.translate.save") }}</span>
                   </DropdownMenuTrigger>
                   <DropdownMenuPortal>
                     <DropdownMenuContent align="end" :side-offset="8" :collision-padding="16" class="z-50 min-w-60 rounded-2xl border border-line bg-surface p-1.5 shadow-xl">
@@ -144,11 +144,10 @@
                   :aria-label="t('web.translate.save')"
                   @click="save()"
                 >
-                  <BookmarkPlus class="size-5" stroke-width="2.5" aria-hidden="true" />
+                  <BookmarkPlus class="size-4" stroke-width="2.5" aria-hidden="true" /><span class="hidden sm:inline">{{ t("web.translate.save") }}</span>
                 </button>
                 <!-- Removed: the save button comes back, and pressing it is the undo — no extra pill to reflow the header. -->
                 <template v-else-if="saveState === 'removed'">
-                  <span class="sr-only" role="status">{{ t("web.translate.removed") }}</span>
                   <button
                     type="button"
                     :class="SAVE_BTN"
@@ -157,23 +156,32 @@
                     :aria-label="t('web.translate.undo')"
                     @click="setSaved(true)"
                   >
-                    <BookmarkPlus class="size-5" stroke-width="2.5" aria-hidden="true" />
+                    <BookmarkPlus class="size-4" stroke-width="2.5" aria-hidden="true" /><span class="hidden sm:inline">{{ t("web.translate.save") }}</span>
                   </button>
                 </template>
-                <!-- Saved: the same round button, filled; pressing it again takes the word out. -->
+                <!-- Saved: the button turns into the opposite action, in red, so the two states never look alike. -->
                 <button
                   v-else
                   type="button"
                   :class="SAVED_BTN"
                   :disabled="savePending"
-                  :title="`${t('web.translate.saved')} · ${t('web.translate.remove')}`"
-                  :aria-label="t('web.translate.remove')"
-                  :aria-pressed="true"
+                  :title="t('web.translate.removeFromDictionary')"
+                  :aria-label="t('web.translate.removeFromDictionary')"
                   @click="setSaved(false)"
                 >
-                  <Bookmark class="size-5" fill="currentColor" stroke-width="2.5" aria-hidden="true" />
+                  <Trash2 class="size-4" aria-hidden="true" /><span class="hidden sm:inline">{{ t("web.translate.removeFromDictionary") }}</span>
                 </button>
               </template>
+              <DropdownMenuRoot v-if="explore && explore.actions.length > 0">
+                <DropdownMenuTrigger :class="EXPLORE_BTN" :title="explore.menuLabel" :aria-label="explore.menuLabel">
+                  <Sparkles class="size-4" aria-hidden="true" /><span class="hidden sm:inline">{{ explore.menuLabel }}</span>
+                </DropdownMenuTrigger>
+                <DropdownMenuPortal>
+                  <DropdownMenuContent align="end" :side-offset="8" :collision-padding="16" :class="MENU" @close-auto-focus.prevent>
+                    <ActionMenuItem v-for="action in explore.actions" :key="action.key" :action="action" />
+                  </DropdownMenuContent>
+                </DropdownMenuPortal>
+              </DropdownMenuRoot>
             </div>
             </div>
             <WordHeadline as="h2" :text="result.sourceUsage?.headword ?? result.original" :emoji="result.emoji" />
@@ -188,6 +196,8 @@
             </p>
           </header>
 
+          <MonsterLoader v-if="explore?.retranslating" compact :label="t('web.translate.loading')" />
+          <template v-else>
           <TranslationBlock
             v-if="split.native"
             :key="`${resultSeq}:${split.native.lang}`"
@@ -220,7 +230,9 @@
             id-prefix="translate"
           />
 
-          <CardExplore :result="result" @replace="onReplace" />
+          </template>
+
+          <CardExplore ref="explore" :result="result" @replace="onReplace" />
 
         </article>
       </div>
@@ -258,7 +270,7 @@
 import WordHeadline from "./word/WordHeadline.vue";
 import LangBadge from "./LangBadge.vue";
 import LangFlag from "./LangFlag.vue";
-import { ArrowRight, Bookmark, BookmarkPlus, Mic, Square, Trash2, TriangleAlert } from "lucide-vue-next";
+import { ArrowRight, BookmarkPlus, Sparkles, Mic, Square, Trash2, TriangleAlert } from "lucide-vue-next";
 import {
   DropdownMenuContent,
   DropdownMenuItem,
@@ -269,6 +281,8 @@ import {
 } from "reka-ui";
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { useLoaderText } from "../lib/use-loader-text";
+import { captureEarlyInput, earlyFocused, earlyText } from "../lib/early-input";
+import { toast } from "../lib/toast";
 import { useMainInput } from "../lib/use-main-input";
 import { ApiError, api } from "../lib/api";
 import { t } from "../lib/i18n";
@@ -276,6 +290,8 @@ import { splitNative } from "../lib/card-order";
 import { languageName, settings } from "../lib/settings-store";
 import type { Clarification, ClarificationOption, Dictionary, TranslateAnswer, TranslateResult } from "../lib/types";
 import { startWavRecording, type WavRecording } from "../lib/wav-recorder";
+import { MENU } from "../lib/action-bar";
+import ActionMenuItem from "./ActionMenuItem.vue";
 import CardExplore from "./CardExplore.vue";
 import ComposerCard from "./ComposerCard.vue";
 import ExampleList from "./ExampleList.vue";
@@ -288,12 +304,13 @@ const HISTORY_SIZE = 10;
 const HISTORY_KEY = "polyglot.translate.history";
 
 const composer = ref<InstanceType<typeof ComposerCard> | null>(null);
-const text = ref("");
+// Text typed into the loading page's early input carries over, caret and all.
+captureEarlyInput();
+const text = ref(earlyText.value);
 const { focus: focusInput } = useMainInput(() => composer.value?.el ?? null);
 const busy = ref(false);
 const loaderText = useLoaderText(busy);
 const result = ref<TranslateResult | null>(null);
-const fromHistory = ref(false);
 const errorKey = ref<string | null>(null);
 const errorParams = ref<Record<string, string | number>>({});
 const languageQuestion = ref<{ text: string; kind: "ambiguous" | "unrecognized"; languages: string[] } | null>(null);
@@ -315,10 +332,9 @@ const resultSeq = ref(0);
 const saveState = ref<"unsaved" | "saved" | "removed">("unsaved");
 const savePending = ref(false);
 
-// A stored result has no live connection to the dictionary, so its save controls would act on stale state.
 const split = computed(() => splitNative(result.value?.translations ?? [], settings.value?.nativeLang));
 const saveControls = computed(
-  () => !fromHistory.value && !!result.value && (result.value.savedEntryId != null || !!result.value.saveToken),
+  () => !!result.value && (result.value.savedEntryId != null || !!result.value.saveToken),
 );
 
 function isStoredResult(value: unknown): value is TranslateResult {
@@ -350,9 +366,8 @@ function historyKey(item: TranslateResult): string {
 
 function remember(entry: TranslateResult): void {
   const key = historyKey(entry);
-  // A stored result never saves (its controls are hidden), so the signed card would only fill storage.
-  const { saveToken: _token, ...stored } = entry;
-  history.value = [stored, ...history.value.filter((item) => historyKey(item) !== key)].slice(0, HISTORY_SIZE);
+  // The signed card stays, so a word reopened from history can still be saved.
+  history.value = [{ ...entry }, ...history.value.filter((item) => historyKey(item) !== key)].slice(0, HISTORY_SIZE);
   persistHistory();
 }
 
@@ -367,15 +382,14 @@ function clearHistory(): void {
   persistHistory();
 }
 
-function show(entry: TranslateResult, stored: boolean): void {
+function show(entry: TranslateResult): void {
   result.value = entry;
-  fromHistory.value = stored;
   saveState.value = entry.savedEntryId != null ? "saved" : "unsaved";
   resultSeq.value += 1;
 }
 
 function onReplace(fresh: TranslateResult): void {
-  show(fresh, false);
+  show(fresh);
   remember(fresh);
 }
 
@@ -399,17 +413,16 @@ function resetNotices(): void {
 
 function openHistory(entry: TranslateResult): void {
   resetNotices();
-  show(entry, true);
+  show(entry);
   focusInput();
 }
 
-// Save sits among the card's round icon buttons, so it is one of them rather than a loud pill.
-const ICON_BTN = "btn-secondary size-11 !px-0";
-// Unsaved is the one action we want noticed: the lime accent fill, not the quiet outline.
-// Unsaved reads as empty (white, thick teal ring), saved as full (solid dark teal, filled white mark):
-// two tints of the same teal were too alike to tell apart at a glance.
-const SAVE_BTN = `${ICON_BTN} !border-2 !border-primary !bg-surface !text-primary hover:!bg-primary-soft`;
-const SAVED_BTN = `${ICON_BTN} !border-2 !border-primary-hover !bg-primary-hover !text-primary-fg shadow-primary`;
+// Unsaved and saved must read apart at a glance (two teal tints did not): a filled Save, then a red Remove.
+const SAVE_BTN = "btn-primary !min-h-9 min-w-9 gap-1.5 !px-2 !text-sm sm:!px-3";
+const SAVED_BTN = "btn-secondary !min-h-9 min-w-9 gap-1.5 !px-2 !text-sm sm:!px-3 !border-danger !text-danger hover:!bg-danger-soft";
+// Icon-only on a phone, labelled where there is room: the sparkles say "more about this word".
+const EXPLORE_BTN = "btn-secondary !min-h-9 min-w-9 gap-1.5 !px-2 !text-sm";
+const explore = ref<InstanceType<typeof CardExplore> | null>(null);
 const dictionaries = ref<Dictionary[]>([]);
 
 async function loadDictionaries(): Promise<void> {
@@ -431,11 +444,20 @@ async function save(target?: Dictionary): Promise<void> {
     if (target && !target.isDefault) await api.placeEntry(entryId, target.id);
     current.savedEntryId = entryId;
     saveState.value = "saved";
+    markHistory(current, entryId);
+    toast(t("web.translate.savedToDictionary"));
   } catch {
     errorKey.value = "web.common.error";
   } finally {
     savePending.value = false;
   }
+}
+
+// History holds copies: keep their saved mark in step, or a reopened word shows a stale button.
+function markHistory(entry: TranslateResult, entryId: number | null): void {
+  const key = historyKey(entry);
+  history.value = history.value.map((item) => (historyKey(item) === key ? { ...item, savedEntryId: entryId } : item));
+  persistHistory();
 }
 
 async function setSaved(saved: boolean): Promise<void> {
@@ -446,6 +468,8 @@ async function setSaved(saved: boolean): Promise<void> {
   try {
     await (saved ? api.restoreEntry(entryId) : api.removeEntry(entryId));
     saveState.value = saved ? "saved" : "removed";
+    if (result.value) markHistory(result.value, saved ? entryId : null);
+    toast(t(saved ? "web.translate.savedToDictionary" : "web.translate.removed"));
   } catch {
     errorKey.value = "web.common.error";
   } finally {
@@ -522,7 +546,7 @@ async function answer(value: string, choice: TranslateAnswer): Promise<void> {
   resetNotices();
   try {
     const fresh = await api.translate(value, choice);
-    show(fresh, false);
+    show(fresh);
     remember(fresh);
     // Only on success: a failed or clarifying answer keeps the text so the user can retry or edit it.
     text.value = "";
@@ -573,6 +597,10 @@ onMounted(() => {
   void loadDictionaries();
   history.value = loadHistory();
   // A Learn page hands a phrase over as ?q= (the expression's "to dictionary"), as the bot's notif:tr translates it.
+  if (earlyFocused.value) {
+    focusInput();
+    requestAnimationFrame(() => composer.value?.el?.setSelectionRange(text.value.length, text.value.length));
+  }
   const handed = new URLSearchParams(window.location.search).get("q")?.trim();
   if (handed) {
     text.value = handed;

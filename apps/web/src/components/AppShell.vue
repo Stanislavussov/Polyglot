@@ -1,5 +1,5 @@
 <template>
-  <ShellSkeleton v-if="!ready" :label="t('web.common.loading')" />
+  <ShellSkeleton v-if="!ready" :label="t('web.common.loading')" :placeholder="page === 'translate' ? '…' : undefined" />
   <div v-else class="flex min-h-screen flex-col md:flex-row">
     <aside class="hidden w-64 shrink-0 flex-col bg-sidebar md:sticky md:top-0 md:flex md:h-screen">
       <div class="flex h-16 items-center gap-2.5 whitespace-nowrap px-5 text-xl font-display font-extrabold tracking-tight text-sidebar-fg"><img src="/favicon.svg" alt="" class="size-8 rounded-lg" /> Polyglot Monster</div>
@@ -91,12 +91,13 @@
       </div>
     </main>
   </div>
+  <AppToast />
 </template>
 
 <script setup lang="ts">
 import { DialogClose, DialogContent, DialogOverlay, DialogPortal, DialogRoot, DialogTitle } from "reka-ui";
 import { Menu, X } from "lucide-vue-next";
-import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { api } from "../lib/api";
 import { drawerSwipeAction, type SwipePoint } from "../lib/drawer-swipe";
 import { t } from "../lib/i18n";
@@ -112,7 +113,7 @@ import {
   subscribeThisDevice,
   switchNoticeShown,
 } from "../lib/push";
-import { loadSettings, settings } from "../lib/settings-store";
+import { loadSettings, restoreSettings, settings } from "../lib/settings-store";
 import type { PageName, ProgressGoal } from "../lib/types";
 import { useProgressBar } from "../lib/use-progress-bar";
 import DictionaryView from "./DictionaryView.vue";
@@ -125,6 +126,8 @@ import PlanView from "./PlanView.vue";
 import ProgressView from "./ProgressView.vue";
 import ReviewView from "./ReviewView.vue";
 import SettingsView from "./SettingsView.vue";
+import { captureEarlyInput, rememberTitle } from "../lib/early-input";
+import AppToast from "./AppToast.vue";
 import ShellSkeleton from "./ShellSkeleton.vue";
 import TranslateView from "./TranslateView.vue";
 import ArticlesView from "./ArticlesView.vue";
@@ -211,6 +214,8 @@ function onPopState(): void {
   if (target) show(target);
   else window.location.reload();
 }
+// Before the first render replaces the static fallback, which may already hold typed text.
+captureEarlyInput();
 const ready = ref(false);
 const drawerOpen = ref(false);
 const bar = useProgressBar();
@@ -220,7 +225,13 @@ const goalText = computed(() => goal.value?.rewards[0] ?? goal.value?.nearest ??
 
 onMounted(async () => {
   // A 401 here redirects to the login page inside the api client; any other failure still renders the shell in English.
-  await loadSettings().catch(() => undefined);
+  // A repeat visit renders from the cached settings at once; the server's copy then refreshes them.
+  if (await restoreSettings()) {
+    ready.value = true;
+    void loadSettings().catch(() => undefined);
+  } else {
+    await loadSettings().catch(() => undefined);
+  }
   // A learner who never finished the bot's onboarding gets the same first steps here.
   if (props.page !== "welcome") {
     const me = await api.me().catch(() => null);
@@ -279,6 +290,11 @@ function declinePushOffer(): void {
 
 // Fetched only off the Progress tab: that tab announces a fresh gift itself, and the
 // claim is consumed by whichever request makes it. The bar is extra — a failure leaves it out.
+// Each page's title, for the next visit's loader (switches happen in place, so watch the page too).
+watch([ready, page], ([isReady]) => {
+  if (isReady) void nextTick(rememberTitle);
+});
+
 let goalRequested = false;
 watch(
   [ready, page],

@@ -6,6 +6,12 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 
 <BaseLayout title="Translate">
   <AppShell client:only="vue" page="translate">
-    <ShellSkeleton slot="fallback" label="Loading…" />
+    <ShellSkeleton slot="fallback" label="Loading…" placeholder="…" />
   </AppShell>
+  <!-- Keeps what is typed into the early input before the app replaces it (see lib/early-input.ts). -->
+  <script is:inline>
+    document.addEventListener("input", (event) => {
+      if (event.target && event.target.id === "early-input") window.__earlyInput = event.target.value;
+    }, true);
+  </script>
 </BaseLayout>

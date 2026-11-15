@@ -33,7 +33,7 @@
           <LangFlag :code="language.code" />{{ language.name }}
         </button>
       </div>
-      <p v-if="tooMany" role="alert" class="text-sm text-danger">{{ t("web.translate.maxLanguages", { max: MAX_LEARNING }) }}</p>
+      <p v-if="tooMany" role="alert" class="text-sm text-danger">{{ t("web.translate.maxLanguages", { max: MAX_LEARNING_LANGS }) }}</p>
       <button type="button" class="btn-primary" :disabled="busy || learning.length === 0" @click="saveLearning">
         {{ t("web.welcome.next") }}
       </button>
@@ -67,6 +67,7 @@
 </template>
 
 <script setup lang="ts">
+import { MAX_LEARNING_LANGS } from "../lib/learning-langs";
 import LangFlag from "./LangFlag.vue";
 import { onMounted, ref } from "vue";
 import { api } from "../lib/api";
@@ -74,8 +75,6 @@ import { t } from "../lib/i18n";
 import { saveSettings, settings } from "../lib/settings-store";
 import type { TranslateResult } from "../lib/types";
 
-// Mirrors core MAX_LEARNING_LANGS; the server enforces it.
-const MAX_LEARNING = 4;
 
 const step = ref<"native" | "languages" | "demo" | "done">("native");
 const learning = ref<string[]>([]);
@@ -114,7 +113,7 @@ function chooseNative(code: string): void {
 function toggle(code: string): void {
   tooMany.value = false;
   if (learning.value.includes(code)) learning.value = learning.value.filter((l) => l !== code);
-  else if (learning.value.length >= MAX_LEARNING) tooMany.value = true;
+  else if (learning.value.length >= MAX_LEARNING_LANGS) tooMany.value = true;
   else learning.value = [...learning.value, code];
 }
 
