@@ -74,3 +74,4 @@
 - The translate page opens faster: the input is ready at once, so you can type while the rest loads, and nothing jumps around.
 - On the website, you can now drag the edge of the left menu to make it wider or narrower, or fold it down to just icons — hover an icon to see its name. The menu remembers your choice.
 - The Plans page now shows every plan side by side, with the price, what it gives you and a clear mark on the plan you have now.
+- Daily reminders no longer repeat the same word for days: they now go through your whole dictionary, mixing up words that are not due yet.

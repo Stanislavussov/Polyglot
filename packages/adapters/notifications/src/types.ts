@@ -271,10 +271,11 @@ export interface SchedulerDeps {
 
   /**
    * The cards one notification offers a user who asked for several: due first,
-   * then practice-ahead, one per entry, none of `recentWords`, at most `size`.
+   * then practice-ahead, one per entry, unsent words before sent ones (`history`,
+   * newest first, stalest sent first), never the last-sent word, at most `size`.
    * Empty means the single-word layers take over.
    */
-  pickReviewDeck: (userId: number, size: number, recentWords: string[]) => Promise<CardsDeckCard[]>;
+  pickReviewDeck: (userId: number, size: number, history: string[]) => Promise<CardsDeckCard[]>;
 
   /** Generate a contextual sentence with translations (for 'contextual' type). */
   pickContextualWord: (
