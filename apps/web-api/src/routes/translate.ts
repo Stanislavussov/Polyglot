@@ -1,3 +1,4 @@
+import { PassThrough } from "node:stream";
 import {
   applyTemplateFields,
   creditEffort,
@@ -13,6 +14,7 @@ import {
   saveTranslationToDictionary,
   type TemplateFields,
   type TranslateOutput,
+  type TranslationOutcome,
 } from "@polyglot/core";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
@@ -153,9 +155,27 @@ export function translateRoutes(app: FastifyInstance, services: WebServices, sav
       return featureLocked(reply, FEATURE_KEYS.clarification);
     }
 
-    let outcome: Awaited<ReturnType<typeof runTranslation>>;
+    // A client that sends this Accept header gets the card as it settles, one JSON
+    // line per step; every other client (older pages, CardExplore) keeps one JSON reply.
+    const streaming = request.headers.accept?.includes(NDJSON) === true;
+    const fields = streaming ? await templateFields(services, user.id) : null;
+    const stream = streaming ? new PassThrough() : null;
+    // The pipeline outlives a hard timeout, so a late preview can arrive after the last line.
+    const writeLine = (line: StreamLine) => {
+      if (stream && !stream.writableEnded) stream.write(`${JSON.stringify(line)}\n`);
+    };
+    if (stream) {
+      // nginx buffers proxied replies by default, which would hold every preview until the end.
+      void reply
+        .header("content-type", `${NDJSON}; charset=utf-8`)
+        .header("cache-control", "no-store")
+        .header("x-accel-buffering", "no")
+        .send(stream);
+    }
+
+    let answered: Answered;
     try {
-      outcome = await runTranslation(
+      const outcome = await runTranslation(
         { user, text, channel: "web", ...(Object.keys(answer).length > 0 ? { answer } : {}) },
         {
           settings: services.settings,
@@ -167,48 +187,93 @@ export function translateRoutes(app: FastifyInstance, services: WebServices, sav
           contextLookup: services.contextLookup,
           wordLanguageSweep: services.wordLanguageSweep,
           languageDetections: services.languageDetectionRepository,
+          ...(fields
+            ? {
+                onPreview: (partial: TranslateOutput, targetLangs: string[], sentence: boolean) =>
+                  writeLine({
+                    type: "preview",
+                    card: toTranslateResult(applyTemplateFields(partial, fields), targetLangs, null, sentence),
+                  }),
+              }
+            : {}),
         },
+      );
+      answered = await answerFor(
+        services,
+        saveSecret,
+        user,
+        outcome,
+        fields ?? (await templateFields(services, user.id)),
       );
     } catch (err) {
       logEvent("translation.failed", { channel: "web", ...errorFields(err) }, "error");
-      throw err;
+      if (!stream) throw err;
+      answered = { status: 500, body: { code: "internal" } };
     }
 
-    switch (outcome.status) {
-      case "rejected":
-        return reply.status(422).send({ code: "rejected", reason: outcome.reason, maxLength: outcome.maxLength });
-      case "no_languages":
-        return reply.status(422).send({ code: "no_languages" });
-      case "limit":
-        return reply
-          .status(429)
-          .send({ code: "limit", reason: outcome.reason, resetAt: outcome.resetAt.toISOString() });
-      case "needs_language":
-        return reply
-          .status(422)
-          .send({ code: "needs_language", kind: outcome.kind, text: outcome.text, languages: outcome.candidates });
-      case "add_language":
-        return reply
-          .status(422)
-          .send({ code: "add_language", lang: outcome.lang, supported: outcome.supported, text: outcome.text });
-      case "needs_clarification":
-        return reply.status(422).send({ code: "needs_clarification", sourceLang: outcome.sourceLang, ...outcome.view });
-      case "timeout":
-        return reply.status(504).send({ code: "timeout" });
-      case "no_more_meanings":
-        return reply.status(422).send({ code: "no_more_meanings" });
-      case "done": {
-        const savedEntryId =
-          outcome.inputType === "sentence" ? null : await activeEntryId(services, user.id, outcome.output);
-        await creditEffort(services.momentumService, {
-          userId: user.id,
-          kind: "translate",
-          dedupeKey: `translate:${outcome.translationRequestId}`,
-        });
-        const settings = await services.userRepository.getSettings(user.id);
-        // The dictionary keeps the whole card; only the shown card drops what the template turns off, as the bot's does.
-        const shown = applyTemplateFields(outcome.output, await templateFields(services, user.id));
-        return {
+    if (!stream) return reply.status(answered.status).send(answered.body);
+    // The stream's HTTP status is always 200, so the real outcome is logged here for the dashboards.
+    if (answered.status !== 200)
+      logEvent("translation.stream_outcome", { channel: "web", status: answered.status, code: answered.body.code });
+    writeLine(answered.status === 200 ? { type: "done", card: answered.body } : { type: "error", ...answered });
+    stream.end();
+    return reply;
+  });
+}
+
+const NDJSON = "application/x-ndjson";
+
+type Answered = { status: number; body: Record<string, unknown> };
+type StreamLine =
+  | { type: "preview"; card: ReturnType<typeof toTranslateResult> }
+  | { type: "done"; card: Record<string, unknown> }
+  | ({ type: "error" } & Answered);
+
+/** The reply for a finished run — the same status and body whether it goes out whole or as a stream's last line. */
+async function answerFor(
+  services: WebServices,
+  saveSecret: string,
+  user: Parameters<typeof cardFeatures>[1],
+  outcome: TranslationOutcome,
+  fields: TemplateFields,
+): Promise<Answered> {
+  switch (outcome.status) {
+    case "rejected":
+      return { status: 422, body: { code: "rejected", reason: outcome.reason, maxLength: outcome.maxLength } };
+    case "no_languages":
+      return { status: 422, body: { code: "no_languages" } };
+    case "limit":
+      return { status: 429, body: { code: "limit", reason: outcome.reason, resetAt: outcome.resetAt.toISOString() } };
+    case "needs_language":
+      return {
+        status: 422,
+        body: { code: "needs_language", kind: outcome.kind, text: outcome.text, languages: outcome.candidates },
+      };
+    case "add_language":
+      return {
+        status: 422,
+        body: { code: "add_language", lang: outcome.lang, supported: outcome.supported, text: outcome.text },
+      };
+    case "needs_clarification":
+      return { status: 422, body: { code: "needs_clarification", sourceLang: outcome.sourceLang, ...outcome.view } };
+    case "timeout":
+      return { status: 504, body: { code: "timeout" } };
+    case "no_more_meanings":
+      return { status: 422, body: { code: "no_more_meanings" } };
+    case "done": {
+      const savedEntryId =
+        outcome.inputType === "sentence" ? null : await activeEntryId(services, user.id, outcome.output);
+      await creditEffort(services.momentumService, {
+        userId: user.id,
+        kind: "translate",
+        dedupeKey: `translate:${outcome.translationRequestId}`,
+      });
+      const settings = await services.userRepository.getSettings(user.id);
+      // The dictionary keeps the whole card; only the shown card drops what the template turns off, as the bot's does.
+      const shown = applyTemplateFields(outcome.output, fields);
+      return {
+        status: 200,
+        body: {
           ...toTranslateResult(
             shown,
             outcome.targetLangs,
@@ -225,8 +290,8 @@ export function translateRoutes(app: FastifyInstance, services: WebServices, sav
           context: outcome.contextHint ?? null,
           etymologyEligible: isEtymologyEligible(outcome.inputType, outcome.sourceLang, settings?.nativeLang ?? "en"),
           features: await cardFeatures(services, user),
-        };
-      }
+        },
+      };
     }
-  });
+  }
 }

@@ -17,12 +17,15 @@
       <span class="text-sm text-ink-muted" aria-hidden="true">{{ modelValue.length }}/{{ maxLength }}</span>
       <div class="flex gap-2">
         <slot name="tools" />
-        <button v-if="modelValue !== ''" type="button" class="btn-secondary" @click="clear">
+        <button v-if="modelValue !== ''" type="button" class="btn-secondary" @mousedown.prevent @click="clear">
           {{ t("web.translate.clear") }}
         </button>
-        <!-- On phones the button sits at the bottom of the screen, within thumb reach and above the keyboard. -->
+        <!-- On phones the button sits at the bottom of the screen, within thumb reach and above the keyboard.
+             mousedown.prevent: a click must not pull focus off the text box — the button turns disabled while busy,
+             the browser then drops focus to <body>, and the box's focus ring blinks off until the answer lands. -->
         <button
           type="submit"
+          @mousedown.prevent
           class="btn-primary fixed inset-x-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-30 py-3 shadow-lg md:static md:inset-auto md:py-2 md:shadow-none"
           :disabled="busy || modelValue.trim() === ''"
         >

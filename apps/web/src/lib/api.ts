@@ -87,6 +87,58 @@ export async function request<T>(method: string, path: string, body?: unknown): 
   return (await response.json()) as T;
 }
 
+const NDJSON = "application/x-ndjson";
+
+type TranslateLine =
+  | { type: "preview"; card: TranslateResult }
+  | { type: "done"; card: TranslateResult }
+  | { type: "error"; status: number; body: ErrorBody };
+
+/**
+ * POST /translate, reading the card as it settles: `onPreview` gets each partial
+ * card, the promise the final one. Errors throw the same ApiError as `request`,
+ * and a server that answers with plain JSON is read as before.
+ */
+async function translateProgressive(
+  text: string,
+  answer: TranslateAnswer,
+  onPreview: (card: TranslateResult) => void,
+): Promise<TranslateResult> {
+  const response = await fetch("/api/translate", {
+    method: "POST",
+    credentials: "same-origin",
+    headers: { "Content-Type": "application/json", Accept: `${NDJSON}, application/json` },
+    body: JSON.stringify({ text, ...answer }),
+  });
+  if (response.status === 401 && window.location.pathname !== LOGIN_PATH) window.location.replace(LOGIN_PATH);
+  if (!response.ok) throw new ApiError(response.status, await response.json().catch(() => ({})));
+  if (!response.headers.get("content-type")?.includes(NDJSON) || !response.body) {
+    return (await response.json()) as TranslateResult;
+  }
+
+  const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
+  let buffered = "";
+  for (;;) {
+    const { value, done } = await reader.read();
+    buffered += value ?? "";
+    const lines = buffered.split("\n");
+    buffered = done ? "" : (lines.pop() ?? "");
+    for (const raw of lines) {
+      if (raw.trim() === "") continue;
+      let line: TranslateLine;
+      try {
+        line = JSON.parse(raw) as TranslateLine;
+      } catch {
+        throw new ApiError(500, {});
+      }
+      if (line.type === "preview") onPreview(line.card);
+      else if (line.type === "done") return line.card;
+      else throw new ApiError(line.status, line.body);
+    }
+    if (done) throw new ApiError(500, {});
+  }
+}
+
 export const api = {
   authConfig: () => request<{ botId: number; devLogin: boolean }>("GET", "/auth/config"),
   devLogin: () => request<Me>("POST", "/auth/dev"),
@@ -129,6 +181,7 @@ export const api = {
   loaderPhrases: (kind: "translate") => request<LoaderPhrases>("GET", `/loader/${kind}`),
   translate: (text: string, answer: TranslateAnswer = {}) =>
     request<TranslateResult>("POST", "/translate", { text, ...answer }),
+  translateProgressive,
   etymology: (card: { original: string; sourceLang: string; inputType: "word" | "phrase" }) =>
     request<{ etymology: string }>("POST", "/translate/etymology", card),
   mentor: (body: {

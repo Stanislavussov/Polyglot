@@ -14,7 +14,12 @@
  */
 
 import type { GenerateObjectFn } from "../../ports/ai.port.js";
-import type { DictionaryContext, TranslateInput, TranslationPhaseObserver } from "../translation/types.js";
+import type {
+  DictionaryContext,
+  TranslateInput,
+  TranslationPhaseObserver,
+  TranslationPreviewObserver,
+} from "../translation/types.js";
 
 export type DictionaryContextMatchType = "exact_expression" | "known_form" | "lemma";
 
@@ -52,6 +57,8 @@ export interface ContextEnrichmentDeps {
    * ignored, never affecting the translation.
    */
   onPhase?: TranslationPhaseObserver;
+  /** Optional sink for the card while it is still being built (translate() only). */
+  onPreview?: TranslationPreviewObserver;
 }
 
 /**
