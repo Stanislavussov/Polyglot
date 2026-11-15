@@ -95,18 +95,18 @@
           {{ t(errorKey, errorParams) }}
         </p>
 
-        <div v-if="busy" class="card space-y-4" aria-busy="true">
+        <div v-if="busy && !preview" class="card space-y-4" aria-busy="true">
           <MonsterLoader compact :label="loaderText || t('web.translate.loading')" />
         </div>
 
-        <article v-else-if="result" class="card space-y-5">
+        <article v-else-if="card" class="card space-y-5" :aria-busy="pending">
           <header class="space-y-3">
             <div class="flex items-center justify-between gap-2">
             <div class="flex min-w-0 flex-1 items-center gap-2.5 text-sm">
-              <LangBadge :code="result.sourceLang" />
+              <LangBadge :code="card.sourceLang" />
               <!-- Target languages as an overlapping stack: names live in the tooltip and for screen readers. -->
-              <span class="flex shrink-0 items-center -space-x-1.5" :title="result.targetLangs.map(languageName).join(', ')">
-                <span v-for="code in result.targetLangs" :key="code" class="rounded-full ring-2 ring-surface">
+              <span class="flex shrink-0 items-center -space-x-1.5" :title="card.targetLangs.map(languageName).join(', ')">
+                <span v-for="code in card.targetLangs" :key="code" class="rounded-full ring-2 ring-surface">
                   <LangFlag :code="code" />
                   <span class="sr-only">{{ languageName(code) }}</span>
                 </span>
@@ -172,7 +172,7 @@
                   <Trash2 class="size-4" aria-hidden="true" /><span class="hidden sm:inline">{{ t("web.translate.removeFromDictionary") }}</span>
                 </button>
               </template>
-              <DropdownMenuRoot v-if="explore && explore.actions.length > 0">
+              <DropdownMenuRoot v-if="!pending && explore && explore.actions.length > 0">
                 <DropdownMenuTrigger :class="EXPLORE_BTN" :title="explore.menuLabel" :aria-label="explore.menuLabel">
                   <Sparkles class="size-4" aria-hidden="true" /><span class="hidden sm:inline">{{ explore.menuLabel }}</span>
                 </DropdownMenuTrigger>
@@ -184,13 +184,13 @@
               </DropdownMenuRoot>
             </div>
             </div>
-            <WordHeadline as="h2" :text="result.sourceUsage?.headword ?? result.original" :emoji="result.emoji" />
+            <WordHeadline as="h2" :text="card.sourceUsage?.headword ?? card.original" :emoji="card.emoji" />
 
-            <div v-if="result.correction" class="rounded-xl bg-warning-soft px-4 py-3 text-sm text-warning-fg">
-              <p class="font-semibold">{{ t("web.translate.corrected", { corrected: result.correction.corrected }) }}</p>
-              <p class="mt-1">{{ result.correction.explanation || t("web.translate.typoFixed", { word: result.correction.original }) }}</p>
+            <div v-if="card.correction" class="rounded-xl bg-warning-soft px-4 py-3 text-sm text-warning-fg">
+              <p class="font-semibold">{{ t("web.translate.corrected", { corrected: card.correction.corrected }) }}</p>
+              <p class="mt-1">{{ card.correction.explanation || t("web.translate.typoFixed", { word: card.correction.original }) }}</p>
             </div>
-            <p v-if="result.unverified" class="flex items-start gap-2 rounded-xl bg-warning-soft px-4 py-3 text-sm text-warning-fg">
+            <p v-if="card.unverified" class="flex items-start gap-2 rounded-xl bg-warning-soft px-4 py-3 text-sm text-warning-fg">
               <TriangleAlert class="mt-0.5 size-4 shrink-0" aria-hidden="true" />
               {{ t("web.translate.unverified") }}
             </p>
@@ -205,21 +205,21 @@
             id-prefix="translate"
           />
 
-          <div v-if="result.nativeMeaning || result.sourceUsage" class="space-y-3">
-            <p v-if="result.nativeMeaning" class="text-base">
+          <div v-if="card.nativeMeaning || card.sourceUsage" class="space-y-3">
+            <p v-if="card.nativeMeaning" class="text-base">
               <span class="font-semibold text-ink-muted">{{ t("web.translate.nativeMeaning") }}:</span>
-              {{ result.nativeMeaning }}
+              {{ card.nativeMeaning }}
             </p>
 
-            <div v-if="result.sourceUsage" class="space-y-2 rounded-xl bg-surface-muted px-4 py-3 text-sm">
+            <div v-if="card.sourceUsage" class="space-y-2 rounded-xl bg-surface-muted px-4 py-3 text-sm">
               <h3 class="text-sm font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.translate.aboutSource") }}</h3>
-              <p>{{ result.sourceUsage.explanation }}</p>
-              <ul v-if="result.sourceUsage.synonyms.length > 0" class="flex flex-wrap gap-2">
-                <li v-for="synonym in result.sourceUsage.synonyms" :key="synonym" class="rounded-full bg-primary-soft px-3 py-1 text-primary-soft-fg">
+              <p>{{ card.sourceUsage.explanation }}</p>
+              <ul v-if="card.sourceUsage.synonyms.length > 0" class="flex flex-wrap gap-2">
+                <li v-for="synonym in card.sourceUsage.synonyms" :key="synonym" class="rounded-full bg-primary-soft px-3 py-1 text-primary-soft-fg">
                   {{ synonym }}
                 </li>
               </ul>
-              <ExampleList :examples="result.sourceUsage.examples" />
+              <ExampleList :examples="card.sourceUsage.examples" />
             </div>
           </div>
 
@@ -232,7 +232,9 @@
 
           </template>
 
-          <CardExplore ref="explore" :result="result" @replace="onReplace" />
+          <!-- The card so far is not checked yet: the rest is still on its way, and Save waits for the final card. -->
+          <MonsterLoader v-if="pending" compact :label="loaderText || t('web.translate.loading')" />
+          <CardExplore v-else ref="explore" :result="card" @replace="onReplace" />
 
         </article>
       </div>
@@ -311,6 +313,10 @@ const { focus: focusInput } = useMainInput(() => composer.value?.el ?? null);
 const busy = ref(false);
 const loaderText = useLoaderText(busy);
 const result = ref<TranslateResult | null>(null);
+// The card as it settles during a request; `card` is what the page shows.
+const preview = ref<TranslateResult | null>(null);
+const pending = computed(() => busy.value && preview.value !== null);
+const card = computed(() => (busy.value ? preview.value : result.value));
 const errorKey = ref<string | null>(null);
 const errorParams = ref<Record<string, string | number>>({});
 const languageQuestion = ref<{ text: string; kind: "ambiguous" | "unrecognized"; languages: string[] } | null>(null);
@@ -332,9 +338,9 @@ const resultSeq = ref(0);
 const saveState = ref<"unsaved" | "saved" | "removed">("unsaved");
 const savePending = ref(false);
 
-const split = computed(() => splitNative(result.value?.translations ?? [], settings.value?.nativeLang));
+const split = computed(() => splitNative(card.value?.translations ?? [], settings.value?.nativeLang));
 const saveControls = computed(
-  () => !!result.value && (result.value.savedEntryId != null || !!result.value.saveToken),
+  () => !pending.value && !!result.value && (result.value.savedEntryId != null || !!result.value.saveToken),
 );
 
 function isStoredResult(value: unknown): value is TranslateResult {
@@ -543,9 +549,12 @@ function pick(option: ClarificationOption): void {
 async function answer(value: string, choice: TranslateAnswer): Promise<void> {
   if (busy.value || value === "") return;
   busy.value = true;
+  preview.value = null;
   resetNotices();
   try {
-    const fresh = await api.translate(value, choice);
+    const fresh = await api.translateProgressive(value, choice, (partial) => {
+      preview.value = partial;
+    });
     show(fresh);
     remember(fresh);
     // Only on success: a failed or clarifying answer keeps the text so the user can retry or edit it.
@@ -589,6 +598,7 @@ async function answer(value: string, choice: TranslateAnswer): Promise<void> {
     }
   } finally {
     busy.value = false;
+    preview.value = null;
     focusInput();
   }
 }

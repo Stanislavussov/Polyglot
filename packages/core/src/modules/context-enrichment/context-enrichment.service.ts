@@ -30,7 +30,7 @@ export async function translateWithContext(
       dictionaryContext: context,
     },
     deps.generateObjectFn,
-    { onPhase: deps.onPhase },
+    { onPhase: deps.onPhase, ...(deps.onPreview ? { onPreview: deps.onPreview } : {}) },
   );
 }
 

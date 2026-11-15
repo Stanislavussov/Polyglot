@@ -4,6 +4,12 @@
 @tailwind utilities;
 
 @layer base {
+  /* Classic scrollbars (macOS with a mouse, Windows) come and go as a card loads; without a reserved
+     gutter the page width jumps, everything re-centres by a half pixel and the input's focus ring flickers. */
+  html {
+    scrollbar-gutter: stable;
+  }
+
   body {
     @apply bg-canvas font-sans text-base text-ink antialiased;
     /* A long word or URL from a translation wraps instead of widening the page on phones. */
