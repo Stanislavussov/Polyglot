@@ -1,5 +1,4 @@
 # Unreleased — en
-
 - Your daily word can now show its synonyms, and the question under it changes every time instead of repeating one line forever.
 - Release notes are now short, human and in your language — this is the first one written that way.
 - New learners get a word of the day even with an empty dictionary — now with fun idioms and real street slang like “no cap” and “кринж”.
@@ -68,8 +67,6 @@
 - New on the website: 📰 Articles — paste a link to any article, and we keep just the story (no ads, menus or comments) and pick the words worth learning, ready to save to your dictionary.
 - Website dictionary cards look calmer: the word's language sits in small print above it, the emoji lines up with the translation flags, and long phrases wrap neatly.
 - Word cards on the website now look the same everywhere — dictionary, review and translate: the language sits in small print above the word, the emoji lines up with the flags, and long phrases wrap neatly.
-- New dictionary cards on the website: a 🔊 button by the language, a big "Open" button right under your thumb, and "Ask" jumps straight into a chat with the mentor, a meaning check or the word's etymology. Buttons that do not fit tuck neatly into "⋯".
-- New dictionary cards on the website: a 🔊 button by the language, a big "Open" button right under your thumb, and "Ask" jumps straight into a chat with the mentor, a meaning check or the word's etymology. Buttons that do not fit tuck neatly into "⋯". The "Open" window follows the same layout: language and 🔊 on top, then the word and its translations.
-- New dictionary cards on the website: a 🔊 button by the language, a big "Open" button right under your thumb, and "Ask" jumps straight into a chat with the mentor, a meaning check or the word's etymology. Buttons that do not fit tuck neatly into "⋯". The "Open" window follows the same layout: language and 🔊 on top, then the word and its translations. There you can also listen to the translations in the languages you learn.
 - New dictionary cards on the website: a 🔊 button by the language, a big "Open" button right under your thumb, and "Ask" jumps straight into a chat with the mentor, a meaning check or the word's etymology. Buttons that do not fit tuck neatly into "⋯". The "Open" window follows the same layout: language and 🔊 on top, then the word and its translations. There you can also listen to the translations in the languages you learn. Instead of a confusing "review schedule", it now offers a "Review now" or "Start learning" button.
 - In the website dictionary, each word now has "Ask" — a chat with the mentor about that very word — and "Etymology" at the bottom of the card: open it and the word's story loads and stays for good. The word window also has a ⭐ "Review more often" button.
+- In the website settings, your native language can no longer be ticked as a learning language, and if saving fails you now see the reason instead of a vague error.
