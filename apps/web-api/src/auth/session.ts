@@ -13,7 +13,18 @@ export interface SessionClaims {
   sub: number;
 }
 
-const PUBLIC_PATHS = new Set(["/livez", "/api/auth/config", "/api/auth/telegram", "/api/auth/dev", "/api/auth/logout"]);
+/** Server-to-server payment notifications: no cookie, no Origin. */
+export const PAYMENT_NOTIFY_PATHS: ReadonlySet<string> = new Set(["/api/payments/comgate/notify"]);
+
+const PUBLIC_PATHS = new Set([
+  "/livez",
+  "/api/auth/config",
+  "/api/auth/telegram",
+  "/api/auth/google",
+  "/api/auth/dev",
+  "/api/auth/logout",
+  ...PAYMENT_NOTIFY_PATHS,
+]);
 
 /**
  * Every /api request outside the login routes needs a signed session AND a live

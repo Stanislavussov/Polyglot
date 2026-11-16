@@ -47,4 +47,10 @@ describe("renewalPaymentPort", () => {
 
     expect(result).toEqual({ paid: true, periodEnd: new Date("2026-11-01T00:00:00Z") });
   });
+
+  it("never lets the mock renew a card subscription bought on the web", async () => {
+    const result = await renewalPaymentPort("on", {}).verifyRenewal({ ...SUBSCRIPTION, provider: "comgate" });
+
+    expect(result.paid).toBe(false);
+  });
 });

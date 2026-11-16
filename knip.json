@@ -52,7 +52,6 @@
     "@polyglot/adapter-db",
     "@polyglot/core",
     "@polyglot/infra",
-    "dotenv",
     "pino",
     "@types/bcryptjs"
   ],

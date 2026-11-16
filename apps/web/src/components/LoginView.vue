@@ -12,6 +12,8 @@
       >
         {{ t("web.login.button") }}
       </button>
+      <!-- Fixed height: Google's button arrives after its script loads, and nothing may jump. -->
+      <div v-if="!devLogin && googleClientId" ref="googleSlot" class="mt-3 flex h-11 w-full justify-center"></div>
       <button v-if="devLogin" type="button" class="btn-primary mt-6 w-full" @click="signInDev">Dev login</button>
       <p v-if="failed" role="alert" class="mt-4 rounded-xl bg-danger-soft px-4 py-3 text-sm text-danger">
         {{ t("web.login.failed") }}
@@ -21,20 +23,21 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { nextTick, onMounted, ref } from "vue";
 import { api } from "../lib/api";
-import { setLang, t } from "../lib/i18n";
-
-const WIDGET_SRC = "https://telegram.org/js/telegram-widget.js?22";
+import { lang, setLang, t } from "../lib/i18n";
+import { loadTelegramWidget, openTelegramLogin as openWidget, renderGoogleButton } from "../lib/sign-in-widgets";
 
 const botId = ref<number | null>(null);
+const googleClientId = ref<string | null>(null);
+const googleSlot = ref<HTMLElement | null>(null);
 const failed = ref(false);
 const devLogin = ref(false);
 
-async function onAuth(user: TelegramLoginUser): Promise<void> {
+async function enter(login: () => Promise<{ interfaceLang: string }>): Promise<void> {
   failed.value = false;
   try {
-    const me = await api.loginWithTelegram(user);
+    const me = await login();
     await setLang(me.interfaceLang);
     window.location.replace("/translate/");
   } catch {
@@ -42,37 +45,14 @@ async function onAuth(user: TelegramLoginUser): Promise<void> {
   }
 }
 
-// Telegram.Login.auth instead of the embedded widget: the widget runs its
-// data-onauth attribute through eval, which our CSP (no 'unsafe-eval') blocks.
 function openTelegramLogin(): void {
-  if (botId.value === null || !window.Telegram) {
+  if (botId.value === null || !openWidget(botId.value, (user) => void enter(() => api.loginWithTelegram(user)))) {
     failed.value = true;
-    return;
   }
-  window.Telegram.Login.auth({ bot_id: botId.value, request_access: "write" }, (user) => {
-    if (user) void onAuth(user);
-  });
 }
 
 async function signInDev(): Promise<void> {
-  try {
-    const me = await api.devLogin();
-    await setLang(me.interfaceLang);
-    window.location.replace("/translate/");
-  } catch {
-    failed.value = true;
-  }
-}
-
-function loadWidgetScript(): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const script = document.createElement("script");
-    script.async = true;
-    script.src = WIDGET_SRC;
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error("telegram widget script failed to load"));
-    document.head.appendChild(script);
-  });
+  await enter(() => api.devLogin());
 }
 
 onMounted(async () => {
@@ -88,8 +68,15 @@ onMounted(async () => {
     devLogin.value = config.devLogin;
     // A local run cannot use Telegram (it refuses localhost as a bot domain), so dev login replaces it.
     if (config.devLogin) return;
-    await loadWidgetScript();
+    googleClientId.value = config.googleClientId;
+    await loadTelegramWidget();
     botId.value = config.botId;
+    await nextTick();
+    if (googleSlot.value && config.googleClientId) {
+      await renderGoogleButton(googleSlot.value, config.googleClientId, lang.value, (credential) => {
+        void enter(() => api.loginWithGoogle(credential));
+      });
+    }
   } catch {
     failed.value = true;
   }

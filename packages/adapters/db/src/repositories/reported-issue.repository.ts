@@ -22,7 +22,7 @@ export interface ReportedIssueListItem {
   updatedAt: Date;
   user: {
     id: number;
-    telegramId: number;
+    telegramId: number | null;
     username: string | null;
   };
 }

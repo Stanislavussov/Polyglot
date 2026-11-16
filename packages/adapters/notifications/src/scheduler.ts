@@ -47,6 +47,7 @@ const DEDUP_WINDOW_MS = 24 * 60 * 60 * 1000;
  * it is.
  */
 const PRESET_DEDUP_WINDOW_MS = 90 * 24 * 60 * 60 * 1000;
+const DECK_HISTORY_WINDOW_MS = PRESET_DEDUP_WINDOW_MS;
 
 async function retryWithBackoff<T>(
   fn: () => Promise<T>,
@@ -201,6 +202,17 @@ async function pickDeckForUser(
   }
 }
 
+/**
+ * What the deck ranks against: every word sent inside the long window, newest first.
+ * A 24 h memory let the same due words lead every deck for days (the SRS order only
+ * moves when a word is graded), so the deck remembers as long as the preset layer does.
+ */
+async function deckHistory(user: NotificationUser, deps: SchedulerDeps, lastSent: string | null): Promise<string[]> {
+  const since = new Date(Date.now() - DECK_HISTORY_WINDOW_MS);
+  const words = await deps.getSentWordsSince(user.userId, since).catch(() => []);
+  return lastSent ? dedupe([lastSent, ...words]) : words;
+}
+
 /** The deck's first card as the word the history and the logs know a notification by. */
 function deckLeadWord(card: CardsDeckCard): SuggestedWord {
   const headword = card.sourceUsage?.headword?.trim();
@@ -326,7 +338,9 @@ async function runNotificationBatch(sendFn: SendFn, deps: SchedulerDeps): Promis
           // and rank staleness by position, so the latest word must lead it.
           const lastSent = await deps.getLastSentWord(user.userId).catch(() => null);
           const recentWords = lastSent ? dedupe([lastSent, ...windowWords]) : windowWords;
-          const deck = wantsReviewDeck(user) ? await pickDeckForUser(user, deps, recentWords) : [];
+          const deck = wantsReviewDeck(user)
+            ? await pickDeckForUser(user, deps, await deckHistory(user, deps, lastSent))
+            : [];
           const word = deck.length > 0 ? deckLeadWord(deck[0]!) : await pickWordForUser(user, deps, recentWords);
           if (!word) {
             logger.info({ userId: user.userId }, "No word picked — sending empty dictionary prompt");

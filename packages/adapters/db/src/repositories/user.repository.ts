@@ -81,9 +81,23 @@ export const userRepository = {
     return rows[0]?.telegramId ?? null;
   },
 
+  async findIdByTelegramId(telegramId: number): Promise<number | null> {
+    const rows = await getDb().select({ id: users.id }).from(users).where(eq(users.telegramId, telegramId)).limit(1);
+    return rows[0]?.id ?? null;
+  },
+
+  async setTelegramId(userId: number, telegramId: number): Promise<void> {
+    await getDb().update(users).set({ telegramId }).where(eq(users.id, userId));
+  },
+
   /** Create a new user. */
   async create(data: NewUser): Promise<User> {
     const db = getDb();
+    const { telegramId } = data;
+    if (telegramId === undefined) {
+      const [row] = await db.insert(users).values(data).returning();
+      return row!;
+    }
     // Idempotent get-or-create (E4/T18): Telegram fans out a new user's first
     // messages/callbacks concurrently, so two parallel creates must not 23505 on
     // the unique telegram_id. On conflict, re-select the row the winner inserted.
@@ -91,7 +105,7 @@ export const userRepository = {
     if (inserted[0]) {
       return inserted[0];
     }
-    const existing = await db.select().from(users).where(eq(users.telegramId, data.telegramId)).limit(1);
+    const existing = await db.select().from(users).where(eq(users.telegramId, telegramId)).limit(1);
     return existing[0]!;
   },
 
@@ -394,6 +408,8 @@ export const userRepository = {
         and(
           eq(users.onboarded, true),
           eq(users.isActive, true),
+          // A Telegram message: an account without Telegram (Google on the web) cannot get one.
+          isNotNull(users.telegramId),
           isNotNull(users.onboardedAt),
           lte(users.onboardedAt, cutoff),
           gte(users.onboardedAt, oldest),
@@ -431,7 +447,7 @@ export const userRepository = {
     if (rows.length >= limit) {
       logger.warn({ limit }, "Activation-nudge batch hit the fan-out cap — remainder deferred to the next sweep");
     }
-    return rows;
+    return rows.flatMap((row) => (row.telegramId === null ? [] : [{ ...row, telegramId: row.telegramId }]));
   },
 
   /** Onboarding funnel: users grouped by the furthest step reached, split by completion. */

@@ -7,6 +7,7 @@ import {
   setAIRequestTimeoutProvider,
   transcribeAudio,
 } from "@polyglot/adapter-ai";
+import { createGoogleVerifier } from "@polyglot/adapter-auth";
 import {
   articleVocabularyRepository,
   cardTemplateRepository,
@@ -27,6 +28,7 @@ import {
   momentumRepository,
   normalizeToIso1,
   notificationRepository,
+  paymentRepository,
   planFeatureAccessRepository,
   progressRepository,
   pushSubscriptionRepository,
@@ -43,8 +45,10 @@ import {
   wordPickerRunRepository,
   wordReviewRepository,
 } from "@polyglot/adapter-db";
+import { comgateFromEnv } from "@polyglot/adapter-payments";
 import {
   createFeatureAccess,
+  createHostedCheckoutService,
   createMomentumService,
   createProgressService,
   MATURE_INTERVAL_DAYS,
@@ -73,7 +77,26 @@ export function createWebServices(): WebServices {
     countMatureWords: (userId) => vocabularyRepository.countMatureTranslations(userId, MATURE_INTERVAL_DAYS),
   });
 
+  const provider = comgateFromEnv(process.env);
+  const hostedCheckout = provider
+    ? createHostedCheckoutService({
+        provider,
+        payments: paymentRepository,
+        subscriptions: subscriptionRepository,
+        users: userRepository,
+        // The catalog's price is what the page shows, so it is what the card is charged.
+        priceOf: async (plan) => {
+          const cents = (await settings.getPlanLimits()).find((row) => row.name === plan)?.priceUsdCents;
+          return cents ? { amountMinor: cents, currency: "USD" } : null;
+        },
+      })
+    : undefined;
+
+  const googleClientId = process.env.GOOGLE_CLIENT_ID?.trim();
+
   return {
+    ...(hostedCheckout && { hostedCheckout }),
+    ...(googleClientId && { googleLogin: createGoogleVerifier(googleClientId) }),
     momentumService,
     progressService,
     userRepository,

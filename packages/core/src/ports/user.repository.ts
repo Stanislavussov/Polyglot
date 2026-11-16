@@ -18,12 +18,12 @@ export interface User {
 
 /**
  * Channel-adapter creation DTO. `telegramId` remains here (unlike the domain
- * `User` read model, which no longer carries it) because provisioning a user row
- * is a channel concern and the retained `users.telegram_id` column is NOT NULL —
- * the Telegram channel adapter supplies it at creation, then links an identity.
+ * `User` read model, which no longer carries it) because the bot still delivers
+ * to the retained `users.telegram_id` column. A user who signed up with another
+ * method (Google on the web) has none until they link Telegram.
  */
 export interface NewUser {
-  telegramId: number;
+  telegramId?: number;
   username?: string | null;
   audienceGroup?: AudienceGroup;
 }
@@ -93,6 +93,10 @@ export interface UserRepository {
    * `IdentityRepository` port free of channel specifics.
    */
   getTelegramIdById(userId: number): Promise<number | null>;
+  /** The row holding this legacy `users.telegram_id` — rows older than `identities` have no identity yet. */
+  findIdByTelegramId(telegramId: number): Promise<number | null>;
+  /** Give a non-Telegram account its Telegram chat id once Telegram is linked. */
+  setTelegramId(userId: number, telegramId: number): Promise<void>;
   getSettings(userId: number): Promise<UserLanguageSettings | null>;
   updateSettings(userId: number, settings: Partial<UserLanguageSettings>): Promise<UserLanguageSettings>;
   updateNativeLang(userId: number, lang: string): Promise<UserLanguageSettings | null>;

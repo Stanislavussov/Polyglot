@@ -73,5 +73,7 @@
 - On the translation card, every action for the word now sits in the "⋯" menu at the top, and the Save button is easy to read: bright before you save, then a red "Remove from dictionary"; a short message confirms each action. Words from your recent translations can be saved too, and the word stays in place while another meaning loads.
 - The translate page opens faster: the input is ready at once, so you can type while the rest loads, and nothing jumps around.
 - On the website, you can now drag the edge of the left menu to make it wider or narrower, or fold it down to just icons — hover an icon to see its name. The menu remembers your choice.
+- The Plans page now shows every plan side by side, with the price, what it gives you and a clear mark on the plan you have now.
+- Daily reminders no longer repeat the same word for days: they now go through your whole dictionary, mixing up words that are not due yet.
 - On the website, a translation now starts showing up right away: the word, its meaning and each language appear as soon as they are ready, instead of all at once at the end.
 - On the website, the text box no longer flickers while a translation is loading.

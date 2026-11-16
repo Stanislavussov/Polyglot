@@ -112,7 +112,9 @@ export const audienceGroupEnum = pgEnum("audience_group", ["admin", "tester", "p
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
-  telegramId: bigint("telegram_id", { mode: "number" }).unique().notNull(),
+  // Null for an account that signed up on the web with another method (Google)
+  // until it links Telegram; the bot delivers only to rows that have one.
+  telegramId: bigint("telegram_id", { mode: "number" }).unique(),
   username: text("username"),
   audienceGroup: audienceGroupEnum("audience_group").default("product").notNull(),
   subscriptionPlan: text("subscription_plan").default("free").notNull(),
@@ -1229,6 +1231,35 @@ export const subscriptions = pgTable(
 
 export type Subscription = typeof subscriptions.$inferSelect;
 export type SubscriptionStatus = "active" | "past_due" | "canceled" | "expired";
+
+// Payments — one row per charge from any channel (web card gateway, later Stars).
+// `(provider, charge_id)` is unique: the exactly-once anchor a repeated provider
+// notification hits instead of granting twice (tech-req 16 §4.1).
+export const payments = pgTable(
+  "payments",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    plan: varchar("plan", { length: 50 })
+      .notNull()
+      .references(() => rateLimitPlans.name),
+    provider: varchar("provider", { length: 50 }).notNull(),
+    chargeId: text("charge_id").notNull(),
+    amountMinor: integer("amount_minor").notNull(),
+    currency: varchar("currency", { length: 3 }).notNull(),
+    status: text("status").$type<"pending" | "paid" | "failed">().notNull(),
+    subscriptionId: integer("subscription_id").references(() => subscriptions.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    paidAt: timestamp("paid_at", { withTimezone: true }),
+  },
+  (t) => [
+    uniqueIndex("payments_provider_charge_idx").on(t.provider, t.chargeId),
+    index("payments_subscription_idx").on(t.subscriptionId),
+    index("payments_user_idx").on(t.userId),
+  ],
+);
 
 // ─────────────────────────────────────────────
 // TTS cache — synthesized pronunciations, keyed by Telegram file_id

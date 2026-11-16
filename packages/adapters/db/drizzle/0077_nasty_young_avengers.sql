@@ -1,0 +1,1 @@
+ALTER TABLE "users" ALTER COLUMN "telegram_id" DROP NOT NULL;

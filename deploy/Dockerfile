@@ -20,6 +20,9 @@ COPY packages/adapters/db/package.json packages/adapters/db/
 COPY packages/adapters/notifications/package.json packages/adapters/notifications/
 COPY packages/adapters/youtube/package.json packages/adapters/youtube/
 COPY packages/adapters/article/package.json packages/adapters/article/
+COPY packages/adapters/payments/package.json packages/adapters/payments/
+COPY packages/adapters/auth/package.json packages/adapters/auth/
+COPY packages/admin-contracts/package.json packages/admin-contracts/
 
 RUN pnpm install --frozen-lockfile
 
@@ -52,6 +55,9 @@ COPY packages/adapters/db/package.json packages/adapters/db/
 COPY packages/adapters/notifications/package.json packages/adapters/notifications/
 COPY packages/adapters/youtube/package.json packages/adapters/youtube/
 COPY packages/adapters/article/package.json packages/adapters/article/
+COPY packages/adapters/payments/package.json packages/adapters/payments/
+COPY packages/adapters/auth/package.json packages/adapters/auth/
+COPY packages/admin-contracts/package.json packages/admin-contracts/
 
 RUN pnpm install --frozen-lockfile --prod
 
@@ -67,6 +73,7 @@ COPY --from=build /app/packages/adapters/ai/dist packages/adapters/ai/dist
 COPY --from=build /app/packages/adapters/db/dist packages/adapters/db/dist
 COPY --from=build /app/packages/adapters/notifications/dist packages/adapters/notifications/dist
 COPY --from=build /app/packages/adapters/youtube/dist packages/adapters/youtube/dist
+COPY --from=build /app/packages/adapters/payments/dist packages/adapters/payments/dist
 
 # Run as non-root
 USER node

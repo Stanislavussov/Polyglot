@@ -93,6 +93,16 @@ A request about the UI ("menu", "page", "sidebar", "site") targets `apps/web` �
 web app. Touch `apps/admin` only when the request names the admin panel; its design is not a
 priority.
 
+### 9. Ports and Adapters, Shared by Every Channel
+
+Every external system (payment provider, AI, DB, Telegram, push) sits behind a port in
+`packages/core/src/ports/` and an adapter in `packages/adapters/*`. A rule that decides
+money, access or state lives once in `packages/core` and is reused by the bot and the web —
+never copied into an app. A new channel or provider is a new adapter plus wiring in the
+app's composition root, never a second implementation of the rule. Build the smallest port
+the current use needs; add a method when a second caller needs it, not before.
+Details: `@docs/agents/architecture.md` → Ports and adapters, Payments.
+
 ## Guidance Map
 
 `@docs/` is the canonical documentation directory — never a top-level `docs/`.

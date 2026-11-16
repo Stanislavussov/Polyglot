@@ -1,63 +1,76 @@
-import { buildCardsDeck, type CardsDeckCard, type SrsDueVocabularyCard } from "@polyglot/core";
+import { type CardsDeckCard, type SrsDueVocabularyCard } from "@polyglot/core";
 
 export interface ReviewDeckPickerDeps {
   findDueForSrs(userId: number, now: Date, limit: number): Promise<SrsDueVocabularyCard[]>;
   findAheadForSrs(userId: number, now: Date, limit: number): Promise<SrsDueVocabularyCard[]>;
+  /** Source of the practice-ahead shuffle; tests pin it. */
+  random?: () => number;
 }
 
-/** Rows fetched per card wanted, and the factor each further page grows by. */
-const CANDIDATE_OVERSHOOT = 4;
-/** Where the widening stops: a dictionary this deep has plenty of distinct words by then. */
+/** Rows read per query. Ranking needs the whole dictionary in view, not a first page. */
 const MAX_CANDIDATES = 1000;
 
-type FetchRows = (limit: number) => Promise<SrsDueVocabularyCard[]>;
-
-/**
- * Rows of words neither recently sent nor already `taken` by the deck, widened until they
- * hold `size` distinct words or the pool runs out. The limit counts translation rows while
- * the deck wants words, and a learner of several languages gets several rows per word — a
- * fixed limit could fill up with them and underfill the deck even though more eligible
- * words exist. `taken` matters for the ahead top-up: a word due in one language can be
- * ahead in another, and counting it again would stop the search one word short.
- */
-async function freshCandidates(
-  fetch: FetchRows,
-  size: number,
-  recent: ReadonlySet<string>,
-  taken: ReadonlySet<number> = new Set(),
-) {
-  let limit = size * CANDIDATE_OVERSHOOT + recent.size + taken.size;
-  for (;;) {
-    const rows = await fetch(limit);
-    const fresh = rows.filter((row) => !recent.has(row.original) && !taken.has(row.entryId));
-    const exhausted = rows.length < limit || limit >= MAX_CANDIDATES;
-    if (exhausted || new Set(fresh.map((row) => row.entryId)).size >= size) return fresh;
-    limit = Math.min(limit * CANDIDATE_OVERSHOOT, MAX_CANDIDATES);
+function shuffle<T>(items: readonly T[], random: () => number): T[] {
+  const out = [...items];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
+    [out[i], out[j]] = [out[j] as T, out[i] as T];
   }
+  return out;
+}
+
+/** One row per entry, first occurrence wins, so the repository's order survives. */
+function uniqueByEntry(rows: readonly SrsDueVocabularyCard[], taken: ReadonlySet<number>): SrsDueVocabularyCard[] {
+  const seen = new Set(taken);
+  return rows.filter((row) => (seen.has(row.entryId) ? false : (seen.add(row.entryId), true)));
 }
 
 /**
- * The deck a card notification opens on — the `/review` deck's own order
- * (`buildCardsDeck`: due first, then practice-ahead, one card per entry), minus the
- * words a recent notification already carried.
+ * The deck a card notification opens on.
+ *
+ * `history` is every word recently notified, newest first. Words absent from it come
+ * first — due ones in SRS order, practice-ahead ones shuffled — then words already
+ * sent, the one seen longest ago first. The last-sent word is never offered again.
+ *
+ * Ranking instead of a 24 h exclusion is the fix for one notification repeating for
+ * days: the SRS order only moves when a word is graded, and a notification word is
+ * often not graded (or graded "good" on an ahead card, which writes nothing), so a
+ * short memory let the same one or two words lead every deck.
  */
 export function createReviewDeckPicker(deps: ReviewDeckPickerDeps) {
+  const random = deps.random ?? Math.random;
+
   return async function pickReviewDeck(
     userId: number,
     size: number,
-    recentWords: string[],
+    history: string[],
     now: Date = new Date(),
   ): Promise<CardsDeckCard[]> {
-    const recent = new Set(recentWords);
-    const due = await freshCandidates((limit) => deps.findDueForSrs(userId, now, limit), size, recent);
-    const deck = buildCardsDeck(due, [], size);
-    if (deck.length >= size) return deck;
-    const ahead = await freshCandidates(
-      (limit) => deps.findAheadForSrs(userId, now, limit),
-      size - deck.length,
-      recent,
-      new Set(deck.map((card) => card.entryId)),
-    );
-    return buildCardsDeck(due, ahead, size);
+    const lastSent = history[0];
+    const sentAge = new Map<string, number>();
+    history.forEach((word, index) => {
+      if (!sentAge.has(word)) sentAge.set(word, index);
+    });
+
+    const [dueRows, aheadRows] = await Promise.all([
+      deps.findDueForSrs(userId, now, MAX_CANDIDATES),
+      deps.findAheadForSrs(userId, now, MAX_CANDIDATES),
+    ]);
+    const allDue = uniqueByEntry(dueRows, new Set<number>());
+    const notLast = (row: SrsDueVocabularyCard) => row.original !== lastSent;
+    const due = allDue.filter(notLast);
+    const ahead = uniqueByEntry(aheadRows, new Set(allDue.map((row) => row.entryId))).filter(notLast);
+
+    const unsent = (row: SrsDueVocabularyCard) => !sentAge.has(row.original);
+    const freshDue = due.filter(unsent);
+    const freshAhead = shuffle(ahead.filter(unsent), random);
+    const stalest = [...due, ...ahead]
+      .filter((row) => !unsent(row))
+      .sort((a, b) => (sentAge.get(b.original) ?? 0) - (sentAge.get(a.original) ?? 0));
+
+    const dueIds = new Set(allDue.map((row) => row.entryId));
+    return [...freshDue, ...freshAhead, ...stalest]
+      .slice(0, size)
+      .map(({ srsDueDate: _dueDate, ...row }) => ({ ...row, ahead: !dueIds.has(row.entryId) }));
   };
 }

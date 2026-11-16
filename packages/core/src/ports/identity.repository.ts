@@ -21,4 +21,7 @@ export interface IdentityRepository {
    * self-heal channel-only users into an identity row.
    */
   linkIdentity(userId: number, channel: string, externalId: string): Promise<void>;
+
+  /** Every sign-in method this user has, e.g. ["telegram", "google"]. */
+  listChannels(userId: number): Promise<string[]>;
 }

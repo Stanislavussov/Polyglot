@@ -42,20 +42,24 @@ describe("review deck picker", () => {
 
     const deck = await pick(7, 3, []);
 
-    expect(deck.map((card) => [card.original, card.ahead])).toEqual([
-      ["pes", false],
-      ["kočka", true],
+    expect(deck[0]).toMatchObject({ original: "pes", ahead: false });
+    expect(
+      deck
+        .slice(1)
+        .map((card) => [card.original, card.ahead])
+        .sort(),
+    ).toEqual([
       ["dům", true],
+      ["kočka", true],
     ]);
   });
 
   it("stops at the size the user asked for", async () => {
-    const { deps, pick } = picker([row(1, "pes"), row(2, "kočka"), row(3, "dům")]);
+    const { pick } = picker([row(1, "pes"), row(2, "kočka"), row(3, "dům")], [row(4, "strom")]);
 
     const deck = await pick(7, 2, []);
 
-    expect(deck).toHaveLength(2);
-    expect(deps.findAheadForSrs).not.toHaveBeenCalled();
+    expect(deck.map((card) => card.original)).toEqual(["pes", "kočka"]);
   });
 
   it("never opens on a word a recent notification already carried", async () => {
@@ -80,34 +84,61 @@ describe("review deck picker", () => {
     expect(await pick(7, 3, ["pes"])).toEqual([]);
   });
 
-  it("keeps widening the search when one word's language rows fill the first page", async () => {
-    // Four languages per word, two words recently sent: the first page (2 × 4 + 2 = 10 rows)
-    // is almost all theirs and holds one fresh word.
-    const rowsOf = (entryId: number, original: string) =>
-      [1, 2, 3, 4].map((lang) => row(entryId, original, { translationId: entryId * 10 + lang, targetLangId: lang }));
-    const all = [...rowsOf(1, "pes"), ...rowsOf(2, "kočka"), ...rowsOf(3, "dům"), ...rowsOf(4, "strom")];
-    const findDueForSrs = vi.fn(async (_userId: number, _now: Date, limit: number) => all.slice(0, limit));
-    const pick = createReviewDeckPicker({ findDueForSrs, findAheadForSrs: vi.fn().mockResolvedValue([]) });
+  it("puts words not sent lately before words already sent, the one seen longest ago first", async () => {
+    const { pick } = picker([row(1, "pes"), row(2, "kočka"), row(3, "dům"), row(4, "strom")]);
 
-    const deck = await pick(7, 2, ["pes", "kočka"]);
+    // Newest first: "dům" was the last word, "pes" the oldest of the sent ones.
+    const deck = await pick(7, 4, ["dům", "kočka", "pes"]);
 
-    expect(deck.map((card) => card.original)).toEqual(["dům", "strom"]);
-    expect(findDueForSrs.mock.calls.length).toBeGreaterThan(1);
+    expect(deck.map((card) => card.original)).toEqual(["strom", "pes", "kočka"]);
+  });
+
+  it("does not let a word due all along lead every deck once it was sent", async () => {
+    const { pick } = picker([row(1, "pes")], [row(2, "kočka"), row(3, "dům")]);
+
+    // "pes" stays due because nobody graded it; it was sent two decks ago.
+    const deck = await pick(7, 1, ["kočka", "pes"]);
+
+    expect(deck.map((card) => card.original)).toEqual(["dům"]);
+  });
+
+  it("shuffles the words not due yet instead of always taking the same one", async () => {
+    const ahead = [row(1, "pes"), row(2, "kočka"), row(3, "dům")];
+    const first = createReviewDeckPicker({
+      findDueForSrs: vi.fn().mockResolvedValue([]),
+      findAheadForSrs: vi.fn().mockResolvedValue(ahead),
+      random: () => 0,
+    });
+    const last = createReviewDeckPicker({
+      findDueForSrs: vi.fn().mockResolvedValue([]),
+      findAheadForSrs: vi.fn().mockResolvedValue(ahead),
+      random: () => 0.999,
+    });
+
+    const a = (await first(7, 3, [])).map((card) => card.original);
+    const b = (await last(7, 3, [])).map((card) => card.original);
+
+    expect(a).not.toEqual(b);
+    expect([...a].sort()).toEqual([...b].sort());
+  });
+
+  it("does not bring the last word back through another language's practice-ahead row", async () => {
+    const { pick } = picker([row(1, "pes")], [row(1, "pes", { translationId: 11, targetLangId: 3 }), row(2, "kočka")]);
+
+    const deck = await pick(7, 2, ["pes"]);
+
+    expect(deck.map((card) => [card.original, card.ahead])).toEqual([["kočka", true]]);
   });
 
   it("does not count a word already in the deck when topping up with words not due yet", async () => {
-    // "pes" is due in one language and ahead in seven others; those rows fill the first
-    // ahead page, and counting "pes" again would stop the search before "dům".
-    const aheadRows = [
-      ...[2, 3, 4, 5, 6, 7, 8].map((lang) => row(1, "pes", { translationId: 10 + lang, targetLangId: lang })),
-      row(2, "kočka"),
-      row(3, "dům"),
-    ];
-    const findAheadForSrs = vi.fn(async (_userId: number, _now: Date, limit: number) => aheadRows.slice(0, limit));
-    const pick = createReviewDeckPicker({ findDueForSrs: vi.fn().mockResolvedValue([row(1, "pes")]), findAheadForSrs });
+    const { pick } = picker(
+      [row(1, "pes")],
+      [row(1, "pes", { translationId: 12, targetLangId: 2 }), row(2, "kočka"), row(3, "dům")],
+    );
 
     const deck = await pick(7, 3, []);
 
-    expect(deck.map((card) => card.original)).toEqual(["pes", "kočka", "dům"]);
+    expect(deck[0]?.original).toBe("pes");
+    expect(deck.map((card) => card.entryId).sort()).toEqual([1, 2, 3]);
   });
 });

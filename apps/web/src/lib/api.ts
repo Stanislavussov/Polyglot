@@ -19,6 +19,7 @@ import type {
   ReviewState,
   Settings,
   SettingsPatch,
+  SettleOutcome,
   TemplateFields,
   TemplateState,
   TranslateAnswer,
@@ -140,7 +141,11 @@ async function translateProgressive(
 }
 
 export const api = {
-  authConfig: () => request<{ botId: number; devLogin: boolean }>("GET", "/auth/config"),
+  authConfig: () => request<{ botId: number; devLogin: boolean; googleClientId: string | null }>("GET", "/auth/config"),
+  loginWithGoogle: (credential: string) => request<Me>("POST", "/auth/google", { credential }),
+  signInMethods: () => request<{ methods: string[] }>("GET", "/auth/methods"),
+  linkTelegram: (user: TelegramLoginUser) => request<{ methods: string[] }>("POST", "/auth/link/telegram", user),
+  linkGoogle: (credential: string) => request<{ methods: string[] }>("POST", "/auth/link/google", { credential }),
   devLogin: () => request<Me>("POST", "/auth/dev"),
   loginWithTelegram: (user: TelegramLoginUser) => request<Me>("POST", "/auth/telegram", user),
   logout: () => request<void>("POST", "/auth/logout"),
@@ -157,6 +162,8 @@ export const api = {
   resetTemplate: () => request<TemplateState>("DELETE", "/template"),
   previewTemplate: (fields: TemplateFields) => request<TranslateResult>("POST", "/template/preview", { fields }),
   plan: () => request<PlanInfo>("GET", "/plan"),
+  checkout: (plan: string) => request<{ url: string }>("POST", "/plan/checkout", { plan }),
+  settlePayment: (chargeId: string) => request<{ outcome: SettleOutcome }>("POST", "/plan/settle", { chargeId }),
   changes: () => request<{ notes: string[] }>("GET", "/changes"),
   report: (type: IssueType, description: string) => request<void>("POST", "/report", { type, description }),
   dictionaries: () => request<{ items: Dictionary[] }>("GET", "/dictionaries"),

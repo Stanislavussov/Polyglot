@@ -1,4 +1,10 @@
-import type { ArticleVocabularyRepository, PushSubscriptionRepository, ServiceContainer } from "@polyglot/core";
+import type {
+  ArticleVocabularyRepository,
+  HostedCheckoutService,
+  LoginVerifier,
+  PushSubscriptionRepository,
+  ServiceContainer,
+} from "@polyglot/core";
 
 /**
  * The slice of the bot's service container the web app uses. Typed as a Pick so
@@ -35,4 +41,8 @@ export type WebServices = Pick<
   pushSubscriptionRepository: PushSubscriptionRepository;
   /** Web-only until the bot gets articles. */
   articleVocabularyRepository: ArticleVocabularyRepository;
+  /** Web-only card checkout; absent while the shop has no provider credentials — the page then links to the bot. */
+  hostedCheckout?: HostedCheckoutService;
+  /** Web-only "Sign in with Google"; absent without GOOGLE_CLIENT_ID. */
+  googleLogin?: LoginVerifier;
 };

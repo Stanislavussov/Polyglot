@@ -163,6 +163,9 @@ importers:
       '@polyglot/adapter-notifications':
         specifier: workspace:*
         version: link:../../packages/adapters/notifications
+      '@polyglot/adapter-payments':
+        specifier: workspace:*
+        version: link:../../packages/adapters/payments
       '@polyglot/adapter-youtube':
         specifier: workspace:*
         version: link:../../packages/adapters/youtube
@@ -282,9 +285,15 @@ importers:
       '@polyglot/adapter-article':
         specifier: workspace:*
         version: link:../../packages/adapters/article
+      '@polyglot/adapter-auth':
+        specifier: workspace:*
+        version: link:../../packages/adapters/auth
       '@polyglot/adapter-db':
         specifier: workspace:*
         version: link:../../packages/adapters/db
+      '@polyglot/adapter-payments':
+        specifier: workspace:*
+        version: link:../../packages/adapters/payments
       '@polyglot/adapter-youtube':
         specifier: workspace:*
         version: link:../../packages/adapters/youtube
@@ -331,6 +340,15 @@ importers:
         specifier: ^0.18.15
         version: 0.18.15
 
+  packages/adapters/auth:
+    dependencies:
+      '@polyglot/core':
+        specifier: workspace:*
+        version: link:../../core
+      jose:
+        specifier: 6.2.14
+        version: 6.2.14
+
   packages/adapters/db:
     dependencies:
       '@polyglot/core':
@@ -359,6 +377,12 @@ importers:
       '@types/node-cron':
         specifier: ^3.0.11
         version: 3.0.11
+
+  packages/adapters/payments:
+    dependencies:
+      '@polyglot/core':
+        specifier: workspace:*
+        version: link:../../core
 
   packages/adapters/youtube:
     dependencies:
@@ -3375,6 +3399,9 @@ packages:
   jiti@2.7.0:
     resolution: {integrity: sha512-AC/7JofJvZGrrneWNaEnJeOLUx+JlGt7tNa0wZiRPT4MY1wmfKjt2+6O2p2uz2+skll8OZZmJMNqeke7kKbNgQ==}
     hasBin: true
+
+  jose@6.2.14:
+    resolution: {integrity: sha512-3JasLuki1NRLQvY4wCoC37KZk4qxoBx2k2aFqLxT84IezqW0bkJKnNtxnZj/Fu1xsQivoc/lytxaRHJoGLjJ1A==}
 
   js-tokens@10.0.0:
     resolution: {integrity: sha512-lM/UBzQmfJRo9ABXbPWemivdCW8V2G8FHaHdypQaIy523snUjog0W71ayWXTjiR+ixeMyVHN2XcpnTd/liPg/Q==}
@@ -7482,6 +7509,8 @@ snapshots:
   jiti@1.21.7: {}
 
   jiti@2.7.0: {}
+
+  jose@6.2.14: {}
 
   js-tokens@10.0.0: {}
 
