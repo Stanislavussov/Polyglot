@@ -67,6 +67,8 @@ export interface RunTranslationDeps {
   now?: () => number;
   logEvent?: typeof defaultLogEvent;
   onPhase?: ContextEnrichmentDeps["onPhase"];
+  /** The web's progressive card; the bot passes none and waits for the final one. */
+  onPreview?: (partial: TranslateOutput, targetLangs: string[], sentence: boolean) => void;
 }
 
 export type TranslationRejectReason = TranslateInputValidationReason | "needs_text" | "invalid_language";
@@ -294,6 +296,7 @@ export async function runTranslation(
   const [resolvedModel, template] = await Promise.all([getModel(), deps.templates.getByUserId(user.id)]);
   const userTpl = template ? { name: template.name, fields: template.fields } : null;
   const aiStart = now();
+  const onPreview = deps.onPreview;
   let decision: Awaited<ReturnType<typeof translateWithContext>>;
   try {
     decision = await withHardTimeout(
@@ -319,6 +322,12 @@ export async function runTranslation(
           lookupContext: classification.type === "sentence" ? async () => [] : deps.contextLookup,
           generateObjectFn: deps.ai.generateObject,
           ...(deps.onPhase ? { onPhase: deps.onPhase } : {}),
+          ...(onPreview
+            ? {
+                onPreview: (partial: TranslateOutput) =>
+                  onPreview(partial, targetLangs, classification.type === "sentence"),
+              }
+            : {}),
         },
       ),
     );

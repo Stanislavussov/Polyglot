@@ -58,6 +58,7 @@ import type {
   TranslationModelRoutingPolicy,
   TranslationOutputConfig,
   TranslationPhase,
+  TranslationPreviewObserver,
   TranslationRequest,
   TranslationResult,
 } from "./types.js";
@@ -114,6 +115,8 @@ export async function translate(
     judgeRan: false,
     preflightRan: false,
     budget: createTranslationBudget(input.deadlineAt, input.now),
+    ...(hooks?.onPreview ? { onPreview: hooks.onPreview } : {}),
+    previewAttempt: 0,
   };
 
   for (const step of TRANSLATION_PIPELINE) {
@@ -194,6 +197,9 @@ interface PipelineContext {
   preflightRan: boolean;
   /** Remaining-time view for this call. Unbounded when no `deadlineAt` was given. */
   readonly budget: TranslationBudget;
+  readonly onPreview?: TranslationPreviewObserver;
+  /** Bumped per generation attempt: a late call from a failed attempt must not paint over the next one. */
+  previewAttempt: number;
 }
 
 /** A step either continues (context updated in place) or exits with a decision. */
@@ -271,6 +277,34 @@ function reportPhase(hooks: TranslationHooks | undefined, phase: TranslationPhas
 }
 
 /**
+ * Hand the caller the card as settled so far, shaped by the same `toOutput` as
+ * the final one. The source-usage block waits for every language: its recall-hint
+ * guard compares it against the translations, so it cannot run on a partial set.
+ */
+function emitPreview(ctx: PipelineContext, partial: TranslationResult, languageCount = 0): void {
+  const onPreview = ctx.onPreview;
+  if (onPreview === undefined) return;
+  try {
+    const complete = Object.keys(partial.translations).length >= languageCount;
+    const output = toOutput(
+      ctx.input,
+      { ...partial, emoji: undefined, sourceUsage: complete ? partial.sourceUsage : undefined },
+      ctx.correction,
+      ctx.unverified,
+    );
+    // Sanitized here, not via toOutput: that logs a warning, and previews repeat.
+    if (partial.emoji !== undefined) output.emoji = sanitizeEmoji(partial.emoji);
+    onPreview(output);
+  } catch (error) {
+    logEvent(
+      "translation.preview_observer_failed",
+      { observerError: error instanceof Error ? error.message : String(error) },
+      "warn",
+    );
+  }
+}
+
+/**
  * Narrow the context to the fields the generation step guarantees. Throws if a
  * downstream step runs before generation populated them (a pipeline-ordering
  * invariant violation, not an expected runtime error).
@@ -333,6 +367,7 @@ async function aiPreflightStep(ctx: PipelineContext, generateObjectFn: GenerateO
     ctx.input = { ...ctx.input, word: preflight.correctedText };
   }
 
+  emitPreview(ctx, { nativeSynonyms: [], translations: {} });
   return CONTINUE;
 }
 
@@ -478,6 +513,36 @@ async function generateStep(ctx: PipelineContext, generateObjectFn: GenerateObje
         }
       }
 
+      // A headword the guard step will send back as a question must not flash a
+      // confident card first, so previews stop for this attempt.
+      const previewing =
+        !(assessExistence && "sourceWordRecognized" in metadataResult) ||
+        ctx.input.correctionPolicy?.skipInputCorrection === true ||
+        isRecognizedAsWritten(
+          {
+            recognized: metadataResult.sourceWordRecognized as boolean,
+            correction: (metadataResult.suggestedCorrection as string | null) ?? null,
+          },
+          ctx.input.word,
+        );
+      const preview: TranslationResult = {
+        emoji: "emoji" in metadataResult ? (metadataResult.emoji as string) : undefined,
+        nativeMeaning: "nativeMeaning" in metadataResult ? (metadataResult.nativeMeaning as string) : undefined,
+        sourceUsage:
+          "sourceUsage" in metadataResult
+            ? (metadataResult.sourceUsage as TranslationResult["sourceUsage"])
+            : undefined,
+        nativeSynonyms: [],
+        translations: {},
+      };
+      const attempt = ++ctx.previewAttempt;
+      // Not previewing also wipes a card an earlier attempt already showed.
+      emitPreview(
+        ctx,
+        previewing ? preview : { nativeSynonyms: [], translations: {} },
+        previewing ? languageTasks.length : 0,
+      );
+
       const langResults = await Promise.all(
         languageTasks.map((task) =>
           generateObjectFn(
@@ -487,7 +552,13 @@ async function generateStep(ctx: PipelineContext, generateObjectFn: GenerateObje
             task.schema as import("zod").ZodSchema<LanguageTranslation>,
             generationModel,
             { ...generateOptions, ...spendableWindow(ctx.budget) },
-          ),
+          ).then((translation) => {
+            if (previewing && attempt === ctx.previewAttempt) {
+              preview.translations[task.lang] = translation as LanguageTranslation;
+              emitPreview(ctx, preview, languageTasks.length);
+            }
+            return translation;
+          }),
         ),
       );
 

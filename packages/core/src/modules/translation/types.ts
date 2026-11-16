@@ -271,7 +271,15 @@ export type TranslationPhaseObserver = (phase: TranslationPhase, elapsedMs: numb
 export interface TranslationHooks {
   /** Invoked as each internal phase completes, with its wall-clock duration. */
   onPhase?: TranslationPhaseObserver;
+  onPreview?: TranslationPreviewObserver;
 }
+
+/**
+ * Sink for a card still being built: what is settled so far, shaped like the
+ * final output. Not yet validated or judged — the final decision may differ, so
+ * a caller shows it as provisional and never saves it.
+ */
+export type TranslationPreviewObserver = (partial: TranslateOutput) => void;
 
 /**
  * A silently-applied input correction (Task 69 — `proceed_with_correction`).
