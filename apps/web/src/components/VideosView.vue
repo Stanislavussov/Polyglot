@@ -1,7 +1,7 @@
 <template>
   <section class="space-y-4">
     <a href="/learn/" class="-my-2 inline-flex min-h-11 items-center text-sm text-ink-muted hover:underline">{{ t("web.learn.back") }}</a>
-    <h1 class="text-2xl font-bold tracking-tight">🎬 {{ t("web.learn.videos") }}</h1>
+    <h1 class="text-2xl font-bold tracking-tight">{{ t("web.learn.videos") }}</h1>
 
     <form class="flex flex-col gap-2 sm:flex-row" @submit.prevent="submit({ url: url.trim() })">
       <label class="sr-only" for="video-url">{{ t("web.learn.videos.urlLabel") }}</label>
