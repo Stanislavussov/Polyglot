@@ -118,7 +118,6 @@ services:
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
       - WEB_JWT_SECRET=${WEB_JWT_SECRET:-}
       - WEB_APP_ORIGIN=${WEB_APP_ORIGIN:-}
-      - WEB_BOT_USERNAME=${WEB_BOT_USERNAME:-}
       # Only the public key: web-api hands it to the browser; the bot signs the pushes.
       - VAPID_PUBLIC_KEY=${VAPID_PUBLIC_KEY:-}
       # "Sign in with Google"; empty hides the button.

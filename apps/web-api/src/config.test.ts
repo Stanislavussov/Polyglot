@@ -29,11 +29,6 @@ describe("loadConfig", () => {
     expect(loadConfig(env).devUserId).toBeNull();
   });
 
-  it("links upgrades to the production bot unless WEB_BOT_USERNAME names another", () => {
-    expect(loadConfig(base).botUsername).toBe("polyglot_lang_ai_bot");
-    expect(loadConfig({ ...base, WEB_BOT_USERNAME: "dev_bot" }).botUsername).toBe("dev_bot");
-  });
-
   it("turns Web Push on only with a VAPID public key", () => {
     expect(loadConfig(base).vapidPublicKey).toBeNull();
     expect(loadConfig({ ...base, VAPID_PUBLIC_KEY: " BPub " }).vapidPublicKey).toBe("BPub");

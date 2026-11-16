@@ -18,7 +18,6 @@ describe("rate limit", () => {
       appOrigin: "http://x",
       staticDir: dir,
       devUserId: null,
-      botUsername: "test_bot",
       vapidPublicKey: null,
     });
     const statuses = new Set<number>();
@@ -38,7 +37,6 @@ describe("rate limit", () => {
       appOrigin: "http://x",
       staticDir: dir,
       devUserId: null,
-      botUsername: "test_bot",
       vapidPublicKey: null,
     });
     expect((await app.inject({ url: "/sw.js" })).headers["cache-control"]).toBe("no-cache");

@@ -20,13 +20,10 @@ const notifyBody = z.object({ transId: z.string().min(1).max(100) });
 /**
  * The plan screen: the learner's plan, the admin-owned catalog, and — when the
  * shop has a card provider — a web checkout onto the same ledger the bot sells
- * on. Without one, the page links to the bot's plan screen instead.
+ * on. Without one, the page shows the plans but sells nothing: the bot never sells
+ * for the web (Telegram allows only Stars there).
  */
-export function planRoutes(
-  app: FastifyInstance,
-  services: WebServices,
-  config: Pick<WebApiConfig, "botUsername" | "appOrigin">,
-): void {
+export function planRoutes(app: FastifyInstance, services: WebServices, config: Pick<WebApiConfig, "appOrigin">): void {
   app.get("/api/plan", async (request) => {
     const user = request.learner;
     const access = services.featureAccess ?? defaultFeatureAccess;
@@ -70,7 +67,6 @@ export function planRoutes(
       },
       plans,
       checkout: Boolean(services.hostedCheckout),
-      upgradeUrl: `https://t.me/${config.botUsername}?start=plan`,
     };
   });
 

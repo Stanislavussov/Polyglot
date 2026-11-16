@@ -132,7 +132,7 @@ describe("web card template", () => {
 });
 
 describe("web plan screen", () => {
-  it("shows every tier — Free first, then the catalog cheapest first — marks the current one, and links the bot", async () => {
+  it("shows every tier — Free first, then the catalog cheapest first — marks the current one, and never sends the learner to the bot", async () => {
     const { web, cookie } = await arrange();
 
     const res = await web.call(cookie, "GET", "/api/plan");
@@ -141,7 +141,7 @@ describe("web plan screen", () => {
     const body = res.body as {
       current: { name: string; trial: boolean };
       plans: { name: string; priceUsdCents: number; current: boolean }[];
-      upgradeUrl: string;
+      checkout: boolean;
     };
     expect(body.current).toMatchObject({ name: "free", trial: false });
     const catalog = (await web.bot.services.settings.getPlanLimits()).filter((p) => p.isActive && p.priceUsdCents);
@@ -151,7 +151,9 @@ describe("web plan screen", () => {
     expect(forSale.every((p) => !p.current)).toBe(true);
     const prices = forSale.map((p) => p.priceUsdCents);
     expect(prices).toEqual([...prices].sort((a, b) => a - b));
-    expect(body.upgradeUrl).toBe("https://t.me/harness_bot?start=plan");
+    // No card provider in this lane: the page sells nothing rather than link to Telegram.
+    expect(body.checkout).toBe(false);
+    expect(body).not.toHaveProperty("upgradeUrl");
   });
 
   it("names the features a paid plan unlocks", async () => {
