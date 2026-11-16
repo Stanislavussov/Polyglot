@@ -94,9 +94,8 @@ export interface PlanInfo {
     trial: boolean;
   };
   plans: PlanOffer[];
-  /** The site sells by card; false = buying happens in the bot via `upgradeUrl`. */
+  /** The site sells by card; false = card payment is not open yet. */
   checkout: boolean;
-  upgradeUrl: string;
 }
 
 export type IssueType = "bug" | "suggestion" | "other";

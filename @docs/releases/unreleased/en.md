@@ -77,3 +77,4 @@
 - Daily reminders no longer repeat the same word for days: they now go through your whole dictionary, mixing up words that are not due yet.
 - On the website, a translation now starts showing up right away: the word, its meaning and each language appear as soon as they are ready, instead of all at once at the end.
 - On the website, the text box no longer flickers while a translation is loading.
+- On the plans page, paid plans now say card payment is coming soon instead of sending you to Telegram.

@@ -64,9 +64,9 @@
             >
               {{ t("web.plan.buy", { plan: plan.label }) }}
             </button>
-            <a v-else-if="plan.buyable" class="btn-primary w-full" :href="info.upgradeUrl" target="_blank" rel="noopener">
-              {{ t("web.plan.upgrade") }}
-            </a>
+            <button v-else-if="plan.buyable" type="button" class="btn-primary w-full" disabled>
+              {{ t("web.plan.soon") }}
+            </button>
             <p v-else class="flex min-h-11 items-center justify-center text-sm text-ink-muted">
               {{ t("web.plan.includedInYours") }}
             </p>
@@ -90,7 +90,7 @@
 
     <p v-if="info" class="mt-6 flex items-center gap-2 text-sm text-ink-muted">
       <LockKeyhole class="size-4 shrink-0" aria-hidden="true" />
-      {{ info.checkout ? t("web.plan.buyHint") : t("web.plan.upgradeHint") }}
+      {{ info.checkout ? t("web.plan.buyHint") : t("web.plan.soonHint") }}
     </p>
   </section>
 </template>

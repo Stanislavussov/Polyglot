@@ -116,17 +116,10 @@ describe("startCommand", () => {
     expect(markup).not.toHaveProperty("one_time_keyboard");
   });
 
-  it("opens the plan comparison when the web plan page's deep link starts the bot", async () => {
+  // The web sells by card itself; an old `?start=plan` link must not turn the bot into its checkout.
+  it("does not open the plan comparison, even from an old web deep link", async () => {
     const ctx = createMockCtx({ onboarded: true });
     (ctx as unknown as { match: string }).match = "plan";
-
-    await startCommand(ctx);
-
-    expect(sendUpgradeScreen).toHaveBeenCalledWith(ctx, "en");
-  });
-
-  it("does not open the plan comparison on a plain /start", async () => {
-    const ctx = createMockCtx({ onboarded: true });
 
     await startCommand(ctx);
 

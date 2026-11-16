@@ -53,7 +53,6 @@ export async function createWebHarness(options: HarnessOptions = {}): Promise<We
     appOrigin: WEB_ORIGIN,
     staticDir: null,
     devUserId: null,
-    botUsername: "harness_bot",
     vapidPublicKey: HARNESS_VAPID_PUBLIC_KEY,
     googleClientId: HARNESS_GOOGLE_CLIENT_ID,
   };
