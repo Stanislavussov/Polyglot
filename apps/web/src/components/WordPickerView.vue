@@ -1,7 +1,7 @@
 <template>
   <section class="space-y-4">
     <a href="/learn/" class="-my-2 inline-flex min-h-11 items-center text-sm text-ink-muted hover:underline">{{ t("web.learn.back") }}</a>
-    <h1 class="text-2xl font-bold tracking-tight">✨ {{ t("web.learn.pick") }}</h1>
+    <h1 class="text-2xl font-bold tracking-tight">{{ t("web.learn.pick") }}</h1>
 
     <p v-if="loading" class="text-sm text-ink-muted" role="status">{{ t("web.common.loading") }}</p>
     <p v-else-if="noLanguage" class="card text-sm">{{ t("web.learn.pick.noLanguage") }}</p>
