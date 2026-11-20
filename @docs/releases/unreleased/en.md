@@ -79,3 +79,4 @@
 - On the website, the text box no longer flickers while a translation is loading.
 - Page titles on the website lost their bright underline — a pale little monster now sits next to them instead, and the learning pages dropped their emoji icons for a calmer look.
 - Typed a word the website took for a language it doesn't support yet? It now names that language properly with its flag, and lets you pick one of your own languages to translate from in one tap.
+- On your phone the website now feels like a chat: the text box waits at the bottom, stays above the keyboard while you type, and Translate, Dictionary, Review and Mentor are one tap away right under your thumb.

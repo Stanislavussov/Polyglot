@@ -4,20 +4,15 @@
     <h1 class="text-2xl font-bold tracking-tight">{{ t("web.learn.grammar") }}</h1>
     <p class="text-sm text-ink-muted">{{ t("web.learn.grammar.intro") }}</p>
 
-    <form class="space-y-2" @submit.prevent="check">
-      <label class="sr-only" for="grammar-text">{{ t("web.learn.grammar.placeholder") }}</label>
-      <textarea
-        id="grammar-text"
-        v-model="text"
-        class="field min-h-24 resize-y"
-        rows="3"
-        :maxlength="MAX_TEXT"
-        :placeholder="t('web.learn.grammar.placeholder')"
-      />
-      <button type="submit" class="btn-primary" :disabled="busy || text.trim() === ''">
-        {{ busy ? t("web.explore.thinking") : t("web.learn.grammar") }}
-      </button>
-    </form>
+    <ComposerCard
+      id="grammar-text"
+      v-model="text"
+      :placeholder="t('web.learn.grammar.placeholder')"
+      :submit-label="t('web.learn.grammar')"
+      :max-length="MAX_TEXT"
+      :busy="busy"
+      @submit="check"
+    />
 
     <LimitNotice v-if="limit" :reason="limit.reason" :reset-at="limit.resetAt" />
     <p v-else-if="errorText" role="alert" class="rounded-xl bg-danger-soft px-4 py-3 text-sm text-danger">{{ errorText }}</p>
@@ -58,6 +53,7 @@ import { ref } from "vue";
 import { ApiError } from "../lib/api";
 import { t } from "../lib/i18n";
 import { type GrammarResult, learnApi } from "../lib/learn-api";
+import ComposerCard from "./ComposerCard.vue";
 import LimitNotice from "./LimitNotice.vue";
 
 const MAX_TEXT = 1000;

@@ -548,6 +548,7 @@
   "web.nav.collapseMenu": "Згорнути меню",
   "web.nav.expandMenu": "Розгорнути меню",
   "web.nav.closeMenu": "Закрити меню",
+  "web.nav.quick": "Швидкі кнопки",
   "web.common.loading": "Завантаження…",
   "web.common.error": "Щось пішло не так. Спробуйте ще раз.",
   "web.common.retry": "Повторити",

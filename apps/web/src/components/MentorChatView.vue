@@ -31,21 +31,15 @@
     <LimitNotice v-else-if="limit" :reason="limit.reason" :reset-at="limit.resetAt" />
     <p v-else-if="errorText" role="alert" class="rounded-xl bg-danger-soft px-4 py-3 text-sm text-danger">{{ errorText }}</p>
 
-    <form class="space-y-2" @submit.prevent="ask">
-      <label class="sr-only" for="mentor-question">{{ t("web.explore.questionPlaceholder") }}</label>
-      <textarea
-        id="mentor-question"
-        v-model="question"
-        class="field min-h-20 resize-y"
-        rows="3"
-        :maxlength="MAX_QUESTION"
-        :placeholder="t('web.explore.questionPlaceholder')"
-        @keydown.enter.exact.prevent="ask"
-      />
-      <button type="submit" class="btn-primary" :disabled="busy || question.trim() === ''">
-        {{ t("web.explore.send") }}
-      </button>
-    </form>
+    <ComposerCard
+      id="mentor-question"
+      v-model="question"
+      :placeholder="t('web.explore.questionPlaceholder')"
+      :submit-label="t('web.explore.send')"
+      :max-length="MAX_QUESTION"
+      :busy="busy"
+      @submit="ask"
+    />
 
     <section v-if="earlier.length > 0" class="space-y-2 border-t border-line pt-4">
       <h2 class="text-sm font-semibold text-ink-muted">{{ t("web.learn.mentor.history") }}</h2>
@@ -67,6 +61,7 @@ import { t } from "../lib/i18n";
 import { learnApi } from "../lib/learn-api";
 import { mentorHtml } from "../lib/mentor-html";
 import { loadThreads, type MentorThread, newThread, saveThread } from "../lib/mentor-threads";
+import ComposerCard from "./ComposerCard.vue";
 import LimitNotice from "./LimitNotice.vue";
 
 const MAX_QUESTION = 1000;

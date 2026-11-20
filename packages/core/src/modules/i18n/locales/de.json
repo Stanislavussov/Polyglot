@@ -548,6 +548,7 @@
   "web.nav.collapseMenu": "Menü einklappen",
   "web.nav.expandMenu": "Menü ausklappen",
   "web.nav.closeMenu": "Menü schließen",
+  "web.nav.quick": "Schnellzugriff",
   "web.common.loading": "Wird geladen…",
   "web.common.error": "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
   "web.common.retry": "Erneut versuchen",
