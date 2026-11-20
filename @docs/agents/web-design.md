@@ -85,8 +85,17 @@ right-handed thumb. A destructive action goes last, so it is the first to fold a
 
 ## Text input (`ComposerCard`)
 
-Every free-text box (translate, the mentor) is a `ComposerCard`: the same field, counter, Clear,
-Enter-to-send, and a thumb-reach submit button on phones. Extra buttons go in its `tools` slot.
+Every free-text box (translate, asking about a word, the mentor, the grammar check) is a
+`ComposerCard`, shaped like a chat app's: one rounded box that grows with the text, icon tools
+on the left (`tools` slot), Clear, and a round send button on the right; Enter sends. The counter
+appears only near the limit. On phones the box docks at the bottom of the screen above the quick
+buttons and rides on top of the keyboard while typing (`lib/mobile-dock.ts`); wider screens keep
+it in the page.
+
+## Quick buttons (`QuickNav`)
+
+Phones show four equal tabs (icon over label) at the very bottom of every page: Translate, Dictionary, Review,
+Mentor. The current page's tab is filled. The row hides while the keyboard is up.
 
 ## Loading inside a card
 

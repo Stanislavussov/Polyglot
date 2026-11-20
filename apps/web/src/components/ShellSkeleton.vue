@@ -31,27 +31,24 @@
         <!-- The input needs nothing from the server: typing starts before the app has loaded. -->
         <!-- A copy of the translate page's ComposerCard, box for box, so nothing moves when the app takes over. -->
         <div v-if="placeholder" class="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,20rem)] xl:items-start">
-          <div class="card space-y-3 xl:col-start-1 xl:row-start-1">
-            <label class="sr-only" :for="EARLY_INPUT_ID">{{ placeholder }}</label>
-            <textarea
-              :id="EARLY_INPUT_ID"
-              v-model="earlyText"
-              class="field min-h-28 resize-y focus:border-primary focus:outline-none focus:ring-[3px] focus:ring-ring"
-              rows="3"
-              maxlength="500"
-              autofocus
-              :placeholder="placeholder"
-            />
-            <div class="flex items-center justify-between gap-3">
-              <span class="text-sm text-ink-muted" aria-hidden="true">{{ earlyText.length }}/500</span>
-              <div class="flex gap-2" aria-hidden="true">
-                <span class="btn-secondary pointer-events-none"><Mic class="size-4" /></span>
-                <span class="btn-primary pointer-events-none fixed inset-x-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-30 py-3 shadow-lg md:static md:inset-auto md:py-2 md:shadow-none">
-                  <span class="skeleton h-3 w-16 rounded" /><span class="btn-chip"><ArrowRight class="size-4" /></span>
-                </span>
+          <div class="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 bg-gradient-to-t from-canvas from-70% to-transparent px-3 pb-2 pt-4 md:static md:bg-none md:p-0 xl:col-start-1 xl:row-start-1">
+            <div class="rounded-3xl border border-line bg-surface p-3 shadow-soft transition-colors focus-within:border-ring md:shadow-card">
+              <label class="sr-only" :for="EARLY_INPUT_ID">{{ placeholder }}</label>
+              <textarea
+                :id="EARLY_INPUT_ID"
+                v-model="earlyText"
+                class="block max-h-[40dvh] min-h-11 w-full resize-none bg-transparent px-2 py-2 text-base text-ink placeholder:text-ink-muted focus:outline-none md:min-h-20"
+                rows="1"
+                maxlength="500"
+                autofocus
+                :placeholder="placeholder"
+              />
+              <div class="flex items-center gap-2" aria-hidden="true">
+                <span class="grid size-11 place-items-center rounded-full text-ink-muted"><Mic class="size-5" /></span>
+                <span class="ml-auto grid size-11 place-items-center rounded-full bg-primary-soft text-primary-soft-fg"><ArrowUp class="size-5" /></span>
               </div>
             </div>
-            <p class="relative hidden text-sm sm:block [@media(pointer:coarse)]:hidden" aria-hidden="true">&nbsp;<span class="skeleton absolute inset-y-1 left-0 w-64 max-w-full rounded" /></p>
+            <p class="relative mt-2 hidden px-3 text-sm md:block [@media(pointer:coarse)]:hidden" aria-hidden="true">&nbsp;<span class="skeleton absolute inset-y-1 left-3 w-64 max-w-full rounded" /></p>
           </div>
           <div class="card xl:col-start-2 xl:row-span-2 xl:row-start-1" aria-hidden="true">
             <div class="skeleton h-4 w-40 rounded" />
@@ -60,11 +57,21 @@
         <div v-else class="card mt-6"><MonsterLoader /></div>
       </div>
     </main>
+
+    <!-- The quick-button row of the loaded app, shape for shape. -->
+    <div class="fixed inset-x-0 bottom-0 z-30 bg-canvas pb-[env(safe-area-inset-bottom)] md:hidden" aria-hidden="true">
+      <div class="grid h-16 grid-cols-4 items-center gap-1 px-2">
+        <div v-for="width in quickWidths" :key="width" class="flex h-14 flex-col items-center justify-center gap-1.5 rounded-2xl">
+          <div class="skeleton size-5 rounded-md" />
+          <div class="skeleton h-3 rounded" :style="{ width }" />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ArrowRight, Mic } from "lucide-vue-next";
+import { ArrowUp, Mic } from "lucide-vue-next";
 import { onMounted } from "vue";
 import { EARLY_INPUT_ID, earlyFocused, earlyText, rememberedTitle } from "../lib/early-input";
 import MonsterLoader from "./MonsterLoader.vue";
@@ -86,6 +93,7 @@ onMounted(() => {
 });
 
 const navWidths = ["60%", "72%", "52%", "58%", "66%"];
+const quickWidths = ["4rem", "4.5rem", "5.5rem", "3.75rem"];
 </script>
 
 <style scoped>

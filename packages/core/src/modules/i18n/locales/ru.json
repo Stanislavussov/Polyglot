@@ -548,6 +548,7 @@
   "web.nav.collapseMenu": "Свернуть меню",
   "web.nav.expandMenu": "Развернуть меню",
   "web.nav.closeMenu": "Закрыть меню",
+  "web.nav.quick": "Быстрые кнопки",
   "web.common.loading": "Загрузка…",
   "web.common.error": "Что-то пошло не так. Попробуйте ещё раз.",
   "web.common.retry": "Повторить",

@@ -548,6 +548,7 @@
   "web.nav.collapseMenu": "Comprimi menu",
   "web.nav.expandMenu": "Espandi menu",
   "web.nav.closeMenu": "Chiudi il menu",
+  "web.nav.quick": "Pulsanti rapidi",
   "web.common.loading": "Caricamento…",
   "web.common.error": "Qualcosa è andato storto. Riprova.",
   "web.common.retry": "Riprova",

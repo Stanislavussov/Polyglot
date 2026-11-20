@@ -1,5 +1,5 @@
 <template>
-  <section class="pb-24 md:pb-0">
+  <section>
     <h1 class="page-title">{{ t("web.translate.title") }}</h1>
 
     <div class="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,20rem)] xl:items-start">
@@ -18,18 +18,19 @@
           <button
             v-if="voiceAvailable"
             type="button"
-            :class="recording ? 'btn-primary' : 'btn-secondary'"
+            class="grid size-11 shrink-0 place-items-center rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+            :class="recording ? 'bg-primary text-primary-fg' : 'text-ink-muted hover:bg-surface-muted hover:text-ink'"
             :aria-pressed="recording"
             :aria-label="recording ? t('web.voice.stop') : t('web.voice.record')"
             :title="recording ? t('web.voice.stop') : t('web.voice.record')"
             :disabled="busy || transcribing"
             @click="toggleRecording"
           >
-            <Square v-if="recording" class="size-4" aria-hidden="true" /><Mic v-else class="size-4" aria-hidden="true" />
+            <Square v-if="recording" class="size-5" aria-hidden="true" /><Mic v-else class="size-5" aria-hidden="true" />
           </button>
         </template>
         <!-- Touch keyboards have no Shift+Enter, so the hint only misleads there. -->
-        <p class="hidden truncate text-sm text-ink-muted sm:block [@media(pointer:coarse)]:hidden">{{ t("web.translate.hint") }}</p>
+        <p class="mt-2 hidden truncate px-3 text-sm text-ink-muted md:block [@media(pointer:coarse)]:hidden">{{ t("web.translate.hint") }}</p>
       </ComposerCard>
 
       <div class="min-w-0 xl:col-start-1 xl:row-start-2" aria-live="polite">

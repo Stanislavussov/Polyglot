@@ -114,10 +114,15 @@
           </button>
         </p>
       </div>
-      <div class="mx-auto max-w-6xl px-4 py-6 sm:px-6 md:px-8 md:py-10">
+      <!-- Phones: room under the page for the docked text box and the quick buttons. -->
+      <div
+        class="mx-auto max-w-6xl px-4 pb-[calc(var(--dock-h)+5rem+env(safe-area-inset-bottom))] pt-6 sm:px-6 md:px-8 md:py-10"
+        :style="{ '--dock-h': `${composerHeight}px` }"
+      >
         <component :is="content" :key="page" />
       </div>
     </main>
+    <QuickNav :page="page" @navigate="navigate" />
   </div>
   <AppToast />
 </template>
@@ -144,12 +149,14 @@ import {
 import { loadSettings, restoreSettings, settings } from "../lib/settings-store";
 import type { PageName, ProgressGoal } from "../lib/types";
 import { useProgressBar } from "../lib/use-progress-bar";
+import { composerHeight } from "../lib/mobile-dock";
 import DictionaryView from "./DictionaryView.vue";
 import ExpressionsView from "./ExpressionsView.vue";
 import GrammarCheckView from "./GrammarCheckView.vue";
 import LearnView from "./LearnView.vue";
 import MentorChatView from "./MentorChatView.vue";
 import NavList from "./NavList.vue";
+import QuickNav from "./QuickNav.vue";
 import PlanView from "./PlanView.vue";
 import ProgressView from "./ProgressView.vue";
 import ReviewView from "./ReviewView.vue";

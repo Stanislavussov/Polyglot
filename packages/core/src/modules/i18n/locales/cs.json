@@ -548,6 +548,7 @@
   "web.nav.collapseMenu": "Sbalit nabídku",
   "web.nav.expandMenu": "Rozbalit nabídku",
   "web.nav.closeMenu": "Zavřít nabídku",
+  "web.nav.quick": "Rychlá tlačítka",
   "web.common.loading": "Načítání…",
   "web.common.error": "Něco se pokazilo. Zkuste to prosím znovu.",
   "web.common.retry": "Zkusit znovu",
