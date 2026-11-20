@@ -69,4 +69,12 @@ describe("language registry (T21/A3 single source of truth)", () => {
     expect(normalizeToIso1("EN")).toBe("en"); // case-insensitive passthrough
     expect(normalizeToIso1("klingon")).toBeUndefined();
   });
+
+  it("names a language missing from the registry in the display language, capitalized", () => {
+    initLanguageRegistry([{ code: "en", name: "English", isSupported: true }]);
+
+    expect(getLanguageName("hr", "ru")).toBe("Хорватский");
+    expect(getLanguageName("hr")).toBe("Croatian");
+    expect(getLanguageName("not-a-code!")).toBe("not-a-code!");
+  });
 });

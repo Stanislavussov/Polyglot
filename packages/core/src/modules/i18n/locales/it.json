@@ -604,6 +604,7 @@
   "web.translate.unknownLanguage": "Non riesco a capire in che lingua è «{word}». Scegline una:",
   "web.translate.addLanguage": "Sembra {lang}, che non è tra le tue lingue. Aggiungila nelle Impostazioni per tradurre da essa.",
   "web.translate.languageUnsupported": "{lang} non è ancora supportata, quindi non posso tradurre da essa.",
+  "web.translate.pickOwnLanguage": "Se intendevi una delle tue lingue, sceglila:",
   "web.translate.openSettings": "Apri Impostazioni",
   "web.translate.addAndTranslate": "Aggiungi {lang} e traduci",
   "web.translate.maxLanguages": "Puoi studiare fino a {max} lingue. Rimuovine una nelle Impostazioni per aggiungerne un’altra.",

@@ -12,7 +12,8 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { languageFlag } from "../lib/settings-store";
+import { languageFlag, settings } from "../lib/settings-store";
+import { languageCountry } from "../lib/unlisted-language";
 
 const props = defineProps<{ code: string }>();
 
@@ -31,7 +32,9 @@ function countryOf(emoji: string): string | null {
 }
 
 const src = computed(() => {
-  const country = countryOf(languageFlag(props.code));
+  const listed = settings.value?.languages.some((language) => language.code === props.code) ?? true;
+  // Locale data only for a language the list lacks, so a listed one keeps its chosen flag (en → GB, not US).
+  const country = countryOf(languageFlag(props.code)) ?? (listed ? null : languageCountry(props.code));
   return country ? FLAGS[`../../node_modules/flag-icons/flags/1x1/${country}.svg`] : undefined;
 });
 </script>

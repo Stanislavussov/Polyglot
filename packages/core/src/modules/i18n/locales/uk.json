@@ -604,6 +604,7 @@
   "web.translate.unknownLanguage": "Не можу зрозуміти, якою мовою «{word}». Виберіть мову:",
   "web.translate.addLanguage": "Схоже, це {lang}, а її немає серед ваших мов. Додайте її в налаштуваннях, щоб перекладати з неї.",
   "web.translate.languageUnsupported": "{lang} поки не підтримується, тому перекласти з неї не вийде.",
+  "web.translate.pickOwnLanguage": "Якщо ви мали на увазі одну зі своїх мов, оберіть її:",
   "web.translate.openSettings": "Відкрити налаштування",
   "web.translate.addAndTranslate": "Додати {lang} і перекласти",
   "web.translate.maxLanguages": "Можна вивчати до {max} мов. Приберіть одну в налаштуваннях, щоб додати нову.",

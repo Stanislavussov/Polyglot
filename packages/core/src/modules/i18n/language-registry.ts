@@ -81,6 +81,17 @@ export function isRegistryInitialized(): boolean {
 /*  Name lookups                                                       */
 /* ------------------------------------------------------------------ */
 
+// Detection can name a language the registry does not carry (Croatian for a misread
+// Czech word); the user should still read its name, not its ISO code.
+function unlistedLanguageName(code: string, displayLang: string): string {
+  try {
+    const name = new Intl.DisplayNames([displayLang, "en"], { type: "language", fallback: "none" }).of(code);
+    return name ? name.charAt(0).toLocaleUpperCase(displayLang) + name.slice(1) : code;
+  } catch {
+    return code;
+  }
+}
+
 /**
  * Get the human-readable name of a language by its ISO 639-1 code.
  *
@@ -90,7 +101,7 @@ export function isRegistryInitialized(): boolean {
  */
 export function getLanguageName(code: string, displayLang?: string): string {
   const entry = byCode.get(code);
-  if (!entry) return code;
+  if (!entry) return unlistedLanguageName(code, displayLang ?? "en");
 
   if (displayLang && displayLang !== "en" && entry.localizedNames?.[displayLang]) {
     return entry.localizedNames[displayLang];
