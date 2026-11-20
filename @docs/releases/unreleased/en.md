@@ -78,3 +78,4 @@
 - On the website, a translation now starts showing up right away: the word, its meaning and each language appear as soon as they are ready, instead of all at once at the end.
 - On the website, the text box no longer flickers while a translation is loading.
 - Page titles on the website lost their bright underline — a pale little monster now sits next to them instead, and the learning pages dropped their emoji icons for a calmer look.
+- Typed a word the website took for a language it doesn't support yet? It now names that language properly with its flag, and lets you pick one of your own languages to translate from in one tap.

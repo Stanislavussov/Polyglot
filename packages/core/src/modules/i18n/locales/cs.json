@@ -604,6 +604,7 @@
   "web.translate.unknownLanguage": "Nedokážu poznat, v jakém jazyce je „{word}“. Vyberte jazyk:",
   "web.translate.addLanguage": "Vypadá to na {lang}, který mezi vašimi jazyky není. Přidejte ho v Nastavení, abyste z něj mohli překládat.",
   "web.translate.languageUnsupported": "{lang} zatím není podporován, takže z něj překládat nemohu.",
+  "web.translate.pickOwnLanguage": "Pokud jste mysleli některý ze svých jazyků, vyberte ho:",
   "web.translate.openSettings": "Otevřít Nastavení",
   "web.translate.addAndTranslate": "Přidat {lang} a přeložit",
   "web.translate.maxLanguages": "Učit se můžete až {max} jazyky. Odeberte jeden v Nastavení a přidejte další.",

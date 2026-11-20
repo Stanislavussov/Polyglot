@@ -1,7 +1,8 @@
 import { shallowRef } from "vue";
 import { api } from "./api";
-import { setLang } from "./i18n";
+import { lang, setLang } from "./i18n";
 import type { NotificationPatch, Settings, SettingsPatch } from "./types";
+import { unlistedLanguageName } from "./unlisted-language";
 
 export const settings = shallowRef<Settings | null>(null);
 
@@ -53,7 +54,9 @@ export async function saveNotifications(patch: NotificationPatch): Promise<void>
 }
 
 export function languageName(code: string): string {
-  return settings.value?.languages.find((language) => language.code === code)?.name ?? code;
+  return (
+    settings.value?.languages.find((language) => language.code === code)?.name ?? unlistedLanguageName(code, lang.value)
+  );
 }
 
 export function languageFlag(code: string): string {

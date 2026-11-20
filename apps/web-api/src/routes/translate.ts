@@ -252,7 +252,13 @@ async function answerFor(
     case "add_language":
       return {
         status: 422,
-        body: { code: "add_language", lang: outcome.lang, supported: outcome.supported, text: outcome.text },
+        body: {
+          code: "add_language",
+          lang: outcome.lang,
+          supported: outcome.supported,
+          text: outcome.text,
+          ...(outcome.candidates ? { languages: outcome.candidates } : {}),
+        },
       };
     case "needs_clarification":
       return { status: 422, body: { code: "needs_clarification", sourceLang: outcome.sourceLang, ...outcome.view } };

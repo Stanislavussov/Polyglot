@@ -77,8 +77,23 @@
         </div>
         <div v-else-if="otherLanguage" role="alert" class="space-y-2 rounded-xl bg-warning-soft px-4 py-3 text-sm text-warning-fg">
           <p>
+            <LangFlag :code="otherLanguage.lang" />
             {{ t(otherLanguage.supported ? "web.translate.addLanguage" : "web.translate.languageUnsupported", { lang: languageName(otherLanguage.lang) }) }}
           </p>
+          <template v-if="!otherLanguage.supported && otherLanguage.languages.length > 0">
+            <p>{{ t("web.translate.pickOwnLanguage") }}</p>
+            <div class="flex flex-wrap gap-2">
+              <button
+                v-for="code in otherLanguage.languages"
+                :key="code"
+                type="button"
+                class="btn-secondary"
+                @click="answer(otherLanguage.text, { sourceLang: code })"
+              >
+                <LangFlag :code="code" />{{ languageName(code) }}
+              </button>
+            </div>
+          </template>
           <button
             v-if="otherLanguage.supported"
             type="button"
@@ -320,7 +335,7 @@ const card = computed(() => (busy.value ? preview.value : result.value));
 const errorKey = ref<string | null>(null);
 const errorParams = ref<Record<string, string | number>>({});
 const languageQuestion = ref<{ text: string; kind: "ambiguous" | "unrecognized"; languages: string[] } | null>(null);
-const otherLanguage = ref<{ lang: string; supported: boolean; text: string } | null>(null);
+const otherLanguage = ref<{ lang: string; supported: boolean; text: string; languages: string[] } | null>(null);
 const clarification = ref<{ text: string; view: Clarification } | null>(null);
 const languageChoices = computed(() => {
   const view = clarification.value?.view;
@@ -570,7 +585,12 @@ async function answer(value: string, choice: TranslateAnswer): Promise<void> {
         languages: error.body.languages,
       };
     } else if (error instanceof ApiError && error.code === "add_language" && error.body.lang) {
-      otherLanguage.value = { lang: error.body.lang, supported: error.body.supported === true, text: error.body.text ?? value };
+      otherLanguage.value = {
+        lang: error.body.lang,
+        supported: error.body.supported === true,
+        text: error.body.text ?? value,
+        languages: error.body.languages ?? [],
+      };
     } else if (error instanceof ApiError && error.code === "max_languages") {
       errorKey.value = "web.translate.maxLanguages";
       errorParams.value = { max: error.body.limit ?? 0 };

@@ -604,6 +604,7 @@
   "web.translate.unknownLanguage": "I can't tell which language “{word}” is in. Pick one:",
   "web.translate.addLanguage": "This looks like {lang}, which isn't one of your languages. Add it in Settings to translate from it.",
   "web.translate.languageUnsupported": "{lang} isn't supported yet, so I can't translate from it.",
+  "web.translate.pickOwnLanguage": "If you meant one of your languages, pick it:",
   "web.translate.openSettings": "Open Settings",
   "web.translate.addAndTranslate": "Add {lang} and translate",
   "web.translate.maxLanguages": "You can learn up to {max} languages. Remove one in Settings to add another.",

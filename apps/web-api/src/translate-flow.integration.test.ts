@@ -51,6 +51,21 @@ describe("web translate flow", () => {
     expect(res).toMatchObject({ status: 422, body: { code: "add_language", lang: "es", supported: true } });
   });
 
+  it("offers the user's own languages when the word reads as an unsupported one, then translates the pick", async () => {
+    // Czech "pocetna" without its háček also reads as Croatian, which cannot be added.
+    const { web, cookie } = await signedIn();
+    web.bot.services.wordLanguageSweep = async () => ["hr"];
+
+    const asked = await web.call(cookie, "POST", "/api/translate", { text: "pocetna" });
+
+    expect(asked).toMatchObject({
+      status: 422,
+      body: { code: "add_language", lang: "hr", supported: false, languages: ["cs", "en"] },
+    });
+    const res = await web.call(cookie, "POST", "/api/translate", { text: "pocetna", sourceLang: "cs" });
+    expect(res).toMatchObject({ status: 200, body: { sourceLang: "cs" } });
+  });
+
   it("adds the language and translates, as the bot's Add and translate button does", async () => {
     const { web, cookie, userId } = await signedIn();
 
