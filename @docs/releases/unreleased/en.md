@@ -87,7 +87,9 @@
 - Opening a word from your dictionary no longer jumps halfway first, and every dialog now dims the page behind it instead of washing it out.
 - A translation now types itself out as it arrives instead of jumping onto the screen, and while you wait a card-shaped preview shows where everything will land, with a little monster dancing beside a wait message in the languages you learn.
 - Speaking a single word or a short phrase no longer adds a full stop at the end; sentences keep their punctuation.
-- On your phone, the text box stays in sight above the keyboard: a long text now scrolls inside the box, and swiping down or scrolling the page simply closes the keyboard instead of making the box jump.
 - A translation now gently fades in piece by piece instead of typing itself out letter by letter, and on your phone a word picked from your history scrolls up into view.
 - On your phone, you now feel a light tap as each part of a translation arrives.
 - The dictionary got simpler: search, filters and sorting now fit in one compact row, and the row of language buttons is gone.
+- After a translation the page jumps back to the top, so the answer always starts in view, and on your phone your recent words now wait behind a button next to the title.
+- When you translate from a language you are learning, the translation into your own language now sits right under the word, with no extra label to look for.
+- On your phone, typing works calmly again: the text box and the cursor stay in place instead of jumping up and down.
