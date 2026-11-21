@@ -575,6 +575,7 @@
   "web.translate.greet.beforeBed": "Noch ein Wort vor dem Schlafen?",
   "web.translate.greet.moonlit": "Ein Wort bei Mondschein?",
   "web.translate.placeholder": "Gib ein Wort, eine Wendung oder einen Satz ein",
+  "web.translate.placeholderShort": "Wort oder Satz",
   "web.translate.submit": "Übersetzen",
   "web.translate.working": "Wird übersetzt…",
   "web.translate.correction": "Meintest du: {text}",

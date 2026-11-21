@@ -1,11 +1,12 @@
 <template>
   <!-- An empty page greets instead of sitting blank; the phrase changes per visit and with the time of day.
-       Phones stack it in the free space above the bottom box; desktop sets it in one line above the box, as chat apps do. -->
+       Desktop sets it in one line above the box, as chat apps do. Phones pin it in the middle of the screen out of the
+       page flow: in the flow it made an empty page scrollable, and svh (not dvh) keeps it still when the keyboard opens. -->
   <div
     :class="
       inline
         ? 'flex items-center justify-center gap-3 pb-8 pt-[12vh] text-center'
-        : 'flex min-h-[45dvh] flex-col items-center justify-center gap-4 py-10 text-center'
+        : 'pointer-events-none fixed inset-x-0 top-[44svh] flex -translate-y-1/2 flex-col items-center gap-4 px-4 text-center'
     "
   >
     <MonsterMark :class="inline ? 'size-10' : 'size-14'" />
