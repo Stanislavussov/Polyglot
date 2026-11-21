@@ -42,6 +42,7 @@ const config: Config = {
         card: "var(--shadow-card)",
         soft: "var(--shadow-soft)",
         primary: "var(--shadow-primary)",
+        dock: "var(--shadow-dock)",
       },
     },
   },

@@ -1,16 +1,13 @@
 <template>
   <!-- The one text box pattern, shaped like a chat app's: translate, asking about a word, the mentor and the
-       grammar check share it, so typing feels the same everywhere. Phones dock it at the bottom of the screen,
-       over the quick buttons, within thumb reach; wider screens keep it in the page. -->
-  <form
-    ref="dock"
-    class="fixed inset-x-0 z-30 bg-gradient-to-t from-canvas from-70% to-transparent px-3 pb-2 pt-4 md:static md:bg-none md:p-0"
-    :class="keyboardUp ? 'bottom-[max(var(--kb),env(safe-area-inset-bottom))]' : 'bottom-[calc(4rem+env(safe-area-inset-bottom))]'"
-    :style="{ '--kb': `${keyboardInset}px` }"
-    @submit.prevent="send"
-  >
+       grammar check share it, so typing feels the same everywhere. Phones move it into the shell's bottom panel
+       (MobileDock), within thumb reach and over the keyboard; wider screens keep it in the page. -->
+  <Teleport :to="DOCK_TARGET" defer :disabled="!docked">
+  <form v-bind="$attrs" @submit.prevent="send">
+    <!-- Errors and questions about what was typed sit right by the box, so a phone never hides them up the page. -->
+    <div v-if="docked" class="mb-2 max-h-[45dvh] space-y-2 overflow-y-auto empty:hidden" aria-live="polite"><slot name="notice" /></div>
     <div
-      class="rounded-3xl border border-line bg-surface p-3 shadow-soft transition-colors focus-within:border-ring md:shadow-card"
+      class="rounded-3xl border border-line bg-surface p-3 transition-colors focus-within:border-ring md:shadow-card"
       @click="focusField"
     >
       <label class="sr-only" :for="id">{{ placeholder }}</label>
@@ -57,14 +54,16 @@
       </div>
     </div>
     <slot />
+    <div v-if="!docked" class="mt-4 space-y-2 empty:hidden" aria-live="polite"><slot name="notice" /></div>
   </form>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
 import { ArrowUp, LoaderCircle, X } from "lucide-vue-next";
 import { computed, nextTick, onBeforeUnmount, onMounted, useTemplateRef, watch } from "vue";
 import { t } from "../lib/i18n";
-import { composerFocused, composerHeight, keyboardInset, keyboardUp, trackKeyboard } from "../lib/mobile-dock";
+import { composerFocused, DOCK_TARGET, useDocked } from "../lib/mobile-dock";
 
 const props = defineProps<{
   id: string;
@@ -77,7 +76,9 @@ const props = defineProps<{
 const emit = defineEmits<{ "update:modelValue": [value: string]; submit: [] }>();
 
 const el = useTemplateRef<HTMLTextAreaElement>("el");
-const dock = useTemplateRef<HTMLFormElement>("dock");
+// Teleport is the root, so the page's classes go onto the form by hand.
+defineOptions({ inheritAttrs: false });
+const docked = useDocked();
 defineExpose({ el });
 
 // The counter only matters once the limit is in sight.
@@ -122,23 +123,8 @@ function onKeydown(event: KeyboardEvent): void {
   }
 }
 
-let observer: ResizeObserver | null = null;
-let untrackKeyboard: () => void = () => undefined;
-onMounted(() => {
-  fit();
-  untrackKeyboard = trackKeyboard();
-  const form = dock.value;
-  if (!form || typeof ResizeObserver === "undefined") return;
-  // Only the docked (fixed) box takes room from the page; in-page it is part of the flow.
-  observer = new ResizeObserver(() => {
-    composerHeight.value = getComputedStyle(form).position === "fixed" ? form.offsetHeight : 0;
-  });
-  observer.observe(form);
-});
+onMounted(fit);
 onBeforeUnmount(() => {
-  observer?.disconnect();
-  untrackKeyboard();
-  composerHeight.value = 0;
   composerFocused.value = false;
 });
 </script>

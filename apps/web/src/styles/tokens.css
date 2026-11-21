@@ -11,6 +11,7 @@
   --shadow-card: 0 10px 30px rgb(16 70 58 / 0.08);
   --shadow-soft: 0 20px 60px rgb(16 70 58 / 0.1);
   --shadow-primary: 0 8px 24px rgb(31 138 116 / 0.2);
+  --shadow-dock: 0 -10px 30px rgb(16 70 58 / 0.08);
 
   --color-canvas: #f6faf8;
   --color-surface: #ffffff;

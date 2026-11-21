@@ -12,10 +12,13 @@
       :max-length="MAX_TEXT"
       :busy="busy"
       @submit="check"
-    />
+    >
+      <template #notice>
+        <LimitNotice v-if="limit" :reason="limit.reason" :reset-at="limit.resetAt" />
+        <p v-else-if="errorText" role="alert" class="rounded-xl bg-danger-soft px-4 py-3 text-sm text-danger">{{ errorText }}</p>
+      </template>
+    </ComposerCard>
 
-    <LimitNotice v-if="limit" :reason="limit.reason" :reset-at="limit.resetAt" />
-    <p v-else-if="errorText" role="alert" class="rounded-xl bg-danger-soft px-4 py-3 text-sm text-danger">{{ errorText }}</p>
 
     <article v-if="result" class="card space-y-4" aria-live="polite">
       <template v-if="result.status === 'unsupported_language'">

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { coveredByKeyboard, keyboardShown, QUICK_TARGETS, quickTargetFor } from "./mobile-dock";
+import { coveredByKeyboard, keyboardShown, liftFor, QUICK_TARGETS, quickTargetFor } from "./mobile-dock";
 
 describe("quick buttons", () => {
   it("offers translate, dictionary, review and the mentor, in that order", () => {
@@ -55,5 +55,19 @@ describe("keyboardShown", () => {
 
   it("ignores a small toolbar change", () => {
     expect(keyboardShown(40, 800, 844)).toBe(false);
+  });
+});
+
+describe("liftFor", () => {
+  it("lifts the panel by the keyboard while typing", () => {
+    expect(liftFor(true, 336)).toBe(336);
+  });
+
+  it("ignores the toolbar collapsing and the scroll bounce", () => {
+    expect(liftFor(true, 40)).toBe(0);
+  });
+
+  it("never lifts when the box is not being typed in", () => {
+    expect(liftFor(false, 336)).toBe(0);
   });
 });

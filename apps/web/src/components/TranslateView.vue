@@ -29,87 +29,89 @@
             <Square v-if="recording" class="size-5" aria-hidden="true" /><Mic v-else class="size-5" aria-hidden="true" />
           </button>
         </template>
+        <template #notice>
+          <LimitNotice v-if="limit" :reason="limit.reason" :reset-at="limit.resetAt" />
+          <div v-else-if="clarification" class="card space-y-4" role="alert">
+            <p class="text-sm">{{ clarification.view.message }}</p>
+            <div v-if="languageChoices.length > 0" class="flex flex-wrap gap-2">
+              <button
+                v-for="code in languageChoices"
+                :key="code"
+                type="button"
+                class="btn-secondary"
+                @click="answer(clarification.text, { sourceLang: code })"
+              >
+                <LangFlag :code="code" />{{ languageName(code) }}
+              </button>
+            </div>
+            <div class="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+              <button
+                v-for="option in answerOptions"
+                :key="option.kind + option.value"
+                type="button"
+                :class="option.kind === 'typo_correction' ? 'btn-primary' : 'btn-secondary'"
+                @click="pick(option)"
+              >
+                {{ option.kind === "translate_as_written" ? t("web.translate.asWritten") : option.label }}
+              </button>
+            </div>
+          </div>
+          <div v-else-if="languageQuestion" class="card space-y-4" role="alert">
+            <p class="text-sm">
+              {{ t(languageQuestion.kind === "ambiguous" ? "web.translate.whichLanguage" : "web.translate.unknownLanguage", { word: languageQuestion.text }) }}
+            </p>
+            <div class="flex flex-wrap gap-2">
+              <button
+                v-for="code in languageQuestion.languages"
+                :key="code"
+                type="button"
+                class="btn-secondary"
+                @click="answer(languageQuestion.text, { sourceLang: code })"
+              >
+                <LangFlag :code="code" />{{ languageName(code) }}
+              </button>
+            </div>
+          </div>
+          <div v-else-if="otherLanguage" role="alert" class="space-y-2 rounded-xl bg-warning-soft px-4 py-3 text-sm text-warning-fg">
+            <p>
+              <LangFlag :code="otherLanguage.lang" />
+              {{ t(otherLanguage.supported ? "web.translate.addLanguage" : "web.translate.languageUnsupported", { lang: languageName(otherLanguage.lang) }) }}
+            </p>
+            <template v-if="!otherLanguage.supported && otherLanguage.languages.length > 0">
+              <p>{{ t("web.translate.pickOwnLanguage") }}</p>
+              <div class="flex flex-wrap gap-2">
+                <button
+                  v-for="code in otherLanguage.languages"
+                  :key="code"
+                  type="button"
+                  class="btn-secondary"
+                  @click="answer(otherLanguage.text, { sourceLang: code })"
+                >
+                  <LangFlag :code="code" />{{ languageName(code) }}
+                </button>
+              </div>
+            </template>
+            <button
+              v-if="otherLanguage.supported"
+              type="button"
+              class="btn-primary"
+              @click="answer(otherLanguage.text, { addLanguage: otherLanguage.lang })"
+            >
+              {{ t("web.translate.addAndTranslate", { lang: languageName(otherLanguage.lang) }) }}
+            </button>
+            <a v-if="otherLanguage.supported" href="/settings/" class="inline-flex min-h-11 items-center font-semibold underline">
+              {{ t("web.translate.openSettings") }}
+            </a>
+          </div>
+          <p v-else-if="errorKey" role="alert" class="rounded-xl bg-danger-soft px-4 py-3 text-sm text-danger">
+            {{ t(errorKey, errorParams) }}
+          </p>
+        </template>
         <!-- Touch keyboards have no Shift+Enter, so the hint only misleads there. -->
         <p class="mt-2 hidden truncate px-3 text-sm text-ink-muted md:block [@media(pointer:coarse)]:hidden">{{ t("web.translate.hint") }}</p>
       </ComposerCard>
 
       <div class="min-w-0 xl:col-start-1 xl:row-start-2" aria-live="polite">
-        <LimitNotice v-if="limit" :reason="limit.reason" :reset-at="limit.resetAt" />
-        <div v-else-if="clarification" class="card space-y-4" role="alert">
-          <p class="text-sm">{{ clarification.view.message }}</p>
-          <div v-if="languageChoices.length > 0" class="flex flex-wrap gap-2">
-            <button
-              v-for="code in languageChoices"
-              :key="code"
-              type="button"
-              class="btn-secondary"
-              @click="answer(clarification.text, { sourceLang: code })"
-            >
-              <LangFlag :code="code" />{{ languageName(code) }}
-            </button>
-          </div>
-          <div class="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-            <button
-              v-for="option in answerOptions"
-              :key="option.kind + option.value"
-              type="button"
-              :class="option.kind === 'typo_correction' ? 'btn-primary' : 'btn-secondary'"
-              @click="pick(option)"
-            >
-              {{ option.kind === "translate_as_written" ? t("web.translate.asWritten") : option.label }}
-            </button>
-          </div>
-        </div>
-        <div v-else-if="languageQuestion" class="card space-y-4" role="alert">
-          <p class="text-sm">
-            {{ t(languageQuestion.kind === "ambiguous" ? "web.translate.whichLanguage" : "web.translate.unknownLanguage", { word: languageQuestion.text }) }}
-          </p>
-          <div class="flex flex-wrap gap-2">
-            <button
-              v-for="code in languageQuestion.languages"
-              :key="code"
-              type="button"
-              class="btn-secondary"
-              @click="answer(languageQuestion.text, { sourceLang: code })"
-            >
-              <LangFlag :code="code" />{{ languageName(code) }}
-            </button>
-          </div>
-        </div>
-        <div v-else-if="otherLanguage" role="alert" class="space-y-2 rounded-xl bg-warning-soft px-4 py-3 text-sm text-warning-fg">
-          <p>
-            <LangFlag :code="otherLanguage.lang" />
-            {{ t(otherLanguage.supported ? "web.translate.addLanguage" : "web.translate.languageUnsupported", { lang: languageName(otherLanguage.lang) }) }}
-          </p>
-          <template v-if="!otherLanguage.supported && otherLanguage.languages.length > 0">
-            <p>{{ t("web.translate.pickOwnLanguage") }}</p>
-            <div class="flex flex-wrap gap-2">
-              <button
-                v-for="code in otherLanguage.languages"
-                :key="code"
-                type="button"
-                class="btn-secondary"
-                @click="answer(otherLanguage.text, { sourceLang: code })"
-              >
-                <LangFlag :code="code" />{{ languageName(code) }}
-              </button>
-            </div>
-          </template>
-          <button
-            v-if="otherLanguage.supported"
-            type="button"
-            class="btn-primary"
-            @click="answer(otherLanguage.text, { addLanguage: otherLanguage.lang })"
-          >
-            {{ t("web.translate.addAndTranslate", { lang: languageName(otherLanguage.lang) }) }}
-          </button>
-          <a v-if="otherLanguage.supported" href="/settings/" class="inline-flex min-h-11 items-center font-semibold underline">
-            {{ t("web.translate.openSettings") }}
-          </a>
-        </div>
-        <p v-else-if="errorKey" role="alert" class="rounded-xl bg-danger-soft px-4 py-3 text-sm text-danger">
-          {{ t(errorKey, errorParams) }}
-        </p>
 
         <div v-if="busy && !preview" class="card space-y-4" aria-busy="true">
           <MonsterLoader compact :label="loaderText || t('web.translate.loading')" />
