@@ -97,4 +97,5 @@
 - The translate page now greets you with the monster and a new question each visit, without a heading in the way, and on a phone it no longer jumps to the keyboard when you open it.
 - Closed the progress hint at the top? It now stays hidden for a month, with no leftover icon — bring it back from the Progress page.
 - A word card opened on your phone closes with a swipe down again, even after you have scrolled through it.
-- On a phone the empty translate page no longer scrolls, the monster stays put when the keyboard opens, and the box's hint fits on one line.
+- On a phone the empty translate page no longer scrolls, the monster stays in view in the middle of the screen when the keyboard opens, and the box's hint fits on one line.
+- The first time you open translate on a phone, the text box now rises above the keyboard straight away.

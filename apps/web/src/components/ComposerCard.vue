@@ -140,7 +140,11 @@ function onKeydown(event: KeyboardEvent): void {
   }
 }
 
-onMounted(fit);
+onMounted(() => {
+  fit();
+  // Focus handed over from the pre-load box fires no focus event here, yet the keyboard is already up.
+  if (document.activeElement === el.value) composerFocused.value = true;
+});
 onBeforeUnmount(() => {
   composerFocused.value = false;
 });
