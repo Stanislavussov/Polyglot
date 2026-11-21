@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { coveredByKeyboard, keyboardShown, liftFor, QUICK_TARGETS, quickTargetFor } from "./mobile-dock";
+import {
+  coveredByKeyboard,
+  freeAreaCenter,
+  keyboardShown,
+  liftFor,
+  QUICK_TARGETS,
+  quickTargetFor,
+} from "./mobile-dock";
 
 describe("quick buttons", () => {
   it("offers translate, dictionary, review and the mentor, in that order", () => {
@@ -69,5 +76,20 @@ describe("liftFor", () => {
 
   it("never lifts when the box is not being typed in", () => {
     expect(liftFor(false, 336)).toBe(0);
+  });
+});
+
+describe("freeAreaCenter", () => {
+  it("centres between the header and the panel with the keyboard down", () => {
+    expect(freeAreaCenter(0, 844, 56, 140)).toBe(Math.round((56 + 704) / 2));
+  });
+
+  it("follows the visible area when iOS pans the page up for the keyboard", () => {
+    // Page panned by 120px, 420px visible, panel 80px: free space is 120..460.
+    expect(freeAreaCenter(120, 420, 56, 80)).toBe(290);
+  });
+
+  it("never lands above the free space when the panel fills the view", () => {
+    expect(freeAreaCenter(0, 100, 56, 200)).toBe(56);
   });
 });

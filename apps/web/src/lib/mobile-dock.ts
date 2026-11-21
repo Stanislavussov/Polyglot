@@ -40,6 +40,17 @@ export const keyboardInset = ref(0);
 // While it is up, the quick buttons step aside so the box sits right on top of it.
 export const keyboardUp = ref(false);
 
+// The part of the page the eye can see, in page coordinates. iOS pans the whole page up when the keyboard opens,
+// so anything fixed to the page (even by svh) slides off the top unless it follows this box.
+export const visibleBox = ref({ top: 0, height: typeof window === "undefined" ? 0 : window.innerHeight });
+
+/** Middle of the free space between the page header (or the screen top, once panned past it) and the docked panel. */
+export function freeAreaCenter(visibleTop: number, visibleHeight: number, headerBottom: number, dock: number): number {
+  const top = Math.max(headerBottom, visibleTop);
+  const bottom = visibleTop + visibleHeight - dock;
+  return Math.round((top + Math.max(top, bottom)) / 2);
+}
+
 export function coveredByKeyboard(layoutHeight: number, visibleHeight: number, visibleTop: number): number {
   return Math.max(0, Math.round(layoutHeight - visibleHeight - visibleTop));
 }
@@ -64,6 +75,7 @@ export function trackKeyboard(): () => void {
     frame = 0;
     tallest = Math.max(tallest, window.innerHeight);
     const inset = viewport ? coveredByKeyboard(window.innerHeight, viewport.height, viewport.offsetTop) : 0;
+    visibleBox.value = { top: viewport?.offsetTop ?? 0, height: viewport?.height ?? window.innerHeight };
     keyboardInset.value = liftFor(composerFocused.value, inset);
     keyboardUp.value = composerFocused.value && keyboardShown(inset, viewport?.height ?? window.innerHeight, tallest);
   };
@@ -78,11 +90,16 @@ export function trackKeyboard(): () => void {
     viewport?.[method]("scroll", schedule);
   };
   window.addEventListener("resize", schedule);
-  const stopFocus = watch(composerFocused, (focused) => {
-    listen(focused);
-    schedule();
-  });
-  measure();
+  // immediate: on a first visit the box can already hold focus when the panel mounts (the box typed into before the
+  // app loaded); without it the viewport was never watched and the keyboard covered the box.
+  const stopFocus = watch(
+    composerFocused,
+    (focused, wasFocused) => {
+      if (focused !== Boolean(wasFocused)) listen(focused);
+      schedule();
+    },
+    { immediate: true },
+  );
   return () => {
     listen(false);
     window.removeEventListener("resize", schedule);

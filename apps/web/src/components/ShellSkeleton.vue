@@ -34,7 +34,7 @@
         <template v-if="placeholder">
           <!-- Phones: the history button and the greeting in the free space above the bottom box, as the app draws them. -->
           <div class="flex justify-end md:hidden" aria-hidden="true"><span class="skeleton size-11 rounded-full" /></div>
-          <div class="pointer-events-none fixed inset-x-0 top-[44svh] flex -translate-y-1/2 flex-col items-center gap-4 px-4 md:hidden" aria-hidden="true">
+          <div class="pointer-events-none fixed inset-x-0 top-[calc(50svh-36px)] flex -translate-y-1/2 flex-col items-center gap-4 px-4 md:hidden" aria-hidden="true">
             <MonsterMark class="size-14" />
             <span class="skeleton h-8 w-56 rounded" />
           </div>
