@@ -150,6 +150,7 @@ import {
 import { loadSettings, restoreSettings, settings } from "../lib/settings-store";
 import type { PageName, ProgressGoal } from "../lib/types";
 import { useProgressBar } from "../lib/use-progress-bar";
+import { barText } from "../lib/progress-bar";
 import { dockHeight } from "../lib/mobile-dock";
 import DictionaryView from "./DictionaryView.vue";
 import ExpressionsView from "./ExpressionsView.vue";
@@ -260,7 +261,10 @@ const { collapsed, dragging, toggle: toggleSidebar, startDrag } = useSidebar();
 const bar = useProgressBar();
 const goal = ref<ProgressGoal | null>(null);
 // A gift granted by this very open outranks the next step: it is announced exactly once.
-const goalText = computed(() => goal.value?.rewards[0] ?? goal.value?.nearest ?? null);
+const goalText = computed(() => {
+  const line = goal.value?.rewards[0] ?? goal.value?.nearest;
+  return line ? barText(line) : null;
+});
 
 onMounted(async () => {
   // A 401 here redirects to the login page inside the api client; any other failure still renders the shell in English.

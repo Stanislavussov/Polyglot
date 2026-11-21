@@ -1,6 +1,7 @@
 /** The goal bar's dismissal: a timestamp under one key, so a hidden bar comes back by itself after a snooze. */
 export const PROGRESS_BAR_KEY = "polyglot.progressBar.dismissed";
-export const PROGRESS_BAR_SNOOZE_MS = 3 * 24 * 60 * 60 * 1000;
+// Closed once means "not now" for weeks, not days: it came back too often to feel dismissed.
+export const PROGRESS_BAR_SNOOZE_MS = 30 * 24 * 60 * 60 * 1000;
 
 type BarStorage = Pick<Storage, "getItem" | "setItem" | "removeItem">;
 
@@ -35,4 +36,9 @@ export function restore(storage: BarStorage | null): void {
   } catch {
     // Nothing stored that could keep it hidden.
   }
+}
+
+/** The bot's goal lines open with a 👉; the web bar is plain text, so the pointer is dropped there. */
+export function barText(line: string): string {
+  return line.replace(/^\p{Extended_Pictographic}\uFE0F?\s*/u, "");
 }

@@ -6,19 +6,26 @@
   <form v-bind="$attrs" @submit.prevent="send">
     <!-- Errors and questions about what was typed sit right by the box, so a phone never hides them up the page. -->
     <div v-if="docked" class="mb-2 max-h-[45dvh] space-y-2 overflow-y-auto empty:hidden" aria-live="polite"><slot name="notice" /></div>
+    <!-- Phones: one row like a chat app (tools, text, send), so the panel leaves the page its room. -->
     <div
-      class="rounded-3xl border border-line bg-surface p-3 transition-colors focus-within:border-ring md:shadow-card"
+      :class="[
+        'rounded-3xl border border-line bg-surface transition-colors focus-within:border-ring md:shadow-card',
+        docked ? 'flex items-end gap-1 p-1.5' : 'p-3',
+      ]"
       @click="focusField"
     >
       <label class="sr-only" :for="id">{{ placeholder }}</label>
       <!-- While a voice note is recorded or read, the page's wave takes the text's place; the box keeps its height. -->
-      <div v-if="voice" class="flex min-h-11 items-center px-2 py-2 md:min-h-20"><slot name="voice" /></div>
+      <div v-if="voice" :class="['flex min-h-11 items-center px-2 py-2 md:min-h-20', docked && 'order-2 min-w-0 flex-1']"><slot name="voice" /></div>
       <textarea
         v-show="!voice"
         :id="id"
         ref="el"
         :value="modelValue"
-        class="block max-h-[40dvh] min-h-11 w-full resize-none bg-transparent px-2 py-2 text-base text-ink placeholder:text-ink-muted focus:outline-none md:min-h-20"
+        :class="[
+          'block max-h-[40dvh] min-h-11 resize-none bg-transparent px-2 py-2.5 text-base text-ink placeholder:text-ink-muted focus:outline-none md:min-h-20',
+          docked ? 'order-2 min-w-0 flex-1 placeholder:truncate' : 'w-full',
+        ]"
         rows="1"
         :maxlength="maxLength"
         :placeholder="placeholder"
@@ -27,12 +34,12 @@
         @focus="composerFocused = true"
         @blur="composerFocused = false"
       />
-      <div class="flex items-center gap-2">
+      <div :class="docked ? 'contents' : 'flex items-center gap-2'">
         <slot name="tools" />
         <button
           v-if="modelValue !== '' && !voice"
           type="button"
-          class="grid size-11 shrink-0 place-items-center rounded-full text-ink-muted transition-colors hover:bg-surface-muted hover:text-ink"
+          :class="['grid size-11 shrink-0 place-items-center rounded-full text-ink-muted transition-colors hover:bg-surface-muted hover:text-ink', docked && 'order-3']"
           :aria-label="t('web.translate.clear')"
           :title="t('web.translate.clear')"
           @mousedown.prevent
@@ -40,12 +47,13 @@
         >
           <X class="size-5" aria-hidden="true" />
         </button>
-        <span v-if="nearLimit" class="text-sm text-ink-muted" aria-hidden="true">{{ modelValue.length }}/{{ maxLength }}</span>
+        <span v-if="nearLimit" :class="['text-sm text-ink-muted', docked && 'order-3 self-center']" aria-hidden="true">{{ modelValue.length }}/{{ maxLength }}</span>
         <!-- mousedown.prevent: a tap must not pull focus off the text box — the button turns disabled while busy,
              the browser then drops focus to <body>, and on phones the keyboard would fold mid-answer. -->
         <button
           type="submit"
-          class="ml-auto grid size-11 shrink-0 place-items-center rounded-full bg-primary text-primary-fg shadow-primary transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:bg-primary-soft disabled:text-primary-soft-fg disabled:shadow-none"
+          :class="docked ? 'order-3' : 'ml-auto'"
+          class="grid size-11 shrink-0 place-items-center rounded-full bg-primary text-primary-fg shadow-primary transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:bg-primary-soft disabled:text-primary-soft-fg disabled:shadow-none"
           :aria-label="working ? t('web.translate.working') : submitLabel"
           :title="working ? t('web.translate.working') : submitLabel"
           :disabled="!canSend"

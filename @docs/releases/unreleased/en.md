@@ -94,3 +94,5 @@
 - When you translate from a language you are learning, the translation into your own language now sits right under the word, with no extra label to look for.
 - On your phone, typing works calmly again: the text box and the cursor stay in place instead of jumping up and down.
 - Word picks work again on your phone: pick a language once at the top, tap a topic and the words appear right away, each on the same card as a translation.
+- The translate page now greets you with the monster and a new question each visit, without a heading in the way, and on a phone it no longer jumps to the keyboard when you open it.
+- Closed the progress hint at the top? It now stays hidden for a month.

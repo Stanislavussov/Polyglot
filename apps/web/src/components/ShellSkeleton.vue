@@ -27,31 +27,43 @@
     <main class="min-w-0 flex-1" :aria-hidden="placeholder ? undefined : 'true'">
       <div class="mx-auto max-w-6xl px-4 py-6 sm:px-6 md:px-8 md:py-10">
         <!-- Same line as the page's own title; the inline script in BaseLayout fills it before the app loads. -->
-        <h1 class="page-title" data-early-title>{{ title || "\u00a0" }}</h1>
+        <h1 :class="placeholder ? 'sr-only' : 'page-title'" data-early-title>{{ title || "\u00a0" }}</h1>
         <!-- The input needs nothing from the server: typing starts before the app has loaded. -->
         <!-- A copy of the translate page's ComposerCard, box for box, so nothing moves when the app takes over. -->
-        <div v-if="placeholder" class="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,20rem)] xl:items-start">
+        <!-- Desktop holds the greeting's line, so the box does not drop when the app takes over. -->
+        <template v-if="placeholder">
+          <!-- Phones: the history button and the greeting in the free space above the bottom box, as the app draws them. -->
+          <div class="flex justify-end md:hidden" aria-hidden="true"><span class="skeleton size-11 rounded-full" /></div>
+          <div class="flex min-h-[45dvh] flex-col items-center justify-center gap-4 py-10 md:hidden" aria-hidden="true">
+            <MonsterMark class="size-14" />
+            <span class="skeleton h-8 w-56 rounded" />
+          </div>
+          <div class="hidden items-center justify-center gap-3 pb-8 pt-[12vh] md:flex" aria-hidden="true">
+            <MonsterMark class="size-10" />
+            <span class="skeleton h-9 w-72 rounded" />
+          </div>
+        </template>
+        <div v-if="placeholder" class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,20rem)] xl:items-start">
           <!-- Phones: the bottom panel of MobileDock, with room under the box for the quick buttons drawn over it. -->
           <div class="fixed inset-x-0 bottom-0 z-30 rounded-t-3xl border-t border-line bg-primary-soft px-3 pb-[calc(3.5rem+env(safe-area-inset-bottom))] pt-3 shadow-dock md:static md:rounded-none md:border-0 md:bg-transparent md:p-0 md:shadow-none xl:col-start-1 xl:row-start-1">
-            <div class="rounded-3xl border border-line bg-surface p-3 transition-colors focus-within:border-ring md:shadow-card">
+            <div class="flex items-end gap-1 rounded-3xl border border-line bg-surface p-1.5 transition-colors focus-within:border-ring md:block md:p-3 md:shadow-card">
               <label class="sr-only" :for="EARLY_INPUT_ID">{{ placeholder }}</label>
               <textarea
                 :id="EARLY_INPUT_ID"
                 v-model="earlyText"
-                class="block max-h-[40dvh] min-h-11 w-full resize-none bg-transparent px-2 py-2 text-base text-ink placeholder:text-ink-muted focus:outline-none md:min-h-20"
+                class="order-2 block max-h-[40dvh] min-h-11 min-w-0 flex-1 resize-none max-md:placeholder:truncate bg-transparent px-2 py-2.5 text-base md:w-full text-ink placeholder:text-ink-muted focus:outline-none md:min-h-20"
                 rows="1"
                 maxlength="500"
-                autofocus
                 :placeholder="placeholder"
               />
-              <div class="flex items-center gap-2" aria-hidden="true">
+              <div class="contents md:flex md:items-center md:gap-2" aria-hidden="true">
                 <span class="grid size-11 place-items-center rounded-full text-ink-muted"><Mic class="size-5" /></span>
-                <span class="ml-auto grid size-11 place-items-center rounded-full bg-primary-soft text-primary-soft-fg"><ArrowUp class="size-5" /></span>
+                <span class="order-3 grid size-11 md:ml-auto place-items-center rounded-full bg-primary-soft text-primary-soft-fg"><ArrowUp class="size-5" /></span>
               </div>
             </div>
             <p class="relative mt-2 hidden px-3 text-sm md:block [@media(pointer:coarse)]:hidden" aria-hidden="true">&nbsp;<span class="skeleton absolute inset-y-1 left-3 w-64 max-w-full rounded" /></p>
           </div>
-          <div class="card xl:col-start-2 xl:row-span-2 xl:row-start-1" aria-hidden="true">
+          <div class="card max-md:hidden xl:col-start-2 xl:row-span-2 xl:row-start-1" aria-hidden="true">
             <div class="skeleton h-4 w-40 rounded" />
           </div>
         </div>
@@ -75,6 +87,7 @@
 <script setup lang="ts">
 import { ArrowUp, Mic } from "lucide-vue-next";
 import { onMounted } from "vue";
+import MonsterMark from "./MonsterMark.vue";
 import { EARLY_INPUT_ID, earlyFocused, earlyText, rememberedTitle } from "../lib/early-input";
 import MonsterLoader from "./MonsterLoader.vue";
 

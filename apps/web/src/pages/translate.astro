@@ -13,5 +13,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     document.addEventListener("input", (event) => {
       if (event.target && event.target.id === "early-input") window.__earlyInput = event.target.value;
     }, true);
+    // Desktop only: on a phone an autofocused box raises the keyboard and scrolls the page on arrival.
+    if (window.matchMedia("(pointer: fine)").matches) document.getElementById("early-input")?.focus({ preventScroll: true });
   </script>
 </BaseLayout>
