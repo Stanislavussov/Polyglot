@@ -180,7 +180,7 @@ export const api = {
   ) => {
     const params = new URLSearchParams({ q: query.q, sort: query.sort, page: String(query.page) });
     if (query.dictionary) params.set("dictionary", String(query.dictionary));
-    for (const key of ["lang", "type", "difficulty", "review"] as const) {
+    for (const key of ["type", "difficulty", "review"] as const) {
       if (query[key]) params.set(key, query[key]);
     }
     return request<DictionaryPage>("GET", `/dictionary?${params}`);

@@ -668,7 +668,6 @@
   "web.dictionary.filters": "Фильтры",
   "web.dictionary.filtersActive": "Фильтры, активно: {count}",
   "web.dictionary.filterAll": "Все",
-  "web.dictionary.filterLang": "Язык",
   "web.dictionary.filterType": "Тип",
   "web.dictionary.filterReview": "Повторение",
   "web.dictionary.filterReset": "Сбросить",

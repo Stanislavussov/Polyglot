@@ -668,7 +668,6 @@
   "web.dictionary.filters": "Filtry",
   "web.dictionary.filtersActive": "Filtry, aktywne: {count}",
   "web.dictionary.filterAll": "Wszystko",
-  "web.dictionary.filterLang": "Język",
   "web.dictionary.filterType": "Typ",
   "web.dictionary.filterReview": "Powtórki",
   "web.dictionary.filterReset": "Resetuj",
