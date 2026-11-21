@@ -123,9 +123,7 @@
 
       <div class="min-w-0 xl:col-start-1 xl:row-start-2" aria-live="polite">
 
-        <div v-if="busy && !preview" class="card space-y-4" aria-busy="true">
-          <MonsterLoader compact :label="loaderText || t('web.translate.loading')" />
-        </div>
+        <TranslateSkeleton v-if="busy && !preview" :label="loaderText || t('web.translate.loading')" />
 
         <article v-else-if="card" class="card space-y-5" :aria-busy="pending">
           <header class="space-y-3">
@@ -216,13 +214,13 @@
             <!-- Everything about the word in its own language sits with the word, above the translations. -->
             <template v-if="card.sourceUsage">
               <ul v-if="card.sourceUsage.synonyms.length > 0" class="flex flex-wrap gap-2 text-sm" :aria-label="t('web.translate.aboutSource')">
-                <li v-for="synonym in card.sourceUsage.synonyms" :key="synonym" class="rounded-full bg-primary-soft px-3 py-1 text-primary-soft-fg">
+                <li v-for="synonym in card.sourceUsage.synonyms" :key="synonym" class="stream-in rounded-full bg-primary-soft px-3 py-1 text-primary-soft-fg">
                   {{ synonym }}
                 </li>
               </ul>
-              <div class="space-y-2 rounded-xl bg-surface-muted px-4 py-3 text-sm">
-                <p>{{ card.sourceUsage.explanation }}</p>
-                <ExampleList :examples="card.sourceUsage.examples" />
+              <div class="stream-in space-y-2 rounded-xl bg-surface-muted px-4 py-3 text-sm">
+                <p><StreamText :text="card.sourceUsage.explanation" /></p>
+                <ExampleList :examples="card.sourceUsage.examples" stream />
               </div>
             </template>
 
@@ -243,12 +241,13 @@
             :key="`${resultSeq}:${split.native.lang}`"
             :translation="split.native"
             id-prefix="translate"
+            stream
           />
 
           <div v-if="card.nativeMeaning" class="space-y-3">
             <p v-if="card.nativeMeaning" class="text-base">
               <span class="font-semibold text-ink-muted">{{ t("web.translate.nativeMeaning") }}:</span>
-              {{ card.nativeMeaning }}
+              <StreamText :text="card.nativeMeaning" />
             </p>
 
           </div>
@@ -258,12 +257,13 @@
             :key="`${resultSeq}:${translation.lang}`"
             :translation="translation"
             id-prefix="translate"
+            stream
           />
 
           </template>
 
           <!-- The card so far is not checked yet: the rest is still on its way, and Save waits for the final card. -->
-          <MonsterLoader v-if="pending" compact :label="loaderText || t('web.translate.loading')" />
+          <MonsterThinking v-if="pending" :label="loaderText || t('web.translate.loading')" />
           <CardExplore v-else ref="explore" :result="card" @replace="onReplace" />
 
         </article>
@@ -327,6 +327,9 @@ import ActionMenuItem from "./ActionMenuItem.vue";
 import CardExplore from "./CardExplore.vue";
 import ComposerCard from "./ComposerCard.vue";
 import VoiceWave from "./VoiceWave.vue";
+import StreamText from "./StreamText.vue";
+import TranslateSkeleton from "./TranslateSkeleton.vue";
+import MonsterThinking from "./MonsterThinking.vue";
 import ExampleList from "./ExampleList.vue";
 import LimitNotice from "./LimitNotice.vue";
 import MonsterLoader from "./MonsterLoader.vue";
@@ -419,10 +422,12 @@ function clearHistory(): void {
   persistHistory();
 }
 
-function show(entry: TranslateResult): void {
+// `sameCard`: the final version of the card the preview already showed. Keeping its keys lets the blocks
+// carry on typing where they are; a new key remounted every block and flashed the whole card.
+function show(entry: TranslateResult, sameCard = false): void {
   result.value = entry;
   saveState.value = entry.savedEntryId != null ? "saved" : "unsaved";
-  resultSeq.value += 1;
+  if (!sameCard) resultSeq.value += 1;
 }
 
 function onReplace(fresh: TranslateResult): void {
@@ -588,11 +593,13 @@ async function answer(value: string, choice: TranslateAnswer): Promise<void> {
   busy.value = true;
   preview.value = null;
   resetNotices();
+  // A new word starts with fresh blocks, so no state (an open "more", a copied tick) carries over.
+  resultSeq.value += 1;
   try {
     const fresh = await api.translateProgressive(value, choice, (partial) => {
       preview.value = partial;
     });
-    show(fresh);
+    show(fresh, true);
     remember(fresh);
     // Only on success: a failed or clarifying answer keeps the text so the user can retry or edit it.
     text.value = "";

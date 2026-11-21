@@ -85,3 +85,5 @@
 - When you translate a word from a language you are learning, its synonyms and examples now sit right under the word itself, before the translation.
 - Speaking a word now shows a live wave while you talk and while we listen back; stop to drop the words into the box and check them, or tap send to translate right away.
 - Opening a word from your dictionary no longer jumps halfway first, and every dialog now dims the page behind it instead of washing it out.
+- A translation now types itself out as it arrives instead of jumping onto the screen, and while you wait a card-shaped preview shows where everything will land, with a little monster dancing beside a wait message in the languages you learn.
+- Speaking a single word or a short phrase no longer adds a full stop at the end; sentences keep their punctuation.

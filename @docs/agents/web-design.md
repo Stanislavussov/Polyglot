@@ -103,3 +103,6 @@ Mentor (names in `aria-label`/`title`). Desktop shows neither the panel nor the 
 
 A paragraph that is still loading inside a card shows `MonsterLoader inline` (a small monster
 beside text-shaped lines), never a bare "Working…".
+The translate card waits in `TranslateSkeleton` (its own shape, block for block) with `MonsterThinking`
+(the animated monster and the wait phrase in a fixed slot); arriving text types itself out via
+`StreamText`.

@@ -9,7 +9,15 @@
  * the feature never reaches Telegram's file API, and an over-long recording is
  * refused before a byte is downloaded.
  */
-import { errorFields, FEATURE_KEYS, isSupported, logEvent, type SupportedLang, t } from "@polyglot/core";
+import {
+  errorFields,
+  FEATURE_KEYS,
+  isSupported,
+  logEvent,
+  type SupportedLang,
+  t,
+  tidyTranscript,
+} from "@polyglot/core";
 import { getRequestSettings } from "../../middlewares/request-settings.js";
 import type { BotContext } from "../../types.js";
 import { sendTypingIndicator } from "../../utils/long-op.js";
@@ -58,7 +66,7 @@ export async function handleVoiceMessage(ctx: BotContext): Promise<boolean> {
       modelId: stt.modelId,
       userId: ctx.user.id,
     });
-    text = result.text.trim();
+    text = tidyTranscript(result.text);
     generationId = result.generationId;
   } catch (err) {
     logEvent("voice.transcribe_failed", { durationSec: voice.duration, ...errorFields(err) }, "error");
