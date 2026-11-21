@@ -31,8 +31,9 @@
         <!-- The input needs nothing from the server: typing starts before the app has loaded. -->
         <!-- A copy of the translate page's ComposerCard, box for box, so nothing moves when the app takes over. -->
         <div v-if="placeholder" class="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,20rem)] xl:items-start">
-          <div class="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 bg-gradient-to-t from-canvas from-70% to-transparent px-3 pb-2 pt-4 md:static md:bg-none md:p-0 xl:col-start-1 xl:row-start-1">
-            <div class="rounded-3xl border border-line bg-surface p-3 shadow-soft transition-colors focus-within:border-ring md:shadow-card">
+          <!-- Phones: the bottom panel of MobileDock, with room under the box for the quick buttons drawn over it. -->
+          <div class="fixed inset-x-0 bottom-0 z-30 rounded-t-3xl border-t border-line bg-primary-soft px-3 pb-[calc(3.5rem+env(safe-area-inset-bottom))] pt-3 shadow-dock md:static md:rounded-none md:border-0 md:bg-transparent md:p-0 md:shadow-none xl:col-start-1 xl:row-start-1">
+            <div class="rounded-3xl border border-line bg-surface p-3 transition-colors focus-within:border-ring md:shadow-card">
               <label class="sr-only" :for="EARLY_INPUT_ID">{{ placeholder }}</label>
               <textarea
                 :id="EARLY_INPUT_ID"
@@ -58,13 +59,14 @@
       </div>
     </main>
 
-    <!-- The quick-button row of the loaded app, shape for shape. -->
-    <div class="fixed inset-x-0 bottom-0 z-30 bg-canvas pb-[env(safe-area-inset-bottom)] md:hidden" aria-hidden="true">
-      <div class="grid h-16 grid-cols-4 items-center gap-1 px-2">
-        <div v-for="width in quickWidths" :key="width" class="flex h-14 flex-col items-center justify-center gap-1.5 rounded-2xl">
-          <div class="skeleton size-5 rounded-md" />
-          <div class="skeleton h-3 rounded" :style="{ width }" />
-        </div>
+    <!-- The quick buttons of the loaded app, shape for shape; on pages without the box they bring the panel themselves. -->
+    <div
+      class="fixed inset-x-0 bottom-0 z-40 pb-[env(safe-area-inset-bottom)] md:hidden"
+      :class="placeholder ? '' : 'rounded-t-3xl border-t border-line bg-primary-soft pt-1 shadow-dock'"
+      aria-hidden="true"
+    >
+      <div class="grid h-14 grid-cols-4 items-center gap-1 px-2">
+        <div v-for="n in 4" :key="n" class="mx-auto grid h-11 w-16 place-items-center"><div class="skeleton size-6 rounded-md" /></div>
       </div>
     </div>
   </div>
@@ -93,7 +95,6 @@ onMounted(() => {
 });
 
 const navWidths = ["60%", "72%", "52%", "58%", "66%"];
-const quickWidths = ["4rem", "4.5rem", "5.5rem", "3.75rem"];
 </script>
 
 <style scoped>

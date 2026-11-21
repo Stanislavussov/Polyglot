@@ -1,9 +1,10 @@
-import { ref, watch } from "vue";
+import { onBeforeUnmount, onMounted, ref, watch } from "vue";
 import type { PageName } from "./types";
 
-// Phones dock the text box and the quick buttons at the bottom, like a chat app.
-// The shell pads the page by the docked box's height so the last answer never hides behind it.
-export const composerHeight = ref(0);
+// Phones dock the text box and the quick buttons in one panel at the bottom, like a chat app.
+// The shell pads the page by the panel's height so the last answer never hides behind it.
+export const DOCK_TARGET = "#composer-dock";
+export const dockHeight = ref(0);
 export const composerFocused = ref(false);
 
 export type QuickTarget = "translate" | "dictionary" | "review" | "mentor";
@@ -16,8 +17,24 @@ export function quickTargetFor(page: PageName): QuickTarget | null {
   return (QUICK_TARGETS as readonly string[]).includes(page) ? (page as QuickTarget) : null;
 }
 
+// Below md the text box lives in the docked panel; wider screens keep it in the page.
+export function useDocked() {
+  const docked = ref(typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches);
+  let query: MediaQueryList | null = null;
+  const onChange = (event: MediaQueryListEvent): void => {
+    docked.value = event.matches;
+  };
+  onMounted(() => {
+    query = window.matchMedia("(max-width: 767px)");
+    docked.value = query.matches;
+    query.addEventListener("change", onChange);
+  });
+  onBeforeUnmount(() => query?.removeEventListener("change", onChange));
+  return docked;
+}
+
 // iOS Safari lays the on-screen keyboard over fixed elements instead of shrinking the page,
-// so the docked box would sit behind it, send button included. The visual viewport says how much it covers.
+// so the docked panel would sit behind it, send button included. The visual viewport says how much it covers.
 export const keyboardInset = ref(0);
 // Focus alone is no sign of a keyboard: the translate box is focused on load with the keyboard down.
 // While it is up, the quick buttons step aside so the box sits right on top of it.
@@ -33,25 +50,44 @@ export function keyboardShown(inset: number, height: number, tallest: number): b
   return inset > 100 || height < tallest * 0.75;
 }
 
+// How far to lift the panel. Small insets are the toolbar collapsing or the rubber-band bounce while
+// scrolling: following them made the panel shake, so only a real keyboard moves it.
+export function liftFor(focused: boolean, inset: number): number {
+  return focused && inset > 100 ? inset : 0;
+}
+
 export function trackKeyboard(): () => void {
   const viewport = window.visualViewport;
   let tallest = window.innerHeight;
-  const update = (): void => {
+  let frame = 0;
+  const measure = (): void => {
+    frame = 0;
     tallest = Math.max(tallest, window.innerHeight);
-    keyboardInset.value = viewport ? coveredByKeyboard(window.innerHeight, viewport.height, viewport.offsetTop) : 0;
-    keyboardUp.value =
-      composerFocused.value && keyboardShown(keyboardInset.value, viewport?.height ?? window.innerHeight, tallest);
+    const inset = viewport ? coveredByKeyboard(window.innerHeight, viewport.height, viewport.offsetTop) : 0;
+    keyboardInset.value = liftFor(composerFocused.value, inset);
+    keyboardUp.value = composerFocused.value && keyboardShown(inset, viewport?.height ?? window.innerHeight, tallest);
   };
-  viewport?.addEventListener("resize", update);
-  viewport?.addEventListener("scroll", update);
-  window.addEventListener("resize", update);
-  const stopFocus = watch(composerFocused, update);
-  update();
+  // One measurement per frame at most: scroll events arrive faster than the screen redraws.
+  const schedule = (): void => {
+    if (frame === 0) frame = requestAnimationFrame(measure);
+  };
+  // Scrolling with the keyboard down needs nothing from us, so the visual viewport is only watched while typing.
+  const listen = (on: boolean): void => {
+    const method = on ? "addEventListener" : "removeEventListener";
+    viewport?.[method]("resize", schedule);
+    viewport?.[method]("scroll", schedule);
+  };
+  window.addEventListener("resize", schedule);
+  const stopFocus = watch(composerFocused, (focused) => {
+    listen(focused);
+    schedule();
+  });
+  measure();
   return () => {
-    viewport?.removeEventListener("resize", update);
-    viewport?.removeEventListener("scroll", update);
-    window.removeEventListener("resize", update);
+    listen(false);
+    window.removeEventListener("resize", schedule);
     stopFocus();
+    if (frame !== 0) cancelAnimationFrame(frame);
     keyboardInset.value = 0;
     keyboardUp.value = false;
   };

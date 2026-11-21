@@ -25,11 +25,6 @@
       </li>
     </ul>
 
-    <p v-if="lockedHint" role="alert" class="rounded-xl bg-warning-soft px-4 py-3 text-sm text-warning-fg">
-      {{ t("web.explore.lockedHint") }}
-    </p>
-    <LimitNotice v-else-if="limit" :reason="limit.reason" :reset-at="limit.resetAt" />
-    <p v-else-if="errorText" role="alert" class="rounded-xl bg-danger-soft px-4 py-3 text-sm text-danger">{{ errorText }}</p>
 
     <ComposerCard
       id="mentor-question"
@@ -39,7 +34,15 @@
       :max-length="MAX_QUESTION"
       :busy="busy"
       @submit="ask"
-    />
+    >
+      <template #notice>
+        <p v-if="lockedHint" role="alert" class="rounded-xl bg-warning-soft px-4 py-3 text-sm text-warning-fg">
+          {{ t("web.explore.lockedHint") }}
+        </p>
+        <LimitNotice v-else-if="limit" :reason="limit.reason" :reset-at="limit.resetAt" />
+        <p v-else-if="errorText" role="alert" class="rounded-xl bg-danger-soft px-4 py-3 text-sm text-danger">{{ errorText }}</p>
+      </template>
+    </ComposerCard>
 
     <section v-if="earlier.length > 0" class="space-y-2 border-t border-line pt-4">
       <h2 class="text-sm font-semibold text-ink-muted">{{ t("web.learn.mentor.history") }}</h2>

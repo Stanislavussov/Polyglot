@@ -1,23 +1,20 @@
 <template>
-  <!-- Phones only: the four things a learner reaches for most, one tap away under the thumb. -->
-  <nav
-    v-show="!keyboardUp"
-    class="fixed inset-x-0 bottom-0 z-30 bg-canvas pb-[env(safe-area-inset-bottom)] md:hidden"
-    :aria-label="t('web.nav.quick')"
-  >
-    <ul class="grid h-16 grid-cols-4 items-center gap-1 px-2">
-      <li v-for="item in ITEMS" :key="item.page" class="min-w-0">
+  <!-- The four things a learner reaches for most, one tap away under the thumb. Icons only: the panel stays quiet. -->
+  <nav :aria-label="t('web.nav.quick')">
+    <ul class="grid h-14 grid-cols-4 items-center gap-1 px-2">
+      <li v-for="item in ITEMS" :key="item.page">
         <a
           :href="item.href"
+          :aria-label="t(item.label)"
+          :title="t(item.label)"
           :aria-current="current === item.page ? 'page' : undefined"
           :class="[
-            'flex h-14 flex-col items-center justify-center gap-0.5 rounded-2xl text-sm font-medium tracking-tight transition-colors',
-            current === item.page ? 'bg-primary text-primary-fg' : 'text-ink-muted hover:bg-surface hover:text-ink',
+            'mx-auto grid h-11 w-16 place-items-center rounded-full transition-colors',
+            current === item.page ? 'bg-primary text-primary-fg' : 'text-primary-soft-fg hover:bg-surface',
           ]"
           @click="onClick($event, item.page)"
         >
-          <component :is="item.icon" class="size-5 shrink-0" aria-hidden="true" />
-          <span class="max-w-full truncate">{{ t(item.label) }}</span>
+          <component :is="item.icon" class="size-6" aria-hidden="true" />
         </a>
       </li>
     </ul>
@@ -28,7 +25,7 @@
 import { BookOpen, GraduationCap, Languages, MessageCircle } from "lucide-vue-next";
 import { computed } from "vue";
 import { t } from "../lib/i18n";
-import { keyboardUp, type QuickTarget, quickTargetFor } from "../lib/mobile-dock";
+import { type QuickTarget, quickTargetFor } from "../lib/mobile-dock";
 import type { PageName } from "../lib/types";
 
 const props = defineProps<{ page: PageName }>();

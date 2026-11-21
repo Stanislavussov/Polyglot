@@ -20,9 +20,6 @@
       </WordCard>
 
 
-      <p v-if="lockedHint" role="alert" class="rounded-xl bg-warning-soft px-4 py-3 text-sm text-warning-fg">{{ t("web.explore.lockedHint") }}</p>
-      <LimitNotice v-else-if="limit" :reason="limit.reason" :reset-at="limit.resetAt" />
-      <p v-else-if="errorKey" role="alert" class="rounded-xl bg-danger-soft px-4 py-3 text-sm text-danger">{{ t(errorKey, errorParams) }}</p>
 
       <div class="space-y-3">
         <p v-if="thread.length === 0" class="text-base text-ink-muted">{{ t("web.ask.mentorIntro") }}</p>
@@ -50,7 +47,13 @@
           :max-length="2000"
           :busy="busy"
           @submit="ask(question)"
-        />
+        >
+          <template #notice>
+          <p v-if="lockedHint" role="alert" class="rounded-xl bg-warning-soft px-4 py-3 text-sm text-warning-fg">{{ t("web.explore.lockedHint") }}</p>
+          <LimitNotice v-else-if="limit" :reason="limit.reason" :reset-at="limit.resetAt" />
+          <p v-else-if="errorKey" role="alert" class="rounded-xl bg-danger-soft px-4 py-3 text-sm text-danger">{{ t(errorKey, errorParams) }}</p>
+          </template>
+        </ComposerCard>
       </div>
     </template>
   </section>

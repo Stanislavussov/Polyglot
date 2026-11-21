@@ -70,7 +70,8 @@
     </DialogRoot>
 
     <main class="relative isolate min-w-0 flex-1">
-      <div class="pointer-events-none app-backdrop fixed inset-0 -z-10" aria-hidden="true">
+      <!-- Own GPU layer: its blurred circles are costly to paint, and phones repainted them on every scroll. -->
+      <div class="pointer-events-none app-backdrop fixed inset-0 -z-10 [transform:translateZ(0)]" aria-hidden="true">
         <div class="backdrop-blob -right-40 -top-40 size-[32rem]" />
         <div class="backdrop-ring -right-28 top-24 size-96" />
         <div class="backdrop-dot right-[14%] top-10 size-2.5" />
@@ -116,13 +117,13 @@
       </div>
       <!-- Phones: room under the page for the docked text box and the quick buttons. -->
       <div
-        class="mx-auto max-w-6xl px-4 pb-[calc(var(--dock-h)+5rem+env(safe-area-inset-bottom))] pt-6 sm:px-6 md:px-8 md:py-10"
-        :style="{ '--dock-h': `${composerHeight}px` }"
+        class="mx-auto max-w-6xl px-4 pb-[calc(var(--dock-h)+1.5rem)] pt-6 sm:px-6 md:px-8 md:py-10"
+        :style="{ '--dock-h': `${dockHeight}px` }"
       >
         <component :is="content" :key="page" />
       </div>
     </main>
-    <QuickNav :page="page" @navigate="navigate" />
+    <MobileDock :page="page" @navigate="navigate" />
   </div>
   <AppToast />
 </template>
@@ -149,14 +150,14 @@ import {
 import { loadSettings, restoreSettings, settings } from "../lib/settings-store";
 import type { PageName, ProgressGoal } from "../lib/types";
 import { useProgressBar } from "../lib/use-progress-bar";
-import { composerHeight } from "../lib/mobile-dock";
+import { dockHeight } from "../lib/mobile-dock";
 import DictionaryView from "./DictionaryView.vue";
 import ExpressionsView from "./ExpressionsView.vue";
 import GrammarCheckView from "./GrammarCheckView.vue";
 import LearnView from "./LearnView.vue";
 import MentorChatView from "./MentorChatView.vue";
 import NavList from "./NavList.vue";
-import QuickNav from "./QuickNav.vue";
+import MobileDock from "./MobileDock.vue";
 import PlanView from "./PlanView.vue";
 import ProgressView from "./ProgressView.vue";
 import ReviewView from "./ReviewView.vue";

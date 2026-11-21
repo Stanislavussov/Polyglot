@@ -88,14 +88,16 @@ right-handed thumb. A destructive action goes last, so it is the first to fold a
 Every free-text box (translate, asking about a word, the mentor, the grammar check) is a
 `ComposerCard`, shaped like a chat app's: one rounded box that grows with the text, icon tools
 on the left (`tools` slot), Clear, and a round send button on the right; Enter sends. The counter
-appears only near the limit. On phones the box docks at the bottom of the screen above the quick
-buttons and rides on top of the keyboard while typing (`lib/mobile-dock.ts`); wider screens keep
-it in the page.
+appears only near the limit. On phones the box moves (Teleport) into `MobileDock`, the shell's
+bottom panel with its own mint background, and the panel rides on top of the keyboard while
+typing (`lib/mobile-dock.ts`, moved with `transform` only, so scrolling never re-lays it out);
+wider screens keep the box in the page. Errors, limits and questions about what was typed go in
+its `notice` slot: above the box in the phone panel, under it in the page.
 
 ## Quick buttons (`QuickNav`)
 
-Phones show four equal tabs (icon over label) at the very bottom of every page: Translate, Dictionary, Review,
-Mentor. The current page's tab is filled. The row hides while the keyboard is up.
+Phones show four icon-only tabs in the bottom panel of every page: Translate, Dictionary, Review,
+Mentor (names in `aria-label`/`title`). Desktop shows neither the panel nor the tabs. The current page's tab is filled. The row hides while the keyboard is up.
 
 ## Loading inside a card
 
