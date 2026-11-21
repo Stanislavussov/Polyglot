@@ -51,6 +51,20 @@ export function freeAreaCenter(visibleTop: number, visibleHeight: number, header
   return Math.round((top + Math.max(top, bottom)) / 2);
 }
 
+/**
+ * iOS pans the page up to "reveal" a focused box near the bottom, even when the box already rides above the keyboard
+ * and the page has nothing to scroll — the header then vanishes. Undo that pan only on a page that fits the screen:
+ * on a longer page the offset is the reader's own scroll.
+ */
+export function shouldUnpan(
+  keyboardIsUp: boolean,
+  visibleTop: number,
+  pageHeight: number,
+  layoutHeight: number,
+): boolean {
+  return keyboardIsUp && visibleTop > 0 && pageHeight <= layoutHeight + 1;
+}
+
 export function coveredByKeyboard(layoutHeight: number, visibleHeight: number, visibleTop: number): number {
   return Math.max(0, Math.round(layoutHeight - visibleHeight - visibleTop));
 }
@@ -78,6 +92,12 @@ export function trackKeyboard(): () => void {
     visibleBox.value = { top: viewport?.offsetTop ?? 0, height: viewport?.height ?? window.innerHeight };
     keyboardInset.value = liftFor(composerFocused.value, inset);
     keyboardUp.value = composerFocused.value && keyboardShown(inset, viewport?.height ?? window.innerHeight, tallest);
+    // The scroll this fires comes back through `schedule`, which re-measures the box with the pan undone.
+    if (
+      shouldUnpan(keyboardUp.value, viewport?.offsetTop ?? 0, document.documentElement.scrollHeight, window.innerHeight)
+    ) {
+      window.scrollTo(0, 0);
+    }
   };
   // One measurement per frame at most: scroll events arrive faster than the screen redraws.
   const schedule = (): void => {
