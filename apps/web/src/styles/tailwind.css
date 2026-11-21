@@ -79,7 +79,12 @@
 
   /* A piece of the translate card that just arrived: it settles in instead of popping. */
   .stream-in {
-    animation: stream-in 320ms ease-out both;
+    animation: stream-in 420ms cubic-bezier(0.2, 0, 0, 1) both;
+  }
+
+  /* Inline text cannot be moved by a transform, so it only fades. */
+  .stream-fade {
+    animation: stream-fade 420ms ease-out both;
   }
 
   .field {
@@ -87,10 +92,16 @@
   }
 }
 
+@keyframes stream-fade {
+  from {
+    opacity: 0;
+  }
+}
+
 @keyframes stream-in {
   from {
     opacity: 0;
-    transform: translateY(4px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
