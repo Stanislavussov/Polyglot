@@ -575,6 +575,7 @@
   "web.translate.greet.beforeBed": "Ұйқы алдында тағы бір сөз бе?",
   "web.translate.greet.moonlit": "Ай жарығындағы сөз бе?",
   "web.translate.placeholder": "Сөзді, тіркесті немесе сөйлемді жазыңыз",
+  "web.translate.placeholderShort": "Сөз немесе тіркес",
   "web.translate.submit": "Аудару",
   "web.translate.working": "Аударылуда…",
   "web.translate.correction": "Сіз мынаны меңзедіңіз бе: {text}",

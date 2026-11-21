@@ -95,4 +95,6 @@
 - On your phone, typing works calmly again: the text box and the cursor stay in place instead of jumping up and down.
 - Word picks work again on your phone: pick a language once at the top, tap a topic and the words appear right away, each on the same card as a translation.
 - The translate page now greets you with the monster and a new question each visit, without a heading in the way, and on a phone it no longer jumps to the keyboard when you open it.
-- Closed the progress hint at the top? It now stays hidden for a month.
+- Closed the progress hint at the top? It now stays hidden for a month, with no leftover icon — bring it back from the Progress page.
+- A word card opened on your phone closes with a swipe down again, even after you have scrolled through it.
+- On a phone the empty translate page no longer scrolls, the monster stays put when the keyboard opens, and the box's hint fits on one line.

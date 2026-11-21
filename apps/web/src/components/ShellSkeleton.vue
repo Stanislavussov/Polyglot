@@ -1,5 +1,5 @@
 <template>
-  <div class="flex min-h-screen flex-col md:flex-row" aria-busy="true">
+  <div class="flex min-h-dvh flex-col md:flex-row" aria-busy="true">
     <p class="sr-only" role="status">{{ label }}</p>
 
     <aside class="app-sidebar hidden shrink-0 flex-col overflow-hidden bg-sidebar md:flex md:h-screen" aria-hidden="true">
@@ -34,7 +34,7 @@
         <template v-if="placeholder">
           <!-- Phones: the history button and the greeting in the free space above the bottom box, as the app draws them. -->
           <div class="flex justify-end md:hidden" aria-hidden="true"><span class="skeleton size-11 rounded-full" /></div>
-          <div class="flex min-h-[45dvh] flex-col items-center justify-center gap-4 py-10 md:hidden" aria-hidden="true">
+          <div class="pointer-events-none fixed inset-x-0 top-[44svh] flex -translate-y-1/2 flex-col items-center gap-4 px-4 md:hidden" aria-hidden="true">
             <MonsterMark class="size-14" />
             <span class="skeleton h-8 w-56 rounded" />
           </div>

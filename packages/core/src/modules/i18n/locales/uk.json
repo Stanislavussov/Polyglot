@@ -575,6 +575,7 @@
   "web.translate.greet.beforeBed": "Ще одне слово перед сном?",
   "web.translate.greet.moonlit": "Слово при місяці?",
   "web.translate.placeholder": "Введіть слово, фразу або речення",
+  "web.translate.placeholderShort": "Слово або фраза",
   "web.translate.submit": "Перекласти",
   "web.translate.working": "Перекладаю…",
   "web.translate.correction": "Можливо, ви мали на увазі: {text}",

@@ -575,6 +575,7 @@
   "web.translate.greet.beforeBed": "One more word before bed?",
   "web.translate.greet.moonlit": "A word by moonlight?",
   "web.translate.placeholder": "Type a word, phrase or sentence",
+  "web.translate.placeholderShort": "A word or phrase",
   "web.translate.submit": "Translate",
   "web.translate.working": "Translating…",
   "web.translate.correction": "Did you mean: {text}",

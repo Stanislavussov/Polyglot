@@ -1,6 +1,6 @@
 <template>
   <ShellSkeleton v-if="!ready" :label="t('web.common.loading')" :placeholder="page === 'translate' ? '…' : undefined" />
-  <div v-else class="flex min-h-screen flex-col md:flex-row">
+  <div v-else class="flex min-h-dvh flex-col md:flex-row">
     <aside
       class="app-sidebar relative hidden shrink-0 flex-col bg-sidebar md:sticky md:top-0 md:flex md:h-screen"
       :class="{ 'is-dragging': dragging }"
@@ -77,8 +77,9 @@
         <div class="backdrop-dot right-[14%] top-10 size-2.5" />
         <div class="backdrop-dot bottom-[16%] right-[9%] size-1.5 opacity-60" />
       </div>
-      <div v-if="goalText && page !== 'progress'" class="mx-auto max-w-6xl px-4 pt-3 sm:px-6 md:px-8">
-        <div v-if="!bar.snoozed.value" class="flex items-center gap-2 rounded-full bg-primary-soft py-1 pl-4 pr-1 text-sm text-primary-soft-fg">
+      <!-- Hidden means gone from every page: bringing it back lives on the Progress page, not in a leftover icon. -->
+      <div v-if="goalText && page !== 'progress' && !bar.snoozed.value" class="mx-auto max-w-6xl px-4 pt-3 sm:px-6 md:px-8">
+        <div class="flex items-center gap-2 rounded-full bg-primary-soft py-1 pl-4 pr-1 text-sm text-primary-soft-fg">
           <a href="/progress/" class="min-w-0 flex-1 truncate hover:underline" @click.prevent="navigate('progress')">{{ goalText }}</a>
           <button
             type="button"
@@ -88,17 +89,6 @@
             @click="bar.hide()"
           >
             <X class="size-4" aria-hidden="true" />
-          </button>
-        </div>
-        <div v-else class="flex justify-end">
-          <button
-            type="button"
-            class="rounded-full px-2 py-0.5 text-sm text-ink-muted hover:bg-primary-soft hover:text-primary-soft-fg"
-            :aria-label="t('web.progress.barShow')"
-            :title="t('web.progress.barShow')"
-            @click="bar.show()"
-          >
-            🎯
           </button>
         </div>
       </div>
