@@ -1,4 +1,4 @@
-import { errorFields, FEATURE_KEYS, logEvent } from "@polyglot/core";
+import { errorFields, FEATURE_KEYS, logEvent, tidyTranscript } from "@polyglot/core";
 import type { FastifyInstance } from "fastify";
 import type { WebServices } from "../services.js";
 import { featureLocked, hasFeature } from "./learn-shared.js";
@@ -48,7 +48,7 @@ export function voiceRoutes(app: FastifyInstance, services: WebServices): void {
     let text: string;
     try {
       const result = await services.ai.transcribe({ audio, format: "wav", modelId: stt.modelId, userId: user.id });
-      text = result.text.trim();
+      text = tidyTranscript(result.text);
       logEvent("voice.transcribed", {
         durationSec,
         chars: text.length,

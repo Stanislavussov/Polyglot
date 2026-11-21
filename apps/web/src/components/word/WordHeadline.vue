@@ -4,7 +4,7 @@
       <span :class="HEADLINE_EMOJI[size]" aria-hidden="true">{{ emoji }}</span>
     </template>
     <div class="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
-      <component :is="as" :class="['min-w-0 break-words', HEADLINE_TEXT[size], TONE[tone]]">{{ text }}</component>
+      <component :is="as" :class="['min-w-0 break-words', HEADLINE_TEXT[size], TONE[tone]]"><StreamText v-if="stream" :text="text" /><template v-else>{{ text }}</template></component>
       <slot name="after" />
     </div>
   </IconRow>
@@ -12,6 +12,7 @@
 
 <script setup lang="ts">
 import { HEADLINE_EMOJI, HEADLINE_TEXT, type HeadlineSize, TONE, type Tone } from "../../lib/word-card";
+import StreamText from "../StreamText.vue";
 import IconRow from "./IconRow.vue";
 
 withDefaults(
@@ -25,8 +26,10 @@ withDefaults(
     reserveIcon?: boolean;
     /** `chip` sets the word on a soft tile that hugs the text and wraps a sentence inside it. */
     variant?: "plain" | "chip";
+    /** Type the text out as it arrives (the translate card). */
+    stream?: boolean;
   }>(),
-  { emoji: null, size: "md", tone: "ink", as: "p", reserveIcon: false, variant: "plain" },
+  { emoji: null, size: "md", tone: "ink", as: "p", reserveIcon: false, variant: "plain", stream: false },
 );
 
 // Negative margin = padding, so the emoji stays in the same column as the flags around it.
