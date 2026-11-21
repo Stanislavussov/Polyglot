@@ -26,6 +26,8 @@ const config: Config = {
         warning: { soft: "var(--color-warning-soft)", fg: "var(--color-warning-fg)" },
         accent: { DEFAULT: "var(--color-accent)", fg: "var(--color-accent-fg)" },
         ring: "var(--color-ring)",
+        // The dim behind dialogs: dark in both themes (ink turns light in dark mode and lit the page up).
+        scrim: "var(--color-scrim)",
         sidebar: {
           DEFAULT: "var(--color-sidebar)",
           fg: "var(--color-sidebar-fg)",

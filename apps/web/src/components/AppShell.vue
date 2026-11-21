@@ -49,7 +49,7 @@
 
     <DialogRoot v-model:open="drawerOpen">
       <DialogPortal>
-        <DialogOverlay class="fixed inset-0 z-40 bg-ink opacity-50 md:hidden" />
+        <DialogOverlay class="fixed inset-0 z-40 bg-scrim opacity-50 md:hidden" />
         <DialogContent
           class="fixed inset-y-0 left-0 z-50 flex w-72 max-w-[85vw] flex-col bg-sidebar text-sidebar-fg shadow-xl md:hidden"
           :aria-describedby="undefined"

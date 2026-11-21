@@ -1,7 +1,7 @@
 <template>
   <DialogRoot :open="open" @update:open="(next) => !next && emit('close')">
     <DialogPortal>
-      <DialogOverlay :style="overlayStyle" :class="{ 'sheet-dragged-out': dismissing }" class="sheet-overlay fixed inset-0 z-40 bg-ink opacity-50" />
+      <DialogOverlay :style="overlayStyle" :class="{ 'sheet-dragged-out': dismissing }" class="sheet-overlay fixed inset-0 z-40 bg-scrim opacity-50" />
       <!-- A bottom sheet on phones, a centered panel from sm up. -->
       <DialogContent
         :style="sheetStyle"

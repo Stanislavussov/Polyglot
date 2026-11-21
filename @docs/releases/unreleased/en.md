@@ -83,3 +83,5 @@
 - On your phone the text box and the quick buttons now sit together on their own panel at the bottom, scrolling stays smooth, the buttons are simple icons, and if something goes wrong the message shows right above the box instead of far up the page.
 - On your phone the Review page title and the number of words to review now sit neatly one under the other.
 - When you translate a word from a language you are learning, its synonyms and examples now sit right under the word itself, before the translation.
+- Speaking a word now shows a live wave while you talk and while we listen back; stop to drop the words into the box and check them, or tap send to translate right away.
+- Opening a word from your dictionary no longer jumps halfway first, and every dialog now dims the page behind it instead of washing it out.

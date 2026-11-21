@@ -12,22 +12,32 @@
         :submit-label="t('web.translate.submit')"
         :max-length="MAX_LENGTH"
         :busy="busy"
+        :voice="recording ? 'recording' : transcribing ? 'processing' : null"
         @submit="submit()"
+        @voice-send="finishRecording(true)"
       >
         <template #tools>
+          <!-- Idle: the mic. Recording: Stop puts the words into the box to check first; the send button sends at once. -->
           <button
             v-if="voiceAvailable"
             type="button"
             class="grid size-11 shrink-0 place-items-center rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-60"
-            :class="recording ? 'bg-primary text-primary-fg' : 'text-ink-muted hover:bg-surface-muted hover:text-ink'"
-            :aria-pressed="recording"
+            :class="recording ? 'bg-surface-muted text-ink hover:bg-primary-soft' : 'text-ink-muted hover:bg-surface-muted hover:text-ink'"
             :aria-label="recording ? t('web.voice.stop') : t('web.voice.record')"
             :title="recording ? t('web.voice.stop') : t('web.voice.record')"
             :disabled="busy || transcribing"
-            @click="toggleRecording"
+            @mousedown.prevent
+            @click="recording ? finishRecording(false) : startRecording()"
           >
-            <Square v-if="recording" class="size-5" aria-hidden="true" /><Mic v-else class="size-5" aria-hidden="true" />
+            <Square v-if="recording" class="size-5" fill="currentColor" aria-hidden="true" /><Mic v-else class="size-5" aria-hidden="true" />
           </button>
+        </template>
+        <template #voice>
+          <VoiceWave
+            :level="voiceLevel"
+            :processing="transcribing"
+            :label="transcribing ? t('web.voice.processing') : t('web.voice.listening')"
+          />
         </template>
         <template #notice>
           <LimitNotice v-if="limit" :reason="limit.reason" :reset-at="limit.resetAt" />
@@ -316,6 +326,7 @@ import { MENU } from "../lib/action-bar";
 import ActionMenuItem from "./ActionMenuItem.vue";
 import CardExplore from "./CardExplore.vue";
 import ComposerCard from "./ComposerCard.vue";
+import VoiceWave from "./VoiceWave.vue";
 import ExampleList from "./ExampleList.vue";
 import LimitNotice from "./LimitNotice.vue";
 import MonsterLoader from "./MonsterLoader.vue";
@@ -515,27 +526,33 @@ const VOICE_ERRORS: Record<string, string> = {
   voice_too_long: "web.voice.tooLong",
 };
 
-// Same path as the bot's voice message: the transcript goes through the ordinary translation.
-async function toggleRecording(): Promise<void> {
-  if (!recording.value) {
-    resetNotices();
-    try {
-      recorder = await startWavRecording();
-      recording.value = true;
-    } catch {
-      errorKey.value = "web.voice.denied";
-    }
-    return;
+function voiceLevel(): number {
+  return recorder?.level() ?? 0;
+}
+
+async function startRecording(): Promise<void> {
+  resetNotices();
+  try {
+    recorder = await startWavRecording();
+    recording.value = true;
+  } catch {
+    errorKey.value = "web.voice.denied";
   }
+}
+
+// Same path as the bot's voice message: the transcript goes through the ordinary translation.
+// Without `send` the words only land in the box, so the learner can fix a misheard word first.
+async function finishRecording(send: boolean): Promise<void> {
   const active = recorder;
+  if (!active) return;
   recorder = null;
   recording.value = false;
-  if (!active) return;
   transcribing.value = true;
   try {
     const { text: spoken } = await api.transcribe(await active.stop());
     text.value = spoken;
-    await answer(spoken, {});
+    if (send) await answer(spoken, {});
+    else focusInput();
   } catch (error) {
     if (error instanceof ApiError && error.code === "voice_off") voiceAvailable.value = false;
     errorKey.value = (error instanceof ApiError && VOICE_ERRORS[error.code ?? ""]) || "web.voice.failed";
