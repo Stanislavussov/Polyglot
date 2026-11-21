@@ -1,10 +1,10 @@
 <template>
   <section>
-    <div class="flex items-center justify-between gap-3">
-      <h1 class="page-title">{{ t("web.translate.title") }}</h1>
+    <!-- The page needs no visible title: the greeting and the box say what it is for. -->
+    <h1 class="sr-only">{{ t("web.translate.title") }}</h1>
+    <div v-if="docked" class="flex justify-end">
       <!-- Phones keep the page to the card alone; history waits behind this button, as chat apps do. -->
       <button
-        v-if="docked"
         type="button"
         class="btn-secondary min-h-11 w-11 shrink-0 px-0"
         :aria-label="t('web.translate.recent')"
@@ -15,7 +15,8 @@
       </button>
     </div>
 
-    <div class="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,20rem)] xl:items-start">
+    <TranslateGreeting v-if="!docked && !card && !busy" inline />
+    <div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,20rem)] xl:items-start" :class="{ 'mt-2': docked }">
       <ComposerCard
         id="translate-input"
         ref="composer"
@@ -288,6 +289,7 @@
           <CardExplore v-else ref="explore" :result="card" @replace="onReplace" />
 
         </article>
+        <TranslateGreeting v-else-if="docked" />
       </div>
 
       <TranslateHistory
@@ -346,6 +348,7 @@ import MonsterThinking from "./MonsterThinking.vue";
 import ExampleList from "./ExampleList.vue";
 import LimitNotice from "./LimitNotice.vue";
 import MonsterLoader from "./MonsterLoader.vue";
+import TranslateGreeting from "./TranslateGreeting.vue";
 import TranslationBlock from "./TranslationBlock.vue";
 import TranslateHistory from "./TranslateHistory.vue";
 import BottomSheet from "./BottomSheet.vue";
