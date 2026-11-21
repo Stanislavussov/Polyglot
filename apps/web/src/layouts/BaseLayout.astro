@@ -34,7 +34,11 @@ const { title } = Astro.props;
         const root = document.documentElement;
         if (typeof s.width === "number") root.style.setProperty("--sidebar-w", Math.min(420, Math.max(220, s.width)) + "px");
         if (s.collapsed === true) root.classList.add("sidebar-collapsed");
-      } catch {}
+        // No cached settings = the app will wait for the server: show the monster splash instead of the skeleton (lib/settings-store.ts).
+        if (!localStorage.getItem("settings")) root.classList.add("first-open");
+      } catch {
+        document.documentElement.classList.add("first-open");
+      }
     </script>
     <slot name="head" />
   </head>

@@ -142,3 +142,32 @@
     left: 68px;
   }
 }
+
+/* The first-open splash (ShellSkeleton): the class is set on <html> before first paint by BaseLayout. */
+.shell-splash {
+  display: none;
+}
+
+.first-open .shell-splash {
+  display: grid;
+}
+
+/* Hidden, not covered: the early text box underneath must not take focus or typing. */
+.first-open .shell-body {
+  visibility: hidden;
+}
+
+.shell-splash-icon {
+  animation: splash-breathe 1.6s ease-in-out infinite;
+}
+
+@keyframes splash-breathe {
+  0%, 100% { transform: scale(1); opacity: 0.9; }
+  50% { transform: scale(1.06); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shell-splash-icon {
+    animation: none;
+  }
+}

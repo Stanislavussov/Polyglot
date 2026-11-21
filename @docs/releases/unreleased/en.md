@@ -93,3 +93,4 @@
 - After a translation the page jumps back to the top, so the answer always starts in view, and on your phone your recent words now wait behind a button next to the title.
 - When you translate from a language you are learning, the translation into your own language now sits right under the word, with no extra label to look for.
 - On your phone, typing works calmly again: the text box and the cursor stay in place instead of jumping up and down.
+- The very first time you open the site, a friendly monster greets you in the middle of the screen while everything loads.
