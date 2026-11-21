@@ -121,7 +121,8 @@
         <p class="mt-2 hidden truncate px-3 text-sm text-ink-muted md:block [@media(pointer:coarse)]:hidden">{{ t("web.translate.hint") }}</p>
       </ComposerCard>
 
-      <div class="min-w-0 xl:col-start-1 xl:row-start-2" aria-live="polite">
+      <!-- scroll-mt: room for the phone's sticky top bar when a word from history is scrolled into view. -->
+      <div ref="answerArea" class="min-w-0 scroll-mt-20 xl:col-start-1 xl:row-start-2" aria-live="polite">
 
         <TranslateSkeleton v-if="busy && !preview" :label="loaderText || t('web.translate.loading')" />
 
@@ -311,7 +312,9 @@ import {
   DropdownMenuRoot,
   DropdownMenuTrigger,
 } from "reka-ui";
-import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef } from "vue";
+import { useDocked } from "../lib/mobile-dock";
+import { hapticTick } from "../lib/haptics";
 import { useLoaderText } from "../lib/use-loader-text";
 import { captureEarlyInput, earlyFocused, earlyText } from "../lib/early-input";
 import { toast } from "../lib/toast";
@@ -340,6 +343,8 @@ const HISTORY_SIZE = 10;
 const HISTORY_KEY = "polyglot.translate.history";
 
 const composer = ref<InstanceType<typeof ComposerCard> | null>(null);
+const answerArea = useTemplateRef<HTMLDivElement>("answerArea");
+const docked = useDocked();
 // Text typed into the loading page's early input carries over, caret and all.
 captureEarlyInput();
 const text = ref(earlyText.value);
@@ -453,10 +458,19 @@ function resetNotices(): void {
   limit.value = null;
 }
 
+// On a phone the history sits below the card, so the reopened word is scrolled up into view — and the text box
+// stays unfocused, or Android's keyboard would cover the word straight away.
 function openHistory(entry: TranslateResult): void {
   resetNotices();
   show(entry);
-  focusInput();
+  if (!docked.value) {
+    focusInput();
+    return;
+  }
+  void nextTick(() => {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    answerArea.value?.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+  });
 }
 
 // Unsaved and saved must read apart at a glance (two teal tints did not): a filled Save, then a red Remove.
@@ -598,8 +612,10 @@ async function answer(value: string, choice: TranslateAnswer): Promise<void> {
   try {
     const fresh = await api.translateProgressive(value, choice, (partial) => {
       preview.value = partial;
+      hapticTick();
     });
     show(fresh, true);
+    hapticTick();
     remember(fresh);
     // Only on success: a failed or clarifying answer keeps the text so the user can retry or edit it.
     text.value = "";

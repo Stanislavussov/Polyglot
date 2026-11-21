@@ -5,7 +5,7 @@
   <Teleport :to="DOCK_TARGET" defer :disabled="!docked">
   <form v-bind="$attrs" @submit.prevent="send">
     <!-- Errors and questions about what was typed sit right by the box, so a phone never hides them up the page. -->
-    <div v-if="docked" class="mb-2 max-h-[45dvh] space-y-2 overflow-y-auto empty:hidden" aria-live="polite"><slot name="notice" /></div>
+    <div v-if="docked" class="mb-2 max-h-[min(45dvh,calc(var(--visible-h,100dvh)*0.25))] space-y-2 overflow-y-auto empty:hidden" aria-live="polite"><slot name="notice" /></div>
     <div
       class="rounded-3xl border border-line bg-surface p-3 transition-colors focus-within:border-ring md:shadow-card"
       @click="focusField"
@@ -18,7 +18,7 @@
         :id="id"
         ref="el"
         :value="modelValue"
-        class="block max-h-[40dvh] min-h-11 w-full resize-none bg-transparent px-2 py-2 text-base text-ink placeholder:text-ink-muted focus:outline-none md:min-h-20"
+        class="block max-h-[min(40dvh,calc(var(--visible-h,100dvh)*0.35))] min-h-11 w-full resize-none bg-transparent px-2 py-2 text-base text-ink placeholder:text-ink-muted focus:outline-none md:min-h-20"
         rows="1"
         :maxlength="maxLength"
         :placeholder="placeholder"
@@ -111,11 +111,15 @@ function onInput(event: Event): void {
 }
 
 // The box grows with the text up to its max height, then scrolls — like a chat app's.
+// Collapsing the height to measure resets the scroll, which left the caret's line out of sight: typing at the end
+// keeps the newest line in view, editing earlier keeps the box where it was.
 function fit(): void {
   const field = el.value;
   if (!field) return;
+  const { scrollTop } = field;
   field.style.height = "auto";
   field.style.height = `${field.scrollHeight}px`;
+  field.scrollTop = field.selectionEnd === field.value.length ? field.scrollHeight : scrollTop;
 }
 watch(
   () => props.modelValue,

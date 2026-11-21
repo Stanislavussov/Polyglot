@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { coveredByKeyboard, keyboardShown, liftFor, QUICK_TARGETS, quickTargetFor } from "./mobile-dock";
+import {
+  closesFromPanel,
+  coveredByKeyboard,
+  isScrollDrag,
+  keyboardShown,
+  liftFor,
+  QUICK_TARGETS,
+  quickTargetFor,
+} from "./mobile-dock";
 
 describe("quick buttons", () => {
   it("offers translate, dictionary, review and the mentor, in that order", () => {
@@ -67,7 +75,39 @@ describe("liftFor", () => {
     expect(liftFor(true, 40)).toBe(0);
   });
 
+  it("follows a small gap too once the keyboard is known to be up, so the box never sinks under it", () => {
+    expect(liftFor(true, 40, true)).toBe(40);
+  });
+
   it("never lifts when the box is not being typed in", () => {
     expect(liftFor(false, 336)).toBe(0);
+  });
+});
+
+describe("isScrollDrag", () => {
+  it("is a finger moving the page", () => {
+    expect(isScrollDrag(0, 30)).toBe(true);
+  });
+
+  it("is not a tap that wobbled a little", () => {
+    expect(isScrollDrag(4, 6)).toBe(false);
+  });
+
+  it("is not a sideways swipe", () => {
+    expect(isScrollDrag(40, 12)).toBe(false);
+  });
+});
+
+describe("closesFromPanel", () => {
+  it("closes the keyboard on a swipe down over the box", () => {
+    expect(closesFromPanel(0, 40, false)).toBe(true);
+  });
+
+  it("leaves a swipe up alone", () => {
+    expect(closesFromPanel(0, -40, false)).toBe(false);
+  });
+
+  it("scrolls a long text back up first", () => {
+    expect(closesFromPanel(0, 40, true)).toBe(false);
   });
 });
