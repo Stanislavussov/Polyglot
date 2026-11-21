@@ -18,6 +18,7 @@
   --color-surface-muted: #edf7f3;
   --color-line: #d9ede6;
   --color-ink: #102b25;
+  --color-scrim: #04110e;
   --color-ink-muted: #4b675f;
   --color-primary: #1f8a74;
   --color-primary-hover: #18705e;
@@ -45,6 +46,7 @@
   --color-surface-muted: #162c26;
   --color-line: #234139;
   --color-ink: #e2f1ec;
+  --color-scrim: #000000;
   --color-ink-muted: #97b5ac;
   --color-primary: #3cc4a3;
   --color-primary-hover: #63d5b9;
@@ -72,6 +74,7 @@
     --color-surface-muted: #162c26;
     --color-line: #234139;
     --color-ink: #e2f1ec;
+    --color-scrim: #000000;
     --color-ink-muted: #97b5ac;
     --color-primary: #3cc4a3;
     --color-primary-hover: #63d5b9;

@@ -11,7 +11,10 @@
       @click="focusField"
     >
       <label class="sr-only" :for="id">{{ placeholder }}</label>
+      <!-- While a voice note is recorded or read, the page's wave takes the text's place; the box keeps its height. -->
+      <div v-if="voice" class="flex min-h-11 items-center px-2 py-2 md:min-h-20"><slot name="voice" /></div>
       <textarea
+        v-show="!voice"
         :id="id"
         ref="el"
         :value="modelValue"
@@ -27,7 +30,7 @@
       <div class="flex items-center gap-2">
         <slot name="tools" />
         <button
-          v-if="modelValue !== ''"
+          v-if="modelValue !== '' && !voice"
           type="button"
           class="grid size-11 shrink-0 place-items-center rounded-full text-ink-muted transition-colors hover:bg-surface-muted hover:text-ink"
           :aria-label="t('web.translate.clear')"
@@ -43,12 +46,12 @@
         <button
           type="submit"
           class="ml-auto grid size-11 shrink-0 place-items-center rounded-full bg-primary text-primary-fg shadow-primary transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:bg-primary-soft disabled:text-primary-soft-fg disabled:shadow-none"
-          :aria-label="busy ? t('web.translate.working') : submitLabel"
-          :title="busy ? t('web.translate.working') : submitLabel"
-          :disabled="busy || modelValue.trim() === ''"
+          :aria-label="working ? t('web.translate.working') : submitLabel"
+          :title="working ? t('web.translate.working') : submitLabel"
+          :disabled="!canSend"
           @mousedown.prevent
         >
-          <LoaderCircle v-if="busy" class="size-5 animate-spin" aria-hidden="true" />
+          <LoaderCircle v-if="working" class="size-5 animate-spin" aria-hidden="true" />
           <ArrowUp v-else class="size-5" aria-hidden="true" />
         </button>
       </div>
@@ -72,8 +75,10 @@ const props = defineProps<{
   submitLabel: string;
   maxLength: number;
   busy: boolean;
+  /** A voice note in progress: "recording" makes the send button stop and send it at once. */
+  voice?: "recording" | "processing" | null;
 }>();
-const emit = defineEmits<{ "update:modelValue": [value: string]; submit: [] }>();
+const emit = defineEmits<{ "update:modelValue": [value: string]; submit: []; voiceSend: [] }>();
 
 const el = useTemplateRef<HTMLTextAreaElement>("el");
 // Teleport is the root, so the page's classes go onto the form by hand.
@@ -84,8 +89,12 @@ defineExpose({ el });
 // The counter only matters once the limit is in sight.
 const nearLimit = computed(() => props.modelValue.length >= props.maxLength * 0.8);
 
+const working = computed(() => props.busy || props.voice === "processing");
+const canSend = computed(() => props.voice === "recording" || (!working.value && props.modelValue.trim() !== ""));
+
 function send(): void {
-  if (!props.busy && props.modelValue.trim() !== "") emit("submit");
+  if (props.voice === "recording") emit("voiceSend");
+  else if (canSend.value) emit("submit");
 }
 
 function clear(): void {
