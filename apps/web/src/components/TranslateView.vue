@@ -203,6 +203,18 @@
             </div>
             </div>
             <WordHeadline as="h2" :text="card.sourceUsage?.headword ?? card.original" :emoji="card.emoji" />
+            <!-- Everything about the word in its own language sits with the word, above the translations. -->
+            <template v-if="card.sourceUsage">
+              <ul v-if="card.sourceUsage.synonyms.length > 0" class="flex flex-wrap gap-2 text-sm" :aria-label="t('web.translate.aboutSource')">
+                <li v-for="synonym in card.sourceUsage.synonyms" :key="synonym" class="rounded-full bg-primary-soft px-3 py-1 text-primary-soft-fg">
+                  {{ synonym }}
+                </li>
+              </ul>
+              <div class="space-y-2 rounded-xl bg-surface-muted px-4 py-3 text-sm">
+                <p>{{ card.sourceUsage.explanation }}</p>
+                <ExampleList :examples="card.sourceUsage.examples" />
+              </div>
+            </template>
 
             <div v-if="card.correction" class="rounded-xl bg-warning-soft px-4 py-3 text-sm text-warning-fg">
               <p class="font-semibold">{{ t("web.translate.corrected", { corrected: card.correction.corrected }) }}</p>
@@ -223,22 +235,12 @@
             id-prefix="translate"
           />
 
-          <div v-if="card.nativeMeaning || card.sourceUsage" class="space-y-3">
+          <div v-if="card.nativeMeaning" class="space-y-3">
             <p v-if="card.nativeMeaning" class="text-base">
               <span class="font-semibold text-ink-muted">{{ t("web.translate.nativeMeaning") }}:</span>
               {{ card.nativeMeaning }}
             </p>
 
-            <div v-if="card.sourceUsage" class="space-y-2 rounded-xl bg-surface-muted px-4 py-3 text-sm">
-              <h3 class="text-sm font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.translate.aboutSource") }}</h3>
-              <p>{{ card.sourceUsage.explanation }}</p>
-              <ul v-if="card.sourceUsage.synonyms.length > 0" class="flex flex-wrap gap-2">
-                <li v-for="synonym in card.sourceUsage.synonyms" :key="synonym" class="rounded-full bg-primary-soft px-3 py-1 text-primary-soft-fg">
-                  {{ synonym }}
-                </li>
-              </ul>
-              <ExampleList :examples="card.sourceUsage.examples" />
-            </div>
           </div>
 
           <TranslationBlock

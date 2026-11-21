@@ -81,3 +81,5 @@
 - Typed a word the website took for a language it doesn't support yet? It now names that language properly with its flag, and lets you pick one of your own languages to translate from in one tap.
 - On your phone the website now feels like a chat: the text box waits at the bottom, stays above the keyboard while you type, and Translate, Dictionary, Review and Mentor are one tap away right under your thumb.
 - On your phone the text box and the quick buttons now sit together on their own panel at the bottom, scrolling stays smooth, the buttons are simple icons, and if something goes wrong the message shows right above the box instead of far up the page.
+- On your phone the Review page title and the number of words to review now sit neatly one under the other.
+- When you translate a word from a language you are learning, its synonyms and examples now sit right under the word itself, before the translation.

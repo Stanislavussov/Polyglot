@@ -1,6 +1,7 @@
 <template>
   <section>
-    <div class="flex items-baseline justify-between gap-3">
+    <!-- One column on phones: side by side, the big title and the count both wrapped into ragged halves. -->
+    <div class="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-3">
       <h1 class="page-title">{{ t("web.review.title") }}</h1>
       <p v-if="state" class="text-sm text-ink-muted">{{ t("web.review.due", { count: state.dueCount }) }}</p>
     </div>
