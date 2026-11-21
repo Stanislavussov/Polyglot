@@ -90,3 +90,4 @@
 - On your phone, the text box stays in sight above the keyboard: a long text now scrolls inside the box, and swiping down or scrolling the page simply closes the keyboard instead of making the box jump.
 - A translation now gently fades in piece by piece instead of typing itself out letter by letter, and on your phone a word picked from your history scrolls up into view.
 - On your phone, you now feel a light tap as each part of a translation arrives.
+- The dictionary got simpler: search, filters and sorting now fit in one compact row, and the row of language buttons is gone.

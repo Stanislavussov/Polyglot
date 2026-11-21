@@ -668,7 +668,6 @@
   "web.dictionary.filters": "Filtry",
   "web.dictionary.filtersActive": "Filtry, aktivních: {count}",
   "web.dictionary.filterAll": "Vše",
-  "web.dictionary.filterLang": "Jazyk",
   "web.dictionary.filterType": "Typ",
   "web.dictionary.filterReview": "Opakování",
   "web.dictionary.filterReset": "Resetovat",

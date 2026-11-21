@@ -176,7 +176,6 @@ export type DictionaryReview = "due" | "new" | "learned";
 
 /** An empty string means "no filter". */
 export interface DictionaryFilterState {
-  lang: string;
   type: DictionaryType | "";
   difficulty: DictionaryDifficulty | "";
   review: DictionaryReview | "";
