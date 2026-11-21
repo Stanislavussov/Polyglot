@@ -6,7 +6,7 @@
     :class="
       inline
         ? 'flex items-center justify-center gap-3 pb-8 pt-[12vh] text-center'
-        : 'pointer-events-none fixed inset-x-0 top-0 flex flex-col items-center gap-4 px-4 text-center will-change-transform'
+        : 'pointer-events-none fixed inset-x-0 top-0 flex flex-col items-center gap-4 px-4 text-center transition-transform duration-300 ease-out will-change-transform'
     "
     :style="inline ? undefined : { transform: `translate3d(0, calc(${center}px - 50%), 0)` }"
   >

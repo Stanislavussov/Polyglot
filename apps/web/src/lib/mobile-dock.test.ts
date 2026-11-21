@@ -6,6 +6,7 @@ import {
   liftFor,
   QUICK_TARGETS,
   quickTargetFor,
+  shouldUnpan,
 } from "./mobile-dock";
 
 describe("quick buttons", () => {
@@ -91,5 +92,20 @@ describe("freeAreaCenter", () => {
 
   it("never lands above the free space when the panel fills the view", () => {
     expect(freeAreaCenter(0, 100, 56, 200)).toBe(56);
+  });
+});
+
+describe("shouldUnpan", () => {
+  it("undoes the keyboard's pan on a page that fits the screen", () => {
+    expect(shouldUnpan(true, 180, 664, 664)).toBe(true);
+  });
+
+  it("leaves a longer page's scroll alone", () => {
+    expect(shouldUnpan(true, 180, 2400, 664)).toBe(false);
+  });
+
+  it("does nothing without the keyboard or without a pan", () => {
+    expect(shouldUnpan(false, 180, 664, 664)).toBe(false);
+    expect(shouldUnpan(true, 0, 664, 664)).toBe(false);
   });
 });
