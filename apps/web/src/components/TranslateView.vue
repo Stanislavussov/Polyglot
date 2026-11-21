@@ -1,6 +1,19 @@
 <template>
   <section>
-    <h1 class="page-title">{{ t("web.translate.title") }}</h1>
+    <div class="flex items-center justify-between gap-3">
+      <h1 class="page-title">{{ t("web.translate.title") }}</h1>
+      <!-- Phones keep the page to the card alone; history waits behind this button, as chat apps do. -->
+      <button
+        v-if="docked"
+        type="button"
+        class="btn-secondary min-h-11 w-11 shrink-0 px-0"
+        :aria-label="t('web.translate.recent')"
+        :title="t('web.translate.recent')"
+        @click="historyOpen = true"
+      >
+        <History class="size-5" aria-hidden="true" />
+      </button>
+    </div>
 
     <div class="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,20rem)] xl:items-start">
       <ComposerCard
@@ -121,8 +134,7 @@
         <p class="mt-2 hidden truncate px-3 text-sm text-ink-muted md:block [@media(pointer:coarse)]:hidden">{{ t("web.translate.hint") }}</p>
       </ComposerCard>
 
-      <!-- scroll-mt: room for the phone's sticky top bar when a word from history is scrolled into view. -->
-      <div ref="answerArea" class="min-w-0 scroll-mt-20 xl:col-start-1 xl:row-start-2" aria-live="polite">
+      <div class="min-w-0 xl:col-start-1 xl:row-start-2" aria-live="polite">
 
         <TranslateSkeleton v-if="busy && !preview" :label="loaderText || t('web.translate.loading')" />
 
@@ -132,8 +144,8 @@
             <div class="flex min-w-0 flex-1 items-center gap-2.5 text-sm">
               <LangBadge :code="card.sourceLang" />
               <!-- Target languages as an overlapping stack: names live in the tooltip and for screen readers. -->
-              <span class="flex shrink-0 items-center -space-x-1.5" :title="card.targetLangs.map(languageName).join(', ')">
-                <span v-for="code in card.targetLangs" :key="code" class="rounded-full ring-2 ring-surface">
+              <span class="flex shrink-0 items-center -space-x-1.5" :title="stackLangs.map(languageName).join(', ')">
+                <span v-for="code in stackLangs" :key="code" class="rounded-full ring-2 ring-surface">
                   <LangFlag :code="code" />
                   <span class="sr-only">{{ languageName(code) }}</span>
                 </span>
@@ -212,6 +224,14 @@
             </div>
             </div>
             <WordHeadline as="h2" :text="card.sourceUsage?.headword ?? card.original" :emoji="card.emoji" />
+            <TranslationBlock
+              v-if="leadNative && !explore?.retranslating"
+              :key="`${resultSeq}:${leadNative.lang}`"
+              :translation="leadNative"
+              id-prefix="translate"
+              lead
+              stream
+            />
             <!-- Everything about the word in its own language sits with the word, above the translations. -->
             <template v-if="card.sourceUsage">
               <ul v-if="card.sourceUsage.synonyms.length > 0" class="flex flex-wrap gap-2 text-sm" :aria-label="t('web.translate.aboutSource')">
@@ -238,7 +258,7 @@
           <MonsterLoader v-if="explore?.retranslating" compact :label="t('web.translate.loading')" />
           <template v-else>
           <TranslationBlock
-            v-if="split.native"
+            v-if="split.native && !leadNative"
             :key="`${resultSeq}:${split.native.lang}`"
             :translation="split.native"
             id-prefix="translate"
@@ -270,32 +290,22 @@
         </article>
       </div>
 
-      <div class="card xl:col-start-2 xl:row-span-2 xl:row-start-1">
-        <div class="flex items-center justify-between gap-3">
-          <h2 class="min-w-0 truncate text-sm font-bold">{{ t("web.translate.recent") }}</h2>
-          <button v-if="history.length > 0" type="button" class="-mr-2 min-h-11 shrink-0 whitespace-nowrap rounded-full px-2 text-sm font-semibold text-primary hover:text-primary-hover" @click="clearHistory">
-            {{ t("web.translate.clearHistory") }}
-          </button>
-        </div>
-        <p v-if="history.length === 0" class="mt-2 text-sm text-ink-muted">{{ t("web.translate.recentEmpty") }}</p>
-        <ul v-else class="mt-2 divide-y divide-line">
-          <li v-for="item in history" :key="historyKey(item)" class="flex items-center gap-2">
-            <button type="button" class="flex min-h-11 min-w-0 flex-1 items-center py-2 text-left hover:text-primary" @click="openHistory(item)">
-              <span class="min-w-0 truncate font-medium"><span v-if="item.emoji" class="mr-2" aria-hidden="true">{{ item.emoji }}</span>{{ item.original }}</span>
-            </button>
-            <button
-              type="button"
-              class="inline-flex size-11 shrink-0 items-center justify-center text-ink-muted hover:text-danger"
-              :aria-label="t('web.translate.removeFromHistory', { word: item.original })"
-              :title="t('web.translate.removeFromHistory', { word: item.original })"
-              @click="forget(item)"
-            >
-              <Trash2 class="size-4" aria-hidden="true" />
-            </button>
-          </li>
-        </ul>
-      </div>
+      <TranslateHistory
+        v-if="!docked"
+        class="card xl:col-start-2 xl:row-span-2 xl:row-start-1"
+        titled
+        :items="history"
+        :key-of="historyKey"
+        @open="openHistory"
+        @forget="forget"
+        @clear="clearHistory"
+      />
     </div>
+
+    <BottomSheet :open="historyOpen" @close="historyOpen = false">
+      <template #title>{{ t("web.translate.recent") }}</template>
+      <TranslateHistory :items="history" :key-of="historyKey" @open="openFromSheet" @forget="forget" @clear="clearHistory" />
+    </BottomSheet>
   </section>
 </template>
 
@@ -303,7 +313,7 @@
 import WordHeadline from "./word/WordHeadline.vue";
 import LangBadge from "./LangBadge.vue";
 import LangFlag from "./LangFlag.vue";
-import { ArrowRight, BookmarkPlus, Sparkles, Mic, Square, Trash2, TriangleAlert } from "lucide-vue-next";
+import { ArrowRight, BookmarkPlus, History, Sparkles, Mic, Square, Trash2, TriangleAlert } from "lucide-vue-next";
 import {
   DropdownMenuContent,
   DropdownMenuItem,
@@ -312,7 +322,7 @@ import {
   DropdownMenuRoot,
   DropdownMenuTrigger,
 } from "reka-ui";
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef } from "vue";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from "vue";
 import { useDocked } from "../lib/mobile-dock";
 import { hapticTick } from "../lib/haptics";
 import { useLoaderText } from "../lib/use-loader-text";
@@ -337,13 +347,15 @@ import ExampleList from "./ExampleList.vue";
 import LimitNotice from "./LimitNotice.vue";
 import MonsterLoader from "./MonsterLoader.vue";
 import TranslationBlock from "./TranslationBlock.vue";
+import TranslateHistory from "./TranslateHistory.vue";
+import BottomSheet from "./BottomSheet.vue";
 
 const MAX_LENGTH = 500;
 const HISTORY_SIZE = 10;
 const HISTORY_KEY = "polyglot.translate.history";
 
 const composer = ref<InstanceType<typeof ComposerCard> | null>(null);
-const answerArea = useTemplateRef<HTMLDivElement>("answerArea");
+const historyOpen = ref(false);
 const docked = useDocked();
 // Text typed into the loading page's early input carries over, caret and all.
 captureEarlyInput();
@@ -378,6 +390,9 @@ const saveState = ref<"unsaved" | "saved" | "removed">("unsaved");
 const savePending = ref(false);
 
 const split = computed(() => splitNative(card.value?.translations ?? [], settings.value?.nativeLang));
+// From a language being learned, the native translation is the answer: it goes straight under the word, unlabelled.
+const leadNative = computed(() => (card.value && split.value.native && card.value.sourceLang !== split.value.native.lang ? split.value.native : null));
+const stackLangs = computed(() => (card.value?.targetLangs ?? []).filter((code) => code !== leadNative.value?.lang));
 const saveControls = computed(
   () => !pending.value && !!result.value && (result.value.savedEntryId != null || !!result.value.saveToken),
 );
@@ -458,19 +473,25 @@ function resetNotices(): void {
   limit.value = null;
 }
 
-// On a phone the history sits below the card, so the reopened word is scrolled up into view — and the text box
-// stays unfocused, or Android's keyboard would cover the word straight away.
+// A new card always opens at its first line, like a fresh answer in a chat app; the phone's text box stays
+// unfocused after a history pick, or Android's keyboard would cover the word straight away.
+function scrollToTop(): void {
+  void nextTick(() => {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+  });
+}
+
 function openHistory(entry: TranslateResult): void {
   resetNotices();
   show(entry);
-  if (!docked.value) {
-    focusInput();
-    return;
-  }
-  void nextTick(() => {
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    answerArea.value?.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
-  });
+  scrollToTop();
+  if (!docked.value) focusInput();
+}
+
+function openFromSheet(entry: TranslateResult): void {
+  historyOpen.value = false;
+  openHistory(entry);
 }
 
 // Unsaved and saved must read apart at a glance (two teal tints did not): a filled Save, then a red Remove.
@@ -617,6 +638,7 @@ async function answer(value: string, choice: TranslateAnswer): Promise<void> {
     show(fresh, true);
     hapticTick();
     remember(fresh);
+    scrollToTop();
     // Only on success: a failed or clarifying answer keeps the text so the user can retry or edit it.
     text.value = "";
   } catch (error) {

@@ -1,7 +1,7 @@
 <template>
-  <div class="border-t border-line pt-4" :class="{ 'stream-in': stream }">
-    <WordEyebrow :code="translation.lang" />
-    <div class="mt-1 flex items-center justify-between gap-3">
+  <div :class="[{ 'stream-in': stream }, lead ? '' : 'border-t border-line pt-4']">
+    <WordEyebrow v-if="!lead" :code="translation.lang" />
+    <div :class="[lead ? '' : 'mt-1', 'flex items-center justify-between gap-3']">
       <WordHeadline class="flex-1" tone="primary" :text="translation.text" :stream="stream">
         <template #after>
           <span v-if="translation.expressionType" class="inline-block rounded-full bg-primary-soft px-2 py-0.5 text-sm font-medium text-primary-soft-fg">{{ translation.expressionType }}</span>
@@ -76,8 +76,8 @@ import StreamText from "./StreamText.vue";
 
 const COPIED_MS = 1800;
 
-/** `stream`: the translate card, typed out as it arrives. */
-const props = defineProps<{ translation: TranslateTarget; idPrefix: string; stream?: boolean }>();
+/** `stream`: the translate card, typed out as it arrives. `lead`: the answer itself, set right under the word with no label. */
+const props = defineProps<{ translation: TranslateTarget; idPrefix: string; stream?: boolean; lead?: boolean }>();
 
 const expanded = ref(false);
 const copied = ref(false);
