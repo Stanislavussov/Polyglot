@@ -96,3 +96,4 @@
 - Word picks work again on your phone: pick a language once at the top, tap a topic and the words appear right away, each on the same card as a translation.
 - The translate page now greets you with the monster and a new question each visit, without a heading in the way, and on a phone it no longer jumps to the keyboard when you open it.
 - Closed the progress hint at the top? It now stays hidden for a month.
+- In your dictionary the search box now has its own row, with filters and sorting just below it.

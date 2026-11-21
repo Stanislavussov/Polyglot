@@ -10,9 +10,9 @@
       @changed="onDictionariesChanged"
     />
 
-    <div ref="toolbar" class="mt-3 flex scroll-mt-20 gap-2 md:scroll-mt-6">
+    <div ref="toolbar" class="mt-3 flex scroll-mt-20 flex-wrap gap-2 md:scroll-mt-6">
       <label class="sr-only" for="dictionary-search">{{ t("web.dictionary.search") }}</label>
-      <div class="relative min-w-0 flex-1">
+      <div class="relative min-w-0 basis-full">
         <Search class="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-ink-muted" aria-hidden="true" />
         <input
           id="dictionary-search"
@@ -38,7 +38,7 @@
         </PopoverTrigger>
         <PopoverPortal v-if="isDesktop">
           <PopoverContent
-            align="end"
+            align="start"
             :side-offset="8"
             class="z-30 w-80 rounded-2xl border border-line bg-surface p-4 shadow-xl"
           >
