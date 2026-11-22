@@ -8,24 +8,6 @@
       </button>
     </div>
 
-    <ComposerCard
-      id="mentor-question"
-      v-model="question"
-      :placeholder="t('web.explore.questionPlaceholder')"
-      :submit-label="t('web.explore.send')"
-      :max-length="MAX_QUESTION"
-      :busy="busy"
-      @submit="ask"
-    >
-      <template #notice>
-        <p v-if="lockedHint" role="alert" class="rounded-xl bg-warning-soft px-4 py-3 text-sm text-warning-fg">
-          {{ t("web.explore.lockedHint") }}
-        </p>
-        <LimitNotice v-else-if="limit" :reason="limit.reason" :reset-at="limit.resetAt" />
-        <p v-else-if="errorText" role="alert" class="rounded-xl bg-danger-soft px-4 py-3 text-sm text-danger">{{ errorText }}</p>
-      </template>
-    </ComposerCard>
-
     <p v-if="current.turns.length === 0" class="card text-base">{{ t("web.learn.mentor.intro") }}</p>
     <ul class="space-y-2" aria-live="polite">
       <li
@@ -43,6 +25,26 @@
       </li>
     </ul>
 
+    <!-- A chat reads top to bottom, so the question box follows the conversation instead of the page top. -->
+    <div ref="composer">
+      <ComposerCard
+        id="mentor-question"
+        v-model="question"
+        :placeholder="t('web.explore.questionPlaceholder')"
+        :submit-label="t('web.explore.send')"
+        :max-length="MAX_QUESTION"
+        :busy="busy"
+        @submit="ask"
+      >
+        <template #notice>
+          <p v-if="lockedHint" role="alert" class="rounded-xl bg-warning-soft px-4 py-3 text-sm text-warning-fg">
+            {{ t("web.explore.lockedHint") }}
+          </p>
+          <LimitNotice v-else-if="limit" :reason="limit.reason" :reset-at="limit.resetAt" />
+          <p v-else-if="errorText" role="alert" class="rounded-xl bg-danger-soft px-4 py-3 text-sm text-danger">{{ errorText }}</p>
+        </template>
+      </ComposerCard>
+    </div>
 
     <section v-if="earlier.length > 0" class="space-y-2 border-t border-line pt-4">
       <h2 class="text-sm font-semibold text-ink-muted">{{ t("web.learn.mentor.history") }}</h2>
@@ -58,7 +60,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, nextTick, ref } from "vue";
 import { ApiError } from "../lib/api";
 import { t } from "../lib/i18n";
 import { learnApi } from "../lib/learn-api";
@@ -78,6 +80,7 @@ const busy = ref(false);
 const lockedHint = ref(false);
 const limit = ref<{ reason?: "plan" | "daily_ceiling"; resetAt?: string } | null>(null);
 const errorText = ref<string | null>(null);
+const composer = ref<HTMLElement | null>(null);
 
 const earlier = computed(() => threads.value.filter((thread) => thread.id !== current.value.id));
 
@@ -109,6 +112,8 @@ async function ask(): Promise<void> {
     current.value = { ...thread, turns, updatedAt: Date.now() };
     threads.value = saveThread(threads.value, current.value);
     question.value = "";
+    await nextTick();
+    composer.value?.scrollIntoView({ block: "nearest", behavior: "smooth" });
   } catch (err) {
     if (err instanceof ApiError && err.code === "feature_locked") lockedHint.value = true;
     else if (err instanceof ApiError && err.code === "mentor_limit")
