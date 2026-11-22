@@ -2,7 +2,7 @@
   <section>
     <!-- The page needs no visible title: the greeting and the box say what it is for. -->
     <h1 class="sr-only">{{ t("web.translate.title") }}</h1>
-    <div v-if="docked" class="flex justify-end">
+    <div v-if="phone" class="flex justify-end">
       <!-- Phones keep the page to the card alone; history waits behind this button, as chat apps do. -->
       <button
         type="button"
@@ -15,14 +15,14 @@
       </button>
     </div>
 
-    <TranslateGreeting v-if="!docked && !card && !busy" inline />
-    <div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,20rem)] xl:items-start" :class="{ 'mt-2': docked }">
+    <TranslateGreeting v-if="!phone && !card && !busy" inline />
+    <div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,20rem)] xl:items-start" :class="{ 'mt-2': phone }">
       <ComposerCard
         id="translate-input"
         ref="composer"
         v-model="text"
         class="xl:col-start-1 xl:row-start-1"
-        :placeholder="t(docked ? 'web.translate.placeholderShort' : 'web.translate.placeholder')"
+        :placeholder="t(phone ? 'web.translate.placeholderShort' : 'web.translate.placeholder')"
         :submit-label="t('web.translate.submit')"
         :max-length="MAX_LENGTH"
         :busy="busy"
@@ -289,11 +289,11 @@
           <CardExplore v-else ref="explore" :result="card" @replace="onReplace" />
 
         </article>
-        <TranslateGreeting v-else-if="docked" />
+        <TranslateGreeting v-else-if="phone" />
       </div>
 
       <TranslateHistory
-        v-if="!docked"
+        v-if="!phone"
         class="card xl:col-start-2 xl:row-span-2 xl:row-start-1"
         titled
         :items="history"
@@ -325,7 +325,7 @@ import {
   DropdownMenuTrigger,
 } from "reka-ui";
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from "vue";
-import { useDocked } from "../lib/mobile-dock";
+import { usePhoneLayout } from "../lib/mobile-dock";
 import { hapticTick } from "../lib/haptics";
 import { useLoaderText } from "../lib/use-loader-text";
 import { captureEarlyInput, earlyFocused, earlyText } from "../lib/early-input";
@@ -359,7 +359,7 @@ const HISTORY_KEY = "polyglot.translate.history";
 
 const composer = ref<InstanceType<typeof ComposerCard> | null>(null);
 const historyOpen = ref(false);
-const docked = useDocked();
+const phone = usePhoneLayout();
 // Text typed into the loading page's early input carries over, caret and all.
 captureEarlyInput();
 const text = ref(earlyText.value);
@@ -489,7 +489,7 @@ function openHistory(entry: TranslateResult): void {
   resetNotices();
   show(entry);
   scrollToTop();
-  if (!docked.value) focusInput();
+  if (!phone.value) focusInput();
 }
 
 function openFromSheet(entry: TranslateResult): void {

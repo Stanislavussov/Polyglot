@@ -1,22 +1,18 @@
 <template>
   <!-- The one text box pattern, shaped like a chat app's: translate, asking about a word, the mentor and the
-       grammar check share it, so typing feels the same everywhere. Phones move it into the shell's bottom panel
-       (MobileDock), within thumb reach and over the keyboard; wider screens keep it in the page. -->
-  <Teleport :to="DOCK_TARGET" defer :disabled="!docked">
-  <form v-bind="$attrs" @submit.prevent="send">
-    <!-- Errors and questions about what was typed sit right by the box, so a phone never hides them up the page. -->
-    <div v-if="docked" class="mb-2 max-h-[45dvh] space-y-2 overflow-y-auto empty:hidden" aria-live="polite"><slot name="notice" /></div>
-    <!-- Phones: one row like a chat app (tools, text, send), so the panel leaves the page its room. -->
+       grammar check share it, so typing feels the same everywhere. It stays at the top of the page on every screen,
+       as in DeepL: nothing has to follow the phone keyboard, so nothing breaks when a browser misreports it. -->
+  <form @submit.prevent="send">
     <div
       :class="[
         'rounded-3xl border border-line bg-surface transition-colors focus-within:border-ring md:shadow-card',
-        docked ? 'flex items-end gap-1 p-1.5' : 'p-3',
+        phone ? 'flex items-end gap-1 p-1.5' : 'p-3',
       ]"
       @click="focusField"
     >
       <label class="sr-only" :for="id">{{ placeholder }}</label>
       <!-- While a voice note is recorded or read, the page's wave takes the text's place; the box keeps its height. -->
-      <div v-if="voice" :class="['flex min-h-11 items-center px-2 py-2 md:min-h-20', docked && 'order-2 min-w-0 flex-1']"><slot name="voice" /></div>
+      <div v-if="voice" :class="['flex min-h-11 items-center px-2 py-2 md:min-h-20', phone && 'order-2 min-w-0 flex-1']"><slot name="voice" /></div>
       <textarea
         v-show="!voice"
         :id="id"
@@ -24,22 +20,20 @@
         :value="modelValue"
         :class="[
           'block max-h-[40dvh] min-h-11 resize-none bg-transparent px-2 py-2.5 text-base text-ink placeholder:text-ink-muted focus:outline-none md:min-h-20',
-          docked ? 'order-2 min-w-0 flex-1 placeholder:truncate' : 'w-full',
+          phone ? 'order-2 min-w-0 flex-1 placeholder:truncate' : 'w-full',
         ]"
         rows="1"
         :maxlength="maxLength"
         :placeholder="placeholder"
         @input="onInput"
         @keydown="onKeydown"
-        @focus="composerFocused = true"
-        @blur="composerFocused = false"
       />
-      <div :class="docked ? 'contents' : 'flex items-center gap-2'">
+      <div :class="phone ? 'contents' : 'flex items-center gap-2'">
         <slot name="tools" />
         <button
           v-if="modelValue !== '' && !voice"
           type="button"
-          :class="['grid size-11 shrink-0 place-items-center rounded-full text-ink-muted transition-colors hover:bg-surface-muted hover:text-ink', docked && 'order-3']"
+          :class="['grid size-11 shrink-0 place-items-center rounded-full text-ink-muted transition-colors hover:bg-surface-muted hover:text-ink', phone && 'order-3']"
           :aria-label="t('web.translate.clear')"
           :title="t('web.translate.clear')"
           @mousedown.prevent
@@ -47,12 +41,12 @@
         >
           <X class="size-5" aria-hidden="true" />
         </button>
-        <span v-if="nearLimit" :class="['text-sm text-ink-muted', docked && 'order-3 self-center']" aria-hidden="true">{{ modelValue.length }}/{{ maxLength }}</span>
+        <span v-if="nearLimit" :class="['text-sm text-ink-muted', phone && 'order-3 self-center']" aria-hidden="true">{{ modelValue.length }}/{{ maxLength }}</span>
         <!-- mousedown.prevent: a tap must not pull focus off the text box — the button turns disabled while busy,
              the browser then drops focus to <body>, and on phones the keyboard would fold mid-answer. -->
         <button
           type="submit"
-          :class="docked ? 'order-3' : 'ml-auto'"
+          :class="phone ? 'order-3' : 'ml-auto'"
           class="grid size-11 shrink-0 place-items-center rounded-full bg-primary text-primary-fg shadow-primary transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:bg-primary-soft disabled:text-primary-soft-fg disabled:shadow-none"
           :aria-label="working ? t('web.translate.working') : submitLabel"
           :title="working ? t('web.translate.working') : submitLabel"
@@ -65,16 +59,16 @@
       </div>
     </div>
     <slot />
-    <div v-if="!docked" class="mt-4 space-y-2 empty:hidden" aria-live="polite"><slot name="notice" /></div>
+    <!-- Errors and questions about what was typed sit right by the box. -->
+    <div class="mt-4 space-y-2 empty:hidden" aria-live="polite"><slot name="notice" /></div>
   </form>
-  </Teleport>
 </template>
 
 <script setup lang="ts">
 import { ArrowUp, LoaderCircle, X } from "lucide-vue-next";
-import { computed, nextTick, onBeforeUnmount, onMounted, useTemplateRef, watch } from "vue";
+import { computed, nextTick, onMounted, useTemplateRef, watch } from "vue";
 import { t } from "../lib/i18n";
-import { composerFocused, DOCK_TARGET, useDocked } from "../lib/mobile-dock";
+import { usePhoneLayout } from "../lib/mobile-dock";
 
 const props = defineProps<{
   id: string;
@@ -89,9 +83,8 @@ const props = defineProps<{
 const emit = defineEmits<{ "update:modelValue": [value: string]; submit: []; voiceSend: [] }>();
 
 const el = useTemplateRef<HTMLTextAreaElement>("el");
-// Teleport is the root, so the page's classes go onto the form by hand.
-defineOptions({ inheritAttrs: false });
-const docked = useDocked();
+// Phones get one row like a chat app (tools, text, send), so the box leaves the page its room.
+const phone = usePhoneLayout();
 defineExpose({ el });
 
 // The counter only matters once the limit is in sight.
@@ -140,12 +133,5 @@ function onKeydown(event: KeyboardEvent): void {
   }
 }
 
-onMounted(() => {
-  fit();
-  // Focus handed over from the pre-load box fires no focus event here, yet the keyboard is already up.
-  if (document.activeElement === el.value) composerFocused.value = true;
-});
-onBeforeUnmount(() => {
-  composerFocused.value = false;
-});
+onMounted(fit);
 </script>

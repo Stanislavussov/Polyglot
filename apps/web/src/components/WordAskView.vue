@@ -19,9 +19,22 @@
         </template>
       </WordCard>
 
-
-
       <div class="space-y-3">
+        <ComposerCard
+          id="ask-question"
+          v-model="question"
+          :placeholder="t('web.explore.questionPlaceholder')"
+          :submit-label="t('web.ask.send')"
+          :max-length="2000"
+          :busy="busy"
+          @submit="ask(question)"
+        >
+          <template #notice>
+          <p v-if="lockedHint" role="alert" class="rounded-xl bg-warning-soft px-4 py-3 text-sm text-warning-fg">{{ t("web.explore.lockedHint") }}</p>
+          <LimitNotice v-else-if="limit" :reason="limit.reason" :reset-at="limit.resetAt" />
+          <p v-else-if="errorKey" role="alert" class="rounded-xl bg-danger-soft px-4 py-3 text-sm text-danger">{{ t(errorKey, errorParams) }}</p>
+          </template>
+        </ComposerCard>
         <p v-if="thread.length === 0" class="text-base text-ink-muted">{{ t("web.ask.mentorIntro") }}</p>
         <ul class="space-y-2" aria-live="polite">
           <li
@@ -39,21 +52,6 @@
         <div v-if="thread.length === 0" class="flex flex-wrap gap-2">
           <button v-for="key in STARTERS" :key="key" type="button" class="btn-secondary" :disabled="busy" @click="ask(t(key))">{{ t(key) }}</button>
         </div>
-        <ComposerCard
-          id="ask-question"
-          v-model="question"
-          :placeholder="t('web.explore.questionPlaceholder')"
-          :submit-label="t('web.ask.send')"
-          :max-length="2000"
-          :busy="busy"
-          @submit="ask(question)"
-        >
-          <template #notice>
-          <p v-if="lockedHint" role="alert" class="rounded-xl bg-warning-soft px-4 py-3 text-sm text-warning-fg">{{ t("web.explore.lockedHint") }}</p>
-          <LimitNotice v-else-if="limit" :reason="limit.reason" :reset-at="limit.resetAt" />
-          <p v-else-if="errorKey" role="alert" class="rounded-xl bg-danger-soft px-4 py-3 text-sm text-danger">{{ t(errorKey, errorParams) }}</p>
-          </template>
-        </ComposerCard>
       </div>
     </template>
   </section>
@@ -91,7 +89,6 @@ const limit = ref<{ reason?: "plan" | "daily_ceiling"; resetAt?: string } | null
 const errorKey = ref<string | null>(null);
 const errorParams = ref<Record<string, string | number>>({});
 
-
 function resetNotices(): void {
   lockedHint.value = false;
   limit.value = null;
@@ -110,7 +107,6 @@ function showError(error: unknown): void {
   } else if (error.status === 504) errorKey.value = "web.translate.timeout";
   else errorKey.value = "web.common.error";
 }
-
 
 async function ask(text: string): Promise<void> {
   const asked = text.trim();

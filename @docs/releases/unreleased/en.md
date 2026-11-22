@@ -79,7 +79,6 @@
 - On the website, the text box no longer flickers while a translation is loading.
 - Page titles on the website lost their bright underline — a pale little monster now sits next to them instead, and the learning pages dropped their emoji icons for a calmer look.
 - Typed a word the website took for a language it doesn't support yet? It now names that language properly with its flag, and lets you pick one of your own languages to translate from in one tap.
-- On your phone the website now feels like a chat: the text box waits at the bottom, stays above the keyboard while you type, and Translate, Dictionary, Review and Mentor are one tap away right under your thumb.
 - On your phone the text box and the quick buttons now sit together on their own panel at the bottom, scrolling stays smooth, the buttons are simple icons, and if something goes wrong the message shows right above the box instead of far up the page.
 - On your phone the Review page title and the number of words to review now sit neatly one under the other.
 - When you translate a word from a language you are learning, its synonyms and examples now sit right under the word itself, before the translation.
@@ -98,7 +97,4 @@
 - Closed the progress hint at the top? It now stays hidden for a month, with no leftover icon — bring it back from the Progress page.
 - A word card opened on your phone closes with a swipe down again, even after you have scrolled through it.
 - On a phone the empty translate page no longer scrolls, the monster stays in view in the middle of the screen when the keyboard opens, and the box's hint fits on one line.
-- The first time you open translate on a phone, the text box now rises above the keyboard straight away.
-- On a phone the top of the translate page stays in place when the keyboard opens, and the monster glides up instead of jumping.
-- On your phone, the first time the keyboard opens on the translate page, the header now stays put and the text box sits right on top of the keyboard.
-- If you use another keyboard such as Gboard, the text box on the translate page now sits right on top of it from the very first tap.
+- On your phone the text box now sits at the top of the page, as in DeepL, so the keyboard never covers it, and the Translate, Dictionary, Review and Mentor buttons step aside while you type.

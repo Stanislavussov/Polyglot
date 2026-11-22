@@ -105,7 +105,7 @@
           </button>
         </p>
       </div>
-      <!-- Phones: room under the page for the docked text box and the quick buttons. -->
+      <!-- Phones: room under the page for the quick buttons. -->
       <div
         class="mx-auto max-w-6xl px-4 pb-[calc(var(--dock-h)+1.5rem)] pt-6 sm:px-6 md:px-8 md:py-10"
         :style="{ '--dock-h': `${dockHeight}px` }"

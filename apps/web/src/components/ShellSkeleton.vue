@@ -32,20 +32,15 @@
         <!-- A copy of the translate page's ComposerCard, box for box, so nothing moves when the app takes over. -->
         <!-- Desktop holds the greeting's line, so the box does not drop when the app takes over. -->
         <template v-if="placeholder">
-          <!-- Phones: the history button and the greeting in the free space above the bottom box, as the app draws them. -->
+          <!-- Phones: the history button above the box, as the app draws it. -->
           <div class="flex justify-end md:hidden" aria-hidden="true"><span class="skeleton size-11 rounded-full" /></div>
-          <div class="pointer-events-none fixed inset-x-0 top-[calc(50svh-36px)] flex -translate-y-1/2 flex-col items-center gap-4 px-4 md:hidden" aria-hidden="true">
-            <MonsterMark class="size-14" />
-            <span class="skeleton h-8 w-56 rounded" />
-          </div>
           <div class="hidden items-center justify-center gap-3 pb-8 pt-[12vh] md:flex" aria-hidden="true">
             <MonsterMark class="size-10" />
             <span class="skeleton h-9 w-72 rounded" />
           </div>
         </template>
-        <div v-if="placeholder" class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,20rem)] xl:items-start">
-          <!-- Phones: the bottom panel of MobileDock, with room under the box for the quick buttons drawn over it. -->
-          <div class="fixed inset-x-0 bottom-0 z-30 rounded-t-3xl border-t border-line bg-primary-soft px-3 pb-[calc(3.5rem+env(safe-area-inset-bottom))] pt-3 shadow-dock md:static md:rounded-none md:border-0 md:bg-transparent md:p-0 md:shadow-none xl:col-start-1 xl:row-start-1">
+        <div v-if="placeholder" class="grid gap-6 max-md:mt-2 xl:grid-cols-[minmax(0,1fr)_minmax(0,20rem)] xl:items-start">
+          <div class="xl:col-start-1 xl:row-start-1">
             <div class="flex items-end gap-1 rounded-3xl border border-line bg-surface p-1.5 transition-colors focus-within:border-ring md:block md:p-3 md:shadow-card">
               <label class="sr-only" :for="EARLY_INPUT_ID">{{ placeholder }}</label>
               <textarea
@@ -66,17 +61,18 @@
           <div class="card max-md:hidden xl:col-start-2 xl:row-span-2 xl:row-start-1" aria-hidden="true">
             <div class="skeleton h-4 w-40 rounded" />
           </div>
+          <!-- Phones: the greeting under the box, as TranslateGreeting draws it there. -->
+          <div class="flex flex-col items-center gap-4 pt-[8vh] md:hidden" aria-hidden="true">
+            <MonsterMark class="size-14" />
+            <span class="skeleton h-8 w-56 rounded" />
+          </div>
         </div>
         <div v-else class="card mt-6"><MonsterLoader /></div>
       </div>
     </main>
 
-    <!-- The quick buttons of the loaded app, shape for shape; on pages without the box they bring the panel themselves. -->
-    <div
-      class="fixed inset-x-0 bottom-0 z-40 pb-[env(safe-area-inset-bottom)] md:hidden"
-      :class="placeholder ? '' : 'rounded-t-3xl border-t border-line bg-primary-soft pt-1 shadow-dock'"
-      aria-hidden="true"
-    >
+    <!-- The quick buttons of the loaded app, shape for shape. -->
+    <div class="fixed inset-x-0 bottom-0 z-40 rounded-t-3xl border-t border-line bg-primary-soft pb-[env(safe-area-inset-bottom)] pt-1 shadow-dock md:hidden" aria-hidden="true">
       <div class="grid h-14 grid-cols-4 items-center gap-1 px-2">
         <div v-for="n in 4" :key="n" class="mx-auto grid h-11 w-16 place-items-center"><div class="skeleton size-6 rounded-md" /></div>
       </div>
