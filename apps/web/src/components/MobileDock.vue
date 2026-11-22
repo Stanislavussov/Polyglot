@@ -10,11 +10,16 @@
     <div id="composer-dock" class="px-3 pt-3 empty:hidden" />
     <QuickNav v-show="!keyboardUp" :class="{ 'pt-1': !hasComposer }" :page="page" @navigate="emit('navigate', $event)" />
   </div>
+  <pre
+    v-if="keyboardReadout"
+    class="pointer-events-none fixed inset-x-0 top-0 z-50 whitespace-pre-wrap bg-black/80 p-2 text-sm text-white md:hidden"
+    >{{ keyboardReadout }}</pre
+  >
 </template>
 
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref, useTemplateRef } from "vue";
-import { dockHeight, keyboardInset, keyboardUp, trackKeyboard } from "../lib/mobile-dock";
+import { dockHeight, keyboardInset, keyboardReadout, keyboardUp, trackKeyboard } from "../lib/mobile-dock";
 import type { PageName } from "../lib/types";
 import QuickNav from "./QuickNav.vue";
 

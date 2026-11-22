@@ -101,3 +101,4 @@
 - The first time you open translate on a phone, the text box now rises above the keyboard straight away.
 - On a phone the top of the translate page stays in place when the keyboard opens, and the monster glides up instead of jumping.
 - On your phone, the first time the keyboard opens on the translate page, the header now stays put and the text box sits right on top of the keyboard.
+- If you use another keyboard such as Gboard, the text box on the translate page now sits right on top of it from the very first tap.

@@ -82,7 +82,17 @@ export function liftFor(focused: boolean, inset: number): number {
   return focused && inset > 100 ? inset : 0;
 }
 
+// `?debug=keyboard` prints the raw viewport numbers on screen: the phone keyboard can't be reproduced off a real device,
+// and three fixes guessed from screenshots alone missed (iOS Chrome with Gboard, first keyboard of a visit).
+export const keyboardReadout = ref("");
+
+function readout(viewport: VisualViewport | null, inset: number): string {
+  const vv = viewport ? `vv ${Math.round(viewport.height)} top ${Math.round(viewport.offsetTop)}` : "no vv";
+  return `inner ${window.innerHeight} ${vv} scroll ${Math.round(window.scrollY)} doc ${document.documentElement.scrollHeight} covered ${inset} lift ${keyboardInset.value} up ${keyboardUp.value} focus ${composerFocused.value}`;
+}
+
 export function trackKeyboard(): () => void {
+  const debug = new URLSearchParams(window.location.search).get("debug") === "keyboard";
   const viewport = window.visualViewport;
   let tallest = window.innerHeight;
   let frame = 0;
@@ -90,10 +100,10 @@ export function trackKeyboard(): () => void {
     frame = 0;
     tallest = Math.max(tallest, window.innerHeight);
     const inset = viewport ? coveredByKeyboard(window.innerHeight, viewport.height, viewport.offsetTop) : 0;
-    visibleBox.value = {
-      top: viewport?.offsetTop ?? 0,
-      height: viewport?.height ?? window.innerHeight,
-    };
+    const top = viewport?.offsetTop ?? 0;
+    const height = viewport?.height ?? window.innerHeight;
+    // Polled while typing: a fresh object each time would re-centre the greeting for nothing.
+    if (visibleBox.value.top !== top || visibleBox.value.height !== height) visibleBox.value = { top, height };
     keyboardInset.value = liftFor(composerFocused.value, inset);
     keyboardUp.value = composerFocused.value && keyboardShown(inset, viewport?.height ?? window.innerHeight, tallest);
     // The scroll this fires comes back through `schedule`, which re-measures the box with the pan undone.
@@ -107,6 +117,7 @@ export function trackKeyboard(): () => void {
     ) {
       window.scrollTo(0, 0);
     }
+    if (debug) keyboardReadout.value = readout(viewport ?? null, inset);
   };
   // One measurement per frame at most: scroll events arrive faster than the screen redraws.
   const schedule = (): void => {
@@ -119,12 +130,13 @@ export function trackKeyboard(): () => void {
     viewport?.[method]("scroll", schedule);
     window[method]("scroll", schedule);
   };
-  // The first keyboard of a visit (and its AutoFill bar) settles with no final viewport event on iOS, leaving the
-  // page panned and the panel short of the keyboard's top; a few late looks catch where it came to rest.
-  let settles: number[] = [];
-  const settle = (): void => {
-    for (const id of settles) clearTimeout(id);
-    settles = [150, 400, 800].map((ms) => window.setTimeout(schedule, ms));
+  // The first keyboard of a visit grows after it appears (a third-party keyboard such as Gboard loads late, iOS Chrome
+  // rebuilds its toolbar) and WebKit sends no event for that, so the panel stayed under the keyboard. While typing the
+  // viewport is also polled; a measurement is a few reads, and nothing re-renders unless a number changed.
+  let poll = 0;
+  const pollWhile = (on: boolean): void => {
+    window.clearInterval(poll);
+    poll = on ? window.setInterval(schedule, 200) : 0;
   };
   window.addEventListener("resize", schedule);
   // immediate: on a first visit the box can already hold focus when the panel mounts (the box typed into before the
@@ -133,8 +145,8 @@ export function trackKeyboard(): () => void {
     composerFocused,
     (focused, wasFocused) => {
       if (focused !== Boolean(wasFocused)) listen(focused);
+      pollWhile(focused);
       schedule();
-      settle();
     },
     { immediate: true },
   );
@@ -142,7 +154,7 @@ export function trackKeyboard(): () => void {
     listen(false);
     window.removeEventListener("resize", schedule);
     stopFocus();
-    for (const id of settles) clearTimeout(id);
+    pollWhile(false);
     if (frame !== 0) cancelAnimationFrame(frame);
     keyboardInset.value = 0;
     keyboardUp.value = false;
