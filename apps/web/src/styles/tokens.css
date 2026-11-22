@@ -1,5 +1,5 @@
 /*
- * Teal palette taken from the owl logo (#1F8A74 / #2E9E86), with a mint
+ * Blue-teal palette: the owl logo's teal turned toward blue (#1F708A / #2E849E), with a sky
  * accent and a cool white canvas. This is the only file that holds colour values.
  * Light is the default; dark applies by [data-theme=dark] or, with no explicit choice,
  * by the system preference.
@@ -8,90 +8,90 @@
   color-scheme: light dark;
   --font-sans: "DM Sans", "Avenir Next", "Segoe UI", system-ui, sans-serif;
   --font-display: "Manrope", "DM Sans", system-ui, sans-serif;
-  --shadow-card: 0 10px 30px rgb(16 70 58 / 0.08);
-  --shadow-soft: 0 20px 60px rgb(16 70 58 / 0.1);
-  --shadow-primary: 0 8px 24px rgb(31 138 116 / 0.2);
-  --shadow-dock: 0 -10px 30px rgb(16 70 58 / 0.08);
+  --shadow-card: 0 10px 30px rgb(16 58 70 / 0.08);
+  --shadow-soft: 0 20px 60px rgb(16 58 70 / 0.1);
+  --shadow-primary: 0 8px 24px rgb(31 112 138 / 0.2);
+  --shadow-dock: 0 -10px 30px rgb(16 58 70 / 0.08);
 
-  --color-canvas: #f6faf8;
+  --color-canvas: #f6fafa;
   --color-surface: #ffffff;
-  --color-surface-muted: #edf7f3;
-  --color-line: #d9ede6;
-  --color-ink: #102b25;
-  --color-scrim: #04110e;
-  --color-ink-muted: #4b675f;
-  --color-primary: #1f8a74;
-  --color-primary-hover: #18705e;
+  --color-surface-muted: #edf6f7;
+  --color-line: #d9ebed;
+  --color-ink: #10252b;
+  --color-scrim: #040e11;
+  --color-ink-muted: #4b6267;
+  --color-primary: #1f708a;
+  --color-primary-hover: #185a70;
   --color-primary-fg: #ffffff;
-  --color-primary-soft: #ddf3ec;
-  --color-primary-soft-fg: #0f4d40;
+  --color-primary-soft: #ddf0f3;
+  --color-primary-soft-fg: #0f3e4d;
   --color-danger: #b3261e;
   --color-danger-soft: #fbe6e3;
   --color-warning-soft: #fff1cf;
   --color-warning-fg: #6a4700;
-  --color-accent: #8be3c9;
-  --color-accent-fg: #083a2f;
-  --color-ring: #2e9e86;
-  --color-sidebar: #0c2a24;
-  --color-sidebar-fg: #ddf3ec;
-  --color-sidebar-muted: #8fd6c2;
-  --color-sidebar-hover: #143b33;
-  --color-sidebar-active: #17473d;
+  --color-accent: #8bd5e3;
+  --color-accent-fg: #082e3a;
+  --color-ring: #2e849e;
+  --color-sidebar: #0c222a;
+  --color-sidebar-fg: #ddf0f3;
+  --color-sidebar-muted: #8fcad6;
+  --color-sidebar-hover: #14313b;
+  --color-sidebar-active: #173b47;
 }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --color-canvas: #0b1613;
-  --color-surface: #10221d;
-  --color-surface-muted: #162c26;
-  --color-line: #234139;
-  --color-ink: #e2f1ec;
+  --color-canvas: #0b1416;
+  --color-surface: #101f22;
+  --color-surface-muted: #16282c;
+  --color-line: #233b41;
+  --color-ink: #e2eff1;
   --color-scrim: #000000;
-  --color-ink-muted: #97b5ac;
-  --color-primary: #3cc4a3;
-  --color-primary-hover: #63d5b9;
-  --color-primary-fg: #04221b;
-  --color-primary-soft: #123d34;
-  --color-primary-soft-fg: #a6e8d6;
+  --color-ink-muted: #97b0b5;
+  --color-primary: #3ca8c4;
+  --color-primary-hover: #63bed5;
+  --color-primary-fg: #041b22;
+  --color-primary-soft: #12333d;
+  --color-primary-soft-fg: #a6dce8;
   --color-danger: #ff8d83;
   --color-danger-soft: #3b1d1b;
   --color-warning-soft: #3a2f10;
   --color-warning-fg: #f2d58a;
-  --color-accent: #8be3c9;
-  --color-accent-fg: #083a2f;
-  --color-ring: #3cc4a3;
-  --color-sidebar: #07120f;
-  --color-sidebar-fg: #bcd8cf;
-  --color-sidebar-muted: #86a99f;
-  --color-sidebar-hover: #0e201b;
-  --color-sidebar-active: #123d34;
+  --color-accent: #8bd5e3;
+  --color-accent-fg: #082e3a;
+  --color-ring: #3ca8c4;
+  --color-sidebar: #071012;
+  --color-sidebar-fg: #bcd4d8;
+  --color-sidebar-muted: #86a3a9;
+  --color-sidebar-hover: #0e1d20;
+  --color-sidebar-active: #12333d;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --color-canvas: #0b1613;
-    --color-surface: #10221d;
-    --color-surface-muted: #162c26;
-    --color-line: #234139;
-    --color-ink: #e2f1ec;
+    --color-canvas: #0b1416;
+    --color-surface: #101f22;
+    --color-surface-muted: #16282c;
+    --color-line: #233b41;
+    --color-ink: #e2eff1;
     --color-scrim: #000000;
-    --color-ink-muted: #97b5ac;
-    --color-primary: #3cc4a3;
-    --color-primary-hover: #63d5b9;
-    --color-primary-fg: #04221b;
-    --color-primary-soft: #123d34;
-    --color-primary-soft-fg: #a6e8d6;
+    --color-ink-muted: #97b0b5;
+    --color-primary: #3ca8c4;
+    --color-primary-hover: #63bed5;
+    --color-primary-fg: #041b22;
+    --color-primary-soft: #12333d;
+    --color-primary-soft-fg: #a6dce8;
     --color-danger: #ff8d83;
     --color-danger-soft: #3b1d1b;
     --color-warning-soft: #3a2f10;
     --color-warning-fg: #f2d58a;
-    --color-accent: #8be3c9;
-    --color-accent-fg: #083a2f;
-    --color-ring: #3cc4a3;
-    --color-sidebar: #07120f;
-    --color-sidebar-fg: #bcd8cf;
-    --color-sidebar-muted: #86a99f;
-    --color-sidebar-hover: #0e201b;
-    --color-sidebar-active: #123d34;
+    --color-accent: #8bd5e3;
+    --color-accent-fg: #082e3a;
+    --color-ring: #3ca8c4;
+    --color-sidebar: #071012;
+    --color-sidebar-fg: #bcd4d8;
+    --color-sidebar-muted: #86a3a9;
+    --color-sidebar-hover: #0e1d20;
+    --color-sidebar-active: #12333d;
   }
 }

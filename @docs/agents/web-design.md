@@ -24,9 +24,9 @@ simple, minimal, large — "broad strokes", sized like the Google Store
 
 ## Colour
 
-Teal from the owl logo (`#1F8A74`), a mint accent, a cool white canvas. Every value lives in
-`apps/web/src/styles/tokens.css`; components use the tokens only. Avoid olive/swamp greens and
-plain blue.
+Blue-teal: the owl logo's teal turned toward blue (`#1F708A`), a light sky accent, a cool white
+canvas. Every value lives in `apps/web/src/styles/tokens.css`; components use the tokens only.
+Avoid sliding back into green and going all the way to plain blue.
 
 ## Type scale — the only allowed sizes
 

@@ -575,7 +575,6 @@
   "web.translate.greet.beforeBed": "Ještě jedno slovo před spaním?",
   "web.translate.greet.moonlit": "Slovo při měsíci?",
   "web.translate.placeholder": "Zadejte slovo, frázi nebo větu",
-  "web.translate.placeholderShort": "Slovo nebo fráze",
   "web.translate.submit": "Přeložit",
   "web.translate.working": "Překládám…",
   "web.translate.correction": "Měli jste na mysli: {text}",
