@@ -56,13 +56,14 @@ export function freeAreaCenter(visibleTop: number, visibleHeight: number, header
  * and the page has nothing to scroll — the header then vanishes. Undo that pan only on a page that fits the screen:
  * on a longer page the offset is the reader's own scroll.
  */
-export function shouldUnpan(
-  keyboardIsUp: boolean,
-  visibleTop: number,
-  pageHeight: number,
-  layoutHeight: number,
-): boolean {
-  return keyboardIsUp && visibleTop > 0 && pageHeight <= layoutHeight + 1;
+export function shouldUnpan(keyboardIsUp: boolean, pan: number, pageHeight: number, layoutHeight: number): boolean {
+  return keyboardIsUp && pan > 0 && pageHeight <= layoutHeight + 1;
+}
+
+// iOS reports the pan as the visual viewport's offset or as a window scroll, depending on the moment:
+// the first keyboard of a visit scrolls the window, so watching the offset alone left the header panned away.
+export function keyboardPan(visibleTop: number, windowScroll: number): number {
+  return Math.max(visibleTop, windowScroll);
 }
 
 export function coveredByKeyboard(layoutHeight: number, visibleHeight: number, visibleTop: number): number {
@@ -89,12 +90,20 @@ export function trackKeyboard(): () => void {
     frame = 0;
     tallest = Math.max(tallest, window.innerHeight);
     const inset = viewport ? coveredByKeyboard(window.innerHeight, viewport.height, viewport.offsetTop) : 0;
-    visibleBox.value = { top: viewport?.offsetTop ?? 0, height: viewport?.height ?? window.innerHeight };
+    visibleBox.value = {
+      top: viewport?.offsetTop ?? 0,
+      height: viewport?.height ?? window.innerHeight,
+    };
     keyboardInset.value = liftFor(composerFocused.value, inset);
     keyboardUp.value = composerFocused.value && keyboardShown(inset, viewport?.height ?? window.innerHeight, tallest);
     // The scroll this fires comes back through `schedule`, which re-measures the box with the pan undone.
     if (
-      shouldUnpan(keyboardUp.value, viewport?.offsetTop ?? 0, document.documentElement.scrollHeight, window.innerHeight)
+      shouldUnpan(
+        keyboardUp.value,
+        keyboardPan(viewport?.offsetTop ?? 0, window.scrollY),
+        document.documentElement.scrollHeight,
+        window.innerHeight,
+      )
     ) {
       window.scrollTo(0, 0);
     }
@@ -108,6 +117,14 @@ export function trackKeyboard(): () => void {
     const method = on ? "addEventListener" : "removeEventListener";
     viewport?.[method]("resize", schedule);
     viewport?.[method]("scroll", schedule);
+    window[method]("scroll", schedule);
+  };
+  // The first keyboard of a visit (and its AutoFill bar) settles with no final viewport event on iOS, leaving the
+  // page panned and the panel short of the keyboard's top; a few late looks catch where it came to rest.
+  let settles: number[] = [];
+  const settle = (): void => {
+    for (const id of settles) clearTimeout(id);
+    settles = [150, 400, 800].map((ms) => window.setTimeout(schedule, ms));
   };
   window.addEventListener("resize", schedule);
   // immediate: on a first visit the box can already hold focus when the panel mounts (the box typed into before the
@@ -117,6 +134,7 @@ export function trackKeyboard(): () => void {
     (focused, wasFocused) => {
       if (focused !== Boolean(wasFocused)) listen(focused);
       schedule();
+      settle();
     },
     { immediate: true },
   );
@@ -124,6 +142,7 @@ export function trackKeyboard(): () => void {
     listen(false);
     window.removeEventListener("resize", schedule);
     stopFocus();
+    for (const id of settles) clearTimeout(id);
     if (frame !== 0) cancelAnimationFrame(frame);
     keyboardInset.value = 0;
     keyboardUp.value = false;
