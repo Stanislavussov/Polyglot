@@ -103,3 +103,5 @@
 - On your phone the menu no longer repeats the Polyglot Monster name: it stays only at the top of the page.
 - In a translation, the word “Meaning:” no longer runs into its explanation.
 - In your dictionary the “Start learning” button is gone from new words: they simply show when they will come up for review.
+- The dictionary is tidier on your phone: the search box takes the whole width, and switching, creating and renaming dictionaries now lives in one menu next to the filter and sort buttons.
+- On your phone the buttons at the bottom of the screen no longer disappear after a page loads; they only step aside while you type.
