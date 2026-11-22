@@ -101,3 +101,4 @@
 - On your phone the text box is now roomy, like in DeepL: you see several lines of what you type, how many characters are left, and the microphone and send buttons underneath.
 - The website has a fresh look: its colours moved from green to a calm sea blue, and on your phone the menu button is now on the right, like in DeepL.
 - On your phone the menu no longer repeats the Polyglot Monster name: it stays only at the top of the page.
+- In a translation, the word “Meaning:” no longer runs into its explanation.
