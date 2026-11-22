@@ -97,11 +97,11 @@
 - Closed the progress hint at the top? It now stays hidden for a month, with no leftover icon — bring it back from the Progress page.
 - A word card opened on your phone closes with a swipe down again, even after you have scrolled through it.
 - On a phone the empty translate page no longer scrolls, the monster stays in view in the middle of the screen when the keyboard opens, and the box's hint fits on one line.
-- On your phone the text box now sits at the top of the page, as in DeepL, so the keyboard never covers it, and the Translate, Dictionary, Review and Mentor buttons step aside while you type.
+- On your phone the text box now sits at the top of the page, as in DeepL, so the keyboard never covers it.
 - On your phone the text box is now roomy, like in DeepL: you see several lines of what you type, how many characters are left, and the microphone and send buttons underneath.
 - The website has a fresh look: its colours moved from green to a calm sea blue, and on your phone the menu button is now on the right, like in DeepL.
 - On your phone the menu no longer repeats the Polyglot Monster name: it stays only at the top of the page.
 - In a translation, the word “Meaning:” no longer runs into its explanation.
 - In your dictionary the “Start learning” button is gone from new words: they simply show when they will come up for review.
 - The dictionary is tidier on your phone: the search box takes the whole width, and switching, creating and renaming dictionaries now lives in one menu next to the filter and sort buttons.
-- On your phone the buttons at the bottom of the screen no longer disappear after a page loads; they only step aside while you type.
+- On your phone the Translate, Dictionary, Review and Mentor buttons at the bottom now always stay on screen.
