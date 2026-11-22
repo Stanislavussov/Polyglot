@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   coveredByKeyboard,
   freeAreaCenter,
+  keyboardPan,
   keyboardShown,
   liftFor,
   QUICK_TARGETS,
@@ -107,5 +108,11 @@ describe("shouldUnpan", () => {
   it("does nothing without the keyboard or without a pan", () => {
     expect(shouldUnpan(false, 180, 664, 664)).toBe(false);
     expect(shouldUnpan(true, 0, 664, 664)).toBe(false);
+  });
+
+  it("sees a pan iOS made by scrolling the window, not the visual viewport", () => {
+    expect(keyboardPan(0, 120)).toBe(120);
+    expect(keyboardPan(180, 0)).toBe(180);
+    expect(shouldUnpan(true, keyboardPan(0, 120), 664, 664)).toBe(true);
   });
 });
