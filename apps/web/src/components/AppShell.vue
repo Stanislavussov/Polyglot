@@ -55,8 +55,9 @@
           class="fixed inset-y-0 right-0 z-50 flex w-72 max-w-[85vw] flex-col bg-sidebar text-sidebar-fg shadow-xl md:hidden"
           :aria-describedby="undefined"
         >
-          <div class="flex h-14 items-center justify-between px-5">
-            <DialogTitle class="flex items-center gap-2 text-xl font-display font-extrabold tracking-tight"><img src="/favicon.svg" alt="" class="size-7 rounded-lg" /> Polyglot Monster</DialogTitle>
+          <!-- The header behind already shows the name: the drawer keeps it for screen readers only. -->
+          <div class="flex h-14 items-center justify-end px-3">
+            <DialogTitle class="sr-only">Polyglot Monster</DialogTitle>
             <DialogClose
               class="grid size-11 place-items-center rounded-full hover:bg-sidebar-hover"
               :aria-label="t('web.nav.closeMenu')"
