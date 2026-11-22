@@ -55,11 +55,10 @@ import ExampleList from "./ExampleList.vue";
 const props = defineProps<{ detail: EntryDetail["details"][number]; entryId?: number; audio?: AudioAccess; speaks?: boolean }>();
 const emit = defineEmits<{ notice: [key: string] }>();
 
-// Due or never practised: worth a tap, so it is a button, not a status.
+// Only a word that is due is worth a tap; a new word just shows when it comes up (a "Start learning" button led nowhere new).
 const cta = computed(() => {
   const review = props.detail.review;
-  if (!review.dueAt) return null;
-  if (review.reviewCount === 0) return "web.dictionary.startLearning";
+  if (!review.dueAt || review.reviewCount === 0) return null;
   return formatDue(review.dueAt, lang.value).due ? "web.dictionary.reviewNow" : null;
 });
 
