@@ -268,8 +268,8 @@
 
           <div v-if="card.nativeMeaning" class="space-y-3">
             <p v-if="card.nativeMeaning" class="text-base">
-              <span class="font-semibold text-ink-muted">{{ t("web.translate.nativeMeaning") }}:</span>
-              <StreamText :text="card.nativeMeaning" />
+              <!-- Vue drops the line break between two elements, so the space after the colon is written out. -->
+              <span class="font-semibold text-ink-muted">{{ t("web.translate.nativeMeaning") }}:</span>{{ " " }}<StreamText :text="card.nativeMeaning" />
             </p>
 
           </div>
