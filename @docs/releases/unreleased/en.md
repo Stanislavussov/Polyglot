@@ -102,3 +102,4 @@
 - The website has a fresh look: its colours moved from green to a calm sea blue, and on your phone the menu button is now on the right, like in DeepL.
 - On your phone the menu no longer repeats the Polyglot Monster name: it stays only at the top of the page.
 - In a translation, the word “Meaning:” no longer runs into its explanation.
+- In your dictionary the “Start learning” button is gone from new words: they simply show when they will come up for review.
