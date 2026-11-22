@@ -2,59 +2,65 @@
   <section class="min-w-0">
     <h1 class="page-title">{{ t("web.dictionary.title") }}</h1>
 
-    <DictionarySwitcher
-      v-if="dictionaries.length > 0"
-      :dictionaries="dictionaries"
-      :current-id="data?.dictionary.id ?? dictionaryId"
-      @select="selectDictionary"
-      @changed="onDictionariesChanged"
-    />
-
-    <div ref="toolbar" class="mt-3 flex scroll-mt-20 gap-2 md:scroll-mt-6">
-      <label class="sr-only" for="dictionary-search">{{ t("web.dictionary.search") }}</label>
-      <div class="relative min-w-0 flex-1">
-        <Search class="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-ink-muted" aria-hidden="true" />
-        <input
-          id="dictionary-search"
-          ref="searchInput"
-          v-model="query"
-          type="search"
-          class="field min-h-12 text-ellipsis pl-10 pr-3 focus:border-primary focus:outline-none focus:ring-[3px] focus:ring-ring"
-          :placeholder="t(isDesktop ? 'web.dictionary.searchHint' : 'web.dictionary.search')"
+    <!-- Phones: the list menu and the filter and sort icons share one row, so the search below gets the full width. -->
+    <div ref="toolbar" class="scroll-mt-20 md:scroll-mt-6">
+      <div class="mt-4 flex items-center gap-2">
+        <DictionarySwitcher
+          v-if="dictionaries.length > 0"
+          class="min-w-0 flex-1"
+          :dictionaries="dictionaries"
+          :current-id="data?.dictionary.id ?? dictionaryId"
+          @select="selectDictionary"
+          @changed="onDictionariesChanged"
         />
-      </div>
-      <PopoverRoot v-model:open="filtersOpen">
-        <PopoverTrigger
-          class="btn-secondary relative min-h-12 w-12 shrink-0 px-0"
-          :aria-label="filterButtonLabel"
-          :title="filterButtonLabel"
-        >
-          <SlidersHorizontal class="size-5" aria-hidden="true" />
-          <span
-            v-if="activeCount > 0"
-            class="absolute -right-1.5 -top-1.5 grid min-w-5 place-items-center rounded-full bg-primary px-1.5 text-sm font-semibold text-primary-fg"
-            aria-hidden="true"
-          >{{ activeCount }}</span>
-        </PopoverTrigger>
-        <PopoverPortal v-if="isDesktop">
-          <PopoverContent
-            align="end"
-            :side-offset="8"
-            class="z-30 w-80 rounded-2xl border border-line bg-surface p-4 shadow-xl"
+        <div v-else class="flex-1" />
+        <PopoverRoot v-model:open="filtersOpen">
+          <PopoverTrigger
+            class="btn-secondary relative min-h-12 w-12 shrink-0 px-0"
+            :aria-label="filterButtonLabel"
+            :title="filterButtonLabel"
           >
-            <DictionaryFilters :model-value="filters" :active-count="activeCount" @update="setFilter" @reset="resetFilters" />
-          </PopoverContent>
-        </PopoverPortal>
-      </PopoverRoot>
-      <button
-        type="button"
-        class="btn-secondary min-h-12 w-12 shrink-0 px-0"
-        :aria-label="`${t('web.dictionary.sort')}: ${t(currentSort.label)}`"
-        :title="`${t('web.dictionary.sort')}: ${t(currentSort.label)}`"
-        @click="toggleSort"
-      >
-        <component :is="currentSort.icon" class="size-5" aria-hidden="true" />
-      </button>
+            <SlidersHorizontal class="size-5" aria-hidden="true" />
+            <span
+              v-if="activeCount > 0"
+              class="absolute -right-1.5 -top-1.5 grid min-w-5 place-items-center rounded-full bg-primary px-1.5 text-sm font-semibold text-primary-fg"
+              aria-hidden="true"
+            >{{ activeCount }}</span>
+          </PopoverTrigger>
+          <PopoverPortal v-if="isDesktop">
+            <PopoverContent
+              align="end"
+              :side-offset="8"
+              class="z-30 w-80 rounded-2xl border border-line bg-surface p-4 shadow-xl"
+            >
+              <DictionaryFilters :model-value="filters" :active-count="activeCount" @update="setFilter" @reset="resetFilters" />
+            </PopoverContent>
+          </PopoverPortal>
+        </PopoverRoot>
+        <button
+          type="button"
+          class="btn-secondary min-h-12 w-12 shrink-0 px-0"
+          :aria-label="`${t('web.dictionary.sort')}: ${t(currentSort.label)}`"
+          :title="`${t('web.dictionary.sort')}: ${t(currentSort.label)}`"
+          @click="toggleSort"
+        >
+          <component :is="currentSort.icon" class="size-5" aria-hidden="true" />
+        </button>
+      </div>
+      <div class="mt-3">
+        <label class="sr-only" for="dictionary-search">{{ t("web.dictionary.search") }}</label>
+        <div class="relative min-w-0 flex-1">
+          <Search class="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-ink-muted" aria-hidden="true" />
+          <input
+            id="dictionary-search"
+            ref="searchInput"
+            v-model="query"
+            type="search"
+            class="field min-h-12 text-ellipsis pl-10 pr-3 focus:border-primary focus:outline-none focus:ring-[3px] focus:ring-ring"
+            :placeholder="t(isDesktop ? 'web.dictionary.searchHint' : 'web.dictionary.search')"
+          />
+        </div>
+      </div>
     </div>
 
     <BottomSheet :open="!isDesktop && filtersOpen" @close="filtersOpen = false">

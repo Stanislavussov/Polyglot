@@ -1,25 +1,38 @@
 <template>
-  <div class="mt-4 flex items-center gap-3">
-    <label class="sr-only" for="dictionary-switch">{{ t("web.dictionaries.label") }}</label>
-    <div class="min-w-0 flex-1 sm:max-w-xs">
-      <AppSelect
+  <!-- One compact menu instead of a select and three buttons: it holds the switch and the rarer list chores,
+       so the phone keeps a full-width search under it. -->
+  <div class="min-w-0">
+    <DropdownMenuRoot>
+      <DropdownMenuTrigger
         id="dictionary-switch"
-        :model-value="current?.id"
-        :options="dictionaries.map((d) => ({ value: d.id, label: `${d.icon ? `${d.icon} ` : ''}${d.name} · ${d.count}` }))"
-        @update:model-value="(id) => emit('select', id)"
-      />
-    </div>
-    <button type="button" class="btn-secondary" :aria-label="t('web.dictionaries.create')" @click="open('create')">
-      <Plus class="size-4" aria-hidden="true" /><span class="hidden sm:inline">{{ t("web.dictionaries.create") }}</span>
-    </button>
-    <button v-if="current" type="button" class="btn-secondary !px-3" :aria-label="t('web.dictionaries.rename')" :title="t('web.dictionaries.rename')" @click="open('rename')">
-      <Pencil class="size-4" aria-hidden="true" />
-    </button>
-    <template v-if="current && !current.isDefault">
-      <button type="button" class="btn-secondary !px-3 !text-danger" :aria-label="t('web.dictionaries.delete')" :title="t('web.dictionaries.delete')" @click="open('delete')">
-        <Trash2 class="size-4" aria-hidden="true" />
-      </button>
-    </template>
+        class="btn-secondary min-h-12 max-w-full justify-start gap-2 sm:max-w-xs"
+        :aria-label="`${t('web.dictionaries.label')}: ${current?.name ?? ''}`"
+      >
+        <span v-if="current?.icon" aria-hidden="true">{{ current.icon }}</span>
+        <span class="min-w-0 truncate">{{ current?.name }}</span>
+        <span v-if="current" class="shrink-0 font-normal text-ink-muted">{{ current.count }}</span>
+        <ChevronDown class="size-4 shrink-0" aria-hidden="true" />
+      </DropdownMenuTrigger>
+      <DropdownMenuPortal>
+        <DropdownMenuContent align="start" :side-offset="6" :collision-padding="16" :class="MENU">
+          <DropdownMenuItem v-for="d in dictionaries" :key="d.id" :class="MENU_ITEM" @select="emit('select', d.id)">
+            <Check :class="['size-4 shrink-0', d.id !== current?.id && 'invisible']" aria-hidden="true" />
+            <span class="min-w-0 flex-1 truncate">{{ d.icon ? `${d.icon} ` : "" }}{{ d.name }}</span>
+            <span class="text-ink-muted">{{ d.count }}</span>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator class="my-1 h-px bg-line" />
+          <DropdownMenuItem :class="MENU_ITEM" @select="open('create')">
+            <Plus class="size-4" aria-hidden="true" />{{ t("web.dictionaries.create") }}
+          </DropdownMenuItem>
+          <DropdownMenuItem v-if="current" :class="MENU_ITEM" @select="open('rename')">
+            <Pencil class="size-4" aria-hidden="true" />{{ t("web.dictionaries.rename") }}
+          </DropdownMenuItem>
+          <DropdownMenuItem v-if="current && !current.isDefault" :class="[MENU_ITEM, 'text-danger']" @select="open('delete')">
+            <Trash2 class="size-4" aria-hidden="true" />{{ t("web.dictionaries.delete") }}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenuPortal>
+    </DropdownMenuRoot>
 
     <!-- Create, rename and delete each get a roomy dialog instead of a row that pushes the list down. -->
     <BottomSheet :open="mode !== null" @close="close">
@@ -70,13 +83,24 @@
 </template>
 
 <script setup lang="ts">
-import { Pencil, Plus, SmilePlus, Trash2 } from "lucide-vue-next";
-import { PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from "reka-ui";
+import { Check, ChevronDown, Pencil, Plus, SmilePlus, Trash2 } from "lucide-vue-next";
+import {
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuPortal,
+  DropdownMenuRoot,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  PopoverContent,
+  PopoverPortal,
+  PopoverRoot,
+  PopoverTrigger,
+} from "reka-ui";
 import EmojiPicker from "./EmojiPicker.vue";
-import AppSelect from "./AppSelect.vue";
 import BottomSheet from "./BottomSheet.vue";
 import { computed, nextTick, ref } from "vue";
 import { ApiError, api } from "../lib/api";
+import { MENU, MENU_ITEM } from "../lib/action-bar";
 import { t } from "../lib/i18n";
 import type { Dictionary } from "../lib/types";
 
