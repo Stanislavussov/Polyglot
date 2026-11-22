@@ -36,22 +36,23 @@
     </aside>
 
     <header class="sticky top-0 z-30 flex h-14 items-center gap-3 bg-sidebar px-3 text-sidebar-fg md:hidden">
+      <span class="flex items-center gap-2 pl-1 text-xl font-display font-extrabold tracking-tight"><img src="/favicon.svg" alt="" class="size-7 rounded-lg" /> Polyglot Monster</span>
+      <!-- On the right, as in DeepL: the logo leads, the menu waits under the right thumb. -->
       <button
         type="button"
-        class="grid size-11 place-items-center rounded-full hover:bg-sidebar-hover"
+        class="ml-auto grid size-11 place-items-center rounded-full hover:bg-sidebar-hover"
         :aria-label="t('web.nav.openMenu')"
         @click="drawerOpen = true"
       >
         <Menu class="size-6" aria-hidden="true" />
       </button>
-      <span class="flex items-center gap-2 text-xl font-display font-extrabold tracking-tight"><img src="/favicon.svg" alt="" class="size-7 rounded-lg" /> Polyglot Monster</span>
     </header>
 
     <DialogRoot v-model:open="drawerOpen">
       <DialogPortal>
         <DialogOverlay class="fixed inset-0 z-40 bg-scrim opacity-50 md:hidden" />
         <DialogContent
-          class="fixed inset-y-0 left-0 z-50 flex w-72 max-w-[85vw] flex-col bg-sidebar text-sidebar-fg shadow-xl md:hidden"
+          class="fixed inset-y-0 right-0 z-50 flex w-72 max-w-[85vw] flex-col bg-sidebar text-sidebar-fg shadow-xl md:hidden"
           :aria-describedby="undefined"
         >
           <div class="flex h-14 items-center justify-between px-5">
@@ -349,7 +350,7 @@ function onTouchStart(event: TouchEvent): void {
 function onTouchEnd(event: TouchEvent): void {
   const touch = event.changedTouches[0];
   if (!swipeStart || !touch || window.matchMedia("(min-width: 768px)").matches) return;
-  const action = drawerSwipeAction(swipeStart, { x: touch.clientX, y: touch.clientY }, drawerOpen.value);
+  const action = drawerSwipeAction(swipeStart, { x: touch.clientX, y: touch.clientY }, drawerOpen.value, window.innerWidth);
   swipeStart = null;
   if (action) drawerOpen.value = action === "open";
 }

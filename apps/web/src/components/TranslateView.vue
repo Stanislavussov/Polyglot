@@ -22,7 +22,7 @@
         ref="composer"
         v-model="text"
         class="xl:col-start-1 xl:row-start-1"
-        :placeholder="t(phone ? 'web.translate.placeholderShort' : 'web.translate.placeholder')"
+        :placeholder="t('web.translate.placeholder')"
         :submit-label="t('web.translate.submit')"
         :max-length="MAX_LENGTH"
         :busy="busy"

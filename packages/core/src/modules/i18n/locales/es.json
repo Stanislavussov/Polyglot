@@ -575,7 +575,6 @@
   "web.translate.greet.beforeBed": "¿Una palabra más antes de dormir?",
   "web.translate.greet.moonlit": "¿Una palabra a la luz de la luna?",
   "web.translate.placeholder": "Escribe una palabra, frase u oración",
-  "web.translate.placeholderShort": "Palabra o frase",
   "web.translate.submit": "Traducir",
   "web.translate.working": "Traduciendo…",
   "web.translate.correction": "¿Quisiste decir: {text}?",

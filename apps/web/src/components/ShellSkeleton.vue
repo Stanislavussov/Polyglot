@@ -20,8 +20,8 @@
     </aside>
 
     <header class="flex h-14 items-center gap-3 bg-sidebar px-3 text-sidebar-fg md:hidden" aria-hidden="true">
-      <div class="grid size-11 place-items-center"><div class="skeleton-dark h-4 w-6 rounded" /></div>
-      <span class="flex items-center gap-2 text-xl font-bold tracking-tight"><img src="/favicon.svg" alt="" class="size-7 rounded-lg" /> Polyglot Monster</span>
+      <span class="flex items-center gap-2 pl-1 text-xl font-bold tracking-tight"><img src="/favicon.svg" alt="" class="size-7 rounded-lg" /> Polyglot Monster</span>
+      <div class="ml-auto grid size-11 place-items-center"><div class="skeleton-dark h-4 w-6 rounded" /></div>
     </header>
 
     <main class="min-w-0 flex-1" :aria-hidden="placeholder ? undefined : 'true'">
@@ -41,19 +41,20 @@
         </template>
         <div v-if="placeholder" class="grid gap-6 max-md:mt-2 xl:grid-cols-[minmax(0,1fr)_minmax(0,20rem)] xl:items-start">
           <div class="xl:col-start-1 xl:row-start-1">
-            <div class="flex items-end gap-1 rounded-3xl border border-line bg-surface p-1.5 transition-colors focus-within:border-ring md:block md:p-3 md:shadow-card">
+            <div class="rounded-3xl border border-line bg-surface p-3 transition-colors focus-within:border-ring shadow-card">
               <label class="sr-only" :for="EARLY_INPUT_ID">{{ placeholder }}</label>
               <textarea
                 :id="EARLY_INPUT_ID"
                 v-model="earlyText"
-                class="order-2 block max-h-[40dvh] min-h-11 min-w-0 flex-1 resize-none max-md:placeholder:truncate bg-transparent px-2 py-2.5 text-base md:w-full text-ink placeholder:text-ink-muted focus:outline-none md:min-h-20"
+                class="block max-h-[40dvh] min-h-32 w-full resize-none bg-transparent px-2 py-2.5 text-base text-ink placeholder:text-ink-muted focus:outline-none md:min-h-20"
                 rows="1"
                 maxlength="500"
                 :placeholder="placeholder"
               />
-              <div class="contents md:flex md:items-center md:gap-2" aria-hidden="true">
+              <div class="flex items-center gap-2" aria-hidden="true">
                 <span class="grid size-11 place-items-center rounded-full text-ink-muted"><Mic class="size-5" /></span>
-                <span class="order-3 grid size-11 md:ml-auto place-items-center rounded-full bg-primary-soft text-primary-soft-fg"><ArrowUp class="size-5" /></span>
+                <span class="ml-auto text-sm tabular-nums text-ink-muted">{{ earlyText.length }} / 500</span>
+                <span class="grid size-11 place-items-center rounded-full bg-primary-soft text-primary-soft-fg"><ArrowUp class="size-5" /></span>
               </div>
             </div>
             <p class="relative mt-2 hidden px-3 text-sm md:block [@media(pointer:coarse)]:hidden" aria-hidden="true">&nbsp;<span class="skeleton absolute inset-y-1 left-3 w-64 max-w-full rounded" /></p>
