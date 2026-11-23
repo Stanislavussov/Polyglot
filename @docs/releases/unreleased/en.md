@@ -105,3 +105,4 @@
 - In your dictionary the “Start learning” button is gone from new words: they simply show when they will come up for review.
 - The dictionary is tidier on your phone: the search box takes the whole width, and switching, creating and renaming dictionaries now lives in one menu next to the filter and sort buttons.
 - On your phone the Translate, Dictionary, Review and Mentor buttons at the bottom now always stay on screen.
+- In Mentor the question box now sits under the conversation, like in a regular chat.

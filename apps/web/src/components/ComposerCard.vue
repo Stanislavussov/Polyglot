@@ -1,7 +1,7 @@
 <template>
   <!-- The one text box pattern, a roomy field as in DeepL, with its tools in a row under the text: translate, asking about a word, the mentor and the
-       grammar check share it, so typing feels the same everywhere. It stays at the top of the page on every screen,
-       as in DeepL: nothing has to follow the phone keyboard, so nothing breaks when a browser misreports it. -->
+       grammar check share it, so typing feels the same everywhere. It sits in the page flow (top, or under the mentor chat),
+       never docked: nothing has to follow the phone keyboard, so nothing breaks when a browser misreports it. -->
   <form @submit.prevent="send">
     <div
       class="rounded-3xl border border-line bg-surface p-3 transition-colors focus-within:border-ring shadow-card"
