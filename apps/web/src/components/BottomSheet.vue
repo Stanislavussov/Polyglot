@@ -6,7 +6,7 @@
       <DialogContent
         :style="sheetStyle"
         :class="[{ 'sheet-dragged-out': dismissing }, panelClass]"
-        class="sheet fixed inset-x-0 bottom-0 z-50 flex max-h-[75dvh] flex-col overflow-hidden rounded-t-2xl border border-line bg-surface shadow-xl sm:inset-x-auto sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-2xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl"
+        class="sheet fixed inset-x-0 bottom-0 z-50 flex max-h-[85dvh] flex-col overflow-hidden rounded-t-2xl border border-line bg-surface shadow-xl sm:inset-x-auto sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-2xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:max-h-[75dvh] sm:rounded-2xl"
         :aria-describedby="undefined"
       >
         <!-- Header and footer stay put while long content scrolls between them, so closing is always one tap away.

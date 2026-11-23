@@ -23,6 +23,9 @@
       :text="entry.sourceUsage?.headword ?? entry.original"
       :emoji="entry.emoji"
     />
+    <ul v-if="entry.sourceUsage && entry.sourceUsage.synonyms.length > 0" class="flex flex-wrap gap-2" :aria-label="t('web.translate.synonyms')">
+      <li v-for="synonym in entry.sourceUsage.synonyms" :key="synonym" class="rounded-full bg-primary-soft px-3 py-1 text-base text-primary-soft-fg">{{ synonym }}</li>
+    </ul>
 
     <!-- "Hard" words come back first: the same grade the bot's notification feedback sets. -->
     <button
@@ -48,9 +51,6 @@
       <h3 class="text-sm font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.translate.aboutSource") }}</h3>
       <p v-if="entry.sourceUsage.headword" class="font-semibold">{{ entry.sourceUsage.headword }}</p>
       <p>{{ entry.sourceUsage.explanation }}</p>
-      <ul v-if="entry.sourceUsage.synonyms.length > 0" class="flex flex-wrap gap-2">
-        <li v-for="synonym in entry.sourceUsage.synonyms" :key="synonym" class="rounded-full bg-primary-soft px-3 py-1 text-primary-soft-fg">{{ synonym }}</li>
-      </ul>
       <ExampleList :examples="entry.sourceUsage.examples" />
     </div>
 

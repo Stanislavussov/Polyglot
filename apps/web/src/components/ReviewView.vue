@@ -80,6 +80,16 @@
             {{ synonym }}
           </li>
         </ul>
+        <!-- Kept off the front unless chosen there; once revealed they join the word, not the explanation box below. -->
+        <ul
+          v-else-if="revealed && card.detail.sourceUsage && card.detail.sourceUsage.synonyms.length > 0"
+          class="flex flex-wrap gap-2"
+          :aria-label="t('web.translate.synonyms')"
+        >
+          <li v-for="synonym in card.detail.sourceUsage.synonyms" :key="synonym" class="rounded-full bg-primary-soft px-3 py-1 text-base text-primary-soft-fg">
+            {{ synonym }}
+          </li>
+        </ul>
         <p v-if="card.front.hint" class="text-base italic text-ink-muted">🔎 {{ card.front.hint }}</p>
         <p v-if="card.front.example" class="border-l-2 border-line pl-3 text-base font-medium">{{ card.front.example }}</p>
       </header>
@@ -124,11 +134,6 @@
         <div v-if="card.detail.sourceUsage" class="space-y-2 rounded-xl bg-surface-muted px-4 py-3 text-base">
           <h3 class="text-sm font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.translate.aboutSource") }}</h3>
           <p>{{ card.detail.sourceUsage.explanation }}</p>
-          <ul v-if="card.front.synonyms.length === 0 && card.detail.sourceUsage.synonyms.length > 0" class="flex flex-wrap gap-2">
-            <li v-for="synonym in card.detail.sourceUsage.synonyms" :key="synonym" class="rounded-full bg-primary-soft px-3 py-1 text-primary-soft-fg">
-              {{ synonym }}
-            </li>
-          </ul>
           <ExampleList :examples="card.detail.sourceUsage.examples" />
         </div>
 

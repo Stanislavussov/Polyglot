@@ -225,6 +225,12 @@
             </div>
             </div>
             <WordHeadline as="h2" :text="card.sourceUsage?.headword ?? card.original" :emoji="card.emoji" />
+            <!-- Synonyms in the learned language sit right under the word they belong to, above any translation. -->
+            <ul v-if="card.sourceUsage && card.sourceUsage.synonyms.length > 0" class="flex flex-wrap gap-2 text-sm" :aria-label="t('web.translate.synonyms')">
+              <li v-for="synonym in card.sourceUsage.synonyms" :key="synonym" class="stream-in rounded-full bg-primary-soft px-3 py-1 text-primary-soft-fg">
+                {{ synonym }}
+              </li>
+            </ul>
             <TranslationBlock
               v-if="leadNative && !explore?.retranslating"
               :key="`${resultSeq}:${leadNative.lang}`"
@@ -235,11 +241,6 @@
             />
             <!-- Everything about the word in its own language sits with the word, above the translations. -->
             <template v-if="card.sourceUsage">
-              <ul v-if="card.sourceUsage.synonyms.length > 0" class="flex flex-wrap gap-2 text-sm" :aria-label="t('web.translate.aboutSource')">
-                <li v-for="synonym in card.sourceUsage.synonyms" :key="synonym" class="stream-in rounded-full bg-primary-soft px-3 py-1 text-primary-soft-fg">
-                  {{ synonym }}
-                </li>
-              </ul>
               <div class="stream-in space-y-2 rounded-xl bg-surface-muted px-4 py-3 text-sm">
                 <p><StreamText :text="card.sourceUsage.explanation" /></p>
                 <ExampleList :examples="card.sourceUsage.examples" stream />

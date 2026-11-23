@@ -106,3 +106,5 @@
 - The dictionary is tidier on your phone: the search box takes the whole width, and switching, creating and renaming dictionaries now lives in one menu next to the filter and sort buttons.
 - On your phone the Translate, Dictionary, Review and Mentor buttons at the bottom now always stay on screen.
 - In Mentor the question box now sits under the conversation, like in a regular chat.
+- On your phone pop-up windows are now a little taller, so more text fits at once.
+- Synonyms in the language you're learning now appear right under the word itself — in translations, the dictionary and reviews.
