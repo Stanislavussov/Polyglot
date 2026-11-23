@@ -36,6 +36,15 @@ function cardFront(detail: ReturnType<typeof toDictionaryDetail>, recallHint: st
   };
 }
 
+// Learners read the synonyms switch as "never show them", so it also clears the answer side, not only the front.
+function withoutSynonyms(detail: ReturnType<typeof toDictionaryDetail>): ReturnType<typeof toDictionaryDetail> {
+  return {
+    ...detail,
+    sourceUsage: detail.sourceUsage ? { ...detail.sourceUsage, synonyms: [] } : null,
+    details: detail.details.map((d) => ({ ...d, synonyms: [] })),
+  };
+}
+
 /** The answer is the saved word exactly as the dictionary shows it, as on the bot's flipped card. */
 async function toReviewCard(services: WebServices, user: User, head: SrsDueVocabularyCard, ahead: boolean) {
   const entry = await services.vocabularyRepository.findById(head.entryId);
@@ -44,12 +53,14 @@ async function toReviewCard(services: WebServices, user: User, head: SrsDueVocab
     languageOrder(services, user.id),
     services.cardTemplateRepository.getFields(user.id),
   ]);
-  const detail = toDictionaryDetail(services, entry);
+  const full = toDictionaryDetail(services, entry);
+  const detail = fields.synonyms ? full : withoutSynonyms(full);
   const byLang = Object.fromEntries(detail.details.map((d) => [d.lang, d]));
   return {
     entryId: entry.id,
     ahead,
-    front: cardFront(detail, entry.sourceUsage?.recallHint ?? null, fields),
+    // Built from the full detail: `available` must still see the synonyms the setting hides.
+    front: cardFront(full, entry.sourceUsage?.recallHint ?? null, fields),
     detail: { ...detail, details: orderRecordEntries(byLang, order).map(([, d]) => d) },
     audio: await cardAudio(services, user, entry, order),
   };

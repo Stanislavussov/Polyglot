@@ -108,3 +108,4 @@
 - In Mentor the question box now sits under the conversation, like in a regular chat.
 - On your phone pop-up windows are now a little taller, so more text fits at once.
 - Synonyms in the language you're learning now appear right under the word itself — in translations, the dictionary and reviews.
+- In Review, switching off Synonyms in the card settings now hides them completely — even after you open the answer.
