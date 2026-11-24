@@ -110,3 +110,4 @@
 - Synonyms in the language you're learning now appear right under the word itself — in translations, the dictionary and reviews.
 - In Review, switching off Synonyms in the card settings now hides them completely — even after you open the answer.
 - In Review, ticking hint, synonyms or example in the card settings no longer makes the checkboxes blink — they switch instantly.
+- On a computer, the greeting on the translate page now lines up with the text box instead of floating in the middle.
