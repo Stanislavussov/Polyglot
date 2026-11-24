@@ -1,7 +1,7 @@
 <template>
   <section class="space-y-4">
     <a href="/learn/" class="-my-2 inline-flex min-h-11 items-center text-sm text-ink-muted hover:underline">{{ t("web.learn.back") }}</a>
-    <h1 class="text-2xl font-bold tracking-tight">{{ t("web.learn.videos") }}</h1>
+    <h1 class="page-title">{{ t("web.learn.videos") }}</h1>
 
     <form class="flex flex-col gap-2 sm:flex-row" @submit.prevent="submit({ url: url.trim() })">
       <label class="sr-only" for="video-url">{{ t("web.learn.videos.urlLabel") }}</label>
@@ -13,7 +13,7 @@
     <p v-else-if="errorKey" role="alert" class="rounded-xl bg-danger-soft px-4 py-3 text-sm text-danger">{{ t(errorKey) }}</p>
 
     <article v-if="pending" class="card space-y-3">
-      <h2 class="font-semibold">{{ pending.video.title }}</h2>
+      <h2 class="text-xl font-semibold">{{ pending.video.title }}</h2>
       <p class="text-sm text-ink-muted">
         {{ t("web.learn.videos.duration") }}: {{ duration(pending.video.durationSeconds) }}
         <template v-if="pending.limit !== null"> · {{ t("web.learn.videos.remaining") }}: {{ pending.remaining }}/{{ pending.limit }}</template>
@@ -27,20 +27,23 @@
     <p v-if="processing" class="card text-sm" role="status">{{ t("web.learn.videos.processing") }}</p>
 
     <article v-if="open" class="card space-y-3" aria-live="polite">
-      <h2 class="font-semibold">
+      <h2 class="text-xl font-semibold">
         <a :href="open.video.url" target="_blank" rel="noopener noreferrer" class="hover:underline">{{ open.video.title }}</a>
       </h2>
-      <p v-if="open.phrases.length === 0" class="text-sm">{{ t("web.learn.videos.noPhrases") }}</p>
+      <p v-if="open.phrases.length === 0" class="text-base">{{ t("web.learn.videos.noPhrases") }}</p>
       <ul class="space-y-2">
-        <li v-for="phrase in open.phrases" :key="phrase.id" class="flex items-start justify-between gap-3 rounded-xl bg-surface-muted px-4 py-3 text-sm">
-          <div class="min-w-0 space-y-1">
-            <p class="font-semibold">{{ phrase.emoji }} {{ phrase.phrase }} <span v-if="phrase.nativeTranslation" class="font-normal">— {{ phrase.nativeTranslation }}</span></p>
-            <p v-if="phrase.context" class="italic text-ink-muted">{{ phrase.context }}</p>
-          </div>
-          <button type="button" class="btn-secondary shrink-0" :disabled="phrase.saved" @click="savePhrase(phrase)">
-            {{ phrase.saved ? t("web.common.saved") : t("web.common.save") }}
-          </button>
-        </li>
+        <SaveWordCard
+          v-for="phrase in open.phrases"
+          :key="phrase.id"
+          nested
+          :word="phrase.phrase"
+          :emoji="phrase.emoji"
+          :translation="phrase.nativeTranslation"
+          :examples="phrase.context ? [{ target: phrase.context, native: null, context: '' }] : []"
+          :saved="phrase.saved"
+          :native-lang="nativeLang"
+          @save="savePhrase(phrase)"
+        />
       </ul>
       <div class="flex flex-wrap items-center gap-2">
         <button type="button" class="btn-secondary" :disabled="open.phrases.every((p) => p.saved)" @click="saveAll">{{ t("web.learn.videos.saveAll") }}</button>
@@ -54,7 +57,7 @@
 
     <section class="space-y-2">
       <h2 class="text-sm font-semibold text-ink-muted">{{ t("web.learn.videos.mine") }}</h2>
-      <p v-if="listing && listing.videos.length === 0" class="text-sm">{{ t("web.learn.videos.none") }}</p>
+      <p v-if="listing && listing.videos.length === 0" class="text-base">{{ t("web.learn.videos.none") }}</p>
       <ul v-if="listing" class="space-y-1">
         <li v-for="video in listing.videos" :key="video.id" class="flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-sm hover:bg-surface-muted">
           <span class="min-w-0 truncate">{{ statusIcon(video.status) }} {{ video.title }}</span>
@@ -79,13 +82,17 @@
 
 <script setup lang="ts">
 import LangFlag from "./LangFlag.vue";
-import { onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { ApiError } from "../lib/api";
 import { t } from "../lib/i18n";
 import { learnApi, type Video, type VideoPhrase, type VideoSuggestion } from "../lib/learn-api";
 import LimitNotice from "./LimitNotice.vue";
+import SaveWordCard from "./SaveWordCard.vue";
+import { settings } from "../lib/settings-store";
 
 const POLL_MS = 3000;
+
+const nativeLang = computed(() => settings.value?.nativeLang ?? "");
 
 type Listing = Awaited<ReturnType<typeof learnApi.videos>>;
 type Opened = Awaited<ReturnType<typeof learnApi.video>>;

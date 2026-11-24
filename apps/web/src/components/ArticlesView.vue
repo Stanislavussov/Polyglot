@@ -48,18 +48,18 @@
       </h2>
       <p v-if="open.phrases.length === 0" class="text-base">{{ t("web.learn.articles.noPhrases") }}</p>
       <ul class="space-y-2">
-        <li v-for="phrase in open.phrases" :key="phrase.id" class="flex items-start justify-between gap-3 rounded-xl bg-surface-muted px-4 py-3">
-          <div class="min-w-0 space-y-1">
-            <p class="text-base font-semibold">
-              {{ phrase.emoji }} {{ phrase.phrase }}
-              <span v-if="phrase.nativeTranslation" class="font-normal">— {{ phrase.nativeTranslation }}</span>
-            </p>
-            <p v-if="phrase.context" class="text-sm italic text-ink-muted">{{ phrase.context }}</p>
-          </div>
-          <button type="button" class="btn-secondary shrink-0" :disabled="phrase.saved" @click="savePhrase(phrase)">
-            {{ phrase.saved ? t("web.common.saved") : t("web.common.save") }}
-          </button>
-        </li>
+        <SaveWordCard
+          v-for="phrase in open.phrases"
+          :key="phrase.id"
+          nested
+          :word="phrase.phrase"
+          :emoji="phrase.emoji"
+          :translation="phrase.nativeTranslation"
+          :examples="phrase.context ? [{ target: phrase.context, native: null, context: '' }] : []"
+          :saved="phrase.saved"
+          :native-lang="nativeLang"
+          @save="savePhrase(phrase)"
+        />
       </ul>
       <div class="flex flex-wrap items-center gap-2">
         <button type="button" class="btn-secondary" :disabled="open.phrases.every((p) => p.saved)" @click="saveAll">
@@ -104,13 +104,17 @@
 
 <script setup lang="ts">
 import { Check, ChevronLeft, ChevronRight, Loader2, X } from "lucide-vue-next";
-import { onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { ApiError } from "../lib/api";
 import { t } from "../lib/i18n";
 import { type Article, type ArticlePhrase, learnApi } from "../lib/learn-api";
 import LimitNotice from "./LimitNotice.vue";
+import SaveWordCard from "./SaveWordCard.vue";
+import { settings } from "../lib/settings-store";
 
 const POLL_MS = 3000;
+
+const nativeLang = computed(() => settings.value?.nativeLang ?? "");
 
 type Listing = Awaited<ReturnType<typeof learnApi.articles>>;
 type Opened = Awaited<ReturnType<typeof learnApi.article>>;

@@ -156,8 +156,8 @@
               <template v-if="saveControls">
                 <!-- Several dictionaries: Save asks where to; with only one it saves straight away. -->
                 <DropdownMenuRoot v-if="saveState === 'unsaved' && dictionaries.length > 1">
-                  <DropdownMenuTrigger :class="SAVE_BTN" :disabled="savePending" :title="t('web.translate.save')" :aria-label="t('web.translate.save')">
-                    <BookmarkPlus class="size-4" stroke-width="2.5" aria-hidden="true" /><span class="hidden sm:inline">{{ t("web.translate.save") }}</span>
+                  <DropdownMenuTrigger as-child>
+                    <SaveButton :disabled="savePending" />
                   </DropdownMenuTrigger>
                   <DropdownMenuPortal>
                     <DropdownMenuContent align="end" :side-offset="8" :collision-padding="16" class="z-50 min-w-60 rounded-2xl border border-line bg-surface p-1.5 shadow-xl">
@@ -175,30 +175,9 @@
                     </DropdownMenuContent>
                   </DropdownMenuPortal>
                 </DropdownMenuRoot>
-                <button
-                  v-else-if="saveState === 'unsaved'"
-                  type="button"
-                  :class="SAVE_BTN"
-                  :disabled="savePending"
-                  :title="t('web.translate.save')"
-                  :aria-label="t('web.translate.save')"
-                  @click="save()"
-                >
-                  <BookmarkPlus class="size-4" stroke-width="2.5" aria-hidden="true" /><span class="hidden sm:inline">{{ t("web.translate.save") }}</span>
-                </button>
+                <SaveButton v-else-if="saveState === 'unsaved'" :disabled="savePending" @click="save()" />
                 <!-- Removed: the save button comes back, and pressing it is the undo — no extra pill to reflow the header. -->
-                <template v-else-if="saveState === 'removed'">
-                  <button
-                    type="button"
-                    :class="SAVE_BTN"
-                    :disabled="savePending"
-                    :title="t('web.translate.undo')"
-                    :aria-label="t('web.translate.undo')"
-                    @click="setSaved(true)"
-                  >
-                    <BookmarkPlus class="size-4" stroke-width="2.5" aria-hidden="true" /><span class="hidden sm:inline">{{ t("web.translate.save") }}</span>
-                  </button>
-                </template>
+                <SaveButton v-else-if="saveState === 'removed'" :label="t('web.translate.undo')" :disabled="savePending" @click="setSaved(true)" />
                 <!-- Saved: the button turns into the opposite action, in red, so the two states never look alike. -->
                 <button
                   v-else
@@ -316,7 +295,7 @@
 import WordHeadline from "./word/WordHeadline.vue";
 import LangBadge from "./LangBadge.vue";
 import LangFlag from "./LangFlag.vue";
-import { ArrowRight, BookmarkPlus, History, Sparkles, Mic, Square, Trash2, TriangleAlert } from "lucide-vue-next";
+import { ArrowRight, History, Sparkles, Mic, Square, Trash2, TriangleAlert } from "lucide-vue-next";
 import {
   DropdownMenuContent,
   DropdownMenuItem,
@@ -347,6 +326,7 @@ import StreamText from "./StreamText.vue";
 import TranslateSkeleton from "./TranslateSkeleton.vue";
 import MonsterThinking from "./MonsterThinking.vue";
 import ExampleList from "./ExampleList.vue";
+import SaveButton from "./SaveButton.vue";
 import LimitNotice from "./LimitNotice.vue";
 import MonsterLoader from "./MonsterLoader.vue";
 import TranslateGreeting from "./TranslateGreeting.vue";
@@ -499,7 +479,6 @@ function openFromSheet(entry: TranslateResult): void {
 }
 
 // Unsaved and saved must read apart at a glance (two teal tints did not): a filled Save, then a red Remove.
-const SAVE_BTN = "btn-primary !min-h-9 min-w-9 gap-1.5 !px-2 !text-sm sm:!px-3";
 const SAVED_BTN = "btn-secondary !min-h-9 min-w-9 gap-1.5 !px-2 !text-sm sm:!px-3 !border-danger !text-danger hover:!bg-danger-soft";
 // Icon-only on a phone, labelled where there is room: the sparkles say "more about this word".
 const EXPLORE_BTN = "btn-secondary !min-h-9 min-w-9 gap-1.5 !px-2 !text-sm";

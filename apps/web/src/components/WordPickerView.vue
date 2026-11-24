@@ -33,10 +33,15 @@
         <LangBadge :code="set.run.lang.code" :label="set.run.lang.name" />
       </header>
       <ul class="space-y-3">
-        <PickItemCard
+        <SaveWordCard
           v-for="item in set.items"
           :key="item.id"
-          :item="item"
+          :word="item.word"
+          :emoji="item.emoji"
+          :translation="item.nativeTranslation"
+          :note="item.note"
+          :examples="pickExamples(item)"
+          :saved="item.saved"
           :native-lang="nativeLang"
           :saving="savingIds.has(item.id)"
           @save="save(item)"
@@ -60,11 +65,12 @@ import { ApiError } from "../lib/api";
 import { t } from "../lib/i18n";
 import { type LangOption, learnApi, type PickedSet, type PickItem, type PickPreset } from "../lib/learn-api";
 import { settings } from "../lib/settings-store";
+import type { TranslateExample } from "../lib/types";
 import AppSelect from "./AppSelect.vue";
 import LangBadge from "./LangBadge.vue";
 import LimitNotice from "./LimitNotice.vue";
 import MonsterLoader from "./MonsterLoader.vue";
-import PickItemCard from "./PickItemCard.vue";
+import SaveWordCard from "./SaveWordCard.vue";
 
 const loading = ref(true);
 const noLanguage = ref(false);
@@ -78,6 +84,10 @@ const limit = ref<{ reason?: "plan" | "daily_ceiling"; resetAt?: string } | null
 const errorKey = ref<string | null>(null);
 
 const nativeLang = computed(() => settings.value?.nativeLang ?? "");
+
+function pickExamples(item: PickItem): TranslateExample[] {
+  return item.exampleTarget ? [{ target: item.exampleTarget, native: item.exampleNative, context: "" }] : [];
+}
 
 const langs = computed<LangOption[]>(() => {
   const seen = new Map<string, LangOption>();
