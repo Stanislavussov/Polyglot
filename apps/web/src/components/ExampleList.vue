@@ -3,7 +3,6 @@
     <li v-for="example in examples" :key="example.target" class="border-l-2 border-line pl-3" :class="{ 'stream-in': stream }">
       <p class="font-medium"><StreamText v-if="stream" :text="example.target" /><template v-else>{{ example.target }}</template></p>
       <p v-if="example.native" class="text-ink-muted"><StreamText v-if="stream" :text="example.native" /><template v-else>{{ example.native }}</template></p>
-      <p v-if="example.context" class="text-sm text-ink-muted opacity-80">{{ example.context }}</p>
     </li>
   </ul>
 </template>
