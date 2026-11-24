@@ -56,14 +56,14 @@
                   :key="field"
                   :class="[
                     'flex min-h-12 items-center gap-3 rounded-xl px-3 py-2 text-base',
-                    frontHas(field) ? 'cursor-pointer hover:bg-surface-muted' : 'cursor-not-allowed opacity-50',
+                    frontHas(field) ? 'cursor-pointer [@media(hover:hover)]:hover:bg-surface-muted' : 'cursor-not-allowed opacity-50',
                   ]"
                 >
                   <input
                     type="checkbox"
                     class="size-5 shrink-0 accent-primary"
                     :checked="frontFields[field] && frontHas(field)"
-                    :disabled="frontBusy || !frontHas(field)"
+                    :disabled="!frontHas(field)"
                     @change="setFrontField(field, ($event.target as HTMLInputElement).checked)"
                   />
                   <span class="flex min-w-0 flex-1 flex-col">
@@ -198,7 +198,8 @@ const removed = ref<{ entryId: number; word: string } | null>(null);
 const frontFieldKeys = ["hint", "synonyms", "example"] as const satisfies readonly (keyof CardFrontFields)[];
 const frontOpen = ref(false);
 const frontFields = ref<CardFrontFields | null>(null);
-const frontBusy = ref(false);
+// Toggles save one after another, so a quick double change still lands in the order it was made.
+let frontSaves: Promise<void> = Promise.resolve();
 
 // An aid this word does not have would change nothing on the card, so it is disabled rather than looking broken.
 function frontHas(field: keyof CardFrontFields): boolean {
@@ -216,20 +217,28 @@ async function setFrontPanel(open: boolean): Promise<void> {
   }
 }
 
-async function setFrontField(field: keyof CardFrontFields, enabled: boolean): Promise<void> {
-  const current = card.value;
-  if (!current || frontBusy.value) return;
-  frontBusy.value = true;
+// Optimistic: the box flips at once and stays enabled. Disabling it for the round-trip made every
+// checkbox blink through the browser's disabled style (black on iOS) on each tap.
+function setFrontField(field: keyof CardFrontFields, enabled: boolean): void {
+  const fields = frontFields.value;
+  if (!card.value || !fields) return;
+  frontFields.value = { ...fields, [field]: enabled };
+  frontSaves = frontSaves.then(() => saveFrontField(field, enabled));
+}
+
+async function saveFrontField(field: keyof CardFrontFields, enabled: boolean): Promise<void> {
   try {
-    frontFields.value = await api.setCardFront(field, enabled);
+    await api.setCardFront(field, enabled);
+    const entryId = card.value?.entryId;
+    if (entryId == null) return;
     // Swap only the card data: the reveal and the open panel stay as the learner left them.
-    const fresh = await api.reviewCard(current.entryId);
+    const fresh = await api.reviewCard(entryId);
+    const current = card.value;
     // A single-card fetch never carries `ahead`; keep the label so the card does not jump.
-    if (fresh.card?.entryId === current.entryId) state.value = { ...fresh, card: { ...fresh.card, ahead: current.ahead } };
+    if (current && fresh.card?.entryId === current.entryId) state.value = { ...fresh, card: { ...fresh.card, ahead: current.ahead } };
   } catch {
+    if (frontFields.value) frontFields.value = { ...frontFields.value, [field]: !enabled };
     notice.value = "web.common.error";
-  } finally {
-    frontBusy.value = false;
   }
 }
 

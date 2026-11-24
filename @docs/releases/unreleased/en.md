@@ -109,3 +109,4 @@
 - On your phone pop-up windows are now a little taller, so more text fits at once.
 - Synonyms in the language you're learning now appear right under the word itself — in translations, the dictionary and reviews.
 - In Review, switching off Synonyms in the card settings now hides them completely — even after you open the answer.
+- In Review, ticking hint, synonyms or example in the card settings no longer makes the checkboxes blink — they switch instantly.
