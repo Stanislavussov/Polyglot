@@ -73,6 +73,7 @@ import type { BarAction } from "../lib/action-bar";
 import { ApiError, api } from "../lib/api";
 import { t } from "../lib/i18n";
 import { mentorHtml } from "../lib/mentor-html";
+import { isOwnLanguage } from "../lib/settings-store";
 import type { CardFeatures, MentorTurn, TranslateAnswer, TranslateResult } from "../lib/types";
 import LimitNotice from "./LimitNotice.vue";
 import MonsterLoader from "./MonsterLoader.vue";
@@ -191,7 +192,9 @@ async function retranslate(kind: "clarify" | "other", answer: TranslateAnswer): 
   busy.value = kind;
   resetNotices();
   try {
-    const fresh = await api.translate(props.result.original, { sourceLang: props.result.sourceLang, ...answer });
+    // A card translated once, from a language the learner did not save, re-runs once too.
+    const once = isOwnLanguage(props.result.sourceLang) ? {} : { once: true };
+    const fresh = await api.translate(props.result.original, { sourceLang: props.result.sourceLang, ...once, ...answer });
     keepSeen = kind === "other";
     emit("replace", fresh);
   } catch (error) {

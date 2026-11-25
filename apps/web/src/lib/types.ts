@@ -356,4 +356,5 @@ export interface TranslateAnswer {
   clarify?: boolean;
   negativeConstraints?: Record<string, string[]>;
   addLanguage?: string;
+  once?: boolean;
 }

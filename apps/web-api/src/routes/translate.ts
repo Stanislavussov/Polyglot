@@ -39,6 +39,8 @@ const bodySchema = z.object({
   negativeConstraints: z.record(z.string().min(2).max(8), z.array(z.string().max(500)).max(20)).optional(),
   // The bot's tr:oos:add "Add and translate": join the learning set, then translate from it.
   addLanguage: z.string().min(2).max(8).optional(),
+  // "Translate once": `sourceLang` from outside the learning set, for this request only — nothing is saved.
+  once: z.boolean().optional(),
 });
 
 const texts = (items: { text: string }[] | null | undefined) => (items ?? []).map((item) => item.text);

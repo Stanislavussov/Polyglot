@@ -62,3 +62,9 @@ export function languageName(code: string): string {
 export function languageFlag(code: string): string {
   return settings.value?.languages.find((language) => language.code === code)?.flag ?? "";
 }
+
+// English is always on offer as a source, as core's answer check allows it.
+export function isOwnLanguage(code: string): boolean {
+  const current = settings.value;
+  return !current || code === "en" || code === current.nativeLang || current.learningLangs.includes(code);
+}

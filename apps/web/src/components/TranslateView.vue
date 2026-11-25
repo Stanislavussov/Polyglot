@@ -123,9 +123,29 @@
             >
               {{ t("web.translate.addAndTranslate", { lang: languageName(otherLanguage.lang) }) }}
             </button>
+            <button
+              v-if="otherLanguage.supported"
+              type="button"
+              class="btn-secondary"
+              @click="translateOnce(otherLanguage.text, otherLanguage.lang)"
+            >
+              {{ t("web.translate.translateOnce") }}
+            </button>
             <a v-if="otherLanguage.supported" href="/settings/" class="inline-flex min-h-11 items-center font-semibold underline">
               {{ t("web.translate.openSettings") }}
             </a>
+          </div>
+          <!-- A one-off translation leaves the settings alone; only this explicit Save keeps the language. -->
+          <div v-else-if="onceLang" role="status" class="space-y-2 rounded-xl bg-primary-soft px-4 py-3 text-sm text-primary-soft-fg">
+            <p><LangFlag :code="onceLang" /> {{ t("web.translate.keepLanguage", { lang: languageName(onceLang) }) }}</p>
+            <div class="flex flex-wrap gap-2">
+              <button type="button" class="btn-primary" :disabled="keepPending" @click="keepLanguage(onceLang)">
+                {{ t("web.translate.keepLanguageSave", { lang: languageName(onceLang) }) }}
+              </button>
+              <button type="button" class="btn-secondary" :disabled="keepPending" @click="onceLang = null">
+                {{ t("web.translate.keepLanguageLater") }}
+              </button>
+            </div>
           </div>
           <p v-else-if="errorKey" role="alert" class="rounded-xl bg-danger-soft px-4 py-3 text-sm text-danger">
             {{ t(errorKey, errorParams) }}
@@ -335,7 +355,8 @@ import { useMainInput } from "../lib/use-main-input";
 import { ApiError, api } from "../lib/api";
 import { t } from "../lib/i18n";
 import { splitNative } from "../lib/card-order";
-import { languageName, settings } from "../lib/settings-store";
+import { languageName, saveSettings, settings } from "../lib/settings-store";
+import { MAX_LEARNING_LANGS } from "../lib/learning-langs";
 import type { Clarification, ClarificationOption, Dictionary, TranslateAnswer, TranslateResult } from "../lib/types";
 import { startWavRecording, type WavRecording } from "../lib/wav-recorder";
 import { MENU } from "../lib/action-bar";
@@ -376,6 +397,9 @@ const errorKey = ref<string | null>(null);
 const errorParams = ref<Record<string, string | number>>({});
 const languageQuestion = ref<{ text: string; kind: "ambiguous" | "unrecognized"; languages: string[] } | null>(null);
 const otherLanguage = ref<{ lang: string; supported: boolean; text: string; languages: string[] } | null>(null);
+// The language of the card just translated once: the offer to keep it stays until answered or a new word.
+const onceLang = ref<string | null>(null);
+const keepPending = ref(false);
 const clarification = ref<{ text: string; view: Clarification } | null>(null);
 const languageChoices = computed(() => {
   const view = clarification.value?.view;
@@ -474,6 +498,7 @@ function resetNotices(): void {
   clarification.value = null;
   languageQuestion.value = null;
   otherLanguage.value = null;
+  onceLang.value = null;
   limit.value = null;
 }
 
@@ -607,6 +632,34 @@ async function finishRecording(send: boolean): Promise<void> {
 }
 
 onBeforeUnmount(() => recorder?.cancel());
+
+async function translateOnce(value: string, lang: string): Promise<void> {
+  await answer(value, { sourceLang: lang, once: true });
+  if (result.value?.sourceLang === lang) onceLang.value = lang;
+}
+
+async function keepLanguage(lang: string): Promise<void> {
+  const current = settings.value;
+  if (!current || keepPending.value) return;
+  const learning = current.learningLangs.filter((code) => code !== current.nativeLang);
+  if (learning.length >= MAX_LEARNING_LANGS) {
+    onceLang.value = null;
+    errorKey.value = "web.translate.maxLanguages";
+    errorParams.value = { max: MAX_LEARNING_LANGS };
+    return;
+  }
+  keepPending.value = true;
+  try {
+    await saveSettings({ learningLangs: [...learning, lang] });
+    onceLang.value = null;
+    toast(t("web.translate.languageKept", { lang: languageName(lang) }));
+  } catch {
+    errorKey.value = "web.common.error";
+    onceLang.value = null;
+  } finally {
+    keepPending.value = false;
+  }
+}
 
 async function submit(): Promise<void> {
   await answer(text.value.trim(), {});

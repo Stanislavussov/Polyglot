@@ -45,6 +45,8 @@ export interface TranslationAnswer {
   context?: string;
   /** "Other meaning": translations already shown, per target language, that the new card must avoid. */
   negativeConstraints?: Record<string, string[]>;
+  /** "Translate once": `sourceLang` may be any supported language; the user's set stays untouched. */
+  once?: boolean;
 }
 
 export interface RunTranslationRequest {
@@ -206,9 +208,11 @@ export async function runTranslation(
 
   if (answer?.sourceLang !== undefined) {
     // The answer came back through the client, so it is checked, never trusted.
-    if (!languageGroup(nativeLang, [...learningLangs, "en"]).includes(answer.sourceLang)) {
-      return reject("invalid_language");
-    }
+    const allowed =
+      answer.once === true
+        ? isSupportedLanguage(answer.sourceLang)
+        : languageGroup(nativeLang, [...learningLangs, "en"]).includes(answer.sourceLang);
+    if (!allowed) return reject("invalid_language");
     sourceLang = answer.sourceLang;
     targetLangs = clarifiedTargetLangs(sourceLang, nativeLang, learningLangs, [nativeLang]);
   } else {

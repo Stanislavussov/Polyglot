@@ -78,6 +78,19 @@ describe("web translate flow", () => {
     expect((await web.bot.services.userRepository.getSettings(userId))?.learningLangs).toEqual(["cs", "es"]);
   });
 
+  it("translates once from a language the user does not study, leaving their languages as they are", async () => {
+    const { web, cookie, userId } = await signedIn();
+
+    const res = await web.call(cookie, "POST", "/api/translate", { text: "mañana", sourceLang: "es", once: true });
+
+    expect(res).toMatchObject({ status: 200, body: { sourceLang: "es" } });
+    expect((await web.bot.services.userRepository.getSettings(userId))?.learningLangs).toEqual(["cs"]);
+    // Only an explicit save keeps it: the settings form adds the language for good.
+    const saved = await web.call(cookie, "PATCH", "/api/settings", { learningLangs: ["cs", "es"] });
+    expect(saved.status).toBe(200);
+    expect((await web.bot.services.userRepository.getSettings(userId))?.learningLangs).toEqual(["cs", "es"]);
+  });
+
   it("refuses to add a language past the learning-language limit", async () => {
     const { web, cookie, userId } = await signedIn();
     await web.bot.services.userRepository.updateLearningLangs(userId, ["cs", "de", "fr", "it"]);
