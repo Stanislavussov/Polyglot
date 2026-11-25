@@ -87,7 +87,8 @@
       <p v-if="notice" role="status" class="rounded-xl bg-warning-soft px-4 py-3 text-sm text-warning-fg">{{ t(notice) }}</p>
 
       <template v-if="revealed">
-        <TranslationBlock v-for="translation in split.native ? [split.native] : []" :key="translation.lang" :translation="translation" id-prefix="review">
+        <!-- The answer comes first, so the learner checks themselves before rating. -->
+        <TranslationBlock v-for="translation in split.answer" :key="translation.lang" :translation="translation" id-prefix="review">
           <template #speak>
             <SpeakButton
               v-if="speaks(translation.lang)"
@@ -127,7 +128,7 @@
           <ExampleList :examples="card.detail.sourceUsage.examples" />
         </div>
 
-        <TranslationBlock v-for="translation in split.others" :key="translation.lang" :translation="translation" id-prefix="review">
+        <TranslationBlock v-for="translation in split.rest" :key="translation.lang" :translation="translation" id-prefix="review">
           <template #speak>
             <SpeakButton
               v-if="speaks(translation.lang)"
@@ -166,7 +167,7 @@ import { PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from "reka
 import { computed, onMounted, ref } from "vue";
 import { ApiError, api } from "../lib/api";
 import { t } from "../lib/i18n";
-import { splitNative } from "../lib/card-order";
+import { splitAnswer } from "../lib/card-order";
 import { languageName, settings } from "../lib/settings-store";
 import type { CardFrontFields, Rating, ReviewState } from "../lib/types";
 import ExampleList from "./ExampleList.vue";
@@ -183,7 +184,9 @@ const ratings = [
 
 const state = ref<ReviewState | null>(null);
 const card = computed(() => state.value?.card ?? null);
-const split = computed(() => splitNative(card.value?.detail.details ?? [], settings.value?.nativeLang));
+const split = computed(() =>
+  splitAnswer(card.value?.detail.details ?? [], settings.value?.nativeLang, settings.value?.learningLangs),
+);
 // Bumped per card so the next card opens folded, with fresh speaker buttons.
 const cardSeq = ref(0);
 const revealed = ref(false);
