@@ -112,3 +112,4 @@
 - In Review, ticking hint, synonyms or example in the card settings no longer makes the checkboxes blink — they switch instantly.
 - On a computer, the greeting on the translate page now lines up with the text box instead of floating in the middle.
 - Examples now show just the sentence and its translation, without the extra note underneath.
+- The sound button now stays right after the word, even when a phrase wraps onto two lines.
