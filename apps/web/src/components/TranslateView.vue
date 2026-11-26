@@ -2,26 +2,45 @@
   <section>
     <!-- The page needs no visible title: the greeting and the box say what it is for. -->
     <h1 class="sr-only">{{ t("web.translate.title") }}</h1>
-    <div v-if="phone" class="flex justify-end">
+    <!-- Shown until either mode has something on screen, so flipping the switch never moves the box. -->
+    <TranslateGreeting v-if="!phone && !card && !busy && !mentorStarted" inline :mentor="mentorMode" />
+    <!-- The mode switch sits above the box, not in its tool row: on a phone that row has no room left. -->
+    <div class="mb-3 flex items-center justify-between gap-3">
+      <div role="radiogroup" :aria-label="t('web.translate.mode')" class="inline-flex rounded-full bg-surface-muted p-1">
+        <button
+          v-for="option in MODES"
+          :key="option.mentor ? 'mentor' : 'translate'"
+          type="button"
+          role="radio"
+          :aria-checked="mentorMode === option.mentor"
+          class="inline-flex min-h-11 items-center gap-2 rounded-full px-4 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+          :class="mentorMode === option.mentor ? 'bg-surface text-ink shadow-card' : 'text-ink-muted hover:text-ink'"
+          :disabled="busy || mentor.busy.value || recording || transcribing"
+          @mousedown.prevent
+          @click="setMentorMode(option.mentor)"
+        >
+          <component :is="option.icon" class="size-4" aria-hidden="true" />{{ t(option.label) }}
+        </button>
+      </div>
       <!-- Phones keep the page to the card alone; history waits behind this button, as chat apps do. -->
       <button
+        v-if="phone"
         type="button"
         class="btn-secondary min-h-11 w-11 shrink-0 px-0"
-        :aria-label="t('web.translate.recent')"
-        :title="t('web.translate.recent')"
+        :aria-label="historyProps.title"
+        :title="historyProps.title"
         @click="historyOpen = true"
       >
         <History class="size-5" aria-hidden="true" />
       </button>
     </div>
-
-    <TranslateGreeting v-if="!phone && !mentorMode && !card && !busy" inline />
-    <div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,20rem)] xl:items-start" :class="{ 'mt-2': phone }">
+    <div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,20rem)] xl:items-start">
       <ComposerCard
         id="translate-input"
         ref="composer"
         v-model="text"
-        class="xl:col-start-1 xl:row-start-1"
+        class="scroll-mb-[calc(var(--dock-h,0px)+1rem)]"
+        :class="chatLayout ? 'order-2 xl:col-start-1 xl:row-start-2' : 'xl:col-start-1 xl:row-start-1'"
         :placeholder="mentorMode ? t('web.translate.mentorPlaceholder') : t('web.translate.placeholder')"
         :submit-label="mentorMode ? t('web.explore.send') : t('web.translate.submit')"
         :max-length="mentorMode ? MAX_MENTOR_QUESTION : MAX_LENGTH"
@@ -31,20 +50,6 @@
         @voice-send="finishRecording(true)"
       >
         <template #tools>
-          <!-- One box, two jobs: the switch turns it from a translator into a question to the mentor. -->
-          <button
-            type="button"
-            role="switch"
-            :aria-checked="mentorMode"
-            class="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full px-3 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60"
-            :class="mentorMode ? 'bg-primary-soft text-primary-soft-fg' : 'text-ink-muted hover:bg-surface-muted hover:text-ink'"
-            :title="t('web.translate.mentorModeHint')"
-            :disabled="busy || mentor.busy.value || recording || transcribing"
-            @mousedown.prevent
-            @click="setMentorMode(!mentorMode)"
-          >
-            <GraduationCap class="size-5" aria-hidden="true" />{{ t("web.learn.mentor") }}
-          </button>
           <!-- Idle: the mic. Recording: Stop puts the words into the box to check first; the send button sends at once. -->
           <button
             v-if="voiceAvailable"
@@ -172,21 +177,25 @@
           </p>
         </template>
         <!-- Touch keyboards have no Shift+Enter, so the hint only misleads there. -->
-        <p v-if="!mentorMode" class="mt-2 hidden truncate px-3 text-sm text-ink-muted md:block [@media(pointer:coarse)]:hidden">{{ t("web.translate.hint") }}</p>
+        <p class="mt-2 hidden truncate px-3 text-sm text-ink-muted md:block [@media(pointer:coarse)]:hidden">{{ t(mentorMode ? "web.translate.mentorHint" : "web.translate.hint") }}</p>
       </ComposerCard>
 
-      <section v-if="mentorMode" ref="mentorPane" class="min-w-0 space-y-4 xl:col-start-1 xl:row-start-2" :aria-label="t('web.learn.mentor')">
-        <p v-if="mentor.current.value.turns.length === 0 && !mentor.busy.value" class="card text-base">{{ t("web.learn.mentor.intro") }}</p>
-        <template v-else>
-          <MentorTurns :turns="mentor.current.value.turns" :busy="mentor.busy.value" />
-          <button
-            type="button"
-            class="btn-secondary"
-            :disabled="mentor.busy.value || mentor.current.value.turns.length === 0"
-            @click="mentor.startNew()"
-          >
-            {{ t("web.learn.mentor.newTopic") }}
-          </button>
+      <!-- A started conversation reads like a chat app: messages on top, the box under the newest one.
+           Until then the box keeps the translate page's place, so the switch alone never moves it. -->
+      <section
+        v-if="mentorMode"
+        class="min-w-0 space-y-4 xl:col-start-1"
+        :class="chatLayout ? 'order-1 xl:row-start-1' : 'xl:row-start-2'"
+        :aria-label="t('web.learn.mentor')"
+      >
+        <TranslateGreeting v-if="!mentorStarted && phone" mentor />
+        <template v-else-if="mentorStarted">
+          <div class="flex justify-end">
+            <button type="button" class="btn-secondary" :disabled="mentor.busy.value" @click="newTopic">
+              {{ t("web.learn.mentor.newTopic") }}
+            </button>
+          </div>
+          <MentorTurns :turns="mentor.current.value.turns" :busy="mentor.busy.value" :pending="mentor.pending.value" />
         </template>
       </section>
       <div v-else class="min-w-0 xl:col-start-1 xl:row-start-2" aria-live="polite">
@@ -347,33 +356,26 @@
         <TranslateGreeting v-else-if="phone" />
       </div>
 
-      <template v-if="!phone && mentorMode">
-        <MentorTopics
-          v-if="mentor.earlier.value.length > 0"
-          class="card xl:col-start-2 xl:row-span-2 xl:row-start-1"
-          :threads="mentor.earlier.value"
-          @open="mentor.resume"
-        />
-      </template>
-      <TranslateHistory
-        v-else-if="!phone"
+      <HistoryList
+        v-if="!phone"
         class="card xl:col-start-2 xl:row-span-2 xl:row-start-1"
-        titled
-        :items="history"
-        :key-of="historyKey"
-        @open="openHistory"
-        @forget="forget"
-        @clear="clearHistory"
+        v-bind="historyProps"
+        @open="openFromHistory"
+        @forget="forgetFromHistory"
+        @clear="clearFromHistory"
       />
     </div>
 
     <BottomSheet :open="historyOpen" @close="historyOpen = false">
-      <template #title>{{ mentorMode ? t("web.learn.mentor.history") : t("web.translate.recent") }}</template>
-      <template v-if="mentorMode">
-        <MentorTopics v-if="mentor.earlier.value.length > 0" :threads="mentor.earlier.value" @open="openTopicFromSheet" />
-        <p v-else class="text-base text-ink-muted">{{ t("web.learn.mentor.intro") }}</p>
-      </template>
-      <TranslateHistory v-else :items="history" :key-of="historyKey" @open="openFromSheet" @forget="forget" @clear="clearHistory" />
+      <template #title>{{ historyProps.title }}</template>
+      <HistoryList
+        :items="historyProps.items"
+        :empty-text="historyProps.emptyText"
+        :remove-label="historyProps.removeLabel"
+        @open="openFromSheet"
+        @forget="forgetFromHistory"
+        @clear="clearFromHistory"
+      />
     </BottomSheet>
   </section>
 </template>
@@ -382,7 +384,7 @@
 import WordHeadline from "./word/WordHeadline.vue";
 import LangBadge from "./LangBadge.vue";
 import LangFlag from "./LangFlag.vue";
-import { ArrowRight, BookmarkPlus, GraduationCap, History, Sparkles, Mic, Square, Trash2, TriangleAlert } from "lucide-vue-next";
+import { ArrowRight, BookmarkPlus, GraduationCap, History, Languages, Sparkles, Mic, Square, Trash2, TriangleAlert } from "lucide-vue-next";
 import {
   DropdownMenuContent,
   DropdownMenuItem,
@@ -418,23 +420,26 @@ import LimitNotice from "./LimitNotice.vue";
 import MonsterLoader from "./MonsterLoader.vue";
 import TranslateGreeting from "./TranslateGreeting.vue";
 import TranslationBlock from "./TranslationBlock.vue";
-import TranslateHistory from "./TranslateHistory.vue";
+import HistoryList, { type HistoryItem } from "./HistoryList.vue";
 import BottomSheet from "./BottomSheet.vue";
 import MentorNotice from "./MentorNotice.vue";
-import MentorTopics from "./MentorTopics.vue";
 import MentorTurns from "./MentorTurns.vue";
-import type { MentorThread } from "../lib/mentor-threads";
 import { MAX_MENTOR_QUESTION, useMentorChat } from "../lib/use-mentor-chat";
 
 const MAX_LENGTH = 500;
 const HISTORY_SIZE = 10;
 const HISTORY_KEY = "polyglot.translate.history";
 const MODE_KEY = "polyglot.translate.mode";
+const MODES = [
+  { mentor: false, label: "web.translate.title", icon: Languages },
+  { mentor: true, label: "web.learn.mentor", icon: GraduationCap },
+] as const;
 
 const composer = ref<InstanceType<typeof ComposerCard> | null>(null);
 const mentor = useMentorChat();
-const mentorPane = ref<HTMLElement | null>(null);
 const mentorMode = ref(loadMentorMode());
+const mentorStarted = computed(() => mentor.current.value.turns.length > 0 || mentor.busy.value);
+const chatLayout = computed(() => mentorMode.value && mentorStarted.value);
 
 // The learner's last choice comes back with the page; the switch is in plain sight to undo it.
 function loadMentorMode(): boolean {
@@ -452,12 +457,60 @@ function setMentorMode(on: boolean): void {
   } catch {
     // Storage off: the mode lasts for this page only.
   }
-  focusInput();
 }
 
-function openTopicFromSheet(thread: MentorThread): void {
-  historyOpen.value = false;
-  mentor.resume(thread);
+// Keeps the newest message and the box under it in view, as a chat app does after each reply;
+// the box's scroll margin keeps it clear of the phone's dock, which overlays the page bottom.
+async function revealComposer(): Promise<void> {
+  await nextTick();
+  const box: unknown = composer.value?.$el;
+  if (box instanceof HTMLElement) box.scrollIntoView({ block: "end", behavior: "smooth" });
+}
+
+function newTopic(): void {
+  mentor.startNew();
+  if (!phone.value) focusInput();
+}
+
+// One history column, two lists: past translations, or past mentor sessions in mentor mode.
+const historyProps = computed(() =>
+  mentorMode.value
+    ? {
+        title: t("web.learn.mentor.sessions"),
+        emptyText: t("web.learn.mentor.sessionsEmpty"),
+        removeLabel: (label: string) => t("web.learn.mentor.removeSession", { topic: label }),
+        items: mentor.threads.value.map(
+          (thread): HistoryItem => ({ key: thread.id, label: thread.title, current: thread.id === mentor.current.value.id }),
+        ),
+      }
+    : {
+        title: t("web.translate.recent"),
+        emptyText: t("web.translate.recentEmpty"),
+        removeLabel: (label: string) => t("web.translate.removeFromHistory", { word: label }),
+        items: history.value.map((item): HistoryItem => ({ key: historyKey(item), label: item.original, emoji: item.emoji })),
+      },
+);
+
+function openFromHistory(key: string): void {
+  if (mentorMode.value) {
+    const thread = mentor.threads.value.find((item) => item.id === key);
+    if (!thread) return;
+    mentor.resume(thread);
+    void revealComposer();
+    return;
+  }
+  const entry = history.value.find((item) => historyKey(item) === key);
+  if (entry) openHistory(entry);
+}
+
+function forgetFromHistory(key: string): void {
+  if (mentorMode.value) mentor.forget(key);
+  else forgetKey(key);
+}
+
+function clearFromHistory(): void {
+  if (mentorMode.value) mentor.clear();
+  else clearHistory();
 }
 const historyOpen = ref(false);
 const phone = usePhoneLayout();
@@ -538,8 +591,7 @@ function remember(entry: TranslateResult): void {
   persistHistory();
 }
 
-function forget(entry: TranslateResult): void {
-  const key = historyKey(entry);
+function forgetKey(key: string): void {
   history.value = history.value.filter((item) => historyKey(item) !== key);
   persistHistory();
 }
@@ -597,9 +649,9 @@ function openHistory(entry: TranslateResult): void {
   if (!phone.value) focusInput();
 }
 
-function openFromSheet(entry: TranslateResult): void {
+function openFromSheet(key: string): void {
   historyOpen.value = false;
-  openHistory(entry);
+  openFromHistory(key);
 }
 
 // Unsaved and saved must read apart at a glance (two teal tints did not): a filled Save, then a red Remove.
@@ -749,10 +801,15 @@ async function send(value: string): Promise<void> {
     await answer(value, {});
     return;
   }
-  if (!(await mentor.ask(value))) return;
+  // The question leaves the box at once and waits in the chat, as in a chat app; a failure puts it back.
+  const asking = mentor.ask(value);
   text.value = "";
-  await nextTick();
-  mentorPane.value?.lastElementChild?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  void revealComposer();
+  if (!(await asking)) {
+    text.value = value;
+    return;
+  }
+  await revealComposer();
   focusInput();
 }
 

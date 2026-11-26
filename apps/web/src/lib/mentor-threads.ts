@@ -34,6 +34,17 @@ export function saveThread(threads: MentorThread[], thread: MentorThread): Mento
   return next;
 }
 
+/** `null` forgets every thread. */
+export function forgetThread(threads: MentorThread[], id: string | null): MentorThread[] {
+  const next = id === null ? [] : threads.filter((thread) => thread.id !== id);
+  try {
+    localStorage.setItem(KEY, JSON.stringify(next));
+  } catch {
+    // Storage off: the list on screen still updates.
+  }
+  return next;
+}
+
 export function newThread(firstQuestion: string): MentorThread {
   const title = firstQuestion.length > TITLE_LENGTH ? `${firstQuestion.slice(0, TITLE_LENGTH)}…` : firstQuestion;
   return { id: crypto.randomUUID(), title, updatedAt: Date.now(), turns: [] };

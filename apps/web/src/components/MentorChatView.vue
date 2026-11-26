@@ -9,7 +9,7 @@
     </div>
 
     <p v-if="current.turns.length === 0" class="card text-base">{{ t("web.learn.mentor.intro") }}</p>
-    <MentorTurns :turns="current.turns" :busy="busy" />
+    <MentorTurns :turns="current.turns" :busy="busy" :pending="pending" />
 
     <!-- A chat reads top to bottom, so the question box follows the conversation instead of the page top. -->
     <div ref="composer">
@@ -28,7 +28,17 @@
       </ComposerCard>
     </div>
 
-    <MentorTopics v-if="earlier.length > 0" class="border-t border-line pt-4" :threads="earlier" @open="resume" />
+    <HistoryList
+      v-if="threads.length > 0"
+      class="border-t border-line pt-4"
+      :title="t('web.learn.mentor.sessions')"
+      :empty-text="t('web.learn.mentor.sessionsEmpty')"
+      :remove-label="(label) => t('web.learn.mentor.removeSession', { topic: label })"
+      :items="threads.map((thread) => ({ key: thread.id, label: thread.title, current: thread.id === current.id }))"
+      @open="(key) => openThread(key)"
+      @forget="forget"
+      @clear="clear"
+    />
   </section>
 </template>
 
@@ -38,10 +48,16 @@ import { t } from "../lib/i18n";
 import { MAX_MENTOR_QUESTION as MAX_QUESTION, useMentorChat } from "../lib/use-mentor-chat";
 import ComposerCard from "./ComposerCard.vue";
 import MentorNotice from "./MentorNotice.vue";
-import MentorTopics from "./MentorTopics.vue";
+import HistoryList from "./HistoryList.vue";
 import MentorTurns from "./MentorTurns.vue";
 
-const { current, earlier, busy, lockedHint, limit, errorText, ask: askMentor, startNew, resume } = useMentorChat();
+const { threads, current, busy, pending, lockedHint, limit, errorText, ask: askMentor, startNew, resume, forget, clear } =
+  useMentorChat();
+
+function openThread(id: string): void {
+  const thread = threads.value.find((item) => item.id === id);
+  if (thread) resume(thread);
+}
 const question = ref("");
 const composer = ref<HTMLElement | null>(null);
 

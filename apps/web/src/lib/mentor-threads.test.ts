@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { loadThreads, newThread, saveThread } from "./mentor-threads";
+import { forgetThread, loadThreads, newThread, saveThread } from "./mentor-threads";
 
 function memoryStorage(): Storage {
   const store = new Map<string, string>();
@@ -33,6 +33,16 @@ describe("mentor threads (browser-held)", () => {
 
     expect(threads.map((thread) => thread.title)).toEqual(["one", "two"]);
     expect(loadThreads()).toEqual(threads);
+  });
+
+  it("forgets one thread or all of them, and the reload agrees", () => {
+    const one = saveThread([], newThread("one"));
+    const both = saveThread(one, newThread("two"));
+    const left = forgetThread(both, one[0]!.id);
+    expect(left.map((thread) => thread.title)).toEqual(["two"]);
+    expect(loadThreads()).toEqual(left);
+    expect(forgetThread(left, null)).toEqual([]);
+    expect(loadThreads()).toEqual([]);
   });
 
   it("reads broken storage as no history", () => {

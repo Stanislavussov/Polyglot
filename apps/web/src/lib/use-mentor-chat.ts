@@ -1,8 +1,8 @@
-import { computed, ref } from "vue";
+import { ref } from "vue";
 import { ApiError } from "./api";
 import { t } from "./i18n";
 import { learnApi } from "./learn-api";
-import { loadThreads, type MentorThread, newThread, saveThread } from "./mentor-threads";
+import { forgetThread, loadThreads, type MentorThread, newThread, saveThread } from "./mentor-threads";
 
 export const MAX_MENTOR_QUESTION = 1000;
 // The bot's mentor window; the server trims to it too, this keeps the request small.
@@ -12,10 +12,11 @@ export function useMentorChat() {
   const threads = ref<MentorThread[]>(loadThreads());
   const current = ref<MentorThread>(newThread(""));
   const busy = ref(false);
+  // The question on its way, shown in the chat before the answer arrives.
+  const pending = ref<string | null>(null);
   const lockedHint = ref(false);
   const limit = ref<{ reason?: "plan" | "daily_ceiling"; resetAt?: string } | null>(null);
   const errorText = ref<string | null>(null);
-  const earlier = computed(() => threads.value.filter((thread) => thread.id !== current.value.id));
 
   function resetNotices(): void {
     lockedHint.value = false;
@@ -33,12 +34,23 @@ export function useMentorChat() {
     resetNotices();
   }
 
+  function forget(id: string): void {
+    threads.value = forgetThread(threads.value, id);
+    if (current.value.id === id) startNew();
+  }
+
+  function clear(): void {
+    threads.value = forgetThread(threads.value, null);
+    startNew();
+  }
+
   /** True when the mentor answered, so the caller can clear its box. */
   async function ask(question: string): Promise<boolean> {
     const text = question.trim();
     if (!text || busy.value) return false;
     resetNotices();
     busy.value = true;
+    pending.value = text;
     const thread = current.value.turns.length === 0 ? { ...newThread(text), id: current.value.id } : current.value;
     try {
       const { answer } = await learnApi.mentorChat(text, thread.turns.slice(-MAX_WINDOW));
@@ -62,8 +74,23 @@ export function useMentorChat() {
       return false;
     } finally {
       busy.value = false;
+      pending.value = null;
     }
   }
 
-  return { threads, current, earlier, busy, lockedHint, limit, errorText, ask, startNew, resume, resetNotices };
+  return {
+    threads,
+    current,
+    busy,
+    pending,
+    lockedHint,
+    limit,
+    errorText,
+    ask,
+    startNew,
+    resume,
+    forget,
+    clear,
+    resetNotices,
+  };
 }

@@ -4,7 +4,7 @@
        centred, it floated off-axis because history takes the right column. Phones stack it under the box, at the top of the page. -->
   <div :class="inline ? 'flex items-center gap-3 pb-8 pl-5 pt-[12vh] text-left' : 'flex flex-col items-center gap-4 pt-[8vh] text-center'">
     <MonsterMark :class="inline ? 'size-10' : 'size-14'" />
-    <p :class="['font-semibold text-ink', inline ? 'text-3xl' : 'text-2xl']">{{ t(phrase) }}</p>
+    <p :class="['font-semibold text-ink', inline ? 'text-3xl' : 'text-2xl']">{{ t(mentor ? "web.translate.greet.mentor" : phrase) }}</p>
   </div>
 </template>
 
@@ -13,7 +13,7 @@ import { t } from "../lib/i18n";
 import { pickGreeting } from "../lib/translate-greeting";
 import MonsterMark from "./MonsterMark.vue";
 
-defineProps<{ inline?: boolean }>();
+defineProps<{ inline?: boolean; mentor?: boolean }>();
 
 const phrase = pickGreeting(new Date().getHours(), Math.random());
 </script>

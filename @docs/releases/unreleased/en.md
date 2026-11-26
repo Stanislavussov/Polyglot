@@ -117,3 +117,5 @@
 - When a word is in a language you don't study, you can now translate it just once — and then decide whether to keep that language for good.
 - The sound button now always sits on the same line as the word — a long word gets a touch smaller instead of pushing the button down.
 - The translate page now has a Mentor switch: flip it and the same box asks the mentor about grammar and usage instead of translating.
+- Translate and Mentor now switch with a two-part toggle above the box, and the box no longer jumps when you switch.
+- In mentor mode the conversation now reads like a chat: messages on top, the box below the newest one, and your past sessions listed beside it like translation history.
