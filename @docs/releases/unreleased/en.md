@@ -115,3 +115,4 @@
 - The sound button now stays right after the word, even when a phrase wraps onto two lines.
 - When you review a word in your own language, the translation now shows right away, before you rate how well you remembered it.
 - When a word is in a language you don't study, you can now translate it just once — and then decide whether to keep that language for good.
+- The sound button now always sits on the same line as the word — a long word gets a touch smaller instead of pushing the button down.
