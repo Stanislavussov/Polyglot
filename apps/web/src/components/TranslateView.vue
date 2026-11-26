@@ -15,22 +15,36 @@
       </button>
     </div>
 
-    <TranslateGreeting v-if="!phone && !card && !busy" inline />
+    <TranslateGreeting v-if="!phone && !mentorMode && !card && !busy" inline />
     <div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,20rem)] xl:items-start" :class="{ 'mt-2': phone }">
       <ComposerCard
         id="translate-input"
         ref="composer"
         v-model="text"
         class="xl:col-start-1 xl:row-start-1"
-        :placeholder="t('web.translate.placeholder')"
-        :submit-label="t('web.translate.submit')"
-        :max-length="MAX_LENGTH"
-        :busy="busy"
+        :placeholder="mentorMode ? t('web.translate.mentorPlaceholder') : t('web.translate.placeholder')"
+        :submit-label="mentorMode ? t('web.explore.send') : t('web.translate.submit')"
+        :max-length="mentorMode ? MAX_MENTOR_QUESTION : MAX_LENGTH"
+        :busy="busy || mentor.busy.value"
         :voice="recording ? 'recording' : transcribing ? 'processing' : null"
         @submit="submit()"
         @voice-send="finishRecording(true)"
       >
         <template #tools>
+          <!-- One box, two jobs: the switch turns it from a translator into a question to the mentor. -->
+          <button
+            type="button"
+            role="switch"
+            :aria-checked="mentorMode"
+            class="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full px-3 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+            :class="mentorMode ? 'bg-primary-soft text-primary-soft-fg' : 'text-ink-muted hover:bg-surface-muted hover:text-ink'"
+            :title="t('web.translate.mentorModeHint')"
+            :disabled="busy || mentor.busy.value || recording || transcribing"
+            @mousedown.prevent
+            @click="setMentorMode(!mentorMode)"
+          >
+            <GraduationCap class="size-5" aria-hidden="true" />{{ t("web.learn.mentor") }}
+          </button>
           <!-- Idle: the mic. Recording: Stop puts the words into the box to check first; the send button sends at once. -->
           <button
             v-if="voiceAvailable"
@@ -54,7 +68,13 @@
           />
         </template>
         <template #notice>
-          <LimitNotice v-if="limit" :reason="limit.reason" :reset-at="limit.resetAt" />
+          <MentorNotice
+            v-if="mentorMode"
+            :locked-hint="mentor.lockedHint.value"
+            :limit="mentor.limit.value"
+            :error-text="mentor.errorText.value"
+          />
+          <LimitNotice v-else-if="limit" :reason="limit.reason" :reset-at="limit.resetAt" />
           <div v-else-if="clarification" class="card space-y-4" role="alert">
             <p class="text-sm">{{ clarification.view.message }}</p>
             <div v-if="languageChoices.length > 0" class="flex flex-wrap gap-2">
@@ -152,10 +172,24 @@
           </p>
         </template>
         <!-- Touch keyboards have no Shift+Enter, so the hint only misleads there. -->
-        <p class="mt-2 hidden truncate px-3 text-sm text-ink-muted md:block [@media(pointer:coarse)]:hidden">{{ t("web.translate.hint") }}</p>
+        <p v-if="!mentorMode" class="mt-2 hidden truncate px-3 text-sm text-ink-muted md:block [@media(pointer:coarse)]:hidden">{{ t("web.translate.hint") }}</p>
       </ComposerCard>
 
-      <div class="min-w-0 xl:col-start-1 xl:row-start-2" aria-live="polite">
+      <section v-if="mentorMode" ref="mentorPane" class="min-w-0 space-y-4 xl:col-start-1 xl:row-start-2" :aria-label="t('web.learn.mentor')">
+        <p v-if="mentor.current.value.turns.length === 0 && !mentor.busy.value" class="card text-base">{{ t("web.learn.mentor.intro") }}</p>
+        <template v-else>
+          <MentorTurns :turns="mentor.current.value.turns" :busy="mentor.busy.value" />
+          <button
+            type="button"
+            class="btn-secondary"
+            :disabled="mentor.busy.value || mentor.current.value.turns.length === 0"
+            @click="mentor.startNew()"
+          >
+            {{ t("web.learn.mentor.newTopic") }}
+          </button>
+        </template>
+      </section>
+      <div v-else class="min-w-0 xl:col-start-1 xl:row-start-2" aria-live="polite">
 
         <TranslateSkeleton v-if="busy && !preview" :label="loaderText || t('web.translate.loading')" />
 
@@ -313,8 +347,16 @@
         <TranslateGreeting v-else-if="phone" />
       </div>
 
+      <template v-if="!phone && mentorMode">
+        <MentorTopics
+          v-if="mentor.earlier.value.length > 0"
+          class="card xl:col-start-2 xl:row-span-2 xl:row-start-1"
+          :threads="mentor.earlier.value"
+          @open="mentor.resume"
+        />
+      </template>
       <TranslateHistory
-        v-if="!phone"
+        v-else-if="!phone"
         class="card xl:col-start-2 xl:row-span-2 xl:row-start-1"
         titled
         :items="history"
@@ -326,8 +368,12 @@
     </div>
 
     <BottomSheet :open="historyOpen" @close="historyOpen = false">
-      <template #title>{{ t("web.translate.recent") }}</template>
-      <TranslateHistory :items="history" :key-of="historyKey" @open="openFromSheet" @forget="forget" @clear="clearHistory" />
+      <template #title>{{ mentorMode ? t("web.learn.mentor.history") : t("web.translate.recent") }}</template>
+      <template v-if="mentorMode">
+        <MentorTopics v-if="mentor.earlier.value.length > 0" :threads="mentor.earlier.value" @open="openTopicFromSheet" />
+        <p v-else class="text-base text-ink-muted">{{ t("web.learn.mentor.intro") }}</p>
+      </template>
+      <TranslateHistory v-else :items="history" :key-of="historyKey" @open="openFromSheet" @forget="forget" @clear="clearHistory" />
     </BottomSheet>
   </section>
 </template>
@@ -336,7 +382,7 @@
 import WordHeadline from "./word/WordHeadline.vue";
 import LangBadge from "./LangBadge.vue";
 import LangFlag from "./LangFlag.vue";
-import { ArrowRight, BookmarkPlus, History, Sparkles, Mic, Square, Trash2, TriangleAlert } from "lucide-vue-next";
+import { ArrowRight, BookmarkPlus, GraduationCap, History, Sparkles, Mic, Square, Trash2, TriangleAlert } from "lucide-vue-next";
 import {
   DropdownMenuContent,
   DropdownMenuItem,
@@ -374,12 +420,45 @@ import TranslateGreeting from "./TranslateGreeting.vue";
 import TranslationBlock from "./TranslationBlock.vue";
 import TranslateHistory from "./TranslateHistory.vue";
 import BottomSheet from "./BottomSheet.vue";
+import MentorNotice from "./MentorNotice.vue";
+import MentorTopics from "./MentorTopics.vue";
+import MentorTurns from "./MentorTurns.vue";
+import type { MentorThread } from "../lib/mentor-threads";
+import { MAX_MENTOR_QUESTION, useMentorChat } from "../lib/use-mentor-chat";
 
 const MAX_LENGTH = 500;
 const HISTORY_SIZE = 10;
 const HISTORY_KEY = "polyglot.translate.history";
+const MODE_KEY = "polyglot.translate.mode";
 
 const composer = ref<InstanceType<typeof ComposerCard> | null>(null);
+const mentor = useMentorChat();
+const mentorPane = ref<HTMLElement | null>(null);
+const mentorMode = ref(loadMentorMode());
+
+// The learner's last choice comes back with the page; the switch is in plain sight to undo it.
+function loadMentorMode(): boolean {
+  try {
+    return localStorage.getItem(MODE_KEY) === "mentor";
+  } catch {
+    return false;
+  }
+}
+
+function setMentorMode(on: boolean): void {
+  mentorMode.value = on;
+  try {
+    localStorage.setItem(MODE_KEY, on ? "mentor" : "translate");
+  } catch {
+    // Storage off: the mode lasts for this page only.
+  }
+  focusInput();
+}
+
+function openTopicFromSheet(thread: MentorThread): void {
+  historyOpen.value = false;
+  mentor.resume(thread);
+}
 const historyOpen = ref(false);
 const phone = usePhoneLayout();
 // Text typed into the loading page's early input carries over, caret and all.
@@ -610,8 +689,8 @@ async function startRecording(): Promise<void> {
 }
 
 // Same path as the bot's voice message: the transcript goes through the ordinary translation.
-// Without `send` the words only land in the box, so the learner can fix a misheard word first.
-async function finishRecording(send: boolean): Promise<void> {
+// Without `sendNow` the words only land in the box, so the learner can fix a misheard word first.
+async function finishRecording(sendNow: boolean): Promise<void> {
   const active = recorder;
   if (!active) return;
   recorder = null;
@@ -620,7 +699,7 @@ async function finishRecording(send: boolean): Promise<void> {
   try {
     const { text: spoken } = await api.transcribe(await active.stop());
     text.value = spoken;
-    if (send) await answer(spoken, {});
+    if (sendNow) await send(spoken);
     else focusInput();
   } catch (error) {
     if (error instanceof ApiError && error.code === "voice_off") voiceAvailable.value = false;
@@ -662,7 +741,19 @@ async function keepLanguage(lang: string): Promise<void> {
 }
 
 async function submit(): Promise<void> {
-  await answer(text.value.trim(), {});
+  await send(text.value.trim());
+}
+
+async function send(value: string): Promise<void> {
+  if (!mentorMode.value) {
+    await answer(value, {});
+    return;
+  }
+  if (!(await mentor.ask(value))) return;
+  text.value = "";
+  await nextTick();
+  mentorPane.value?.lastElementChild?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  focusInput();
 }
 
 /** Mirrors the bot's clarify buttons: each answer re-runs the translation with what the user chose. */
@@ -757,6 +848,7 @@ onMounted(() => {
   }
   const handed = new URLSearchParams(window.location.search).get("q")?.trim();
   if (handed) {
+    mentorMode.value = false;
     text.value = handed;
     void submit();
   }

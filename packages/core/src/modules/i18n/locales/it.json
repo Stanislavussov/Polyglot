@@ -617,6 +617,8 @@
   "web.translate.openSettings": "Apri Impostazioni",
   "web.translate.addAndTranslate": "Aggiungi {lang} e traduci",
   "web.translate.maxLanguages": "Puoi studiare fino a {max} lingue. Rimuovine una nelle Impostazioni per aggiungerne un’altra.",
+  "web.translate.mentorPlaceholder": "Chiedi al mentore sulla lingua…",
+  "web.translate.mentorModeHint": "Modalità mentore: fai domande su grammatica e uso invece di tradurre",
   "web.translate.translateOnce": "Traduci una volta",
   "web.translate.keepLanguage": "Era una traduzione una tantum da {lang}. Salvare {lang} tra le tue lingue per tradurlo sempre?",
   "web.translate.keepLanguageSave": "Salva {lang}",

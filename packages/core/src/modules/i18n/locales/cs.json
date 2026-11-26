@@ -617,6 +617,8 @@
   "web.translate.openSettings": "Otevřít Nastavení",
   "web.translate.addAndTranslate": "Přidat {lang} a přeložit",
   "web.translate.maxLanguages": "Učit se můžete až {max} jazyky. Odeberte jeden v Nastavení a přidejte další.",
+  "web.translate.mentorPlaceholder": "Zeptejte se mentora na jazyk…",
+  "web.translate.mentorModeHint": "Režim mentora: místo překladu se ptejte na gramatiku a použití",
   "web.translate.translateOnce": "Přeložit jednou",
   "web.translate.keepLanguage": "Tohle byl jednorázový překlad z jazyka {lang}. Uložit {lang} mezi vaše jazyky, aby se překládal vždy?",
   "web.translate.keepLanguageSave": "Uložit {lang}",

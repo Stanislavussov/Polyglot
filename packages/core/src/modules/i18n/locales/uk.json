@@ -617,6 +617,8 @@
   "web.translate.openSettings": "Відкрити налаштування",
   "web.translate.addAndTranslate": "Додати {lang} і перекласти",
   "web.translate.maxLanguages": "Можна вивчати до {max} мов. Приберіть одну в налаштуваннях, щоб додати нову.",
+  "web.translate.mentorPlaceholder": "Запитайте ментора про мову…",
+  "web.translate.mentorModeHint": "Режим ментора: ставте запитання про граматику й вживання замість перекладу",
   "web.translate.translateOnce": "Перекласти один раз",
   "web.translate.keepLanguage": "Це був разовий переклад з мови {lang}. Зберегти {lang} у ваші мови, щоб перекладати завжди?",
   "web.translate.keepLanguageSave": "Зберегти {lang}",
