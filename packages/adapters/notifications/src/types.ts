@@ -238,7 +238,7 @@ export interface SchedulerDeps {
   getUsersForWindow: (hour: number, minute?: number) => Promise<NotificationUser[]>;
 
   /** Lapsed subscribers whose next re-engagement ping is due. */
-  getUsersForReEngagement: () => Promise<NotificationUser[]>;
+  getUsersForReEngagement: (utcHour: number, utcMinute: number) => Promise<NotificationUser[]>;
 
   /** Stamp a re-engagement ping so the cap and the spacing interval both advance. */
   recordReEngagement: (userId: number) => Promise<void>;

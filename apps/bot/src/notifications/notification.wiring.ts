@@ -657,7 +657,7 @@ Return translations as JSON array.`;
     getLastSentWord: (userId: number) => notificationRepository.getLastSentWord(userId),
     pickPresetWord: (user, recentWords) => presetPicker(user, recentWords),
     pickPackWord: (user, sentWords) => packPicker(user, sentWords),
-    getUsersForReEngagement: () => notificationRepository.getUsersForReEngagement(),
+    getUsersForReEngagement: (utcHour, utcMinute) => notificationRepository.getUsersForReEngagement(utcHour, utcMinute),
     recordReEngagement: (userId: number) => notificationRepository.recordReEngagement(userId),
     disableNotifications: (userId: number) => notificationRepository.disableNotifications(userId),
     // Telegram 403 = the user blocked the bot: a permanent failure, so the

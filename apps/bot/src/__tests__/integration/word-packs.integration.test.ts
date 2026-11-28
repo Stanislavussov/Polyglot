@@ -229,8 +229,10 @@ describe("word packs (integration)", () => {
     // notification-reengagement running in the other worker, and race their own sweep.
     const onlyLearner: typeof deps = {
       ...deps,
-      getUsersForReEngagement: async () =>
-        (await deps.getUsersForReEngagement()).filter((user) => user.userId === learner.userId),
+      // Lapse cards go out at 07:00 UTC for everyone.
+      now: () => ({ hour: 7, minute: 0 }),
+      getUsersForReEngagement: async (utcHour, utcMinute) =>
+        (await deps.getUsersForReEngagement(utcHour, utcMinute)).filter((user) => user.userId === learner.userId),
     };
     await processLapsedUsers(sendFn, reEngagementSendFn, onlyLearner);
 

@@ -64,7 +64,8 @@ function textOf(call: CapturedCall): string {
 
 async function runSweep(harness: BotHarness): Promise<void> {
   const { sendFn, reEngagementSendFn, deps } = await buildNotificationScheduling(harness.bot.api);
-  await processLapsedUsers(sendFn, reEngagementSendFn, deps);
+  // Lapse cards go out at 07:00 UTC for everyone.
+  await processLapsedUsers(sendFn, reEngagementSendFn, { ...deps, now: () => ({ hour: 7, minute: 0 }) });
 }
 
 afterEach(async () => {

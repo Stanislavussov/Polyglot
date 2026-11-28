@@ -255,7 +255,8 @@ describe("notificationRepository.getUsersForWindow (integration)", () => {
 describe("notificationRepository re-engagement (integration)", () => {
   /** The lapsed ids this run created, among everything the global query returned. */
   async function dueAmong(ids: number[]): Promise<number[]> {
-    const rows = await notificationRepository.getUsersForReEngagement();
+    // Lapse cards go out at 07:00 UTC for everyone.
+    const rows = await notificationRepository.getUsersForReEngagement(7, 0);
     return rows.filter((row) => ids.includes(row.userId)).map((row) => row.userId);
   }
 
