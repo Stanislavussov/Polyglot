@@ -25,9 +25,10 @@ export interface NotificationRepository {
   getUsersForWindow(hour: number, minute?: number): Promise<NotificationUser[]>;
   /**
    * Lapsed subscribers whose next re-engagement ping is due — silent past the
-   * inactivity threshold, still under the ping cap, and past the spacing interval.
+   * inactivity threshold, past the spacing interval, and whose earliest local
+   * slot falls in the given UTC window.
    */
-  getUsersForReEngagement(): Promise<NotificationUser[]>;
+  getUsersForReEngagement(utcHour: number, utcMinute?: number): Promise<NotificationUser[]>;
   /** Stamp a re-engagement ping: advances the count and the spacing clock. */
   recordReEngagement(userId: number): Promise<void>;
   disableNotifications(userId: number): Promise<void>;

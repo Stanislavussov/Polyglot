@@ -1,6 +1,6 @@
 export type { ContextualSentence } from "./context-sentence.js";
 export { buildContextSentencePrompt, contextualSentenceSchema } from "./context-sentence.js";
-export { INACTIVITY_DAYS, REENGAGEMENT_INTERVAL_DAYS } from "./lapse-policy.js";
+export { INACTIVITY_DAYS, REENGAGEMENT_INTERVAL_DAYS, REENGAGEMENT_UTC_TIME } from "./lapse-policy.js";
 export type { NotificationBatchSize } from "./notification-batch.js";
 export {
   DEFAULT_NOTIFICATION_BATCH_SIZE,

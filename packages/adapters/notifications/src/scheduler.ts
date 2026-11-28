@@ -492,7 +492,8 @@ async function runLapsedUserSweep(
 
   let lapsedUsers: NotificationUser[];
   try {
-    lapsedUsers = await deps.getUsersForReEngagement();
+    const now = deps.now?.() ?? Temporal.Now.zonedDateTimeISO("UTC");
+    lapsedUsers = await deps.getUsersForReEngagement(now.hour, now.minute);
   } catch (err) {
     logger.error({ err }, "Failed to query lapsed users for re-engagement");
     return { processed: 0, errors: 1 };
@@ -579,8 +580,8 @@ async function runLapsedUserSweep(
  * 2. Picks a word (SRS/suggested) based on user preference
  * 3. Sends the notification via sendFn
  *
- * Also sends lapsed subscribers their re-engagement card, checked once daily at
- * midnight UTC and paced by the lapse policy.
+ * Also sends lapsed subscribers their re-engagement card on every tick, at the
+ * 07:00 UTC for everyone (daytime across the audience), paced by the lapse policy.
  *
  * @param sendFn — injected send function (from bot)
  * @param reEngagementSendFn — send function for plain text re-engagement messages
@@ -600,11 +601,9 @@ export function startScheduler(sendFn: SendFn, reEngagementSendFn: ReEngagementS
     logger.info({ utcHour: now.hour, utcMinute: now.minute }, "Scheduler tick");
     try {
       await checkAndSend(sendFn, deps);
+      await processLapsedUsers(sendFn, reEngagementSendFn, deps);
 
-      // Re-engage lapsed users once daily at midnight UTC
       if (now.hour === 0 && now.minute === 0) {
-        await processLapsedUsers(sendFn, reEngagementSendFn, deps);
-
         // Sweep expired subscriptions (renew or downgrade) in the same daily tick.
         if (deps.processSubscriptionRenewals) {
           const result = await deps.processSubscriptionRenewals();

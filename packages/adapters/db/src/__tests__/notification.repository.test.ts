@@ -424,20 +424,27 @@ describe("notificationRepository", () => {
   });
 
   describe("getUsersForReEngagement", () => {
-    it("returns the candidates the DB matched", async () => {
-      const user = makeNotifUser();
-      queryResults = [[user]];
+    it("returns due candidates at 07:00 UTC whatever their timezone or slots", async () => {
+      const prague = makeNotifUser({ userId: 1, timezone: "Europe/Prague", notificationTimes: ["21:00"] });
+      const unknown = makeNotifUser({ userId: 2, timezone: "UTC", notificationTimes: [] });
+      queryResults = [[prague, unknown]];
 
-      const result = await notificationRepository.getUsersForReEngagement();
+      const result = await notificationRepository.getUsersForReEngagement(7, 0);
 
-      expect(result).toEqual([user]);
+      expect(result).toEqual([prague, unknown]);
       expect(mockDb.select).toHaveBeenCalledOnce();
+    });
+
+    it("never sends at midnight UTC — 2am in Prague", async () => {
+      queryResults = [[makeNotifUser({ timezone: "Europe/Prague" })]];
+
+      expect(await notificationRepository.getUsersForReEngagement(0, 0)).toEqual([]);
     });
 
     it("returns empty array when nobody is due a ping", async () => {
       queryResults = [[]];
 
-      const result = await notificationRepository.getUsersForReEngagement();
+      const result = await notificationRepository.getUsersForReEngagement(9, 0);
 
       expect(result).toEqual([]);
     });

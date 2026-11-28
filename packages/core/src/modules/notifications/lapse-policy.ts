@@ -20,5 +20,14 @@
 /** Days of silence after which the per-slot daily cards stop and the lapse cadence begins. */
 export const INACTIVITY_DAYS = 14;
 
+/**
+ * UTC time ("HH:MM") every lapsed subscriber's card arrives. The sweep once ran
+ * at 00:00 UTC and woke Prague users at 2am. Telegram does not tell a bot the
+ * user's timezone and most rows hold the "UTC" default, so one hour is used for
+ * all: the audience lives between Europe and the Russian Far East (UTC+1…+10),
+ * and 07:00 UTC is 08:00–17:00 across that range — daytime everywhere.
+ */
+export const REENGAGEMENT_UTC_TIME = "07:00";
+
 /** Spacing between the word cards a lapsed subscriber receives. */
 export const REENGAGEMENT_INTERVAL_DAYS = 5;

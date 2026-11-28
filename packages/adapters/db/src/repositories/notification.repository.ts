@@ -9,6 +9,7 @@ import {
   type NotificationUser,
   parseNotificationMinutes,
   REENGAGEMENT_INTERVAL_DAYS,
+  REENGAGEMENT_UTC_TIME,
 } from "@polyglot/core";
 import { and, desc, eq, gte, isNotNull, isNull, lt, or, sql } from "drizzle-orm";
 import { getDb } from "../connection.js";
@@ -148,13 +149,13 @@ export const notificationRepository = {
    * every {@link REENGAGEMENT_INTERVAL_DAYS} until they come back, switch
    * notifications off, or block the bot.
    */
-  async getUsersForReEngagement(): Promise<NotificationUser[]> {
+  async getUsersForReEngagement(utcHour: number, utcMinute = 0): Promise<NotificationUser[]> {
     const db = getDb();
     const now = Date.now();
     const lapsedBefore = new Date(now - INACTIVITY_DAYS * DAY_MS);
     const pingedBefore = new Date(now - REENGAGEMENT_INTERVAL_MS);
 
-    return db
+    const rows = await db
       .select(notificationUserSelect)
       .from(userLanguageSettings)
       .where(
@@ -169,6 +170,14 @@ export const notificationRepository = {
           ),
         ),
       );
+
+    // One UTC hour for everyone, daytime across the whole audience; see
+    // REENGAGEMENT_UTC_TIME for why the user's timezone is not used.
+    const due = isWithinCurrentNotificationSlot(
+      utcHour * 60 + utcMinute,
+      parseNotificationMinutes(REENGAGEMENT_UTC_TIME),
+    );
+    return due ? rows : [];
   },
 
   /**

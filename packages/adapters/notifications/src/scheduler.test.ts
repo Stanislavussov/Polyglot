@@ -732,6 +732,14 @@ describe("processLapsedUsers", () => {
     expect(result).toEqual({ processed: 1, errors: 0 });
   });
 
+  it("asks for the lapsed users due in the current UTC window, not a fixed midnight", async () => {
+    const deps = lapsedDeps({ now: () => ({ hour: 19, minute: 30 }) });
+
+    await processLapsedUsers(mockSend, mockReEngagementSend, deps);
+
+    expect(deps.getUsersForReEngagement).toHaveBeenCalledWith(19, 30);
+  });
+
   it("de-dups against the full retained history, not the daily lane's 24-hour window", async () => {
     // At a five-day cadence a 24-hour window is always empty, so a short window
     // would mail the same few headwords forever. The ceiling is retention:
