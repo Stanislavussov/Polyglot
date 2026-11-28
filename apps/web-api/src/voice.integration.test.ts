@@ -35,8 +35,8 @@ function wav(seconds: number): Buffer {
   return buf;
 }
 
-async function setUp(plan: "free" | "pro", stt = STT_ENABLED) {
-  const transcribe = vi.fn().mockResolvedValue({ text: " hello ", seconds: 2, costUsd: 0.0002, generationId: "gen" });
+async function setUp(plan: "free" | "pro", stt = STT_ENABLED, spoken = " hello ") {
+  const transcribe = vi.fn().mockResolvedValue({ text: spoken, seconds: 2, costUsd: 0.0002, generationId: "gen" });
   const web = await createWebHarness({
     ai: { ...deterministicTranslateAi(), transcribe },
     settings: { getSttConfig: vi.fn().mockResolvedValue(stt) },
@@ -64,6 +64,15 @@ describe("web voice input", () => {
     expect(await send(audio)).toMatchObject({ status: 200, body: { text: "hello" } });
     expect(transcribe.mock.calls[0]![0]).toMatchObject({ format: "wav", modelId: STT_MODEL, userId });
     expect(Buffer.from(transcribe.mock.calls[0]![0].audio)).toEqual(audio);
+  });
+
+  it("drops the speech engine's full stop after a word but keeps a sentence's", async () => {
+    const word = await setUp("pro", STT_ENABLED, "Apple.");
+    expect(await word.send(wav(1))).toMatchObject({ status: 200, body: { text: "Apple" } });
+
+    const sentence = "I would like a coffee with milk, please.";
+    const long = await setUp("pro", STT_ENABLED, sentence);
+    expect(await long.send(wav(3))).toMatchObject({ status: 200, body: { text: sentence } });
   });
 
   it("refuses a free learner, a too-long recording and a disabled switch before calling the AI", async () => {

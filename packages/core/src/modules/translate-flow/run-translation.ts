@@ -45,6 +45,8 @@ export interface TranslationAnswer {
   context?: string;
   /** "Other meaning": translations already shown, per target language, that the new card must avoid. */
   negativeConstraints?: Record<string, string[]>;
+  /** "Translate once": `sourceLang` may be any supported language; the user's set stays untouched. */
+  once?: boolean;
 }
 
 export interface RunTranslationRequest {
@@ -105,6 +107,8 @@ export type TranslationOutcome =
       supported: boolean;
       text: string;
       contextHint: string | undefined;
+      /** Unsupported only: the user's own languages to pick if the detector misread the word. */
+      candidates?: string[];
     }
   | {
       status: "needs_clarification";
@@ -204,9 +208,11 @@ export async function runTranslation(
 
   if (answer?.sourceLang !== undefined) {
     // The answer came back through the client, so it is checked, never trusted.
-    if (!languageGroup(nativeLang, [...learningLangs, "en"]).includes(answer.sourceLang)) {
-      return reject("invalid_language");
-    }
+    const allowed =
+      answer.once === true
+        ? isSupportedLanguage(answer.sourceLang)
+        : languageGroup(nativeLang, [...learningLangs, "en"]).includes(answer.sourceLang);
+    if (!allowed) return reject("invalid_language");
     sourceLang = answer.sourceLang;
     targetLangs = clarifiedTargetLangs(sourceLang, nativeLang, learningLangs, [nativeLang]);
   } else {
@@ -244,9 +250,14 @@ export async function runTranslation(
 
     const outOfSetLang = detectOutOfSetSource(text, detection, candidatesWithEnglish);
     if (outOfSetLang) {
-      const supported = isSupportedLanguage(outOfSetLang);
-      if (!supported) recordDetection("out_of_set", outOfSetLang);
-      return { status: "add_language", lang: outOfSetLang, supported, text, contextHint };
+      if (isSupportedLanguage(outOfSetLang)) {
+        return { status: "add_language", lang: outOfSetLang, supported: true, text, contextHint };
+      }
+      recordDetection("out_of_set", outOfSetLang);
+      // A close sibling of a studied language often wins the open detection (Czech
+      // "pocetna" → Croatian), and an unsupported verdict is otherwise a dead end.
+      const candidates = languageGroup(learningLangs[0] ?? nativeLang, [...learningLangs, nativeLang]);
+      return { status: "add_language", lang: outOfSetLang, supported: false, text, contextHint, candidates };
     }
 
     const direction = decideDirection(text, detection, nativeLang, learningLangs);

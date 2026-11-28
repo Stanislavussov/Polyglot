@@ -7,11 +7,14 @@
  * 2. A user with no learning language gets `no_languages`.
  * 3. The language is resolved before the quota gate:
  *    - input in a language the user does not study → `add_language` (supported flag);
+ *      an unsupported one also lists the user's languages, studied first, so a word
+ *      the detector misread (Czech "pocetna" → Croatian) can still be translated;
  *    - a word found in two of the user's dictionaries → `needs_language` (ambiguous);
  *    so an exhausted quota never hides these questions.
  * 4. An answer is stateless and re-checked: `answer.sourceLang` outside the user's
  *    languages (plus English) is `rejected` as `invalid_language`; a valid one skips
- *    detection and the typo/existence questions.
+ *    detection and the typo/existence questions. `answer.once` lets a supported language
+ *    outside the set translate this one request — nothing about the user's set changes.
  * 5. An exhausted quota is `limit`, and the AI pipeline is not called.
  * 6. The pipeline's question is `needs_clarification` with a channel-neutral view,
  *    unless its correction is in an unstudied language's alphabet → `add_language`.
@@ -101,6 +104,13 @@ describe("runTranslation", () => {
     expect(checkTranslationQuota).not.toHaveBeenCalled();
   });
 
+  it("lists the user's languages beside an unsupported language, studied ones first", async () => {
+    const { deps } = makeDeps(["cs"], { wordLanguageSweep: vi.fn().mockResolvedValue(["hr"]) });
+    const outcome = await runTranslation({ user, text: "pocetna", channel: "web" }, deps);
+    expect(outcome).toMatchObject({ status: "add_language", lang: "hr", supported: false, candidates: ["cs", "en"] });
+    expect(translateWithContext).not.toHaveBeenCalled();
+  });
+
   it("asks which language a word found in two of the user's dictionaries is in", async () => {
     const { deps } = makeDeps(["cs"], { wordLanguageSweep: vi.fn().mockResolvedValue(["en", "cs"]) });
     const outcome = await runTranslation({ user, text: "hotel", channel: "web" }, deps);
@@ -113,6 +123,27 @@ describe("runTranslation", () => {
     const { deps } = makeDeps();
     const outcome = await runTranslation({ user, text: "hotel", channel: "web", answer: { sourceLang: "de" } }, deps);
     expect(outcome).toMatchObject({ status: "rejected", reason: "invalid_language" });
+  });
+
+  it("translates once from a supported language the user does not study, into all of their languages", async () => {
+    const { deps, logTranslationRequest } = makeDeps();
+    vi.mocked(translateWithContext).mockResolvedValue(accepted(output("mañana", "es")));
+    const outcome = await runTranslation(
+      { user, text: "mañana", channel: "web", answer: { sourceLang: "es", once: true } },
+      deps,
+    );
+    expect(outcome).toMatchObject({ status: "done", sourceLang: "es", targetLangs: ["en", "cs"] });
+    expect(logTranslationRequest).toHaveBeenCalledWith(7, "mañana", "es", ["en", "cs"], 1);
+  });
+
+  it("rejects a one-off translation from a language that is not supported at all", async () => {
+    const { deps } = makeDeps();
+    const outcome = await runTranslation(
+      { user, text: "pocetna", channel: "web", answer: { sourceLang: "xx", once: true } },
+      deps,
+    );
+    expect(outcome).toMatchObject({ status: "rejected", reason: "invalid_language" });
+    expect(translateWithContext).not.toHaveBeenCalled();
   });
 
   it("translates from the answered language without asking about the input again", async () => {

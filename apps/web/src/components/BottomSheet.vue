@@ -1,19 +1,19 @@
 <template>
   <DialogRoot :open="open" @update:open="(next) => !next && emit('close')">
     <DialogPortal>
-      <DialogOverlay :style="overlayStyle" :class="{ 'sheet-dragged-out': dismissing }" class="sheet-overlay fixed inset-0 z-40 bg-ink opacity-50" />
+      <DialogOverlay :style="overlayStyle" :class="{ 'sheet-dragged-out': dismissing }" class="sheet-overlay fixed inset-0 z-40 bg-scrim opacity-50" />
       <!-- A bottom sheet on phones, a centered panel from sm up. -->
       <DialogContent
         :style="sheetStyle"
         :class="[{ 'sheet-dragged-out': dismissing }, panelClass]"
-        class="sheet fixed inset-x-0 bottom-0 z-50 flex max-h-[75dvh] flex-col overflow-hidden rounded-t-2xl border border-line bg-surface shadow-xl sm:inset-x-auto sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-2xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl"
+        class="sheet fixed inset-x-0 bottom-0 z-50 flex max-h-[85dvh] flex-col overflow-hidden rounded-t-2xl border border-line bg-surface shadow-xl sm:inset-x-auto sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-2xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:max-h-[75dvh] sm:rounded-2xl"
         :aria-describedby="undefined"
       >
         <!-- Header and footer stay put while long content scrolls between them, so closing is always one tap away.
              On phones the header is also the drag zone: pull it down to dismiss the sheet. -->
         <div
           class="shrink-0 touch-none border-b border-line px-4 pb-3 pt-2 sm:touch-auto sm:px-6 sm:pt-3"
-          @touchstart.passive="onDragStart"
+          @touchstart.passive="(event) => onDragStart(event, 'header')"
           @touchmove.passive="onDragMove"
           @touchend="onDragEnd"
           @touchcancel="onDragEnd"
@@ -32,7 +32,7 @@
           ref="body"
           class="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-6"
           @touchstart.passive="onBodyDragStart"
-          @touchmove.passive="onDragMove"
+          @touchmove.passive="onBodyDragMove"
           @touchend="onDragEnd"
           @touchcancel="onDragEnd"
         >
@@ -53,6 +53,7 @@ import { X } from "lucide-vue-next";
 import { DialogClose, DialogContent, DialogOverlay, DialogPortal, DialogRoot, DialogTitle } from "reka-ui";
 import { computed, ref, watch } from "vue";
 import { t } from "../lib/i18n";
+import { atTop, type DragSource, dragAllowed } from "../lib/sheet-drag";
 
 const props = defineProps<{ open: boolean; panelClass?: string }>();
 const emit = defineEmits<{ close: [] }>();
@@ -83,28 +84,37 @@ const overlayStyle = computed(() => {
   return undefined;
 });
 
-function onDragStart(event: TouchEvent): void {
+const dragSource = ref<DragSource>("header");
+
+function onDragStart(event: TouchEvent, source: DragSource): void {
   // From sm up the panel is centered by a transform that a drag offset would overwrite.
   if (window.matchMedia("(min-width: 640px)").matches) return;
+  dragSource.value = source;
   dragStartY.value = event.touches[0]?.clientY ?? null;
 }
 
 const body = ref<HTMLElement | null>(null);
+const bodyScrollTop = () => body.value?.scrollTop ?? 0;
 
 function onBodyDragStart(event: TouchEvent): void {
-  if ((body.value?.scrollTop ?? 0) > 0) return;
-  onDragStart(event);
+  if (atTop(bodyScrollTop())) onDragStart(event, "body");
 }
 
 function onDragMove(event: TouchEvent): void {
   if (dragStartY.value === null) return;
   // Scrolled content: the finger is reading, not dragging the sheet.
-  if ((body.value?.scrollTop ?? 0) > 0) {
+  if (!dragAllowed(dragSource.value, bodyScrollTop())) {
     dragStartY.value = null;
     dragOffset.value = 0;
     return;
   }
   dragOffset.value = Math.max(0, (event.touches[0]?.clientY ?? dragStartY.value) - dragStartY.value);
+}
+
+// Scrolled back to the top in the same gesture: the pull continues as a drag from here, as in Telegram.
+function onBodyDragMove(event: TouchEvent): void {
+  if (dragStartY.value === null && atTop(bodyScrollTop())) onDragStart(event, "body");
+  onDragMove(event);
 }
 
 function onDragEnd(): void {

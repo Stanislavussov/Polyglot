@@ -1,8 +1,8 @@
 <template>
-  <div class="border-t border-line pt-4">
-    <WordEyebrow :code="translation.lang" />
-    <div class="mt-1 flex items-center justify-between gap-3">
-      <WordHeadline class="flex-1" tone="primary" :text="translation.text">
+  <div :class="[{ 'stream-in': stream }, lead ? '' : 'border-t border-line pt-4']">
+    <WordEyebrow v-if="!lead" :code="translation.lang" />
+    <div :class="[lead ? '' : 'mt-1', 'flex items-center justify-between gap-3']">
+      <WordHeadline class="flex-1" tone="primary" :text="translation.text" :stream="stream">
         <template #after>
           <span v-if="translation.expressionType" class="inline-block rounded-full bg-primary-soft px-2 py-0.5 text-sm font-medium text-primary-soft-fg">{{ translation.expressionType }}</span>
           <!-- Sound sits right after the word, the same as on the review card's headword. -->
@@ -23,17 +23,17 @@
       </div>
     </div>
 
-    <p v-if="translation.equivalentNote" class="mt-2 text-base text-ink-muted">{{ translation.equivalentNote }}</p>
+    <p v-if="translation.equivalentNote" class="mt-2 text-base text-ink-muted"><StreamText v-if="stream" :text="translation.equivalentNote" /><template v-else>{{ translation.equivalentNote }}</template></p>
     <p v-if="translation.connotationWarning" class="mt-2 flex items-start gap-2 rounded-xl bg-warning-soft px-3 py-2 text-base text-warning-fg">
       <TriangleAlert class="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-      {{ translation.connotationWarning }}
+      <StreamText v-if="stream" :text="translation.connotationWarning" /><template v-else>{{ translation.connotationWarning }}</template>
     </p>
     <ul v-if="translation.synonyms.length > 0" class="mt-3 flex flex-wrap gap-2" :aria-label="t('web.translate.synonyms')">
-      <li v-for="synonym in translation.synonyms" :key="synonym" class="rounded-full bg-primary-soft px-3 py-1 text-base text-primary-soft-fg">
+      <li v-for="synonym in translation.synonyms" :key="synonym" class="rounded-full bg-primary-soft px-3 py-1 text-base text-primary-soft-fg" :class="{ 'stream-in': stream }">
         {{ synonym }}
       </li>
     </ul>
-    <ExampleList class="mt-3" :examples="translation.examples.slice(0, 1)" />
+    <ExampleList class="mt-3" :examples="translation.examples.slice(0, 1)" :stream="stream" />
 
     <template v-if="hasMore">
       <div v-if="expanded" :id="moreId" class="mt-3 space-y-3">
@@ -72,10 +72,12 @@ import { t } from "../lib/i18n";
 import { languageName } from "../lib/settings-store";
 import type { TranslateTarget } from "../lib/types";
 import ExampleList from "./ExampleList.vue";
+import StreamText from "./StreamText.vue";
 
 const COPIED_MS = 1800;
 
-const props = defineProps<{ translation: TranslateTarget; idPrefix: string }>();
+/** `stream`: the translate card, typed out as it arrives. `lead`: the answer itself, set right under the word with no label. */
+const props = defineProps<{ translation: TranslateTarget; idPrefix: string; stream?: boolean; lead?: boolean }>();
 
 const expanded = ref(false);
 const copied = ref(false);

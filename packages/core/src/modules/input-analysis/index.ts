@@ -1,4 +1,5 @@
 export { analyzeInput, classifyInput } from "./input-analyzer.js";
+export { tidyTranscript } from "./transcript.js";
 export type {
   InputAnalysis,
   InputAnalyzerConfig,

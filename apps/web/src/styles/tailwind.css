@@ -77,8 +77,35 @@
     @apply absolute rounded-full bg-accent opacity-70;
   }
 
+  /* A piece of the translate card that just arrived: it settles in instead of popping. */
+  .stream-in {
+    animation: stream-in 420ms cubic-bezier(0.2, 0, 0, 1) both;
+  }
+
+  /* Inline text cannot be moved by a transform, so it only fades. */
+  .stream-fade {
+    animation: stream-fade 420ms ease-out both;
+  }
+
   .field {
     @apply min-h-11 w-full rounded-2xl border border-line bg-surface px-4 py-2 text-base transition-colors focus:border-ring text-ink placeholder:text-ink-muted;
+  }
+}
+
+@keyframes stream-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes stream-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
   }
 }
 

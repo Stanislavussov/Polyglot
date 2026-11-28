@@ -1,5 +1,5 @@
 <template>
-  <div class="flex min-h-screen flex-col md:flex-row" aria-busy="true">
+  <div class="flex min-h-dvh flex-col md:flex-row" aria-busy="true">
     <p class="sr-only" role="status">{{ label }}</p>
 
     <aside class="app-sidebar hidden shrink-0 flex-col overflow-hidden bg-sidebar md:flex md:h-screen" aria-hidden="true">
@@ -20,52 +20,71 @@
     </aside>
 
     <header class="flex h-14 items-center gap-3 bg-sidebar px-3 text-sidebar-fg md:hidden" aria-hidden="true">
-      <div class="grid size-11 place-items-center"><div class="skeleton-dark h-4 w-6 rounded" /></div>
-      <span class="flex items-center gap-2 text-xl font-bold tracking-tight"><img src="/favicon.svg" alt="" class="size-7 rounded-lg" /> Polyglot Monster</span>
+      <span class="flex items-center gap-2 pl-1 text-xl font-bold tracking-tight"><img src="/favicon.svg" alt="" class="size-7 rounded-lg" /> Polyglot Monster</span>
+      <div class="ml-auto grid size-11 place-items-center"><div class="skeleton-dark h-4 w-6 rounded" /></div>
     </header>
 
     <main class="min-w-0 flex-1" :aria-hidden="placeholder ? undefined : 'true'">
       <div class="mx-auto max-w-6xl px-4 py-6 sm:px-6 md:px-8 md:py-10">
         <!-- Same line as the page's own title; the inline script in BaseLayout fills it before the app loads. -->
-        <h1 class="page-title" data-early-title>{{ title || "\u00a0" }}</h1>
+        <h1 :class="placeholder ? 'sr-only' : 'page-title'" data-early-title>{{ title || "\u00a0" }}</h1>
         <!-- The input needs nothing from the server: typing starts before the app has loaded. -->
         <!-- A copy of the translate page's ComposerCard, box for box, so nothing moves when the app takes over. -->
-        <div v-if="placeholder" class="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,20rem)] xl:items-start">
-          <div class="card space-y-3 xl:col-start-1 xl:row-start-1">
-            <label class="sr-only" :for="EARLY_INPUT_ID">{{ placeholder }}</label>
-            <textarea
-              :id="EARLY_INPUT_ID"
-              v-model="earlyText"
-              class="field min-h-28 resize-y focus:border-primary focus:outline-none focus:ring-[3px] focus:ring-ring"
-              rows="3"
-              maxlength="500"
-              autofocus
-              :placeholder="placeholder"
-            />
-            <div class="flex items-center justify-between gap-3">
-              <span class="text-sm text-ink-muted" aria-hidden="true">{{ earlyText.length }}/500</span>
-              <div class="flex gap-2" aria-hidden="true">
-                <span class="btn-secondary pointer-events-none"><Mic class="size-4" /></span>
-                <span class="btn-primary pointer-events-none fixed inset-x-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-30 py-3 shadow-lg md:static md:inset-auto md:py-2 md:shadow-none">
-                  <span class="skeleton h-3 w-16 rounded" /><span class="btn-chip"><ArrowRight class="size-4" /></span>
-                </span>
+        <!-- Desktop holds the greeting's line, so the box does not drop when the app takes over. -->
+        <template v-if="placeholder">
+          <!-- Phones: the history button above the box, as the app draws it. -->
+          <div class="flex justify-end md:hidden" aria-hidden="true"><span class="skeleton size-11 rounded-full" /></div>
+          <div class="hidden items-center justify-center gap-3 pb-8 pt-[12vh] md:flex" aria-hidden="true">
+            <MonsterMark class="size-10" />
+            <span class="skeleton h-9 w-72 rounded" />
+          </div>
+        </template>
+        <div v-if="placeholder" class="grid gap-6 max-md:mt-2 xl:grid-cols-[minmax(0,1fr)_minmax(0,20rem)] xl:items-start">
+          <div class="xl:col-start-1 xl:row-start-1">
+            <div class="rounded-3xl border border-line bg-surface p-3 transition-colors focus-within:border-ring shadow-card">
+              <label class="sr-only" :for="EARLY_INPUT_ID">{{ placeholder }}</label>
+              <textarea
+                :id="EARLY_INPUT_ID"
+                v-model="earlyText"
+                class="block max-h-[40dvh] min-h-32 w-full resize-none bg-transparent px-2 py-2.5 text-base text-ink placeholder:text-ink-muted focus:outline-none md:min-h-20"
+                rows="1"
+                maxlength="500"
+                :placeholder="placeholder"
+              />
+              <div class="flex items-center gap-2" aria-hidden="true">
+                <span class="grid size-11 place-items-center rounded-full text-ink-muted"><Mic class="size-5" /></span>
+                <span class="ml-auto text-sm tabular-nums text-ink-muted">{{ earlyText.length }} / 500</span>
+                <span class="grid size-11 place-items-center rounded-full bg-primary-soft text-primary-soft-fg"><ArrowUp class="size-5" /></span>
               </div>
             </div>
-            <p class="relative hidden text-sm sm:block [@media(pointer:coarse)]:hidden" aria-hidden="true">&nbsp;<span class="skeleton absolute inset-y-1 left-0 w-64 max-w-full rounded" /></p>
+            <p class="relative mt-2 hidden px-3 text-sm md:block [@media(pointer:coarse)]:hidden" aria-hidden="true">&nbsp;<span class="skeleton absolute inset-y-1 left-3 w-64 max-w-full rounded" /></p>
           </div>
-          <div class="card xl:col-start-2 xl:row-span-2 xl:row-start-1" aria-hidden="true">
+          <div class="card max-md:hidden xl:col-start-2 xl:row-span-2 xl:row-start-1" aria-hidden="true">
             <div class="skeleton h-4 w-40 rounded" />
+          </div>
+          <!-- Phones: the greeting under the box, as TranslateGreeting draws it there. -->
+          <div class="flex flex-col items-center gap-4 pt-[8vh] md:hidden" aria-hidden="true">
+            <MonsterMark class="size-14" />
+            <span class="skeleton h-8 w-56 rounded" />
           </div>
         </div>
         <div v-else class="card mt-6"><MonsterLoader /></div>
       </div>
     </main>
+
+    <!-- The quick buttons of the loaded app, shape for shape. -->
+    <div class="fixed inset-x-0 bottom-0 z-40 rounded-t-3xl border-t border-line bg-primary-soft pb-[env(safe-area-inset-bottom)] pt-1 shadow-dock md:hidden" aria-hidden="true">
+      <div class="grid h-14 grid-cols-4 items-center gap-1 px-2">
+        <div v-for="n in 4" :key="n" class="mx-auto grid h-11 w-16 place-items-center"><div class="skeleton size-6 rounded-md" /></div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ArrowRight, Mic } from "lucide-vue-next";
+import { ArrowUp, Mic } from "lucide-vue-next";
 import { onMounted } from "vue";
+import MonsterMark from "./MonsterMark.vue";
 import { EARLY_INPUT_ID, earlyFocused, earlyText, rememberedTitle } from "../lib/early-input";
 import MonsterLoader from "./MonsterLoader.vue";
 

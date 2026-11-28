@@ -39,6 +39,8 @@ const bodySchema = z.object({
   negativeConstraints: z.record(z.string().min(2).max(8), z.array(z.string().max(500)).max(20)).optional(),
   // The bot's tr:oos:add "Add and translate": join the learning set, then translate from it.
   addLanguage: z.string().min(2).max(8).optional(),
+  // "Translate once": `sourceLang` from outside the learning set, for this request only — nothing is saved.
+  once: z.boolean().optional(),
 });
 
 const texts = (items: { text: string }[] | null | undefined) => (items ?? []).map((item) => item.text);
@@ -252,7 +254,13 @@ async function answerFor(
     case "add_language":
       return {
         status: 422,
-        body: { code: "add_language", lang: outcome.lang, supported: outcome.supported, text: outcome.text },
+        body: {
+          code: "add_language",
+          lang: outcome.lang,
+          supported: outcome.supported,
+          text: outcome.text,
+          ...(outcome.candidates ? { languages: outcome.candidates } : {}),
+        },
       };
     case "needs_clarification":
       return { status: 422, body: { code: "needs_clarification", sourceLang: outcome.sourceLang, ...outcome.view } };

@@ -24,9 +24,9 @@ simple, minimal, large — "broad strokes", sized like the Google Store
 
 ## Colour
 
-Teal from the owl logo (`#1F8A74`), a mint accent, a cool white canvas. Every value lives in
-`apps/web/src/styles/tokens.css`; components use the tokens only. Avoid olive/swamp greens and
-plain blue.
+Blue-teal: the owl logo's teal turned toward blue (`#1F708A`), a light sky accent, a cool white
+canvas. Every value lives in `apps/web/src/styles/tokens.css`; components use the tokens only.
+Avoid sliding back into green and going all the way to plain blue.
 
 ## Type scale — the only allowed sizes
 
@@ -85,10 +85,24 @@ right-handed thumb. A destructive action goes last, so it is the first to fold a
 
 ## Text input (`ComposerCard`)
 
-Every free-text box (translate, the mentor) is a `ComposerCard`: the same field, counter, Clear,
-Enter-to-send, and a thumb-reach submit button on phones. Extra buttons go in its `tools` slot.
+Every free-text box (translate, asking about a word, the mentor, the grammar check) is a
+`ComposerCard`, shaped like a chat app's: one rounded box that grows with the text, icon tools
+on the left (`tools` slot), Clear, and a round send button on the right; Enter sends. The counter
+appears only near the limit. On phones the box moves (Teleport) into `MobileDock`, the shell's
+bottom panel with its own mint background, and the panel rides on top of the keyboard while
+typing (`lib/mobile-dock.ts`, moved with `transform` only, so scrolling never re-lays it out);
+wider screens keep the box in the page. Errors, limits and questions about what was typed go in
+its `notice` slot: above the box in the phone panel, under it in the page.
+
+## Quick buttons (`QuickNav`)
+
+Phones show four icon-only tabs in the bottom panel of every page: Translate, Dictionary, Review,
+Mentor (names in `aria-label`/`title`). Desktop shows neither the panel nor the tabs. The current page's tab is filled. The row hides while the keyboard is up.
 
 ## Loading inside a card
 
 A paragraph that is still loading inside a card shows `MonsterLoader inline` (a small monster
 beside text-shaped lines), never a bare "Working…".
+The translate card waits in `TranslateSkeleton` (its own shape, block for block) with `MonsterThinking`
+(the animated monster and the wait phrase in a fixed slot); arriving text types itself out via
+`StreamText`.

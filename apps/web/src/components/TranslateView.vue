@@ -1,103 +1,197 @@
 <template>
-  <section class="pb-24 md:pb-0">
-    <h1 class="page-title">{{ t("web.translate.title") }}</h1>
+  <section>
+    <!-- The page needs no visible title: the greeting and the box say what it is for. -->
+    <h1 class="sr-only">{{ t("web.translate.title") }}</h1>
+    <div v-if="phone" class="flex justify-end">
+      <!-- Phones keep the page to the card alone; history waits behind this button, as chat apps do. -->
+      <button
+        type="button"
+        class="btn-secondary min-h-11 w-11 shrink-0 px-0"
+        :aria-label="t('web.translate.recent')"
+        :title="t('web.translate.recent')"
+        @click="historyOpen = true"
+      >
+        <History class="size-5" aria-hidden="true" />
+      </button>
+    </div>
 
-    <div class="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,20rem)] xl:items-start">
+    <TranslateGreeting v-if="!phone && !mentorMode && !card && !busy" inline />
+    <div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,20rem)] xl:items-start" :class="{ 'mt-2': phone }">
       <ComposerCard
         id="translate-input"
         ref="composer"
         v-model="text"
         class="xl:col-start-1 xl:row-start-1"
-        :placeholder="t('web.translate.placeholder')"
-        :submit-label="t('web.translate.submit')"
-        :max-length="MAX_LENGTH"
-        :busy="busy"
+        :placeholder="mentorMode ? t('web.translate.mentorPlaceholder') : t('web.translate.placeholder')"
+        :submit-label="mentorMode ? t('web.explore.send') : t('web.translate.submit')"
+        :max-length="mentorMode ? MAX_MENTOR_QUESTION : MAX_LENGTH"
+        :busy="busy || mentor.busy.value"
+        :voice="recording ? 'recording' : transcribing ? 'processing' : null"
         @submit="submit()"
+        @voice-send="finishRecording(true)"
       >
         <template #tools>
+          <!-- One box, two jobs: the switch turns it from a translator into a question to the mentor. -->
+          <button
+            type="button"
+            role="switch"
+            :aria-checked="mentorMode"
+            class="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full px-3 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+            :class="mentorMode ? 'bg-primary-soft text-primary-soft-fg' : 'text-ink-muted hover:bg-surface-muted hover:text-ink'"
+            :title="t('web.translate.mentorModeHint')"
+            :disabled="busy || mentor.busy.value || recording || transcribing"
+            @mousedown.prevent
+            @click="setMentorMode(!mentorMode)"
+          >
+            <GraduationCap class="size-5" aria-hidden="true" />{{ t("web.learn.mentor") }}
+          </button>
+          <!-- Idle: the mic. Recording: Stop puts the words into the box to check first; the send button sends at once. -->
           <button
             v-if="voiceAvailable"
             type="button"
-            :class="recording ? 'btn-primary' : 'btn-secondary'"
-            :aria-pressed="recording"
+            class="grid size-11 shrink-0 place-items-center rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+            :class="recording ? 'bg-surface-muted text-ink hover:bg-primary-soft' : 'text-ink-muted hover:bg-surface-muted hover:text-ink'"
             :aria-label="recording ? t('web.voice.stop') : t('web.voice.record')"
             :title="recording ? t('web.voice.stop') : t('web.voice.record')"
             :disabled="busy || transcribing"
-            @click="toggleRecording"
+            @mousedown.prevent
+            @click="recording ? finishRecording(false) : startRecording()"
           >
-            <Square v-if="recording" class="size-4" aria-hidden="true" /><Mic v-else class="size-4" aria-hidden="true" />
+            <Square v-if="recording" class="size-5" fill="currentColor" aria-hidden="true" /><Mic v-else class="size-5" aria-hidden="true" />
           </button>
         </template>
+        <template #voice>
+          <VoiceWave
+            :level="voiceLevel"
+            :processing="transcribing"
+            :label="transcribing ? t('web.voice.processing') : t('web.voice.listening')"
+          />
+        </template>
+        <template #notice>
+          <MentorNotice
+            v-if="mentorMode"
+            :locked-hint="mentor.lockedHint.value"
+            :limit="mentor.limit.value"
+            :error-text="mentor.errorText.value"
+          />
+          <LimitNotice v-else-if="limit" :reason="limit.reason" :reset-at="limit.resetAt" />
+          <div v-else-if="clarification" class="card space-y-4" role="alert">
+            <p class="text-sm">{{ clarification.view.message }}</p>
+            <div v-if="languageChoices.length > 0" class="flex flex-wrap gap-2">
+              <button
+                v-for="code in languageChoices"
+                :key="code"
+                type="button"
+                class="btn-secondary"
+                @click="answer(clarification.text, { sourceLang: code })"
+              >
+                <LangFlag :code="code" />{{ languageName(code) }}
+              </button>
+            </div>
+            <div class="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+              <button
+                v-for="option in answerOptions"
+                :key="option.kind + option.value"
+                type="button"
+                :class="option.kind === 'typo_correction' ? 'btn-primary' : 'btn-secondary'"
+                @click="pick(option)"
+              >
+                {{ option.kind === "translate_as_written" ? t("web.translate.asWritten") : option.label }}
+              </button>
+            </div>
+          </div>
+          <div v-else-if="languageQuestion" class="card space-y-4" role="alert">
+            <p class="text-sm">
+              {{ t(languageQuestion.kind === "ambiguous" ? "web.translate.whichLanguage" : "web.translate.unknownLanguage", { word: languageQuestion.text }) }}
+            </p>
+            <div class="flex flex-wrap gap-2">
+              <button
+                v-for="code in languageQuestion.languages"
+                :key="code"
+                type="button"
+                class="btn-secondary"
+                @click="answer(languageQuestion.text, { sourceLang: code })"
+              >
+                <LangFlag :code="code" />{{ languageName(code) }}
+              </button>
+            </div>
+          </div>
+          <div v-else-if="otherLanguage" role="alert" class="space-y-2 rounded-xl bg-warning-soft px-4 py-3 text-sm text-warning-fg">
+            <p>
+              <LangFlag :code="otherLanguage.lang" />
+              {{ t(otherLanguage.supported ? "web.translate.addLanguage" : "web.translate.languageUnsupported", { lang: languageName(otherLanguage.lang) }) }}
+            </p>
+            <template v-if="!otherLanguage.supported && otherLanguage.languages.length > 0">
+              <p>{{ t("web.translate.pickOwnLanguage") }}</p>
+              <div class="flex flex-wrap gap-2">
+                <button
+                  v-for="code in otherLanguage.languages"
+                  :key="code"
+                  type="button"
+                  class="btn-secondary"
+                  @click="answer(otherLanguage.text, { sourceLang: code })"
+                >
+                  <LangFlag :code="code" />{{ languageName(code) }}
+                </button>
+              </div>
+            </template>
+            <button
+              v-if="otherLanguage.supported"
+              type="button"
+              class="btn-primary"
+              @click="answer(otherLanguage.text, { addLanguage: otherLanguage.lang })"
+            >
+              {{ t("web.translate.addAndTranslate", { lang: languageName(otherLanguage.lang) }) }}
+            </button>
+            <button
+              v-if="otherLanguage.supported"
+              type="button"
+              class="btn-secondary"
+              @click="translateOnce(otherLanguage.text, otherLanguage.lang)"
+            >
+              {{ t("web.translate.translateOnce") }}
+            </button>
+            <a v-if="otherLanguage.supported" href="/settings/" class="inline-flex min-h-11 items-center font-semibold underline">
+              {{ t("web.translate.openSettings") }}
+            </a>
+          </div>
+          <!-- A one-off translation leaves the settings alone; only this explicit Save keeps the language. -->
+          <div v-else-if="onceLang" role="status" class="space-y-2 rounded-xl bg-primary-soft px-4 py-3 text-sm text-primary-soft-fg">
+            <p><LangFlag :code="onceLang" /> {{ t("web.translate.keepLanguage", { lang: languageName(onceLang) }) }}</p>
+            <div class="flex flex-wrap gap-2">
+              <button type="button" class="btn-primary" :disabled="keepPending" @click="keepLanguage(onceLang)">
+                {{ t("web.translate.keepLanguageSave", { lang: languageName(onceLang) }) }}
+              </button>
+              <button type="button" class="btn-secondary" :disabled="keepPending" @click="onceLang = null">
+                {{ t("web.translate.keepLanguageLater") }}
+              </button>
+            </div>
+          </div>
+          <p v-else-if="errorKey" role="alert" class="rounded-xl bg-danger-soft px-4 py-3 text-sm text-danger">
+            {{ t(errorKey, errorParams) }}
+          </p>
+        </template>
         <!-- Touch keyboards have no Shift+Enter, so the hint only misleads there. -->
-        <p class="hidden truncate text-sm text-ink-muted sm:block [@media(pointer:coarse)]:hidden">{{ t("web.translate.hint") }}</p>
+        <p v-if="!mentorMode" class="mt-2 hidden truncate px-3 text-sm text-ink-muted md:block [@media(pointer:coarse)]:hidden">{{ t("web.translate.hint") }}</p>
       </ComposerCard>
 
-      <div class="min-w-0 xl:col-start-1 xl:row-start-2" aria-live="polite">
-        <LimitNotice v-if="limit" :reason="limit.reason" :reset-at="limit.resetAt" />
-        <div v-else-if="clarification" class="card space-y-4" role="alert">
-          <p class="text-sm">{{ clarification.view.message }}</p>
-          <div v-if="languageChoices.length > 0" class="flex flex-wrap gap-2">
-            <button
-              v-for="code in languageChoices"
-              :key="code"
-              type="button"
-              class="btn-secondary"
-              @click="answer(clarification.text, { sourceLang: code })"
-            >
-              <LangFlag :code="code" />{{ languageName(code) }}
-            </button>
-          </div>
-          <div class="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-            <button
-              v-for="option in answerOptions"
-              :key="option.kind + option.value"
-              type="button"
-              :class="option.kind === 'typo_correction' ? 'btn-primary' : 'btn-secondary'"
-              @click="pick(option)"
-            >
-              {{ option.kind === "translate_as_written" ? t("web.translate.asWritten") : option.label }}
-            </button>
-          </div>
-        </div>
-        <div v-else-if="languageQuestion" class="card space-y-4" role="alert">
-          <p class="text-sm">
-            {{ t(languageQuestion.kind === "ambiguous" ? "web.translate.whichLanguage" : "web.translate.unknownLanguage", { word: languageQuestion.text }) }}
-          </p>
-          <div class="flex flex-wrap gap-2">
-            <button
-              v-for="code in languageQuestion.languages"
-              :key="code"
-              type="button"
-              class="btn-secondary"
-              @click="answer(languageQuestion.text, { sourceLang: code })"
-            >
-              <LangFlag :code="code" />{{ languageName(code) }}
-            </button>
-          </div>
-        </div>
-        <div v-else-if="otherLanguage" role="alert" class="space-y-2 rounded-xl bg-warning-soft px-4 py-3 text-sm text-warning-fg">
-          <p>
-            {{ t(otherLanguage.supported ? "web.translate.addLanguage" : "web.translate.languageUnsupported", { lang: languageName(otherLanguage.lang) }) }}
-          </p>
+      <section v-if="mentorMode" ref="mentorPane" class="min-w-0 space-y-4 xl:col-start-1 xl:row-start-2" :aria-label="t('web.learn.mentor')">
+        <p v-if="mentor.current.value.turns.length === 0 && !mentor.busy.value" class="card text-base">{{ t("web.learn.mentor.intro") }}</p>
+        <template v-else>
+          <MentorTurns :turns="mentor.current.value.turns" :busy="mentor.busy.value" />
           <button
-            v-if="otherLanguage.supported"
             type="button"
-            class="btn-primary"
-            @click="answer(otherLanguage.text, { addLanguage: otherLanguage.lang })"
+            class="btn-secondary"
+            :disabled="mentor.busy.value || mentor.current.value.turns.length === 0"
+            @click="mentor.startNew()"
           >
-            {{ t("web.translate.addAndTranslate", { lang: languageName(otherLanguage.lang) }) }}
+            {{ t("web.learn.mentor.newTopic") }}
           </button>
-          <a v-if="otherLanguage.supported" href="/settings/" class="inline-flex min-h-11 items-center font-semibold underline">
-            {{ t("web.translate.openSettings") }}
-          </a>
-        </div>
-        <p v-else-if="errorKey" role="alert" class="rounded-xl bg-danger-soft px-4 py-3 text-sm text-danger">
-          {{ t(errorKey, errorParams) }}
-        </p>
+        </template>
+      </section>
+      <div v-else class="min-w-0 xl:col-start-1 xl:row-start-2" aria-live="polite">
 
-        <div v-if="busy && !preview" class="card space-y-4" aria-busy="true">
-          <MonsterLoader compact :label="loaderText || t('web.translate.loading')" />
-        </div>
+        <TranslateSkeleton v-if="busy && !preview" :label="loaderText || t('web.translate.loading')" />
 
         <article v-else-if="card" class="card space-y-5" :aria-busy="pending">
           <header class="space-y-3">
@@ -105,8 +199,8 @@
             <div class="flex min-w-0 flex-1 items-center gap-2.5 text-sm">
               <LangBadge :code="card.sourceLang" />
               <!-- Target languages as an overlapping stack: names live in the tooltip and for screen readers. -->
-              <span class="flex shrink-0 items-center -space-x-1.5" :title="card.targetLangs.map(languageName).join(', ')">
-                <span v-for="code in card.targetLangs" :key="code" class="rounded-full ring-2 ring-surface">
+              <span class="flex shrink-0 items-center -space-x-1.5" :title="stackLangs.map(languageName).join(', ')">
+                <span v-for="code in stackLangs" :key="code" class="rounded-full ring-2 ring-surface">
                   <LangFlag :code="code" />
                   <span class="sr-only">{{ languageName(code) }}</span>
                 </span>
@@ -185,6 +279,27 @@
             </div>
             </div>
             <WordHeadline as="h2" :text="card.sourceUsage?.headword ?? card.original" :emoji="card.emoji" />
+            <!-- Synonyms in the learned language sit right under the word they belong to, above any translation. -->
+            <ul v-if="card.sourceUsage && card.sourceUsage.synonyms.length > 0" class="flex flex-wrap gap-2 text-sm" :aria-label="t('web.translate.synonyms')">
+              <li v-for="synonym in card.sourceUsage.synonyms" :key="synonym" class="stream-in rounded-full bg-primary-soft px-3 py-1 text-primary-soft-fg">
+                {{ synonym }}
+              </li>
+            </ul>
+            <TranslationBlock
+              v-if="leadNative && !explore?.retranslating"
+              :key="`${resultSeq}:${leadNative.lang}`"
+              :translation="leadNative"
+              id-prefix="translate"
+              lead
+              stream
+            />
+            <!-- Everything about the word in its own language sits with the word, above the translations. -->
+            <template v-if="card.sourceUsage">
+              <div class="stream-in space-y-2 rounded-xl bg-surface-muted px-4 py-3 text-sm">
+                <p><StreamText :text="card.sourceUsage.explanation" /></p>
+                <ExampleList :examples="card.sourceUsage.examples" stream />
+              </div>
+            </template>
 
             <div v-if="card.correction" class="rounded-xl bg-warning-soft px-4 py-3 text-sm text-warning-fg">
               <p class="font-semibold">{{ t("web.translate.corrected", { corrected: card.correction.corrected }) }}</p>
@@ -199,28 +314,19 @@
           <MonsterLoader v-if="explore?.retranslating" compact :label="t('web.translate.loading')" />
           <template v-else>
           <TranslationBlock
-            v-if="split.native"
+            v-if="split.native && !leadNative"
             :key="`${resultSeq}:${split.native.lang}`"
             :translation="split.native"
             id-prefix="translate"
+            stream
           />
 
-          <div v-if="card.nativeMeaning || card.sourceUsage" class="space-y-3">
+          <div v-if="card.nativeMeaning" class="space-y-3">
             <p v-if="card.nativeMeaning" class="text-base">
-              <span class="font-semibold text-ink-muted">{{ t("web.translate.nativeMeaning") }}:</span>
-              {{ card.nativeMeaning }}
+              <!-- Vue drops the line break between two elements, so the space after the colon is written out. -->
+              <span class="font-semibold text-ink-muted">{{ t("web.translate.nativeMeaning") }}:</span>{{ " " }}<StreamText :text="card.nativeMeaning" />
             </p>
 
-            <div v-if="card.sourceUsage" class="space-y-2 rounded-xl bg-surface-muted px-4 py-3 text-sm">
-              <h3 class="text-sm font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.translate.aboutSource") }}</h3>
-              <p>{{ card.sourceUsage.explanation }}</p>
-              <ul v-if="card.sourceUsage.synonyms.length > 0" class="flex flex-wrap gap-2">
-                <li v-for="synonym in card.sourceUsage.synonyms" :key="synonym" class="rounded-full bg-primary-soft px-3 py-1 text-primary-soft-fg">
-                  {{ synonym }}
-                </li>
-              </ul>
-              <ExampleList :examples="card.sourceUsage.examples" />
-            </div>
           </div>
 
           <TranslationBlock
@@ -228,43 +334,47 @@
             :key="`${resultSeq}:${translation.lang}`"
             :translation="translation"
             id-prefix="translate"
+            stream
           />
 
           </template>
 
           <!-- The card so far is not checked yet: the rest is still on its way, and Save waits for the final card. -->
-          <MonsterLoader v-if="pending" compact :label="loaderText || t('web.translate.loading')" />
+          <MonsterThinking v-if="pending" :label="loaderText || t('web.translate.loading')" />
           <CardExplore v-else ref="explore" :result="card" @replace="onReplace" />
 
         </article>
+        <TranslateGreeting v-else-if="phone" />
       </div>
 
-      <div class="card xl:col-start-2 xl:row-span-2 xl:row-start-1">
-        <div class="flex items-center justify-between gap-3">
-          <h2 class="min-w-0 truncate text-sm font-bold">{{ t("web.translate.recent") }}</h2>
-          <button v-if="history.length > 0" type="button" class="-mr-2 min-h-11 shrink-0 whitespace-nowrap rounded-full px-2 text-sm font-semibold text-primary hover:text-primary-hover" @click="clearHistory">
-            {{ t("web.translate.clearHistory") }}
-          </button>
-        </div>
-        <p v-if="history.length === 0" class="mt-2 text-sm text-ink-muted">{{ t("web.translate.recentEmpty") }}</p>
-        <ul v-else class="mt-2 divide-y divide-line">
-          <li v-for="item in history" :key="historyKey(item)" class="flex items-center gap-2">
-            <button type="button" class="flex min-h-11 min-w-0 flex-1 items-center py-2 text-left hover:text-primary" @click="openHistory(item)">
-              <span class="min-w-0 truncate font-medium"><span v-if="item.emoji" class="mr-2" aria-hidden="true">{{ item.emoji }}</span>{{ item.original }}</span>
-            </button>
-            <button
-              type="button"
-              class="inline-flex size-11 shrink-0 items-center justify-center text-ink-muted hover:text-danger"
-              :aria-label="t('web.translate.removeFromHistory', { word: item.original })"
-              :title="t('web.translate.removeFromHistory', { word: item.original })"
-              @click="forget(item)"
-            >
-              <Trash2 class="size-4" aria-hidden="true" />
-            </button>
-          </li>
-        </ul>
-      </div>
+      <template v-if="!phone && mentorMode">
+        <MentorTopics
+          v-if="mentor.earlier.value.length > 0"
+          class="card xl:col-start-2 xl:row-span-2 xl:row-start-1"
+          :threads="mentor.earlier.value"
+          @open="mentor.resume"
+        />
+      </template>
+      <TranslateHistory
+        v-else-if="!phone"
+        class="card xl:col-start-2 xl:row-span-2 xl:row-start-1"
+        titled
+        :items="history"
+        :key-of="historyKey"
+        @open="openHistory"
+        @forget="forget"
+        @clear="clearHistory"
+      />
     </div>
+
+    <BottomSheet :open="historyOpen" @close="historyOpen = false">
+      <template #title>{{ mentorMode ? t("web.learn.mentor.history") : t("web.translate.recent") }}</template>
+      <template v-if="mentorMode">
+        <MentorTopics v-if="mentor.earlier.value.length > 0" :threads="mentor.earlier.value" @open="openTopicFromSheet" />
+        <p v-else class="text-base text-ink-muted">{{ t("web.learn.mentor.intro") }}</p>
+      </template>
+      <TranslateHistory v-else :items="history" :key-of="historyKey" @open="openFromSheet" @forget="forget" @clear="clearHistory" />
+    </BottomSheet>
   </section>
 </template>
 
@@ -272,7 +382,7 @@
 import WordHeadline from "./word/WordHeadline.vue";
 import LangBadge from "./LangBadge.vue";
 import LangFlag from "./LangFlag.vue";
-import { ArrowRight, BookmarkPlus, Sparkles, Mic, Square, Trash2, TriangleAlert } from "lucide-vue-next";
+import { ArrowRight, BookmarkPlus, GraduationCap, History, Sparkles, Mic, Square, Trash2, TriangleAlert } from "lucide-vue-next";
 import {
   DropdownMenuContent,
   DropdownMenuItem,
@@ -281,7 +391,9 @@ import {
   DropdownMenuRoot,
   DropdownMenuTrigger,
 } from "reka-ui";
-import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from "vue";
+import { usePhoneLayout } from "../lib/mobile-dock";
+import { hapticTick } from "../lib/haptics";
 import { useLoaderText } from "../lib/use-loader-text";
 import { captureEarlyInput, earlyFocused, earlyText } from "../lib/early-input";
 import { toast } from "../lib/toast";
@@ -289,23 +401,66 @@ import { useMainInput } from "../lib/use-main-input";
 import { ApiError, api } from "../lib/api";
 import { t } from "../lib/i18n";
 import { splitNative } from "../lib/card-order";
-import { languageName, settings } from "../lib/settings-store";
+import { languageName, saveSettings, settings } from "../lib/settings-store";
+import { MAX_LEARNING_LANGS } from "../lib/learning-langs";
 import type { Clarification, ClarificationOption, Dictionary, TranslateAnswer, TranslateResult } from "../lib/types";
 import { startWavRecording, type WavRecording } from "../lib/wav-recorder";
 import { MENU } from "../lib/action-bar";
 import ActionMenuItem from "./ActionMenuItem.vue";
 import CardExplore from "./CardExplore.vue";
 import ComposerCard from "./ComposerCard.vue";
+import VoiceWave from "./VoiceWave.vue";
+import StreamText from "./StreamText.vue";
+import TranslateSkeleton from "./TranslateSkeleton.vue";
+import MonsterThinking from "./MonsterThinking.vue";
 import ExampleList from "./ExampleList.vue";
 import LimitNotice from "./LimitNotice.vue";
 import MonsterLoader from "./MonsterLoader.vue";
+import TranslateGreeting from "./TranslateGreeting.vue";
 import TranslationBlock from "./TranslationBlock.vue";
+import TranslateHistory from "./TranslateHistory.vue";
+import BottomSheet from "./BottomSheet.vue";
+import MentorNotice from "./MentorNotice.vue";
+import MentorTopics from "./MentorTopics.vue";
+import MentorTurns from "./MentorTurns.vue";
+import type { MentorThread } from "../lib/mentor-threads";
+import { MAX_MENTOR_QUESTION, useMentorChat } from "../lib/use-mentor-chat";
 
 const MAX_LENGTH = 500;
 const HISTORY_SIZE = 10;
 const HISTORY_KEY = "polyglot.translate.history";
+const MODE_KEY = "polyglot.translate.mode";
 
 const composer = ref<InstanceType<typeof ComposerCard> | null>(null);
+const mentor = useMentorChat();
+const mentorPane = ref<HTMLElement | null>(null);
+const mentorMode = ref(loadMentorMode());
+
+// The learner's last choice comes back with the page; the switch is in plain sight to undo it.
+function loadMentorMode(): boolean {
+  try {
+    return localStorage.getItem(MODE_KEY) === "mentor";
+  } catch {
+    return false;
+  }
+}
+
+function setMentorMode(on: boolean): void {
+  mentorMode.value = on;
+  try {
+    localStorage.setItem(MODE_KEY, on ? "mentor" : "translate");
+  } catch {
+    // Storage off: the mode lasts for this page only.
+  }
+  focusInput();
+}
+
+function openTopicFromSheet(thread: MentorThread): void {
+  historyOpen.value = false;
+  mentor.resume(thread);
+}
+const historyOpen = ref(false);
+const phone = usePhoneLayout();
 // Text typed into the loading page's early input carries over, caret and all.
 captureEarlyInput();
 const text = ref(earlyText.value);
@@ -320,7 +475,10 @@ const card = computed(() => (busy.value ? preview.value : result.value));
 const errorKey = ref<string | null>(null);
 const errorParams = ref<Record<string, string | number>>({});
 const languageQuestion = ref<{ text: string; kind: "ambiguous" | "unrecognized"; languages: string[] } | null>(null);
-const otherLanguage = ref<{ lang: string; supported: boolean; text: string } | null>(null);
+const otherLanguage = ref<{ lang: string; supported: boolean; text: string; languages: string[] } | null>(null);
+// The language of the card just translated once: the offer to keep it stays until answered or a new word.
+const onceLang = ref<string | null>(null);
+const keepPending = ref(false);
 const clarification = ref<{ text: string; view: Clarification } | null>(null);
 const languageChoices = computed(() => {
   const view = clarification.value?.view;
@@ -339,6 +497,9 @@ const saveState = ref<"unsaved" | "saved" | "removed">("unsaved");
 const savePending = ref(false);
 
 const split = computed(() => splitNative(card.value?.translations ?? [], settings.value?.nativeLang));
+// From a language being learned, the native translation is the answer: it goes straight under the word, unlabelled.
+const leadNative = computed(() => (card.value && split.value.native && card.value.sourceLang !== split.value.native.lang ? split.value.native : null));
+const stackLangs = computed(() => (card.value?.targetLangs ?? []).filter((code) => code !== leadNative.value?.lang));
 const saveControls = computed(
   () => !pending.value && !!result.value && (result.value.savedEntryId != null || !!result.value.saveToken),
 );
@@ -388,10 +549,12 @@ function clearHistory(): void {
   persistHistory();
 }
 
-function show(entry: TranslateResult): void {
+// `sameCard`: the final version of the card the preview already showed. Keeping its keys lets the blocks
+// carry on typing where they are; a new key remounted every block and flashed the whole card.
+function show(entry: TranslateResult, sameCard = false): void {
   result.value = entry;
   saveState.value = entry.savedEntryId != null ? "saved" : "unsaved";
-  resultSeq.value += 1;
+  if (!sameCard) resultSeq.value += 1;
 }
 
 function onReplace(fresh: TranslateResult): void {
@@ -414,13 +577,29 @@ function resetNotices(): void {
   clarification.value = null;
   languageQuestion.value = null;
   otherLanguage.value = null;
+  onceLang.value = null;
   limit.value = null;
+}
+
+// A new card always opens at its first line, like a fresh answer in a chat app; the phone's text box stays
+// unfocused after a history pick, or Android's keyboard would cover the word straight away.
+function scrollToTop(): void {
+  void nextTick(() => {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+  });
 }
 
 function openHistory(entry: TranslateResult): void {
   resetNotices();
   show(entry);
-  focusInput();
+  scrollToTop();
+  if (!phone.value) focusInput();
+}
+
+function openFromSheet(entry: TranslateResult): void {
+  historyOpen.value = false;
+  openHistory(entry);
 }
 
 // Unsaved and saved must read apart at a glance (two teal tints did not): a filled Save, then a red Remove.
@@ -495,27 +674,33 @@ const VOICE_ERRORS: Record<string, string> = {
   voice_too_long: "web.voice.tooLong",
 };
 
-// Same path as the bot's voice message: the transcript goes through the ordinary translation.
-async function toggleRecording(): Promise<void> {
-  if (!recording.value) {
-    resetNotices();
-    try {
-      recorder = await startWavRecording();
-      recording.value = true;
-    } catch {
-      errorKey.value = "web.voice.denied";
-    }
-    return;
+function voiceLevel(): number {
+  return recorder?.level() ?? 0;
+}
+
+async function startRecording(): Promise<void> {
+  resetNotices();
+  try {
+    recorder = await startWavRecording();
+    recording.value = true;
+  } catch {
+    errorKey.value = "web.voice.denied";
   }
+}
+
+// Same path as the bot's voice message: the transcript goes through the ordinary translation.
+// Without `sendNow` the words only land in the box, so the learner can fix a misheard word first.
+async function finishRecording(sendNow: boolean): Promise<void> {
   const active = recorder;
+  if (!active) return;
   recorder = null;
   recording.value = false;
-  if (!active) return;
   transcribing.value = true;
   try {
     const { text: spoken } = await api.transcribe(await active.stop());
     text.value = spoken;
-    await answer(spoken, {});
+    if (sendNow) await send(spoken);
+    else focusInput();
   } catch (error) {
     if (error instanceof ApiError && error.code === "voice_off") voiceAvailable.value = false;
     errorKey.value = (error instanceof ApiError && VOICE_ERRORS[error.code ?? ""]) || "web.voice.failed";
@@ -527,8 +712,48 @@ async function toggleRecording(): Promise<void> {
 
 onBeforeUnmount(() => recorder?.cancel());
 
+async function translateOnce(value: string, lang: string): Promise<void> {
+  await answer(value, { sourceLang: lang, once: true });
+  if (result.value?.sourceLang === lang) onceLang.value = lang;
+}
+
+async function keepLanguage(lang: string): Promise<void> {
+  const current = settings.value;
+  if (!current || keepPending.value) return;
+  const learning = current.learningLangs.filter((code) => code !== current.nativeLang);
+  if (learning.length >= MAX_LEARNING_LANGS) {
+    onceLang.value = null;
+    errorKey.value = "web.translate.maxLanguages";
+    errorParams.value = { max: MAX_LEARNING_LANGS };
+    return;
+  }
+  keepPending.value = true;
+  try {
+    await saveSettings({ learningLangs: [...learning, lang] });
+    onceLang.value = null;
+    toast(t("web.translate.languageKept", { lang: languageName(lang) }));
+  } catch {
+    errorKey.value = "web.common.error";
+    onceLang.value = null;
+  } finally {
+    keepPending.value = false;
+  }
+}
+
 async function submit(): Promise<void> {
-  await answer(text.value.trim(), {});
+  await send(text.value.trim());
+}
+
+async function send(value: string): Promise<void> {
+  if (!mentorMode.value) {
+    await answer(value, {});
+    return;
+  }
+  if (!(await mentor.ask(value))) return;
+  text.value = "";
+  await nextTick();
+  mentorPane.value?.lastElementChild?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  focusInput();
 }
 
 /** Mirrors the bot's clarify buttons: each answer re-runs the translation with what the user chose. */
@@ -551,12 +776,17 @@ async function answer(value: string, choice: TranslateAnswer): Promise<void> {
   busy.value = true;
   preview.value = null;
   resetNotices();
+  // A new word starts with fresh blocks, so no state (an open "more", a copied tick) carries over.
+  resultSeq.value += 1;
   try {
     const fresh = await api.translateProgressive(value, choice, (partial) => {
       preview.value = partial;
+      hapticTick();
     });
-    show(fresh);
+    show(fresh, true);
+    hapticTick();
     remember(fresh);
+    scrollToTop();
     // Only on success: a failed or clarifying answer keeps the text so the user can retry or edit it.
     text.value = "";
   } catch (error) {
@@ -570,7 +800,12 @@ async function answer(value: string, choice: TranslateAnswer): Promise<void> {
         languages: error.body.languages,
       };
     } else if (error instanceof ApiError && error.code === "add_language" && error.body.lang) {
-      otherLanguage.value = { lang: error.body.lang, supported: error.body.supported === true, text: error.body.text ?? value };
+      otherLanguage.value = {
+        lang: error.body.lang,
+        supported: error.body.supported === true,
+        text: error.body.text ?? value,
+        languages: error.body.languages ?? [],
+      };
     } else if (error instanceof ApiError && error.code === "max_languages") {
       errorKey.value = "web.translate.maxLanguages";
       errorParams.value = { max: error.body.limit ?? 0 };
@@ -613,6 +848,7 @@ onMounted(() => {
   }
   const handed = new URLSearchParams(window.location.search).get("q")?.trim();
   if (handed) {
+    mentorMode.value = false;
     text.value = handed;
     void submit();
   }

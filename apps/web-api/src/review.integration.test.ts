@@ -52,6 +52,37 @@ describe("web review", () => {
     expect(log.map((r) => r.session_type)).toEqual(["web"]);
   });
 
+  it("hides every synonym on the card, answer side included, while the synonyms setting is off", async () => {
+    const web = await createWebHarness();
+    const telegramId = uniqueTelegramId();
+    const userId = await arrangeOnboardedTranslator(telegramId);
+    const entry = await vocabularyRepository.create(userId, {
+      original: "pes",
+      sourceLangId: getLang("cs")!.id,
+      inputType: "word",
+      unverified: false,
+      sourceUsage: { explanation: "Domácí zvíře.", synonyms: [{ text: "psík" }], examples: [] },
+      translations: [
+        { targetLangId: getLang("en")!.id, text: "dog", details: { synonyms: [{ text: "hound" }], examples: [] } },
+      ],
+    });
+    const { cookie } = await web.login(telegramId);
+    const card = async () =>
+      ((await web.call(cookie, "GET", `/api/review/card/${entry.id}`)).body as { card: unknown }).card;
+
+    await web.call(cookie, "PATCH", "/api/settings/card", { field: "synonyms", enabled: false });
+    expect(await card()).toMatchObject({
+      front: { synonyms: [], available: { synonyms: true } },
+      detail: { sourceUsage: { synonyms: [] }, details: [{ lang: "en", synonyms: [] }] },
+    });
+
+    await web.call(cookie, "PATCH", "/api/settings/card", { field: "synonyms", enabled: true });
+    expect(await card()).toMatchObject({
+      front: { synonyms: ["psík"], available: { synonyms: true } },
+      detail: { sourceUsage: { synonyms: ["psík"] }, details: [{ lang: "en", synonyms: ["hound"] }] },
+    });
+  });
+
   it("answers 404 for another user's entry", async () => {
     const web = await createWebHarness();
     const owner = await arrangeOnboardedTranslator(uniqueTelegramId());

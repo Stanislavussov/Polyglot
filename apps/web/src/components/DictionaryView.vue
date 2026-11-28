@@ -2,61 +2,64 @@
   <section class="min-w-0">
     <h1 class="page-title">{{ t("web.dictionary.title") }}</h1>
 
-    <DictionarySwitcher
-      v-if="dictionaries.length > 0"
-      :dictionaries="dictionaries"
-      :current-id="data?.dictionary.id ?? dictionaryId"
-      @select="selectDictionary"
-      @changed="onDictionariesChanged"
-    />
-
-    <div ref="toolbar" class="mt-3 flex scroll-mt-20 flex-wrap gap-3 lg:flex-nowrap md:scroll-mt-6">
-      <label class="sr-only" for="dictionary-search">{{ t("web.dictionary.search") }}</label>
-      <div class="relative min-w-0 basis-full lg:flex-1 lg:basis-0">
-        <Search class="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-ink-muted" aria-hidden="true" />
-        <input
-          id="dictionary-search"
-          ref="searchInput"
-          v-model="query"
-          type="search"
-          class="field min-h-12 text-ellipsis pl-10 pr-3 [@media(hover:hover)_and_(pointer:fine)]:pr-10 focus:border-primary focus:outline-none focus:ring-[3px] focus:ring-ring"
-          :placeholder="t(isDesktop ? 'web.dictionary.searchHint' : 'web.dictionary.search')"
+    <!-- Phones: the list menu and the filter and sort icons share one row, so the search below gets the full width. -->
+    <div ref="toolbar" class="scroll-mt-20 md:scroll-mt-6">
+      <div class="mt-4 flex items-center gap-2">
+        <DictionarySwitcher
+          v-if="dictionaries.length > 0"
+          class="min-w-0 flex-1"
+          :dictionaries="dictionaries"
+          :current-id="data?.dictionary.id ?? dictionaryId"
+          @select="selectDictionary"
+          @changed="onDictionariesChanged"
         />
-        <kbd
-          v-if="query === ''"
-          class="pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 rounded-md border border-line bg-surface-muted px-1.5 font-sans text-sm text-ink-muted [@media(hover:hover)_and_(pointer:fine)]:block"
-          aria-hidden="true"
-        >/</kbd>
-      </div>
-      <!-- Phones: the search gets the full row, filter and sort sit in their own row under it. -->
-      <div class="flex w-full gap-3 lg:w-auto lg:shrink-0">
-      <PopoverRoot v-model:open="filtersOpen">
-        <PopoverTrigger class="btn-secondary relative flex-1 gap-2 px-3 sm:px-4 lg:flex-none" :aria-label="filterButtonLabel">
-          <SlidersHorizontal class="size-5 sm:size-4" aria-hidden="true" /><span>{{ t("web.dictionary.filters") }}</span>
-          <span
-            v-if="activeCount > 0"
-            class="grid min-w-5 place-items-center rounded-full bg-primary px-1.5 text-sm font-semibold text-primary-fg"
-            aria-hidden="true"
-          >{{ activeCount }}</span>
-        </PopoverTrigger>
-        <PopoverPortal v-if="isDesktop">
-          <PopoverContent
-            align="end"
-            :side-offset="8"
-            class="z-30 w-80 rounded-2xl border border-line bg-surface p-4 shadow-xl"
+        <div v-else class="flex-1" />
+        <PopoverRoot v-model:open="filtersOpen">
+          <PopoverTrigger
+            class="btn-secondary relative min-h-12 w-12 shrink-0 px-0"
+            :aria-label="filterButtonLabel"
+            :title="filterButtonLabel"
           >
-            <DictionaryFilters :model-value="filters" :active-count="activeCount" @update="setFilter" @reset="resetFilters" />
-          </PopoverContent>
-        </PopoverPortal>
-      </PopoverRoot>
-      <button
-        type="button"
-        class="btn-secondary flex-1 gap-2 px-3 sm:px-4 lg:flex-none"
-        :aria-label="`${t('web.dictionary.sort')}: ${t(currentSort.label)}`"
-        @click="toggleSort"
-      >
-        <component :is="currentSort.icon" class="size-5 sm:size-4" aria-hidden="true" /><span>{{ t(currentSort.label) }}</span>
-      </button>
+            <SlidersHorizontal class="size-5" aria-hidden="true" />
+            <span
+              v-if="activeCount > 0"
+              class="absolute -right-1.5 -top-1.5 grid min-w-5 place-items-center rounded-full bg-primary px-1.5 text-sm font-semibold text-primary-fg"
+              aria-hidden="true"
+            >{{ activeCount }}</span>
+          </PopoverTrigger>
+          <PopoverPortal v-if="isDesktop">
+            <PopoverContent
+              align="end"
+              :side-offset="8"
+              class="z-30 w-80 rounded-2xl border border-line bg-surface p-4 shadow-xl"
+            >
+              <DictionaryFilters :model-value="filters" :active-count="activeCount" @update="setFilter" @reset="resetFilters" />
+            </PopoverContent>
+          </PopoverPortal>
+        </PopoverRoot>
+        <button
+          type="button"
+          class="btn-secondary min-h-12 w-12 shrink-0 px-0"
+          :aria-label="`${t('web.dictionary.sort')}: ${t(currentSort.label)}`"
+          :title="`${t('web.dictionary.sort')}: ${t(currentSort.label)}`"
+          @click="toggleSort"
+        >
+          <component :is="currentSort.icon" class="size-5" aria-hidden="true" />
+        </button>
+      </div>
+      <div class="mt-3">
+        <label class="sr-only" for="dictionary-search">{{ t("web.dictionary.search") }}</label>
+        <div class="relative min-w-0 flex-1">
+          <Search class="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-ink-muted" aria-hidden="true" />
+          <input
+            id="dictionary-search"
+            ref="searchInput"
+            v-model="query"
+            type="search"
+            class="field min-h-12 text-ellipsis pl-10 pr-3 focus:border-primary focus:outline-none focus:ring-[3px] focus:ring-ring"
+            :placeholder="t(isDesktop ? 'web.dictionary.searchHint' : 'web.dictionary.search')"
+          />
+        </div>
       </div>
     </div>
 
@@ -64,26 +67,6 @@
       <template #title>{{ t("web.dictionary.filters") }}</template>
       <DictionaryFilters :model-value="filters" :active-count="activeCount" @update="setFilter" @reset="resetFilters" />
     </BottomSheet>
-
-    <div
-      role="group"
-      :aria-label="t('web.dictionary.filterLang')"
-      class="-mx-1 mt-2 flex gap-3 overflow-x-auto px-1 py-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-    >
-      <button
-        v-for="option in langOptions"
-        :key="option.code"
-        type="button"
-        :aria-pressed="filters.lang === option.code"
-        :class="[
-          'inline-flex min-h-10 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 text-sm font-medium transition-colors',
-          filters.lang === option.code ? 'border-primary bg-primary text-primary-fg' : 'border-line bg-surface text-ink hover:bg-surface-muted',
-        ]"
-        @click="setFilter('lang', option.code)"
-      >
-        <LangFlag v-if="option.flag" :code="option.code" />{{ option.label }}
-      </button>
-    </div>
 
     <ul v-if="activeChips.length > 0" class="mt-3 flex flex-wrap gap-3" :aria-label="t('web.dictionary.activeFilters')">
       <li v-for="chip in activeChips" :key="chip.key">
@@ -144,7 +127,6 @@
 </template>
 
 <script setup lang="ts">
-import LangFlag from "./LangFlag.vue";
 import MonsterLoader from "./MonsterLoader.vue";
 import { ArrowDownAZ, ChevronLeft, ChevronRight, Clock, Search, SlidersHorizontal, X } from "lucide-vue-next";
 import { PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from "reka-ui";
@@ -152,7 +134,6 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue"
 import { ApiError, api } from "../lib/api";
 import { t } from "../lib/i18n";
 import { useMainInput } from "../lib/use-main-input";
-import { languageFlag, languageName, settings } from "../lib/settings-store";
 import type { Dictionary, DictionaryFilterState, DictionaryItem, DictionaryPage, DictionarySort } from "../lib/types";
 import BottomSheet from "./BottomSheet.vue";
 import DictionaryFilters from "./DictionaryFilters.vue";
@@ -191,7 +172,6 @@ function toggleSort(): void {
 }
 const page = ref(Math.max(1, Number.parseInt(initial.get("page") ?? "1", 10) || 1));
 const filters = ref<DictionaryFilterState>({
-  lang: initial.get("lang") ?? "",
   type: pick(initial, "type", TYPES),
   difficulty: pick(initial, "difficulty", DIFFICULTIES),
   review: pick(initial, "review", REVIEWS),
@@ -215,15 +195,6 @@ const onViewportChange = (event: MediaQueryListEvent): void => {
 };
 desktopQuery.addEventListener("change", onViewportChange);
 
-const langOptions = computed(() => {
-  const current = settings.value;
-  const codes = current ? [...new Set([current.nativeLang, ...current.learningLangs])] : [];
-  return [
-    { code: "", flag: "", label: t("web.dictionary.filterAll") },
-    ...codes.map((code) => ({ code, flag: languageFlag(code), label: languageName(code) })),
-  ];
-});
-
 const LABELS = {
   type: { word: "web.dictionary.typeWord", phrase: "web.dictionary.typePhrase", sentence: "web.dictionary.typeSentence" },
   difficulty: { hard: "web.dictionary.difficulty.hard", normal: "web.dictionary.difficulty.normal", easy: "web.dictionary.difficulty.easy" },
@@ -239,7 +210,7 @@ const activeChips = computed(() =>
   }),
 );
 const activeCount = computed(() => activeChips.value.length);
-const filtersActive = computed(() => activeCount.value > 0 || filters.value.lang !== "");
+const filtersActive = computed(() => activeCount.value > 0);
 const filterButtonLabel = computed(() =>
   activeCount.value > 0 ? t("web.dictionary.filtersActive", { count: activeCount.value }) : t("web.dictionary.filters"),
 );
@@ -259,7 +230,7 @@ function setFilter(key: keyof DictionaryFilterState, value: string): void {
 }
 
 function resetFilters(): void {
-  filters.value = { lang: "", type: "", difficulty: "", review: "" };
+  filters.value = { type: "", difficulty: "", review: "" };
   restart();
 }
 
@@ -276,7 +247,7 @@ function syncUrl(): void {
   if (sort.value !== "recent") params.set("sort", sort.value);
   if (page.value > 1) params.set("page", String(page.value));
   if (dictionaryId.value !== null) params.set("dict", String(dictionaryId.value));
-  for (const key of ["lang", "type", "difficulty", "review"] as const) {
+  for (const key of ["type", "difficulty", "review"] as const) {
     if (filters.value[key]) params.set(key, filters.value[key]);
   }
   const search = params.toString();

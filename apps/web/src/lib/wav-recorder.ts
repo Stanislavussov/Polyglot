@@ -5,6 +5,16 @@ const TARGET_RATE = 16_000;
 export interface WavRecording {
   stop(): Promise<Blob>;
   cancel(): void;
+  /** How loud the latest slice was, 0 (silence) to 1, for the live wave. */
+  level(): number;
+}
+
+// Speech sits around 0.02–0.2 RMS; the square root lifts quiet voices so the wave still moves.
+export function loudness(samples: Float32Array): number {
+  if (samples.length === 0) return 0;
+  let sum = 0;
+  for (const sample of samples) sum += sample * sample;
+  return Math.min(1, Math.sqrt(Math.sqrt(sum / samples.length)) * 1.6);
 }
 
 function downsample(chunks: Float32Array[], from: number): Int16Array {
@@ -52,7 +62,12 @@ export async function startWavRecording(): Promise<WavRecording> {
   // ScriptProcessorNode is deprecated but needs no separate worklet module, which the CSP would have to allow.
   const processor = context.createScriptProcessor(4096, 1, 1);
   const chunks: Float32Array[] = [];
-  processor.onaudioprocess = (event) => chunks.push(new Float32Array(event.inputBuffer.getChannelData(0)));
+  let latest = 0;
+  processor.onaudioprocess = (event) => {
+    const slice = new Float32Array(event.inputBuffer.getChannelData(0));
+    chunks.push(slice);
+    latest = loudness(slice);
+  };
   source.connect(processor);
   processor.connect(context.destination);
 
@@ -69,5 +84,6 @@ export async function startWavRecording(): Promise<WavRecording> {
       return encodeWav(downsample(chunks, context.sampleRate));
     },
     cancel: release,
+    level: () => latest,
   };
 }

@@ -80,3 +80,42 @@
 - Page titles on the website lost their bright underline — a pale little monster now sits next to them instead, and the learning pages dropped their emoji icons for a calmer look.
 - If you haven't opened the bot for a while, its occasional word now arrives in the morning — never in the middle of the night.
 - Twice as many curated words and phrases in every language, so the word of the day takes much longer to come back around.
+- Typed a word the website took for a language it doesn't support yet? It now names that language properly with its flag, and lets you pick one of your own languages to translate from in one tap.
+- On your phone the text box and the quick buttons now sit together on their own panel at the bottom, scrolling stays smooth, the buttons are simple icons, and if something goes wrong the message shows right above the box instead of far up the page.
+- On your phone the Review page title and the number of words to review now sit neatly one under the other.
+- When you translate a word from a language you are learning, its synonyms and examples now sit right under the word itself, before the translation.
+- Speaking a word now shows a live wave while you talk and while we listen back; stop to drop the words into the box and check them, or tap send to translate right away.
+- Opening a word from your dictionary no longer jumps halfway first, and every dialog now dims the page behind it instead of washing it out.
+- A translation now types itself out as it arrives instead of jumping onto the screen, and while you wait a card-shaped preview shows where everything will land, with a little monster dancing beside a wait message in the languages you learn.
+- Speaking a single word or a short phrase no longer adds a full stop at the end; sentences keep their punctuation.
+- A translation now gently fades in piece by piece instead of typing itself out letter by letter, and on your phone a word picked from your history scrolls up into view.
+- On your phone, you now feel a light tap as each part of a translation arrives.
+- The dictionary got simpler: search, filters and sorting now fit in one compact row, and the row of language buttons is gone.
+- After a translation the page jumps back to the top, so the answer always starts in view, and on your phone your recent words now wait behind a button next to the title.
+- When you translate from a language you are learning, the translation into your own language now sits right under the word, with no extra label to look for.
+- On your phone, typing works calmly again: the text box and the cursor stay in place instead of jumping up and down.
+- Word picks work again on your phone: pick a language once at the top, tap a topic and the words appear right away, each on the same card as a translation.
+- The translate page now greets you with the monster and a new question each visit, without a heading in the way, and on a phone it no longer jumps to the keyboard when you open it.
+- Closed the progress hint at the top? It now stays hidden for a month, with no leftover icon — bring it back from the Progress page.
+- A word card opened on your phone closes with a swipe down again, even after you have scrolled through it.
+- On a phone the empty translate page no longer scrolls, the monster stays in view in the middle of the screen when the keyboard opens, and the box's hint fits on one line.
+- On your phone the text box now sits at the top of the page, as in DeepL, so the keyboard never covers it.
+- On your phone the text box is now roomy, like in DeepL: you see several lines of what you type, how many characters are left, and the microphone and send buttons underneath.
+- The website has a fresh look: its colours moved from green to a calm sea blue, and on your phone the menu button is now on the right, like in DeepL.
+- On your phone the menu no longer repeats the Polyglot Monster name: it stays only at the top of the page.
+- In a translation, the word “Meaning:” no longer runs into its explanation.
+- In your dictionary the “Start learning” button is gone from new words: they simply show when they will come up for review.
+- The dictionary is tidier on your phone: the search box takes the whole width, and switching, creating and renaming dictionaries now lives in one menu next to the filter and sort buttons.
+- On your phone the Translate, Dictionary, Review and Mentor buttons at the bottom now always stay on screen.
+- In Mentor the question box now sits under the conversation, like in a regular chat.
+- On your phone pop-up windows are now a little taller, so more text fits at once.
+- Synonyms in the language you're learning now appear right under the word itself — in translations, the dictionary and reviews.
+- In Review, switching off Synonyms in the card settings now hides them completely — even after you open the answer.
+- In Review, ticking hint, synonyms or example in the card settings no longer makes the checkboxes blink — they switch instantly.
+- On a computer, the greeting on the translate page now lines up with the text box instead of floating in the middle.
+- Examples now show just the sentence and its translation, without the extra note underneath.
+- The sound button now stays right after the word, even when a phrase wraps onto two lines.
+- When you review a word in your own language, the translation now shows right away, before you rate how well you remembered it.
+- When a word is in a language you don't study, you can now translate it just once — and then decide whether to keep that language for good.
+- The sound button now always sits on the same line as the word — a long word gets a touch smaller instead of pushing the button down.
+- The translate page now has a Mentor switch: flip it and the same box asks the mentor about grammar and usage instead of translating.

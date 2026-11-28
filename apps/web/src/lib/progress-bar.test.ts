@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { isSnoozed, PROGRESS_BAR_KEY, PROGRESS_BAR_SNOOZE_MS, readSnoozed, restore, snooze } from "./progress-bar";
+import {
+  barText,
+  isSnoozed,
+  PROGRESS_BAR_KEY,
+  PROGRESS_BAR_SNOOZE_MS,
+  readSnoozed,
+  restore,
+  snooze,
+} from "./progress-bar";
 
 const NOW = 1_800_000_000_000;
 
@@ -25,7 +33,7 @@ const throwing = {
 };
 
 describe("isSnoozed", () => {
-  it("hides the bar for three days after a dismissal, then shows it again", () => {
+  it("hides the bar for a month after a dismissal, then shows it again", () => {
     expect(isSnoozed(String(NOW), NOW)).toBe(true);
     expect(isSnoozed(String(NOW - PROGRESS_BAR_SNOOZE_MS + 1), NOW)).toBe(true);
     expect(isSnoozed(String(NOW - PROGRESS_BAR_SNOOZE_MS), NOW)).toBe(false);
@@ -53,5 +61,12 @@ describe("snooze and restore", () => {
     expect(() => snooze(throwing, NOW)).not.toThrow();
     expect(() => restore(throwing)).not.toThrow();
     expect(readSnoozed(null, NOW)).toBe(false);
+  });
+});
+
+describe("barText", () => {
+  it("drops the leading pointer emoji and keeps the rest", () => {
+    expect(barText("👉 Пара карточек сегодня держит ваш ритм.")).toBe("Пара карточек сегодня держит ваш ритм.");
+    expect(barText("Неделя в ритме: 3/5")).toBe("Неделя в ритме: 3/5");
   });
 });

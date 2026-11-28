@@ -1,6 +1,7 @@
 <template>
   <section>
-    <div class="flex items-baseline justify-between gap-3">
+    <!-- One column on phones: side by side, the big title and the count both wrapped into ragged halves. -->
+    <div class="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-3">
       <h1 class="page-title">{{ t("web.review.title") }}</h1>
       <p v-if="state" class="text-sm text-ink-muted">{{ t("web.review.due", { count: state.dueCount }) }}</p>
     </div>
@@ -55,14 +56,14 @@
                   :key="field"
                   :class="[
                     'flex min-h-12 items-center gap-3 rounded-xl px-3 py-2 text-base',
-                    frontHas(field) ? 'cursor-pointer hover:bg-surface-muted' : 'cursor-not-allowed opacity-50',
+                    frontHas(field) ? 'cursor-pointer [@media(hover:hover)]:hover:bg-surface-muted' : 'cursor-not-allowed opacity-50',
                   ]"
                 >
                   <input
                     type="checkbox"
                     class="size-5 shrink-0 accent-primary"
                     :checked="frontFields[field] && frontHas(field)"
-                    :disabled="frontBusy || !frontHas(field)"
+                    :disabled="!frontHas(field)"
                     @change="setFrontField(field, ($event.target as HTMLInputElement).checked)"
                   />
                   <span class="flex min-w-0 flex-1 flex-col">
@@ -86,7 +87,8 @@
       <p v-if="notice" role="status" class="rounded-xl bg-warning-soft px-4 py-3 text-sm text-warning-fg">{{ t(notice) }}</p>
 
       <template v-if="revealed">
-        <TranslationBlock v-for="translation in split.native ? [split.native] : []" :key="translation.lang" :translation="translation" id-prefix="review">
+        <!-- The answer comes first, so the learner checks themselves before rating. -->
+        <TranslationBlock v-for="translation in split.answer" :key="translation.lang" :translation="translation" id-prefix="review">
           <template #speak>
             <SpeakButton
               v-if="speaks(translation.lang)"
@@ -123,15 +125,10 @@
         <div v-if="card.detail.sourceUsage" class="space-y-2 rounded-xl bg-surface-muted px-4 py-3 text-base">
           <h3 class="text-sm font-semibold uppercase tracking-wide text-ink-muted">{{ t("web.translate.aboutSource") }}</h3>
           <p>{{ card.detail.sourceUsage.explanation }}</p>
-          <ul v-if="card.front.synonyms.length === 0 && card.detail.sourceUsage.synonyms.length > 0" class="flex flex-wrap gap-2">
-            <li v-for="synonym in card.detail.sourceUsage.synonyms" :key="synonym" class="rounded-full bg-primary-soft px-3 py-1 text-primary-soft-fg">
-              {{ synonym }}
-            </li>
-          </ul>
           <ExampleList :examples="card.detail.sourceUsage.examples" />
         </div>
 
-        <TranslationBlock v-for="translation in split.others" :key="translation.lang" :translation="translation" id-prefix="review">
+        <TranslationBlock v-for="translation in split.rest" :key="translation.lang" :translation="translation" id-prefix="review">
           <template #speak>
             <SpeakButton
               v-if="speaks(translation.lang)"
@@ -170,7 +167,7 @@ import { PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from "reka
 import { computed, onMounted, ref } from "vue";
 import { ApiError, api } from "../lib/api";
 import { t } from "../lib/i18n";
-import { splitNative } from "../lib/card-order";
+import { splitAnswer } from "../lib/card-order";
 import { languageName, settings } from "../lib/settings-store";
 import type { CardFrontFields, Rating, ReviewState } from "../lib/types";
 import ExampleList from "./ExampleList.vue";
@@ -187,7 +184,9 @@ const ratings = [
 
 const state = ref<ReviewState | null>(null);
 const card = computed(() => state.value?.card ?? null);
-const split = computed(() => splitNative(card.value?.detail.details ?? [], settings.value?.nativeLang));
+const split = computed(() =>
+  splitAnswer(card.value?.detail.details ?? [], settings.value?.nativeLang, settings.value?.learningLangs),
+);
 // Bumped per card so the next card opens folded, with fresh speaker buttons.
 const cardSeq = ref(0);
 const revealed = ref(false);
@@ -202,7 +201,8 @@ const removed = ref<{ entryId: number; word: string } | null>(null);
 const frontFieldKeys = ["hint", "synonyms", "example"] as const satisfies readonly (keyof CardFrontFields)[];
 const frontOpen = ref(false);
 const frontFields = ref<CardFrontFields | null>(null);
-const frontBusy = ref(false);
+// Toggles save one after another, so a quick double change still lands in the order it was made.
+let frontSaves: Promise<void> = Promise.resolve();
 
 // An aid this word does not have would change nothing on the card, so it is disabled rather than looking broken.
 function frontHas(field: keyof CardFrontFields): boolean {
@@ -220,20 +220,28 @@ async function setFrontPanel(open: boolean): Promise<void> {
   }
 }
 
-async function setFrontField(field: keyof CardFrontFields, enabled: boolean): Promise<void> {
-  const current = card.value;
-  if (!current || frontBusy.value) return;
-  frontBusy.value = true;
+// Optimistic: the box flips at once and stays enabled. Disabling it for the round-trip made every
+// checkbox blink through the browser's disabled style (black on iOS) on each tap.
+function setFrontField(field: keyof CardFrontFields, enabled: boolean): void {
+  const fields = frontFields.value;
+  if (!card.value || !fields) return;
+  frontFields.value = { ...fields, [field]: enabled };
+  frontSaves = frontSaves.then(() => saveFrontField(field, enabled));
+}
+
+async function saveFrontField(field: keyof CardFrontFields, enabled: boolean): Promise<void> {
   try {
-    frontFields.value = await api.setCardFront(field, enabled);
+    await api.setCardFront(field, enabled);
+    const entryId = card.value?.entryId;
+    if (entryId == null) return;
     // Swap only the card data: the reveal and the open panel stay as the learner left them.
-    const fresh = await api.reviewCard(current.entryId);
+    const fresh = await api.reviewCard(entryId);
+    const current = card.value;
     // A single-card fetch never carries `ahead`; keep the label so the card does not jump.
-    if (fresh.card?.entryId === current.entryId) state.value = { ...fresh, card: { ...fresh.card, ahead: current.ahead } };
+    if (current && fresh.card?.entryId === current.entryId) state.value = { ...fresh, card: { ...fresh.card, ahead: current.ahead } };
   } catch {
+    if (frontFields.value) frontFields.value = { ...frontFields.value, [field]: !enabled };
     notice.value = "web.common.error";
-  } finally {
-    frontBusy.value = false;
   }
 }
 

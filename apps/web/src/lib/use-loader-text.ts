@@ -23,9 +23,8 @@ function pick(data: LoaderPhrases, stage: number, current: string): string {
   const stagePhrases = data.stages[Math.min(stage, data.stages.length - 1)] ?? [];
   const options = stagePhrases.filter((phrase) => !current.includes(phrase));
   const phrase = randomOf(options) ?? randomOf(stagePhrases);
-  if (phrase === undefined) return current;
-  const emoji = randomOf(data.emoji);
-  return emoji === undefined ? phrase : `${emoji} ${phrase}...`;
+  // No emoji on the web: the animated monster beside the phrase does that job.
+  return phrase === undefined ? current : `${phrase}…`;
 }
 
 /** The bot's rotating wait phrase while `busy` is true; empty until the phrases arrive. */

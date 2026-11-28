@@ -1,5 +1,7 @@
 <template>
-  <BottomSheet :open="entryId !== null" @close="emit('close')">
+  <!-- Full height from the first frame: sized to the short placeholder, the sheet opened halfway and then
+       jumped open the rest of the way when the word arrived. -->
+  <BottomSheet :open="entryId !== null" panel-class="h-[85dvh] sm:h-[75dvh]" @close="emit('close')">
     <!-- Same order as the dictionary card: language and sound, then the word, a line, the translations. -->
     <template #header>
       <div class="flex min-w-0 items-center gap-2">

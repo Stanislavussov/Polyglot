@@ -51,6 +51,21 @@ describe("web translate flow", () => {
     expect(res).toMatchObject({ status: 422, body: { code: "add_language", lang: "es", supported: true } });
   });
 
+  it("offers the user's own languages when the word reads as an unsupported one, then translates the pick", async () => {
+    // Czech "pocetna" without its háček also reads as Croatian, which cannot be added.
+    const { web, cookie } = await signedIn();
+    web.bot.services.wordLanguageSweep = async () => ["hr"];
+
+    const asked = await web.call(cookie, "POST", "/api/translate", { text: "pocetna" });
+
+    expect(asked).toMatchObject({
+      status: 422,
+      body: { code: "add_language", lang: "hr", supported: false, languages: ["cs", "en"] },
+    });
+    const res = await web.call(cookie, "POST", "/api/translate", { text: "pocetna", sourceLang: "cs" });
+    expect(res).toMatchObject({ status: 200, body: { sourceLang: "cs" } });
+  });
+
   it("adds the language and translates, as the bot's Add and translate button does", async () => {
     const { web, cookie, userId } = await signedIn();
 
@@ -60,6 +75,19 @@ describe("web translate flow", () => {
     expect((await web.bot.services.userRepository.getSettings(userId))?.learningLangs).toEqual(["cs", "es"]);
     // Already studied now: a second add is a plain translation, the set stays as it is.
     expect((await web.call(cookie, "POST", "/api/translate", { text: "mañana", addLanguage: "es" })).status).toBe(200);
+    expect((await web.bot.services.userRepository.getSettings(userId))?.learningLangs).toEqual(["cs", "es"]);
+  });
+
+  it("translates once from a language the user does not study, leaving their languages as they are", async () => {
+    const { web, cookie, userId } = await signedIn();
+
+    const res = await web.call(cookie, "POST", "/api/translate", { text: "mañana", sourceLang: "es", once: true });
+
+    expect(res).toMatchObject({ status: 200, body: { sourceLang: "es" } });
+    expect((await web.bot.services.userRepository.getSettings(userId))?.learningLangs).toEqual(["cs"]);
+    // Only an explicit save keeps it: the settings form adds the language for good.
+    const saved = await web.call(cookie, "PATCH", "/api/settings", { learningLangs: ["cs", "es"] });
+    expect(saved.status).toBe(200);
     expect((await web.bot.services.userRepository.getSettings(userId))?.learningLangs).toEqual(["cs", "es"]);
   });
 
